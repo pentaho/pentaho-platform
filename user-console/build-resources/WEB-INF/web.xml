@@ -88,11 +88,6 @@
   </context-param>
   -->
 
-  <context-param>
-    <param-name>com.tonbeller.wcf.controller.RequestContextFactory</param-name>
-    <param-value>com.tonbeller.wcf.controller.RequestContextFactoryImpl</param-value>
-  </context-param>
-
   <!-- insert additional context-params -->
 
   <filter> <!-- This must be the first filter listed in the web.xml -->
@@ -131,22 +126,6 @@
   </filter>
 
   <filter>
-    <filter-name>JPivotController</filter-name>
-    <filter-class>com.tonbeller.wcf.controller.RequestFilter</filter-class>
-    <init-param>
-      <param-name>errorJSP</param-name>
-      <param-value>PivotError</param-value>
-      <description>URI of error page</description>
-    </init-param>
-    <init-param>
-      <param-name>busyJSP</param-name>
-      <param-value>PivotBusy</param-value>
-      <description>This page is displayed if a the user clicks
-        on a query before the previous query has finished</description>
-    </init-param>
-  </filter>
-
-  <filter>
     <filter-name>Proxy Trusting Filter</filter-name>
     <filter-class>org.pentaho.platform.web.http.filters.ProxyTrustingFilter</filter-class>
     <init-param>
@@ -176,11 +155,6 @@
   </filter-mapping>
 
   <filter-mapping>
-    <filter-name>JPivotController</filter-name>
-    <url-pattern>/Pivot</url-pattern>
-  </filter-mapping>
-  
-  <filter-mapping>
     <filter-name>Proxy Trusting Filter</filter-name>
     <url-pattern>/ServiceAction</url-pattern>
   </filter-mapping>
@@ -202,11 +176,6 @@
 	</filter-mapping>	
   <!-- insert additional filter-mappings -->
 
-  <!-- JPivot resources initializer -->
-  <listener>
-    <listener-class>com.tonbeller.tbutils.res.ResourcesFactoryContextListener</listener-class>
-  </listener>
-
   <listener>
     <listener-class>org.pentaho.platform.web.http.session.PentahoHttpSessionListener</listener-class>
   </listener>
@@ -227,29 +196,6 @@
   </listener>
   <!-- insert additional listeners -->
 
-
-
-  <!-- ********************* JPivot Servlets ******************* -->
-  <!-- jfreechart provided servlet -->
-  <servlet>
-    <servlet-name>DisplayChart</servlet-name>
-    <servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>GetChart</servlet-name>
-    <display-name>GetChart</display-name>
-    <description>Default configuration created for servlet.</description>
-    <servlet-class>com.tonbeller.jpivot.chart.GetChart</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>Print</servlet-name>
-    <display-name>Print</display-name>
-    <description>Default configuration created for servlet.</description>
-    <servlet-class>com.tonbeller.jpivot.print.PrintServlet</servlet-class>
-  </servlet>
-  <!-- ********************* End JPivot Servlets ******************* -->
-  	
   <servlet>
       <servlet-name>ViewAction</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.ViewAction</servlet-class>
@@ -289,21 +235,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>Pivot</servlet-name>
-    <jsp-file>/jsp/Pivot.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
-    <servlet-name>PivotError</servlet-name>
-    <jsp-file>/jsp/PivotError.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
-    <servlet-name>PivotBusy</servlet-name>
-    <jsp-file>/jsp/PivotBusy.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
     <servlet-name>Home</servlet-name>
     <jsp-file>/jsp/Home.jsp</jsp-file>
   </servlet>
@@ -324,11 +255,6 @@
        </init-param>
      </servlet>
 
-     <servlet>
-	   <servlet-name>AnalysisViewService</servlet-name>
-	   <servlet-class>org.pentaho.platform.web.servlet.AnalysisViewService</servlet-class>
-     </servlet>
-
 	<servlet>
 		<servlet-name>MondrianCatalogPublisher</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.MondrianCatalogPublisher</servlet-class>
@@ -346,22 +272,6 @@
     <servlet-name>Xmla</servlet-name>
     <url-pattern>/Xmla</url-pattern>
   </servlet-mapping>
-
-
-  <!-- ********************* End JPivot Mappings ******************* -->
-  <servlet-mapping>
-    <servlet-name>DisplayChart</servlet-name>
-    <url-pattern>/DisplayChart</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Print</servlet-name>
-    <url-pattern>/Print</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>GetChart</servlet-name>
-    <url-pattern>/GetChart</url-pattern>
-  </servlet-mapping>
-  <!-- ********************* End JPivot Servlet Mappings ******************* -->
 
   <!-- Pentaho Servlets -->
 
@@ -383,21 +293,6 @@
   <servlet-mapping>
     <servlet-name>GetImage</servlet-name>
     <url-pattern>/getImage</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>Pivot</servlet-name>
-    <url-pattern>/Pivot</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>PivotError</servlet-name>
-    <url-pattern>/PivotError</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>PivotBusy</servlet-name>
-    <url-pattern>/PivotBusy</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -436,15 +331,6 @@
     <welcome-file-list>
       <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-    <taglib>
-      <taglib-uri>http://www.tonbeller.com/wcf</taglib-uri>
-      <taglib-location>/WEB-INF/wcf/wcf-tags.tld</taglib-location>
-    </taglib>
-
-     <taglib>
-       <taglib-uri>http://www.tonbeller.com/jpivot</taglib-uri>
-       <taglib-location>/WEB-INF/jpivot/jpivot-tags.tld</taglib-location>
-     </taglib>
 
   <!-- insert additional tag libs -->
 

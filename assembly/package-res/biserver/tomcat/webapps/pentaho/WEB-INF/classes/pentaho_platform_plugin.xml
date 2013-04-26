@@ -14,7 +14,6 @@
 	<action-definition id="hqlQueryAction">org.pentaho.actionsequence.dom.actions.HQLQueryAction</action-definition>
 	<action-definition id="xpathQueryAction">org.pentaho.actionsequence.dom.actions.XQueryAction</action-definition>
 	<action-definition id="xpathQueryConnectionAction">org.pentaho.actionsequence.dom.actions.XQueryConnectionAction</action-definition>
-	<action-definition id="analysisViewAction">org.pentaho.actionsequence.dom.actions.PivotViewAction</action-definition>
 	<action-definition id="resultSetComparisonAction">org.pentaho.actionsequence.dom.actions.ResultSetCompareAction</action-definition>
 	<action-definition id="listScheduledJobsAction">org.pentaho.actionsequence.dom.actions.ListSchedJobsAction</action-definition>
 	<action-definition id="resumeSchedulerAction">org.pentaho.actionsequence.dom.actions.ResumeSchedulerAction</action-definition>

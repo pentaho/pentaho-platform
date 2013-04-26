@@ -17,6 +17,13 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
@@ -27,7 +34,6 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
-import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
@@ -37,14 +43,6 @@ import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
-
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Widget;
 
 public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserListener {
 
@@ -271,12 +269,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void executeOpenFileCommand() {
     OpenFileCommand openFileCommand = new OpenFileCommand();
     openFileCommand.execute();
-  }
-
-  @Bindable
-  public void executeAnalysisViewCommand() {
-    Command analysisViewCommand = PluginOptionsHelper.getNewAnalysisViewCommand();
-    analysisViewCommand.execute();
   }
 
   /**

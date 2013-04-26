@@ -17,14 +17,7 @@
 */
 package org.pentaho.platform.web.servlet;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import mondrian.xmla.DataSourcesConfig.DataSource;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +39,13 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import mondrian.xmla.DataSourcesConfig.DataSource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MondrianCatalogPublisher extends RepositoryFilePublisher {
 
@@ -152,7 +151,7 @@ public class MondrianCatalogPublisher extends RepositoryFilePublisher {
     String catName = mondrianSchema.getName();
     
     // verify JNDI
-    // Note: we use the unbound JNDI name here, the PentahoXmlaServlet and PivotViewComponent resolve the JNDI name
+    // Note: we use the unbound JNDI name here, the PentahoXmlaServlet resolve the JNDI name
 
     try {
       IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);    	

@@ -3,7 +3,7 @@
 
 	<!--
  		The kiosk-mode setting when set to true, will cause the platform to ignore some aspects of security 
- 		to allow/enable behavior.  For example,	disable saving in WAQR and JPivot (analysis view).
+ 		to allow/enable behavior.  For example,	disable saving in WAQR.
 	-->
 	<kiosk-mode>false</kiosk-mode>
 
