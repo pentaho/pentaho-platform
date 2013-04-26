@@ -51,9 +51,9 @@ public class MessageTypes {
 
   public static final String ACTION_SEQUENCE_FAILED = "action_sequence_failed"; //$NON-NLS-1$
 
-  public static final String COMPONENT_EXECUTE_START = "component_execution_started"; //$NON-NLS-1$
+  public static final String COMPONENT_EXECUTE_START = "component_execution_start"; //$NON-NLS-1$
 
-  public static final String COMPONENT_EXECUTE_END = "component_execution_ended"; //$NON-NLS-1$
+  public static final String COMPONENT_EXECUTE_END = "component_execution_end"; //$NON-NLS-1$
 
   public static final String COMPONENT_EXECUTE_FAILED = "component_execution_failed"; //$NON-NLS-1$
 
