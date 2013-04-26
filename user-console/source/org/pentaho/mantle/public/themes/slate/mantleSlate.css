@@ -737,3 +737,11 @@ a:active, a:hover {
    text-align: left;
    text-shadow: 0 1px 1px #FFF;
 }
+
+#adminContentPanel {
+	padding-left: 40px;
+}
+
+#adminContentPanel.vbox > tbody > tr > td {  
+  height: 100%;
+}
