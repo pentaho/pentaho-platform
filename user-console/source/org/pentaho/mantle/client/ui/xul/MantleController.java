@@ -333,14 +333,14 @@ public class MantleController extends AbstractXulEventHandler {
   public void buildFavoritesAndRecent(boolean force) {
 
     loadRecentAndFavorites(force);
-    refreshPickListMenu(recentMenu, recentPickList);
-    refreshPickListMenu(favoriteMenu, favoritePickList);
+    refreshPickListMenu(recentMenu, recentPickList, PickListType.RECENT);
+    refreshPickListMenu(favoriteMenu, favoritePickList, PickListType.FAVORITE);
 
     recentPickList.addPickListListener(new IFilePickListListener<RecentPickItem>() {
 
       public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
-        refreshPickListMenu(recentMenu, recentPickList);
-        recentPickList.save("recent"); //$NON-NLS-1$
+        refreshPickListMenu(recentMenu, recentPickList, PickListType.RECENT);
+        recentPickList.save("recent");
       }
 
       public void onSaveComplete(AbstractFilePickList<RecentPickItem> filePickList) {
@@ -351,8 +351,8 @@ public class MantleController extends AbstractXulEventHandler {
     favoritePickList.addPickListListener(new IFilePickListListener<FavoritePickItem>() {
 
       public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
-        refreshPickListMenu(favoriteMenu, favoritePickList);
-        favoritePickList.save("favorites"); //$NON-NLS-1$
+        refreshPickListMenu(favoriteMenu, favoritePickList, PickListType.FAVORITE);
+        favoritePickList.save("favorites");
       }
 
       public void onSaveComplete(AbstractFilePickList<FavoritePickItem> filePickList) {
@@ -367,9 +367,12 @@ public class MantleController extends AbstractXulEventHandler {
    * @param pickMenu  The XulMenuBar to host the menu entries
    * @param filePickList The files to list in natural order
    */
-  private void refreshPickListMenu(XulMenubar pickMenu, final AbstractFilePickList<? extends IFilePickItem> filePickList) {
+  private void refreshPickListMenu(XulMenubar pickMenu, final AbstractFilePickList<? extends IFilePickItem> filePickList, PickListType type) {
     final MenuBar menuBar = (MenuBar) pickMenu.getManagedObject();
     menuBar.clearItems();
+
+    final String menuClearMessage = Messages.getString(type.getMenuItemKey());
+    final String clearMessage = Messages.getString(type.getMessageKey());
 
     if (filePickList.size() > 0) {
       for (IFilePickItem filePickItem : filePickList.getFilePickList()) {
@@ -381,19 +384,19 @@ public class MantleController extends AbstractXulEventHandler {
         });
       }
       menuBar.addSeparator();
-      menuBar.addItem(Messages.getString("clearItems"), new Command() { //$NON-NLS-1$
-            public void execute() {
-              //confirm the clear
-              GwtConfirmBox warning = new GwtConfirmBox();
-              warning.setHeight(117);
-              warning.setMessage(Messages.getString("clearItemsMessage")); //$NON-NLS-1$
-              warning.setTitle(Messages.getString("clearItems")); //$NON-NLS-1$
-              warning.addDialogCallback(new XulDialogCallback<String>() {
-                public void onClose(XulComponent sender, Status returnCode, String retVal) {
-                  if (returnCode == Status.ACCEPT) {
-                    filePickList.clear();
-                  }
-                }
+      menuBar.addItem(menuClearMessage, new Command() {
+        public void execute() {
+          //confirm the clear
+          GwtConfirmBox warning = new GwtConfirmBox();
+          warning.setHeight(117);
+          warning.setMessage(clearMessage);
+          warning.setTitle(menuClearMessage);
+          warning.addDialogCallback(new XulDialogCallback<String>() {
+            public void onClose(XulComponent sender, Status returnCode, String retVal) {
+              if (returnCode == Status.ACCEPT) {
+                filePickList.clear();
+              }
+            }
 
                 public void onError(XulComponent sender, Throwable t) {
                 }
@@ -1008,6 +1011,28 @@ public class MantleController extends AbstractXulEventHandler {
       e.printStackTrace();
     }
 
+  }
+
+}
+
+enum PickListType {
+  FAVORITE("clearFavoriteList", "clearFavoriteItemsMessage"),
+  RECENT("clearRecentList", "clearRecentItemsMessage");
+
+  String menuItemKey = null;
+  String messageKey = null;
+
+  PickListType(String menuItemKey, String messageKey) {
+    this.menuItemKey = menuItemKey;
+    this.messageKey = messageKey;
+  }
+
+  String getMenuItemKey() {
+    return this.menuItemKey;
+  }
+
+  String getMessageKey() {
+    return this.messageKey;
   }
 
 }
