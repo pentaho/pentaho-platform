@@ -70,11 +70,6 @@
     </context-param>
   -->
 
-  <context-param>
-    <param-name>com.tonbeller.wcf.controller.RequestContextFactory</param-name>
-    <param-value>com.tonbeller.wcf.controller.RequestContextFactoryImpl</param-value>
-  </context-param>
-
   <!-- [BEGIN HSQLDB DATABASES] -->
   <context-param>
     <param-name>hsqldb-databases</param-name>
@@ -203,11 +198,6 @@
   </listener>
   <!-- [END HSQLDB STARTER] -->
 
-  <!-- JPivot resources initializer -->
-  <listener>
-    <listener-class>com.tonbeller.tbutils.res.ResourcesFactoryContextListener</listener-class>
-  </listener>
-
   <listener>
     <listener-class>org.pentaho.platform.web.http.session.PentahoHttpSessionListener</listener-class>
   </listener>
@@ -239,32 +229,6 @@
   </listener>
 
   <!-- insert additional listeners -->
-
-
-
-
-
-  <!-- ********************* JPivot Servlets ******************* -->
-  <!-- jfreechart provided servlet -->
-  <servlet>
-    <servlet-name>DisplayChart</servlet-name>
-    <servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>GetChart</servlet-name>
-    <display-name>GetChart</display-name>
-    <description>Default configuration created for servlet.</description>
-    <servlet-class>com.tonbeller.jpivot.chart.GetChart</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>Print</servlet-name>
-    <display-name>Print</display-name>
-    <description>Default configuration created for servlet.</description>
-    <servlet-class>com.tonbeller.jpivot.print.PrintServlet</servlet-class>
-  </servlet>
-  <!-- ********************* End JPivot Servlets ******************* -->
 
   <servlet>
     <servlet-name>ViewAction</servlet-name>
@@ -337,23 +301,6 @@
     <servlet-class>org.pentaho.platform.web.servlet.PluginDispatchServlet</servlet-class>
   </servlet>
 
-
-  <servlet>
-    <servlet-name>Pivot</servlet-name>
-    <jsp-file>/jsp/Pivot.jsp</jsp-file>
-  </servlet>
-
-  <!-- Pentaho JSP Mappings -->
-  <servlet>
-    <servlet-name>PivotError</servlet-name>
-    <jsp-file>/jsp/PivotError.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
-    <servlet-name>PivotBusy</servlet-name>
-    <jsp-file>/jsp/PivotBusy.jsp</jsp-file>
-  </servlet>
-
   <servlet>
     <servlet-name>Home</servlet-name>
     <jsp-file>/mantle/Mantle.jsp</jsp-file>
@@ -385,11 +332,6 @@
   <servlet>
     <servlet-name>CacheExpirationService</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.CacheExpirationService</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>AnalysisViewService</servlet-name>
-    <servlet-class>org.pentaho.platform.web.servlet.AnalysisViewService</servlet-class>
   </servlet>
 
   <servlet>
@@ -469,23 +411,6 @@
     <url-pattern>/Xmla</url-pattern>
   </servlet-mapping>
 
-  <!-- ********************* End JPivot Mappings ******************* -->
-  <servlet-mapping>
-    <servlet-name>DisplayChart</servlet-name>
-    <url-pattern>/DisplayChart</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>Print</servlet-name>
-    <url-pattern>/Print</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>GetChart</servlet-name>
-    <url-pattern>/GetChart</url-pattern>
-  </servlet-mapping>
-  <!-- ********************* End JPivot Servlet Mappings ******************* -->
-
   <servlet-mapping>
     <servlet-name>GenericServlet</servlet-name>
     <url-pattern>/content/*</url-pattern>
@@ -546,21 +471,6 @@
   <servlet-mapping>
     <servlet-name>GetImage</servlet-name>
     <url-pattern>/content/getImage</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>Pivot</servlet-name>
-    <url-pattern>/Pivot</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>PivotError</servlet-name>
-    <url-pattern>/PivotError</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>PivotBusy</servlet-name>
-    <url-pattern>/PivotBusy</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -646,16 +556,6 @@
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
-
-  <taglib>
-    <taglib-uri>http://www.tonbeller.com/wcf</taglib-uri>
-    <taglib-location>/WEB-INF/wcf/wcf-tags.tld</taglib-location>
-  </taglib>
-
-  <taglib>
-    <taglib-uri>http://www.tonbeller.com/jpivot</taglib-uri>
-    <taglib-location>/WEB-INF/jpivot/jpivot-tags.tld</taglib-location>
-  </taglib>
 
   <!-- insert additional tag libs -->
 

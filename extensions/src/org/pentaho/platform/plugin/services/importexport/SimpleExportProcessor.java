@@ -1,4 +1,4 @@
-package org.pentaho.platform.plugin.services.importexport;/*
+/*
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -14,17 +14,8 @@ package org.pentaho.platform.plugin.services.importexport;/*
  *
  * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
- * User: pminutillo
- * Date: 1/16/13
- * Time: 4:41 PM
  */
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+package org.pentaho.platform.plugin.services.importexport;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +23,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * This export processor should be used when single file downloads

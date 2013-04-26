@@ -130,7 +130,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }
 
   /**
-   * This method is used by things like jpivot in order to show a 'mantle' looking alert dialog instead of a standard alert dialog.
+   * This method is used by things to show a 'mantle' looking alert dialog instead of a standard alert dialog.
    * 
    * @param title
    * @param message
