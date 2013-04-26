@@ -76,7 +76,6 @@ public class BlockoutPanel extends SimplePanel {
     }
   };
   private Label headlineLabel;
-  private Label blockoutTimes;
   private boolean isAdmin;
 
 	public BlockoutPanel(final boolean isAdmin) {
@@ -258,7 +257,6 @@ public class BlockoutPanel extends SimplePanel {
       headlineLabel.setText(Messages.getString("blockoutNone"));
       if (!isAdmin) {
     	  headlineLabel.setVisible(false);
-    	  blockoutTimes.setVisible(false);
       }
       
     } else {
@@ -267,7 +265,6 @@ public class BlockoutPanel extends SimplePanel {
       headlineLabel.setText(Messages.getString("blockoutHeadline"));
       if (!isAdmin) {
     	  headlineLabel.setVisible(true);
-    	  blockoutTimes.setVisible(true);
       }
       List<JsJob> jobList = new ArrayList<JsJob>();
       for (int i = 0; i < allBlocks.length(); i++) {
