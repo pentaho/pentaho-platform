@@ -208,11 +208,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorAndContentPanel.add(contentPanel);
     solutionNavigatorAndContentPanel.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
 
-
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-
         adjustContentPanelWidthAndHeight();
       }
     });
@@ -275,6 +273,15 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   }
 
+  private void adjustHeight(){
+    Element pucPerspectives=DOM.getElementById("pucPerspectives");
+    Element mainToolBar=DOM.getElementById("mainToolbar");
+    int offset;
+    if(pucPerspectives!=null && mainToolBar!=null){
+      offset=pucPerspectives.getOffsetHeight()+mainToolBar.getOffsetHeight();
+      setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-1*offset);
+    }
+  }
 
 
   private void adjustContentPanelWidthAndHeight(){
@@ -286,7 +293,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         public void run() {
           resizeTimer=null;
           adjustWidth();
-          setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
+          adjustHeight();
         }
       };
       resizeTimer.schedule(delay);
@@ -679,12 +686,12 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorPanel.setVisible(false);
       adjustWidth();
     }
-
+    adjustHeight();
   }
 
 
   public static native String setElementHeightOffset(Element ele, int offset)/*-{
-      var height= ($wnd.top.outerHeight)+offset;
+      var height= ($wnd.top.innerHeight)+offset;
       var offSetHeight=height+ 'px';
       ele.style.height = offSetHeight;
   }-*/;
