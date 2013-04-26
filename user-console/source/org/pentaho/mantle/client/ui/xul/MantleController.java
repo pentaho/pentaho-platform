@@ -17,11 +17,25 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
@@ -64,25 +78,10 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MantleController extends AbstractXulEventHandler {
 
@@ -95,8 +94,6 @@ public class MantleController extends AbstractXulEventHandler {
   private XulToolbarbutton saveAsBtn;
 
   private XulToolbarbutton newAdhocBtn;
-
-  private XulToolbarbutton newAnalysisBtn;
 
   private XulToolbarbutton showBrowserBtn;
 
@@ -164,7 +161,7 @@ public class MantleController extends AbstractXulEventHandler {
     openBtn = (XulToolbarbutton) document.getElementById("openButton"); //$NON-NLS-1$
     saveBtn = (XulToolbarbutton) document.getElementById("saveButton"); //$NON-NLS-1$
     saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton"); //$NON-NLS-1$
-    newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton"); //$NON-NLS-1$
+
     showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton"); //$NON-NLS-1$
     contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton"); //$NON-NLS-1$
 
@@ -688,11 +685,6 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   @Bindable
-  public void newAnalysisClicked() {
-    model.executeAnalysisViewCommand();
-  }
-
-  @Bindable
   public void saveClicked() {
     model.executeSaveCommand();
   }
@@ -738,12 +730,6 @@ public class MantleController extends AbstractXulEventHandler {
   public void setSaveAsEnabled(boolean flag) {
     // called by the MainToolbarModel to change state.
     saveAsBtn.setDisabled(!flag);
-  }
-
-  @Bindable
-  public void setNewAnalysisEnabled(boolean flag) {
-    // called by the MainToolbarModel to change state.
-    newAnalysisBtn.setDisabled(!flag);
   }
 
   @Override

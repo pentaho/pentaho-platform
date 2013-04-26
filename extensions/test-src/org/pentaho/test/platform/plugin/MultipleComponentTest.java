@@ -17,20 +17,6 @@
 */
 package org.pentaho.test.platform.plugin;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.pentaho.commons.connection.DataUtilities;
 import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
@@ -56,6 +42,20 @@ import org.pentaho.platform.repository.SimpleRuntimeRepository;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.JVMParameterProvider;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //import java.text.SimpleDateFormat;
 //import org.pentaho.platform.api.engine.IActionParameter;
@@ -406,21 +406,6 @@ public class MultipleComponentTest extends BaseTest {
     assertTrue(reportHTML.indexOf("20,068,039") > 0);//$NON-NLS-1$
     finishTest();
   }*/
-
-  public void testPivotViewComponent() {
-    //
-    // Since the result is a re-direct, I'm not sure this actually tests anything
-    // other than the ability to parse the action sequence.
-    //
-    startTest();
-    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-    String testName = "PivotViewTest_" + System.currentTimeMillis(); //$NON-NLS-1$
-    String testExt = ".html";//$NON-NLS-1$
-    IRuntimeContext context = run("/test/analysis/query1.xaction", parameterProvider, testName, testExt); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    assertEquals(
-        Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
-    finishTest();
-  }
 
   public void testSimpleRuntime() {
     // The simple runtime is used by the standalone distribution. 

@@ -270,7 +270,7 @@ public interface ISolutionRepository extends ILogger {
   /**
    * Get an XML document that describes the structure of the solution repository.
    * Returns the document used to construct the navigation UI. Also used
-   * by WAQR and jpivot to construct the repository browswer
+   * by WAQR to construct the repository browswer
    * 
    * @param solution String The name of the solution. If this is empty (null or ""), and path
    * is empty, return the root of the document. Otherwise return a document that
