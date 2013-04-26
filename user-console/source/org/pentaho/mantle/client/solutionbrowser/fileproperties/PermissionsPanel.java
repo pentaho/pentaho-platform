@@ -110,7 +110,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   final CheckBox writePermissionCheckBox = new CheckBox(Messages.getString("write")); //$NON-NLS-1$
 
-  final CheckBox grantPermissionCheckBox = new CheckBox(Messages.getString("grantPermission")); //$NON-NLS-1$
+  final CheckBox managePermissionCheckBox = new CheckBox(Messages.getString("managePermissions")); //$NON-NLS-1$
 
   final CheckBox inheritsCheckBox = new CheckBox(Messages.getString("inherits")); //$NON-NLS-1$
 
@@ -187,26 +187,30 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     readPermissionCheckBox.getElement().setId("sharePermissionRead"); //$NON-NLS-1$
     deletePermissionCheckBox.getElement().setId("sharePermissionDelete"); //$NON-NLS-1$
     writePermissionCheckBox.getElement().setId("sharePermissionWrite"); //$NON-NLS-1$
-    grantPermissionCheckBox.getElement().setId("sharePermissionGrantPerm"); //$NON-NLS-1$
+    managePermissionCheckBox.getElement().setId("sharePermissionManagePerm"); //$NON-NLS-1$
 
     readPermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
         updatePermissionMask(fileInfo, readPermissionCheckBox.getValue(), PERM_READ);
+        refreshPermission();
       }
     });
     deletePermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
-        updatePermissionMask(fileInfo, deletePermissionCheckBox.getValue(), PERM_DELETE);
+        setDeleteCheckBox(deletePermissionCheckBox.getValue());
+        refreshPermission();
       }
     });
     writePermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
-        updatePermissionMask(fileInfo, writePermissionCheckBox.getValue(), PERM_WRITE);
+        setWriteCheckBox(writePermissionCheckBox.getValue());
+        refreshPermission();
       }
     });
-    grantPermissionCheckBox.addClickHandler(new ClickHandler() {
+    managePermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
-        updatePermissionMask(fileInfo, grantPermissionCheckBox.getValue(), PERM_GRANT_PERM);
+        setManageCheckBox(managePermissionCheckBox.getValue());
+        refreshPermission();
       }
     });
 
@@ -230,7 +234,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
               permissionsOverwriteConfirm.hide();
               inheritsCheckBox.setValue(false);
               dirty = false;
-              refreshPermission(false);
+              refreshPermission();
             }
   
             public void okPressed() {
@@ -242,10 +246,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
                   public void onResponseReceived(Request request, Response response) {
                     if (response.getStatusCode() == Response.SC_OK) {
                       initializePermissionPanel(XMLParser.parse(response.getText()));
-                      refreshPermission(inheritsCheckBox.getValue());
+                      refreshPermission();
                     } else {
                       inheritsCheckBox.setValue(false);
-                      refreshPermission(false);
+                      refreshPermission();
                       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetPermissions", response.getStatusText()), //$NON-NLS-1$ //$NON-NLS-2$
                           false, false, true);
                       dialogBox.center();
@@ -255,7 +259,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
                   @Override
                   public void onError(Request request, Throwable exception) {
                     inheritsCheckBox.setValue(false);
-                    refreshPermission(false);
+                    refreshPermission();
                     MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetPermissions", exception.getLocalizedMessage()), //$NON-NLS-1$ //$NON-NLS-2$
                         false, false, true);
                     dialogBox.center();
@@ -263,7 +267,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
                 });
               } catch (RequestException e) {
                 inheritsCheckBox.setValue(false);
-                refreshPermission(false);
+                refreshPermission();
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetPermissions", e.getLocalizedMessage()), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
@@ -274,10 +278,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
           permissionsOverwriteConfirm.center();
 
         }
-        refreshPermission(inheritsCheckBox.getValue());
+        refreshPermission();
       }
     });
-
+    
     int row = 0;
     setWidget(row++, 0, inheritsCheckBox);
     setWidget(row++, 0, new Label(Messages.getString("usersAndRoles"))); //$NON-NLS-1$
@@ -296,34 +300,52 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
     setWidth("100%"); //$NON-NLS-1$
 
-    permissionsTable.setWidget(0, 0, readPermissionCheckBox);
-    permissionsTable.setWidget(0, 1, deletePermissionCheckBox);
-
-    permissionsTable.setWidget(1, 0, writePermissionCheckBox);
-    permissionsTable.setWidget(1, 1, grantPermissionCheckBox);
-
-    permissionsTable.getCellFormatter().setWidth(0, 0, "50%");
-    permissionsTable.getCellFormatter().setWidth(0, 1, "50%");
-    permissionsTable.getCellFormatter().setWidth(1, 0, "50%");
-    permissionsTable.getCellFormatter().setWidth(1, 1, "50%");
-    
-    
-    
+    permissionsTable.setWidget(0, 0, managePermissionCheckBox);
+    permissionsTable.setWidget(1, 0, deletePermissionCheckBox);
+    permissionsTable.setWidget(2, 0, writePermissionCheckBox);
+    permissionsTable.setWidget(3, 0, readPermissionCheckBox);
     permissionsTable.setStyleName("permissionsTable"); //$NON-NLS-1$
     permissionsTable.setWidth("100%"); //$NON-NLS-1$
     permissionsTable.setHeight("100%"); //$NON-NLS-1$
-
+    
     init();
   }
-
-  private void refreshPermission(Boolean inheritCheckBoxValue) {
+  
+  private void setManageCheckBox(boolean value) {
+    managePermissionCheckBox.setValue(value);
+    updatePermissionMask(fileInfo, value, PERM_GRANT_PERM);
+    if (value) {
+      setDeleteCheckBox(true);
+    }
+  }
+  
+  private void setDeleteCheckBox(boolean value) {
+    deletePermissionCheckBox.setValue(value);
+    updatePermissionMask(fileInfo, value, PERM_DELETE);
+    if (value) {
+      setWriteCheckBox(true);
+    }
+  }
+  
+  private void setWriteCheckBox(boolean value) {
+    writePermissionCheckBox.setValue(value);
+    updatePermissionMask(fileInfo, value, PERM_WRITE);
+  }
+  
+  
+  private void refreshPermission() {
+    refreshPermission(inheritsCheckBox.getValue(), managePermissionCheckBox.getValue(), deletePermissionCheckBox.getValue());
+  }
+  
+  private void refreshPermission(Boolean inheritCheckBoxValue, Boolean managePermissionCheckBoxValue, Boolean deletePermissionCheckBoxValue) {
     setInheritsAcls(inheritCheckBoxValue, fileInfo);
-    writePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
-    grantPermissionCheckBox.setEnabled(!inheritCheckBoxValue);
-    deletePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
+    managePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
+    deletePermissionCheckBox.setEnabled(!inheritCheckBoxValue && !managePermissionCheckBoxValue);
+    writePermissionCheckBox.setEnabled(!inheritCheckBoxValue  && !managePermissionCheckBoxValue && !deletePermissionCheckBoxValue);
     addButton.setEnabled(!inheritCheckBoxValue);
     removeButton.setEnabled(!inheritCheckBoxValue);
   }
+  
   /**
    * Set the widgets according to what is currently in the DOM.
    */
@@ -343,18 +365,16 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     if ("".equals(userOrRoleString)) { //$NON-NLS-1$
       writePermissionCheckBox.setEnabled(false);
       deletePermissionCheckBox.setEnabled(false);
-      grantPermissionCheckBox.setEnabled(false);
+      managePermissionCheckBox.setEnabled(false);
     }
 
-    readPermissionCheckBox.setValue(perms.contains(PERM_READ) | perms.contains(PERM_ALL));
-    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE) | perms.contains(PERM_ALL));
-    writePermissionCheckBox.setValue(perms.contains(PERM_WRITE) | perms.contains(PERM_ALL));
-    grantPermissionCheckBox.setValue(perms.contains(PERM_GRANT_PERM) | perms.contains(PERM_ALL));
+    readPermissionCheckBox.setValue(perms.contains(PERM_READ) || perms.contains(PERM_ALL) || perms.contains(PERM_GRANT_PERM));
+    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE) || perms.contains(PERM_ALL) || perms.contains(PERM_GRANT_PERM));
+    writePermissionCheckBox.setValue(perms.contains(PERM_WRITE) || perms.contains(PERM_ALL) || perms.contains(PERM_GRANT_PERM)) ;
+    managePermissionCheckBox.setValue(perms.contains(PERM_GRANT_PERM) || perms.contains(PERM_ALL));
     inheritsCheckBox.setValue(isInheritsAcls(fileInfo));
 
-    writePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
-    deletePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
-    grantPermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
+    refreshPermission();
 
     addButton.setEnabled(!inheritsCheckBox.getValue());
     removeButton.setEnabled(!(isOwner(userOrRoleString, USER_TYPE, fileInfo) || isOwner(userOrRoleString, ROLE_TYPE,
@@ -604,7 +624,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       }
       addPermission(recipient, perm, fileInfo);
     } else {
-      foundPermission.getParentNode().removeChild(foundPermission);
+      if (foundPermission !=null) {
+        foundPermission.getParentNode().removeChild(foundPermission);
+      }
     }
   }
 
