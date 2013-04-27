@@ -4,8 +4,7 @@
 	cursor: pointer;
 	cursor: hand;
 	white-space: nowrap;
-	font-size: .8em;
-    border-top: 2px solid transparent;
+  border-top: 2px solid transparent;
 }
 
 .mantle-perspective-toggle-up {
@@ -21,12 +20,12 @@
 }
 
 .mantle-perspective-toggle-down {
-    border-top: 2px solid #fe700f;
+  border-top: 2px solid #fe700f;
 	color: black;
 }
 
 .mantle-perspective-toggle-down-hovering {
-    border-top: 2px solid #fe700f;
+  border-top: 2px solid #fe700f;
 	color: black;
 }
 
@@ -672,7 +671,6 @@ a:active, a:hover {
 .gwt-MenuItem-checkbox-unchecked,
 .gwt-MenuItem-checkbox-checked,
 .disabledMenuItem {
-  font-size: .8em;
 }
 
 
