@@ -344,7 +344,7 @@
     <jsp-file>/jsp/PUCLogin.jsp</jsp-file>
     <init-param>
       <param-name>send401List</param-name>
-      <param-value>AnalysisViewService,MondrianCatalogPublisher,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
+      <param-value>MondrianCatalogPublisher,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
       <description>List of things to throw a 401 to when seen in the login</description>
     </init-param>
   </servlet>
@@ -521,11 +521,6 @@
   <servlet-mapping>
     <servlet-name>CacheExpirationService</servlet-name>
     <url-pattern>/CacheExpirationService</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>AnalysisViewService</servlet-name>
-    <url-pattern>/AnalysisViewService</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

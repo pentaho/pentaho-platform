@@ -312,11 +312,6 @@
       <url-pattern>/GetResource</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>
-      <servlet-name>AnalysisViewService</servlet-name>
-      <url-pattern>/AnalysisViewService</url-pattern>
-    </servlet-mapping>
-
 	<servlet-mapping>
 		<servlet-name>MondrianCatalogPublisher</servlet-name>
 		<url-pattern>/MondrianCatalogPublisher</url-pattern>
