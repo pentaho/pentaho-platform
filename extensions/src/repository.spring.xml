@@ -21,6 +21,8 @@
     SpringSecurityLoginModule and SpringSecurityPrincipalProvider (pentaho-third-party-security project)
   -->
 
+  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
+  
   <!-- An access decision manager used by the business objects. -->
   <bean id="businessAccessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
     <property name="allowIfAllAbstainDecisions" value="false"/>
