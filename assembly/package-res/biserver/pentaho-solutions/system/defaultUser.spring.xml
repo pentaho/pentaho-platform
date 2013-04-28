@@ -31,6 +31,10 @@
 		<constructor-arg value="cGFzc3dvcmQ=" />
 	</bean>
 
+	<bean id="defaultNonAdminUserPassword" class="java.lang.String">
+		<constructor-arg value="cGFzc3dvcmQ=" />
+	</bean>
+
 	<util:map id="defaultUserRoleMappings">
 		<entry key="suzy">
 			<util:list>
@@ -52,8 +56,7 @@
 				<value>Report Author</value>
 			</util:list>
 		</entry>
-
-		<entry key="admin">
+        <entry key-ref="singleTenantAdminUserName">
 			<util:list>
 				<ref bean="singleTenantAuthenticatedAuthorityName"/>
 				<ref bean="singleTenantAdminAuthorityName"/>

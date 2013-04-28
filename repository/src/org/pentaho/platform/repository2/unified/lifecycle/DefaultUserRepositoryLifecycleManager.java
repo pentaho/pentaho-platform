@@ -28,14 +28,20 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 	private final IUserRoleDao userRoleDao;
 	private Map<String,List<String>> roleMappings;
 	private Map<String,List<String>> userRoleMappings;
-	private String password;
-	
-	public DefaultUserRepositoryLifecycleManager(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
+	private String singleTenantAdminPassword;
+  private String nonAdminPassword;
+  private String singleTenantAdminUserName;
+  private List<String> systemRoles;
+
+  public DefaultUserRepositoryLifecycleManager(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
 			final IPasswordService passwordService,
-			final IUserRoleDao userRoleDao) {
+			final IUserRoleDao userRoleDao, final String singleTenantAdminUserName, final List<String> systemRoles) {
 		this.roleBindingDao = roleBindingDao;
 		this.passwordService = passwordService;
 		this.userRoleDao = userRoleDao;
+		this.singleTenantAdminUserName = singleTenantAdminUserName;
+		this.systemRoles = systemRoles;
+		
 	}
 
 	@Override
@@ -86,6 +92,14 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 				if (logicalRoles.size() > 0) {
 					roleBindingDao.setRoleBindings(DEFAULT_TENANT, roleName,logicalRoles);
 				}
+        if (logger.isDebugEnabled()) {
+          StringBuffer buffer = new StringBuffer();
+          for(String logicalRole:logicalRoles) {
+            buffer.append(logicalRole + " ");
+          }
+          logger.debug("Create Role["+roleName+"] with logical roles [ " + buffer + " ]");
+        }
+
 			}
 			else {
 				if (logger.isDebugEnabled()) {
@@ -97,7 +111,8 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 
 	private void configureUsers() throws PasswordServiceException {
 
-		String plainTextPassword = passwordService.decrypt(password);
+		String singleTenantAdminPlainTextPassword = passwordService.decrypt(singleTenantAdminPassword);
+		String nonAdminPasswordPlainTextPassword =  passwordService.decrypt(nonAdminPassword);
 
 		for (final String userName : userRoleMappings.keySet()) {
 
@@ -105,6 +120,7 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 					userName);
 
 			if (user == null) {
+			  StringBuffer buffer = new StringBuffer();
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating user: " + userName);
 				}
@@ -113,26 +129,31 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 
 				for (String roleName : userRoleMappings.get(userName)) {
 
-					if (roleMappings.containsKey(roleName)) {
+					if (roleMappings.containsKey(roleName) || systemRoles.contains(roleName)) {
 						roleNames.add(roleName);
+						buffer.append(roleName + "  ");
 					} else {
-						logger.error("Attempting to map undefined role to user. User["
+						logger.error("Unable to map undefined role to user. User["
 								+ userName + "] Role[" + roleName + "]");
 					}
 				}
 
-				userRoleDao.createUser(DEFAULT_TENANT, userName,
-						plainTextPassword, "user",
-						roleNames.toArray(EMPTY_STRING_ARRAY));
-
+				if(singleTenantAdminUserName.equals(userName)) {
+	        userRoleDao.createUser(DEFAULT_TENANT, userName,
+	            singleTenantAdminPlainTextPassword, "user",
+	            roleNames.toArray(EMPTY_STRING_ARRAY));
+				} else {
+	        userRoleDao.createUser(DEFAULT_TENANT, userName,
+	            nonAdminPasswordPlainTextPassword, "user",
+	            roleNames.toArray(EMPTY_STRING_ARRAY));
+				}
+        if (logger.isDebugEnabled()) {
+          logger.debug("Created user: " + userName +  "with role mappings [" +  buffer + "]");
+        }
 			}
 		}
 	}
 	
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public Map<String, List<String>> getRoleMappings() {
 		return roleMappings;
 	}
@@ -150,5 +171,22 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 	public void setUserRoleMappings(Map<String,List<String>> userRoleMappings) {
 		this.userRoleMappings = userRoleMappings;
 	}
+	
+	 
+  public String getNonAdminPassword() {
+    return nonAdminPassword;
+  }
+
+  public void setNonAdminPassword(String nonAdminPassword) {
+    this.nonAdminPassword = nonAdminPassword;
+  }
+
+  public String getSingleTenantAdminPassword() {
+    return singleTenantAdminPassword;
+  }
+
+  public void setSingleTenantAdminPassword(String singleTenantAdminPassword) {
+    this.singleTenantAdminPassword = singleTenantAdminPassword;
+  }
 
 }

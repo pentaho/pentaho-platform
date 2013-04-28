@@ -30,6 +30,7 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -80,9 +81,11 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
 
   protected String systemTenantAdminUserName;
 
-  protected String singleTenantAdminUserName;
+  protected String systemTenantAdminPassword;
 
   protected String tenantAuthenticatedRoleName;
+  
+  protected String tenantAnonymousRoleName;
 
   protected TransactionTemplate txnTemplate;
 
@@ -90,13 +93,15 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
   
+  private IPasswordService passwordService;
+  
   private JcrTemplate adminJcrTemplate;
 
   // ~ Constructors ====================================================================================================
 
   public DefaultBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
       final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String singleTenantAdminUserName, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName, final JcrTemplate adminJcrTemplate) {
+      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String systemTenantAdminPassword, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName, final String tenantAnonymousRoleName, final IPasswordService passwordService, final JcrTemplate adminJcrTemplate) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -109,7 +114,9 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
     this.tenantAuthenticatedRoleName = tenantAuthenticatedRoleName;
     this.tenantAdminRoleName = tenantAdminRoleName;
     this.systemTenantAdminUserName = systemTenantAdminUserName;
-    this.singleTenantAdminUserName = singleTenantAdminUserName;
+    this.tenantAnonymousRoleName = tenantAnonymousRoleName;
+    this.systemTenantAdminPassword = systemTenantAdminPassword;
+    this.passwordService = passwordService;
     this.adminJcrTemplate = adminJcrTemplate;
     initTransactionTemplate();
 
@@ -153,17 +160,19 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
     loginAsRepositoryAdmin();
     ITenantManager tenantMgr = getTenantManager();
     ITenant systemTenant = tenantMgr.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(),
-        tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+        tenantAdminRoleName, tenantAuthenticatedRoleName, tenantAnonymousRoleName);
     if (systemTenant != null) {
-      userRoleDao.createUser(systemTenant, systemTenantAdminUserName, "password", "", new String[] {
-          tenantAdminRoleName, tenantAuthenticatedRoleName });
-      defaultTenant = tenantMgr.getTenant(JcrTenantUtils.getDefaultTenant().getId());
-      if (defaultTenant == null) {
-        // We'll create the default tenant here... maybe this isn't the best place.
-        defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminRoleName,
-            tenantAuthenticatedRoleName, "Anonymous");
-        userRoleDao.createUser(defaultTenant, singleTenantAdminUserName, "password", "",
-                new String[] { tenantAdminRoleName });
+      try {
+        userRoleDao.createUser(systemTenant, systemTenantAdminUserName, passwordService.decrypt(systemTenantAdminPassword), "System Tenant User", new String[] {
+            tenantAdminRoleName, tenantAuthenticatedRoleName });
+        defaultTenant = tenantMgr.getTenant(JcrTenantUtils.getDefaultTenant().getId());
+        if (defaultTenant == null) {
+          // We'll create the default tenant here... maybe this isn't the best place.
+          defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminRoleName,
+              tenantAuthenticatedRoleName, tenantAnonymousRoleName);
+        }
+      } catch (Throwable th) {
+        th.printStackTrace();
       }
     }
   }
