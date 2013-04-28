@@ -435,7 +435,7 @@
   <!-- The username to use to do internal work for no particular user. -->
   <!-- See Jackrabbit repository.xml adminId -->
   <bean id="repositoryAdminUsername" class="java.lang.String">
-    <constructor-arg value="pentahoRepoAdmin"/>
+    <constructor-arg value="${repository.repositoryAdminUsername}"/>
   </bean>
 
   <!-- This token allows Jackrabbit to trust that this application has already authenticated the user. -->
@@ -445,7 +445,7 @@
 
   <!-- The name of the authority which is granted to all authenticated users of a particular tenant. -->
   <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
-    <constructor-arg value="Authenticated"/>
+    <constructor-arg value="${repository.singleTenantAuthenticatedAuthorityName}"/>
   </bean>
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
@@ -454,32 +454,37 @@
   </bean>
 
   <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
-  <bean id="singleTenantAnonymousUserName" class="java.lang.String">
-    <constructor-arg value="Anonymous"/>
+  <bean id="singleTenantAnonymousAuthorityName" class="java.lang.String">
+    <constructor-arg value="${repository.singleTenantAnonymousAuthorityName}"/>
   </bean>
 
   <!-- The set of authorities that are considered system and cannot be removed -->
   <util:list id="singleTenantSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
     <ref bean="singleTenantAuthenticatedAuthorityName" />
     <ref bean="singleTenantAdminAuthorityName" />
-    <ref bean="singleTenantAnonymousUserName" />
+    <ref bean="singleTenantAnonymousAuthorityName" />
   </util:list>
 
   <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
     <ref bean="singleTenantAuthenticatedAuthorityName" />
-    <ref bean="singleTenantAnonymousUserName" />
+    <ref bean="singleTenantAnonymousAuthorityName" />
   </util:list>
 
+
   <bean id="superAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="SysAdmin"/>
+    <constructor-arg value="${repository.superAdminAuthorityName}"/>
   </bean>
 
   <bean id="superAdminUserName" class="java.lang.String">
-    <constructor-arg value="super"/>
+    <constructor-arg value="${repository.superAdminUserName}"/>
   </bean>
 
   <bean id="systemTenantAdminUserName" class="java.lang.String">
-    <constructor-arg value="system"/>
+    <constructor-arg value="${repository.systemTenantAdminUserName}"/>
+  </bean>
+
+  <bean id="systemTenantAdminPassword" class="java.lang.String">
+    <constructor-arg value="${repository.systemTenantAdminPassword}"/>
   </bean>
 
   <bean id="singleTenantAdminUserName" class="java.lang.String">
@@ -498,9 +503,11 @@
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="systemTenantAdminUserName"/>
-    <constructor-arg ref="singleTenantAdminUserName"/>
+    <constructor-arg ref="systemTenantAdminPassword"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAnonymousAuthorityName" />
+    <constructor-arg ref="IPasswordService" />
     <constructor-arg ref="adminJcrTemplate"/>
     <property name="tenantManager" ref="tenantMgrTxn"/>
     <property name="userRoleDao" ref="userRoleDaoTxn"/>
@@ -534,9 +541,12 @@
 	<constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
 	<constructor-arg ref="IPasswordService" />
 	<constructor-arg ref="userRoleDaoTxn" />
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="singleTenantSystemAuthorities"/>
 	<property name="roleMappings" ref="role-mappings" />
 	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
-	<property name="password" ref="defaultAdminUserPassword" />
+	<property name="singleTenantAdminPassword" ref="defaultAdminUserPassword" />
+	<property name="nonAdminPassword" ref="defaultNonAdminUserPassword" />
   </bean>
   
   <bean id="mondrianBackingRepositoryLifecycleManager"

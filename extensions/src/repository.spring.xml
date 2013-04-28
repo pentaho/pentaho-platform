@@ -185,7 +185,7 @@
   <!-- The username to use to do internal work for no particular user. -->
   <!-- See Jackrabbit repository.xml adminId -->
   <bean id="repositoryAdminUsername" class="java.lang.String">
-    <constructor-arg value="pentahoRepoAdmin"/>
+    <constructor-arg value="%{repositoryAdminUsername}"/>
   </bean>
 
   <!-- This token allows Jackrabbit to trust that this application has already authenticated the user. -->
@@ -194,35 +194,47 @@
   </bean>
 
   <!-- The name of the authority which is granted to all authenticated users of a particular tenant. -->
-  <bean id="tenantAuthenticatedAuthorityName" class="java.lang.String">
-    <constructor-arg value="Authenticated"/>
+  <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
+    <constructor-arg value="%{singleTenantAuthenticatedAuthorityName}"/>
   </bean>
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
-  <bean id="tenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="TenantAdmin"/>
-  </bean>
-
-  <!-- The name of the authority which is granted to all authenticated users in single-tenancy mode. -->
-  <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
-    <constructor-arg value="Authenticated"/>
-  </bean>
-
-  <!-- The name of the authority which is granted to all admin users in single-tenancy mode. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="%{singleTenantAdminAuthorityName}" />
+    <constructor-arg value="%{singleTenantAdminAuthorityName}"/>
   </bean>
+
+  <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
+  <bean id="singleTenantAnonymousAuthorityName" class="java.lang.String">
+    <constructor-arg value="%{singleTenantAnonymousAuthorityName}"/>
+  </bean>
+
+  <!-- The set of authorities that are considered system and cannot be removed -->
+  <util:list id="singleTenantSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
+    <ref bean="singleTenantAuthenticatedAuthorityName" />
+    <ref bean="singleTenantAdminAuthorityName" />
+    <ref bean="singleTenantAnonymousAuthorityName" />
+  </util:list>
+
+  <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
+    <ref bean="singleTenantAuthenticatedAuthorityName" />
+    <ref bean="singleTenantAnonymousAuthorityName" />
+  </util:list>
+
 
   <bean id="superAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="SysAdmin"/>
+    <constructor-arg value="%{superAdminAuthorityName}"/>
   </bean>
   
   <bean id="superAdminUserName" class="java.lang.String">
-    <constructor-arg value="super"/>
+    <constructor-arg value="%{superAdminUserName}"/>
   </bean>              
 
   <bean id="systemTenantAdminUserName" class="java.lang.String">
-    <constructor-arg value="system"/>
+    <constructor-arg value="%{systemTenantAdminUserName}"/>
+  </bean>
+
+  <bean id="systemTenantAdminPassword" class="java.lang.String">
+    <constructor-arg value="%{systemTenantAdminPassword}"/>
   </bean>
   
   <bean id="singleTenantAdminUserName" class="java.lang.String">
@@ -255,9 +267,11 @@
 	<constructor-arg ref="jcrTransactionTemplate"/>
 	<constructor-arg ref="repositoryAdminUsername"/>
 	<constructor-arg ref="systemTenantAdminUserName"/>
-	<constructor-arg ref="singleTenantAdminUserName"/>
+    <constructor-arg ref="systemTenantAdminPassword"/>
 	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
 	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAnonymousAuthorityName" />
+    <constructor-arg ref="IPasswordService" />
 	<constructor-arg ref="adminJcrTemplate"/>	
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
@@ -283,12 +297,20 @@
     <constructor-arg ref="IDatasourceMgmtService"/>
     <constructor-arg ref="IDatabaseDialectService"/>
 	<constructor-arg ref="repositoryAdminUsername"/>
-	<constructor-arg ref="singleTenantAdminUserName"/>
-	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
-	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
+  </bean>
+  
+  <bean id="defaultUserRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
 	<constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
+	<constructor-arg ref="IPasswordService" />
+	<constructor-arg ref="userRoleDaoTxn" />
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="singleTenantSystemAuthorities"/>
+	<property name="roleMappings" ref="role-mappings" />
+	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
+	<property name="singleTenantAdminPassword" ref="defaultAdminUserPassword" />
+	<property name="nonAdminPassword" ref="defaultNonAdminUserPassword" />
   </bean>
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
@@ -307,12 +329,12 @@
         <ref bean="defaultBackingRepositoryLifecycleManager"/>
         <ref bean="pdiBackingRepositoryLifecycleManager"/>
         <ref bean="sampleDataRepositoryLifecycleManager"/>
+        <ref bean="defaultUserRepositoryLifecycleManager"/>
         <ref bean="metadataRepositoryLifecycleManager"/>
         <ref bean="mondrianBackingRepositoryLifecycleManager"/>
       </list>
     </constructor-arg>
   </bean>
-
   <bean id="tenantedRoleNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
   </bean>
   
