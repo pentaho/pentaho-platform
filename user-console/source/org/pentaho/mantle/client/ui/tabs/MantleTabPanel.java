@@ -245,7 +245,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::enableContentEdit(Z)(enable);      
     }
     $wnd.setContentEditSelected = function(enable) { 
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setContentEditSelected(Z)(enable);      
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setContentEditSelected(Z)(enable);
     }
     $wnd.registerContentOverlay = function(id) { 
       tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::registerContentOverlay(Ljava/lang/String;)(id);      
@@ -545,6 +545,11 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       // element to allow IE mouse access in these elements
       // this was made native due to BISERVER-7400
       ieFix(((IFrameTabPanel) selectedTab.getContent()).getFrame().getElement());
+
+      IFrameTabPanel tabPanel = (IFrameTabPanel) selectedTab.getContent();
+      if(tabPanel.getUrl() != null){
+        onTabSelect(getFrameElement(selectedTab));
+      }
     }
   }
 
@@ -566,5 +571,13 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
           }
     } catch (e) {    
         }
+  }-*/;
+
+  public static native void onTabSelect(Element element)/*-{
+    try{
+      element.contentWindow.onMantleActivation(); // tab must define this callback function
+    } catch(e){
+      // ignore
+    }
   }-*/;
 }
