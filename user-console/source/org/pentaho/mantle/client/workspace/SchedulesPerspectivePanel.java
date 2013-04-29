@@ -18,6 +18,7 @@ package org.pentaho.mantle.client.workspace;
 
 import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_LEFT;
 
+import com.google.gwt.user.client.ui.ScrollPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -37,7 +38,7 @@ public class SchedulesPerspectivePanel extends SimplePanel {
   static final int PAGE_SIZE = 25;
   private static SchedulesPerspectivePanel instance = new SchedulesPerspectivePanel();
   
-  private VerticalPanel wrapperPannel;
+  private VerticalPanel wrapperPanel;
   private SchedulesPanel schedulesPanel;
   private BlockoutPanel blockoutPanel;
 
@@ -96,29 +97,29 @@ public class SchedulesPerspectivePanel extends SimplePanel {
   }
 
 	private void createUI() {
-		wrapperPannel = new VerticalPanel();
-		Label scheduleHeading = new Label(Messages.getString("scheduling"));
-		scheduleHeading.setStyleName("schedulesHeading");
-		wrapperPannel.add(scheduleHeading);
+
+    this.setStyleName("schedulerPerspective");
+
+    wrapperPanel = new VerticalPanel();
 		
     Label schedulesLabel = new Label(Messages.getString("schedules"));
     schedulesLabel.setStyleName("workspaceHeading");
-    wrapperPannel.add(schedulesLabel);
+    wrapperPanel.add(schedulesLabel);
 		
 		schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
 		schedulesPanel.setStyleName("schedulesPanel");
-		wrapperPannel.add(schedulesPanel);
+    wrapperPanel.add(schedulesPanel);
 		
     Label blockoutTimes = new Label(Messages.getString("blockoutTimes"));
     blockoutTimes.setStyleName("workspaceHeading");
-    wrapperPannel.add(blockoutTimes);
+    wrapperPanel.add(blockoutTimes);
 		
 		blockoutPanel = new BlockoutPanel(isAdmin);
 		blockoutPanel.setStyleName("schedulesPanel");
-		wrapperPannel.add(blockoutPanel);
+		wrapperPanel.add(blockoutPanel);
 		
 		getElement().getStyle().setBackgroundColor("white");
-		add(wrapperPannel);
+    add(wrapperPanel);
 		
 	}
 

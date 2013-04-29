@@ -1,6 +1,7 @@
 html{
   height: 100%;
   overflow: hidden;
+  font-family: Veranda, Tahoma, Helvetica, Arial, sans-serif;
 }
 
 body{
@@ -8,23 +9,29 @@ body{
 }
 
 .workspaceHeading {
-	color: #f47120;
-	font-size: large;
+  color: #5C5C5C;
+  font-size: 24px;
+  padding: 0px 0px 20px 0px;
 }
-
+.schedulerPerspective{
+  padding: 40px 40px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
 .schedulesHeading {
-	border-width: 1px;
-	border-bottom-style: solid;
-	padding: 20px 0px 20px 50px;
+  border-width: 1px;
+  border-bottom-style: solid;
+  padding: 20px 0px 20px 50px;
 }
 
 .schedulesPanel {
-	padding: 50px 50px 50px 50px;
+  padding: 0px 0px 40px 0px;
 }
 
 .schedulesButtonPanel {
-	padding: 15px 0px 0px 0px;
-	
+  padding: 15px 0px 0px 0px;
+
 }
 
 .launchImage {
@@ -75,13 +82,13 @@ body{
 }
 
 .solutionDisclosureWidget-open .header {
- text-decoration: none;
+  text-decoration: none;
   cursor: pointer;
   cursor: hand;
 }
 
 .solutionDisclosureWidget-closed .header {
- text-decoration: none;
+  text-decoration: none;
   cursor: pointer;
   cursor: hand;
 }
@@ -147,12 +154,12 @@ body{
 
 .fileLabel .gwt-Label {
   padding-left: 5px;
-  font-size: 1em;
+  font-size: .8em;
 }
 
 .fileLabelSelected .gwt-Label {
   padding-left: 5px;
-  font-size: 1em;
+  font-size: .8em;
 }
 
 
@@ -174,34 +181,29 @@ body{
 }
 
 #main_toolbar {
-	background: black;
+  background: black;
 }
 
 .puc-horizontal-split-panel {
-bottom: 2px;
 }
 
-
-
-.puc-horizontal-split-panel .gwt-SplitLayoutPanel-HDragger {
+.IE .puc-horizontal-split-panel {
+  overflow: hidden;
+}
+.puc-horizontal-split-panel .hsplitter {
   cursor: w-resize;
   margin-right: 10px;
   padding-left: 4px;
   padding-right: 2px;
 }
 
-.puc-vertical-split-panel .gwt-SplitLayoutPanel-VDragger {
+
+.puc-vertical-split-panel .vsplitter {
   cursor: n-resize;
   padding-top: 4px;
   padding-bottom: 2px;
   overflow: hidden;
 }
-
-.IE .puc-horizontal-split-panel {
-    top: 42px;
-    overflow: hidden;
-}
-
 
 #loading {
   position: absolute;
@@ -227,9 +229,9 @@ bottom: 2px;
 }
 
 .applicationShell {
-    border: 0px;
-    height: 100%;
-    width: 100%;
+  border: 0px;
+  height: 100%;
+  width: 100%;
 }
 
 /*
@@ -250,7 +252,7 @@ h2 {
 }
 
 table {
-/*  font-size: 100%;*/
+  /*  font-size: 100%;*/
 }
 
 code {
@@ -278,28 +280,28 @@ code {
 
 
 .backgroundContentHeaderTableCell {
- padding: 8px;
- 
+  padding: 8px;
+
 }
 .backgroundContentHeaderTableCellRight {
- padding: 8px;
+  padding: 8px;
 
 }
 
 .backgroundContentTableCell {
- padding: 0px 10px 0px 10px;
+  padding: 0px 10px 0px 10px;
 }
 
 .backgroundContentTableCellRight {
- padding: 0px 10px 0px 10px;
+  padding: 0px 10px 0px 10px;
 }
 
 .backgroundContentTableCellBottom {
- padding: 0px 10px 0px 10px;
+  padding: 0px 10px 0px 10px;
 }
 
 .backgroundContentTableCellBottomRight {
- padding: 0px 10px 0px 10px;
+  padding: 0px 10px 0px 10px;
 }
 
 
@@ -312,26 +314,26 @@ code {
 }
 
 .gwt-Button {
-   height:22px;
-   margin: 0px 4px 2px 4px;
+  height:22px;
+  margin: 0px 4px 2px 4px;
 }
 
 .gwt-Button:hover {
-   margin: 0px 4px 2px 4px;
-   height:22px;
-   cursor: pointer;
-   cursor: hand;
+  margin: 0px 4px 2px 4px;
+  height:22px;
+  cursor: pointer;
+  cursor: hand;
 }
 
 .gwt-Button:disabled {
-   margin: 0px 4px 2px 4px;
-   height:22px;
-   cursor: default;
+  margin: 0px 4px 2px 4px;
+  height:22px;
+  cursor: default;
 }
 
 .dialogContentPanel {
-    padding: 0px 0px 0px 0px;
-    font-size: 12px;
+  padding: 0px 0px 0px 0px;
+  font-size: 12px;
 }
 
 .viewContentDialogBox {
@@ -361,18 +363,18 @@ code {
 
 
 .menuBarAndLogoPanel {
-  
+
 }
 
 .logoPanel-ContainerToolBar {
-  
+
 }
 
 .logoPanel-Container {
 }
 
 .pucContentDeck {
-	height: 100%;
+  height: 100%;
   width: 100%;
 }
 .IE .pucContentDeck {
@@ -545,7 +547,7 @@ code {
 .titledToolbar{
   position:absolute;
   width:100%;
-  
+
 }
 
 .panelWithTitledToolbar{
@@ -633,10 +635,14 @@ code {
   color:#737373;
 }
 
+/* BISERVER-6181 - add padding to bottom of the file list panel*/
 .filter-list-panel-container {
+  bottom: 14px !important; /* override the inline style that is set by gwt, simple padding doesn't work */
 }
 .IE .filter-list-panel-container {
+  padding-bottom: 6px !important; /* ie setting the padding works */
 }
+/* end fix BISERVER-6181 */
 
 /* BISERVER-6442 */
 #previewResultsTable{
@@ -645,5 +651,5 @@ code {
 }
 
 .adminContentPanel > tbody > tr > td > div {
-	height: 100%;
+  height: 100%;
 }

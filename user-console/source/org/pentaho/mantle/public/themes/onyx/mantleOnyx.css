@@ -1,72 +1,69 @@
 .pentaho-admin-panel {
-	background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 #adminContentPanel {
-	padding-left: 40px;
-}
-
-#adminContentPanel.vbox > tbody > tr > td {  
-  height: 100%;
+  padding-left: 40px;
 }
 
 .admin-perspective {
-	padding-top: 40px;
-	padding-left: 40px;
-	background-color: white;
+  padding-top: 40px;
+  padding-left: 40px;
+  background-color: white;
 }
 
 .admin-perspective .pentaho-tab-deck-panel {
-	background-color: #f1f1f1;	
+  background-color: #f1f1f1;
 }
 
 #adminCatTree .gwt-Label {
-	font-family: Verdana;
-	font-size: 13px;
-	color: #5c5c5c;
-	cursor: pointer;
-	cursor: hand;	
-	height: 26px;
-	padding-top: 10px;
-	padding-left: 10px;
+  font-family: Verdana;
+  font-size: 13px;
+  color: #5c5c5c;
+  cursor: pointer;
+  cursor: hand;
+  height: 26px;
+  padding-top: 10px;
+  padding-left: 10px;
 }
 
 .ie  #adminCatTree .gwt-Label {
-	height: 36px;
+  height: 36px;
 }
 
 #adminCatTree .gwt-TreeItem-selected .gwt-Label {
-    color: white;
-	cursor: pointer;
-	cursor: hand;
+  color: white;
+  cursor: pointer;
+  cursor: hand;
 }
 
 #adminCatTree .tree-item-custom-widget-selected {
-	border-top: 1px solid #bebebe;
-background: #5c5c5c; /* Old browsers */
-/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzVjNWM1YyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMTAxMDEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-background: -moz-linear-gradient(top,  #5c5c5c 0%, #010101 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5c5c5c), color-stop(100%,#010101)); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top,  #5c5c5c 0%,#010101 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(top,  #5c5c5c 0%,#010101 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(top,  #5c5c5c 0%,#010101 100%); /* IE10+ */
-background: linear-gradient(to bottom,  #5c5c5c 0%,#010101 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', endColorstr='#010101',GradientType=0 ); /* IE6-8 */
+  border-top: 1px solid #bebebe;
+  background: #5c5c5c; /* Old browsers */
+  /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzVjNWM1YyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMTAxMDEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+  background: -moz-linear-gradient(top,  #5c5c5c 0%, #010101 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5c5c5c), color-stop(100%,#010101)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #5c5c5c 0%,#010101 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #5c5c5c 0%,#010101 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #5c5c5c 0%,#010101 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #5c5c5c 0%,#010101 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', endColorstr='#010101',GradientType=0 ); /* IE6-8 */
 }
 
 .mantle-perspective-toggle {
-	background: black;
-	color: white;
-	padding: 4px 5px 3px 5px;
-	cursor: pointer;
-	cursor: hand;
-	white-space: nowrap;
+  background: black;
+  color: white;
+  padding: 4px 5px 3px 5px;
+  cursor: pointer;
+  cursor: hand;
+  white-space: nowrap;
+  font-size: .8em;
   border-top: 2px solid black;
 }
 
 .mantle-perspective-toggle-up {
-	color: #e3e3e3;
+  color: #e3e3e3;
 }
 
 .mantle-perspective-toggle-up-disabled {
@@ -74,34 +71,34 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 }
 
 .mantle-perspective-toggle-up-hovering {
-	color: white;
+  color: white;
 }
 
 .mantle-perspective-toggle-down {
-    border-top: 2px solid #fe700f;
-	color: white;
+  border-top: 2px solid #fe700f;
+  color: white;
 }
 
 .mantle-perspective-toggle-down-hovering {
-    border-top: 2px solid #fe700f;
-	color: white;
+  border-top: 2px solid #fe700f;
+  color: white;
 }
 
 #mainMenubar {
-	background: black;
+  background: black;
 }
 
 .mantle-perspective-switcher {
-	background: black;
-	height: 28px;
+  background: black;
+  height: 28px;
 }
 
 .puc-logo{
-    background: url('images/logo.png') no-repeat center center;
+  background: url('images/logo.png') no-repeat center center;
 }
 .puc-logo-spacer{
-    width: 152px;
-    height: 75px;
+  width: 152px;
+  height: 75px;
 }
 
 .launchButtonPanel {
@@ -143,7 +140,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 
 .solutionDisclosureHeaderWidgetHover {
   background-color:#DDDDDD;
-  border:5px solid #DDDDDD; 
+  border:5px solid #DDDDDD;
   color:#EF6507;
 }
 
@@ -158,13 +155,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 }
 
 .classicNavigatorTableCell {
- border-bottom: 1px solid #808080;
+  border-bottom: 1px solid #808080;
 }
 
 .classicNavigatorTableHeader {
- background-color: #C2CFA2;
- color: black;
- border: 1px solid #808080;
+  background-color: #C2CFA2;
+  color: black;
+  border: 1px solid #808080;
 }
 
 .classicNavigatorFileLabelHover {
@@ -188,17 +185,17 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 }
 
 .hiddenFileLabel {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #ffffff;
+  width: 100%;
+  opacity: .7;
+  font-style: italic;
+  background-color: #ffffff;
 }
 
 .hiddenFileLabelSelected {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #dbdbdb;
+  width: 100%;
+  opacity: .7;
+  font-style: italic;
+  background-color: #dbdbdb;
 }
 
 
@@ -237,11 +234,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 }
 
 .mantle-default-tab-background {
-	background-color: transparent;
+  background-color: transparent;
 }
 
 .mantle-white-tab-background {
-	background-color: white;
+  background-color: white;
 }
 
 #mainToolbar {
@@ -251,7 +248,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 .puc-horizontal-split-panel {
 }
 
-.puc-horizontal-split-panel .gwt-SplitLayoutPanel-HDragger {
+.puc-horizontal-split-panel .hsplitter {
   background-color: rgba(255, 255, 255, 0.2);
   border-top: 1px solid #aaaaaa;
   border-right: 1px solid #aaaaaa;
@@ -261,14 +258,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
   background-color: #E8EEF7;
 }
 
-
-
 .puc-vertical-split-panel {
 }
 
-.IE .puc-horizontal-split-panel .left {
-    top: 46px;
-}
 
 #loading {
   background: white;
@@ -320,8 +312,8 @@ a:active, a:hover {
 }
 
 .backgroundContentTable {
- background: black;
- font-size: 0.8em;
+  background: black;
+  font-size: 0.8em;
 }
 
 .backgroundContentHeaderTableCell {
@@ -333,15 +325,15 @@ a:active, a:hover {
   background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* IE10+ */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
   zoom: 1;
-  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* W3C */	
+  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* W3C */
 }
 
 .backgroundContentHeaderTableCell .gwt-Label {
-	color: white;
+  color: white;
 }
 
 .backgroundContentHeaderTableCellRight {
-	 
+
   background: #1a1a1a; /* Old browsers */
   background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000)); /* Chrome,Safari4+ */
@@ -350,12 +342,12 @@ a:active, a:hover {
   background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* IE10+ */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
   zoom: 1;
-  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* W3C */	
- 
+  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* W3C */
+
 }
 
 .backgroundContentHeaderTableCellRight .gwt-Label {
-	color: white;
+  color: white;
 }
 
 /* In IE9, in quirks mode, 
@@ -369,19 +361,19 @@ a:active, a:hover {
 }
 
 .backgroundContentTableCell {
- background-color: white;
+  background-color: white;
 }
 
 .backgroundContentTableCellRight {
- background-color: white;
+  background-color: white;
 }
 
 .backgroundContentTableCellBottom {
- background-color: white;
+  background-color: white;
 }
 
 .backgroundContentTableCellBottomRight {
- background-color: white;
+  background-color: white;
 }
 
 
@@ -389,29 +381,29 @@ a:active, a:hover {
 
 
 .gwt-Button {
-   background-image: expression('url(buttonbg.gif)');
-   background-image:url(../../buttonbg.gif);
-   font-weight: plain;
-   border-style:solid;
-   border-color:#000000;
-   border-width:1px;
+  background-image: expression('url(buttonbg.gif)');
+  background-image:url(../../buttonbg.gif);
+  font-weight: plain;
+  border-style:solid;
+  border-color:#000000;
+  border-width:1px;
 }
 
 .gwt-Button:hover {
-   background-image:url(../../buttonhoverbg.gif);
-   background-image: expression('url(buttonhoverbg.gif)');
-   font-weight: plain;
-   border-style:solid;
-   border-color:#000000;
-   border-width:1px;
+  background-image:url(../../buttonhoverbg.gif);
+  background-image: expression('url(buttonhoverbg.gif)');
+  font-weight: plain;
+  border-style:solid;
+  border-color:#000000;
+  border-width:1px;
 }
 
 .gwt-Button:disabled {
-   background-image:url(../../buttonbg.gif);
-   background-image: expression('url(buttonbg.gif)');
-   border-style:solid;
-   border-color:#c0c0c0;
-   border-width:1px;
+  background-image:url(../../buttonbg.gif);
+  background-image: expression('url(buttonbg.gif)');
+  border-style:solid;
+  border-color:#c0c0c0;
+  border-width:1px;
 }
 
 .gwt-Canvas {
@@ -426,7 +418,7 @@ a:active, a:hover {
 
 .dialogContentPanel {
   background-color: #e8eefa;
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .viewContentDialogBox {
@@ -445,27 +437,27 @@ a:active, a:hover {
 }
 
 .gwt-StyledFileUpload {
- position: absolute; 
- font-size: 45px;
- right: 0px; 
- top: 0px;
- opacity: 0; 
+  position: absolute;
+  font-size: 45px;
+  right: 0px;
+  top: 0px;
+  opacity: 0;
 
- filter: alpha(opacity=0); 
- -ms-filter: alpha(opacity=0); 
- -khtml-opacity: 0; 
- -moz-opacity: 0;
+  filter: alpha(opacity=0);
+  -ms-filter: alpha(opacity=0);
+  -khtml-opacity: 0;
+  -moz-opacity: 0;
 }
 
 .gwt_file_upload_hidden_div {
-  position: relative; 
+  position: relative;
   overflow: hidden;
 }
 
 .gwt-Frame {
   border: none;
-  overflow:visible; 
-  width:100%; 
+  overflow:visible;
+  width:100%;
 }
 
 .workspace-resource-link {
@@ -475,7 +467,7 @@ a:active, a:hover {
 }
 
 .workspacePanel {
-	background-color: #d4d6db;
+  background-color: #d4d6db;
 }
 
 .noDataForScheduleTable {
@@ -483,17 +475,17 @@ a:active, a:hover {
 }
 
 .workspaceDisclosureContentWrapper {
-	background-color: #9f9f9f;
-	border: 1px solid black;
+  background-color: #9f9f9f;
+  border: 1px solid black;
 }
 
 .IE .workspaceDisclosureContentWrapper {
-	background-color: #9f9f9f;
-	border: 0px solid transparent;
+  background-color: #9f9f9f;
+  border: 0px solid transparent;
 }
 
 .workspaceMessage {
-	font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .gwt-TextBox-readonly {
@@ -670,8 +662,8 @@ a:active, a:hover {
   border: 1px solid black;
 }
 .puc-navigator-panel {
-	background-color: rgba(255, 255, 255, 0.2);
-	border-top: 1px solid #aaaaaa;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #aaaaaa;
 }
 
 .waitPopup{
@@ -711,11 +703,11 @@ a:active, a:hover {
 }
 
 .leaf-widget {
-     font-size: 1em;
- }
+  /*font-size: .8em;*/
+}
 
 .leaf-widget .gwt-TreeItem > table {
-	
+
 }
 
 .leaf-widget .gwt-TreeItem-selected > table {
@@ -723,17 +715,17 @@ a:active, a:hover {
 }
 
 .leaf-widget .leaf-widget-hidden .gwt-TreeItem > table {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #ffffff;
+  width: 100%;
+  opacity: .7;
+  font-style: italic;
+  background-color: #ffffff;
 }
 
 .leaf-widget .leaf-widget-hidden .gwt-TreeItem-selected > table {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #dbdbdb;
+  width: 100%;
+  opacity: .7;
+  font-style: italic;
+  background-color: #dbdbdb;
 }
 
 
@@ -742,6 +734,7 @@ a:active, a:hover {
 .gwt-MenuItem-checkbox-unchecked,
 .gwt-MenuItem-checkbox-checked,
 .disabledMenuItem {
+  font-size: .8em;
 }
 
 
@@ -761,23 +754,57 @@ a:active, a:hover {
 
 /*========== Launch Page Styles ================= */
 #outterWrapper {
- padding: 0px; margin-top: 0px; display:inline-block;
+  padding: 0px; margin-top: 0px; display:inline-block;
 }
 .largeGraphicButton {
- padding: 22px 0 8px 0px;
+  padding: 22px 0 8px 0px;
 }
 .largeGraphicSpacer {
- background-image: url('images/seperator_vert.png');
+  background-image: url('images/seperator_vert.png');
 }
 .smallButton{
- padding: 2px 0 30px 0px;
+  padding: 2px 0 30px 0px;
 }
 .newDsPanel{
- padding: 10px 0px 10px 10px;
+  padding: 10px 0px 10px 10px;
 }
 .bottomButtonWrapper{
- padding: 20px 20px 0px 57px;
+  padding: 20px 20px 0px 57px;
 }
 .launcher-bottom-text{
-    line-height: 1.5; padding: 10px 20px 0px 40px; font-size: .8em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 1.2em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
+  line-height: 1.5; padding: 10px 20px 0px 40px; font-size: .8em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 1.2em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
+}
+
+.gwt-ScrollTable .dataTable
+ td {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  border-spacing: 2px;
+  border-color: gray;
+  padding: 10px;
+}
+.gwt-ScrollTable .headerTable
+ td {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  border-spacing: 2px;
+  padding: 10px 10px 12px 10px;
+  font-weight: normal;
+}
+
+/* Special styles for Schedule tables to avoid impacting others, to be removed once tables styles are addressed globally */
+.schedulesPanel .pentaho-table {
+  border-spacing: 1px;
+  background-color: #848484;
+}
+
+.schedulesPanel .pentaho-table th{
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  border-spacing: 2px;
+  padding: 10px 10px 12px 10px;
+  font-weight: normal;
+}
+.schedulesPanel .toolbar {
+  background:none;
 }

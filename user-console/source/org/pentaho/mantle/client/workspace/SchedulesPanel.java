@@ -279,6 +279,7 @@ public class SchedulesPanel extends SimplePanel {
     private void createUI(boolean isAdmin, final boolean isScheduler) {
 
     table.getElement().setId("schedule-table");
+    table.setStylePrimaryName("pentaho-table");
 
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
@@ -440,6 +441,7 @@ public class SchedulesPanel extends SimplePanel {
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 220, Unit.PX);
+    table.setColumnWidth(scheduleColumn, 150, Unit.PX);
     table.setColumnWidth(lastFireColumn, 150, Unit.PX);
     table.setColumnWidth(nextFireColumn, 150, Unit.PX);
     table.setColumnWidth(userNameColumn, 150, Unit.PX);
@@ -801,7 +803,6 @@ public class SchedulesPanel extends SimplePanel {
     });
     scheduleRemoveButton.setToolTip(Messages.getString("remove"));
     bar.add(scheduleRemoveButton);
-    bar.addSpacer(50);
 
     tableAndPager.add(bar);
     tableAndPager.add(table);

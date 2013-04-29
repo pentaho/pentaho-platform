@@ -173,14 +173,17 @@ public class BlockoutPanel extends SimplePanel {
         ,Messages.getString("blockoutColumnRepeatsEndBy")
     };
     int[] columnWidths = {130, 130, 130, 130};
-    BaseColumnComparator[] columnComparators = {BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
+    BaseColumnComparator[] columnComparators = {
+        BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
         ,BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
         ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)
-        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)};
+        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)
+    };
     table = new BaseTable(tableHeaderNames, columnWidths, columnComparators, SelectionPolicy.MULTI_ROW);
     table.getElement().setId("blockout-table");
     table.setWidth("640px");
     table.setHeight("328px");
+    table.fillWidth();
     tablePanel.add(table);
   }
 
