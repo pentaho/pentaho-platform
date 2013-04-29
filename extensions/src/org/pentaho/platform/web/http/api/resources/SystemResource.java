@@ -24,16 +24,10 @@ package org.pentaho.platform.web.http.api.resources;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IConfiguration;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -42,12 +36,20 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.web.http.messages.Messages;
+
 /**
  * This api provides methods for discovering information about the system
  *
  * @author pminutillo
  */
 @Path("/system/")
+@ExternallyManagedLifecycle
 public class SystemResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog(FileResource.class);
@@ -126,22 +128,12 @@ public class SystemResource extends AbstractJaxRSResource {
     Map<String, String> timeZones = new HashMap<String, String>();
     for (String tzId : TimeZone.getAvailableIDs()) {
       if (!tzId.toLowerCase().contains("gmt")) {
-        timeZones.put(tzId, TimeZone.getTimeZone(tzId).getDisplayName(true, TimeZone.LONG) + " (" + tzId + ")");
+        int offset = TimeZone.getTimeZone(tzId).getOffset(System.currentTimeMillis());
+        String text = String.format("%s%02d%02d", offset >= 0 ? "+" : "", offset / 3600000, (offset / 60000) % 60); 
+        timeZones.put(tzId, TimeZone.getTimeZone(tzId).getDisplayName(true, TimeZone.LONG) + " (UTC" + text + ")");       
       }
     }
     return new TimeZoneWrapper(timeZones, TimeZone.getDefault().getID());
-//    ArrayList<String> stringList = new ArrayList<String>();
-//    String[] rawTimeZoneIds = TimeZone.getAvailableIDs();
-//    for (String tzId : rawTimeZoneIds) {
-//      if (!tzId.toLowerCase().contains("gmt")) {
-//        stringList.add(tzId);
-//      }
-//    }
-//    String defaultTz = TimeZone.getDefault().getID();
-//    int i = stringList.indexOf(defaultTz);
-//    stringList.remove(i);
-//    stringList.add(0, defaultTz);
-//    return new TimeZoneWrapper(stringList);
   }
 
 }
