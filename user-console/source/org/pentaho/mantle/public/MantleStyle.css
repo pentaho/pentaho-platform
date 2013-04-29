@@ -187,23 +187,27 @@ body{
 .puc-horizontal-split-panel {
 }
 
-.IE .puc-horizontal-split-panel {
-  overflow: hidden;
-}
-.puc-horizontal-split-panel .hsplitter {
+
+
+.puc-horizontal-split-panel .gwt-SplitLayoutPanel-HDragger {
   cursor: w-resize;
   margin-right: 10px;
   padding-left: 4px;
   padding-right: 2px;
 }
 
-
-.puc-vertical-split-panel .vsplitter {
+.puc-vertical-split-panel .gwt-SplitLayoutPanel-VDragger {
   cursor: n-resize;
   padding-top: 4px;
   padding-bottom: 2px;
   overflow: hidden;
 }
+
+.IE .puc-horizontal-split-panel {
+    top: 42px;
+    overflow: hidden;
+}
+
 
 #loading {
   position: absolute;
