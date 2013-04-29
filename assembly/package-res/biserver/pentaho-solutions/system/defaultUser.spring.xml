@@ -5,6 +5,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
+	  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+	    <constructor-arg value="defaultUser"/>
+	    <constructor-arg value="defaultUser.spring.properties"/>
+	    <pen:publish as-type="INTERFACES"/>
+	  </bean>
 	<!-- NOTE:  THIS FILE IS FOR INITIAL SERVER STARTUP CONFIG OF DEFAULTS.  
 		 THIS FILE IS NOT INTENDED FOR ONGOING MANAGEMENT OF USERS AND ROLES.   -->
 
@@ -28,11 +33,11 @@
 	</util:map>
 
 	<bean id="defaultAdminUserPassword" class="java.lang.String">
-		<constructor-arg value="cGFzc3dvcmQ=" />
+		<constructor-arg value="${defaultUser.defaultAdminUserPassword}" />
 	</bean>
 
 	<bean id="defaultNonAdminUserPassword" class="java.lang.String">
-		<constructor-arg value="cGFzc3dvcmQ=" />
+		<constructor-arg value="${defaultUser.defaultNonAdminUserPassword}" />
 	</bean>
 
 	<util:map id="defaultUserRoleMappings">
