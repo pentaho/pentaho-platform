@@ -86,7 +86,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
         public void onResponseReceived(Request request, Response response) {
           final TextBox nowTextBox = new TextBox();
-          nowTextBox.setWidth("30px");
+          nowTextBox.setWidth("24px");
           nowTextBox.getElement().getStyle().setPaddingTop(5, Unit.PX);
           nowTextBox.getElement().getStyle().setPaddingBottom(5, Unit.PX);
           nowTextBox.getElement().getStyle().setMarginLeft(5, Unit.PX);
