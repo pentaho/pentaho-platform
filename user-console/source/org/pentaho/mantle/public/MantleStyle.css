@@ -653,3 +653,16 @@ code {
 .adminContentPanel > tbody > tr > td > div {
   height: 100%;
 }
+
+/* BISERVER-8429 */
+.leaf-widget table {
+  border-spacing: 0px;
+
+  /* IE Support*/
+  border-collapse: collapse;
+}
+
+/* BISERVER-8429 */
+.leaf-widget table td {
+  padding: 0px;
+}
