@@ -154,12 +154,12 @@ body{
 
 .fileLabel .gwt-Label {
   padding-left: 5px;
-  font-size: .8em;
+  font-size: 13px;
 }
 
 .fileLabelSelected .gwt-Label {
   padding-left: 5px;
-  font-size: .8em;
+  font-size: 13px;
 }
 
 
@@ -359,6 +359,7 @@ code {
 }
 
 .gwt-ListBox {
+  font-size: 13px;
 }
 
 
@@ -630,7 +631,7 @@ code {
 }
 
 .msg-Label{
-  font-size: .86em;
+  font-size: 13px;
   font-style:italic;
   color:#737373;
 }

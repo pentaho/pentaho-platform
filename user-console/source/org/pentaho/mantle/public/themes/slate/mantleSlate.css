@@ -258,12 +258,12 @@ a:active, a:hover {
 
 .backgroundContentAction {
   color: blue;
-  font-size: 0.8em;
+  font-size: 13px;
 }
 
 .backgroundContentTable {
 	background:  #848484;
- font-size: 0.8em;
+ font-size: 13px;
 }
 
 .backgroundContentHeaderTableCell {
@@ -377,7 +377,7 @@ a:active, a:hover {
 
 .gwt-ScrollTable .dataTable td {
   font-weight: normal;
-  font-size: .8em;
+  font-size: 13px;
 }
 	
 .gwt-FileUpload {
@@ -432,7 +432,7 @@ a:active, a:hover {
 }
 
 .workspaceMessage {
-	font-size: 0.8em;
+	font-size: 13px;
 }
 
 .gwt-TextBox-readonly {
@@ -658,11 +658,11 @@ a:active, a:hover {
 }
 
 #solutionTree .gwt-TreeItem{
-  font-size: .8em;
+  font-size: 13px;
 }
 
 #solutionTree .gwt-TreeItem-selected{
-  font-size: .8em;
+  font-size: 13px;
   background-color: #dbdbdb;
 }
 
@@ -729,7 +729,7 @@ a:active, a:hover {
 }
 .launcher-bottom-text{
     color: #000;
-   font-size: 0.8em;
+   font-size: 13px;
    line-height: 1.5;
    padding: 10px 20px 0 40px;
    text-align: left;
