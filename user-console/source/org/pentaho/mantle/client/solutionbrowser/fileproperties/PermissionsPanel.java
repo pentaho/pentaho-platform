@@ -20,27 +20,33 @@
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
+import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -368,11 +374,20 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       managePermissionCheckBox.setEnabled(false);
     }
 
-    readPermissionCheckBox.setValue(perms.contains(PERM_READ) || perms.contains(PERM_ALL) || perms.contains(PERM_GRANT_PERM));
-    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE) || perms.contains(PERM_ALL) || perms.contains(PERM_GRANT_PERM));
-    writePermissionCheckBox.setValue(perms.contains(PERM_WRITE) || perms.contains(PERM_ALL) || perms.contains(PERM_GRANT_PERM)) ;
+    if (perms.contains(PERM_ALL)) {
+      updatePermissionForUserOrRole(fileInfo, userOrRoleString, false, PERM_ALL);
+      updatePermissionForUserOrRole(fileInfo, userOrRoleString, true, PERM_GRANT_PERM);
+      updatePermissionForUserOrRole(fileInfo, userOrRoleString, true, PERM_DELETE);
+      updatePermissionForUserOrRole(fileInfo, userOrRoleString, true, PERM_WRITE);
+      updatePermissionForUserOrRole(fileInfo, userOrRoleString, true, PERM_READ);
+    }
+    
+    readPermissionCheckBox.setValue(perms.contains(PERM_READ) || perms.contains(PERM_GRANT_PERM) || perms.contains(PERM_ALL));
+    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE) || perms.contains(PERM_GRANT_PERM) || perms.contains(PERM_ALL));
+    writePermissionCheckBox.setValue(perms.contains(PERM_WRITE) || perms.contains(PERM_GRANT_PERM) || perms.contains(PERM_ALL)) ;
     managePermissionCheckBox.setValue(perms.contains(PERM_GRANT_PERM) || perms.contains(PERM_ALL));
     inheritsCheckBox.setValue(isInheritsAcls(fileInfo));
+
 
     refreshPermission();
 
@@ -418,6 +433,24 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     // At this point if we're inheriting we need to remove all the acls so that the inheriting flag isn't set by default
     if (isInheritsAcls(fileInfo)) {
       removeAllAces(fileInfo);
+    } else {
+      //Check if any of the permission sets should be replaced with ALL.
+      //Any non-inherited Ace with a permission set containing PERM_GRANT_PERM should be replaced
+      //with a single PERM_ALL.
+      NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
+      for (int i = 0; i < aces.getLength(); i++) {
+        Element ace = (Element) aces.item(i);
+        NodeList perms = ace.getElementsByTagName(PERMISSIONS_ELEMENT_NAME);
+        for (int j = 0; j < perms.getLength(); j++) {
+          Element perm = (Element) perms.item(j);
+          if (perm.getFirstChild() != null) {
+            if (Integer.parseInt(perm.getFirstChild().getNodeValue()) == PERM_GRANT_PERM) {
+              replacePermissionsWithAll(ace, fileInfo);
+              break;
+            }
+          }
+        }    
+      }
     }
 
     // set request data in builder itself
@@ -643,6 +676,19 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       }
       aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
     }
+  }
+  
+  private void replacePermissionsWithAll(Element ace, Document fileInfo) {
+    NodeList perms = ace.getElementsByTagName(PERMISSIONS_ELEMENT_NAME);
+    int childCount = perms.getLength();
+    for (int i = 0; i < childCount; i++) {
+      Node perm = perms.item(0);
+      ace.removeChild(perm);
+    }
+    Element newPerm = fileInfo.createElement(PERMISSIONS_ELEMENT_NAME);
+    Text textNode = fileInfo.createTextNode(Integer.toString(PERM_ALL));
+    newPerm.appendChild(textNode);
+    ace.appendChild(newPerm);
   }
 
   /**
