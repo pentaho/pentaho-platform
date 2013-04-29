@@ -62,7 +62,6 @@
   cursor: pointer;
   cursor: hand;
   white-space: nowrap;
-  font-size: .8em;
   border-top: 2px solid black;
 }
 
@@ -738,7 +737,6 @@ a:active, a:hover {
 .gwt-MenuItem-checkbox-unchecked,
 .gwt-MenuItem-checkbox-checked,
 .disabledMenuItem {
-  font-size: .8em;
 }
 
 
@@ -777,23 +775,6 @@ a:active, a:hover {
 }
 .launcher-bottom-text{
     line-height: 1.5; padding: 10px 20px 0px 40px; font-size: 13px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 16px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
-}
-
-.gwt-ScrollTable .dataTable
- td {
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  border-spacing: 2px;
-  border-color: gray;
-  padding: 10px;
-}
-.gwt-ScrollTable .headerTable
- td {
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  border-spacing: 2px;
-  padding: 10px 10px 12px 10px;
-  font-weight: normal;
 }
 
 /* Special styles for Schedule tables to avoid impacting others, to be removed once tables styles are addressed globally */
