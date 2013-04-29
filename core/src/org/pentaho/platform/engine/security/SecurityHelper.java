@@ -385,10 +385,7 @@ public class SecurityHelper implements ISecurityHelper {
     String singleTenantAdmin = PentahoSystem.get(String.class, "singleTenantAdminUserName", null);
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     
-    if (singleTenantAdmin.equals(origSession.getName())) {
-    	return callable.call();
-    } else {
-      Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
   
       StandaloneSession session = null;
       try {
@@ -419,7 +416,5 @@ public class SecurityHelper implements ISecurityHelper {
         PentahoSessionHolder.setSession(origSession);
         SecurityContextHolder.getContext().setAuthentication(origAuth);
       }
-    }
   }
-
 }
