@@ -325,7 +325,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       $wnd.mantle_removeFavorite = function(pathToFile) {
         solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
       }
-
+      $wnd.mantle_isNavigatorShowing = function(){
+        return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
+      }
     }-*/;
 
   public void confirmBackgroundExecutionDialog(final String url) {
