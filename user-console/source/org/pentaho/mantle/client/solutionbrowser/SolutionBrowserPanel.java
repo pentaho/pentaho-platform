@@ -705,7 +705,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       h = $wnd.document.body.clientHeight;
     }
 
-    var height= h+offset;
+    var height= h+offset-5;
     var offSetHeight=height+ 'px';
     ele.style.height = offSetHeight;
   }-*/;
