@@ -786,10 +786,21 @@ a:active, a:hover {
 .schedulesPanel .pentaho-table th{
   font-family: Arial, sans-serif;
   font-size: 13px;
-  border-spacing: 2px;
+  border-spacing: 1px;
   padding: 10px 10px 12px 10px;
   font-weight: normal;
 }
 .schedulesPanel .toolbar {
   background:none;
+}.schedulesPanel .dataTable td {
+  padding: 10px 10px 12px 10px;
 }
+.schedulesPanel .headerTable td {
+  padding: 10px 10px 12px 10px;
+
+}
+
+.IE .schedulesPanel .headerTable td {
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
+}
+

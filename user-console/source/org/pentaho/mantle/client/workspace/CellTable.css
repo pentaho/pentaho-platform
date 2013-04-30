@@ -21,11 +21,11 @@
 }
 
 .cellTableFirstColumn {
-  
+
 }
 
 .cellTableLastColumn {
-  
+
 }
 
 .cellTableFooter {
@@ -50,19 +50,19 @@
 }
 
 .cellTableFirstColumnFooter {
-  
+
 }
 
 .cellTableFirstColumnHeader {
-  
+
 }
 
 .cellTableLastColumnFooter {
-  
+
 }
 
 .cellTableLastColumnHeader {
-  
+
 }
 
 .cellTableSortableHeader {
@@ -103,26 +103,26 @@
 }
 
 .cellTableHoveredRowCell {
-border: selectionBorderWidth solid #cbefa3;
+  border: selectionBorderWidth solid #cbefa3;
 }
 
 .cellTableKeyboardSelectedRow {
- background: #005ca5;
+  background: #BEBEBE;
 }
 
 .cellTableKeyboardSelectedRowCell {
-  border: selectionBorderWidth solid #005ca5;
+  border: selectionBorderWidth solid #BEBEBE;
 }
 
 .cellTableSelectedRow {
-  background: #005ca5;
+  background: #BEBEBE;
   color: white;
   height: auto;
   overflow: auto;
 }
 
 .cellTableSelectedRowCell {
-  border: selectionBorderWidth solid #005ca5;
+  border: selectionBorderWidth solid #BEBEBE;
 }
 
 /**
