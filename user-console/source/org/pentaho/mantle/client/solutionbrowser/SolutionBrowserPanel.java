@@ -693,9 +693,21 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
 
   public static native String setElementHeightOffset(Element ele, int offset)/*-{
-      var height= ($wnd.top.innerHeight)+offset;
-      var offSetHeight=height+ 'px';
-      ele.style.height = offSetHeight;
+
+    var h = 0;
+    if ($wnd.innerHeight){
+      h = $wnd.innerHeight;
+    }
+    else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0){
+      h = $wnd.document.documentElement.clientHeight;
+    }
+    else if ($wnd.document.body){
+      h = $wnd.document.body.clientHeight;
+    }
+
+    var height= h+offset;
+    var offSetHeight=height+ 'px';
+    ele.style.height = offSetHeight;
   }-*/;
 
   private void adjustWidth() {
