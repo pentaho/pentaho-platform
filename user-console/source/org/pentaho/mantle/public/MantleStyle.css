@@ -204,7 +204,6 @@ body{
 }
 
 .IE .puc-horizontal-split-panel {
-    top: 42px;
     overflow: hidden;
 }
 
@@ -670,4 +669,14 @@ code {
 /* BISERVER-8429 */
 .leaf-widget table td {
   padding: 0px;
+}
+
+/* add some padding between the perspective and the top toolbar/filemenu */
+.applicationShell .panelWithTitledToolbar {
+  padding-top: 2px;
+}
+
+/* don't let IE take up all the space of its parent, it will be off screen */
+.IE .mantle-default-tab-background {
+  height: 95% !important;
 }
