@@ -680,3 +680,8 @@ code {
 .IE .mantle-default-tab-background {
   height: 95% !important;
 }
+
+/* needed to shorten the admin window as to ensure it does not spill off the screen */
+#adminContentPanel {
+  height: 95% !important;
+}
