@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.table.BaseTable;
 import org.pentaho.gwt.widgets.client.table.ColumnComparators.BaseColumnComparator;
 import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTypes;
@@ -52,15 +53,12 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SourcesTableEvents;
-import com.google.gwt.user.client.ui.TableListener;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.widgetideas.table.client.SelectionGrid.SelectionPolicy;
 
 public class BlockoutPanel extends SimplePanel {
   private BaseTable table;
-  //private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
+  // private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
   private List<JsJob> list = new ArrayList<JsJob>();
   private final VerticalPanel widgets = new VerticalPanel();
   private Button blockoutButton;
@@ -78,11 +76,11 @@ public class BlockoutPanel extends SimplePanel {
   private Label headlineLabel;
   private boolean isAdmin;
 
-	public BlockoutPanel(final boolean isAdmin) {
-		this.isAdmin = isAdmin;
-		createUI(isAdmin);
-		refresh();
-	}
+  public BlockoutPanel(final boolean isAdmin) {
+    this.isAdmin = isAdmin;
+    createUI(isAdmin);
+    refresh();
+  }
 
   private void createUI(final boolean isAdmin) {
     widgets.setWidth("100%");
@@ -116,14 +114,14 @@ public class BlockoutPanel extends SimplePanel {
     }
   }
 
-	private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
-		SimplePanel buttonPanel = new SimplePanel();
-		buttonPanel.setStyleName("schedulesButtonPanel");
-		blockoutButton.addClickHandler(newBlockoutHandler);
-		blockoutButton.setStyleName("pentaho-button");
-		buttonPanel.add(blockoutButton);
-		widgets.add(buttonPanel);
-	}
+  private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
+    SimplePanel buttonPanel = new SimplePanel();
+    buttonPanel.setStyleName("schedulesButtonPanel");
+    blockoutButton.addClickHandler(newBlockoutHandler);
+    blockoutButton.setStyleName("pentaho-button");
+    buttonPanel.add(blockoutButton);
+    widgets.add(buttonPanel);
+  }
 
   private void createTableControls(final ClickHandler newBlockoutHandler) {
     tableControls.addSpacer(10);
@@ -153,11 +151,28 @@ public class BlockoutPanel extends SimplePanel {
     ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
     removeButton.setCommand(new Command() {
       public void execute() {
-        Set<JsJob> selectedSet = getSelectedSet();
-        for (JsJob jsJob : selectedSet) {
-          removeBlockout(jsJob);
-          table.selectRow(list.indexOf(jsJob));
-        }
+
+        final Set<JsJob> selectedSet = getSelectedSet();
+
+        final Label messageTextBox = new Label(Messages.getString("deleteBlockoutWarning", "" + selectedSet.size()));
+        final PromptDialogBox blockoutDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("delete"), Messages.getString("yesDelete"), Messages
+            .getString("no"), true, true);
+        blockoutDeleteWarningDialogBox.setContent(messageTextBox);
+        final IDialogCallback callback = new IDialogCallback() {
+
+          public void cancelPressed() {
+            blockoutDeleteWarningDialogBox.hide();
+          }
+
+          public void okPressed() {
+            for (JsJob jsJob : selectedSet) {
+              removeBlockout(jsJob);
+              table.selectRow(list.indexOf(jsJob));
+            }
+          }
+        };
+        blockoutDeleteWarningDialogBox.setCallback(callback);
+        blockoutDeleteWarningDialogBox.center();
       }
     });
     tableControls.add(removeButton);
@@ -166,18 +181,12 @@ public class BlockoutPanel extends SimplePanel {
 
   @SuppressWarnings("deprecation")
   private void createTable() {
-    String[] tableHeaderNames = {Messages.getString("blockoutColumnStarts")
-        ,Messages.getString("blockoutColumnEnds")
-        ,Messages.getString("blockoutColumnRepeats")
-        ,Messages.getString("blockoutColumnRepeatsEndBy")
-    };
-    int[] columnWidths = {130, 130, 130, 130};
-    BaseColumnComparator[] columnComparators = {
-        BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
-        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
-        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)
-        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)
-    };
+    String[] tableHeaderNames = { Messages.getString("blockoutColumnStarts"), Messages.getString("blockoutColumnEnds"),
+        Messages.getString("blockoutColumnRepeats"), Messages.getString("blockoutColumnRepeatsEndBy") };
+    int[] columnWidths = { 130, 130, 130, 130 };
+    BaseColumnComparator[] columnComparators = { BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE),
+        BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE), BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE),
+        BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE) };
     table = new BaseTable(tableHeaderNames, columnWidths, columnComparators, SelectionPolicy.MULTI_ROW);
     table.getElement().setId("blockout-table");
     table.setWidth("640px");
@@ -256,25 +265,25 @@ public class BlockoutPanel extends SimplePanel {
       blockoutButton.setVisible(true);
       headlineLabel.setText(Messages.getString("blockoutNone"));
       if (!isAdmin) {
-    	  headlineLabel.setVisible(false);
+        headlineLabel.setVisible(false);
       }
-      
+
     } else {
       tablePanel.setVisible(true);
       blockoutButton.setVisible(false);
       headlineLabel.setText(Messages.getString("blockoutHeadline"));
       if (!isAdmin) {
-    	  headlineLabel.setVisible(true);
+        headlineLabel.setVisible(true);
       }
       List<JsJob> jobList = new ArrayList<JsJob>();
       for (int i = 0; i < allBlocks.length(); i++) {
         JsJob job = allBlocks.get(i);
         jobList.add(job);
       }
-      //List<JsJob> list = dataProvider.getList();
+      // List<JsJob> list = dataProvider.getList();
       list.clear();
       list.addAll(jobList);
-      
+
       int row = 0;
       Object[][] tableContent = new Object[list.size()][4];
       for (JsJob block : list) {
@@ -297,7 +306,7 @@ public class BlockoutPanel extends SimplePanel {
     var obj = eval('(' + json + ')');
     return obj.job;
   }-*/;
-  
+
   private String convertDateToValue(Date date) {
     if (date != null) {
       try {
@@ -307,20 +316,19 @@ public class BlockoutPanel extends SimplePanel {
     }
     return "-";
   }
-  
+
   private String getStartValue(JsJob block) {
     return convertDateToValue(block.getNextRun());
   }
-  
+
   private String getEndValue(JsJob block) {
     if (block.getNextRun() instanceof Date) {
-      return convertDateToValue(new Date(block.getNextRun().getTime() + block.getJobTrigger()
-        .getBlockDuration()));
+      return convertDateToValue(new Date(block.getNextRun().getTime() + block.getJobTrigger().getBlockDuration()));
     } else {
       return "-";
     }
   }
-  
+
   private String getRepeatValue(JsJob block) {
     try {
       return block.getJobTrigger().getDescription();
@@ -341,7 +349,7 @@ public class BlockoutPanel extends SimplePanel {
     }
     return "-";
   }
-  
+
   private Set<JsJob> getSelectedSet() {
     Set<Integer> selected = table.getSelectedRows();
     Set<JsJob> selectedSet = new HashSet<JsJob>();
