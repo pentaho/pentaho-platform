@@ -62,7 +62,7 @@
     <div class="span3" id="buttonWrapper">
       <script type="text/x-handlebars-template">
         <div class="well sidebar" data-spy="affix">
-          <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('ShowBrowserCommand')">
+          <button class="btn btn-large btn-block" onclick="window.top.mantle_setPerspective('browser.perspective')">
             {{i18n.browse}}
           </button>
 
@@ -138,7 +138,7 @@
               <div class="empty-panel content-panel">
                 <div class="centered">
                   <div class="">{{i18n.empty_recents_panel_message}}</div>
-                  <button class="pentaho-button" onclick="window.parent.executeCommand('ShowBrowserCommand');">{{i18n.browse}}</button>
+                  <button class="pentaho-button" onclick="window.top.mantle_setPerspective('browser.perspective')">{{i18n.browse}}</button>
                 </div>
               </div>
               {{else}}
@@ -193,7 +193,7 @@
               <div class="empty-panel content-panel">
                 <div class="centered">
                   <div class="">{{i18n.empty_favorites_panel_message}}</div>
-                  <button class="pentaho-button" onclick="window.parent.executeCommand('ShowBrowserCommand')">{{i18n.browse}}</button>
+                  <button class="pentaho-button" onclick="window.top.mantle_setPerspective('browser.perspective')">{{i18n.browse}}</button>
                 </div>
               </div>
               {{else}}
