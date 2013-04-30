@@ -20,6 +20,7 @@ package org.pentaho.mantle.client.ui.xul;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +78,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private MantleController controller;
   
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
+
+  private HashSet<String> loadedOverlays = new HashSet<String>();
 
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl(GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL() + "messages/mantleMessages", this);
@@ -311,44 +314,50 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
     private void loadOverlays(final int index) {
       if (index < overlays.size()) {
-        XulOverlay overlayToLoad = overlays.get(index);
-        final boolean applyOnStart = overlayToLoad.getId().startsWith("startup") || overlayToLoad.getId().startsWith("sticky");
-        final Document doc = XMLParser.parse(overlayToLoad.getSource());
-        final String bundleUri = overlayToLoad.getResourceBundleUri();
-        String folder = ""; //$NON-NLS-1$
-        String baseName = bundleUri;
+        final XulOverlay overlayToLoad = overlays.get(index);
+        final String id = overlayToLoad.getId();
+        if (loadedOverlays.contains(id)) {
+          // already loaded - skip this one and load the next
+          OverlayLoader.this.loadOverlays(index + 1);
+        } else {
+          loadedOverlays.add(id);
+          final boolean applyOnStart = id.startsWith("startup") || id.startsWith("sticky");
+          final Document doc = XMLParser.parse(overlayToLoad.getSource());
+          final String bundleUri = overlayToLoad.getResourceBundleUri();
+          String folder = ""; //$NON-NLS-1$
+          String baseName = bundleUri;
 
-        // we have to separate the folder from the base name
-        if (bundleUri.indexOf(SEPARATOR) > -1) {
-          folder = bundleUri.substring(0, bundleUri.lastIndexOf(SEPARATOR) + 1);
-          baseName = bundleUri.substring(bundleUri.lastIndexOf(SEPARATOR) + 1);
-        }
+          // we have to separate the folder from the base name
+          if (bundleUri.indexOf(SEPARATOR) > -1) {
+            folder = bundleUri.substring(0, bundleUri.lastIndexOf(SEPARATOR) + 1);
+            baseName = bundleUri.substring(bundleUri.lastIndexOf(SEPARATOR) + 1);
+          }
 
-        // some may put the .properties on incorrectly
-        if (baseName.contains(PROPERTIES_EXTENSION)) {
-          baseName = baseName.substring(0, baseName.indexOf(PROPERTIES_EXTENSION));
-        }
-        // some may put the .properties on incorrectly
-        if (baseName.contains(".properties")) {
-          baseName = baseName.substring(0, baseName.indexOf(".properties"));
-        }
+          // some may put the .properties on incorrectly
+          if (baseName.contains(PROPERTIES_EXTENSION)) {
+            baseName = baseName.substring(0, baseName.indexOf(PROPERTIES_EXTENSION));
+          }
+          // some may put the .properties on incorrectly
+          if (baseName.contains(".properties")) {
+            baseName = baseName.substring(0, baseName.indexOf(".properties"));
+          }
 
-        try {
-          final ResourceBundle bundle = new ResourceBundle();
-          bundle.loadBundle(folder, baseName, true, new IResourceBundleLoadCallback() {
-            public void bundleLoaded(String arg0) {
-              try {
-                container.loadOverlay(doc, bundle, applyOnStart);
-
-              } catch (XulException e) {
-              } finally {
-                OverlayLoader.this.loadOverlays(index + 1);
+          try {
+            final ResourceBundle bundle = new ResourceBundle();
+            bundle.loadBundle(folder, baseName, true, new IResourceBundleLoadCallback() {
+              public void bundleLoaded(String arg0) {
+                try {
+                  container.loadOverlay(doc, bundle, applyOnStart);
+                } catch (XulException e) {
+                } finally {
+                  OverlayLoader.this.loadOverlays(index + 1);
+                }
               }
-            }
-          });
-        } catch (Exception e) {
-          Window.alert("Error loading message bundle: " + e.getMessage()); //$NON-NLS-1$
-          e.printStackTrace();
+            });
+          } catch (Exception e) {
+            Window.alert("Error loading message bundle: " + e.getMessage()); //$NON-NLS-1$
+            e.printStackTrace();
+          }
         }
       }
     }
@@ -356,8 +365,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
   public void addOverlays(ArrayList<XulOverlay> overlays) {
 
-    Collections.sort(overlays, new OverlayPriority());
     this.overlays.addAll(overlays);
+    Collections.sort(overlays, new OverlayPriority());
 
     if (this.overlays.size() > 0) {
       // wait for container to be loaded/ready
@@ -388,7 +397,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       } catch (XulException e) {
       }
     } else {
-
       Timer t = new Timer() {
         public void run() {
           try {
