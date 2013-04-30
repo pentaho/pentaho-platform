@@ -792,14 +792,25 @@ a:active, a:hover {
 }
 .schedulesPanel .toolbar {
   background:none;
-}.schedulesPanel .dataTable td {
+}
+.schedulesPanel .dataTable td {
   padding: 10px 10px 12px 10px;
 }
 .schedulesPanel .headerTable td {
   padding: 10px 10px 12px 10px;
 
 }
-
+.schedulesPanel .pentaho-table {
+  border-spacing: 1px;
+  background-color: #848484;
+}
+.schedulesPanel .pentaho-table th{
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  border-spacing: 2px;
+  padding: 10px 10px 12px 10px;
+  font-weight: normal;
+}
 .IE .schedulesPanel .headerTable td {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
 }
