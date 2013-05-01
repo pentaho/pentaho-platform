@@ -101,9 +101,8 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 /**
- * Represents a file node in the repository.  This api provides methods for discovering information
- * about repository files as well as CRUD operations
- *
+ * Represents a file node in the repository. This api provides methods for discovering information about repository files as well as CRUD operations
+ * 
  * @author aaron
  */
 @Path("/repo/files/")
@@ -139,8 +138,8 @@ public class FileResource extends AbstractJaxRSResource {
 
   public static String idToPath(String pathId) {
     String path = null;
-    //slashes in pathId are illegal.. we scrub them out so the file will not be found
-    //if the pathId was given in slash separated format
+    // slashes in pathId are illegal.. we scrub them out so the file will not be found
+    // if the pathId was given in slash separated format
     if (pathId.contains(PATH_SEPARATOR)) {
       logger.warn(Messages.getInstance().getString("FileResource.ILLEGAL_PATHID", pathId)); //$NON-NLS-1$
     }
@@ -152,7 +151,7 @@ public class FileResource extends AbstractJaxRSResource {
     return path;
   }
 
-  /////////
+  // ///////
   // DELETE
   @PUT
   @Path("/delete")
@@ -202,7 +201,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  /////////
+  // ///////
   // CREATE
 
   @PUT
@@ -283,8 +282,7 @@ public class FileResource extends AbstractJaxRSResource {
 
             // If the title is different than the source file, copy it separately
             if (!sourceFile.getName().equals(sourceFile.getTitle())) {
-              duplicateFile = new RepositoryFile.Builder(fileName).title(RepositoryFile.DEFAULT_LOCALE,
-                  sourceFile.getTitle() + copyText).build();
+              duplicateFile = new RepositoryFile.Builder(fileName).title(RepositoryFile.DEFAULT_LOCALE, sourceFile.getTitle() + copyText).build();
             } else {
               duplicateFile = new RepositoryFile.Builder(fileName).build();
             }
@@ -300,11 +298,12 @@ public class FileResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
-  /////////
+  // ///////
   // READ
 
   /**
    * Overloaded this method to try and reduce calls to the repository
+   * 
    * @param pathId
    * @return
    * @throws FileNotFoundException
@@ -322,7 +321,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFile repoFile = repository.getFile(path);
 
     if (repoFile == null) {
-      //file does not exist or is not readable but we can't tell at this point
+      // file does not exist or is not readable but we can't tell at this point
       return Response.status(NOT_FOUND).build();
     }
 
@@ -331,6 +330,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Overloaded this method to try and reduce calls to the repository
+   * 
    * @param repoFile
    * @return
    * @throws FileNotFoundException
@@ -342,15 +342,14 @@ public class FileResource extends AbstractJaxRSResource {
         IOUtils.copy(is, output);
       }
     };
-    return Response.ok(streamingOutput, is.getMimeType())
-        .header("Content-Disposition", "inline; filename=\"" + repoFile.getName() + "\"").build();
+    return Response.ok(streamingOutput, is.getMimeType()).header("Content-Disposition", "inline; filename=\"" + repoFile.getName() + "\"").build();
   }
 
   // Overloaded this method to try and minimize calls to the repo
-  //Had to unmap this method since browsers ask for resources with Accepts="*/*" which will default to this method
-  //  @GET
-  //  @Path("{pathId : .+}")
-  //  @Produces({ APPLICATION_ZIP })
+  // Had to unmap this method since browsers ask for resources with Accepts="*/*" which will default to this method
+  // @GET
+  // @Path("{pathId : .+}")
+  // @Produces({ APPLICATION_ZIP })
   public Response doGetDirAsZip(@PathParam("pathId") String pathId) {
     String path = idToPath(pathId);
 
@@ -361,7 +360,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFile repoFile = repository.getFile(path);
 
     if (repoFile == null) {
-      //file does not exist or is not readable but we can't tell at this point
+      // file does not exist or is not readable but we can't tell at this point
       return Response.status(NOT_FOUND).build();
     }
 
@@ -369,7 +368,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   *
+   * 
    * @param repositoryFile
    * @return
    */
@@ -381,8 +380,7 @@ public class FileResource extends AbstractJaxRSResource {
     StreamingOutput streamingOutput = null;
 
     try {
-      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(
-          repository);
+      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
       exporter.setRepoPath(path);
       exporter.setRepoWs(repoWs);
 
@@ -405,7 +403,7 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("{pathId : .+}/parameterizable")
   @Produces(TEXT_PLAIN)
-  //have to accept anything for browsers to work
+  // have to accept anything for browsers to work
   public String doIsParameterizable(@PathParam("pathId") String pathId) throws FileNotFoundException {
     boolean hasParameterUi = false;
     RepositoryFile repositoryFile = repository.getFile(FileResource.idToPath(pathId));
@@ -455,10 +453,9 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Compatibility endpoint for browsers since you can't specify Accepts headers in browsers
-   * Added path param withManifest to indicate that manifest containing ACL and metadata
-   * should be included
-   *
+   * Compatibility endpoint for browsers since you can't specify Accepts headers in browsers Added path param withManifest to indicate that manifest containing
+   * ACL and metadata should be included
+   * 
    * @param pathId
    * @return
    * @throws FileNotFoundException
@@ -466,9 +463,8 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("{pathId : .+}/download")
   @Produces(WILDCARD)
-  //have to accept anything for browsers to work
-  public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId,
-                                           @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
+  // have to accept anything for browsers to work
+  public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId, @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
     String quotedFileName = null;
 
     // send zip with manifest by default
@@ -491,7 +487,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFile repositoryFile = repository.getFile(path);
 
     if (repositoryFile == null) {
-      //file does not exist or is not readable but we can't tell at this point
+      // file does not exist or is not readable but we can't tell at this point
       return Response.status(NOT_FOUND).build();
     }
 
@@ -525,13 +521,11 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create response
 
-      response = Response.ok(streamingOutput, APPLICATION_ZIP)
-          .header("Content-Disposition", "attachment; filename=" + quotedFileName).build();
+      response = Response.ok(streamingOutput, APPLICATION_ZIP).header("Content-Disposition", "attachment; filename=" + quotedFileName).build();
 
       return response;
     } catch (Exception e) {
-      logger.error(Messages.getInstance()
-          .getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
+      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
 
@@ -562,7 +556,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  /////////
+  // ///////
   // LOCALES
 
   @GET
@@ -583,8 +577,7 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("{pathId : .+}/localeProperties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public List<StringKeyStringValueDto> doGetLocaleProperties(@PathParam("pathId") String pathId,
-                                                             @QueryParam("locale") String locale) {
+  public List<StringKeyStringValueDto> doGetLocaleProperties(@PathParam("pathId") String pathId, @QueryParam("locale") String locale) {
     RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
     List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
     if (file != null) {
@@ -601,8 +594,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path("{pathId : .+}/localeProperties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public Response doSetLocaleProperties(@PathParam("pathId") String pathId, @QueryParam("locale") String locale,
-                                        List<StringKeyStringValueDto> properties) {
+  public Response doSetLocaleProperties(@PathParam("pathId") String pathId, @QueryParam("locale") String locale, List<StringKeyStringValueDto> properties) {
     try {
       RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
       Properties fileProperties = new Properties();
@@ -633,7 +625,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  /////////
+  // ///////
   // PROPERTIES
 
   @GET
@@ -652,26 +644,26 @@ public class FileResource extends AbstractJaxRSResource {
     while (tokenizer.hasMoreTokens()) {
       Integer perm = Integer.valueOf(tokenizer.nextToken());
       switch (perm) {
-        case 0: {
-          permissionList.add(RepositoryFilePermission.READ.ordinal());
-          break;
-        }
-        case 1: {
-          permissionList.add(RepositoryFilePermission.WRITE.ordinal());
-          break;
-        }
-        case 2: {
-          permissionList.add(RepositoryFilePermission.DELETE.ordinal());
-          break;
-        }
-        case 3: {
-          permissionList.add(RepositoryFilePermission.ACL_MANAGEMENT.ordinal());
-          break;
-        }
-        case 4: {
-          permissionList.add(RepositoryFilePermission.ALL.ordinal());
-          break;
-        }
+      case 0: {
+        permissionList.add(RepositoryFilePermission.READ.ordinal());
+        break;
+      }
+      case 1: {
+        permissionList.add(RepositoryFilePermission.WRITE.ordinal());
+        break;
+      }
+      case 2: {
+        permissionList.add(RepositoryFilePermission.DELETE.ordinal());
+        break;
+      }
+      case 3: {
+        permissionList.add(RepositoryFilePermission.ACL_MANAGEMENT.ordinal());
+        break;
+      }
+      case 4: {
+        permissionList.add(RepositoryFilePermission.ALL.ordinal());
+        break;
+      }
       }
     }
     return repoWs.hasAccess(idToPath(pathId), permissionList) ? "true" : "false";
@@ -681,8 +673,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/canAdminister")
   @Produces(TEXT_PLAIN)
   public String doGetCanAdminister() {
-    return policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME)
-        && policy.isAllowed(AdministerSecurityAction.NAME) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME) && policy.isAllowed(AdministerSecurityAction.NAME) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
   @GET
@@ -753,8 +744,7 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("{pathId : .+}/generatedContentForUser")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public List<RepositoryFileDto> doGetGeneratedContentForUser(@PathParam("pathId") String pathId,
-                                                              @QueryParam("user") String user) {
+  public List<RepositoryFileDto> doGetGeneratedContentForUser(@PathParam("pathId") String pathId, @QueryParam("user") String user) {
     RepositoryFileDto targetFile = doGetProperties(pathId);
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
     if (targetFile != null) {
@@ -800,29 +790,29 @@ public class FileResource extends AbstractJaxRSResource {
     return content;
   }
 
-  /////////
+  // ///////
   // BROWSE
 
   @GET
   @Path("/children")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public RepositoryFileTreeDto doGetRootChildren(@QueryParam("depth") Integer depth,
-                                                 @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
+  public RepositoryFileTreeDto doGetRootChildren(@QueryParam("depth") Integer depth, @QueryParam("filter") String filter,
+      @QueryParam("showHidden") Boolean showHidden) {
     return doGetChildren(PATH_SEPARATOR, depth, filter, showHidden);
   }
 
   @GET
   @Path("{pathId : .+}/children")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public RepositoryFileTreeDto doGetChildren(@PathParam("pathId") String pathId, @QueryParam("depth") Integer depth,
-                                             @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
+  public RepositoryFileTreeDto doGetChildren(@PathParam("pathId") String pathId, @QueryParam("depth") Integer depth, @QueryParam("filter") String filter,
+      @QueryParam("showHidden") Boolean showHidden) {
 
     String path = null;
     if (filter == null) {
       filter = "*"; //$NON-NLS-1$
     }
     if (depth == null) {
-      depth = -1; //search all
+      depth = -1; // search all
     }
     if (pathId == null || pathId.equals(PATH_SEPARATOR)) {
       path = PATH_SEPARATOR;
@@ -840,8 +830,7 @@ public class FileResource extends AbstractJaxRSResource {
     for (RepositoryFileTreeDto child : tree.getChildren()) {
       RepositoryFileDto file = child.getFile();
       Map<String, Serializable> fileMeta = repository.getFileMetadata(file.getId());
-      boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta
-          .get(IUnifiedRepository.SYSTEM_FOLDER) : false;
+      boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
       if (!isSystemFolder) {
         filteredChildren.add(child);
       }
@@ -895,9 +884,9 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Even though the hidden flag is a property of the file node itself, and not the metadata child,
-   * it is considered metadata from PUC and is included in the setMetadata call
-   *
+   * Even though the hidden flag is a property of the file node itself, and not the metadata child, it is considered metadata from PUC and is included in the
+   * setMetadata call
+   * 
    * @param pathId
    * @param metadata
    * @return
@@ -907,14 +896,33 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response doSetMetadata(@PathParam("pathId") String pathId, List<StringKeyStringValueDto> metadata) {
     try {
-      
+
       RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
       RepositoryFileAclDto fileAcl = repoWs.getAcl(file.getId());
-      boolean isOwner = PentahoSessionHolder.getSession().getName().equals(fileAcl.getOwner());
-      
-      if (isOwner || (policy.isAllowed(RepositoryReadAction.NAME)
-          && policy.isAllowed(RepositoryCreateAction.NAME)
-          && policy.isAllowed(AdministerSecurityAction.NAME))) {
+
+      boolean canManage = PentahoSessionHolder.getSession().getName().equals(fileAcl.getOwner())
+          || (policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME) && policy.isAllowed(AdministerSecurityAction.NAME));
+
+      if (!canManage) {
+
+        if (fileAcl.isEntriesInheriting()) {
+          List<RepositoryFileAclAceDto> aces = repoWs.getEffectiveAces(file.getId());
+          fileAcl.setAces(aces, fileAcl.isEntriesInheriting());
+        }
+
+        for (int i = 0; i < fileAcl.getAces().size(); i++) {
+          RepositoryFileAclAceDto acl = fileAcl.getAces().get(i);
+          if (acl.getRecipient().equals(PentahoSessionHolder.getSession().getName())) {
+            if (acl.getPermissions().contains(RepositoryFilePermission.ACL_MANAGEMENT.ordinal())
+                || acl.getPermissions().contains(RepositoryFilePermission.ALL.ordinal())) {
+              canManage = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (canManage) {
         Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
         boolean isHidden = false;
 
@@ -930,15 +938,14 @@ public class FileResource extends AbstractJaxRSResource {
         // now update the rest of the metadata
         if (!file.isFolder()) {
           repository.setFileMetadata(file.getId(), fileMetadata);
-        } 
-        
+        }
+
         // handle hidden flag if it is different
         if (file.isHidden() != isHidden) {
           file.setHidden(isHidden);
 
           /*
-            Since we cannot simply set the new value, use the RepositoryFileAdapter
-            to create a new instance and then update the original.
+           * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then update the original.
            */
           RepositoryFile sourceFile = repository.getFileById(file.getId());
           RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto(sourceFile);
@@ -967,8 +974,8 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Validate path and send appropriate response if necessary
-   * TODO: Add validation to IUnifiedRepository interface
+   * Validate path and send appropriate response if necessary TODO: Add validation to IUnifiedRepository interface
+   * 
    * @param path
    * @return
    */
