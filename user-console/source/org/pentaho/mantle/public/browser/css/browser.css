@@ -1,0 +1,189 @@
+/*
+ * ******************************************************************************
+ * Pentaho
+ *
+ * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
+ * ******************************************************************************
+ */
+
+ #fileBrowser {
+ 	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+ }
+
+ .main-container {
+	padding-top: 20px;
+	max-width: 1024px;
+}
+
+ .fileBrowserColumn {
+ 	height: 600px;
+ }
+
+ .fileBrowserColumn .header {
+ 	border-bottom: solid 1px grey;
+ 	margin-bottom: 10px;
+
+ 	height: 20px;
+ 	overflow: hidden;
+
+ 	font-size: 13px;
+ }
+
+ .fileBrowserColumn .body {
+ 	height: 535px;
+
+ 	overflow: auto;
+ }
+
+ .fileBrowserColumn .body.first > .folder {
+ 	margin-left: 0px;
+ }
+
+ .fileBrowserColumn .body .separator {
+ 	margin: 10px 0px;
+ 	border-top: solid 1px grey;
+ }
+
+ .fileBrowserColumn .body .folder {
+ 	margin-left: 15px;
+ 	margin-top: 2px;
+ 	margin-bottom: 2px;
+ }
+
+ .fileBrowserColumn .body .folder .options {
+ 	display: none;
+	height: 20px;
+	vertical-align: top;
+	cursor: pointer;
+ }
+
+ .fileBrowserColumn .body .element:hover > .options {
+ 	display: inline-block;
+ }
+
+ .fileBrowserColumn .body .folder.first {
+ 	margin-left: 0px;
+ }
+
+.fileBrowserColumn .body .folder .icon,
+.fileBrowserColumn .body .folder .name {
+	display: inline-block;
+	height: 20px;
+	vertical-align: top;
+	cursor: pointer;
+} 
+
+.fileBrowserColumn .body .folder .icon {
+	width: 35px;	
+}
+
+.fileBrowserColumn .body .folder .name {
+}
+
+.fileBrowserColumn .body .folder.selected > .element{
+	background: #D3D3D3;
+}
+
+.fileBrowserColumn .body .folder.selected > .element > .name {
+	font-weight: bold;
+}
+
+.fileBrowserColumn .body .folder .options,
+.fileBrowserColumn .body .file .options {
+	width: 20px;
+	background: url("../resources/images/arrow_down.png") -1px 0px;
+	float: right;
+}
+
+
+.fileBrowserColumn .body div.folder > div.element > div.icon {
+	background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAOCAYAAACl66WxAAABwElEQVR42t2Uz0sCQRSAB4wKCoToBxSk3Tp06y/oGkFBZ6MOIXUoKikvhgRdggL/haBDXuqgeBCEMkQk0Mo2l6QtBGOtMBKVbLfXvLE85KQTSIcWPt6ww3vv480whPyn73qORClQxTxx/rVLCzZ+VXagdLfMeEtvQWZ3BCQrCdL9pl9VCwQC4HK5fgT3a6R3ocy76gT90lhGHoKXo0XgTqtMNjlHJrjVsGEt2Tr7JiZzYwftpPOTLtClaShdbkDpbK2K++0BSFjJMc01cJtpmlaB/qqsC4UC1JExo0xq0wQpR7MQyooBLmbJFc1t48oUi0UGNkcZjNlsFhRFEZJ5cI/CS2hBiMeDSXZceMRcmVwuxyS+I8uykEwxYYf3TKsQhfPFL5k+rgxOAVFVlUlgxKnE43EhmdLtMui37ULko0tfMiauDDaWJAlisRiTwRiJRCAcDovJJG300hrrk+iB/GlFxsyVwcZ+vx+8Xm8Fj8cDPp9PTEZ2gHbaURf9Yhie9scgaGEX2Nzod4bJPB+OQz5kEyK9MwjBKSLR3P5Gv8DmyAy5q/HAcdmbIG6a29toGbyEFso6xSnIKmWM0v292AdD6YO/1qA1xwAAAABJRU5ErkJggg==") no-repeat 50% 50%;
+}
+
+.fileBrowserColumn .body div.folder.empty.open > div.element > div.icon, 
+.fileBrowserColumn .body div.folder.empty > div.element > div.icon {
+	background-image: url("../../images/treeLeaf.png");
+}
+
+
+.fileBrowserColumn .body div.folder.open > div.element > div.icon {
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAOCAYAAACl66WxAAAB9klEQVR42t2VMUgbYRTHP8GWYgRpsBaEloJYKC52KXUQIdqldQhViLFD69Km7dCxkyXgJIhCHDuITh06twktuYCiBBNKrxgCsdVEqiQ5bAxeg3p3f993TQPppZdPEAc/+HHcPd57v3vf8R1j52mt+9hc6jmDhRfMf9YuF3hjbccHQ3GX8UCNDyDxjC1SvPFE1cLhMAKBwH/hcZt0J5cxMqPQ11oqaD9e4vurBlOI4lINZmpW4w3tFo/byFzjMvqaB9pSa5kr0ON9OJKfQv08ZGH/o8vcRj7VmjKapkHX9Qr8nlMqlerJ3OCFD5e9yE45sDV+UQieU57ajEWGN/2XQqGAdDotJLP7zo3MRBP2V4fx+9ugEHuRbuuEeDNVVflDC6lUSkhme/o29qQHMPLtMHKX6qN04NeHHqw8YRGqcblKplgsmpNQFAX5fB7ZbNacSjKZFJLhHKyPQd9sFsLIeZH2OzB9j81SjfYqmb+NZVmuEIvFEI1GhWQy/lZqch96okWIg4TXfIFbTuahGm1VMryxJEkIhUIVgsGgeRWRyc33Q/vSAS3mrI/chd33vQiOsK+Uf5doPq1z5s8HvNAJNfxQmI3XDky62FvKv3nig9FO5tMoi9f8Hdiw/Jj9pNxB4irRcFoy14lHxDjhF+QN4SPuVG0RrWPKmcFLwVUzpQAAAABJRU5ErkJggg==");
+}
+
+.fileBrowserColumn .body .file .icon{
+	width: 20px;
+}
+
+.fileBrowserColumn .body .file.selected {
+	background: #D3D3D3;
+}
+
+.fileBrowserColumn .body .file.selected > .name {
+	font-weight: bold;
+}
+
+.fileBrowserColumn .body .file .icon,
+.fileBrowserColumn .body .file .name {
+	display: inline-block;
+	height: 20px;
+	vertical-align: top;
+	cursor: pointer;
+} 
+
+.fileBrowserColumn .body .file .options {
+ 	display: none;
+	height: 20px;
+	vertical-align: top;
+	cursor: pointer;
+ }
+
+.fileBrowserColumn .body .file:hover > .options {
+ 	display: inline-block;
+ }
+
+.fileBrowserColumn .body .file .icon {
+
+	background: no-repeat url("../../images/fileIcon.gif") 50% 50%;
+}
+
+.fileBrowserColumn .body .file .icon.xaction{
+	background-image: url("../../../api/repos/xaction/resources/images/xaction_file_image.png");
+}
+
+.fileBrowserColumn .body .file .icon.xdash{
+	background-image: url("../../../api/repos/dashboards/resources/images/dashboardFileType.png");
+}
+
+.fileBrowserColumn .body .file .icon.url{
+	background-image: url("../../../api/repos/url/resources/images/file_url.png");
+}
+
+.fileBrowserColumn .body .file .icon.ktr{
+	background-image: url("../../../content/pdi-platform-plugin/resources/images/transformation.png");
+}
+
+.fileBrowserColumn .body .file .icon.prpt{
+	background-image: url("../../../api/repos/reporting/reportviewer/images/prptFileType.png");
+}
+
+.fileBrowserColumn .body .file .icon.prpti{
+	background-image: url("../../../api/repos/pentaho-interactive-reporting/resources/images/prptiFileType.png");
+}
+
+.fileBrowserColumn .body .file .icon.xanalyser{
+	background-image: url("../../../api/repos/xanalyzer/images/analysis_report_file_icon.png");
+}
+
+.fileBrowserColumn .body .file .icon.xcdf{
+	background-image: url("../../../content/pentaho-cdf/resources/cdfFileType.png");
+}
+
+
+
+
+
