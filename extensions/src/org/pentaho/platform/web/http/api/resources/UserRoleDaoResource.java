@@ -306,27 +306,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("/getRolesForUser")
-  @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public Response getRolesForUser(@QueryParam("user") String user) throws Exception {
-    try {
-      return Response.ok(SystemResourceUtil.getRolesForUser(user).asXML()).type(MediaType.APPLICATION_XML).build();
-    } catch (Throwable t) {
-      throw new WebApplicationException(t);
-    }
-  }
-
-  @GET
-  @Path("/getUsersInRole")
-  @Produces({ APPLICATION_XML, APPLICATION_JSON })
-  public Response getUsersInRole(@QueryParam("role") String role) throws Exception {
-    try {
-      return Response.ok(SystemResourceUtil.getUsersInRole(role).asXML()).type(MediaType.APPLICATION_XML).build();
-    } catch (Throwable t) {
-      throw new WebApplicationException(t);
-    }
-  }  
+  
   
 
   

@@ -9,6 +9,10 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -96,4 +100,27 @@ public class UserRoleListResource extends AbstractJaxRSResource  {
     return new RoleListWrapper(extraRoles);
   }
 
+  @GET
+  @Path("/getRolesForUser")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public Response getRolesForUser(@QueryParam("user") String user) throws Exception {
+    try {
+      return Response.ok(SystemResourceUtil.getRolesForUser(user).asXML()).type(MediaType.APPLICATION_XML).build();
+    } catch (Throwable t) {
+      throw new WebApplicationException(t);
+    }
+  }
+  
+
+
+  @GET
+  @Path("/getUsersInRole")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public Response getUsersInRole(@QueryParam("role") String role) throws Exception {
+    try {
+      return Response.ok(SystemResourceUtil.getUsersInRole(role).asXML()).type(MediaType.APPLICATION_XML).build();
+    } catch (Throwable t) {
+      throw new WebApplicationException(t);
+    }
+  }
 }
