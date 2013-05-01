@@ -112,7 +112,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     scheduleParamsWizardPanel = new ScheduleParamsWizardPanel(filePath);
     IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
     this.setWizardPanels(wizardPanels);
-    //setPixelSize(800, 465);
     setWidth("800px");
     String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
 
