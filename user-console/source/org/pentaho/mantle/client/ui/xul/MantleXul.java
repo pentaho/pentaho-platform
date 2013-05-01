@@ -50,6 +50,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -150,6 +151,17 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
           adminCatTree.getTree().removeStyleName("gwt-Tree");
           Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
           adminContentPanel.setWidth("100%");
+
+          for (int i=0;i<adminCatTree.getTree().getItemCount();i++) {
+            TreeItem treeItem = adminCatTree.getTree().getItem(i);
+            Element e = treeItem.getElement();
+            e.getStyle().clearPadding();
+            e.addClassName("adminCatTreeItem");
+            if (i==adminCatTree.getTree().getItemCount()-1) {
+              e.addClassName("adminCatTreeItemLast");
+            }
+          }
+          
           
           MantleXul.this.selectAdminCatTreeTreeItem(Messages.getString("manageUsersAndRoles").replaceAll("&amp;", "&"));
           controller.loadUserRolesAdminPanel();
