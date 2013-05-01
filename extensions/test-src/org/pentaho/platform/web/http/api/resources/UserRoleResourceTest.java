@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
@@ -44,7 +43,7 @@ public class UserRoleResourceTest extends TestCase {
     systemRoles.add(adminRole);
     systemRoles.add("Anonymous");
     systemRoles.add("Authenticated");
-    new UserRoleResource(new MockRoleAuthorizationPolicyRoleBindingDao(), new MockTenantManager(), systemRoles, "Administrator", new ArrayList<String>());
+    new UserRoleDaoResource(new MockRoleAuthorizationPolicyRoleBindingDao(), new MockTenantManager(), systemRoles, "Administrator");
   }
 
   public void getAllUsers() throws Exception {
