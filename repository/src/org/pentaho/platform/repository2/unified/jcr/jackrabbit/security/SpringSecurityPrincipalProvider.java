@@ -123,9 +123,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   /** flag indicating if the instance has not been {@link #close() closed} */
   private boolean initialized;
 
-  private LRUMap userCache = new LRUMap();
+  private LRUMap userCache = new LRUMap(4096);
 
-  private LRUMap roleCache = new LRUMap();
+  private LRUMap roleCache = new LRUMap(512);
 
   // ~ Constructors
   // ====================================================================================================
