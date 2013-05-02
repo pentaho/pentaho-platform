@@ -30,8 +30,7 @@
   padding-top: 10px;
   padding-left: 10px;
   background-image: url('images/grey_triangle_right.png');
-  background-position-x: 90%;
-  background-position-y: center;  
+  background-position: 95% center;
   background-repeat: no-repeat;
 }
 
