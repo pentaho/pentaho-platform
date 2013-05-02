@@ -84,7 +84,9 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     } catch (Exception e) {
       //If we are doing a logged import then we do not want to fail on a single file
       //so log the error and keep going.
-      if (repositoryImportLogger != null && repositoryImportLogger.hasLogger()){
+      RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
+      String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
+      if (repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0){
         repositoryImportLogger.error(e);
       } else {
         if (e instanceof PlatformImportException) {
@@ -101,7 +103,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
 		RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
 		String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
 		//If doing a mondrian publish then there will be no active logger
-		if (repositoryImportLogger.hasLogger()){
+		if (repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0){
 				repositoryImportLogger.setCurrentFilePath(repositoryFilePath);
 		}
 	}
