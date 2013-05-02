@@ -45,9 +45,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
 
   @Override
   public void importFile(IPlatformImportBundle file) throws PlatformImportException {
-
     String domainId = processMetadataFile(file);
-
     // bundle may have language files supplied with it.
     if (file.getChildBundles() != null) {
       for (IPlatformImportBundle child : file.getChildBundles()) {
@@ -81,8 +79,8 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0001_IMPORTING_METADATA",
           domainId, e.getLocalizedMessage());
       log.error(errorMessage, e);
+      throw new PlatformImportException(errorMessage, e);
     }
-    return null;
   }
 
   private void processLocaleFile(final IPlatformImportBundle bundle, String domainId) throws PlatformImportException {
@@ -92,6 +90,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     if (domainId == null) {
       // try to resolve domainId from bundle
       domainId = (String) bundle.getProperty("domain-id");
+      
     }
     if (domainId == null) {
       throw new PlatformImportException("Bundle missing required domain-id property");
@@ -105,6 +104,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0002_IMPORTING_LOCALE_FILE",
           info.getPath(), domainId, info.getLocale(), e.getLocalizedMessage());
       log.error(errorMessage, e);
+      throw new PlatformImportException(errorMessage, e);
     }
   }
 
