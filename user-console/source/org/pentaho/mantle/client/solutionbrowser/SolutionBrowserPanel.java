@@ -274,11 +274,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   private void adjustHeight(){
-    Element pucPerspectives=DOM.getElementById("pucPerspectives");
-    Element mainToolBar=DOM.getElementById("mainToolbar");
+    Element pucHeader=DOM.getElementById("pucHeader");
     int offset;
-    if(pucPerspectives!=null && mainToolBar!=null){
-      offset=pucPerspectives.getOffsetHeight()+mainToolBar.getOffsetHeight();
+    if(pucHeader!=null){
+      offset=pucHeader.getOffsetHeight();
       setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-1*offset);
     }
   }
