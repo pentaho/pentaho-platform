@@ -602,15 +602,12 @@ code {
   height: auto;
 }
 .waitPopup_title{
-
-  margin-left: 40px;
   padding-bottom: 3px;
 }
 
 .waitPopup_msg{
-  margin-left: 40px;
-
 }
+
 .mantle-toolbar-combo-button{
   margin: 1px;
 }

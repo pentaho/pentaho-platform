@@ -118,7 +118,34 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     $wnd.urlCommand = function(url, title, showInDialog, dialogWidth, dialogHeight) {
       @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
     }
-        
+
+    // globally available busy indicator
+    busyIndicator = null;
+
+  }-*/;
+
+  public static native void showBusyIndicator(String title, String message)/*-{
+    if(busyIndicator == null) {
+      $wnd.pen.require([
+        "common-ui/util/BusyIndicator"
+      ],
+
+        function(BusyIndicator) {
+          busyIndicator = new BusyIndicator();
+          busyIndicator.show(title, message);
+        });
+    } else {
+      busyIndicator.show(title, message);
+    }
+
+  }-*/;
+
+  public static native void hideBusyIndicator()/*-{
+    if(busyIndicator != null) {
+      busyIndicator.hide();
+    } else {
+      console.log("No busy indicator to hide");
+    }
   }-*/;
 
   private void executeCommand(String commandName) {
