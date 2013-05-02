@@ -92,10 +92,12 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     dataTable.addRowSelectionHandler(this);
     GeneratedContentTableImages images = GWT.create(GeneratedContentTableImages.class);
     ScrollTable scrollTable = new ScrollTable(dataTable, headerTable, images);
-    scrollTable.setSize("100%", "400px"); //$NON-NLS-1$//$NON-NLS-2$
+    scrollTable.setSize("100%", "225px"); //$NON-NLS-1$//$NON-NLS-2$
     this.add(scrollTable);
 
     this.sinkEvents(Event.ONDBLCLICK);
+    toolbar.removeStyleName("toolbar");
+
     init(this.repositoryFilePath, null);
   }
 
@@ -211,10 +213,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
      */
     public HistoryToolbar() {
       super();
-
       // Formatting stuff
       setHorizontalAlignment(ALIGN_RIGHT);
-      setStyleName("pentaho-titled-toolbar");
       setHeight("29px"); //$NON-NLS-1$
       setWidth("100%"); //$NON-NLS-1$
 
@@ -225,10 +225,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
      *
      */
     private void createMenus() {
-      addSpacer(5);
-      Label label = new Label(Messages.getString("history"));
-      label.setStyleName("pentaho-titled-toolbar-label");
-      add(label); //$NON-NLS-1$
+
       add(GLUE);
 
       Image runImage = new Image(MantleImages.images.run());
