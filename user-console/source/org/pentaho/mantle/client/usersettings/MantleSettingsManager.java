@@ -93,7 +93,7 @@ public class MantleSettingsManager {
 
       public void onResponseReceived(Request request, Response response) {
 
-		JsArray<JsSetting> jsSettings = null;
+        JsArray<JsSetting> jsSettings = null;
         try {
           jsSettings = JsSetting.parseSettingsJson(response.getText());
         } catch (Throwable t) {

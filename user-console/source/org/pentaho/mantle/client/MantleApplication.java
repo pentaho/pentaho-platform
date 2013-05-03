@@ -29,6 +29,8 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -43,6 +45,8 @@ import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -60,6 +64,8 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class MantleApplication implements IUserSettingsListener, IMantleSettingsListener {
 
+  public static EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);  
+  
   public static boolean showAdvancedFeatures = false;
 
   public static String mantleRevisionOverride = null;
@@ -73,7 +79,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public static AbsolutePanel overlayPanel = new AbsolutePanel();
 
   private static MantleApplication instance;
-
+  
   private MantleApplication() {
   }
 
@@ -90,7 +96,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
 
     // listen to any reloads of user settings
     UserSettingsManager.getInstance().addUserSettingsListener(this);
-
   }
 
   public native void setupNativeHooks(MantleApplication mantle, LoginCommand loginCmd)
@@ -119,11 +124,30 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
     }
 
+    $wnd.mantle_addHandler = function(type, callback) {
+      @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, callback);      
+    }
+
     // globally available busy indicator
     busyIndicator = null;
 
   }-*/;
 
+  public static void addHandler(final String type, final JavaScriptObject jso) {
+    if (type.equals("SolutionBrowserOpenEvent")) {
+      EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, new SolutionBrowserOpenEventHandler() {
+        public void onTabOpened(SolutionBrowserOpenEvent event) {
+          invokeEventBusJSO(jso, event.getWidget(), event.getFileItems());
+        }
+      });
+    }
+  }
+  
+  private static native void invokeEventBusJSO(final JavaScriptObject jso, Object... params) 
+  /*-{    
+    jso.call(this, params);
+  }-*/;
+  
   public static native void showBusyIndicator(String title, String message)/*-{
     if(busyIndicator == null) {
       $wnd.pen.require([

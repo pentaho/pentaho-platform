@@ -52,7 +52,7 @@ public class UserSettingsManager {
     if (settings == null) {
       fetchUserSettings(true);
     } else {
-    	listener.onFetchUserSettings(settings);
+      listener.onFetchUserSettings(settings);
     }
   }
 

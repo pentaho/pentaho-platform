@@ -184,7 +184,7 @@ public class MantleController extends AbstractXulEventHandler {
     recentMenu = (XulMenubar) document.getElementById("recentmenu"); //$NON-NLS-1$
     favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu"); //$NON-NLS-1$
 
-    //let the manager have access to these menu items to toggle checks off and on 
+    // let the manager have access to these menu items to toggle checks off and on
     PerspectiveManager.getInstance().setBrowserMenuItem((PentahoMenuItem) showBrowserMenuItem.getManagedObject());
     PerspectiveManager.getInstance().setSchedulesMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
     ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(true);
@@ -208,10 +208,10 @@ public class MantleController extends AbstractXulEventHandler {
     }
     buildFavoritesAndRecent(false);
 
-    //Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
+    // Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
     final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
 
-    //For the menu item
+    // For the menu item
     bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
 
     UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener() {
@@ -236,8 +236,7 @@ public class MantleController extends AbstractXulEventHandler {
               ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
             }
           } catch (Exception e) {
-            MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
             dialogBox.center();
           }
         }
@@ -246,8 +245,7 @@ public class MantleController extends AbstractXulEventHandler {
     });
 
     // install themes
-    RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
-        + "api/theme/active"); //$NON-NLS-1$
+    RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active"); //$NON-NLS-1$
     try {
       getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -257,8 +255,7 @@ public class MantleController extends AbstractXulEventHandler {
 
         public void onResponseReceived(Request request, Response response) {
           final String activeTheme = response.getText();
-          RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
-              + "api/theme/list"); //$NON-NLS-1$
+          RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list"); //$NON-NLS-1$
           getThemesRequestBuilder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
           try {
@@ -290,8 +287,7 @@ public class MantleController extends AbstractXulEventHandler {
 
                 for (int i = 0; i < themes.length(); i++) {
                   JsTheme theme = themes.get(i);
-                  PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme
-                      .getId()));
+                  PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme.getId()));
                   themeMenuItem.getElement().setId(theme.getId() + "_menu_item"); //$NON-NLS-1$
                   themeMenuItem.setChecked(theme.getId().equals(activeTheme));
                   ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
@@ -326,8 +322,8 @@ public class MantleController extends AbstractXulEventHandler {
 
   /**
    * 
-   * @param force Force the reload of user settings from server
-   * rather than use cache.
+   * @param force
+   *          Force the reload of user settings from server rather than use cache.
    * 
    */
   public void buildFavoritesAndRecent(boolean force) {
@@ -363,9 +359,11 @@ public class MantleController extends AbstractXulEventHandler {
 
   /**
    * Loads an arbitrary <code>FilePickList</code> into a menu
-   *  
-   * @param pickMenu  The XulMenuBar to host the menu entries
-   * @param filePickList The files to list in natural order
+   * 
+   * @param pickMenu
+   *          The XulMenuBar to host the menu entries
+   * @param filePickList
+   *          The files to list in natural order
    */
   private void refreshPickListMenu(XulMenubar pickMenu, final AbstractFilePickList<? extends IFilePickItem> filePickList, PickListType type) {
     final MenuBar menuBar = (MenuBar) pickMenu.getManagedObject();
@@ -386,7 +384,7 @@ public class MantleController extends AbstractXulEventHandler {
       menuBar.addSeparator();
       menuBar.addItem(menuClearMessage, new Command() {
         public void execute() {
-          //confirm the clear
+          // confirm the clear
           GwtConfirmBox warning = new GwtConfirmBox();
           warning.setHeight(117);
           warning.setMessage(clearMessage);
@@ -398,16 +396,16 @@ public class MantleController extends AbstractXulEventHandler {
               }
             }
 
-                public void onError(XulComponent sender, Throwable t) {
-                }
-              });
-              warning.show();
+            public void onError(XulComponent sender, Throwable t) {
             }
           });
+          warning.show();
+        }
+      });
     } else {
       menuBar.addItem(Messages.getString("empty"), new Command() { //$NON-NLS-1$
             public void execute() {
-              //Do nothing
+              // Do nothing
             }
           });
     }
@@ -507,11 +505,10 @@ public class MantleController extends AbstractXulEventHandler {
         }
       };
 
-      RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
-          + "api/mantle/getAdminContent"); //$NON-NLS-1$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/getAdminContent"); //$NON-NLS-1$
       builder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
       builder.sendRequest(null, internalCallback);
-      //TO DO Reset the menuItem click for browser and workspace here?
+      // TO DO Reset the menuItem click for browser and workspace here?
     } catch (RequestException e) {
     }
   }
@@ -581,30 +578,32 @@ public class MantleController extends AbstractXulEventHandler {
   /**
    * If any external listeners have been registered, notify them that favorites have changed
    */
-  private native void fireFavoritesChangedCallbacks() /*-{
-                                                      if($wnd.externalCallbacks && $wnd.externalCallbacks.favoritesChanged) {
-                                                      for(var i = 0; i < $wnd.externalCallbacks.favoritesChanged.length; i++) {
-                                                      var callback = $wnd.externalCallbacks.favoritesChanged[i];
-                                                      if(typeof(callback) == 'function') {
-                                                      callback();
-                                                      }
-                                                      }
-                                                      }
-                                                      }-*/;
+  private native void fireFavoritesChangedCallbacks()
+  /*-{
+    if($wnd.externalCallbacks && $wnd.externalCallbacks.favoritesChanged) {
+      for(var i = 0; i < $wnd.externalCallbacks.favoritesChanged.length; i++) {
+        var callback = $wnd.externalCallbacks.favoritesChanged[i];
+        if(typeof(callback) == 'function') {
+          callback();
+        }
+      }
+    }
+  }-*/;
 
   /**
    * If any external listeners have been registered, notify them that recents have changed
    */
-  private native void fireRecentsChangedCallbacks() /*-{
-                                                    if($wnd.externalCallbacks && $wnd.externalCallbacks.recentsChanged) {
-                                                    for(var i = 0; i < $wnd.externalCallbacks.recentsChanged.length; i++) {
-                                                    var callback = $wnd.externalCallbacks.recentsChanged[i];
-                                                    if(typeof(callback) == 'function') {
-                                                    callback();
-                                                    }
-                                                    }
-                                                    }
-                                                    }-*/;
+  private native void fireRecentsChangedCallbacks()
+  /*-{
+    if($wnd.externalCallbacks && $wnd.externalCallbacks.recentsChanged) {
+      for(var i = 0; i < $wnd.externalCallbacks.recentsChanged.length; i++) {
+        var callback = $wnd.externalCallbacks.recentsChanged[i];
+        if(typeof(callback) == 'function') {
+          callback();
+        }
+      }
+    }
+  }-*/;
 
   public void enableUsersRolesTreeItem(boolean enabled) {
     MantleXul.getInstance().enableUsersRolesTreeItem(enabled);
@@ -635,12 +634,10 @@ public class MantleController extends AbstractXulEventHandler {
         public void onSuccess() {
           if (UserRolesAdminPanelController.getInstance().getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadUserRolesAdminPanel();
-            UserRolesAdminPanelController.getInstance().getElement()
-                .setId((UserRolesAdminPanelController.getInstance()).getId());
+            UserRolesAdminPanelController.getInstance().getElement().setId((UserRolesAdminPanelController.getInstance()).getId());
           } else if ((EmailAdminPanelController.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadEmailAdminPanel();
-            EmailAdminPanelController.getInstance().getElement()
-                .setId((EmailAdminPanelController.getInstance()).getId());
+            EmailAdminPanelController.getInstance().getElement().setId((EmailAdminPanelController.getInstance()).getId());
           } else if ((ContentCleanerPanel.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadSettingsPanel();
             ContentCleanerPanel.getInstance().getElement().setId((ContentCleanerPanel.getInstance()).getId());
@@ -718,7 +715,7 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void showNavigatorClicked() {
     boolean show = !model.isShowNavigatorSelected();
-    model.setShowNavigatorSelected(show); //toggle first
+    model.setShowNavigatorSelected(show); // toggle first
     ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(show);
     showBrowserCommand.execute();
   }
@@ -759,14 +756,11 @@ public class MantleController extends AbstractXulEventHandler {
     }
   }-*/;
 
-  private void passivateActiveSecurityPanels(final String idOfSecurityPanelToBeActivated,
-      final String urlOfSecurityPanelToBeActivated) {
-    adminPanelAwaitingActivation = new SysAdminPanelInfo(idOfSecurityPanelToBeActivated,
-        urlOfSecurityPanelToBeActivated);
+  private void passivateActiveSecurityPanels(final String idOfSecurityPanelToBeActivated, final String urlOfSecurityPanelToBeActivated) {
+    adminPanelAwaitingActivation = new SysAdminPanelInfo(idOfSecurityPanelToBeActivated, urlOfSecurityPanelToBeActivated);
     int visiblePanelIndex = MantleXul.getInstance().getAdminContentDeck().getVisibleWidget();
     if (visiblePanelIndex >= 0) {
-      String visiblePanelId = MantleXul.getInstance().getAdminContentDeck().getWidget(visiblePanelIndex).getElement()
-          .getId();
+      String visiblePanelId = MantleXul.getInstance().getAdminContentDeck().getWidget(visiblePanelIndex).getElement().getId();
       if ((visiblePanelId != null) && !visiblePanelId.equals(idOfSecurityPanelToBeActivated)) {
         ISysAdminPanel sysAdminPanel = sysAdminPanelsMap.get(visiblePanelId);
         if (sysAdminPanel != null) {
@@ -888,8 +882,7 @@ public class MantleController extends AbstractXulEventHandler {
   public void editContentClicked() {
     model.setContentEditToggled();
 
-    executeEditContentCallback(SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame()
-        .getElement(), model.isContentEditSelected());
+    executeEditContentCallback(SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame().getElement(), model.isContentEditSelected());
   }
 
   private native void executeEditContentCallback(Element obj, boolean selected)
@@ -1016,8 +1009,7 @@ public class MantleController extends AbstractXulEventHandler {
 }
 
 enum PickListType {
-  FAVORITE("clearFavoriteList", "clearFavoriteItemsMessage"),
-  RECENT("clearRecentList", "clearRecentItemsMessage");
+  FAVORITE("clearFavoriteList", "clearFavoriteItemsMessage"), RECENT("clearRecentList", "clearRecentItemsMessage");
 
   String menuItemKey = null;
   String messageKey = null;

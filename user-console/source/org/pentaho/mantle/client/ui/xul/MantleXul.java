@@ -27,12 +27,18 @@ import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.commands.AbstractCommand;
+import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserDeselectEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserDeselectEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
@@ -62,7 +68,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
 
-public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
+public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHandler, SolutionBrowserCloseEventHandler, SolutionBrowserSelectEventHandler,
+    SolutionBrowserDeselectEventHandler {
 
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$  
@@ -84,7 +91,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl(GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL() + "messages/mantleMessages", this);
-    SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
   }
 
   public static MantleXul getInstance() {
@@ -459,17 +469,27 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     return overlays;
   }
 
-  public void solutionBrowserEvent(EventType type, Widget panel, FileItem selectedFileItem) {
-    if (panel instanceof IFrameTabPanel) {
-      if (SolutionBrowserListener.EventType.OPEN.equals(type) || SolutionBrowserListener.EventType.SELECT.equals(type)) {
-        if (panel != null) {
-          applyOverlays(((IFrameTabPanel) panel).getOverlayIds());
-        }
-      } else if (SolutionBrowserListener.EventType.CLOSE.equals(type) || SolutionBrowserListener.EventType.DESELECT.equals(type)) {
-        if (panel != null) {
-          removeOverlays(((IFrameTabPanel) panel).getOverlayIds());
-        }
-      }
+  public void onTabOpened(SolutionBrowserOpenEvent event) {
+    if (event.getWidget() != null) {
+      applyOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
+
+  public void onTabSelected(SolutionBrowserSelectEvent event) {
+    if (event.getWidget() != null) {
+      applyOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
+
+  public void onTabClosed(SolutionBrowserCloseEvent event) {
+    if (event.getWidget() != null) {
+      removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
+
+  public void onTabDeselected(SolutionBrowserDeselectEvent event) {
+    if (event.getWidget() != null) {
+      removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
     }
   }
 

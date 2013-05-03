@@ -26,7 +26,6 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
@@ -100,7 +99,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private boolean showSolutionBrowser = false;
   private boolean isAdministrator = false;
   private boolean isScheduler = false;
-  private ArrayList<SolutionBrowserListener> listeners = new ArrayList<SolutionBrowserListener>();
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
 
@@ -642,42 +640,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorPanel.setVisible(false);
     }
     adjustContentPanelSize();
-  }
-
-  public void addSolutionBrowserListener(SolutionBrowserListener listener) {
-    listeners.add(listener);
-  }
-
-  public void removeSolutionBrowserListener(SolutionBrowserListener listener) {
-    listeners.remove(listener);
-  }
-
-  public void fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType type, int tabIndex) {
-    // does this take parameters? or should it simply return the state
-
-    // Get a reference to the current tab
-    PentahoTab tab = contentTabPanel.getTab(tabIndex);
-    Widget tabContent = null;
-    if (tab != null) {
-      tabContent = tab.getContent();
-    }
-
-    for (SolutionBrowserListener listener : listeners) {
-      try {
-        List<FileItem> selectedItems = filesListPanel.getSelectedFileItems();
-        if (selectedItems.size() > 0) {
-          for (FileItem fileItem : selectedItems) {
-            listener.solutionBrowserEvent(type, tabContent, fileItem);
-          }
-        } else {
-          listener.solutionBrowserEvent(type, tabContent, null);
-        }
-      } catch (Exception e) {
-        // don't let this fail, it will disturb normal processing
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-      }
-    }
   }
 
   public SolutionTree getSolutionTree() {

@@ -20,16 +20,21 @@ package org.pentaho.mantle.client.ui.tabs;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserUndefinedEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
@@ -93,18 +98,18 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }
 
-  public void showNewURLTab(String tabName, String tabTooltip,  String url, boolean setFileInfoInFrame, String frameName) {
+  public void showNewURLTab(String tabName, String tabTooltip, String url, boolean setFileInfoInFrame, String frameName) {
 
     showLoadingIndicator();
     PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
 
     // Because Frames are being generated with the window.location object, relative URLs will be generated differetly
     // than if set with the src attribute. This detects the relative paths are prepends them appropriately.
-    if(url.indexOf("http") != 0 && url.indexOf("/") != 0){
+    if (url.indexOf("http") != 0 && url.indexOf("/") != 0) {
       url = GWT.getHostPageBaseURL() + url;
     }
-    
-    if(!url.contains("?")) {
+
+    if (!url.contains("?")) {
       url = url + "?ts=" + System.currentTimeMillis();
     } else {
       url = url + "&ts=" + System.currentTimeMillis();
@@ -158,14 +163,21 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     for (int i = 1; i < parentList.size(); i++) {
       parentList.get(i).getStyle().setProperty("height", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
+
+    Widget selectTabContent = null;
+    if (getTab(getSelectedTabIndex()) != null) {
+      selectTabContent = getTab(getSelectedTabIndex()).getContent();
+    }
+    List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+
+    MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserOpenEvent(selectTabContent, selectedItems));
 
     // if showContent is the thing that turns on our first tab, which is entirely possible, then we
     // would encounter the same timing issue as before
     panel.setUrl(url);
 
-    SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
-    
+    MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
+
     if (setFileInfoInFrame && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0) {
       setFileInfoInFrame(SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get(0));
     }
@@ -216,8 +228,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
     // TODO: remove once a more elegant tab solution is in place
     // Must escape name before attempting to match it in HTML
-    name = name
-        .replaceAll("&", "&amp;") //$NON-NLS-1$ //$NON-NLS-2$
+    name = name.replaceAll("&", "&amp;") //$NON-NLS-1$ //$NON-NLS-2$
         .replaceAll(">", "&gt;") //$NON-NLS-1$ //$NON-NLS-2$
         .replaceAll("<", "&lt;") //$NON-NLS-1$ //$NON-NLS-2$
         .replaceAll("\"", "&quot;"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -287,7 +298,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.setSaveEnabled(enabled);
-      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
+      Widget selectTabContent = null;
+      if (getTab(getSelectedTabIndex()) != null) {
+        selectTabContent = getTab(getSelectedTabIndex()).getContent();
+      }
+      List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -299,7 +315,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.addOverlay(id);
-      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
+      Widget selectTabContent = null;
+      if (getTab(getSelectedTabIndex()) != null) {
+        selectTabContent = getTab(getSelectedTabIndex()).getContent();
+      }
+      List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserOpenEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -307,7 +328,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.setEditEnabled(enable);
-      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, getSelectedTabIndex());
+      Widget selectTabContent = null;
+      if (getTab(getSelectedTabIndex()) != null) {
+        selectTabContent = getTab(getSelectedTabIndex()).getContent();
+      }
+      List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserUndefinedEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -315,7 +341,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.setEditSelected(selected);
-      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, getSelectedTabIndex());
+      Widget selectTabContent = null;
+      if (getTab(getSelectedTabIndex()) != null) {
+        selectTabContent = getTab(getSelectedTabIndex()).getContent();
+      }
+      List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserUndefinedEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -428,7 +459,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
             MantleTabPanel.super.closeTab(closeTab, invokePreTabCloseHook);
             if (getTabCount() == 0) {
               allTabsClosed();
-              SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
+              Widget selectTabContent = null;
+              if (getTab(getSelectedTabIndex()) != null) {
+                selectTabContent = getTab(getSelectedTabIndex()).getContent();
+              }
+              List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+              MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserCloseEvent(selectTabContent, selectedItems));
             }
           }
         });
@@ -442,11 +478,17 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
     if (getTabCount() == 0) {
       allTabsClosed();
-      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
+      Widget selectTabContent = null;
+      if (getTab(getSelectedTabIndex()) != null) {
+        selectTabContent = getTab(getSelectedTabIndex()).getContent();
+      }
+      List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserCloseEvent(selectTabContent, selectedItems));
     }
   }
 
-  public static native void clearClosingFrame(Element frame)/*-{
+  public static native void clearClosingFrame(Element frame)
+  /*-{
     try{
       frame.contentWindow.document.write("");
     } catch(e){
@@ -484,7 +526,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     }
 
-    if(getTabCount() == 0) {
+    if (getTabCount() == 0) {
       allTabsClosed();
     }
 
@@ -521,7 +563,13 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       return;
     }
 
-    SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
+    Widget selectTabContent = null;
+    if (getTab(getSelectedTabIndex()) != null) {
+      selectTabContent = getTab(getSelectedTabIndex()).getContent();
+    }
+    List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
+    MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
+
     Window.setTitle(Messages.getString("productName") + " - " + selectedTab.getLabelText()); //$NON-NLS-1$ //$NON-NLS-2$
 
     // first turn off all tabs that should be
@@ -543,7 +591,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       ieFix(((IFrameTabPanel) selectedTab.getContent()).getFrame().getElement());
 
       IFrameTabPanel tabPanel = (IFrameTabPanel) selectedTab.getContent();
-      if(tabPanel.getUrl() != null){
+      if (tabPanel.getUrl() != null) {
         onTabSelect(getFrameElement(selectedTab));
       }
     }
@@ -555,25 +603,25 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   private native void ieFix(Element frame)/*-{
-      try {
-      var inputElements = frame.contentWindow.document.getElementsByTagName("input");
-      for (var i = 0; i < inputElements.length; i++) {
-        if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type").toUpperCase()) {
-          if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute("paramType").toUpperCase())) { 
-            inputElements[i].focus();
-                break;
-              }
-            }
-          }
-    } catch (e) {    
-        }
-  }-*/;
+                                          try {
+                                          var inputElements = frame.contentWindow.document.getElementsByTagName("input");
+                                          for (var i = 0; i < inputElements.length; i++) {
+                                          if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type").toUpperCase()) {
+                                          if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute("paramType").toUpperCase())) { 
+                                          inputElements[i].focus();
+                                          break;
+                                          }
+                                          }
+                                          }
+                                          } catch (e) {    
+                                          }
+                                          }-*/;
 
   public static native void onTabSelect(Element element)/*-{
-    try{
-      element.contentWindow.onMantleActivation(); // tab must define this callback function
-    } catch(e){
-      // ignore
-    }
-  }-*/;
+                                                        try{
+                                                        element.contentWindow.onMantleActivation(); // tab must define this callback function
+                                                        } catch(e){
+                                                        // ignore
+                                                        }
+                                                        }-*/;
 }

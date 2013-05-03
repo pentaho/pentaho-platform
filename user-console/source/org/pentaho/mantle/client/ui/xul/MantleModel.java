@@ -17,13 +17,6 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
@@ -34,7 +27,14 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
+import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserDeselectEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserDeselectEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -44,7 +44,16 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
-public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserListener {
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.Widget;
+
+public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserOpenEventHandler, SolutionBrowserCloseEventHandler,
+    SolutionBrowserSelectEventHandler, SolutionBrowserDeselectEventHandler {
 
   private MantleXul main;
 
@@ -59,7 +68,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   private boolean contentEditSelected;
 
   private boolean showBrowserSelected;
-  
+
   private boolean showNavigatorSelected;
 
   private boolean propertiesEnabled;
@@ -69,7 +78,10 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   private JavaScriptObject callback;
 
   public MantleModel(MantleXul main) {
-    SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
+    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
     this.main = main;
   }
 
@@ -149,19 +161,20 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void showSchedules() {
     IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
     boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.SCHEDULES_PERSPECTIVE);
-    if (!showing || !this.showBrowserSelected) {    
+    if (!showing || !this.showBrowserSelected) {
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.SCHEDULES_PERSPECTIVE);
-    }    
+    }
   }
-  
+
   @Bindable
   public void showBrowser() {
     IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
     boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.OPENED_PERSPECTIVE);
-    if (!showing) {    
+    if (!showing) {
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
-    }   
+    }
   }
+
   @Bindable
   public void loadAdminContent(final String securityPanelId, final String url) {
     // hijack content area (or simply find and select existing content)
@@ -177,8 +190,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       frame.getElement().setId(securityPanelId);
       MantleXul.getInstance().getAdminContentDeck().add(frame);
     }
-    MantleXul.getInstance().getAdminContentDeck()
-        .showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
+    MantleXul.getInstance().getAdminContentDeck().showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
   }
 
   @Bindable
@@ -196,14 +208,13 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       }
     });
   }
-  
+
   @Bindable
   public void loadUserRolesAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
         DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-        if (MantleApplication.getInstance().getContentDeck()
-            .getWidgetIndex(UserRolesAdminPanelController.getInstance()) == -1) {
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(UserRolesAdminPanelController.getInstance()) == -1) {
           contentDeck.add(UserRolesAdminPanelController.getInstance());
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(UserRolesAdminPanelController.getInstance()));
@@ -271,13 +282,51 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     openFileCommand.execute();
   }
 
-  /**
-   * Process incoming events from the SolutionBrowser here
-   * 
-   * @TODO Move this listener to a controller where it really belongs, models shouldn't do this.
-   */
-  public void solutionBrowserEvent(SolutionBrowserListener.EventType type, Widget panel, FileItem selectedFileItem) {
+  public void onTabOpened(SolutionBrowserOpenEvent event) {
+    FileItem selectedItem = null;
+    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
+      selectedItem = event.getFileItems().get(0);
+    }
+    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
+    if (event.getWidget() != null) {
+      main.applyOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
 
+  public void onTabSelected(SolutionBrowserSelectEvent event) {
+    FileItem selectedItem = null;
+    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
+      selectedItem = event.getFileItems().get(0);
+    }
+    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
+    if (event.getWidget() != null) {
+      main.applyOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
+
+  public void onTabClosed(SolutionBrowserCloseEvent event) {
+    FileItem selectedItem = null;
+    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
+      selectedItem = event.getFileItems().get(0);
+    }
+    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
+    if (event.getWidget() != null) {
+      main.removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
+
+  public void onTabDeselected(SolutionBrowserDeselectEvent event) {
+    FileItem selectedItem = null;
+    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
+      selectedItem = event.getFileItems().get(0);
+    }
+    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
+    if (event.getWidget() != null) {
+      main.removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
+    }
+  }
+
+  private void handleSolutionBrowserEvent(Widget panel, FileItem selectedFileItem) {
     this.selectedFileItem = selectedFileItem;
     setPropertiesEnabled(selectedFileItem != null && selectedFileItem.getRepositoryFile() != null);
     setSaveEnabled(selectedFileItem != null && selectedFileItem.getRepositoryFile() != null);
@@ -302,19 +351,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     setCallback(callback);
     this.showNavigatorSelected = SolutionBrowserPanel.getInstance().isNavigatorShowing();
     setShowBrowserSelected(this.showNavigatorSelected);
-
-    if (panel instanceof IFrameTabPanel) {
-      if (SolutionBrowserListener.EventType.OPEN.equals(type) || SolutionBrowserListener.EventType.SELECT.equals(type)) {
-        if (panel != null) {
-          main.applyOverlays(((IFrameTabPanel) panel).getOverlayIds());
-        }
-      } else if (SolutionBrowserListener.EventType.CLOSE.equals(type)
-          || SolutionBrowserListener.EventType.DESELECT.equals(type)) {
-        if (panel != null) {
-          main.removeOverlays(((IFrameTabPanel) panel).getOverlayIds());
-        }
-      }
-    }
   }
 
   @Bindable
@@ -367,13 +403,13 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
-  public boolean isShowNavigatorSelected(){
+  public boolean isShowNavigatorSelected() {
     return this.showNavigatorSelected;
   }
 
   @Bindable
-  public void setShowNavigatorSelected(boolean showNavigator) {    
-    this.showNavigatorSelected = showNavigator;      
+  public void setShowNavigatorSelected(boolean showNavigator) {
+    this.showNavigatorSelected = showNavigator;
   }
 
 }
