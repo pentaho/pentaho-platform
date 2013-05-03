@@ -10,7 +10,8 @@ pen.define([
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
-  "common-ui/jquery"
+  "common-ui/jquery",
+  "js/browser.templates"
 ], function() {
 
 	this.FileBrowser = {};
@@ -30,9 +31,6 @@ pen.define([
 		this.openFileHandler = handler;
 	}
 
-
-
-
 	FileBrowser.init = function(){
 
 	};
@@ -43,128 +41,27 @@ pen.define([
 	};
 
 	FileBrowser.redraw = function(){
+		var myself = this;
 
-		this.fileBrowserModel = new FileBrowserModel({
-			openFileHandler: this.openFileHandler
-		});
-		this.FileBrowserView = new FileBrowserView({
-			model: this.fileBrowserModel,
-			el: this.$container
+		pen.require(["common-ui/util/PentahoSpinner"],function(spin){
+			myself.fileBrowserModel = new FileBrowserModel({
+				spinConfig: spin,
+				openFileHandler: myself.openFileHandler
+			});
+			myself.FileBrowserView = new FileBrowserView({
+				model: myself.fileBrowserModel,
+				el: myself.$container
+			});
 		});
 
-		this.FileBrowserView.render();
+		//this.FileBrowserView.render();
 	};
 
-	FileBrowser.templates = {
-		structure: Handlebars.compile(
-			"<div id='fileBrowserFolders' class='span4 well fileBrowserColumn'>" +
-				"<div class='body'></div>" + 
-			"</div>" +
-			"<div id='fileBrowserFiles' class='span4 well fileBrowserColumn'>" + 
-				"<div class='body'></div>" + 
-			"</div>" +
-			"<div id='fileBrowserButtons' class='span4 well fileBrowserColumn'>" +
-				"<div class='body'></div>" + 
-			"</div>"),
-		folderBrowserHeader: Handlebars.compile(
-			"{{#if folderBreadcrumb}}" + 
-				"<div id='foldersHeader' class='header'>Browsing: {{folderBreadcrumb}}</div>" +
-			"{{else}}" +
-				"<div id='foldersHeader' class='header'>Browsing: Root</div>" +
-			"{{/if}}"),
-		fileBrowserHeader: Handlebars.compile(
-			"{{#if folderName}}" +
-				"<div id='filesHeader' class='header'>{{folderName}} Files</div>" +
-			"{{else}}" + 
-				"<div id='filesHeader' class='header'>Root Files</div>" +
-			"{{/if}}"),
-		buttonsHeader: Handlebars.compile(
-			"{{#if folderName}}" +
-				"<div id='buttonsHeader' class='header'>Folder Actions for {{folderName}}</div>" +
-			"{{else}}" + 
-				"{{#if fileName}}" +
-					"<div id='buttonsHeader' class='header'>File Actions for {{fileName}}</div>" +
-				"{{else}}" +
-					"<div id='buttonsHeader' class='header'>Folder Actions for Root</div>" +
-				"{{/if}}" +
-
-			"{{/if}}"),
-		folderButtonsHeader: Handlebars.compile(
-			"<div id='buttonsHeader' class=''>Folder Actions for {{folderName}}</div>"),
-		fileButtonsHeader: Handlebars.compile(
-			"<div id='buttonsHeader' class=''>File Actions for {{fileName}}</div>"),
-		button: Handlebars.compile(
-			"{{#if predicate}}" +
-		    	"<div class='separator'></div>" +
-			"{{else}}" +
-				"<button id='{{id}}' class='btn btn-block'>{{text}}</button>" +
-		    "{{/if}}"),
-		buttons: Handlebars.compile("{{#each buttons}}{{button}}{{/each}}"),
-		folderText: "<div id='{{id}}' class='folder' path='{{path}}'>" + 
-				"<div class='element'>" +
-					"<div class='icon'> </div>" +
-					"{{#if title}}" + 
-						"<div class='name'>{{title}}</div>" +
-					"{{else}}" + 
-						"<div class='name'>{{name}}</div>" +
-					"{{/if}}" +
-					"<div class='options'> </div>" +
-				"</div>" +
-				"<div class='folders'>" +
-				"{{#each folders}} {{> folder}} {{/each}}" + 
-				"</div>" +
-			"</div>",
-		foldersText: "{{#each folders}} {{> folder}} {{/each}}",
-		file: Handlebars.compile(
-			"<div id='{{id}}' class='file' path='{{path}}'>" + 
-				"<div class='icon {{classes}}'> </div>" +
-				"<div class='name'>{{name}}</div>" +
-				"<div class='options'> </div>" +
-			"</div>"
-		),
-		files: Handlebars.compile(
-		"{{#each content}}" +
-			"{{file}}" +
-		"{{/each}}")
-
-	};
-
-	FileBrowser.templates.folders = Handlebars.compile(FileBrowser.templates.foldersText);
-	FileBrowser.templates.folder = Handlebars.compile(FileBrowser.templates.folderText);
-
-	Handlebars.registerHelper('button', function() {
-		return new Handlebars.SafeString(FileBrowser.templates.button({
-			id: this.id,
-			text:this.text,
-			predicate: (this.id=="separator")
-		}));
-	});
-
-	Handlebars.registerHelper('file', function(){
-		//handle file name
-		var name 	= this.name,
-			path 	= this.path;
-
-		var correctName = (name == "" ? path : name);
-
-		var lastIndex = correctName.lastIndexOf('.'),
-			nameNoExtension = correctName.substr(0,lastIndex),
-			extension = correctName.substr(lastIndex+1, correctName.length);
-
-		return new Handlebars.SafeString(FileBrowser.templates.file({
-			path: path,
-			name: nameNoExtension,
-			id: this.id,
-			classes: extension
-		}));
-	});
-
-	Handlebars.registerPartial('folder', FileBrowser.templates.folderText);
+	
 
 
 	var FileBrowserModel = Backbone.Model.extend({
 		defaults: {
-			getAuthenticatedURL: "/pentaho/api/mantle/isAuthenticated",
 			showHiddenFilesURL: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
 
 			fileButtons : {
@@ -200,10 +97,6 @@ pen.define([
 					{id: "propertiesButton",text: "Properties..."}
 				]
 			},
-			structure: {
-				files: "Files",
-				folders: "Folders"
-			},
 
 			foldersTreeModel: undefined,
 			fileListModel: undefined,
@@ -216,135 +109,48 @@ pen.define([
 			data: undefined,
 			fileData: undefined,
 
-			openFileHandler: undefined
+			openFileHandler: undefined,
+
+			spinConfig: undefined
 		},
 
 		initialize: function(){
-			var foldersTreeModel = this.get("foldersTreeModel"),
-				fileListModel = this.get("fileListModel");
+			var myself = this,
+				foldersTreeModel = myself.get("foldersTreeModel"),
+				fileListModel = myself.get("fileListModel");
 
 			//handle data
 			var foldersObj = {}
+			
+			//get spinner and give a new to each browser
+	      	var config = myself.get("spinConfig");
+	      	config.color = "#BBB";
 
-			var folders = this.fetchTree("/");
+	      	var spinner1 = new Spinner(config),
+	      		spinner2 = new Spinner(config);
 
-			foldersTreeModel = new FileBrowserFolderTreeModel({
-				data: folders			
+	      	//create two models
+			foldersTreeModel = new FileBrowserFolderTreeModel({	
+				spinner: spinner1,
 			});
 			fileListModel = new FileBrowserFileListModel({
-				openFileHandler: this.get("openFileHandler")
+				spinner: spinner2,
+				openFileHandler: myself.get("openFileHandler")
 			});
 
-			foldersTreeModel.on("change:clicked", this.updateClicked, this);
-			foldersTreeModel.on("change:clickedFolder", this.updateFolderClicked, this);
-			this.on("change:clickedFolder", this.updateFileList, this);
+			//assign backbone events
+			foldersTreeModel.on("change:clicked", myself.updateClicked, myself);
+			foldersTreeModel.on("change:clickedFolder", myself.updateFolderClicked, myself);
+			myself.on("change:clickedFolder", myself.updateFileList, myself);
 
-			fileListModel.on("change:clickedFile", this.updateFileClicked, this);
+			fileListModel.on("change:clickedFile", myself.updateFileClicked, myself);
 			
 			//handlers for buttons header update
-			foldersTreeModel.on("change:clicked", this.updateFolderLastClick, this);
-			fileListModel.on("change:clicked", this.updateFileLastClick, this);
+			foldersTreeModel.on("change:clicked", myself.updateFolderLastClick, myself);
+			fileListModel.on("change:clicked", myself.updateFileLastClick, myself);
 
-			this.set("foldersTreeModel", foldersTreeModel);
-			this.set("fileListModel", fileListModel);
-
-			
-		},
-
-		fetchTree: function(path){
-			var tree = null;
-
-			if(this.isAuthenticated()){
-				var url = this.getFileTreeRequest(path == null ? "/" : path);
-
-				$.ajax({
-					async: false,
-				 	type: "GET",
-				 	url: url,
-				 	success: function(response){
-						tree = response;
-					},
-					error: function(){
-					}
-				});
-			} 
-
-			return JSON.parse(tree).solution.folders[0];
-		},
-
-		fetchFileList: function(path){
-			var tree = null;
-
-			if(this.isAuthenticated()){
-				var url = this.getFileListRequest(path == null ? "/" : path);
-
-				$.ajax({
-					async: false,
-				 	type: "GET",
-				 	url: url,
-				 	success: function(response){
-						tree = response;
-					},
-					error: function(){
-					}
-				});
-			} 
-
-			return JSON.parse(tree);
-		},
-
-		getFileTreeRequest: function(path){
-			return "/pentaho/plugin/pentaho-cdf/api/getJSONSolution?mode=solutionTree&path="+
-				path+"&depth=-1&filter=*&showHiddenFiles="+
-				(this.showHiddenFiles() ? "true" : "false");
-		},
-
-		getFileListRequest: function(path){
-			return "/pentaho/plugin/pentaho-cdf/api/getJSONSolution?mode=contentList&path="+
-				path+"&depth=1&filter=*&showHiddenFiles="+
-				(this.showHiddenFiles() ? "true" : "false");
-		},
-
-
-		isAuthenticated: function(){
-			var returnValue = false;
-
-			$.ajax({
-				async: false,
-				type: "GET",
-				url: this.defaults.getAuthenticatedURL,
-				success: function(response){
-					returnValue = (response == "true" ? true : false);
-				},
-				error: function(){
-					returnValue = false;
-				}
-			});
-			
-			return returnValue;
-		},
-
-		showHiddenFiles: function(){
-			var returnValue = false;
-
-			$.ajax({
-				async: false,
-				type: "GET",
-				url: this.defaults.showHiddenFilesURL,
-				success: function(response){
-					returnValue = (response == "true" ? true : false);
-				},
-				error: function(){
-					returnValue = false;
-				}
-			});
-			
-			return returnValue;
-		},
-
-		clearClicked: function(){
-			this.set("clickedFolder", undefined);
-			this.set("fileClicked", undefined);
+			myself.set("foldersTreeModel", foldersTreeModel);
+			myself.set("fileListModel", fileListModel);
 		},
 
 		updateClicked: function(){
@@ -368,10 +174,6 @@ pen.define([
 		},
 
 		getLastClick: function(){
-			//clear last clicks
-			//this.get("foldersTreeModel").set("clicked", undefined);
-			//this.get("fileListModel").set("clicked", undefined);
-
 			return this.get("lastClick");
 		},
 
@@ -384,14 +186,9 @@ pen.define([
 		},
 
 		updateFileList: function(){
-			//fetch file list
-
-			var path = this.get("clickedFolder").attr("path");
-
-			var fileList = this.fetchFileList(path);
-
-			this.set("fileData",fileList);
-			this.get("fileListModel").set("fileData", fileList);
+			var myself = this;
+			//trigger file list update
+			myself.get("fileListModel").set("path", this.get("clickedFolder").attr("path"));
 
 		}
 	});
@@ -401,24 +198,116 @@ pen.define([
 		defaults: {
 			clicked: false,
 			clickedFolder: undefined,
-			data: undefined		
+			
+			data: undefined,
+			updateData: false,
+			
+			runSpinner: false,
+			spinner: undefined
 		},
 
 		initialize: function(){
-			
+			var myself = this;
+
+	    	myself.on("change:updateData", myself.updateData, myself);
+		},
+
+		updateData: function(){
+			var myself = this;
+
+			myself.set("runSpinner",true);
+
+			myself.fetchData("/", function(response){
+				myself.set("data", response);
+			});
+		},
+
+		fetchData: function(path, callback){
+			var myself = this,
+				tree = null;
+
+			var url = this.getFileTreeRequest(path == null ? "/" : path);
+
+			$.ajax({
+				async: true,
+			 	type: "GET",
+			 	url: url,
+			 	success: function(response){
+					if(callback != undefined){
+						callback(JSON.parse(response).solution.folders[0]);
+					}
+				},
+				error: function(){
+				},
+				beforeSend: function() {
+          			myself.set("runSpinner",true);
+        		}
+			});
+		},
+
+		getFileTreeRequest: function(path){
+			return "/pentaho/plugin/pentaho-cdf/api/getJSONSolution?mode=solutionTree&path="+
+				path+"&depth=-1&filter=*&showHiddenFiles=true";
 		}
+
 	});
 
 	var FileBrowserFileListModel = Backbone.Model.extend({
 		defaults: {
 			clicked: false,
 			clickedFile: undefined,
-			fileData: undefined,
+			
+			data: undefined,
+			path: "/",
+			
+			runSpinner: false,
+			spinner: undefined,
+
 			openFileHander: undefined
+
 		},
 
 		initialize: function(){
-			
+			var myself = this;
+
+	    	myself.on("change:path", myself.updateData, myself);
+		},
+
+		updateData: function(){
+			var myself = this;
+
+			myself.set("runSpinner",true);
+
+			myself.fetchData(myself.get("path"), function(response){
+				myself.set("data", response);
+			});
+		},
+
+		fetchData: function(path, callback){
+			var myself = this,
+				url = this.getFileListRequest(path == null ? "/" : path);
+
+			$.ajax({
+				async: true,
+			 	type: "GET",
+			 	url: url,
+			 	success: function(response){
+			 		if(callback != undefined){
+			 			callback(JSON.parse(response));
+			 		}
+				},
+				error: function(){
+				},
+				beforeSend: function() {
+          			myself.set("runSpinner",true);
+        		}
+			});
+		},
+
+
+		getFileListRequest: function(path){
+			return "/pentaho/plugin/pentaho-cdf/api/getJSONSolution?mode=contentList&path="+
+				path+"&depth=1&filter=*&showHiddenFiles=true";
 		}
 
 	});
@@ -433,6 +322,7 @@ pen.define([
 	   		this.initializeLayout();
 	    	this.initializeOptions();
 	    	this.configureListeners();
+	    	this.render();
 	  	},
 
 	  	configureListeners: function() {
@@ -453,45 +343,45 @@ pen.define([
 	  	},
 
 	  	initializeLayout: function(){
-			var $el = $(this.el);
+	  		var myself = this;
 
-			$el.empty();
+			myself.$el.empty();
 
-			var htmlStructure = FileBrowser.templates.structure(this.model.defaults.structure);
-			$el.append($(htmlStructure));
+			//require structure template
+			pen.require(["js/browser.templates"],function(templates){
+				myself.$el.append($(templates.structure({})));
+			});
 	  	},
 
 	  	initializeOptions: function() {
-	  		var $el = $(this.el);
+	  		var myself = this;
 
 			foldersTreeView = undefined;
 			fileListView = undefined;
 
 	  		this.foldersTreeView = new FileBrowserFolderTreeView({
-	  			model: this.model.get("foldersTreeModel"),
-	  			data: this.model.get("foldersTreeModel").get("data"),
-	  			el: $el.find("#fileBrowserFolders .body")
+	  			model: myself.model.get("foldersTreeModel"),
+	  			data: myself.model.get("foldersTreeModel").get("data"),
+	  			el: myself.$el.find("#fileBrowserFolders .body")
 	  		});
 
 	  		this.fileListView = new FileBrowserFileListView({
-	  			model: this.model.get("fileListModel"),
-	  			data: this.model.get("fileListModel").get("data"),
-	  			el: $el.find("#fileBrowserFiles .body")
+	  			model: myself.model.get("fileListModel"),
+	  			data: myself.model.get("fileListModel").get("data"),
+	  			el: myself.$el.find("#fileBrowserFiles .body")
 	  		});
 	 	},
 
 		render: function(){
+			var myself = this;
 
-			this.updateButtons();
-			this.updateButtonsHeader();
+			myself.updateButtons();
+			myself.updateButtonsHeader();
 
-			//this.foldersTreeView.setElement($el.find("#fileBrowserFolders .body"));
-			//this.fileListView.setElement($el.find("#fileBrowserFiles .body"));
+			//this.foldersTreeView.render();
 
-			this.foldersTreeView.render();
-
-			this.updateFolderBrowserHeader();
-			this.updateFileBrowserHeader();
+			myself.updateFolderBrowserHeader();
+			myself.updateFileBrowserHeader();
 
 			//disable all buttons on start
 			$("button.btn.btn-block").each(function(){
@@ -504,12 +394,12 @@ pen.define([
 			});
 
 			//remove padding of first folder
-			this.$el.find("#fileBrowserFolders").children().each(function(){
+			myself.$el.find("#fileBrowserFolders").children().each(function(){
 				$(this).addClass("first");
 			});
 
 			//sanitize folder names
-			this.$el.find(".element").each(function(){
+			myself.$el.find(".element").each(function(){
 				var $this = $(this);
 
 				if($this.height() > 20){
@@ -519,25 +409,30 @@ pen.define([
 		},
 
 		updateButtonsHeader: function(){
-			var $el = $(this.el),
-				$buttonsContainer = $el.find($("#fileBrowserButtons"));
+			var myself = this,
+				$buttonsContainer = myself.$el.find($("#fileBrowserButtons"));
 
 			$buttonsContainer.find($(".header")).detach();
 
-			var lastClick = this.model.getLastClick(),
-				folderClicked = this.model.getFolderClicked(),
-				fileClicked = this.model.getFileClicked();
+			var lastClick = myself.model.getLastClick(),
+				folderClicked = myself.model.getFolderClicked(),
+				fileClicked = myself.model.getFileClicked();
 
 			var obj = {};
 
 			if(lastClick == "file" && fileClicked != undefined){
-				obj["folderName"] = undefined;
-				obj["fileName"] = $(fileClicked.find('.name')[0]).text();
+				obj.folderName = undefined;
+				obj.fileName = $(fileClicked.find('.name')[0]).text();
 			} else if(lastClick == "folder" && folderClicked != undefined){
-				obj["folderName"] = $(folderClicked.find('.name')[0]).text();
-				obj["fileName"] = undefined;
+				obj.folderName = $(folderClicked.find('.name')[0]).text();
+				obj.fileName = undefined;
 			}	
-			$buttonsContainer.prepend($(FileBrowser.templates.buttonsHeader(obj)));
+
+			//require buttons header template
+			pen.require(["js/browser.templates"],function(templates){
+				$buttonsContainer.prepend($(templates.buttonsHeader(obj)));
+			});
+			
 		},
 
 		updateFolderBrowserHeader: function(){
@@ -552,7 +447,11 @@ pen.define([
 				folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined
 			};
 
-			$folderBrowserContainer.prepend($(FileBrowser.templates.folderBrowserHeader(obj)));
+			//require folders header template
+			pen.require(["js/browser.templates"],function(templates){
+				$folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
+			});
+			
 		},
 
 		updateFileBrowserHeader: function(){
@@ -567,7 +466,10 @@ pen.define([
 				folderName : folderClicked != undefined? folderClicked.find("> .element .name").text() : undefined
 			}
 
-			$folderBrowserContainer.prepend($(FileBrowser.templates.fileBrowserHeader(obj)));
+			//require files header template
+			pen.require(["js/browser.templates"],function(templates){
+				$folderBrowserContainer.prepend($(templates.fileBrowserHeader(obj)));
+			});
 		},
 
 		updateButtons: function(){
@@ -579,11 +481,18 @@ pen.define([
 				folderClicked = this.model.getFolderClicked(),
 				fileClicked = this.model.getFileClicked();
 
+			var buttonsType;	
+
 			if(lastClick == "file"){
-				$buttonsContainer.append($(FileBrowser.templates.buttons(this.model.defaults.fileButtons)));
+				buttonsType = this.model.defaults.fileButtons;
 			} else if(lastClick == "folder"){
-				$buttonsContainer.append($(FileBrowser.templates.buttons(this.model.defaults.folderButtons)));
+				buttonsType = this.model.defaults.folderButtons;
 			}	
+
+			//require buttons template
+			pen.require(["js/browser.templates"],function(templates){
+				$buttonsContainer.append($(templates.buttons(buttonsType)));
+			});
 		},
 
 		checkButtonsEnabled: function(){
@@ -602,11 +511,37 @@ pen.define([
 			"click .folder .name" 	: "clickFolder"
 		},
 
-		render: function(){
-			$(this.el).append(FileBrowser.templates.folders(this.options.data));
-			$(this.el).find(".folders").hide();
+		initialize: function(){
+			var myself = this,
+				data = myself.model.get("data"),
+				spinner = myself.model.get("spinner");
 
-			return this;
+			myself.model.on("change:runSpinner", myself.manageSpinner, myself);
+			myself.model.on("change:data", myself.render, myself);
+
+			if(data == undefined){ //update data
+				//start spinner
+				myself.$el.html(spinner.spin());
+				myself.model.set("updateData", true);
+			}
+		},
+
+		render: function(){
+			var myself = this,
+				data = myself.model.get("data");
+
+
+			//require folders template
+			pen.require(["js/browser.templates"],function(templates){
+				myself.$el.append(templates.folders(data));
+			});
+
+			//close all children folders
+			myself.$el.find(".folders").hide();
+
+	      	setTimeout(function() {
+		        myself.model.set("runSpinner", false);
+	      	}, 100);
 		},
 
 		expandFolder: function(event){
@@ -635,7 +570,23 @@ pen.define([
 			$target.addClass("selected");
 
 			event.stopPropagation();
-		}
+		},
+
+		manageSpinner: function() {
+			var myself = this,
+				runSpinner = this.model.get("runSpinner"),
+				spinner = this.model.get("spinner");
+
+			if(runSpinner){
+				if(spinner != undefined){
+					myself.$el.html(spinner.spin().el);
+				} else {
+			    	
+				}
+			} else {
+				myself.model.get("spinner").stop();
+			}
+	    }
 	});
 
 
@@ -646,15 +597,24 @@ pen.define([
 		},
 
 		initialize: function(){
-			this.model.on("change:fileData", this.updateFileList, this);
+			var myself = this,
+				data = myself.model.get("data");
+			this.model.on("change:data", this.updateFileList, this);
+			myself.model.on("change:runSpinner", myself.manageSpinner, myself);
 		},	
 
 		render: function(){
-			var data = this.model.get("fileData");
-			var html = FileBrowser.templates.files(data);
+			var myself = this,
+				data = myself.model.get("data");
 
-			$(this.el).empty().append(html);
+			//require file list template
+			pen.require(["js/browser.templates"],function(templates){
+				myself.$el.empty().append(templates.files(data));
+			});
 
+	      	setTimeout(function() {
+		        myself.model.set("runSpinner", false);
+	      	}, 100);
 		},
 
 		clickFile: function(event){
@@ -672,9 +632,30 @@ pen.define([
 		},
 
 		updateFileList: function(){
+			var myself = this;
 			this.render();
 
-		}
+	      	setTimeout(function() {
+	      		myself.model.set("runSpinner", false);
+	      	}, 100);
+	    },
+
+		manageSpinner: function() {
+			var myself = this,
+				runSpinner = this.model.get("runSpinner"),
+				spinner = this.model.get("spinner");
+
+			if(runSpinner){
+				if(spinner != undefined){
+					myself.$el.html(spinner.spin().el);
+				} else {
+			    	
+				}
+			} else {
+				myself.model.get("spinner").stop();
+			}
+	    }
+
 	});
 
 
@@ -685,8 +666,7 @@ pen.define([
 		redraw: FileBrowser.redraw,
 		templates: FileBrowser.templates
 	}
-}
-	);
+});
 
 
 
