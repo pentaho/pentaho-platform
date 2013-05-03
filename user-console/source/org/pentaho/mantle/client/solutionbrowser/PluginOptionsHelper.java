@@ -32,8 +32,6 @@ public class PluginOptionsHelper {
 
   private static ArrayList<FileTypeEnabledOptions> enabledOptionsList = new ArrayList<FileTypeEnabledOptions>();
   private static ArrayList<ContentTypePlugin> contentTypePluginList = new ArrayList<ContentTypePlugin>();
-  private static String newAnalysisViewOverrideCommandUrl;
-  private static String newAnalysisViewOverrideCommandTitle;
   private static String manageDatasourcesOverrideCommandUrl;
   private static String manageDatasourcesOverrideCommandTitle;
   private static String addDatasourceOverrideCommandUrl;
@@ -42,24 +40,6 @@ public class PluginOptionsHelper {
   public static void buildEnabledOptionsList(Map<String, String> settings) {
     enabledOptionsList.clear();
     contentTypePluginList.clear();
-
-    // Check for override of NewAnalysisView
-    // Poked in via pentaho.xml entry
-    if (settings.containsKey("new-analysis-view-command-url")) { //$NON-NLS-1$
-      newAnalysisViewOverrideCommandUrl = settings.get("new-analysis-view-command-url"); //$NON-NLS-1$
-      newAnalysisViewOverrideCommandTitle = settings.get("new-analysis-view-command-title"); //$NON-NLS-1$
-    }
-    // Check for override of New Report
-    // Poked in via pentaho.xml entry
-    // <new-analysis-view>
-    // <command-url>http://www.google.com</command-url>
-    // <command-title>Marc Analysis View</command-title>
-    // </new-analysis-view>
-    // <new-report>
-    // <command-url>http://www.yahoo.com</command-url>
-    // <command-title>Marc New Report</command-title>
-    // </new-report>
-    //
 
     if (settings.containsKey("manage-datasources-command-url")) { //$NON-NLS-1$
       manageDatasourcesOverrideCommandUrl = settings.get("manage-datasources-command-url"); //$NON-NLS-1$

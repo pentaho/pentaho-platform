@@ -17,7 +17,7 @@
   </perspective>
 
 
-  <perspective id="default.perspective" title="${opened}" layout-priority="-1"
+  <perspective id="opened.perspective" title="${opened}" layout-priority="-1"
                resourcebundle="content/default-plugin/resources/messages/messages">
     <overlay id="default-hidden-toolbar"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
       <toolbar id="mainToolbar" visible="true" />

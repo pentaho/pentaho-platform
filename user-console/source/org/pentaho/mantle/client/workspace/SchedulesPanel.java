@@ -16,7 +16,6 @@
  */
 package org.pentaho.mantle.client.workspace;
 
-import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_LEFT;
 import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 import java.util.ArrayList;

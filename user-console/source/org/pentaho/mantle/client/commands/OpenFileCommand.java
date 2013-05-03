@@ -46,7 +46,7 @@ public class OpenFileCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
 
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
 

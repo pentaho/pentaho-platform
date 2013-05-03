@@ -67,7 +67,7 @@ public class PerspectiveManager extends HorizontalPanel {
   
   public static final String ADMIN_PERSPECTIVE = "admin.perspective";
   public static final String SCHEDULES_PERSPECTIVE = "schedules.perspective";
-  public static final String DEFAULT_PERSPECTIVE = "default.perspective";
+  public static final String OPENED_PERSPECTIVE = "opened.perspective";
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
@@ -154,18 +154,9 @@ public class PerspectiveManager extends HorizontalPanel {
     registerFunctions(this);
   }
 
-  // public void selectDefaultPerspective() {
-  // showPerspective(toggles.get(0), perspectives.get(0));
-  // }
-
   protected void setPluginPerspectives(final ArrayList<IPluginPerspective> perspectives) {
 
     this.perspectives = perspectives;
-
-    // layoutPriority of -1 is for the default perspective
-    // anything lower will be added before the default
-    // anything higher will be added after the default
-    // TODO: anything larger than 100 will be added in the "More v" drop down
 
     clear();
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -357,14 +348,14 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    if (source.isDown() && !perspective.getId().equals(DEFAULT_PERSPECTIVE) && !perspective.getId().equals(SCHEDULES_PERSPECTIVE)
+    if (source.isDown() && !perspective.getId().equals(OPENED_PERSPECTIVE) && !perspective.getId().equals(SCHEDULES_PERSPECTIVE)
         && !perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       hijackContentArea(perspective);
     }
 
-    // if the selected perspective is "default.perspective"
-    if (perspective.getId().equals(DEFAULT_PERSPECTIVE)) {
-      showDefaultPerspective(true, false);
+    // if the selected perspective is "opened.perspective"
+    if (perspective.getId().equals(OPENED_PERSPECTIVE)) {
+      showOpenedPerspective(true, false);
     } else if (perspective.getId().equals(SCHEDULES_PERSPECTIVE)) {
       showSchedulesPerspective();
     } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
@@ -372,14 +363,13 @@ public class PerspectiveManager extends HorizontalPanel {
     }
   }
 
-  private void showDefaultPerspective(boolean browserChecked, boolean schedulesChecked) {
+  private void showOpenedPerspective(boolean browserChecked, boolean schedulesChecked) {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
     if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()) == -1) {
       contentDeck.add(SolutionBrowserPanel.getInstance());
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
-    // be sure to init the UI for IE...
     SolutionBrowserPanel.getInstance().setNavigatorShowing(SolutionBrowserPanel.getInstance().isNavigatorShowing());
     setCheckMMenuItem(browserChecked,schedulesChecked);
   }

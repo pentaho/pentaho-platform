@@ -192,7 +192,7 @@ public class MantleController extends AbstractXulEventHandler {
     PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
       @Override
       public void onHandle(Void aVoid) {
-        PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.DEFAULT_PERSPECTIVE, false);
+        PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
       }
     });
 

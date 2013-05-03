@@ -20,9 +20,7 @@
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -421,7 +419,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    * @return
    */
   public List<RequestBuilder> prepareRequests() {
-    List<RequestBuilder> requestBuilders = new ArrayList();
+    ArrayList<RequestBuilder> requestBuilders = new ArrayList<RequestBuilder>();
 
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();

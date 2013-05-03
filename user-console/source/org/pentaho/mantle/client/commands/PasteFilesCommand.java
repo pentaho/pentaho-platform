@@ -73,7 +73,7 @@ public class PasteFilesCommand extends AbstractCommand {
    */
   @Override
   protected void performOperation(boolean feedback) {
-    final SolutionBrowserClipboard clipBoard = SolutionBrowserPanel.getInstance().getClipboard();
+    final SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
     @SuppressWarnings("unchecked")
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     final List<RepositoryFile> pasteFiles = new ArrayList<RepositoryFile>();
@@ -164,7 +164,7 @@ public class PasteFilesCommand extends AbstractCommand {
 
         @Override
         public void onResponseReceived(Request pasteChildrenRequest, Response pasteChildrenResponse) {
-          SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserPanel.getInstance().getClipboard().getClipboardAction();
+          SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserClipboard.getInstance().getClipboardAction();
           if (action == SolutionBrowserClipboard.ClipboardAction.CUT) {
             new DeleteFileCommand(clipboardFileItems).execute(false);
             clipBoard.clear();

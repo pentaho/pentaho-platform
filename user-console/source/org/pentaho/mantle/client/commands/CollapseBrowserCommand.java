@@ -39,7 +39,7 @@ public class CollapseBrowserCommand extends AbstractCommand {
   protected void performOperation(boolean feedback) {
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
     if (!solutionBrowserPerspective.isNavigatorShowing()) {
-      PerspectiveManager.getInstance().setPerspective("default.perspective");
+      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
     }
     solutionBrowserPerspective.setNavigatorShowing(false);
 

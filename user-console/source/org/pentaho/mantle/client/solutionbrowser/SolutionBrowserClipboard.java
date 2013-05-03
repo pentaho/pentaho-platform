@@ -31,7 +31,13 @@ public class SolutionBrowserClipboard {
   private Object data;
   private ClipboardAction clipboardAction;
   
-  public SolutionBrowserClipboard() {
+  private static SolutionBrowserClipboard instance = new SolutionBrowserClipboard();
+  
+  public static SolutionBrowserClipboard getInstance() {
+    return instance;
+  }
+  
+  private SolutionBrowserClipboard() {
     super();
   }
 

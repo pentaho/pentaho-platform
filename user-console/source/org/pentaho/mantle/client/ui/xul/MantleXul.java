@@ -77,7 +77,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private DeckPanel adminContentDeck = new DeckPanel();
 
   private MantleController controller;
-  
+
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
 
   private HashSet<String> loadedOverlays = new HashSet<String>();
@@ -105,7 +105,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
     // instantiate our Model and Controller
     controller = new MantleController(new MantleModel(this));
-    
+
     // Add handler to container
     container = (GwtXulDomContainer) runner.getXulDomContainers().get(0);
     container.addEventHandler(controller);
@@ -152,17 +152,16 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
           Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
           adminContentPanel.setWidth("100%");
 
-          for (int i=0;i<adminCatTree.getTree().getItemCount();i++) {
+          for (int i = 0; i < adminCatTree.getTree().getItemCount(); i++) {
             TreeItem treeItem = adminCatTree.getTree().getItem(i);
             Element e = treeItem.getElement();
             e.getStyle().clearPadding();
             e.addClassName("adminCatTreeItem");
-            if (i==adminCatTree.getTree().getItemCount()-1) {
+            if (i == adminCatTree.getTree().getItemCount() - 1) {
               e.addClassName("adminCatTreeItemLast");
             }
           }
-          
-          
+
           MantleXul.this.selectAdminCatTreeTreeItem(Messages.getString("manageUsersAndRoles").replaceAll("&amp;", "&"));
           controller.loadUserRolesAdminPanel();
         }
@@ -376,9 +375,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void addOverlays(ArrayList<XulOverlay> overlays) {
-
     this.overlays.addAll(overlays);
-    Collections.sort(overlays, new OverlayPriority());
+    Collections.sort(this.overlays, new OverlayPriority());
 
     if (this.overlays.size() > 0) {
       // wait for container to be loaded/ready

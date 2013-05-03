@@ -16,9 +16,6 @@
  */
 package org.pentaho.mantle.client.workspace;
 
-import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_LEFT;
-
-import com.google.gwt.user.client.ui.ScrollPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;

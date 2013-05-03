@@ -22,7 +22,7 @@
       }
 
       // show the opened perspective
-      parent.mantle_setPerspective('default.perspective');
+      parent.mantle_setPerspective('opened.perspective');
       window.parent.mantle_openRepositoryFile(path, mode);
     }
 

@@ -98,7 +98,7 @@ pen.define([
   function openFile(title, tooltip, fullPath) {
     if(parent.mantle_setPerspective && window.parent.openURL) {
       // show the opened perspective
-      parent.mantle_setPerspective('default.perspective');
+      parent.mantle_setPerspective('opened.perspective');
       window.parent.openURL(title, tooltip, fullPath);
     }
   }
@@ -112,7 +112,7 @@ pen.define([
     }
 
     // show the opened perspective
-    parent.mantle_setPerspective('default.perspective');
+    parent.mantle_setPerspective('opened.perspective');
     window.parent.mantle_openRepositoryFile(path, mode);
   }
 

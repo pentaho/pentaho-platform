@@ -22,20 +22,11 @@ package org.pentaho.mantle.client.solutionbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.dom.client.Node;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
-import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
@@ -50,7 +41,6 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
-import org.pentaho.mantle.client.solutionbrowser.launcher.LaunchPanel;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.toolbars.BrowserToolbar;
@@ -59,10 +49,12 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
-
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -74,36 +66,43 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.TreeListener;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 @SuppressWarnings("deprecation")
 public class SolutionBrowserPanel extends HorizontalPanel {
 
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
 
-  private SplitLayoutPanel solutionNavigatorAndContentPanel = new SplitLayoutPanel(){
+  private SplitLayoutPanel navigatorAndContentSplit = new SplitLayoutPanel() {
     @Override
     public void onResize() {
       super.onResize();
-      adjustWidth();
+      adjustContentPanelSize();
     }
   };
   private SplitLayoutPanel solutionNavigatorPanel = new SplitLayoutPanel();
   private SolutionTree solutionTree = new SolutionTree();
   private FilesListPanel filesListPanel = new FilesListPanel();
-  private DeckPanel contentPanel = new DeckPanel();
-  private LaunchPanel launchPanel = new LaunchPanel();
-  private String pucVerticalSplitterImg;
   private Timer resizeTimer;
 
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
-  private boolean showSolutionBrowser = true;
+  private boolean showSolutionBrowser = false;
   private boolean isAdministrator = false;
   private boolean isScheduler = false;
   private ArrayList<SolutionBrowserListener> listeners = new ArrayList<SolutionBrowserListener>();
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
-  private SolutionBrowserClipboard clipboard = new SolutionBrowserClipboard();
 
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
@@ -131,7 +130,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
       try {
         builder.sendRequest("" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance());
-        RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null, solutionTree.isShowHiddenFiles());
+        RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true, null, null, solutionTree.isShowHiddenFiles());
       } catch (RequestException e) {
         // showError(e);
       }
@@ -169,14 +168,14 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   };
 
   private static SolutionBrowserPanel instance;
-  private boolean wasResized = false;
 
   private SolutionBrowserPanel() {
     RootPanel.get().getElement().getStyle().setProperty("position", "relative");
     dragController = new SolutionBrowserDragController(contentTabPanel);
     instance = this;
 
-    SolutionBrowserPanel.setupNativeHooks();
+    ExecuteUrlInNewTabCommand.setupNativeHooks();
+    SolutionBrowserPanel.setupNativeHooks(this);
 
     solutionTree.addTreeListener(treeListener);
     initializeExecutableFileTypes();
@@ -203,131 +202,108 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.addNorth(topPanel, 500);
     solutionNavigatorPanel.add(filesListPanel);
 
-    solutionNavigatorAndContentPanel.setStyleName("puc-horizontal-split-panel");
-    solutionNavigatorAndContentPanel.addWest(solutionNavigatorPanel,300);
-    solutionNavigatorAndContentPanel.add(contentPanel);
-    solutionNavigatorAndContentPanel.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
+    navigatorAndContentSplit.setStyleName("puc-horizontal-split-panel");
+    navigatorAndContentSplit.addWest(solutionNavigatorPanel, 300);
+    navigatorAndContentSplit.add(contentTabPanel);
+    navigatorAndContentSplit.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
 
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-        adjustContentPanelWidthAndHeight();
+        adjustContentPanelSize();
       }
     });
 
-    @SuppressWarnings("rawtypes")
-    NodeList possibleChildren = solutionNavigatorAndContentPanel.getElement().getElementsByTagName("table");
-    for (int i = 0; i < possibleChildren.getLength(); i++) {
-      Node child = possibleChildren.getItem(i);
-      if (child instanceof Element) {
-        Element elementChild = (Element) child;
-        if (elementChild.getClassName().equalsIgnoreCase("hsplitter")) {
-          elementChild.getParentElement().getStyle().setHeight(100, Style.Unit.PCT);
-          elementChild.setAttribute("id", "pucHorizontalSplitter");
-          elementChild.addClassName("pentaho-rounded-panel-top-right");
-          elementChild.addClassName("pentaho-shadow-right-side");
-          break;
-        }
-      }
-    }
-
-    possibleChildren = solutionNavigatorPanel.getElement().getElementsByTagName("div");
-    for (int i = 0; i < possibleChildren.getLength(); i++) {
-      Node child = possibleChildren.getItem(i);
-      if (child instanceof Element) {
-        Element elementChild = (Element) child;
-        if (elementChild.getClassName().equalsIgnoreCase("vsplitter")) {
-          elementChild.setAttribute("id", "pucVerticalSplitter");
-          pucVerticalSplitterImg = ((Element) elementChild.getChild(0)).getStyle().getBackgroundImage();
-          break;
-        }
-      }
-    }
-
     solutionNavigatorPanel.getElement().getParentElement().addClassName("puc-navigator-panel");
     solutionNavigatorPanel.getElement().getParentElement().removeAttribute("style");
-
-    contentPanel.setAnimationEnabled(false);
-    contentPanel.add(contentTabPanel);
-    contentPanel.setHeight("100%"); //$NON-NLS-1$
-    contentPanel.setWidth("100%"); //$NON-NLS-1$
-    contentPanel.getElement().setId("contentDeck");
-    contentPanel.getElement().getParentElement().setClassName("pucContentDeck");
-    contentPanel.getElement().getParentElement().getStyle().clearBorderWidth();
-    contentPanel.getElement().getParentElement().getStyle().clearBorderStyle();
-    contentPanel.getElement().getParentElement().getStyle().clearBorderColor();
-    contentPanel.getElement().getParentElement().getStyle().clearMargin();
 
     setStyleName("panelWithTitledToolbar"); //$NON-NLS-1$  
     setHeight("100%"); //$NON-NLS-1$
     setWidth("100%"); //$NON-NLS-1$
 
-    add(solutionNavigatorAndContentPanel);
+    add(navigatorAndContentSplit);
 
     sinkEvents(Event.MOUSEEVENTS);
 
-    showContent();
-
-    solutionNavigatorAndContentPanel.getWidget(1).setWidth("100%");
-    adjustContentPanelWidthAndHeight();
-
+    navigatorAndContentSplit.getWidget(1).setWidth("100%");
+    navigatorAndContentSplit.getElement().getStyle().setHeight(1, Unit.PX);
+    contentTabPanel.getElement().getStyle().setHeight(1, Unit.PX);
   }
 
-  private void adjustHeight(){
-    Element pucHeader=DOM.getElementById("pucHeader");
+  private static native String setElementHeightOffset(Element ele, int offset)
+  /*-{
+    var h = 0;
+    if ($wnd.innerHeight){
+      h = $wnd.innerHeight;
+    }
+    else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0){
+      h = $wnd.document.documentElement.clientHeight;
+    }
+    else if ($wnd.document.body){
+      h = $wnd.document.body.clientHeight;
+    }
+
+    var height= h+offset-5;
+    var offSetHeight=height+ 'px';
+    ele.style.height = offSetHeight;
+  }-*/;
+
+  private void adjustHeight() {
+    Element pucHeader = DOM.getElementById("pucHeader");
     int offset;
-    if(pucHeader!=null){
-      offset=pucHeader.getOffsetHeight();
-      setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-1*offset);
+    if (pucHeader != null) {
+      offset = pucHeader.getOffsetHeight();
+      setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
+      setElementHeightOffset(contentTabPanel.getElement(), -1 * offset);
     }
   }
 
+  private void adjustWidth() {
+    int splitterWidth = navigatorAndContentSplit.getSplitterSize();
+    int adjustedWidth = solutionNavigatorPanel.getOffsetWidth() + splitterWidth;
+    int width = this.getOffsetWidth() - adjustedWidth;
+    if (width > 0) {
+      contentTabPanel.setWidth(width + "px");
+    }
+  }
 
-  private void adjustContentPanelWidthAndHeight(){
-
-    if(resizeTimer==null){
-      int delay = 200; //milliseconds
-
+  public void adjustContentPanelSize() {
+    if (resizeTimer == null) {
       resizeTimer = new Timer() {
         public void run() {
-          resizeTimer=null;
+          resizeTimer = null;
           adjustWidth();
           adjustHeight();
         }
       };
-      resizeTimer.schedule(delay);
+      resizeTimer.schedule(100);
     }
   }
 
-  private static void setupNativeHooks() {
-    setupNativeHooks(SolutionBrowserPanel.getInstance());
-    ExecuteUrlInNewTabCommand.setupNativeHooks();
-  }
-
   private static native void setupNativeHooks(SolutionBrowserPanel solutionNavigator)
-    /*-{
-      $wnd.sendMouseEvent = function (event) {
-        return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
-      }
-      $wnd.mantle_setNavigatorShowing = function (show) {
-        return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
-      }
-      $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
-        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
-      }
-      $wnd.mantle_openRepositoryFile = function(pathToFile, mode) {
-        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
-      }
-      $wnd.mantle_addFavorite = function(pathToFile, title) {
-        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
-      }
-      $wnd.mantle_removeFavorite = function(pathToFile) {
-        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
-      }
-      $wnd.mantle_isNavigatorShowing = function(){
-        return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
-      }
-    }-*/;
+  /*-{
+    $wnd.sendMouseEvent = function (event) {
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
+    }
+    $wnd.mantle_setNavigatorShowing = function (show) {
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
+    }
+    $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
+    }
+    $wnd.mantle_openRepositoryFile = function(pathToFile, mode) {
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
+    }
+    $wnd.mantle_addFavorite = function(pathToFile, title) {
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
+    }
+    $wnd.mantle_removeFavorite = function(pathToFile) {
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
+    }
+    $wnd.mantle_isNavigatorShowing = function(){
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
+    }
+  }-*/;
 
   public void confirmBackgroundExecutionDialog(final String url) {
     final String title = Messages.getString("confirm"); //$NON-NLS-1$
@@ -353,8 +329,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   /**
    * The passed in URL has all the parameters set for background execution. We simply call GET on the URL and handle the response object. If the response object
    * contains a particular string then we display success message box.
-   *
-   * @param url Complete url with all the parameters set for scheduling a job in the background.
+   * 
+   * @param url
+   *          Complete url with all the parameters set for scheduling a job in the background.
    */
   private void runInBackground(final String url) {
 
@@ -389,27 +366,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
    * This method is called via JSNI
    */
   private void mouseUp(Event e) {
-    solutionNavigatorAndContentPanel.onBrowserEvent(e);
-  }
-
-  public void showContent() {
-    int showIndex = -1;
-    if (contentTabPanel.getTabCount() == 0) {
-      showIndex = contentPanel.getWidgetIndex(launchPanel);
-      Window.setTitle(Messages.getString("productName")); //$NON-NLS-1$
-    } else {
-      showIndex = contentPanel.getWidgetIndex(contentTabPanel);
-    }
-
-    if (showIndex != -1) {
-      contentPanel.showWidget(showIndex);
-    }
-
-    if (contentTabPanel.getSelectedTabIndex() != -1) {
-      contentTabPanel.selectTab(contentTabPanel.getSelectedTab());
-    }
-    // TODO Not sure what event type to pass
-    fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, contentTabPanel.getSelectedTabIndex());
+    navigatorAndContentSplit.onBrowserEvent(e);
   }
 
   @SuppressWarnings("nls")
@@ -472,7 +429,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
-    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
       editFile();
@@ -679,54 +636,12 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     this.showSolutionBrowser = showSolutionBrowser;
     if (showSolutionBrowser) {
       solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-      solutionNavigatorAndContentPanel.setWidgetSize(solutionNavigatorPanel,defaultSplitPosition);
-      adjustWidth(defaultSplitPosition);
-
+      navigatorAndContentSplit.setWidgetSize(solutionNavigatorPanel, defaultSplitPosition);
     } else {
-      solutionNavigatorAndContentPanel.setWidgetSize(solutionNavigatorPanel,0);
+      navigatorAndContentSplit.setWidgetSize(solutionNavigatorPanel, 0);
       solutionNavigatorPanel.setVisible(false);
-      adjustWidth();
     }
-    adjustHeight();
-  }
-
-
-  public static native String setElementHeightOffset(Element ele, int offset)/*-{
-
-    var h = 0;
-    if ($wnd.innerHeight){
-      h = $wnd.innerHeight;
-    }
-    else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0){
-      h = $wnd.document.documentElement.clientHeight;
-    }
-    else if ($wnd.document.body){
-      h = $wnd.document.body.clientHeight;
-    }
-
-    var height= h+offset-5;
-    var offSetHeight=height+ 'px';
-    ele.style.height = offSetHeight;
-  }-*/;
-
-  private void adjustWidth() {
-
-      int splitterWidth = solutionNavigatorAndContentPanel.getSplitterSize();
-      int adjustedWidth = solutionNavigatorPanel.getOffsetWidth() + splitterWidth;
-      int width = this.getOffsetWidth() - adjustedWidth;
-        if(width > 0){
-          contentTabPanel.setWidth(width + "px");
-        }
-  }
-
-  private void adjustWidth(int offsetWidth) {
-
-    int splitterWidth = solutionNavigatorAndContentPanel.getSplitterSize();
-    int adjustedWidth = offsetWidth + splitterWidth;
-    int width = this.getOffsetWidth() - adjustedWidth;
-    if(width > 0){
-      contentTabPanel.setWidth(width + "px");
-    }
+    adjustContentPanelSize();
   }
 
   public void addSolutionBrowserListener(SolutionBrowserListener listener) {
@@ -791,13 +706,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       mypath = "/" + mypath; //$NON-NLS-1$
     }
     return mypath;
-  }
-
-  /**
-   *
-   */
-  public SolutionBrowserClipboard getClipboard() {
-    return clipboard;
   }
 
 }

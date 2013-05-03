@@ -37,6 +37,7 @@ import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileTreeListener;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
@@ -223,7 +224,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
           MenuItem pasteMenuItem = menuBar
               .addItem(new MenuItem(
                   Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-          pasteMenuItem.setStyleName(SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem"); //$NON-NLS-1$//$NON-NLS-2$
+          pasteMenuItem.setStyleName(SolutionBrowserClipboard.getInstance().hasContent() ? "gwt-MenuItem" : "disabledMenuItem"); //$NON-NLS-1$//$NON-NLS-2$
           menuBar.addSeparator();
           if (SolutionBrowserPanel.getInstance().isAdministrator()) {
             menuBar

@@ -20,7 +20,6 @@ package org.pentaho.mantle.client.commands;
 import java.util.List;
 
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 /**
@@ -51,7 +50,7 @@ public class CopyFilesCommand extends AbstractCommand {
    */
   @Override
   protected void performOperation(boolean feedback) {
-    SolutionBrowserClipboard clipBoard = SolutionBrowserPanel.getInstance().getClipboard();
+    SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
     clipBoard.setDataForCopy(repositoryFiles);
     clipBoard.setMimeType("jcrFiles/list");
   }

@@ -46,7 +46,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
 
@@ -85,7 +84,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   public void addTab(String text, String tooltip, boolean closeable, Widget content) {
     // make sure the perspective is enabled
-    PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.DEFAULT_PERSPECTIVE, true);
+    PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, true);
     MantleTab tab = new MantleTab(text, tooltip, this, content, closeable);
     getTabBar().add(tab);
     getTabDeck().add(content);
@@ -97,7 +96,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   public void showNewURLTab(String tabName, String tabTooltip,  String url, boolean setFileInfoInFrame, String frameName) {
 
     showLoadingIndicator();
-    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
 
     // Because Frames are being generated with the window.location object, relative URLs will be generated differetly
     // than if set with the src attribute. This detects the relative paths are prepends them appropriately.
@@ -159,7 +158,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     for (int i = 1; i < parentList.size(); i++) {
       parentList.get(i).getStyle().setProperty("height", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    SolutionBrowserPanel.getInstance().showContent();
     SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
 
     // if showContent is the thing that turns on our first tab, which is entirely possible, then we
@@ -429,7 +427,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
             clearClosingFrame(frameElement);
             MantleTabPanel.super.closeTab(closeTab, invokePreTabCloseHook);
             if (getTabCount() == 0) {
-              SolutionBrowserPanel.getInstance().showContent();
               allTabsClosed();
               SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
             }
@@ -444,7 +441,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     super.closeTab(closeTab, invokePreTabCloseHook);
 
     if (getTabCount() == 0) {
-      SolutionBrowserPanel.getInstance().showContent();
       allTabsClosed();
       SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
     }
@@ -555,7 +551,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   public void allTabsClosed() {
     PerspectiveManager.getInstance().showPerspectiveWithHighestPriority();
-    PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.DEFAULT_PERSPECTIVE, false);
+    PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
   }
 
   private native void ieFix(Element frame)/*-{
