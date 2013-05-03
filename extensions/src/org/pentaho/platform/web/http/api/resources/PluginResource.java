@@ -101,7 +101,7 @@ public class PluginResource {
     if (useCache) {
       ByteArrayOutputStream bos = (ByteArrayOutputStream) cache.getFromRegionCache(CACHE_FILE, canonicalPath);
       if (bos != null) {
-        inputStream = new ByteArrayInputStream(bos.toByteArray());
+        return new ByteArrayInputStream(bos.toByteArray());
       }
     }
 
@@ -120,6 +120,8 @@ public class PluginResource {
         bos = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, bos);
         cache.putInRegionCache(CACHE_FILE, canonicalPath, bos);
+        // new InputStream for caller since we just read it (can't call reset() as it's a generic InputStream)
+        inputStream = new ByteArrayInputStream(bos.toByteArray());
       } finally {
         IOUtils.closeQuietly(bos);
       }
@@ -127,6 +129,7 @@ public class PluginResource {
 
     return inputStream;
   }
+
 
   @GET
   @Path("/files/{path : .+}")

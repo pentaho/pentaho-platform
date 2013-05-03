@@ -198,7 +198,7 @@ public class PluginResourceLoader implements IPluginResourceLoader {
       File f = new File(root, resourcePath);
       if (f.canRead()) {
         try {
-          in = new BufferedInputStream(new FileInputStream(new File(root, resourcePath)));
+          in = new BufferedInputStream(new FileInputStream(f));
         } catch (FileNotFoundException e) {
           Logger.debug(this, "Cannot open stream to resource", e); //$NON-NLS-1$
         }
