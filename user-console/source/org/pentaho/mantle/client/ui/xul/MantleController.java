@@ -35,6 +35,8 @@ import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
+import org.pentaho.mantle.client.events.FavoritesChangedEvent;
+import org.pentaho.mantle.client.events.RecentsChangedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
@@ -342,7 +344,7 @@ public class MantleController extends AbstractXulEventHandler {
       }
 
       public void onSaveComplete(AbstractFilePickList<RecentPickItem> filePickList) {
-        fireRecentsChangedCallbacks();
+        MantleApplication.EVENT_BUS.fireEvent(new RecentsChangedEvent());
       }
     });
 
@@ -354,7 +356,7 @@ public class MantleController extends AbstractXulEventHandler {
       }
 
       public void onSaveComplete(AbstractFilePickList<FavoritePickItem> filePickList) {
-        fireFavoritesChangedCallbacks();
+        MantleApplication.EVENT_BUS.fireEvent(new FavoritesChangedEvent());
       }
     });
   }
@@ -555,55 +557,6 @@ public class MantleController extends AbstractXulEventHandler {
     }
     $wnd.mantle_buildFavoritesAndRecent = function(force) {
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::buildFavoritesAndRecent(Z)(force);
-    }
-
-    $wnd.mantle_initExternalCallbacks = function() {
-      if(!$wnd.externalCallbacks) {
-        $wnd.externalCallbacks = {
-          favoritesChanged: [],
-          recentsChanged: []
-        };
-      }
-    }
-
-    $wnd.mantle_addFavoritesChangedCallback = function(callback) {
-      $wnd.mantle_initExternalCallbacks();
-      $wnd.externalCallbacks.favoritesChanged.push(callback);
-    }
-    $wnd.mantle_addRecentsChangedCallback = function(callback) {
-      $wnd.mantle_initExternalCallbacks();
-      $wnd.externalCallbacks.recentsChanged.push(callback);
-    }
-
-  }-*/;
-
-  /**
-   * If any external listeners have been registered, notify them that favorites have changed
-   */
-  private native void fireFavoritesChangedCallbacks()
-  /*-{
-    if($wnd.externalCallbacks && $wnd.externalCallbacks.favoritesChanged) {
-      for(var i = 0; i < $wnd.externalCallbacks.favoritesChanged.length; i++) {
-        var callback = $wnd.externalCallbacks.favoritesChanged[i];
-        if(typeof(callback) == 'function') {
-          callback();
-        }
-      }
-    }
-  }-*/;
-
-  /**
-   * If any external listeners have been registered, notify them that recents have changed
-   */
-  private native void fireRecentsChangedCallbacks()
-  /*-{
-    if($wnd.externalCallbacks && $wnd.externalCallbacks.recentsChanged) {
-      for(var i = 0; i < $wnd.externalCallbacks.recentsChanged.length; i++) {
-        var callback = $wnd.externalCallbacks.recentsChanged[i];
-        if(typeof(callback) == 'function') {
-          callback();
-        }
-      }
     }
   }-*/;
 

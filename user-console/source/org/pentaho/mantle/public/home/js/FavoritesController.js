@@ -150,11 +150,11 @@ pen.define(["home/favorites"], function(Favorites) {
     },
 
     _registerCallbacks: function() {
-      if(window.parent.mantle_addFavoritesChangedCallback) {
-        window.parent.mantle_addFavoritesChangedCallback(this.onFavoritesChanged.bind(this));
+      if(window.parent.mantle_addHandler) {
+        window.parent.mantle_addHandler("FavoritesChangedEvent", this.onFavoritesChanged.bind(this));
       }
-      if(window.parent.mantle_addRecentsChangedCallback) {
-        window.parent.mantle_addRecentsChangedCallback(this.onRecentsChanged.bind(this));
+      if(window.parent.mantle_addHandler) {
+        window.parent.mantle_addHandler("RecentsChangedEvent", this.onRecentsChanged.bind(this));
       }
 
     }

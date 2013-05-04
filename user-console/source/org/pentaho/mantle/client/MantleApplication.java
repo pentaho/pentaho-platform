@@ -29,8 +29,12 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.FavoritesChangedEvent;
+import org.pentaho.mantle.client.events.FavoritesChangedEventHandler;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
+import org.pentaho.mantle.client.events.RecentsChangedEvent;
+import org.pentaho.mantle.client.events.RecentsChangedEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
@@ -150,7 +154,20 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           invokeEventBusJSO(jso, event.getWidget(), event.getFileItems());
         }
       });
+    } else if (type.equals("RecentsChangedEvent")) {
+      EVENT_BUS.addHandler(RecentsChangedEvent.TYPE, new RecentsChangedEventHandler() {
+        public void onRecentsChanged(RecentsChangedEvent event) {
+          invokeEventBusJSO(jso);
+        }
+      });
+    } else if (type.equals("FavoritesChangedEvent")) {
+      EVENT_BUS.addHandler(FavoritesChangedEvent.TYPE, new FavoritesChangedEventHandler() {
+        public void onFavoritesChanged(FavoritesChangedEvent event) {
+          invokeEventBusJSO(jso);
+        }
+      });
     }
+
   }
 
   private static native void invokeEventBusJSO(final JavaScriptObject jso, Object... params)
