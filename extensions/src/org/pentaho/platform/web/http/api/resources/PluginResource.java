@@ -99,9 +99,9 @@ public class PluginResource {
     final String canonicalPath = pluginId + "/" + path; //$NON-NLS-1$
 
     if (useCache) {
-      ByteArrayOutputStream bos = (ByteArrayOutputStream) cache.getFromRegionCache(CACHE_FILE, canonicalPath);
-      if (bos != null) {
-        return new ByteArrayInputStream(bos.toByteArray());
+      byte[] bytes = (byte[]) cache.getFromRegionCache(CACHE_FILE, canonicalPath);
+      if (bytes != null) {
+        return new ByteArrayInputStream(bytes);
       }
     }
 
@@ -119,9 +119,10 @@ public class PluginResource {
       try {
         bos = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, bos);
-        cache.putInRegionCache(CACHE_FILE, canonicalPath, bos);
+        byte[] bytes = bos.toByteArray();
+        cache.putInRegionCache(CACHE_FILE, canonicalPath, bytes);
         // new InputStream for caller since we just read it (can't call reset() as it's a generic InputStream)
-        inputStream = new ByteArrayInputStream(bos.toByteArray());
+        inputStream = new ByteArrayInputStream(bytes);
       } finally {
         IOUtils.closeQuietly(bos);
       }

@@ -34,12 +34,10 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -54,10 +52,8 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog(UserConsoleResource.class);
 
-  protected IAuthorizationPolicy policy;
 
   public UserConsoleResource() {
-    policy = PentahoSystem.get(IAuthorizationPolicy.class);
   }
 
   private IPentahoSession getPentahoSession() {
@@ -76,13 +72,6 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return Response.ok("" + (getPentahoSession() != null && getPentahoSession().isAuthenticated())).build();
   }
 
-  @GET
-  @Path("/doesRepositorySupportPermissions")
-  public Response doesRepositorySupportPermissions() {
-    ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getPentahoSession());
-    return Response.ok("" + repository.supportsAccessControls()).build();
-  }
-  
   @GET
   @Path("/getAdminContent")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })

@@ -80,7 +80,6 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
   FileCommand runCmd, editCmd;
   MenuItem menuItems[] = null;
   FileCommand menuFileCommands[] = null;
-  boolean supportsACLs = false;
 
   MenuBar miscMenus = new MantleMenuBar(true);
 
@@ -128,26 +127,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     miscComboBtn = new ToolbarComboButton(miscImage, miscDisabledImage);
     miscComboBtn.setId("filesToolbarOptions");
 
-    final String url = GWT.getHostPageBaseURL() + "api/mantle/doesRepositorySupportPermissions"; //$NON-NLS-1$
-    RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-    requestBuilder.setHeader("accept", "text/plain");
-    try {
-      requestBuilder.sendRequest(null, new RequestCallback() {
-
-        public void onError(Request request, Throwable caught) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-          createMenuItems(false);
-        }
-
-        public void onResponseReceived(Request arg0, Response response) {
-          createMenuItems("true".equalsIgnoreCase(response.getText()));
-        }
-
-      });
-    } catch (RequestException e) {
-      Window.alert(e.getMessage());
-    }
+    createMenuItems();
 
     miscComboBtn.setToolTip(Messages.getString("options")); //$NON-NLS-1$
     miscComboBtn.setStylePrimaryName("mantle-toolbar-combo-button");
@@ -155,15 +135,10 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     setEnabled(false);
   }
 
-  private void createMenuItems(final boolean supportsACLs) {
-    this.supportsACLs = supportsACLs;
+  private void createMenuItems() {
     menuItems = new MenuItem[menuCommands.length];
     menuFileCommands = new FileCommand[menuCommands.length];
     for (int i = 0; i < menuCommands.length; i++) {
-      // skip sharing if we don't support acls
-      if (!supportsACLs && menuCommands[i] == COMMAND.SHARE) {
-        continue;
-      }
       if (!MantleApplication.showAdvancedFeatures && menuCommands[i] == COMMAND.EDIT_ACTION) {
         continue;
       }
@@ -220,7 +195,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     // iterate over the commands and enable / disable appropriately
     for (int i = 0; i < menuCommands.length; i++) {
       // skip sharing if not supporting acls, also skip separators
-      if ((!supportsACLs && menuCommands[i] == COMMAND.SHARE) || menuCommands[i] == null || menuItems[i] == null) {
+      if (menuCommands[i] == null || menuItems[i] == null) {
         continue;
       }
 
@@ -260,7 +235,4 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     }
   }
 
-  public boolean getSupportsACLs() {
-    return supportsACLs;
-  }
 }

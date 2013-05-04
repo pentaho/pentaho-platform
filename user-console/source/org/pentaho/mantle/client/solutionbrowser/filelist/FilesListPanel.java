@@ -213,7 +213,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
           // if (solutionTree.isUseDescriptionsForTooltip() && !StringUtils.isEmpty(description)) {
           // tooltip = description;
           // }
-          final FileItem fileLabel = new FileItem(file,this, PluginOptionsHelper.getEnabledOptions(file.getName()), toolbar.getSupportsACLs(), icon);
+          final FileItem fileLabel = new FileItem(file,this, PluginOptionsHelper.getEnabledOptions(file.getName()), true, icon);
           // BISERVER-2317: Request for more IDs for Mantle UI elements
           // set element id as the filename
           fileLabel.getElement().setId(file.getPath());//$NON-NLS-1$
