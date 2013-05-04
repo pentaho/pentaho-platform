@@ -593,21 +593,6 @@ code {
   z-index:100;
 }
 
-.waitPopup{
-  position: absolute;
-  left: 44%;
-  top: 44%;
-  padding: 15px 8px;
-  z-index: 20001;
-  height: auto;
-}
-.waitPopup_title{
-  padding-bottom: 3px;
-}
-
-.waitPopup_msg{
-}
-
 .mantle-toolbar-combo-button{
   margin: 1px;
 }
