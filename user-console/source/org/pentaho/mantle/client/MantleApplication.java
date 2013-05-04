@@ -129,7 +129,9 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     }
 
     // globally available busy indicator
-    busyIndicator = null;
+    $wnd.mantle_notifyGlasspaneListeners = function(isShown) {
+      mantle.@org.pentaho.mantle.client.MantleApplication::notifyGlasspaneListeners(Z)(isShown);
+    }
 
   }-*/;
 
@@ -149,28 +151,34 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }-*/;
   
   public static native void showBusyIndicator(String title, String message)/*-{
-    if(busyIndicator == null) {
-      $wnd.pen.require([
-        "common-ui/util/BusyIndicator"
-      ],
+    $wnd.pen.require([
+      "common-ui/util/BusyIndicator"
+    ],
 
-        function(BusyIndicator) {
-          busyIndicator = new BusyIndicator();
-          busyIndicator.show(title, message);
+      function(busy) {
+        busy.show(title, message);
         });
-    } else {
-      busyIndicator.show(title, message);
-    }
 
   }-*/;
 
   public static native void hideBusyIndicator()/*-{
-    if(busyIndicator != null) {
-      busyIndicator.hide();
-    } else {
-      console.log("No busy indicator to hide");
-    }
+    $wnd.pen.require([
+      "common-ui/util/BusyIndicator"
+    ],
+
+      function(busy) {
+        busy.hide();
+      });
   }-*/;
+
+  public void notifyGlasspaneListeners(boolean isShown) {
+    if(isShown) {
+      GlassPane.getInstance().show();
+    } else {
+      GlassPane.getInstance().hide();
+    }
+  }
+
 
   private void executeCommand(String commandName) {
     commandExec.execute(commandName);
