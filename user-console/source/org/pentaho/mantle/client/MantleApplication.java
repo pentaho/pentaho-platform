@@ -188,6 +188,15 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   }
 
 
+  public void notifyGlasspaneListeners(boolean isShown) {
+    if(isShown) {
+      GlassPane.getInstance().show();
+    } else {
+      GlassPane.getInstance().hide();
+    }
+  }
+
+
   private void executeCommand(String commandName) {
     commandExec.execute(commandName);
   }
