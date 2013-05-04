@@ -141,7 +141,6 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     $wnd.mantle_notifyGlasspaneListeners = function(isShown) {
       mantle.@org.pentaho.mantle.client.MantleApplication::notifyGlasspaneListeners(Z)(isShown);
     }
-
   }-*/;
 
   public static void addHandler(final String type, final JavaScriptObject jso) {
@@ -158,44 +157,36 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   /*-{    
     jso.call(this, params);
   }-*/;
-  public static native void showBusyIndicator(String title, String message)/*-{
+
+  public static native void showBusyIndicator(String title, String message)
+  /*-{
     $wnd.pen.require([
       "common-ui/util/BusyIndicator"
     ],
 
-      function(busy) {
-        busy.show(title, message);
-        });
-
+    function(busy) {
+      busy.show(title, message);
+    });
   }-*/;
 
-  public static native void hideBusyIndicator()/*-{
+  public static native void hideBusyIndicator()
+  /*-{
     $wnd.pen.require([
       "common-ui/util/BusyIndicator"
     ],
 
-      function(busy) {
-        busy.hide();
-      });
+    function(busy) {
+      busy.hide();
+    });
   }-*/;
 
   public void notifyGlasspaneListeners(boolean isShown) {
-    if(isShown) {
+    if (isShown) {
       GlassPane.getInstance().show();
     } else {
       GlassPane.getInstance().hide();
     }
   }
-
-
-  public void notifyGlasspaneListeners(boolean isShown) {
-    if(isShown) {
-      GlassPane.getInstance().show();
-    } else {
-      GlassPane.getInstance().hide();
-    }
-  }
-
 
   private void executeCommand(String commandName) {
     commandExec.execute(commandName);
