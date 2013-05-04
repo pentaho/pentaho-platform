@@ -26,9 +26,15 @@ import com.google.gwt.user.client.ui.Widget;
 public class SolutionBrowserSelectEvent extends GwtEvent<SolutionBrowserSelectEventHandler> {
 
   public static Type<SolutionBrowserSelectEventHandler> TYPE = new Type<SolutionBrowserSelectEventHandler>();
+  
+  public static final String TYPE_STR = "SolutionBrowserSelectEvent";
+  
   private Widget widget;
   private List<FileItem> fileItems;
 
+  public SolutionBrowserSelectEvent() {
+  }
+  
   public SolutionBrowserSelectEvent(Widget widget, List<FileItem> fileItems) {
     this.widget = widget;
     this.fileItems = fileItems;

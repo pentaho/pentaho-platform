@@ -27,9 +27,14 @@ public class SolutionBrowserCloseEvent extends GwtEvent<SolutionBrowserCloseEven
 
   public static Type<SolutionBrowserCloseEventHandler> TYPE = new Type<SolutionBrowserCloseEventHandler>();
 
+  public static final String TYPE_STR = "SolutionBrowserCloseEvent";
+
   private Widget widget;
   private List<FileItem> fileItems;
 
+  public SolutionBrowserCloseEvent() {
+  }
+  
   public SolutionBrowserCloseEvent(Widget widget, List<FileItem> fileItems) {
     this.widget = widget;
     this.fileItems = fileItems;

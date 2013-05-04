@@ -29,8 +29,8 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.images.MantleImages;
@@ -164,7 +164,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     getElement().setId("solutionTree"); //$NON-NLS-1$
     getElement().getStyle().setProperty("margin", "29px 0px 10px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    MantleApplication.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, this);
     UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
       
       public void onSuccess(JsArray<JsSetting> settings) {

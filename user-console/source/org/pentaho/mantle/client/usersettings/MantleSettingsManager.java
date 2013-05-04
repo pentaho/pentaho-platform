@@ -19,7 +19,7 @@ package org.pentaho.mantle.client.usersettings;
 import java.util.HashMap;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -89,7 +89,7 @@ public class MantleSettingsManager {
         if (callback != null) {
           callback.onSuccess(settings);
         }
-        MantleApplication.EVENT_BUS.fireEvent(new MantleSettingsLoadedEvent(settings));
+        EventBusUtil.EVENT_BUS.fireEvent(new MantleSettingsLoadedEvent(settings));
       }
     };
 

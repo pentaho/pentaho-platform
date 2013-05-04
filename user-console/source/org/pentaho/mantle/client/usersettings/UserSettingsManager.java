@@ -17,7 +17,7 @@
 package org.pentaho.mantle.client.usersettings;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -84,7 +84,7 @@ public class UserSettingsManager {
           if (callback != null) {
             callback.onSuccess(settings);
           }
-          MantleApplication.EVENT_BUS.fireEvent(new UserSettingsLoadedEvent(settings));
+          EventBusUtil.EVENT_BUS.fireEvent(new UserSettingsLoadedEvent(settings));
         }
 
       });

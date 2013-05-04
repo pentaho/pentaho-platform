@@ -29,12 +29,9 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.events.FavoritesChangedEvent;
-import org.pentaho.mantle.client.events.FavoritesChangedEventHandler;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
-import org.pentaho.mantle.client.events.RecentsChangedEvent;
-import org.pentaho.mantle.client.events.RecentsChangedEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
@@ -51,8 +48,6 @@ import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -71,14 +66,13 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class MantleApplication implements UserSettingsLoadedEventHandler, MantleSettingsLoadedEventHandler {
 
-  public static EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);
-
   public static boolean showAdvancedFeatures = false;
 
   public static String mantleRevisionOverride = null;
   public static boolean submitOnEnter = true;
 
-  private CommandExec commandExec = GWT.create(CommandExec.class);
+  private static CommandExec commandExec = GWT.create(CommandExec.class);
+  private static EventBusUtil eventBusUtil = GWT.create(EventBusUtil.class);
 
   private DeckPanel contentDeck = new DeckPanel();
 
@@ -126,7 +120,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }
     
     $wnd.executeCommand = function(commandName) { 
-      mantle.@org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;)(commandName);      
+      @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;)(commandName);      
     }
     
     $wnd.authenticate = function(callback) {
@@ -137,8 +131,12 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
     }
 
-    $wnd.mantle_addHandler = function(type, callback) {
-      @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, callback);      
+    $wnd.mantle_addHandler = function(type, handler) {
+      @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);      
+    }
+
+    $wnd.mantle_fireEvent = function(type) {
+      @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;)(type);      
     }
 
     // globally available busy indicator
@@ -147,33 +145,21 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }
   }-*/;
 
-  public static void addHandler(final String type, final JavaScriptObject jso) {
-    if (type.equals("SolutionBrowserOpenEvent")) {
-      EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, new SolutionBrowserOpenEventHandler() {
+  public static void addHandler(final String type, final JavaScriptObject handler) {
+    if (type.equals(type.equals(SolutionBrowserOpenEvent.TYPE_STR))) {
+      EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, new SolutionBrowserOpenEventHandler() {
         public void onTabOpened(SolutionBrowserOpenEvent event) {
-          invokeEventBusJSO(jso, event.getWidget(), event.getFileItems());
+          eventBusUtil.invokeEventBusJSO(handler, event.getWidget(), event.getFileItems());
         }
       });
-    } else if (type.equals("RecentsChangedEvent")) {
-      EVENT_BUS.addHandler(RecentsChangedEvent.TYPE, new RecentsChangedEventHandler() {
-        public void onRecentsChanged(RecentsChangedEvent event) {
-          invokeEventBusJSO(jso);
-        }
-      });
-    } else if (type.equals("FavoritesChangedEvent")) {
-      EVENT_BUS.addHandler(FavoritesChangedEvent.TYPE, new FavoritesChangedEventHandler() {
-        public void onFavoritesChanged(FavoritesChangedEvent event) {
-          invokeEventBusJSO(jso);
-        }
-      });
+    } else {
+      eventBusUtil.addHandler(type, handler);
     }
-
   }
 
-  private static native void invokeEventBusJSO(final JavaScriptObject jso, Object... params)
-  /*-{    
-    jso.call(this, params);
-  }-*/;
+  private static void fireEvent(final String eventType) {
+    eventBusUtil.fireEvent(eventType);
+  }
 
   public static native void showBusyIndicator(String title, String message)
   /*-{
@@ -205,7 +191,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }
   }
 
-  private void executeCommand(String commandName) {
+  private static void executeCommand(String commandName) {
     commandExec.execute(commandName);
   }
 

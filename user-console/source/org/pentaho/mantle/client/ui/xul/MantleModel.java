@@ -27,6 +27,7 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserDeselectEvent;
@@ -78,10 +79,10 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   private JavaScriptObject callback;
 
   public MantleModel(MantleXul main) {
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
     this.main = main;
   }
 

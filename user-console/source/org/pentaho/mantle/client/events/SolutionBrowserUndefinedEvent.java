@@ -27,9 +27,14 @@ public class SolutionBrowserUndefinedEvent extends GwtEvent<SolutionBrowserUndef
 
   public static Type<SolutionBrowserUndefinedEventHandler> TYPE = new Type<SolutionBrowserUndefinedEventHandler>();
 
+  public static final String TYPE_STR = "SolutionBrowserUndefinedEvent";
+
   private Widget widget;
   private List<FileItem> fileItems;
 
+  public SolutionBrowserUndefinedEvent() {
+  }
+  
   public SolutionBrowserUndefinedEvent(Widget widget, List<FileItem> fileItems) {
     this.widget = widget;
     this.fileItems = fileItems;

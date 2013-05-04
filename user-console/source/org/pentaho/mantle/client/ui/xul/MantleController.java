@@ -26,7 +26,6 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
@@ -35,6 +34,7 @@ import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.FavoritesChangedEvent;
 import org.pentaho.mantle.client.events.RecentsChangedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
@@ -219,7 +219,7 @@ public class MantleController extends AbstractXulEventHandler {
     // For the menu item
     bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
 
-    MantleApplication.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
+    EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
       public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {
         JsArray<JsSetting> settings = event.getSettings();
         if (settings == null) {
@@ -344,7 +344,7 @@ public class MantleController extends AbstractXulEventHandler {
       }
 
       public void onSaveComplete(AbstractFilePickList<RecentPickItem> filePickList) {
-        MantleApplication.EVENT_BUS.fireEvent(new RecentsChangedEvent());
+        EventBusUtil.EVENT_BUS.fireEvent(new RecentsChangedEvent());
       }
     });
 
@@ -356,7 +356,7 @@ public class MantleController extends AbstractXulEventHandler {
       }
 
       public void onSaveComplete(AbstractFilePickList<FavoritePickItem> filePickList) {
-        MantleApplication.EVENT_BUS.fireEvent(new FavoritesChangedEvent());
+        EventBusUtil.EVENT_BUS.fireEvent(new FavoritesChangedEvent());
       }
     });
   }

@@ -19,6 +19,9 @@
     <generate-with class="org.pentaho.mantle.rebind.CommandExecGenerator" > 
         <when-type-assignable class="org.pentaho.mantle.client.commands.CommandExec"/> 
     </generate-with>
+    <generate-with class="org.pentaho.mantle.rebind.EventBusUtilGenerator" > 
+        <when-type-assignable class="org.pentaho.mantle.client.events.EventBusUtil"/> 
+    </generate-with>
 
     <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true" /> 
 

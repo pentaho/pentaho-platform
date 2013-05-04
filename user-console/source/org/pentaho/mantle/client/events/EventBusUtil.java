@@ -16,23 +16,14 @@
  */
 package org.pentaho.mantle.client.events;
 
-import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 
-public class RecentsChangedEvent extends GwtEvent<RecentsChangedEventHandler> {
-
-  public static Type<RecentsChangedEventHandler> TYPE = new Type<RecentsChangedEventHandler>();
-
-  public static final String TYPE_STR = "RecentsChangedEvent";
-
-  public RecentsChangedEvent() {
-  }
-
-  public Type<RecentsChangedEventHandler> getAssociatedType() {
-    return TYPE;
-  }
-
-  protected void dispatch(RecentsChangedEventHandler handler) {
-    handler.onRecentsChanged(this);
-  }
-
+public interface EventBusUtil {
+  public static final EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);
+  public void addHandler(String eventType, JavaScriptObject handler);
+  public void invokeEventBusJSO(JavaScriptObject handler, Object...params);
+  public void fireEvent(String eventType);
 }

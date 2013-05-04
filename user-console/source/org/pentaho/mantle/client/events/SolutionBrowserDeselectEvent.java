@@ -27,9 +27,14 @@ public class SolutionBrowserDeselectEvent extends GwtEvent<SolutionBrowserDesele
 
   public static Type<SolutionBrowserDeselectEventHandler> TYPE = new Type<SolutionBrowserDeselectEventHandler>();
 
+  public static final String TYPE_STR = "SolutionBrowserDeselectEvent";
+
   private Widget widget;
   private List<FileItem> fileItems;
 
+  public SolutionBrowserDeselectEvent() {
+  }
+  
   public SolutionBrowserDeselectEvent(Widget widget, List<FileItem> fileItems) {
     this.widget = widget;
     this.fileItems = fileItems;

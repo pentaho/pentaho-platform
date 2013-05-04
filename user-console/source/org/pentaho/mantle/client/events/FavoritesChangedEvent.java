@@ -22,6 +22,8 @@ public class FavoritesChangedEvent extends GwtEvent<FavoritesChangedEventHandler
 
   public static Type<FavoritesChangedEventHandler> TYPE = new Type<FavoritesChangedEventHandler>();
 
+  public static final String TYPE_STR = "FavoritesChangedEvent";
+  
   public FavoritesChangedEvent() {
   }
 

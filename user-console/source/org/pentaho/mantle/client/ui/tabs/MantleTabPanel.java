@@ -27,8 +27,8 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
@@ -170,13 +170,13 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
     List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
 
-    MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserOpenEvent(selectTabContent, selectedItems));
+    EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserOpenEvent(selectTabContent, selectedItems));
 
     // if showContent is the thing that turns on our first tab, which is entirely possible, then we
     // would encounter the same timing issue as before
     panel.setUrl(url);
 
-    MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
+    EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
 
     if (setFileInfoInFrame && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0) {
       setFileInfoInFrame(SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get(0));
@@ -303,7 +303,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         selectTabContent = getTab(getSelectedTabIndex()).getContent();
       }
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
+      EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -320,7 +320,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         selectTabContent = getTab(getSelectedTabIndex()).getContent();
       }
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserOpenEvent(selectTabContent, selectedItems));
+      EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserOpenEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -333,7 +333,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         selectTabContent = getTab(getSelectedTabIndex()).getContent();
       }
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserUndefinedEvent(selectTabContent, selectedItems));
+      EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserUndefinedEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -346,7 +346,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         selectTabContent = getTab(getSelectedTabIndex()).getContent();
       }
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserUndefinedEvent(selectTabContent, selectedItems));
+      EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserUndefinedEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -464,7 +464,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
                 selectTabContent = getTab(getSelectedTabIndex()).getContent();
               }
               List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-              MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserCloseEvent(selectTabContent, selectedItems));
+              EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserCloseEvent(selectTabContent, selectedItems));
             }
           }
         });
@@ -483,7 +483,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         selectTabContent = getTab(getSelectedTabIndex()).getContent();
       }
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-      MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserCloseEvent(selectTabContent, selectedItems));
+      EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserCloseEvent(selectTabContent, selectedItems));
     }
   }
 
@@ -568,7 +568,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       selectTabContent = getTab(getSelectedTabIndex()).getContent();
     }
     List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
-    MantleApplication.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
+    EventBusUtil.EVENT_BUS.fireEvent(new SolutionBrowserSelectEvent(selectTabContent, selectedItems));
 
     Window.setTitle(Messages.getString("productName") + " - " + selectedTab.getLabelText()); //$NON-NLS-1$ //$NON-NLS-2$
 

@@ -27,8 +27,8 @@ import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.commands.AbstractCommand;
+import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserDeselectEvent;
@@ -91,10 +91,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl(GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL() + "messages/mantleMessages", this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
-    MantleApplication.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
   }
 
   public static MantleXul getInstance() {

@@ -23,9 +23,14 @@ import com.google.gwt.event.shared.GwtEvent;
 public class MantleSettingsLoadedEvent extends GwtEvent<MantleSettingsLoadedEventHandler> {
 
   public static Type<MantleSettingsLoadedEventHandler> TYPE = new Type<MantleSettingsLoadedEventHandler>();
+  
+  public static final String TYPE_STR = "MantleSettingsLoadedEvent";
 
   private HashMap<String, String> settings;
 
+  public MantleSettingsLoadedEvent() {
+  }
+  
   public MantleSettingsLoadedEvent(final HashMap<String, String> settings) {
     this.settings = settings;
   }

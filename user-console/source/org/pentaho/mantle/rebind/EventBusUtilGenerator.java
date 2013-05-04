@@ -19,30 +19,29 @@ package org.pentaho.mantle.rebind;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import org.pentaho.mantle.client.commands.AbstractCommand;
-import org.pentaho.mantle.client.commands.CommandExec;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.events.EventBusUtil;
+
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
+import com.google.gwt.core.ext.typeinfo.JMethod;
 import com.google.gwt.core.ext.typeinfo.JPackage;
 import com.google.gwt.core.ext.typeinfo.JPrimitiveType;
 import com.google.gwt.core.ext.typeinfo.JType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
-import com.google.gwt.user.client.Command;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 
-public class CommandExecGenerator extends Generator {
+public class EventBusUtilGenerator extends Generator {
 
   private String packageName;
-
   private String className;
-
   private TypeOracle typeOracle;
-
   private TreeLogger logger;
 
   @Override
@@ -60,10 +59,8 @@ public class CommandExecGenerator extends Generator {
       generateClass(logger, context);
 
     } catch (Exception e) {
-
       // record to logger that Map generation threw an exception
       logger.log(TreeLogger.ERROR, "PropertyMap ERROR!!!", e);
-
     }
 
     // return the fully qualifed name of the class generated
@@ -82,9 +79,10 @@ public class CommandExecGenerator extends Generator {
     // init composer, set class properties, create source writer
     ClassSourceFileComposerFactory composer = null;
     composer = new ClassSourceFileComposerFactory(packageName, className);
-    composer.addImplementedInterface(CommandExec.class.getName());
-    composer.addImport(SolutionBrowserPanel.class.getName());
-    composer.addImport(Command.class.getName());
+    composer.addImplementedInterface(EventBusUtil.class.getName());
+    composer.addImport(GwtEvent.class.getName());
+    composer.addImport(JavaScriptObject.class.getName());
+    composer.addImport(EventBus.class.getName());
 
     SourceWriter sourceWriter = null;
     sourceWriter = composer.createSourceWriter(context, printWriter);
@@ -104,17 +102,22 @@ public class CommandExecGenerator extends Generator {
   }
 
   private void generateMethods(SourceWriter sourceWriter) {
-    sourceWriter.println("public void execute(String commandName) { ");
+
+    sourceWriter.println("public native void invokeEventBusJSO(final JavaScriptObject jso, final Object... params)");
+    sourceWriter.println("/*-{");
     sourceWriter.indent();
+    sourceWriter.println("jso.call(this, params)");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
 
+    sourceWriter.println();
+    sourceWriter.println("public void fireEvent(final String eventType) { ");
+    sourceWriter.indent();
     try {
-
       // find Command implementors
       ArrayList<JClassType> implementingTypes = new ArrayList<JClassType>();
-
-      JPackage pack = typeOracle.getPackage(AbstractCommand.class.getPackage().getName());
-
-      JClassType eventSourceType = typeOracle.getType(Command.class.getName());
+      JPackage pack = typeOracle.getPackage(EventBusUtil.class.getPackage().getName());
+      JClassType eventSourceType = typeOracle.getType(GwtEvent.class.getName());
 
       for (JClassType type : pack.getTypes()) {
         if (type.isAssignableTo(eventSourceType)) {
@@ -124,37 +127,28 @@ public class CommandExecGenerator extends Generator {
 
       sourceWriter.println("if(false){}"); // placeholder
       for (JClassType implementingType : implementingTypes) {
-        sourceWriter.println("else if(commandName.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
-
-        if (implementingType.isDefaultInstantiable()) {
-          sourceWriter.println("new " + implementingType.getSimpleSourceName() + "().execute();");
-        } else {
-          // logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName() +
-          // "), needs at least a no-arg constructor");
-        }
+        sourceWriter.println("else if(eventType.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
+        sourceWriter.indent();
+        sourceWriter.println("EVENT_BUS.fireEvent(new " + implementingType.getName() + "());");
+        sourceWriter.outdent();
         sourceWriter.println("}");
       }
 
     } catch (Exception e) {
       // record to logger that Map generation threw an exception
       logger.log(TreeLogger.ERROR, "Error generating BindingContext!!!", e);
-
     }
-
     sourceWriter.outdent();
     sourceWriter.println("}");
 
-    sourceWriter.println("public Command lookupCommand(String commandName){ ");
+    sourceWriter.println();
+    sourceWriter.println("public void addHandler(final String eventType, final JavaScriptObject handler) { ");
     sourceWriter.indent();
-
     try {
-
       // find Command implementors
       ArrayList<JClassType> implementingTypes = new ArrayList<JClassType>();
-
-      JPackage pack = typeOracle.getPackage(AbstractCommand.class.getPackage().getName());
-
-      JClassType eventSourceType = typeOracle.getType(Command.class.getName());
+      JPackage pack = typeOracle.getPackage(EventBusUtil.class.getPackage().getName());
+      JClassType eventSourceType = typeOracle.getType(GwtEvent.class.getName());
 
       for (JClassType type : pack.getTypes()) {
         if (type.isAssignableTo(eventSourceType)) {
@@ -164,23 +158,30 @@ public class CommandExecGenerator extends Generator {
 
       sourceWriter.println("if(false){}"); // placeholder
       for (JClassType implementingType : implementingTypes) {
-        sourceWriter.println("else if(commandName.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
+        sourceWriter.println("else if(eventType.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
+        sourceWriter.indent();
 
-        if (implementingType.isDefaultInstantiable()) {
-          sourceWriter.println("return new " + implementingType.getSimpleSourceName() + "();");
-        } else {
-          // logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName() +
-          // "), needs at least a no-arg constructor");
+        JClassType handlerType = typeOracle.getType(EventBusUtil.class.getPackage().getName() + "." + implementingType.getName() + "Handler");
+        sourceWriter.println("EVENT_BUS.addHandler(" + implementingType.getName() + ".TYPE, new " + implementingType.getName() + "Handler() {");
+        sourceWriter.indent();
+        for (JMethod m : handlerType.getMethods()) {
+          sourceWriter.println("public void " + m.getName() + "(" + implementingType.getName() + " event) {");
+          sourceWriter.indent();
+          sourceWriter.println("invokeEventBusJSO(handler, event);");
+          sourceWriter.outdent();
+          sourceWriter.println("}");
         }
+        sourceWriter.outdent();
+        sourceWriter.println("});");
+
+        sourceWriter.outdent();
         sourceWriter.println("}");
       }
-
     } catch (Exception e) {
       // record to logger that Map generation threw an exception
       logger.log(TreeLogger.ERROR, "Error generating BindingContext!!!", e);
-
     }
-    sourceWriter.println("return null;");
+
     sourceWriter.outdent();
     sourceWriter.println("}");
   }
@@ -190,7 +191,6 @@ public class CommandExecGenerator extends Generator {
     sourceWriter.println("public " + className + "() { ");
     sourceWriter.indent();
     sourceWriter.println("super();");
-
     sourceWriter.outdent();
     sourceWriter.println("}");
   }

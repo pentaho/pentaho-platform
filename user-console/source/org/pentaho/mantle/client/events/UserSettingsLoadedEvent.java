@@ -25,8 +25,13 @@ public class UserSettingsLoadedEvent extends GwtEvent<UserSettingsLoadedEventHan
 
   public static Type<UserSettingsLoadedEventHandler> TYPE = new Type<UserSettingsLoadedEventHandler>();
 
+  public static final String TYPE_STR = "UserSettingsLoadedEvent";
+
   private JsArray<JsSetting> settings;
 
+  public UserSettingsLoadedEvent() {
+  }
+  
   public UserSettingsLoadedEvent(final JsArray<JsSetting> settings) {
     this.settings = settings;
   }

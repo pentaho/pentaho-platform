@@ -27,8 +27,13 @@ public class SolutionBrowserOpenEvent extends GwtEvent<SolutionBrowserOpenEventH
 
   public static Type<SolutionBrowserOpenEventHandler> TYPE = new Type<SolutionBrowserOpenEventHandler>();
 
+  public static final String TYPE_STR = "SolutionBrowserOpenEvent";
+
   private Widget widget;
   private List<FileItem> fileItems;
+
+  public SolutionBrowserOpenEvent() {
+  }
 
   public SolutionBrowserOpenEvent(Widget widget, List<FileItem> fileItems) {
     this.widget = widget;
