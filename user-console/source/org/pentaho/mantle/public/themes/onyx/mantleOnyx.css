@@ -685,30 +685,6 @@ a:active, a:hover {
   border-top: 1px solid #aaaaaa;
 }
 
-.waitPopup{
-  border: 1px solid #ccc;
-  background: white;
-}
-
-.waitPopup_table{
-  color: #444;
-  background-image: url(../../large-loading.gif);
-  background-position: left center;
-  background-repeat: no-repeat;
-  font: bold 13px tahoma, arial, helvetica;
-}
-
-.waitPopup_title{
-
-  color: #444;
-  font: bold 16px tahoma, arial, helvetica;
-}
-
-.waitPopup_msg{
-  font: normal 13px arial, tahoma, sans-serif;
-
-}
-
 .mantle-toolbar-combo-button-hovering{
   background-color: #d0d0d0;
   cursor: pointer;
