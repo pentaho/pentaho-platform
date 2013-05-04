@@ -44,6 +44,7 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
+import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.NativeEvent;
@@ -54,6 +55,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -163,6 +165,15 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     getElement().getStyle().setProperty("margin", "29px 0px 10px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 
     MantleApplication.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, this);
+    UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
+      
+      public void onSuccess(JsArray<JsSetting> settings) {
+        onUserSettingsLoaded(new UserSettingsLoadedEvent(settings));
+      }
+      
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
   }
 
   @Override
