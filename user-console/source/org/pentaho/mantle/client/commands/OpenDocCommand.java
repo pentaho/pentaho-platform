@@ -44,8 +44,7 @@ public class OpenDocCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-
-    MantleSettingsManager.getInstance().fetchMantleSettings(new AsyncCallback<HashMap<String, String>>() {
+    MantleSettingsManager.getInstance().getMantleSettings(new AsyncCallback<HashMap<String, String>>() {
 
       public void onSuccess(HashMap<String, String> result) {
         documentationURL = result.get("documentation-url");

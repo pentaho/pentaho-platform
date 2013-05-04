@@ -16,10 +16,11 @@
  */
 package org.pentaho.mantle.client.usersettings;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -33,8 +34,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class MantleSettingsManager {
-
-  private ArrayList<IMantleSettingsListener> listeners = new ArrayList<IMantleSettingsListener>();
 
   private HashMap<String, String> settings = new HashMap<String, String>();
   private boolean isAdministrator = false;
@@ -51,39 +50,21 @@ public class MantleSettingsManager {
     return instance;
   }
 
-  public void addMantleSettingsListener(IMantleSettingsListener listener) {
-    listeners.add(listener);
-    if (settings.size() == 0) {
-      fetchMantleSettings(true);
-    }
-  }
-
-  public void removeMantleSettingsListener(IMantleSettingsListener listener) {
-    listeners.remove(listener);
-  }
-
-  public void fireMantleSettingsFetched() {
-    ArrayList<IMantleSettingsListener> copy = new ArrayList<IMantleSettingsListener>(listeners);
-    for (IMantleSettingsListener listener : copy) {
-      listener.onFetchMantleSettings(settings);
-    }
-  }
-
-  public void fetchMantleSettings(final boolean forceReload) {
+  public void getMantleSettings(final boolean forceReload) {
     if (forceReload || settings.size() == 0) {
-      fetchMantleSettings(null);
+      getMantleSettings(null);
     }
   }
 
-  public void fetchMantleSettings(final AsyncCallback<HashMap<String, String>> callback, final boolean forceReload) {
+  public void getMantleSettings(final AsyncCallback<HashMap<String, String>> callback, final boolean forceReload) {
     if (forceReload || settings.size() == 0) {
-      fetchMantleSettings(callback);
+      getMantleSettings(callback);
     } else {
       callback.onSuccess(settings);
     }
   }
 
-  public void fetchMantleSettings(final AsyncCallback<HashMap<String, String>> callback) {
+  private void getMantleSettings(final AsyncCallback<HashMap<String, String>> callback) {
     final RequestCallback internalCallback = new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
@@ -108,7 +89,7 @@ public class MantleSettingsManager {
         if (callback != null) {
           callback.onSuccess(settings);
         }
-        fireMantleSettingsFetched();
+        MantleApplication.EVENT_BUS.fireEvent(new MantleSettingsLoadedEvent(settings));
       }
     };
 

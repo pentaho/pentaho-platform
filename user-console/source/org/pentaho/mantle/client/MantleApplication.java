@@ -29,15 +29,17 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
+import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
-import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
-import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
@@ -54,6 +56,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -62,10 +65,10 @@ import com.google.gwt.user.client.ui.RootPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class MantleApplication implements IUserSettingsListener, IMantleSettingsListener {
+public class MantleApplication implements UserSettingsLoadedEventHandler, MantleSettingsLoadedEventHandler {
 
-  public static EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);  
-  
+  public static EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);
+
   public static boolean showAdvancedFeatures = false;
 
   public static String mantleRevisionOverride = null;
@@ -79,7 +82,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public static AbsolutePanel overlayPanel = new AbsolutePanel();
 
   private static MantleApplication instance;
-  
+
   private MantleApplication() {
   }
 
@@ -94,8 +97,14 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
 
-    // listen to any reloads of user settings
-    UserSettingsManager.getInstance().addUserSettingsListener(this);
+    UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
+      public void onSuccess(JsArray<JsSetting> settings) {
+        onUserSettingsLoaded(new UserSettingsLoadedEvent(settings));
+      }
+
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
   }
 
   public native void setupNativeHooks(MantleApplication mantle, LoginCommand loginCmd)
@@ -142,33 +151,34 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       });
     }
   }
-  
-  private static native void invokeEventBusJSO(final JavaScriptObject jso, Object... params) 
+
+  private static native void invokeEventBusJSO(final JavaScriptObject jso, Object... params)
   /*-{    
     jso.call(this, params);
   }-*/;
-  
-  public static native void showBusyIndicator(String title, String message)/*-{
-    if(busyIndicator == null) {
-      $wnd.pen.require([
-        "common-ui/util/BusyIndicator"
-      ],
 
-        function(BusyIndicator) {
-          busyIndicator = new BusyIndicator();
-          busyIndicator.show(title, message);
-        });
-    } else {
-      busyIndicator.show(title, message);
-    }
+  public static native void showBusyIndicator(String title, String message)
+  /*-{
+     if(busyIndicator == null) {
+       $wnd.pen.require([
+       "common-ui/util/BusyIndicator"
+       ],
 
+       function(BusyIndicator) {
+         busyIndicator = new BusyIndicator();
+         busyIndicator.show(title, message);
+       });
+     } else {
+       busyIndicator.show(title, message);
+     }
   }-*/;
 
-  public static native void hideBusyIndicator()/*-{
+  public static native void hideBusyIndicator()
+  /*-{
     if(busyIndicator != null) {
       busyIndicator.hide();
     } else {
-      console.log("No busy indicator to hide");
+     console.log("No busy indicator to hide");
     }
   }-*/;
 
@@ -191,13 +201,20 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     dialog.center();
   }
 
-  public void onFetchUserSettings(JsArray<JsSetting> settings) {
+  public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {
     // listen to any reloads of mantle settings
-    MantleSettingsManager.getInstance().addMantleSettingsListener(this);
+    MantleSettingsManager.getInstance().getMantleSettings(new AsyncCallback<HashMap<String, String>>() {
+      public void onSuccess(HashMap<String, String> result) {
+        onMantleSettingsLoaded(new MantleSettingsLoadedEvent(result));
+      }
+
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
   }
 
-  public void onFetchMantleSettings(final HashMap<String, String> settings) {
-
+  public void onMantleSettingsLoaded(MantleSettingsLoadedEvent event) {
+    final HashMap<String, String> settings = event.getSettings();
     final String startupPerspective = Window.Location.getParameter("startupPerspective");
 
     mantleRevisionOverride = settings.get("user-console-revision");
@@ -336,8 +353,8 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public void setContentDeck(DeckPanel contentDeck) {
     this.contentDeck = contentDeck;
   }
-  
-  public void pucToolBarVisibility(boolean visible){
-    RootPanel.get("pucToolBar").setVisible(visible);    
+
+  public void pucToolBarVisibility(boolean visible) {
+    RootPanel.get("pucToolBar").setVisible(visible);
   }
 }

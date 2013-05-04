@@ -16,9 +16,9 @@
  */
 package org.pentaho.mantle.client.usersettings;
 
-import java.util.ArrayList;
-
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -31,8 +31,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class UserSettingsManager {
-
-  private ArrayList<IUserSettingsListener> listeners = new ArrayList<IUserSettingsListener>();
 
   private JsArray<JsSetting> settings;
   private static UserSettingsManager instance;
@@ -47,41 +45,21 @@ public class UserSettingsManager {
     return instance;
   }
 
-  public void addUserSettingsListener(IUserSettingsListener listener) {
-    listeners.add(listener);
-    if (settings == null) {
-      fetchUserSettings(true);
-    } else {
-      listener.onFetchUserSettings(settings);
-    }
-  }
-
-  public void removeUserSettingsListener(IUserSettingsListener listener) {
-    listeners.remove(listener);
-  }
-
-  public void fireUserSettingsFetched() {
-    ArrayList<IUserSettingsListener> copy = new ArrayList<IUserSettingsListener>(listeners);
-    for (IUserSettingsListener listener : copy) {
-      listener.onFetchUserSettings(settings);
-    }
-  }
-
-  public void fetchUserSettings(final boolean forceReload) {
+  public void getUserSettings(final boolean forceReload) {
     if (forceReload || settings == null) {
-      fetchUserSettings(null);
+      getUserSettings(null);
     }
   }
 
-  public void fetchUserSettings(final AsyncCallback<JsArray<JsSetting>> callback, final boolean forceReload) {
+  public void getUserSettings(final AsyncCallback<JsArray<JsSetting>> callback, final boolean forceReload) {
     if (forceReload || settings == null) {
-      fetchUserSettings(callback);
+      getUserSettings(callback);
     } else {
       callback.onSuccess(settings);
     }
   }
 
-  public void fetchUserSettings(final AsyncCallback<JsArray<JsSetting>> callback) {
+  private void getUserSettings(final AsyncCallback<JsArray<JsSetting>> callback) {
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/list"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("accept", "application/json");
@@ -106,7 +84,7 @@ public class UserSettingsManager {
           if (callback != null) {
             callback.onSuccess(settings);
           }
-          fireUserSettingsFetched();
+          MantleApplication.EVENT_BUS.fireEvent(new UserSettingsLoadedEvent(settings));
         }
 
       });

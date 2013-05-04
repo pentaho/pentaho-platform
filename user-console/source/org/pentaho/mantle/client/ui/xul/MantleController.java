@@ -17,6 +17,55 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.gwt.widgets.client.ui.ICallback;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.ContentCleanerPanel;
+import org.pentaho.mantle.client.admin.EmailAdminPanelController;
+import org.pentaho.mantle.client.admin.ISysAdminPanel;
+import org.pentaho.mantle.client.admin.JsSysAdminPanel;
+import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
+import org.pentaho.mantle.client.commands.ShowBrowserCommand;
+import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
+import org.pentaho.mantle.client.commands.SwitchThemeCommand;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.AbstractFilePickList;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickListListener;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
+import org.pentaho.mantle.client.usersettings.JsSetting;
+import org.pentaho.mantle.client.usersettings.UserSettingsManager;
+import org.pentaho.ui.xul.XulComponent;
+import org.pentaho.ui.xul.XulException;
+import org.pentaho.ui.xul.binding.Binding;
+import org.pentaho.ui.xul.binding.BindingFactory;
+import org.pentaho.ui.xul.components.XulMenuitem;
+import org.pentaho.ui.xul.components.XulToolbarbutton;
+import org.pentaho.ui.xul.containers.XulMenubar;
+import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
+import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
+import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
+import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
+import org.pentaho.ui.xul.stereotype.Bindable;
+import org.pentaho.ui.xul.util.XulDialogCallback;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
@@ -36,52 +85,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
-import org.pentaho.gwt.widgets.client.ui.ICallback;
-import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
-import org.pentaho.mantle.client.admin.ContentCleanerPanel;
-import org.pentaho.mantle.client.admin.EmailAdminPanelController;
-import org.pentaho.mantle.client.admin.ISysAdminPanel;
-import org.pentaho.mantle.client.admin.JsSysAdminPanel;
-import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
-import org.pentaho.mantle.client.commands.ShowBrowserCommand;
-import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
-import org.pentaho.mantle.client.commands.SwitchThemeCommand;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.AbstractFilePickList;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickItem;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickListListener;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
-import org.pentaho.mantle.client.ui.PerspectiveManager;
-import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
-import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
-import org.pentaho.mantle.client.usersettings.JsSetting;
-import org.pentaho.mantle.client.usersettings.UserSettingsManager;
-import org.pentaho.ui.xul.XulComponent;
-import org.pentaho.ui.xul.XulException;
-import org.pentaho.ui.xul.binding.Binding;
-import org.pentaho.ui.xul.binding.BindingFactory;
-import org.pentaho.ui.xul.components.XulMenuitem;
-import org.pentaho.ui.xul.components.XulToolbarbutton;
-import org.pentaho.ui.xul.containers.XulMenubar;
-import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
-import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
-import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
-import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
-import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
-import org.pentaho.ui.xul.stereotype.Bindable;
-import org.pentaho.ui.xul.util.XulDialogCallback;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class MantleController extends AbstractXulEventHandler {
 
@@ -214,10 +217,9 @@ public class MantleController extends AbstractXulEventHandler {
     // For the menu item
     bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
 
-    UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener() {
-
-      @Override
-      public void onFetchUserSettings(JsArray<JsSetting> settings) {
+    MantleApplication.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
+      public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {
+        JsArray<JsSetting> settings = event.getSettings();
         if (settings == null) {
           return;
         }
@@ -412,7 +414,7 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   private void loadRecentAndFavorites(boolean force) {
-    UserSettingsManager.getInstance().fetchUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
+    UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
 
       public void onSuccess(JsArray<JsSetting> result) {
         JsSetting setting;

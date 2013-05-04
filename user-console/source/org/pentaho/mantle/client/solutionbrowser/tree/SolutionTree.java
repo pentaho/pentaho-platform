@@ -29,7 +29,10 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
+import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.FolderCommand;
@@ -40,9 +43,7 @@ import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
-import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.JsSetting;
-import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.NativeEvent;
@@ -62,7 +63,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SolutionTree extends Tree implements IRepositoryFileTreeListener, IUserSettingsListener, IRepositoryFileProvider {
+public class SolutionTree extends Tree implements IRepositoryFileTreeListener, UserSettingsLoadedEventHandler, IRepositoryFileProvider {
   private boolean showLocalizedFileNames = true;
   private boolean showHiddenFiles = false;
   private boolean isAdministrator = false;
@@ -161,10 +162,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     getElement().setId("solutionTree"); //$NON-NLS-1$
     getElement().getStyle().setProperty("margin", "29px 0px 10px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    UserSettingsManager.getInstance().addUserSettingsListener(this);
+    MantleApplication.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, this);
   }
 
-  public void onFetchUserSettings(JsArray<JsSetting> settings) {
+  @Override
+  public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {
+    JsArray<JsSetting> settings = event.getSettings();
     if (settings != null) {
       for (int i = 0; i < settings.length(); i++) {
         JsSetting setting = settings.get(i);

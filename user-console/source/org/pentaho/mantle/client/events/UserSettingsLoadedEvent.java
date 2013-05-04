@@ -14,10 +14,36 @@
  *
  * Copyright 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.mantle.client.usersettings;
+package org.pentaho.mantle.client.events;
+
+import org.pentaho.mantle.client.usersettings.JsSetting;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.shared.GwtEvent;
 
-public interface IUserSettingsListener {
-  public void onFetchUserSettings(JsArray<JsSetting> settings);
+public class UserSettingsLoadedEvent extends GwtEvent<UserSettingsLoadedEventHandler> {
+
+  public static Type<UserSettingsLoadedEventHandler> TYPE = new Type<UserSettingsLoadedEventHandler>();
+
+  private JsArray<JsSetting> settings;
+
+  public UserSettingsLoadedEvent(final JsArray<JsSetting> settings) {
+    this.settings = settings;
+  }
+
+  public Type<UserSettingsLoadedEventHandler> getAssociatedType() {
+    return TYPE;
+  }
+
+  protected void dispatch(UserSettingsLoadedEventHandler handler) {
+    handler.onUserSettingsLoaded(this);
+  }
+
+  public JsArray<JsSetting> getSettings() {
+    return settings;
+  }
+
+  public void setSettings(JsArray<JsSetting> settings) {
+    this.settings = settings;
+  }
 }

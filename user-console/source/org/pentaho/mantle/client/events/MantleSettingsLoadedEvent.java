@@ -14,10 +14,35 @@
  *
  * Copyright 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.mantle.client.usersettings;
+package org.pentaho.mantle.client.events;
 
 import java.util.HashMap;
 
-public interface IMantleSettingsListener {
-  public void onFetchMantleSettings(HashMap<String,String> settings);
+import com.google.gwt.event.shared.GwtEvent;
+
+public class MantleSettingsLoadedEvent extends GwtEvent<MantleSettingsLoadedEventHandler> {
+
+  public static Type<MantleSettingsLoadedEventHandler> TYPE = new Type<MantleSettingsLoadedEventHandler>();
+
+  private HashMap<String, String> settings;
+
+  public MantleSettingsLoadedEvent(final HashMap<String, String> settings) {
+    this.settings = settings;
+  }
+
+  public Type<MantleSettingsLoadedEventHandler> getAssociatedType() {
+    return TYPE;
+  }
+
+  protected void dispatch(MantleSettingsLoadedEventHandler handler) {
+    handler.onMantleSettingsLoaded(this);
+  }
+
+  public HashMap<String, String> getSettings() {
+    return settings;
+  }
+
+  public void setSettings(HashMap<String, String> settings) {
+    this.settings = settings;
+  }
 }
