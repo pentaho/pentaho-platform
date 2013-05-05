@@ -24,7 +24,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   <!-- Uncomment the following line to use a filesystem-based repository. Note: does not support ACLs.  -->
   <!--  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository" scope="session" />-->
   <!-- Uncomment the following line to use a filesystem/db-based repository with meta information stored in a db  -->
-  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.dbbased.DbBasedSolutionRepository"
+  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository"
         scope="session"/>
   <!-- runtime repositories are not used in the current implmentation of the BI platform -->
   <!-- <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" /> -->

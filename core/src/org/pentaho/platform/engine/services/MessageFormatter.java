@@ -168,7 +168,6 @@ public class MessageFormatter implements IMessageFormatter {
 
   public void formatExceptionMessage(String mimeType, ActionSequenceException exception, StringBuffer messageBuffer) {
     if ("text/html".equals(mimeType)) { //$NON-NLS-1$
-      ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class);
       String templateFile = null;
       String templatePath = "system/ui/templates/viewActionErrorTemplate.html"; //$NON-NLS-1$
       try {

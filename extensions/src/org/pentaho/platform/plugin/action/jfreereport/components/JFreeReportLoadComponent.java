@@ -93,7 +93,6 @@ public class JFreeReportLoadComponent extends AbstractJFreeReportComponent {
       }
 
       final IActionSequenceResource resource = getResource(AbstractJFreeReportComponent.DATACOMPONENT_JARINPUT);
-      final ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class, getSession());
       final InputStream in;
       in = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
 
