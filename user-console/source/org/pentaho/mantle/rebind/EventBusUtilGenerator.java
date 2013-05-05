@@ -164,10 +164,19 @@ public class EventBusUtilGenerator extends Generator {
         JClassType handlerType = typeOracle.getType(EventBusUtil.class.getPackage().getName() + "." + implementingType.getName() + "Handler");
         sourceWriter.println("EVENT_BUS.addHandler(" + implementingType.getName() + ".TYPE, new " + implementingType.getName() + "Handler() {");
         sourceWriter.indent();
-        for (JMethod m : handlerType.getMethods()) {
-          sourceWriter.println("public void " + m.getName() + "(" + implementingType.getName() + " event) {");
+        for (JMethod handlerMethod : handlerType.getMethods()) {
+
+          String parameterStr = "";
+          for (JMethod eventMethod : implementingType.getMethods()) {
+            if (eventMethod.isPublic() && !eventMethod.isStatic() && eventMethod.isConstructor() == null
+                && !"void".equalsIgnoreCase(eventMethod.getReturnType().getSimpleSourceName()) && !eventMethod.getName().equals("getAssociatedType")) {
+              parameterStr += ", event." + eventMethod.getName() + "()";
+            }
+          }
+
+          sourceWriter.println("public void " + handlerMethod.getName() + "(" + implementingType.getName() + " event) {");
           sourceWriter.indent();
-          sourceWriter.println("invokeEventBusJSO(handler, event);");
+          sourceWriter.println("invokeEventBusJSO(handler" + parameterStr + ");");
           sourceWriter.outdent();
           sourceWriter.println("}");
         }
