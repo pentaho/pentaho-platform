@@ -23,7 +23,10 @@
  */
 package org.pentaho.platform.engine.services.runtime;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +55,35 @@ import org.pentaho.commons.connection.IPeekable;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.api.engine.*;
+import org.pentaho.platform.api.engine.ActionExecutionException;
+import org.pentaho.platform.api.engine.ActionInitializationException;
+import org.pentaho.platform.api.engine.ActionSequenceException;
+import org.pentaho.platform.api.engine.ActionSequencePromptException;
+import org.pentaho.platform.api.engine.ActionValidationException;
+import org.pentaho.platform.api.engine.IActionCompleteListener;
+import org.pentaho.platform.api.engine.IActionParameter;
+import org.pentaho.platform.api.engine.IActionSequence;
+import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.engine.IComponent;
+import org.pentaho.platform.api.engine.IConditionalExecution;
+import org.pentaho.platform.api.engine.IContentOutputHandler;
+import org.pentaho.platform.api.engine.ICreateFeedbackParameterCallback;
+import org.pentaho.platform.api.engine.IExecutionListener;
+import org.pentaho.platform.api.engine.ILogger;
+import org.pentaho.platform.api.engine.IOutputHandler;
+import org.pentaho.platform.api.engine.IParameterManager;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IParameterResolver;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoUrlFactory;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.api.engine.ISelectionMapper;
+import org.pentaho.platform.api.engine.ISolutionActionDefinition;
+import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.api.engine.InvalidParameterException;
+import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.engine.UnresolvedParameterException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
@@ -608,14 +639,13 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       // this is ok
       return knownComponents;
     }
-    IApplicationContext context = PentahoSystem.get(IApplicationContext.class);
-    String fullPath = context.getSolutionPath("system/plugin.properties");
+    ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class, new StandaloneSession("system")); //$NON-NLS-1$
     try {
-      File props = new File(fullPath);
-
-      if(props.exists()) { //$NON-NLS-1$
+      if( solutionRepository.resourceExists( "system/plugin.properties", ISolutionRepository.ACTION_EXECUTE ) ) { //$NON-NLS-1$
+        IActionSequenceResource resource = new ActionSequenceResource("", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "", //$NON-NLS-1$ //$NON-NLS-2$
+            "system/plugin.properties");
+        InputStream is =  resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, null);
         Properties overrideComponents = new Properties();
-        FileInputStream is = new FileInputStream(props);
         overrideComponents.load(is);
         knownComponents.putAll(overrideComponents); // load over the top of the known properties
       }
