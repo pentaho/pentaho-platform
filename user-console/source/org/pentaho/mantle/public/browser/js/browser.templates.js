@@ -55,34 +55,39 @@ pen.define([
 		templates.buttons = Handlebars.compile("{{#each buttons}}{{button}}{{/each}}");
 
 		//folder template with recursive behavior
-		templates.folderText = "<div id='{{id}}' class='folder' path='{{path}}'>" + 
-				"<div class='element'>" +
-					"<div class='icon'> </div>" +
-					"{{#if title}}" + 
-						"<div class='name'>{{title}}</div>" +
-					"{{else}}" + 
-						"<div class='name'>{{name}}</div>" +
-					"{{/if}}" +
-					"<div class='options'> </div>" +
+		templates.folderText =
+			"{{#ifCond file.folder 'true'}}" +
+				"<div id='{{file.id}}' class='folder' path='{{file.path}}'>" + 
+					"<div class='element'>" +
+						"<div class='icon'> </div>" +
+						"{{#if file.title}}" + 
+							"<div class='name'>{{file.title}}</div>" +
+						"{{else}}" + 
+							"<div class='name'>{{file.name}}</div>" +
+						"{{/if}}" +
+						"<div class='options'> </div>" +
+					"</div>" +
+					"<div class='folders'>" +
+					"{{#each children}} {{> folder}} {{/each}}" + 
+					"</div>" +
 				"</div>" +
-				"<div class='folders'>" +
-				"{{#each folders}} {{> folder}} {{/each}}" + 
-				"</div>" +
-			"</div>";
+			"{{/ifCond}}";
 
 		//folders recursion
-		templates.foldersText = "{{#each folders}} {{> folder}} {{/each}}";
+		templates.foldersText = "{{#each children}} {{> folder}} {{/each}}";
 
 		//file template
 		templates.file = Handlebars.compile(
-			"<div id='{{id}}' class='file' path='{{path}}'>" + 
-				"<div class='icon {{classes}}'> </div>" +
-				"<div class='name'>{{name}}</div>" +
-				"<div class='options'> </div>" +
-			"</div>");
+			"{{#ifCond folder 'false'}}" + 
+				"<div id='{{id}}' class='file' path='{{path}}'>" + 
+					"<div class='icon {{classes}}'> </div>" +
+					"<div class='name'>{{name}}</div>" +
+					"<div class='options'> </div>" +
+				"</div>" +
+			"{{/ifCond}}");
 
 		//files template to create list of files based on one object
-		templates.files = Handlebars.compile("{{#each content}}{{file}}{{/each}}");
+		templates.files = Handlebars.compile("{{#each children}} {{file}} {{/each}}");
 
 		//templates for folders creation
 		templates.folders = Handlebars.compile(templates.foldersText);
@@ -100,8 +105,8 @@ pen.define([
 		//helper registration for file template
 		Handlebars.registerHelper('file', function(){
 			//handle file name
-			var name 	= this.name,
-				path 	= this.path;
+			var name 	= this.file.name,
+				path 	= this.file.path;
 
 			var correctName = (name == "" ? path : name);
 
@@ -112,13 +117,23 @@ pen.define([
 			return new Handlebars.SafeString(templates.file({
 				path: path,
 				name: nameNoExtension,
-				id: this.id,
-				classes: extension
+				id: this.file.id,
+				classes: extension,
+				folder: this.file.folder
 			}));
 		});
 
 		//partial registration (essential for folder recursive method) 
 		Handlebars.registerPartial('folder', templates.folderText);
+
+
+		//extra helpers
+		Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+			if(v1 == v2) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		});
 
 		//return object
 		return {
