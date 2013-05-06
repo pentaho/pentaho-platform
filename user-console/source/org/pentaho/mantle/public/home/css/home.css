@@ -78,3 +78,43 @@ button.btn-large.btn-block {
 #buttonWrapper button{
   white-space: nowrap;
 }
+
+.sample-card {
+  text-align: center;
+  min-width: 96px;
+  display: table-cell;  
+  padding: 5px;
+  cursor: pointer;
+}
+
+#sample-selector {
+  overflow-x: scroll;
+  display: table;
+  background-color: #DCE7ED;
+  padding-top: 2px;
+  padding-left: 2px;
+  padding-righte: 2px;
+
+}
+
+.sample-card-description {
+  display: none;
+}
+
+.sample-card-img {
+  width: 49px;
+  height: 49px;
+  background-image: url("../images/sample.png");
+  display:inline-block;
+}
+
+.sameple-details-img {
+  width: 177px; 
+  height: 177px;
+  background-image: url("../images/sample_large.png");
+  display:inline-block;
+}
+
+.selected {
+  background-color: #FFF;
+}

@@ -1,0 +1,35 @@
+<script type="text/javascript">Home.getGettingStartedWidget().initSamplesTab();</script>
+
+<div class="row-fluid" id="sample-details">
+	<div class="span4 centered">
+		<div class="sameple-details-img"></div>
+	</div>
+	<div class="span8">
+		<div id="sample-details-content">
+			
+			<div id="sample-title"></div>
+			<div id="sample-description"></div>
+			<div id="sample-button">
+				<button class="pentaho-button" onclick="alert('clicked')">{{i18n.getting_started_samples_button_title}}</button>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<div class="row-fluid">
+	<div class="span12" id="sample-selector">
+
+		{{#each getting_started_samples}}
+			<div class="sample-card">
+				<div class="sample-card-img"></div>
+				<div class="sample-card-title">
+					{{title}}					
+				</div>
+				<div class="sample-card-description">
+					{{description}}
+				</div>
+			</div>	
+		{{/each}}
+	</div>
+</div>
