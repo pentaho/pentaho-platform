@@ -312,7 +312,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(getRepositoryFile().getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
+    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(getRepositoryFile().getPath()) + "/metadata?cb=" + System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
     metadataBuilder.setHeader("accept", "application/json");
     try {

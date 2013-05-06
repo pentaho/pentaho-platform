@@ -172,7 +172,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
     String setMetadataUrl = contextURL
-        + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$//$NON-NLS-2$
+        + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata?cb=" + System.currentTimeMillis(); //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
     setMetadataBuilder.setHeader("Content-Type", "application/json");
 

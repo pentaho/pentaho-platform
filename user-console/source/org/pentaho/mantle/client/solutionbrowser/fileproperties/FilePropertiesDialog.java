@@ -242,7 +242,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
    * @param fileSummary
    */
   protected void getMetadata(RepositoryFile fileSummary){
-    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
+    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata?cb=" + System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
     metadataBuilder.setHeader("accept", "application/json");
     try {
@@ -253,6 +253,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
           dialogBox.center();
         }
 
+        
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
             if (response.getText() != null && !"".equals(response.getText()) && !response.getText().equals("null")) {
