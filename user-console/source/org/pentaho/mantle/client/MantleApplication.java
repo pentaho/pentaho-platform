@@ -253,6 +253,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       SolutionBrowserPanel.getInstance().setVisible(false);
     }
 
+    contentDeck.getElement().setId("applicationShell");
     contentDeck.setStyleName("applicationShell");
 
     // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800
