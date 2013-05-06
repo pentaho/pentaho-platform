@@ -130,6 +130,10 @@ public class MantleController extends AbstractXulEventHandler {
 
   private BindingFactory bf;
 
+  private String overrideContentPanelId;
+
+  private String overrideContentUrl;
+
   HashMap<String, ISysAdminPanel> sysAdminPanelsMap = new HashMap<String, ISysAdminPanel>();
 
   RecentPickList recentPickList = RecentPickList.getInstance();
@@ -300,6 +304,7 @@ public class MantleController extends AbstractXulEventHandler {
                 bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
                 bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
                 bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+
 
                 PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
                   public void onHandle(Void v) {
@@ -491,12 +496,16 @@ public class MantleController extends AbstractXulEventHandler {
                 content_url = currentToken.substring("content-url=".length()); //$NON-NLS-1$
               }
             }
+
+            if (content_panel_id != null && content_url != null) {
+              overrideContentPanelId = content_panel_id;
+              overrideContentUrl = content_url;
+            }
+
             if (perspective != null) {
               PerspectiveManager.getInstance().setPerspective(perspective);
             }
-            if (content_panel_id != null && content_url != null) {
-              loadAdminContent(content_panel_id, content_url);
-            }
+
             if (perspective == null && content_panel_id == null && content_url == null) {
               GwtMessageBox warning = new GwtMessageBox();
               warning.setTitle(Messages.getString("warning")); //$NON-NLS-1$
@@ -766,11 +775,17 @@ public class MantleController extends AbstractXulEventHandler {
   public void loadUserRolesAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
-        String usersAndGroupsPanelId = UserRolesAdminPanelController.getInstance().getId();
-        if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
-          sysAdminPanelsMap.put(usersAndGroupsPanelId, UserRolesAdminPanelController.getInstance());
+
+        if (overrideContentPanelId != null && overrideContentUrl != null) {
+          loadAdminContent(overrideContentPanelId, overrideContentUrl);
         }
-        loadAdminContent(usersAndGroupsPanelId, null);
+        else {
+          String usersAndGroupsPanelId = UserRolesAdminPanelController.getInstance().getId();
+          if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
+            sysAdminPanelsMap.put(usersAndGroupsPanelId, UserRolesAdminPanelController.getInstance());
+          }
+          loadAdminContent(usersAndGroupsPanelId, null);
+        }
       }
 
       public void onFailure(Throwable reason) {
