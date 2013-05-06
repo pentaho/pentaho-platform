@@ -226,15 +226,15 @@ pen.define([
 			var myself = this,
 				tree = null;
 
-			var url = this.getFileTreeRequest(path == null ? "/" : path);
+			var url = this.getFileTreeRequest(path == null ? ":" : path.replace(/\//g, ":"));
 
 			$.ajax({
 				async: true,
-			 	type: "GET",
+				dataType: "json",
 			 	url: url,
 			 	success: function(response){
 					if(callback != undefined){
-						callback(JSON.parse(response).solution.folders[0]);
+						callback(response);
 					}
 				},
 				error: function(){
@@ -246,8 +246,7 @@ pen.define([
 		},
 
 		getFileTreeRequest: function(path){
-			return "/pentaho/plugin/pentaho-cdf/api/getJSONSolution?mode=solutionTree&path="+
-				path+"&depth=-1&filter=*&showHiddenFiles=true";
+			return "/pentaho/api/repo/files/"+path+"/children?depth=-1&showHidden=true";
 		}
 
 	});
@@ -285,15 +284,15 @@ pen.define([
 
 		fetchData: function(path, callback){
 			var myself = this,
-				url = this.getFileListRequest(path == null ? "/" : path);
+				url = this.getFileListRequest(path == null ? ":" : path.replace(/\//g, ":"));
 
 			$.ajax({
 				async: true,
-			 	type: "GET",
+				dataType: "json",
 			 	url: url,
 			 	success: function(response){
 			 		if(callback != undefined){
-			 			callback(JSON.parse(response));
+			 			callback(response);
 			 		}
 				},
 				error: function(){
@@ -306,8 +305,7 @@ pen.define([
 
 
 		getFileListRequest: function(path){
-			return "/pentaho/plugin/pentaho-cdf/api/getJSONSolution?mode=contentList&path="+
-				path+"&depth=1&filter=*&showHiddenFiles=true";
+			return "/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden=true";
 		}
 
 	});
@@ -386,25 +384,6 @@ pen.define([
 			//disable all buttons on start
 			$("button.btn.btn-block").each(function(){
 				$(this).attr("disabled", "disabled");
-			});
-
-			//handle empty folders
-			$("* > .folders:empty").each(function(){
-				$(this).parent().addClass("empty");
-			});
-
-			//remove padding of first folder
-			myself.$el.find("#fileBrowserFolders").children().each(function(){
-				$(this).addClass("first");
-			});
-
-			//sanitize folder names
-			myself.$el.find(".element").each(function(){
-				var $this = $(this);
-
-				if($this.height() > 20){
-					$this.find('.name').css("overflow", "hidden");
-				}
 			});
 		},
 
@@ -533,15 +512,29 @@ pen.define([
 
 			//require folders template
 			pen.require(["js/browser.templates"],function(templates){
+				//stop spinner
+		        myself.model.set("runSpinner", false);
+
+		        //append content
 				myself.$el.append(templates.folders(data));
+
+				//close all children folders
+				myself.$el.find(".folders").hide();
+
+				//handle empty folders
+				$(".folders").each(function(){
+					if($(this).children().length == 0){
+						$(this).parent().addClass("empty");
+					}
+				});
+
+				//remove padding of first folder
+				myself.$el.children().each(function(){
+					$(this).addClass("first");
+				});
 			});
 
-			//close all children folders
-			myself.$el.find(".folders").hide();
 
-	      	setTimeout(function() {
-		        myself.model.set("runSpinner", false);
-	      	}, 100);
 		},
 
 		expandFolder: function(event){
