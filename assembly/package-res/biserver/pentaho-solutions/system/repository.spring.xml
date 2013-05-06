@@ -642,7 +642,23 @@
     <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
-
+  
+  <!--  BEANS FOR REPOSITORY ACCESS VOTER  
+  <bean id="contentAccessVoter" class="org.pentaho.platform.repository2.unified.DefaultAccessVoter"/>
+  <bean id="reportingOnlyContentAccessVoter" class="org.pentaho.platform.repository2.unified.ReportingOnlyContentAccessVoter"/>
+  <bean id="noBiDeveloperContentAccessVoter" class="org.pentaho.platform.repository2.unified.NoBiDeveloperContentAccessVoter"/>        
+  
+  <bean id="repositoryAccessVoterManager"
+          class="org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager">
+      <constructor-arg>
+        <list>
+          <ref bean="contentAccessVoter"/>  <!-- These are sample voters 
+          <ref bean="noBiDeveloperContentAccessVoter"/> <!-- These are sample voters 
+        </list>
+      </constructor-arg>
+      <constructor-arg ref="authorizationPolicy"/>
+      <constructor-arg ref="repositoryAdminUsername"/>
+  </bean> -->
   <!--
   	The repository file dao implementation. 
    -->
@@ -659,6 +675,7 @@
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="defaultAclHandler" />
+    <!-- <constructor-arg ref="repositoryAccessVoterManager" /> --> <!-- Enable this line if using voter for the repository  -->
   </bean>
 
   <util:list id="transformers">
