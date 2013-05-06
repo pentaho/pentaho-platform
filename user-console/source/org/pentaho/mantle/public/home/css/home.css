@@ -79,40 +79,69 @@ button.btn-large.btn-block {
   white-space: nowrap;
 }
 
-.sample-card {
+.card {
+  display: table-cell;
+  cursor: pointer;
+  padding: 5px;
   text-align: center;
   min-width: 96px;
-  display: table-cell;  
-  padding: 5px;
-  cursor: pointer;
 }
 
-#sample-selector {
-  overflow-x: scroll;
+.horizontal-selector {  
   display: table;
   background-color: #DCE7ED;
-  padding-top: 2px;
-  padding-left: 2px;
-  padding-righte: 2px;
-
+  padding: 2px;
+  overflow-x:scroll;
 }
 
-.sample-card-description {
+.card-link, .card-description {
   display: none;
+}
+
+.bg-img, .card-img, .details-img {
+  display:inline-block;
+  background-repeat: no-repeat;
 }
 
 .sample-card-img {
   width: 49px;
   height: 49px;
-  background-image: url("../images/sample.png");
-  display:inline-block;
+  background-image: url("../images/sample.png");  
 }
 
-.sameple-details-img {
+.sample-details-img {
   width: 177px; 
   height: 177px;
   background-image: url("../images/sample_large.png");
-  display:inline-block;
+}
+
+.tutorial-card-img {  
+  width: 89px;
+  height: 68px;
+  background-image: url("../images/video_small.png");  
+}
+
+.tutorial-details-img {
+  width: 245px;
+  height: 163px;
+  background-image: url("../images/video.png");
+}
+
+.tutorial-card-time {
+  position: relative;
+  text-align: center;
+  width: 100%;  
+  color: #FFF;
+  font-weight: bold;
+  top:35%;
+}
+
+.welcome-img {
+  /*width:740px;*/
+  width:100%;
+  height:307px;
+  background-size: 100%;
+  background-image: url("../images/welcome_play.jpg");
 }
 
 .selected {
