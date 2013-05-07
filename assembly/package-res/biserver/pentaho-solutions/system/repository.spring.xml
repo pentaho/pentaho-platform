@@ -642,7 +642,12 @@
     <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
-
+  
+  <bean id="repositoryAccessVoterManager"
+          class="org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager">
+      <constructor-arg ref="authorizationPolicy"/>
+      <constructor-arg ref="repositoryAdminUsername"/>
+  </bean>
   <!--
   	The repository file dao implementation. 
    -->
@@ -659,6 +664,7 @@
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="defaultAclHandler" />
+    <constructor-arg ref="repositoryAccessVoterManager" />
   </bean>
 
   <util:list id="transformers">
