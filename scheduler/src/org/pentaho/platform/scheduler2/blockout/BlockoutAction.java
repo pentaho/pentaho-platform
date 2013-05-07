@@ -34,19 +34,28 @@ public class BlockoutAction implements IVarArgsAction {
   private static final Log logger = LogFactory.getLog(BlockoutAction.class);
 
   long duration;
+  Date scheduledFireTime;
 
   @Override
   public void execute() throws Exception {
     Date startDate = new Date();
-    logger.warn("Blocking Started at: " + startDate + " and will last: " + this.duration + " milliseconds"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    Thread.sleep(duration);
-    logger.warn("Blockout that started at: "+ startDate + " has ended at: " + new Date()); //$NON-NLS-1$ //$NON-NLS-2$
+    long effectiveDuration = duration - (startDate.getTime() - scheduledFireTime.getTime());
+    if (effectiveDuration < 0) {
+      logger.warn("Blocking Scheduled for " + scheduledFireTime + " for " + this.duration + " milliseconds has already expired");
+    } else {
+      logger.warn("Blocking Started at: " + startDate + " and will last: " + effectiveDuration + " milliseconds"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      Thread.sleep(effectiveDuration);
+      logger.warn("Blockout that started at: "+ startDate + " has ended at: " + new Date()); //$NON-NLS-1$ //$NON-NLS-2$
+    }
   }
 
   @Override
   public void setVarArgs(Map<String, Object> args) {
     if (args.containsKey(IBlockoutManager.DURATION_PARAM)) {
       this.duration = ((Number) args.get(IBlockoutManager.DURATION_PARAM)).longValue();
+    }
+    if (args.containsKey(IBlockoutManager.SCHEDULED_FIRE_TIME)) {
+      this.scheduledFireTime = ((Date) args.get(IBlockoutManager.SCHEDULED_FIRE_TIME));
     }
   }
 
