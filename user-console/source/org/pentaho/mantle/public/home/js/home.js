@@ -7,7 +7,6 @@ pen.define([
 
 
   function init(permissions) {
-
     // Retrieve configuration properites
     jQuery.i18n.properties({
       name: 'properties/config',
@@ -21,6 +20,7 @@ pen.define([
       callback: function () {
 
         var context = {};
+        context.content = {};
 
         for (permission in permissions) {
           context[permission] = permissions[permission];
@@ -62,16 +62,13 @@ pen.define([
               }
 
               node.parentNode.appendChild(html[0])
-            });
+        });
 
-        // Provide inner content to the getting started widget
-        var gettingStartedWidget = $("#getting-started");
-        if (gettingStartedWidget.length > 0) {
-          $.get("content/puc_getting_started.html", function (data) {
-            var template = Handlebars.compile(data);
-            var html = $($.trim(template(context)));
-
-            gettingStartedWidget.append(html);
+        // Require getting-started widget if it has not been disabled
+        if ($("#getting-started").length > 0) {
+          pen.require(["home/gettingStarted"], function(gettingStarted) {
+            gettingStartedWidget = gettingStarted;
+            gettingStartedWidget.init(context);
           });
         }
 
@@ -149,7 +146,13 @@ pen.define([
     });
   }
 
+  var gettingStartedWidget = null;
+  function getGettingStartedWidget() {
+    return gettingStartedWidget;
+  }
+
   return {
+    getGettingStartedWidget:getGettingStartedWidget,
     getUrlBase:getUrlBase,
     getContent:getContent,
     openFile:openFile,
