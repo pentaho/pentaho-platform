@@ -21,7 +21,9 @@
 package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.ui.xul.MantleController;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
@@ -48,6 +50,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	private boolean isDirty = false;
 	private JsEmailConfiguration emailConfig;
 	private static EmailAdminPanelController emailAdminPanelController;
+  private EmailTester emailTester = null;
+  private final EmailTestDialog etd = new EmailTestDialog();
+
 
 	public static EmailAdminPanelController getInstance() {
 		if (emailAdminPanelController == null) {
@@ -58,6 +63,23 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	private EmailAdminPanelController() {
 		activate();
+
+    AsyncCallback<String> emailTestCallback = new AsyncCallback<String>() {
+      @Override
+      public void onFailure(Throwable err) {
+        MantleApplication.hideBusyIndicator();
+        etd.show(err.getMessage());
+
+      }
+
+      @Override
+      public void onSuccess(String message) {
+        MantleApplication.hideBusyIndicator();
+        etd.show(message);
+      }
+    };
+
+    emailTester = new EmailTester(emailTestCallback);
 
 		testButton.addClickHandler(new ClickHandler() {
 			public void onClick(final ClickEvent clickEvent) {
@@ -166,8 +188,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	private void testEmail() {
-		EmailTestDialog etd = new EmailTestDialog(emailConfig);
-		etd.show();
+
+    // show the busy indicator...
+    MantleApplication.showBusyIndicator(Messages.getString("pleaseWait"), Messages.getString("connectionTest.inprog"));
+    emailTester.test(emailConfig);
+
 	}
 
 	private void getEmailConfig() {

@@ -32,13 +32,9 @@ public class EmailTestDialog extends DialogBox {
   final FlexTable dialogContent = new FlexTable();
   protected Button closeButton = null;
 
-  private final Image waitImage = new Image("mantle/large-loading.gif");
-  private final String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest";
-  private final RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
-  private JsEmailConfiguration emailConfig;
   protected Label statusLabel;
 
-  public EmailTestDialog(JsEmailConfiguration emailConfig) {
+  public EmailTestDialog() {
 
     /* autohide= false; modal= true */
     super(false, true);
@@ -58,7 +54,7 @@ public class EmailTestDialog extends DialogBox {
     dialogButtonPanel.add(closeButton);
 
     HorizontalPanel dialogButtonPanelWrapper = new HorizontalPanel();
-    dialogButtonPanelWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+    dialogButtonPanelWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
     dialogButtonPanelWrapper.setStyleName("button-panel"); //$NON-NLS-1$
     dialogButtonPanelWrapper.setWidth("100%"); //$NON-NLS-1$
@@ -78,37 +74,30 @@ public class EmailTestDialog extends DialogBox {
     dialogContent.setWidth("100%"); //$NON-NLS-1$
     setWidget(dialogContent);
 
-    this.emailConfig = emailConfig;
     this.setWidth("360px");
     this.setHeight("100px");
 
     HorizontalPanel hp = new HorizontalPanel();
-    statusLabel = new Label(Messages.getString("connectionTest.inprog"));
-    // statusLabel.set
-    waitImage.setStyleName("progress-image");
-
-    hp.add(waitImage);
+    statusLabel = new Label("");
     hp.add(statusLabel);
     hp.setHeight("100%");
     hp.setWidth("100%");
 
     this.setContent(hp);
 
-    closeButton.setEnabled(false);
-    closeButton.setVisible(false);
-
-    this.center();
-
-    executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
-    try {
-      executableTypesRequestBuilder.sendRequest(this.emailConfig.getJSONString(), new RequestCallbackHandler());
-    } catch (RequestException e) {
-    }
+    closeButton.setEnabled(true);
+    closeButton.setVisible(true);
 
   }
 
   public IDialogCallback getCallback() {
     return callback;
+  }
+
+  public void show(String message) {
+    statusLabel.setText(message);
+    this.center();
+    super.show();
   }
 
   public void setContent(Widget content) {
@@ -151,40 +140,5 @@ public class EmailTestDialog extends DialogBox {
       }
       hide();
     }
-  }
-
-  class RequestCallbackHandler implements RequestCallback {
-
-    private final String EMAIL_TEST_SUCCESS = Messages.getString("connectionTest.sucess", emailConfig.getDefaultFrom());
-    private final String EMAIL_TEST_FAIL = Messages.getString("connectionTest.fail");
-
-    @Override
-    public void onError(Request arg0, Throwable arg1) {
-
-      prep_close();
-      statusLabel.setText(EMAIL_TEST_FAIL);
-    }
-
-    @Override
-    public void onResponseReceived(Request request, Response response) {
-
-      prep_close();
-
-      if (response.getText().equals("EmailTester.SUCESS")) {
-        statusLabel.setText(EMAIL_TEST_SUCCESS);
-
-      } else if (response.getText().equals("EmailTester.FAIL")) {
-        statusLabel.setText(EMAIL_TEST_FAIL);
-      }
-
-    }
-
-    private void prep_close() {
-
-      waitImage.setVisible(false);
-      closeButton.setVisible(true);
-      closeButton.setEnabled(true);
-    }
-
   }
 }
