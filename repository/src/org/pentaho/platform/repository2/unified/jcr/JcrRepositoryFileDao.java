@@ -16,7 +16,15 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
@@ -38,9 +46,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.util.VersionHelper;
 import org.springframework.extensions.jcr.JcrCallback;
@@ -73,6 +83,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private IRepositoryDefaultAclHandler defaultAclHandler;
 
+  private RepositoryAccessVoterManager accessVoterManager;
+
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileDao(final JcrTemplate jcrTemplate,
@@ -91,11 +103,31 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     this.defaultAclHandler = defaultAclHandler;
   }
 
+  
+  public JcrRepositoryFileDao(final JcrTemplate jcrTemplate,
+      final List<ITransformer<IRepositoryFileData>> transformers, final ILockHelper lockHelper,
+      final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
+      final IRepositoryFileAclDao aclDao, final IRepositoryDefaultAclHandler defaultAclHandler,
+      final RepositoryAccessVoterManager accessVoterManager) {
+    this(jcrTemplate, transformers, lockHelper, deleteHelper, pathConversionHelper, aclDao, defaultAclHandler);
+    this.accessVoterManager = accessVoterManager;
+  }
+
   // ~ Methods =========================================================================================================
 
   private RepositoryFile internalCreateFolder(final Session session, final Serializable parentFolderId,
-      final RepositoryFile folder, final RepositoryFileAcl acl,
-      final String versionMessage) throws RepositoryException {
+      final RepositoryFile folder, final RepositoryFileAcl acl, final String versionMessage) throws RepositoryException {
+    // Get repository file info and acl info of parent
+    if(parentFolderId != null) {
+      RepositoryFile parentRepositoryFile = getFileById(parentFolderId);
+      if(parentRepositoryFile != null) {
+        RepositoryFileAcl parentAcl = aclDao.getAcl(parentRepositoryFile.getId());
+        // Invoke accessVoterManager to see if we have access to perform this operation
+        if (!accessVoterManager.hasAccess(parentRepositoryFile, RepositoryFilePermission.WRITE, parentAcl, PentahoSessionHolder.getSession())) {
+          return null;
+        }
+      }
+    }
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
@@ -116,8 +148,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
                 .getInstance()
                 .getString(
                     "JcrRepositoryFileDao.USER_0001_VER_COMMENT_ADD_FOLDER", folder.getName(), (parentFolderId == null ? "root" : parentFolderId.toString()))); //$NON-NLS-1$ //$NON-NLS-2$
-    return JcrRepositoryFileUtils
-        .nodeToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper, folderNode);
+      return JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+          folderNode);
   }
 
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
@@ -129,6 +161,18 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
      */
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
+    
+    // Get repository file info and acl info of parent
+    if(parentFolderId != null) {
+      RepositoryFile parentRepositoryFile = getFileById(parentFolderId);
+      if(parentRepositoryFile != null) {
+        RepositoryFileAcl parentAcl = aclDao.getAcl(parentRepositoryFile.getId());
+        // Invoke accessVoterManager to see if we have access to perform this operation
+        if (!accessVoterManager.hasAccess(parentRepositoryFile, RepositoryFilePermission.WRITE, parentAcl, PentahoSessionHolder.getSession())) {
+          return null;
+        }
+      }
+    }
     //    Assert.notNull(content);
     DataNode emptyDataNode = new DataNode(file.getName());
     emptyDataNode.setProperty(" ", "content"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -138,10 +182,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
+        JcrRepositoryFileUtils
+            .checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
         Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, parentFolderId, file,
-            content == null ? emptyContent : content, findTransformerForWrite(content == null ? emptyContent.getClass()
-                : content.getClass()));
+            content == null ? emptyContent : content,
+            findTransformerForWrite(content == null ? emptyContent.getClass() : content.getClass()));
         // we must create the acl during checkout
         aclDao.createAcl(fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(file) : acl);
         session.save();
@@ -170,6 +215,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     Assert.notNull(content);
+    // Get repository file info and acl info of parent
+    RepositoryFileAcl acl = aclDao.getAcl(file.getId());
+    // Invoke accessVoterManager to see if we have access to perform this operation
+    if (!accessVoterManager.hasAccess(file, RepositoryFilePermission.WRITE, acl, PentahoSessionHolder.getSession())) {
+      return null;
+    }
     lockHelper.addLockTokenToSessionIfNecessary(session, pentahoJcrConstants, file.getId());
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, file.getId());
     JcrRepositoryFileUtils.updateFileNode(session, pentahoJcrConstants, file, content,
@@ -302,8 +353,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         Node fileNode = session.getNodeByIdentifier(fileId.toString());
-        return fileNode != null ? JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
+        RepositoryFile file = fileNode != null ? JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
             lockHelper, fileNode, loadMaps, locale) : null;
+        if(file != null) {
+          RepositoryFileAcl acl = aclDao.getAcl(file.getId());
+          // Invoke accessVoterManager to see if we have access to perform this operation
+          if (!accessVoterManager.hasAccess(file, RepositoryFilePermission.READ, acl, PentahoSessionHolder.getSession())) {
+            return null;
+          }
+        }
+        return file;
       }
     });
   }
@@ -359,9 +418,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     } catch (PathNotFoundException e) {
       fileNode = null;
     }
-    return fileNode != null ? JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
+    RepositoryFile file = fileNode != null ? JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
         lockHelper, (Node) fileNode, loadMaps, locale) : null;
-
+    if(file != null) {
+      RepositoryFileAcl acl = aclDao.getAcl(file.getId());
+      // Invoke accessVoterManager to see if we have access to perform this operation
+      if (!accessVoterManager.hasAccess(file, RepositoryFilePermission.READ, acl, PentahoSessionHolder.getSession())) {
+        return null;
+      } 
+    }
+    return file;
   }
 
   /**
@@ -376,7 +442,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-        return JcrRepositoryFileUtils.getContent(
+        IRepositoryFileData data = JcrRepositoryFileUtils.getContent(
             session,
             pentahoJcrConstants,
             fileId,
@@ -384,6 +450,17 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
             findTransformerForRead(
                 JcrRepositoryFileUtils.getFileContentType(session, pentahoJcrConstants, fileId, versionId),
                 contentClass));
+        if(fileId != null) {
+          RepositoryFile file = internalGetFileById(fileId, false, null);
+          if(file != null) {
+            RepositoryFileAcl acl = aclDao.getAcl(fileId);
+            // Invoke accessVoterManager to see if we have access to perform this operation
+            if (!accessVoterManager.hasAccess(file, RepositoryFilePermission.READ, acl, PentahoSessionHolder.getSession())) {
+              return null;
+            }
+          }
+        }
+        return data;
       }
     });
 
@@ -498,6 +575,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         RepositoryFile fileToBeDeleted = getFileById(fileId);
+        // Get repository file info and acl info of parent
+        if(fileToBeDeleted != null) {
+          RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl(fileToBeDeleted.getId());
+          // Invoke accessVoterManager to see if we have access to perform this operation
+          if (!accessVoterManager.hasAccess(fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl, PentahoSessionHolder.getSession())) {
+            return null;
+          }
+        }
         List<RepositoryFilePermission> perms = new ArrayList<RepositoryFilePermission>();
         perms.add(RepositoryFilePermission.DELETE);
         if(!aclDao.hasAccess(fileToBeDeleted.getPath(), EnumSet.copyOf(perms))) {
@@ -525,6 +610,15 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        RepositoryFile fileToBeDeleted = getFileById(fileId);
+        // Get repository file info and acl info of parent
+        if(fileToBeDeleted != null) {
+          RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl(fileToBeDeleted.getId());
+          // Invoke accessVoterManager to see if we have access to perform this operation
+          if (!accessVoterManager.hasAccess(fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl, PentahoSessionHolder.getSession())) {
+            return null;
+          }
+        }
         Node fileToDeleteNode = session.getNodeByIdentifier(fileId.toString());
         session.getWorkspace().getVersionManager().getVersionHistory(fileToDeleteNode.getPath())
             .removeVersion(versionId.toString());
@@ -578,6 +672,15 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        RepositoryFile fileToBeDeleted = getFileById(fileId);
+        // Get repository file info and acl info of parent
+        if(fileToBeDeleted != null) {
+          RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl(fileToBeDeleted.getId());
+          // Invoke accessVoterManager to see if we have access to perform this operation
+          if (!accessVoterManager.hasAccess(fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl, PentahoSessionHolder.getSession())) {
+            return null;
+          }
+        }        
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         deleteHelper.permanentlyDeleteFile(session, pentahoJcrConstants, fileId);
         session.save();
@@ -598,6 +701,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String absOrigParentFolderPath = deleteHelper.getOriginalParentFolderPath(session, pentahoJcrConstants, fileId);
         Serializable origParentFolderId = null;
+        RepositoryFile file = getFileById(fileId);
+        RepositoryFileAcl acl = aclDao.getAcl(fileId);
+        if (!accessVoterManager.hasAccess(file, RepositoryFilePermission.WRITE, acl, PentahoSessionHolder.getSession())) {
+          return null;
+        }
         // original parent folder path may no longer exist!
         if (session.itemExists(absOrigParentFolderPath)) {
           origParentFolderId = ((Node) session.getItem(absOrigParentFolderPath)).getIdentifier();
@@ -639,6 +747,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        RepositoryFile file = getFileById(fileId);
+        RepositoryFileAcl acl = aclDao.getAcl(fileId);
+        if (!accessVoterManager.hasAccess(file, RepositoryFilePermission.WRITE, acl, PentahoSessionHolder.getSession())) {
+          return null;
+        }
+        
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String destAbsPath = pathConversionHelper.relToAbs(destRelPath);
         String cleanDestAbsPath = destAbsPath;
@@ -794,7 +908,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String absPath = pathConversionHelper.relToAbs(relPath);
         return JcrRepositoryFileUtils.getTree(session, pentahoJcrConstants, pathConversionHelper, lockHelper, absPath,
-           depth, filter, showHidden);
+            depth, filter, showHidden, accessVoterManager);
       }
     });
   }
