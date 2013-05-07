@@ -7,12 +7,17 @@
  */
 
 pen.define([
+	"js/browser.fileButtons",
+	"js/browser.folderButtons",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
   "js/browser.templates"
-], function() {
+], function(FileButtons, FolderButtons) {
+
+	var fileButtons = new FileButtons();
+	var folderButtons = new FolderButtons();
 
 	this.FileBrowser = {};
 
@@ -64,39 +69,8 @@ pen.define([
 		defaults: {
 			showHiddenFilesURL: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
 
-			fileButtons : {
-				buttons: [
-					{id: "openButton",		text: "Open"},
-					{id: "openNewButton",	text: "Open in a new window"},
-					{id: "runButton",		text: "Run in background"},
-					{id: "editButton",		text: "Edit"},
-					{id: "separator"},
-					{id: "deleteButton",	text: "Delete"},
-					{id: "cutbutton",		text: "Cut"},
-					{id: "copyButton",		text: "Copy"},
-					{id: "separator"},
-					{id: "downloadButton",	text: "Download..."},
-					{id: "separator"},
-					{id: "shareButton",		text: "Share..."},
-					{id: "scheduleButton",	text: "Schedule..."},
-					{id: "showButton",		text: "Show Generated Content..."},
-					{id: "favoritesButton",	text: "Add to Favorites"},
-					{id: "propertiesButton",text: "Properties"}
-				]
-			},
-			folderButtons : {
-				buttons: [
-					{id: "newFolderButton",	text: "New Folder"},
-					{id: "openButton",		text: "Delete"},
-					{id: "separator"},
-					{id: "pasteButton",		text: "Paste"},
-					{id: "separator"},
-					{id: "uploadButton",	text: "Upload..."},
-					{id: "downloadButton",	text: "Download..."},
-					{id: "separator"},
-					{id: "propertiesButton",text: "Properties..."}
-				]
-			},
+			fileButtons : fileButtons,
+			folderButtons : folderButtons,
 
 			foldersTreeModel: undefined,
 			fileListModel: undefined,
@@ -468,9 +442,29 @@ pen.define([
 				buttonsType = this.model.defaults.folderButtons;
 			}	
 
+			var model = this.model; // trap model
+
 			//require buttons template
 			pen.require(["js/browser.templates"],function(templates){
 				$buttonsContainer.append($(templates.buttons(buttonsType)));
+
+				// add onClick handler to each button
+				$(buttonsType.buttons).each(function(idx, fb){
+					$('#'+fb.id).on("click", { model:model, handler:fb.handler }, function(event){
+						var path = null;
+						if(model.getLastClick() == "file"){
+							path = $(model.getFileClicked()[0]).attr("path");
+						} else if(model.getLastClick() == "folder"){
+							path = $(model.getFolderClicked()[0]).attr("path");
+						}
+
+						if((path != null) && event.data.handler){
+							event.data.handler(path);
+							event.stopPropagation();
+						}
+					});
+				});
+
 			});
 		},
 
