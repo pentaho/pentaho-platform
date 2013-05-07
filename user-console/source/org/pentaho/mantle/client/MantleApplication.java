@@ -32,8 +32,6 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
-import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
-import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
@@ -135,8 +133,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);      
     }
 
-    $wnd.mantle_fireEvent = function(type) {
-      @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;)(type);      
+    $wnd.mantle_fireEvent = function(type, parameterMap) {
+      @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, parameterMap);
     }
 
     // globally available busy indicator
@@ -146,19 +144,11 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   }-*/;
 
   public static void addHandler(final String type, final JavaScriptObject handler) {
-    if (type.equals(type.equals(SolutionBrowserOpenEvent.TYPE_STR))) {
-      EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserOpenEvent.TYPE, new SolutionBrowserOpenEventHandler() {
-        public void onTabOpened(SolutionBrowserOpenEvent event) {
-          eventBusUtil.invokeEventBusJSO(handler, event.getWidget(), event.getFileItems());
-        }
-      });
-    } else {
-      eventBusUtil.addHandler(type, handler);
-    }
+    eventBusUtil.addHandler(type, handler);
   }
 
-  private static void fireEvent(final String eventType) {
-    eventBusUtil.fireEvent(eventType);
+  private static void fireEvent(final String eventType, final JavaScriptObject parametersMap) {
+    eventBusUtil.fireEvent(eventType, parametersMap);
   }
 
   public static native void showBusyIndicator(String title, String message)

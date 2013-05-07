@@ -103,15 +103,75 @@ public class EventBusUtilGenerator extends Generator {
 
   private void generateMethods(SourceWriter sourceWriter) {
 
-    sourceWriter.println("public native void invokeEventBusJSO(final JavaScriptObject jso, final Object... params)");
+    sourceWriter.println("public native void invokeEventBusJSO(final JavaScriptObject jso, final String parameterJSON)");
     sourceWriter.println("/*-{");
     sourceWriter.indent();
-    sourceWriter.println("jso.call(this, params)");
+    sourceWriter.println("eval('var p = ' + parameterJSON)");
+    sourceWriter.println("jso.call(this, p)");
     sourceWriter.outdent();
     sourceWriter.println("}-*/;");
 
     sourceWriter.println();
-    sourceWriter.println("public void fireEvent(final String eventType) { ");
+    sourceWriter.println("public native String getParameterString(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Integer getParameterInteger(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Boolean getParameterBoolean(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Float getParameterFloat(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Double getParameterDouble(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Long getParameterLong(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Short getParameterShort(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    // *********************
+    // FIRE EVENT
+    // *********************
+    sourceWriter.println();
+    sourceWriter.println("public void fireEvent(final String eventType, final JavaScriptObject parameterMap) { ");
     sourceWriter.indent();
     try {
       // find Command implementors
@@ -129,7 +189,31 @@ public class EventBusUtilGenerator extends Generator {
       for (JClassType implementingType : implementingTypes) {
         sourceWriter.println("else if(eventType.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
         sourceWriter.indent();
-        sourceWriter.println("EVENT_BUS.fireEvent(new " + implementingType.getName() + "());");
+        sourceWriter.println(implementingType.getName() + " event = new " + implementingType.getName() + "();");
+        for (JMethod eventMethod : implementingType.getMethods()) {
+          if (eventMethod.isPublic() && !eventMethod.isStatic() && eventMethod.isConstructor() == null && eventMethod.getName().startsWith("set")) {
+            String propertyName = eventMethod.getName().substring(3);
+            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            String simpleType = implementingType.getField(propertyName).getType().getSimpleSourceName();
+            if ("string".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterString(\"" + propertyName + "\", parameterMap));");
+            } else if ("integer".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterInteger(\"" + propertyName + "\", parameterMap));");
+            } else if ("float".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterFloat(\"" + propertyName + "\", parameterMap));");
+            } else if ("double".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterDouble(\"" + propertyName + "\", parameterMap));");
+            } else if ("long".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterLong(\"" + propertyName + "\", parameterMap));");
+            } else if ("short".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterShort(\"" + propertyName + "\", parameterMap));");
+            } else if ("boolean".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("event." + eventMethod.getName() + "(getParameterBoolean(\"" + propertyName + "\", parameterMap));");
+            }
+          }
+        }
+
+        sourceWriter.println("EVENT_BUS.fireEvent(event);");
         sourceWriter.outdent();
         sourceWriter.println("}");
       }
@@ -141,6 +225,9 @@ public class EventBusUtilGenerator extends Generator {
     sourceWriter.outdent();
     sourceWriter.println("}");
 
+    // *********************
+    // ADD HANDLER
+    // *********************
     sourceWriter.println();
     sourceWriter.println("public void addHandler(final String eventType, final JavaScriptObject handler) { ");
     sourceWriter.indent();
@@ -166,17 +253,29 @@ public class EventBusUtilGenerator extends Generator {
         sourceWriter.indent();
         for (JMethod handlerMethod : handlerType.getMethods()) {
 
-          String parameterStr = "";
-          for (JMethod eventMethod : implementingType.getMethods()) {
+          String parameterJSON = "\"{";
+          for (int i = 0; i < implementingType.getMethods().length; i++) {
+            JMethod eventMethod = implementingType.getMethods()[i];
             if (eventMethod.isPublic() && !eventMethod.isStatic() && eventMethod.isConstructor() == null
                 && !"void".equalsIgnoreCase(eventMethod.getReturnType().getSimpleSourceName()) && !eventMethod.getName().equals("getAssociatedType")) {
-              parameterStr += ", event." + eventMethod.getName() + "()";
+              String propertyName = eventMethod.getName().substring(3);
+              propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+              String simpleType = implementingType.getField(propertyName).getType().getSimpleSourceName();
+              if ("string".equalsIgnoreCase(simpleType)) {
+                parameterJSON += "\'" + propertyName + "\': \'\" + event." + eventMethod.getName() + "() + \"\',";
+              } else {
+                parameterJSON += "\'" + propertyName + "\': \" + event." + eventMethod.getName() + "() + \",";
+              }
             }
           }
+          if (parameterJSON.contains(",")) {
+            parameterJSON = parameterJSON.substring(0, parameterJSON.lastIndexOf(","));
+          }
+          parameterJSON += "}\"";
 
           sourceWriter.println("public void " + handlerMethod.getName() + "(" + implementingType.getName() + " event) {");
           sourceWriter.indent();
-          sourceWriter.println("invokeEventBusJSO(handler" + parameterStr + ");");
+          sourceWriter.println("invokeEventBusJSO(handler," + parameterJSON + ");");
           sourceWriter.outdent();
           sourceWriter.println("}");
         }

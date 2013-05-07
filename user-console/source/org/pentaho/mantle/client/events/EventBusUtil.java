@@ -24,6 +24,6 @@ import com.google.gwt.event.shared.SimpleEventBus;
 public interface EventBusUtil {
   public static final EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);
   public void addHandler(String eventType, JavaScriptObject handler);
-  public void invokeEventBusJSO(JavaScriptObject handler, Object...params);
-  public void fireEvent(String eventType);
+  public void invokeEventBusJSO(JavaScriptObject handler, String parameterJSON);
+  public void fireEvent(String eventType, JavaScriptObject parameterMap);
 }
