@@ -119,10 +119,22 @@
         <script type="text/x-handlebars-template">
           <div id="getting-started" class="well getting-started widget-panel">
             <h3>{{i18n.getting_started_heading}}</h3>
-            <hr class="soften">
-            {{content.getting_started}}
+            
+            <ul class="nav nav-tabs" id="tab-group">
+                <li class="active"><a href="#tab1">{{i18n.getting_started_tab1}}</a></li>
+                <li><a href="#tab2">{{i18n.getting_started_tab2}}</a></li>
+                <li><a href="#tab3">{{i18n.getting_started_tab3}}</a></li>
+            </ul>
+ 
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab1"></div>
+              <div class="tab-pane" id="tab2"></div>
+              <div class="tab-pane" id="tab3"></div>
+            </div>
+            
+            <hr class="soften">            
           </div>
-        </script>
+        </script>        
       </div>
 
       <div class="row-fluid">
