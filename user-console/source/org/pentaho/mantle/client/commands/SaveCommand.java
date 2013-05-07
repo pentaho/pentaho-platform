@@ -16,6 +16,8 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import java.io.UnsupportedEncodingException;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
@@ -207,6 +209,7 @@ public class SaveCommand extends AbstractCommand {
         var result = frame.handle_puc_save(path, filename, overwrite);
         //if(result) {
           this.@org.pentaho.mantle.client.commands.SaveCommand::doTabRename()();
+          this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodeURIComponent(result));
         //}        
       } catch (e) {
         //TODO: externalize message once a solution to do so is found.
@@ -224,6 +227,13 @@ public class SaveCommand extends AbstractCommand {
       tab.setLabelText(tabName);
       tab.setLabelTooltip(tabName);
     }
+  }
+  
+  //used via JSNI
+  private void addToRecentList(String fullPathWithName){
+	  if(fullPathWithName != null && fullPathWithName.contains(name)){
+		SolutionBrowserPanel.getInstance().addRecent(fullPathWithName, name);
+	  }
   }
 
 }
