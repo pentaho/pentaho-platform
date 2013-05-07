@@ -6,4 +6,7 @@
   <slate>
     <file>mantleSlate.css</file>
   </slate>
+  <clean>
+    <file>mantleClean.css</file>
+  </clean>
 </themes>
