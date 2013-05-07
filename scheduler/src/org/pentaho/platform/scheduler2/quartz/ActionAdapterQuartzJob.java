@@ -37,6 +37,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -47,7 +48,6 @@ import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -123,7 +123,7 @@ public class ActionAdapterQuartzJob implements Job {
     final IAction actionBean = (IAction) bean;
 
     try {
-      invokeAction(actionBean, actionUser, context.getJobDetail(), jobDataMap.getWrappedMap());
+      invokeAction(actionBean, actionUser, context, jobDataMap.getWrappedMap());
 
     } catch (Throwable t) {
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
@@ -133,7 +133,7 @@ public class ActionAdapterQuartzJob implements Job {
     }
   }
 
-  protected void invokeAction(final IAction actionBean, final String actionUser, final JobDetail jobDetail, final Map<String, Serializable> params)
+  protected void invokeAction(final IAction actionBean, final String actionUser, final JobExecutionContext context, final Map<String, Serializable> params)
       throws Exception {
 
     // remove the scheduling infrastructure properties
@@ -143,6 +143,7 @@ public class ActionAdapterQuartzJob implements Job {
     final IBackgroundExecutionStreamProvider streamProvider = (IBackgroundExecutionStreamProvider) params.get(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_UIPASSPARAM);
+    params.put(IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime());
 
     if (log.isDebugEnabled()) {
       log.debug(MessageFormat.format("Scheduling system invoking action {0} as user {1} with params [ {2} ]", actionBean //$NON-NLS-1$
