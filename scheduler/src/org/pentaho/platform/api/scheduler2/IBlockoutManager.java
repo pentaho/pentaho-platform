@@ -29,6 +29,8 @@ public interface IBlockoutManager {
   public static final String TIME_ZONE_PARAM= "TIME_ZONE_PARAM"; //$NON-NLS-1$
 
   public static final String BLOCK_OUT_JOB_NAME = "BlockoutAction"; //$NON-NLS-1$
+  
+  public static final String  SCHEDULED_FIRE_TIME = "scheduledFireTime";
 
   /**
    * @param blockOutJobId

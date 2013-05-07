@@ -50,6 +50,7 @@ import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfMonth;
@@ -213,6 +214,11 @@ public class QuartzScheduler implements IScheduler {
     } else {
       throw new SchedulerException(Messages.getInstance().getString("QuartzScheduler.ERROR_0002_TRIGGER_WRONG_TYPE")); //$NON-NLS-1$
     }
+    if (quartzTrigger instanceof SimpleTrigger) {
+      quartzTrigger.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
+    } else {
+      quartzTrigger.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+    }
     return quartzTrigger;
   }
 
@@ -242,7 +248,6 @@ public class QuartzScheduler implements IScheduler {
     QuartzJobKey jobId = new QuartzJobKey(jobName, curUser);
 
     Trigger quartzTrigger = createQuartzTrigger(trigger, jobId);
-    quartzTrigger.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
 
     Calendar triggerCalendar = quartzTrigger instanceof CronTrigger ? createQuartzCalendar((ComplexJobTrigger) trigger)
         : null;
@@ -261,7 +266,7 @@ public class QuartzScheduler implements IScheduler {
     }
 
     JobDetail jobDetail = createJobDetails(jobId, jobParams);
-
+    
     try {
       Scheduler scheduler = getQuartzScheduler();
       if (triggerCalendar != null) {
