@@ -69,8 +69,8 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
       tempOutputFilePath = tempOutputFilePath.substring(0, tempOutputFilePath.lastIndexOf('.'));
       if (streamingAction != null) {
         String mimeType = streamingAction.getMimeType(null);
-        if(mimeType != null){
-        	tempOutputFilePath = MimeHelper.getExtension(mimeType);
+        if(mimeType != null && MimeHelper.getExtension(mimeType) != null){
+        	tempOutputFilePath += MimeHelper.getExtension(mimeType);
         }
       }
     }
