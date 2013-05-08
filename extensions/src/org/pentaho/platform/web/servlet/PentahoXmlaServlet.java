@@ -95,13 +95,16 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   private final Map<String, RepositoryContentFinder> finders =
     new ConcurrentHashMap<String, RepositoryContentFinder>();
 
-  private final String datasourceUrl = null;
+  private final IUnifiedRepository repo;
+
+  private final MondrianCatalogHelper mondrianCatalogService;
 
   // - Constructors ================================
 
   public PentahoXmlaServlet() {
     super();
-    
+    repo = PentahoSystem.get(IUnifiedRepository.class);
+    mondrianCatalogService = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
     try {
     	DefaultFileSystemManager dfsm = (DefaultFileSystemManager)VFS.getManager();
       if(dfsm.hasProvider("mondrian") == false){
@@ -161,20 +164,14 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
       try {
         return SecurityHelper.getInstance().runAsSystem(
           new Callable<String>() {
-            @Override
             public String call() throws Exception {
-              String result = null;
-              IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
-                if(repo != null) {
-	              MondrianCatalogHelper mondrianCatalogService = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
-	              result = mondrianCatalogService.generateInMemoryDatasourcesXml(repo);  
-    	    }
-    	    return result;
-        }
-	      });
-	  } catch (Exception e) {
-	    throw new RuntimeException(e);
-	  }
+               return mondrianCatalogService.generateInMemoryDatasourcesXml(repo);
+            }
+          });
+      } catch (Exception e) {
+        PentahoXmlaServlet.logger.error(e);
+        throw new RuntimeException(e);
+      }
   }
 
   @Override
