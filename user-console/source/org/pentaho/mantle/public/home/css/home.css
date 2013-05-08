@@ -79,6 +79,10 @@ button.btn-large.btn-block {
   white-space: nowrap;
 }
 
+#getting-started {
+  min-height: 500px;
+}
+
 .card {
   display: table-cell;
   cursor: pointer;
@@ -87,11 +91,19 @@ button.btn-large.btn-block {
   min-width: 96px;
 }
 
+.selector-row {
+  position: relative;
+}
+
 .horizontal-selector {  
   display: table;
   background-color: #DCE7ED;
   padding: 2px;
-  overflow-x:scroll;
+  overflow-x:scroll;  
+}
+
+#launch-widget .horizontal-selector, #tutorial-selector.horizontal-selector {
+  overflow-x:inherit;
 }
 
 .card-link, .card-description {
@@ -137,7 +149,6 @@ button.btn-large.btn-block {
 }
 
 .welcome-img {
-  /*width:740px;*/
   width:100%;
   height:307px;
   background-size: 100%;
@@ -146,4 +157,14 @@ button.btn-large.btn-block {
 
 .selected {
   background-color: #FFF;
+}
+
+#sample {
+  width: 100%;
+  height: 450px;
+}
+
+.offscreen {
+  position: absolute;
+  left: -99999px;
 }

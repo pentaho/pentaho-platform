@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en" class="bootstrap">
 	<head>
 		<meta charset="utf-8">
@@ -5,18 +6,38 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<!-- Le styles -->
-		<link href="css/home.css" rel="stylesheet">
+		<link href="../css/home.css" rel="stylesheet">
 
 		<!-- We need web context for requirejs and css -->
 		<script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
 		<script type="text/javascript">
-			pen.require(["home/handlebarsCompiler", "home/contextProvider"], function(HandlebarsCompiler, ContextProvider) {
-				ContextProvider.get(function(context) {
-					HandlebarsCompiler.compileScripts(context, function(compiledContent, jElement) {
+			pen.require(["common-ui/util/HandlebarsCompiler", "common-ui/util/ContextProvider"], function(HandlebarsCompiler, ContextProvider) {
+
+				// Define properties for loading context
+				var contextConfig = [{
+					path: "../properties/config",
+					post: function(context, loadedMap) {
+						context.config = loadedMap;
+					}
+				}, {
+					path: "../properties/messages",
+					post: function(context, loadedMap) {
+						context.i18n = loadedMap;
+					}
+				}];
+
+				ContextProvider.get(function(context) {					
+					// Compile the scripts in page
+					HandlebarsCompiler.compileScripts(context, function(compiledContent, jElement) {						
 						jElement.parent().append($(compiledContent));
 					});
-				})				
+
+					pen.require(["home/launch"], function(launchWidget) {
+						launchWidget.init();
+					});
+
+				}, contextConfig);
 			});
 		</script>
 	</head>
