@@ -58,8 +58,13 @@ import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 
 @SuppressWarnings("nls")
 public class UserRoleMapperTest {
@@ -338,4 +343,38 @@ public class UserRoleMapperTest {
     
   }
 
+  public static class TestUserDetailsService implements UserDetailsService {
+    public UserDetails loadUserByUsername(String arg0)
+      throws UsernameNotFoundException, DataAccessException
+    {
+      return new UserDetails() {
+        private static final long serialVersionUID = 1L;
+        public boolean isEnabled() {
+            return true;
+        }
+        public boolean isCredentialsNonExpired() {
+            return true;
+        }
+        public boolean isAccountNonLocked() {
+            return true;
+        }
+        public boolean isAccountNonExpired() {
+            return true;
+        }
+        public String getUsername() {
+            return "admin";
+        }
+        public String getPassword() {
+            return "password";
+        }
+        public GrantedAuthority[] getAuthorities() {
+            return new GrantedAuthority[] {
+              new GrantedAuthorityImpl("ceo"),
+              new GrantedAuthorityImpl("admin"),
+              new GrantedAuthorityImpl("Authenticated")
+            };
+        }
+    };
+    }
+  }
 }

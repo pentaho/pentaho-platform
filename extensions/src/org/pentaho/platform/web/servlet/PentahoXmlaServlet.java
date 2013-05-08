@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
@@ -30,6 +32,8 @@ import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
 import mondrian.olap.MondrianServer;
 import mondrian.server.FileRepository;
+import mondrian.server.RepositoryContentFinder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileSystemException;
@@ -85,6 +89,12 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   private static final long serialVersionUID = 5801343357261568600L;
   private static final Log logger = LogFactory.getLog(PentahoXmlaServlet.class);
 
+  /**
+   * A map of datasource URL to {@link RepositoryContentFinder} implementation.
+   */
+  private final Map<String, RepositoryContentFinder> finders =
+    new ConcurrentHashMap<String, RepositoryContentFinder>();
+
   // - Constructors ================================
 
   public PentahoXmlaServlet() {
@@ -103,61 +113,70 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   // ~ Methods =========================================================================================================
 
   @Override
-  protected DynamicContentFinder makeContentFinder(String dataSourcesUrl) {
-    return new DynamicContentFinder(dataSourcesUrl) {
-      @Override
-      public String getContent() {
-    	String content = null;
-    	try {
-	    	String original = generateInMemoryDatasourcesXml();
-	        EntityResolver loader = new PentahoEntityResolver();
-	        Document originalDocument = XmlDom4JHelper.getDocFromString(original, loader);
-	        if (PentahoXmlaServlet.logger.isDebugEnabled()) {
-	          PentahoXmlaServlet.logger
-	              .debug(Messages.getInstance().getString("PentahoXmlaServlet.DEBUG_ORIG_DOC", originalDocument.asXML())); //$NON-NLS-1$
-	        }
-	        Document modifiedDocument = (Document) originalDocument.clone();
-	        List<Node> nodesToRemove = modifiedDocument.selectNodes("/DataSources/DataSource/Catalogs/Catalog[contains(DataSourceInfo, 'EnableXmla=False')]"); //$NON-NLS-1$
-	        if (PentahoXmlaServlet.logger.isDebugEnabled()) {
-	          PentahoXmlaServlet.logger.debug(Messages.getInstance().getString(
-	              "PentahoXmlaServlet.DEBUG_NODES_TO_REMOVE", String.valueOf(nodesToRemove.size()))); //$NON-NLS-1$
-	        }
-	        for (Node node : nodesToRemove) {
-	          node.detach();
-	        }
-	        if (PentahoXmlaServlet.logger.isDebugEnabled()) {
-	          PentahoXmlaServlet.logger.debug(Messages.getInstance().getString("PentahoXmlaServlet.DEBUG_MOD_DOC", modifiedDocument.asXML())); //$NON-NLS-1$
-	        }
-	        content = modifiedDocument.asXML();
-    	} catch(XmlParseException e) {
-             PentahoXmlaServlet.logger.error(Messages.getInstance().getString("PentahoXmlaServlet.ERROR_0004_UNABLE_TO_GET_DOCUMENT_FROM_STRING"), e); //$NON-NLS-1$
+  protected RepositoryContentFinder makeContentFinder(String dataSourcesUrl) {
+    // It is safe to cache these for now because their lambda doesn't
+    // do anything with security.
+    // BEWARE before making modifications that check security rights or all
+    // other kind of stateful things.
+    if (!finders.containsKey(dataSourcesUrl)) {
+      finders.put(
+        dataSourcesUrl,
+        new DynamicContentFinder(dataSourcesUrl) {
+          @Override
+          public String getContent() {
+            try {
+                String original = generateInMemoryDatasourcesXml();
+                EntityResolver loader = new PentahoEntityResolver();
+                Document originalDocument = XmlDom4JHelper.getDocFromString(original, loader);
+                if (PentahoXmlaServlet.logger.isDebugEnabled()) {
+                  PentahoXmlaServlet.logger
+                      .debug(Messages.getInstance().getString("PentahoXmlaServlet.DEBUG_ORIG_DOC", originalDocument.asXML())); //$NON-NLS-1$
+                }
+                Document modifiedDocument = (Document) originalDocument.clone();
+                List<Node> nodesToRemove = modifiedDocument.selectNodes("/DataSources/DataSource/Catalogs/Catalog[contains(DataSourceInfo, 'EnableXmla=False')]"); //$NON-NLS-1$
+                if (PentahoXmlaServlet.logger.isDebugEnabled()) {
+                  PentahoXmlaServlet.logger.debug(Messages.getInstance().getString(
+                      "PentahoXmlaServlet.DEBUG_NODES_TO_REMOVE", String.valueOf(nodesToRemove.size()))); //$NON-NLS-1$
+                }
+                for (Node node : nodesToRemove) {
+                  node.detach();
+                }
+                if (PentahoXmlaServlet.logger.isDebugEnabled()) {
+                  PentahoXmlaServlet.logger.debug(Messages.getInstance().getString("PentahoXmlaServlet.DEBUG_MOD_DOC", modifiedDocument.asXML())); //$NON-NLS-1$
+                }
+                return modifiedDocument.asXML();
+            } catch(XmlParseException e) {
+                 PentahoXmlaServlet.logger.error(Messages.getInstance().getString("PentahoXmlaServlet.ERROR_0004_UNABLE_TO_GET_DOCUMENT_FROM_STRING"), e); //$NON-NLS-1$
+                 return null;
+            }
+          }
+        });
+      }
+      return finders.get(dataSourcesUrl);
+    }
+
+    private String generateInMemoryDatasourcesXml() {
+      String datasourcesXml = null;
+      try {
+        datasourcesXml = SecurityHelper.getInstance().runAsSystem(
+          new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+              String result = null;
+              IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
+                if(repo != null) {
+	              MondrianCatalogHelper mondrianCatalogService = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
+	              result = mondrianCatalogService.generateInMemoryDatasourcesXml(repo);  
+    	    }
+    	    return result;
         }
-    	return content;
-      }
-      
-      private String generateInMemoryDatasourcesXml() {
-    	  String datasourcesXml = null;
-    	  try {
-    		  datasourcesXml = SecurityHelper.getInstance().runAsSystem(new Callable<String>() {
-    	        @Override
-    	        public String call() throws Exception {
-    	        	String result = null;
-    	        	IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
-    	    	    if(repo != null) {
-        	    	    MondrianCatalogHelper mondrianCatalogService = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
-        	    	    result = mondrianCatalogService.generateInMemoryDatasourcesXml(repo);  
-    	    	    }
-    	    	    return result;
-    	        }
-    	      });
-    	  } catch (Exception e) {
-    	    throw new RuntimeException(e);
-    	  }
-    	  return datasourcesXml;
-      }
-    };
+	      });
+	  } catch (Exception e) {
+	    throw new RuntimeException(e);
+	  }
+	  return datasourcesXml;
   }
-  
+
   @Override
   protected CatalogLocator makeCatalogLocator(ServletConfig servletConfig) {
     return new ServletContextCatalogLocator(servletConfig.getServletContext()) {
@@ -181,7 +200,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   @Override
   protected String makeDataSourcesUrl(ServletConfig config) {
-	return null;
+	return "";
   }
   
   @Override
