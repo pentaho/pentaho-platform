@@ -175,7 +175,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
           }
 
           MantleXul.this.selectAdminCatTreeTreeItem(Messages.getString("manageUsersAndRoles").replaceAll("&amp;", "&"));
-          controller.loadUserRolesAdminPanel();
         }
       }
     };
