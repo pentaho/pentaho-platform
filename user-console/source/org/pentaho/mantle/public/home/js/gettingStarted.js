@@ -6,11 +6,13 @@
  * ******************************************************************************
  */
  pen.define([
- 	"home/ContextProvider",
- 	"home/BootstrappedTabLoader"
+ 	"common-ui/util/ContextProvider",
+ 	"common-ui/util/BootstrappedTabLoader"
  ], function(ContextProvider, BootstrappedTabLoader) {
 
  	function init() {
+		$.support.cors = true;
+
  		BootstrappedTabLoader.init({
 			parentSelector: "#getting-started",
 			tabContentPattern : "content/getting_started_tab{{contentNumber}}_content.html",
@@ -38,11 +40,11 @@
 			 		ContextProvider.addProperty("getting_started_tutorials", tutorialsArray);
 		 		});
 			},
-			post: function(jHtml, tabSelector) {
+			postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");
 				if (tabId == "tab1") {
-					ContextProvider.get(function(context){
-						injectYoutubeVideoDuration(context.config.welcome_link, jHtml, "#video-length");  
+					ContextProvider.get(function(context) {
+						injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
 		  				appendNavParams(jHtml, "tab1");	
 		  			});
 
@@ -54,9 +56,9 @@
 			 		ContextProvider.get(function(context) {
 						
 						jHtml.find(".tutorial-card").each(function(index) {
-				 			var youtubeLink = context.config["tutorial_link" + (index+1)];
+				 			var youtubeLinkId = context.config["tutorial_link" + (index+1) + "_id"];
 
-				 			injectYoutubeVideoDuration(youtubeLink, $(this), ".tutorial-card-time", function(time) {
+				 			injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time", function(time) {
 				 				if (index == 0) {
 				 					$(".video-length").text(formatSeconds(time));	
 				 				} 				
@@ -100,18 +102,52 @@
  	/*
  	 * Injects the duration of the youtube video into an element
  	 */
- 	function injectYoutubeVideoDuration(youtubeLink, injectContent, injectSelector, post) { 		
-  		var videoId = youtubeLink.replace("http://www.youtube.com/watch?v=", "");
+ 	function injectYoutubeVideoDuration(youtubeLinkId, injectContent, injectSelector, post) {
+ 		var url ="http://gdata.youtube.com/feeds/api/videos/" + youtubeLinkId + "?v=2&alt=jsonc&prettyprint=true";
 
- 		// Retrieve duration of main video
-		$.get("http://gdata.youtube.com/feeds/api/videos/" + videoId + "?v=2&alt=jsonc&prettyprint=true", function(data) {
-			var videoLength = data.data.duration;
+ 		function postSuccess(data) {
+ 			if (typeof data=="string"){
+ 				data = eval("(" + data + ")");
+ 			}
+ 			var videoLength = data.data.duration;
 			injectContent.find(injectSelector).text(formatSeconds(videoLength));
 
 			if (post) {
 				post(videoLength);
 			}
-		});
+ 		}
+
+ 		if ($(".IE").length > 0 && window.XDomainRequest) {
+            // Use Microsoft XDR
+            var xdr = new XDomainRequest();
+            xdr.open("get", url);
+            xdr.onload = function() {
+                postSuccess(xdr.responseText);
+            };
+            xdr.onerror = function(event) {
+            	alert(event);
+            };
+
+            xdr.ontimeout = function(event) {
+            	alert(event);
+            };
+
+            xdr.onprogress = function(event) {};
+
+            xdr.send();
+
+        } else {            
+			$.ajax(url, {
+				type: "GET",
+				success: postSuccess,
+				error : function(data, status, error) {
+					
+					if (status == "error") {
+						alert("status: " + status + " error: " + error);
+					}
+				}
+			});
+        }
  	}
 
  	/**
@@ -130,10 +166,8 @@
  	function appendNavParams(jTab, selectedTab, selectedContentIndex) {
  		var href = "content/getting_started_launch.html?";
  		href += "selectedTab=" + selectedTab;
-
- 		if(selectedContentIndex) {
- 			href += "&selectedContentIndex=" + selectedContentIndex	
- 		}
+ 		href += "&selectedContentIndex=" + selectedContentIndex	
+ 		
  		
 
  		if (typeof jTab=="string") {
@@ -144,6 +178,7 @@
  	}
 
  	return {
- 		init:init
+ 		init:init,
+ 		injectYoutubeVideoDuration:injectYoutubeVideoDuration
  	};
  });

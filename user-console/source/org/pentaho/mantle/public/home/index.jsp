@@ -25,7 +25,7 @@
   <!-- Require Home -->
   <script type="text/javascript">
     var Home = null;
-    pen.require(["home/home", "home/ContextProvider"], function(pentahoHome, ContextProvider) {
+    pen.require(["home/home", "common-ui/util/ContextProvider"], function(pentahoHome, ContextProvider) {
       Home = pentahoHome;      
 
       // Define properties for loading context
