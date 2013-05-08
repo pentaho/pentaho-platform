@@ -117,8 +117,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
     }
     
-    $wnd.executeCommand = function(commandName) { 
-      @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;)(commandName);      
+    $wnd.executeCommand = function(commandName, parameterMap) { 
+      @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(commandName, parameterMap);      
     }
     
     $wnd.authenticate = function(callback) {
@@ -181,8 +181,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }
   }
 
-  private static void executeCommand(String commandName) {
-    commandExec.execute(commandName);
+  private static void executeCommand(String commandName, JavaScriptObject parameterMap) {
+    commandExec.execute(commandName, parameterMap);
   }
 
   private void addGlassPaneListener(JavaScriptObject obj) {

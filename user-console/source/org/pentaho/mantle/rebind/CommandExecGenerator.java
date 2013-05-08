@@ -19,14 +19,16 @@ package org.pentaho.mantle.rebind;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
+import com.google.gwt.core.ext.typeinfo.JMethod;
 import com.google.gwt.core.ext.typeinfo.JPackage;
 import com.google.gwt.core.ext.typeinfo.JPrimitiveType;
 import com.google.gwt.core.ext.typeinfo.JType;
@@ -38,11 +40,8 @@ import com.google.gwt.user.rebind.SourceWriter;
 public class CommandExecGenerator extends Generator {
 
   private String packageName;
-
   private String className;
-
   private TypeOracle typeOracle;
-
   private TreeLogger logger;
 
   @Override
@@ -66,7 +65,7 @@ public class CommandExecGenerator extends Generator {
 
     }
 
-    // return the fully qualifed name of the class generated
+    // return the fully qualified name of the class generated
     return packageName + "." + className;
   }
 
@@ -84,6 +83,7 @@ public class CommandExecGenerator extends Generator {
     composer = new ClassSourceFileComposerFactory(packageName, className);
     composer.addImplementedInterface(CommandExec.class.getName());
     composer.addImport(SolutionBrowserPanel.class.getName());
+    composer.addImport(JavaScriptObject.class.getName());
     composer.addImport(Command.class.getName());
 
     SourceWriter sourceWriter = null;
@@ -104,83 +104,118 @@ public class CommandExecGenerator extends Generator {
   }
 
   private void generateMethods(SourceWriter sourceWriter) {
-    sourceWriter.println("public void execute(String commandName) { ");
+    sourceWriter.println();
+    sourceWriter.println("public native String getParameterString(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
     sourceWriter.indent();
-
-    try {
-
-      // find Command implementors
-      ArrayList<JClassType> implementingTypes = new ArrayList<JClassType>();
-
-      JPackage pack = typeOracle.getPackage(AbstractCommand.class.getPackage().getName());
-
-      JClassType eventSourceType = typeOracle.getType(Command.class.getName());
-
-      for (JClassType type : pack.getTypes()) {
-        if (type.isAssignableTo(eventSourceType)) {
-          implementingTypes.add(type);
-        }
-      }
-
-      sourceWriter.println("if(false){}"); // placeholder
-      for (JClassType implementingType : implementingTypes) {
-        sourceWriter.println("else if(commandName.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
-
-        if (implementingType.isDefaultInstantiable()) {
-          sourceWriter.println("new " + implementingType.getSimpleSourceName() + "().execute();");
-        } else {
-          // logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName() +
-          // "), needs at least a no-arg constructor");
-        }
-        sourceWriter.println("}");
-      }
-
-    } catch (Exception e) {
-      // record to logger that Map generation threw an exception
-      logger.log(TreeLogger.ERROR, "Error generating BindingContext!!!", e);
-
-    }
-
+    sourceWriter.println("return parameterMap[paramName];");
     sourceWriter.outdent();
-    sourceWriter.println("}");
+    sourceWriter.println("}-*/;");
 
-    sourceWriter.println("public Command lookupCommand(String commandName){ ");
+    sourceWriter.println();
+    sourceWriter.println("public native Integer getParameterInteger(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Boolean getParameterBoolean(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Float getParameterFloat(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Double getParameterDouble(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Long getParameterLong(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public native Short getParameterShort(final String paramName, final JavaScriptObject parameterMap)");
+    sourceWriter.println("/*-{");
+    sourceWriter.indent();
+    sourceWriter.println("return parameterMap[paramName];");
+    sourceWriter.outdent();
+    sourceWriter.println("}-*/;");
+
+    sourceWriter.println();
+    sourceWriter.println("public void execute(final String commandName, final JavaScriptObject parameterMap) { ");
     sourceWriter.indent();
 
     try {
-
       // find Command implementors
       ArrayList<JClassType> implementingTypes = new ArrayList<JClassType>();
-
-      JPackage pack = typeOracle.getPackage(AbstractCommand.class.getPackage().getName());
-
-      JClassType eventSourceType = typeOracle.getType(Command.class.getName());
+      JPackage pack = typeOracle.getPackage(CommandExec.class.getPackage().getName());
+      JClassType commandSourceType = typeOracle.getType(Command.class.getName());
 
       for (JClassType type : pack.getTypes()) {
-        if (type.isAssignableTo(eventSourceType)) {
+        if (type.isAssignableTo(commandSourceType)) {
           implementingTypes.add(type);
         }
       }
 
       sourceWriter.println("if(false){}"); // placeholder
       for (JClassType implementingType : implementingTypes) {
-        sourceWriter.println("else if(commandName.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
-
-        if (implementingType.isDefaultInstantiable()) {
-          sourceWriter.println("return new " + implementingType.getSimpleSourceName() + "();");
-        } else {
-          // logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName() +
-          // "), needs at least a no-arg constructor");
+        if (implementingType.isAbstract()) {
+          continue;
         }
+        sourceWriter.println("else if(commandName.equals(\"" + implementingType.getSimpleSourceName() + "\")){");
+        sourceWriter.indent();
+        sourceWriter.println(implementingType.getName() + " command = new " + implementingType.getName() + "();");
+        for (JMethod eventMethod : implementingType.getMethods()) {
+          if (eventMethod.isPublic() && !eventMethod.isStatic() && eventMethod.isConstructor() == null && eventMethod.getName().startsWith("set")) {
+            String propertyName = eventMethod.getName().substring(3);
+            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            String simpleType = implementingType.getField(propertyName).getType().getSimpleSourceName();
+            if ("string".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterString(\"" + propertyName + "\", parameterMap));");
+            } else if ("integer".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterInteger(\"" + propertyName + "\", parameterMap));");
+            } else if ("float".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterFloat(\"" + propertyName + "\", parameterMap));");
+            } else if ("double".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterDouble(\"" + propertyName + "\", parameterMap));");
+            } else if ("long".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterLong(\"" + propertyName + "\", parameterMap));");
+            } else if ("short".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterShort(\"" + propertyName + "\", parameterMap));");
+            } else if ("boolean".equalsIgnoreCase(simpleType)) {
+              sourceWriter.println("command." + eventMethod.getName() + "(getParameterBoolean(\"" + propertyName + "\", parameterMap));");
+            }
+          }
+        }
+
+        sourceWriter.println("command.execute();");
+        sourceWriter.outdent();
         sourceWriter.println("}");
       }
 
     } catch (Exception e) {
       // record to logger that Map generation threw an exception
       logger.log(TreeLogger.ERROR, "Error generating BindingContext!!!", e);
-
     }
-    sourceWriter.println("return null;");
     sourceWriter.outdent();
     sourceWriter.println("}");
   }

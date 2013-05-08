@@ -63,7 +63,7 @@ public class EventBusUtilGenerator extends Generator {
       logger.log(TreeLogger.ERROR, "PropertyMap ERROR!!!", e);
     }
 
-    // return the fully qualifed name of the class generated
+    // return the fully qualified name of the class generated
     return packageName + "." + className;
   }
 

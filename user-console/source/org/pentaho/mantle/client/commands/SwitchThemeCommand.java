@@ -33,6 +33,9 @@ public class SwitchThemeCommand extends AbstractCommand {
 
   private String theme;
 
+  public SwitchThemeCommand() {
+  }
+
   public SwitchThemeCommand(String theme) {
     this.theme = theme;
   }
@@ -67,4 +70,11 @@ public class SwitchThemeCommand extends AbstractCommand {
     }
   }
 
+  public String getTheme() {
+    return theme;
+  }
+
+  public void setTheme(String theme) {
+    this.theme = theme;
+  }
 }

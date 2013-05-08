@@ -46,6 +46,9 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
   List<RepositoryFile> repositoryFiles;
 
+  public DeletePermanentFileCommand() {
+  }
+  
   /**
    * @param fileSummary
    */

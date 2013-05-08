@@ -53,6 +53,9 @@ public class PasteFilesCommand extends AbstractCommand {
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
+  public PasteFilesCommand() {
+  }
+  
   /**
    * @param repositoryFile
    */

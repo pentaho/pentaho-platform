@@ -28,6 +28,9 @@ public class SwitchLocaleCommand extends AbstractCommand {
 
   private String locale;
 
+  public SwitchLocaleCommand() {
+  }
+  
   public SwitchLocaleCommand(String locale) {
     this.locale = locale;
   }
@@ -65,4 +68,11 @@ public class SwitchLocaleCommand extends AbstractCommand {
     Window.Location.replace(newLocalePath);
   }
 
+  public String getLocale() {
+    return locale;
+  }
+
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
 }

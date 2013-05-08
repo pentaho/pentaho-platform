@@ -29,6 +29,9 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 public class CutFilesCommand extends AbstractCommand {
   private List<FileItem> repositoryFiles;
   
+  public CutFilesCommand() {
+  }
+  
   /**
    * @param selectedItems
    */

@@ -41,6 +41,9 @@ public class RestoreFileCommand implements Command {
   
   List<RepositoryFile> repositoryFiles;
   
+  public RestoreFileCommand() {
+  }
+  
   /**
    * @param fileSummary
    */

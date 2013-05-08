@@ -29,6 +29,9 @@ public class UrlCommand extends AbstractCommand {
   int dialogWidth = 600;
   int dialogHeight = 400;
   
+  public UrlCommand() {
+  }
+  
   public UrlCommand(String url, String title) {
     this.url = url;
     this.title = title;

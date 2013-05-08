@@ -39,6 +39,10 @@ public class FilePropertiesCommand implements Command {
   private String moduleName = GWT.getModuleName();
   private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
   private static final int MANAGE_ACLS = 3;
+  
+  public FilePropertiesCommand() {
+  }
+  
   public FilePropertiesCommand(RepositoryFile fileSummary) {
     this(fileSummary, Tabs.GENERAL);
   }

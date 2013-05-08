@@ -51,6 +51,9 @@ public class ShowGeneratedContentCommand extends AbstractCommand {
 
   private RepositoryFile repositoryFile;
   
+  public ShowGeneratedContentCommand() {
+  }
+  
   /**
    * @param selectedItems
    */

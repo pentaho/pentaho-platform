@@ -29,6 +29,9 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 public class CopyFilesCommand extends AbstractCommand {
   private List<FileItem> repositoryFiles;
   
+  public CopyFilesCommand() {
+  }
+  
   /**
    * @param selectedItems
    */
