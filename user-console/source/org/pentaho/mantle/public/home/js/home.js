@@ -1,5 +1,13 @@
+/*
+ * ******************************************************************************
+ * Pentaho
+ *
+ * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
+ * ******************************************************************************
+ */
+ 
 pen.define([
-  "home/HandlebarsCompiler",
+  "common-ui/util/HandlebarsCompiler",
   "common-ui/bootstrap",
   "common-ui/jquery"
 ], function(HandlebarsCompiler) {
