@@ -151,6 +151,9 @@ public class DynamicContentFinderTest {
   @Test
   public void testSingleInstanceForTwoRequests() throws Exception {
 
+    final String response =
+      "<DataSourceName>Pentaho</DataSourceName>";
+
     MockHttpServletRequest request = new MockHttpServletRequest();
 
     MockHttpSession session = new MockHttpSession();
@@ -210,6 +213,8 @@ public class DynamicContentFinderTest {
       servlet.service(request, response1);
       servlet.service(request, response2);
       Assert.assertEquals(1, finders.size());
+      Assert.assertTrue(response1.getOutputStreamContent().contains(response));
+      Assert.assertTrue(response2.getOutputStreamContent().contains(response));
     } finally {
       servlet.destroy();
     }

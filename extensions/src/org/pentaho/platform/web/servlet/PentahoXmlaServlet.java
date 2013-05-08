@@ -95,6 +95,8 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   private final Map<String, RepositoryContentFinder> finders =
     new ConcurrentHashMap<String, RepositoryContentFinder>();
 
+  private final String datasourceUrl = null;
+
   // - Constructors ================================
 
   public PentahoXmlaServlet() {
@@ -156,9 +158,8 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     }
 
     private String generateInMemoryDatasourcesXml() {
-      String datasourcesXml = null;
       try {
-        datasourcesXml = SecurityHelper.getInstance().runAsSystem(
+        return SecurityHelper.getInstance().runAsSystem(
           new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -174,7 +175,6 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 	  } catch (Exception e) {
 	    throw new RuntimeException(e);
 	  }
-	  return datasourcesXml;
   }
 
   @Override
