@@ -451,7 +451,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     RepositoryFile publicFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
         ServerRepositoryPaths.getTenantPublicFolderName()).folder(true).build(), new RepositoryFileAcl.Builder(
         fileOwnerSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid,
-            EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.WRITE, RepositoryFilePermission.DELETE)).build(), null);
+            EnumSet.of(RepositoryFilePermission.READ)).build(), null);
     
     return publicFolder;
   }
