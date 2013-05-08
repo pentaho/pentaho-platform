@@ -25,26 +25,37 @@
   <!-- Require Home -->
   <script type="text/javascript">
     var Home = null;
-    pen.require(["home/home"], function(pentahoHome) {
-      Home = pentahoHome;
+    pen.require(["home/home", "home/ContextProvider"], function(pentahoHome, ContextProvider) {
+      Home = pentahoHome;      
+
+      // Define properties for loading context
+      var contextConfig = [{
+        path: "properties/config",
+        post: function(context, loadedMap) {
+          context.config = loadedMap;
+        }
+      }, {
+        path: "properties/messages",
+        post: function(context, loadedMap) {
+          context.i18n = loadedMap;
+        }
+      }];
 
       // Define permissions
-      var permissionsMap = {};
-
-      permissionsMap.canCreateContent   = <%=canCreateContent%>;
-      permissionsMap.hasAnalyzerPlugin  = <%=pluginIds.contains("analyzer")%>;
-      permissionsMap.hasIRPlugin      = <%=pluginIds.contains("pentaho-interactive-reporting")%>;
-      permissionsMap.hasDashBoardsPlugin  = <%=pluginIds.contains("dashboards")%>;
+      ContextProvider.addProperty("canCreateContent", <%=canCreateContent%>);
+      ContextProvider.addProperty("hasAnalyzerPlugin", <%=pluginIds.contains("analyzer")%>);
+      ContextProvider.addProperty("hasIRPlugin", <%=pluginIds.contains("pentaho-interactive-reporting")%>);
+      ContextProvider.addProperty("hasDashBoardsPlugin", <%=pluginIds.contains("dashboards")%>);
+      ContextProvider.addProperty("hasDataAccess", false); // default
 
       // BISERVER-8631 - Manage datasources only available to roles/users with appropriate permissions
       var serviceUrl = Home.getUrlBase() + "plugin/data-access/api/permissions/hasDataAccess";
-      permissionsMap.hasDataAccess = false; // default
-      Home.getContent(serviceUrl, function(result){
-        permissionsMap.hasDataAccess = result;
-        Home.init(permissionsMap); // initialize
-      }, function(error){
+      Home.getContent(serviceUrl, function(result) {
+        ContextProvider.addProperty("hasDataAccess", result);
+        ContextProvider.get(Home.init, contextConfig); // initialize
+      }, function(error) {
         console.log(error);
-        Home.init(permissionsMap); // log error and initialize anyway
+        ContextProvider.get(Home.init, contextConfig); // log error and initialize anyway
       });
 
     });
@@ -121,18 +132,16 @@
             <h3>{{i18n.getting_started_heading}}</h3>
             
             <ul class="nav nav-tabs" id="tab-group">
-                <li class="active"><a href="#tab1">{{i18n.getting_started_tab1}}</a></li>
+                <li><a href="#tab1">{{i18n.getting_started_tab1}}</a></li>
                 <li><a href="#tab2">{{i18n.getting_started_tab2}}</a></li>
                 <li><a href="#tab3">{{i18n.getting_started_tab3}}</a></li>
             </ul>
  
             <div class="tab-content">
-              <div class="tab-pane active" id="tab1"></div>
+              <div class="tab-pane" id="tab1"></div>
               <div class="tab-pane" id="tab2"></div>
               <div class="tab-pane" id="tab3"></div>
             </div>
-            
-            <hr class="soften">            
           </div>
         </script>        
       </div>
