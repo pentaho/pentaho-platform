@@ -43,8 +43,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -54,25 +53,25 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.HasText;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class PerspectiveManager extends HorizontalPanel {
+public class PerspectiveManager extends SimplePanel {
 
   private static final String ALLOW_TRANSPARENCY_ATTRIBUTE = "allowTransparency";
   private static final String REMOVE_IFRAME_BORDERS = "frameBorder";
-  
+
   public static final String ADMIN_PERSPECTIVE = "admin.perspective";
   public static final String SCHEDULES_PERSPECTIVE = "schedules.perspective";
   public static final String OPENED_PERSPECTIVE = "opened.perspective";
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
-  private ArrayList<ToggleButton> toggles = new ArrayList<ToggleButton>();
-  
+  private CustomDropDown perspectiveDropDown;
+
   private PentahoMenuItem browserMenuItem;
   private PentahoMenuItem schedulesMenuItem;
 
@@ -118,7 +117,6 @@ public class PerspectiveManager extends HorizontalPanel {
             perspective.setId(jsperspective.getId());
             perspective.setLayoutPriority(Integer.parseInt(jsperspective.getLayoutPriority()));
 
-
             ArrayList<String> requiredSecurityActions = new ArrayList<String>();
             if (jsperspective.getRequiredSecurityActions() != null) {
               for (int j = 0; j < jsperspective.getRequiredSecurityActions().length(); j++) {
@@ -159,8 +157,6 @@ public class PerspectiveManager extends HorizontalPanel {
     this.perspectives = perspectives;
 
     clear();
-    setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-    setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 
     // sort perspectives
     Collections.sort(perspectives, new Comparator<IPluginPerspective>() {
@@ -171,6 +167,16 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     });
 
+    MenuBar perspectiveMenuBar = new MenuBar(true);
+    perspectiveDropDown = new CustomDropDown("", perspectiveMenuBar);
+    setWidget(perspectiveDropDown);
+    loadResourceBundle(perspectiveDropDown, perspectives.get(0));
+    
+    ScheduledCommand noopCmd = new ScheduledCommand() {
+      public void execute() {
+      }
+    };
+    
     for (final IPluginPerspective perspective : perspectives) {
 
       // if we have overlays add it to the list
@@ -178,18 +184,17 @@ public class PerspectiveManager extends HorizontalPanel {
         overlays.addAll(perspective.getOverlays());
       }
 
-      ToggleButton tb = new ToggleButton(perspective.getTitle(), perspective.getTitle(), new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          showPerspective((ToggleButton) event.getSource(), perspective);
+      final MenuItem menuItem = new MenuItem("", noopCmd);
+      ScheduledCommand cmd = new ScheduledCommand() {
+        public void execute() {
+          showPerspective(perspective);
+          perspectiveDropDown.setText(menuItem.getText());
+          CustomDropDown.hidePopup();
         }
-      });
-
-      tb.getElement().setId(perspective.getId());
-      tb.setStyleName("mantle-perspective-toggle");
-      tb.getElement().setAttribute("layoutPriority", "" + perspective.getLayoutPriority());
-      toggles.add(tb);
-      add(tb);
-      loadResourceBundle(tb, perspective);
+      };
+      menuItem.setScheduledCommand(cmd);
+      perspectiveMenuBar.addItem(menuItem);
+      loadResourceBundle(menuItem, perspective);
     }
 
     // register overlays with XulMainToolbar
@@ -216,7 +221,7 @@ public class PerspectiveManager extends HorizontalPanel {
     }
   }
 
-  private void loadResourceBundle(final ToggleButton button, final IPluginPerspective perspective) {
+  private void loadResourceBundle(final HasText textWidget, final IPluginPerspective perspective) {
     try {
       String bundle = perspective.getResourceBundleUri();
       if (bundle == null) {
@@ -244,9 +249,7 @@ public class PerspectiveManager extends HorizontalPanel {
       messageBundle.loadBundle(folder, baseName, true, new IResourceBundleLoadCallback() {
         public void bundleLoaded(String arg0) {
           String title = ResourceBundleTranslator.translate(perspective.getTitle(), messageBundle);
-          button.getDownFace().setText(title);
-          button.getUpFace().setText(title);
-          button.setText(title);
+          textWidget.setText(title);
         }
       });
 
@@ -263,7 +266,7 @@ public class PerspectiveManager extends HorizontalPanel {
     // return value to indicate if perspective now disabled
     for (int i = 0; i < perspectives.size(); i++) {
       if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
-        toggles.get(i).setEnabled(enabled);
+        // TODO: update menu
         return;
       }
     }
@@ -277,8 +280,7 @@ public class PerspectiveManager extends HorizontalPanel {
     // return value to indicate if perspective now shown
     for (int i = 0; i < perspectives.size(); i++) {
       if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
-        toggles.get(i).setDown(true);
-        showPerspective(toggles.get(i), perspectives.get(i));
+        showPerspective(perspectives.get(i));
         return true;
       }
     }
@@ -293,13 +295,8 @@ public class PerspectiveManager extends HorizontalPanel {
     setPerspective(perspectives.get(0).getId());
   }
 
-  private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
-    
-    if (!source.isDown()) {
-      source.setDown(true);
-      return;
-    }
-    
+  private void showPerspective(final IPluginPerspective perspective) {
+
     // before we show.. de-activate current perspective (based on shown widget)
     Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
     if (w instanceof Frame && !perspective.getId().equals(w.getElement().getId())) {
@@ -308,13 +305,6 @@ public class PerspectiveManager extends HorizontalPanel {
       perspectiveDeactivated(frame.getElement());
     }
 
-    // deselect all other toggles
-    for (ToggleButton disableMe : toggles) {
-      if (disableMe != source) {
-        disableMe.setDown(false);
-      }
-    }
-    
     // remove current perspective overlays
     if (activePerspective != null) {
       for (XulOverlay o : activePerspective.getOverlays()) {
@@ -332,8 +322,7 @@ public class PerspectiveManager extends HorizontalPanel {
     // now it's safe to set active
     this.activePerspective = perspective;
 
-    // apply current overlay or default if none selected
-    if (source.isDown() && perspective.getOverlays() != null) {
+    if (perspective.getOverlays() != null) {
       // handle PERSPECTIVE overlays
       for (XulOverlay overlay : perspective.getOverlays()) {
         if (!overlay.getId().startsWith("startup") && !overlay.getId().startsWith("sticky")) {
@@ -348,8 +337,7 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    if (source.isDown() && !perspective.getId().equals(OPENED_PERSPECTIVE) && !perspective.getId().equals(SCHEDULES_PERSPECTIVE)
-        && !perspective.getId().equals(ADMIN_PERSPECTIVE)) {
+    if (!perspective.getId().equals(OPENED_PERSPECTIVE) && !perspective.getId().equals(SCHEDULES_PERSPECTIVE) && !perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       hijackContentArea(perspective);
     }
 
@@ -359,7 +347,7 @@ public class PerspectiveManager extends HorizontalPanel {
     } else if (perspective.getId().equals(SCHEDULES_PERSPECTIVE)) {
       showSchedulesPerspective();
     } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
-      showAdminPerspective(false,false);
+      showAdminPerspective(false, false);
     }
   }
 
@@ -371,13 +359,13 @@ public class PerspectiveManager extends HorizontalPanel {
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
     SolutionBrowserPanel.getInstance().setNavigatorShowing(SolutionBrowserPanel.getInstance().isNavigatorShowing());
-    setCheckMMenuItem(browserChecked,schedulesChecked);
+    setCheckMMenuItem(browserChecked, schedulesChecked);
   }
 
   private void showSchedulesPerspective() {
-   
+
     GWT.runAsync(new RunAsyncCallback() {
-      
+
       public void onSuccess() {
         DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
         if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SchedulesPerspectivePanel.getInstance()) == -1) {
@@ -385,13 +373,13 @@ public class PerspectiveManager extends HorizontalPanel {
         } else {
           SchedulesPerspectivePanel.getInstance().refresh();
         }
-        contentDeck.showWidget(contentDeck.getWidgetIndex(SchedulesPerspectivePanel.getInstance()));       
+        contentDeck.showWidget(contentDeck.getWidgetIndex(SchedulesPerspectivePanel.getInstance()));
       }
-      
+
       public void onFailure(Throwable reason) {
       }
     });
-    setCheckMMenuItem(false,true);
+    setCheckMMenuItem(false, true);
   }
 
   private void showAdminPerspective(boolean browserChecked, boolean schedulesChecked) {
@@ -402,8 +390,8 @@ public class PerspectiveManager extends HorizontalPanel {
     contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getAdminPerspective()));
     MantleXul.getInstance().customizeAdminStyle();
     MantleXul.getInstance().configureAdminCatTree();
-    //disable Browser and schedules menuItem
-    setCheckMMenuItem(browserChecked,schedulesChecked);
+    // disable Browser and schedules menuItem
+    setCheckMMenuItem(browserChecked, schedulesChecked);
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
@@ -478,17 +466,17 @@ public class PerspectiveManager extends HorizontalPanel {
     this.activePerspective = activePerspective;
     setPerspective(activePerspective.getId());
   }
-  
-  public void setBrowserMenuItem(PentahoMenuItem menuItem){
+
+  public void setBrowserMenuItem(PentahoMenuItem menuItem) {
     this.browserMenuItem = menuItem;
   }
-  
-  public void setSchedulesMenuItem(PentahoMenuItem menuItem){
+
+  public void setSchedulesMenuItem(PentahoMenuItem menuItem) {
     this.schedulesMenuItem = menuItem;
   }
-  
-  private void setCheckMMenuItem(boolean browserChecked,boolean schedulesChecked) {
-    if( this.browserMenuItem != null && this.schedulesMenuItem != null){
+
+  private void setCheckMMenuItem(boolean browserChecked, boolean schedulesChecked) {
+    if (this.browserMenuItem != null && this.schedulesMenuItem != null) {
       this.browserMenuItem.setChecked(browserChecked);
       this.schedulesMenuItem.setChecked(schedulesChecked);
     }

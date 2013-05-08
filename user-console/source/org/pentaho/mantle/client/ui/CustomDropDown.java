@@ -6,13 +6,14 @@ import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.ui.HasText;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
-import com.google.gwt.user.client.ui.SimplePanel;
 
-public class CustomDropDown extends SimplePanel {
+public class CustomDropDown extends HorizontalPanel implements HasText {
 
   private static final String STYLE = "custom-dropdown";
   private static final PopupPanel popup = new PopupPanel(true, false);
@@ -21,20 +22,27 @@ public class CustomDropDown extends SimplePanel {
   private Command command;
   private boolean enabled = true;
   private boolean pressed = true;
-  
+  private Label label = new Label("", false);
+
   public CustomDropDown(String labelText, MenuBar menuBar) {
     this.menuBar = menuBar;
 
     sinkEvents(Event.ONCLICK | Event.MOUSEEVENTS);
 
-    Label label = new Label(labelText, true);
+    setText(labelText);
     label.setStyleName("custom-dropdown-label");
     // label.addMouseListener(this);
     add(label);
+    Label dropDownArrow = new Label();
+    add(dropDownArrow);
+    setCellWidth(dropDownArrow, "100%");
+    dropDownArrow.getElement().getParentElement().addClassName("custom-dropdown-arrow");
+    
     // prevent double-click from selecting text
     ElementUtils.preventTextSelection(getElement());
     ElementUtils.preventTextSelection(label.getElement());
 
+    popup.setStyleName("custom-dropdown-popup");
     popup.addCloseHandler(new CloseHandler<PopupPanel>() {
       public void onClose(CloseEvent<PopupPanel> event) {
         pressed = false;
@@ -44,7 +52,7 @@ public class CustomDropDown extends SimplePanel {
         }
       }
     });
-    
+
     setStyleName(STYLE);
   }
 
@@ -64,7 +72,7 @@ public class CustomDropDown extends SimplePanel {
         popup.setWidget(menuBar);
         popup.setPopupPositionAndShow(new PositionCallback() {
           public void setPosition(int offsetWidth, int offsetHeight) {
-            popup.setPopupPosition(getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight());
+            popup.setPopupPosition(getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1);
           }
         });
       }
@@ -89,6 +97,18 @@ public class CustomDropDown extends SimplePanel {
         }
       }
     }
+  }
+
+  public String getText() {
+    return label.getText();
+  }
+
+  public void setText(String text) {
+    label.setText(text);
+  }
+
+  public static void hidePopup() {
+    popup.hide();
   }
 
   public boolean isEnabled() {
