@@ -1,94 +1,62 @@
 pen.define([
+  "home/HandlebarsCompiler",
   "common-ui/bootstrap",
-  "common-ui/handlebars",
-  "common-ui/jquery-i18n",
   "common-ui/jquery"
-], function() {
+], function(HandlebarsCompiler) {
 
 
-  function init(permissions) {
-    // Retrieve configuration properites
-    jQuery.i18n.properties({
-      name: 'properties/config',
-      mode: 'map'
+  function init(context) {
+    var favoriteControllerConfig = {
+      favoritesDisabled: false,
+      recentsDisabled: false,
+      i18nMap: context.i18n
+    };
+
+    // Set disabled = true for
+    var disabledWidgetIdsArr = context.config.disabled_widgets.split(",");
+    $.each(disabledWidgetIdsArr, function(index, value) {
+
+      if (value == "favorites" || value == "recents") {
+        favoriteControllerConfig.favoritesDisabled = true;      
+      }
     });
 
-    // Retrieve Message bundle, then process templates
-    jQuery.i18n.properties({
-      name: 'properties/messages',
-      mode: 'map',
-      callback: function () {
+    initFavoritesAndRecents(favoriteControllerConfig);
 
-        var context = {};
-        context.content = {};
-
-        for (permission in permissions) {
-          context[permission] = permissions[permission];
-        }
-
-        // one bundle for now, namespace later if needed
-        context.i18n = jQuery.i18n.map;
-
-        var favoriteControllerConfig = {
-          favoritesDisabled: false,
-          recentsDisabled: false,
-          i18nMap: jQuery.i18n.map
-        };
-
-        // Set disabled = true for
-        var disabledWidgetIdsArr = jQuery.i18n.map.disabled_widgets.split(",");
-        $.each(disabledWidgetIdsArr, function(index, value) {
-
-          if (value == "favorites") {
-            favoriteControllerConfig.favoritesDisabled = true;
-          } else if (value == "recents") {
-            favoriteControllerConfig.recentsDisabled = true;
-          }
-        });
-
-        initFavoritesAndRecents(favoriteControllerConfig);
-
-        // Process and inject all handlebars templates, results are parented to
-        // the template's parent node.
-        $("script[type='text/x-handlebars-template']:not([delayCompile='true'])").each(
-            function (pos, node) {
-              var source = $(node).html();
-              var template = Handlebars.compile(source);
-              var html = $($.trim(template(context)));
-
-              var widgetId = html.attr("id");
-              if (widgetId && $.inArray(widgetId, disabledWidgetIdsArr) != -1){
-                return;
-              }
-
-              node.parentNode.appendChild(html[0])
-        });
-
-        // Require getting-started widget if it has not been disabled
-        if ($("#getting-started").length > 0) {
-          pen.require(["home/gettingStarted"], function(gettingStarted) {
-            gettingStartedWidget = gettingStarted;
-            gettingStartedWidget.init(context);
-          });
-        }
-
-        // Handle the new popover menu. If we add another, make generic
-        $("#btnCreateNew").popover({
-          html: true,
-          content: function () {
-            return $('#btnCreateNewContent').html();
-          }
-        });
-
-        // setup a listener to hide popovers when a click happens outside of them
-        $('body').on('click', function (e) {
-          $('.popover-source').each(function () {
-            if ($(this).has(e.target).length == 0 && !$(this).is(e.target) && $('.popover').has(e.target).length == 0) {
-              $(this).popover('hide');
-            }
-          });
-        });
+    // Process and inject all handlebars templates, results are parented to
+    // the template's parent node.
+    HandlebarsCompiler.compileScripts(context, function(compiledContent, jScriptEle) {
+      var html = $(compiledContent);
+      var widgetId = html.attr("id");
+      if (widgetId && $.inArray(widgetId, disabledWidgetIdsArr) != -1) {
+        return;
       }
+
+      jScriptEle.parent().append(html);
+    });
+
+    // Require getting-started widget if it has not been disabled
+    if ($("#getting-started").length > 0) {
+      pen.require(["home/gettingStarted"], function(gettingStarted) {
+        gettingStarted.init();
+      });
+    }
+
+    // Handle the new popover menu. If we add another, make generic
+    $("#btnCreateNew").popover({
+      html: true,
+      content: function () {
+        return $('#btnCreateNewContent').html();
+      }
+    });
+
+    // setup a listener to hide popovers when a click happens outside of them
+    $('body').on('click', function (e) {
+      $('.popover-source').each(function () {
+        if ($(this).has(e.target).length == 0 && !$(this).is(e.target) && $('.popover').has(e.target).length == 0) {
+          $(this).popover('hide');
+        }
+      });
     });
   }
 
@@ -144,15 +112,9 @@ pen.define([
         }
       }
     });
-  }
-
-  var gettingStartedWidget = null;
-  function getGettingStartedWidget() {
-    return gettingStartedWidget;
-  }
+  }  
 
   return {
-    getGettingStartedWidget:getGettingStartedWidget,
     getUrlBase:getUrlBase,
     getContent:getContent,
     openFile:openFile,

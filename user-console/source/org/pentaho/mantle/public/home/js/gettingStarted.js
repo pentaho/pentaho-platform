@@ -5,105 +5,79 @@
  * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
  * ******************************************************************************
  */
+ pen.define([
+ 	"home/ContextProvider",
+ 	"home/BootstrappedTabLoader"
+ ], function(ContextProvider, BootstrappedTabLoader) {
 
- pen.define(["common-ui/util/PentahoSpinner"], function(spinConfigs) {
+ 	function init() {
+ 		BootstrappedTabLoader.init({
+			parentSelector: "#getting-started",
+			tabContentPattern : "content/getting_started_tab{{contentNumber}}_content.html",
+			defaultTabSelector : "#tab1",
+			before: function() {
+				ContextProvider.get(function(context) {
+					// Generate samples array descriptions
+			 		var samplesArray = new Array();
+			 		for (var i = 1; i <= 9; i++) {
+			 			samplesArray.push({
+			 				title: context.i18n["getting_started_sample" + i],
+			 				description : context.i18n["getting_started_sample" + i + "_description"]
+			 			});
+			 		}
+			 		ContextProvider.addProperty("getting_started_samples", samplesArray);
 
-	var spinner;
-	var initContext;
+			 		// Generate turorials array descriptions
+			 		var tutorialsArray = new Array();
+			 		for (var i = 1; i <=5; i++) {
+			 			tutorialsArray.push({
+			 				title: context.i18n["getting_started_video" + i],
+			 				description: context.i18n["getting_started_video" + i + "_description"]
+			 			});
+			 		}
+			 		ContextProvider.addProperty("getting_started_tutorials", tutorialsArray);
+		 		});
+			},
+			post: function(jHtml, tabSelector) {
+				var tabId = $(tabSelector).attr("id");
+				if (tabId == "tab1") {
+					ContextProvider.get(function(context){
+						injectYoutubeVideoDuration(context.config.welcome_link, jHtml, "#video-length");  
+		  				appendNavParams(jHtml, "tab1");	
+		  			});
 
- 	/**
- 	 * Initializes the getting started widget
- 	 */
- 	function init(context) {
- 		initContext = context;
- 		
- 		// Create spinner
- 		spinner = new Spinner(spinConfigs.getLargeConfig());
+				} else if (tabId == "tab2") {
+					bindCardInteractions(jHtml, ".sample-card", "#sample-details-content", ".tab-pane:has(#sample-details)");
 
+				} else if (tabId == "tab3") {
+					// Get context to retrieve tutorial links from config
+			 		ContextProvider.get(function(context) {
+						
+						jHtml.find(".tutorial-card").each(function(index) {
+				 			var youtubeLink = context.config["tutorial_link" + (index+1)];
 
- 		// Generate samples array descriptions
- 		var samplesArray = new Array();
- 		for (var i = 1; i <= 9; i++) {
- 			samplesArray.push({
- 				title: context.i18n["getting_started_sample" + i],
- 				description : context.i18n["getting_started_sample" + i + "_description"]
- 			});
- 		}
- 		context.getting_started_samples = samplesArray;
+				 			injectYoutubeVideoDuration(youtubeLink, $(this), ".tutorial-card-time", function(time) {
+				 				if (index == 0) {
+				 					$(".video-length").text(formatSeconds(time));	
+				 				} 				
+				 			});
+				 		});
+			 		}); 		
 
- 		// Generate turorials array descriptions
- 		var tutorialsArray = new Array();
- 		for (var i = 1; i <=5; i++) {
- 			tutorialsArray.push({
- 				title: context.i18n["getting_started_video" + i],
- 				description: context.i18n["getting_started_video" + i + "_description"],
- 				link: context.i18n["tutorial_link" + i]
- 			});
- 		}
- 		context.getting_started_tutorials = tutorialsArray;
- 		
- 		// Getting started widget
-        var gettingStartedWidget = $("#getting-started");
-
- 		// Bind click events to the tabs in the tab group
- 		$('#tab-group a').bind("click", function (e) {
-			e.preventDefault();
-
-			// Hide shown content
-			var openTabSelector = $("#getting-started #tab-group li.active a").attr("href");
-			$(openTabSelector).hide();
-
-			var tabSelector = $(this).attr("href");
-			$(this).tab('show');
-
-			// Load content for tab if it has not been loaded yet
-			if ($("#getting-started " + tabSelector).children().length == 0) {				
-				loadTabContent("content/getting_started_" + tabSelector.replace("#", "") + "_content.html", tabSelector, context);
-			} else {
-				$(tabSelector).show();
+			 		bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", ".tab-pane:has(#tutorial-details)", function(card) {
+			 			$(".video-length").text(card.find(".tutorial-card-time").text());
+			 		}); 		
+				}
 			}
 		});
-
- 		// Load first Tab Content
-  		loadTabContent("content/getting_started_tab1_content.html", "#getting-started #tab1", context, function(jHtml) {
-  			var youtubeLink = jHtml.find("#youtube-link").attr("href");
-  			injectYoutubeVideoDuration(youtubeLink, jHtml, "#video-length");  			
-  		});
- 	}
-
- 	/**
- 	 * Initializes the interactive content on Samples Tab
- 	 */
- 	function initSamplesTab() { 		
- 		bindCardInteractions(".sample-card", "#sample-details-content");
- 	}
-
- 	/**
- 	 * Initializes the Tutorials Tab
- 	 */
- 	function initTutorialsTab() {
- 		$(".tutorial-card").each(function(index) {
- 			var jThis = $(this);
- 			var youtubeLink = initContext.i18n["tutorial_link" + (index+1)];
-
- 			jThis.find("")
- 			injectYoutubeVideoDuration(youtubeLink, jThis, ".tutorial-card-time", function(time) {
- 				if (index == 0) {
- 					$(".video-length").text(formatSeconds(time));	
- 				} 				
- 			});
- 		});
-
- 		bindCardInteractions(".tutorial-card", "#tutorial-details-content", function(card) {
- 			$(".video-length").text(card.find(".tutorial-card-time").text());
- 		}); 		
- 	}
+ 	} 	
 
  	/**
  	 * Binds the interactions for the card selection and detail population
  	 */
- 	function bindCardInteractions(cardSelector, detailsContentSelector, postClick) {
- 		$(cardSelector).bind("click", function() {
+ 	function bindCardInteractions(jParent, cardSelector, detailsContentSelector, tabContentSelector, postClick) {
+ 		var cards = jParent.find(cardSelector);
+ 		cards.bind("click", function() {
  			$(cardSelector + ".selected").removeClass("selected");
 
  			var card = $(this); 			
@@ -112,6 +86,9 @@
  			var detailsContentContainer = $(detailsContentSelector);
  			detailsContentContainer.find(".detail-title").text(card.find(".card-title").text());
  			detailsContentContainer.find(".detail-description").text(card.find(".card-description").text());
+
+ 			var tabContent = $(tabContentSelector);
+ 			appendNavParams(jParent, tabContent.attr("id"), cards.index(card));
 
  			// Execute specific on click functions
  			if (postClick) {
@@ -138,58 +115,6 @@
  	}
 
  	/**
- 	 * Loads the content for a tab and compiles the content
- 	 */
- 	function loadTabContent(url, selector, context, post) {
-
- 		// Show loading spinner
- 		injectSpinner(selector);
-
- 		$.get(url, function (data) {
- 			var compiledContent = compile(data, context);
-
- 			// Delay content injection to give a moment for the loading spinner
- 			setTimeout(function() {
- 				spinner.stop();
- 				
- 				var html = $(compiledContent);
- 				
- 				if (post) {
- 					post(html);
- 				}
-
- 				$(selector).html(html);
- 			}, 200);
- 		});
- 	}
-
- 	/**
- 	 * Compiles string content using Handlebars
- 	 */
- 	function compile(data, context) {
- 		if (!data || data == "") {
- 			return;
- 		}
-
-		var template = Handlebars.compile(data);
-        return $.trim(template(context));
- 	}
-
- 	/**
- 	 * Injects a spinner into content
- 	 */
- 	function injectSpinner(selector) {
- 		var jqSpinner = $("<div></div>");
- 		jqSpinner.css({
- 			width: "100%",
- 			overflow: "hidden"
- 		});
-
- 		$(selector).html(jqSpinner); 		
-		spinner.spin(jqSpinner[0]);
- 	}
-
- 	/**
  	 * Takes seconds and formats it into minutes and seconds
  	 */
  	function formatSeconds(seconds) {
@@ -199,9 +124,26 @@
  		return " " + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
  	}
 
+ 	/**
+ 	 * Locates launch links and creates the appropriate link to select the correct tab and content
+ 	 */
+ 	function appendNavParams(jTab, selectedTab, selectedContentIndex) {
+ 		var href = "content/getting_started_launch.html?";
+ 		href += "selectedTab=" + selectedTab;
+
+ 		if(selectedContentIndex) {
+ 			href += "&selectedContentIndex=" + selectedContentIndex	
+ 		}
+ 		
+
+ 		if (typeof jTab=="string") {
+ 			jTab = $(jTab);
+ 		}
+
+ 		jTab.find("a.launch-link").attr("href", href);
+ 	}
+
  	return {
- 		init:init,
- 		initSamplesTab:initSamplesTab,
- 		initTutorialsTab:initTutorialsTab
+ 		init:init
  	};
  });
