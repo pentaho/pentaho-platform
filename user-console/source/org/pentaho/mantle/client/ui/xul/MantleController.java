@@ -778,6 +778,8 @@ public class MantleController extends AbstractXulEventHandler {
 
         if (overrideContentPanelId != null && overrideContentUrl != null) {
           loadAdminContent(overrideContentPanelId, overrideContentUrl);
+          overrideContentPanelId = null;
+          overrideContentUrl = null;
         }
         else {
           String usersAndGroupsPanelId = UserRolesAdminPanelController.getInstance().getId();
