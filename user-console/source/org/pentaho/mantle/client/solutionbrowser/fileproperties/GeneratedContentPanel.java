@@ -30,7 +30,7 @@ import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
@@ -228,18 +228,16 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
       add(GLUE);
 
-      Image runImage = new Image(MantleImages.images.run());
-      Image runDisabledImage = new Image(MantleImages.images.runDisabled());
+      Image runImage = ImageUtil.getThemeableImage("icon-small", "icon-run");
+      Image runDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-run", "disabled");
       runBtn = new ToolbarButton(runImage, runDisabledImage);
       runBtn.setId("filesToolbarRun");
       runBtn.setCommand(new RunContentCommand());
       runBtn.setToolTip(Messages.getString("open"));
       add(runBtn);
 
-      Image refreshImage = new Image();
-      refreshImage.setResource(MantleImages.images.refresh());
-      Image refreshDisabledImage = new Image();
-      refreshDisabledImage.setResource(MantleImages.images.runDisabled());
+      Image refreshImage = ImageUtil.getThemeableImage("icon-small", "icon-refresh");
+      Image refreshDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-run", "disabled");
       refreshBtn = new ToolbarButton(refreshImage, refreshDisabledImage);
       refreshBtn.setCommand(new RefreshHistoryCommand());
       refreshBtn.setToolTip(Messages.getString("refresh")); //$NON-NLS-1$

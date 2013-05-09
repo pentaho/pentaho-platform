@@ -23,7 +23,7 @@ import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.MantleMenuBar;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
-import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -60,10 +60,10 @@ public class BrowserToolbar extends Toolbar {
     label.setStyleName("pentaho-titled-toolbar-label");
     add(label); //$NON-NLS-1$
     add(GLUE);
-    Image refreshImage = new Image();
-    refreshImage.setResource(MantleImages.images.refresh());
-    Image refreshDisabledImage = new Image();
-    refreshDisabledImage.setResource(MantleImages.images.runDisabled());
+
+    Image refreshImage = ImageUtil.getThemeableImage("icon-small", "icon-refresh");
+    Image refreshDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-refresh", "disabled");
+
     refreshBtn = new ToolbarButton(refreshImage, refreshDisabledImage);
     refreshBtn.setCommand(new RefreshRepositoryCommand());
     refreshBtn.setToolTip(Messages.getString("refresh")); //$NON-NLS-1$

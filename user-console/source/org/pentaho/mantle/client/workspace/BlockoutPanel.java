@@ -30,7 +30,7 @@ import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTy
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
 
@@ -126,7 +126,7 @@ public class BlockoutPanel extends SimplePanel {
   private void createTableControls(final ClickHandler newBlockoutHandler) {
     tableControls.addSpacer(10);
     tableControls.add(Toolbar.GLUE);
-    ToolbarButton addButton = new ToolbarButton(new Image(MantleImages.images.add_icon()));
+    ToolbarButton addButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-addbutton"));
     addButton.setCommand(new Command() {
       @Override
       public void execute() {
@@ -134,7 +134,7 @@ public class BlockoutPanel extends SimplePanel {
       }
     });
     tableControls.add(addButton);
-    ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
+    ToolbarButton editButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-editbutton"));
     editButton.setCommand(new Command() {
       @Override
       public void execute() {
@@ -148,7 +148,7 @@ public class BlockoutPanel extends SimplePanel {
       }
     });
     tableControls.add(editButton);
-    ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
+    ToolbarButton removeButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-deletebutton"));
     removeButton.setCommand(new Command() {
       public void execute() {
 

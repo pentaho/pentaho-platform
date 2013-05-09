@@ -32,7 +32,7 @@ import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
-import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
@@ -77,12 +77,12 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 public class SchedulesPanel extends SimplePanel {
 
-    private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
-  private ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
-  private ToolbarButton triggerNowButton = new ToolbarButton(new Image(MantleImages.images.execute16()));
-  private ToolbarButton scheduleRemoveButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
-  private ToolbarButton filterButton = new ToolbarButton(new Image(MantleImages.images.filter16()));
-  private ToolbarButton filterRemoveButton = new ToolbarButton(new Image(MantleImages.images.filterRemove16()));
+    private ToolbarButton controlScheduleButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-run"));
+  private ToolbarButton editButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-editbutton"));
+  private ToolbarButton triggerNowButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-execute"));
+  private ToolbarButton scheduleRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-deletebutton"));
+  private ToolbarButton filterButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-add"));
+  private ToolbarButton filterRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-remove"));
 
   private JsArray<JsJob> allJobs;
   private Set<JsJob> selectedJobs = null;
@@ -141,10 +141,10 @@ public class SchedulesPanel extends SimplePanel {
         });
       }
       if (filters.size() > 0) {
-        filterButton.setImage(new Image(MantleImages.images.filterActive16()));
+        filterButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-filter-active"));
         filterRemoveButton.setEnabled(true);
       } else {
-        filterButton.setImage(new Image(MantleImages.images.filter16()));
+        filterButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-filter-add"));
         filterRemoveButton.setEnabled(false);
       }
       filterAndShowData();
@@ -232,10 +232,10 @@ public class SchedulesPanel extends SimplePanel {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
           if (isRunning) {
             controlSchedulerButton.setToolTip(Messages.getString("stopScheduler"));
-            controlSchedulerButton.setImage(new Image(MantleImages.images.stop_scheduler16()));
+            controlSchedulerButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop-scheduler"));
           } else {
             controlSchedulerButton.setToolTip(Messages.getString("startScheduler"));
-            controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
+            controlSchedulerButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-start-scheduler"));
           }
 
           if (!isScheduler)
@@ -577,9 +577,9 @@ public class SchedulesPanel extends SimplePanel {
         JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
         editButton.setEnabled(isScheduler);
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
-          controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
+          controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop"));
         } else {
-          controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
+          controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-run"));
         }
         controlScheduleButton.setEnabled(isScheduler);
 
@@ -620,7 +620,7 @@ public class SchedulesPanel extends SimplePanel {
     bar.addSpacer(10);
     bar.add(Toolbar.GLUE);
 
-    ToolbarButton refresh = new ToolbarButton(new Image(MantleImages.images.refresh()));
+    ToolbarButton refresh = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-refresh"));
     refresh.setToolTip(Messages.getString("refreshTooltip"));
     refresh.setCommand(new Command() {
       public void execute() {
@@ -649,7 +649,7 @@ public class SchedulesPanel extends SimplePanel {
         filters.clear();
         filterAndShowData();
         filterRemoveButton.setEnabled(false);
-        filterButton.setImage(new Image(MantleImages.images.filter16()));
+        filterButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-filter-add"));
       }
     });
     filterRemoveButton.setToolTip(Messages.getString("removeFilters"));
@@ -685,7 +685,7 @@ public class SchedulesPanel extends SimplePanel {
     bar.addSpacer(20);
 
       if (isAdmin) {
-          final ToolbarButton controlSchedulerButton = new ToolbarButton(new Image(MantleImages.images.start_scheduler16()));
+          final ToolbarButton controlSchedulerButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-start-scheduler"));
           controlSchedulerButton.setCommand(new Command() {
             public void execute() {
               toggleSchedulerOnOff(controlSchedulerButton, isScheduler);
@@ -835,10 +835,10 @@ public class SchedulesPanel extends SimplePanel {
             boolean isRunning = "NORMAL".equalsIgnoreCase(response.getText());
             if (isRunning) {
               controlScheduleButton.setToolTip(Messages.getString("stop"));
-              controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
+              controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop"));
             } else {
               controlScheduleButton.setToolTip(Messages.getString("start"));
-              controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
+              controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-run"));
             }
             if (refreshData) {
               refresh();
@@ -866,10 +866,10 @@ public class SchedulesPanel extends SimplePanel {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
           if (isRunning) {
             controlSchedulerButton.setToolTip(Messages.getString("stopScheduler"));
-            controlSchedulerButton.setImage(new Image(MantleImages.images.stop_scheduler16()));
+            controlSchedulerButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop-scheduler"));
           } else {
             controlSchedulerButton.setToolTip(Messages.getString("startScheduler"));
-            controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
+            controlSchedulerButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-start-scheduler"));
           }
 
           if (!isScheduler)

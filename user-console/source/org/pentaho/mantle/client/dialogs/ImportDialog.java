@@ -22,6 +22,7 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
 import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -66,10 +67,6 @@ public class ImportDialog extends PromptDialogBox {
    */
   public ImportDialog(RepositoryFile repositoryFile) {
     super(Messages.getString("import"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    final PopupPanel indefiniteProgress = new PopupPanel(false, true);
-    DOM.setStyleAttribute(indefiniteProgress.getElement(), "zIndex", "2000"); // Gets it to the front
-    Image waitImage = new Image("mantle/large-loading.gif"); //$NON-NLS-1$
-    indefiniteProgress.add(waitImage);
 
     form = new FormPanel();
     form.addSubmitHandler(new SubmitHandler() {
@@ -78,14 +75,14 @@ public class ImportDialog extends PromptDialogBox {
         //if no file is selected then do not proceed  
         okButton.setEnabled(false);
         cancelButton.setEnabled(false);
-        indefiniteProgress.center();
+        MantleApplication.showBusyIndicator(Messages.getString("pleaseWait"), Messages.getString("importInProgress"));
       }
     });
     form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
       @Override
       public void onSubmitComplete(SubmitCompleteEvent sce) {
         new RefreshRepositoryCommand().execute(false);
-        indefiniteProgress.hide();
+        MantleApplication.hideBusyIndicator();
         okButton.setEnabled(false); 
         cancelButton.setEnabled(true);
         ImportDialog.this.hide();
