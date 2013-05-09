@@ -82,7 +82,7 @@ public class PentahoACLProvider extends ACLProvider {
   @Override
   protected EntryCollector createEntryCollector(SessionImpl systemSession) throws RepositoryException {
     // keep our own private reference; the one in ACLProvider is private
-    entryCollector = new CachingPentahoEntryCollector(systemSession, getRootNodeId(), configuration);
+    entryCollector = new PentahoEntryCollector(systemSession, getRootNodeId(), configuration);
     return entryCollector;
   }
   
