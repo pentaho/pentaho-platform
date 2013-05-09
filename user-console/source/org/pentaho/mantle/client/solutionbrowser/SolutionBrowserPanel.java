@@ -249,11 +249,17 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private void adjustHeight() {
     Element pucHeader = DOM.getElementById("pucHeader");
-    int offset;
     if (pucHeader != null) {
-      offset = pucHeader.getOffsetHeight();
-      setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
-      setElementHeightOffset(contentTabPanel.getElement(), -1 * offset);
+      final int offset = pucHeader.getOffsetHeight();
+      setElementHeightOffset(navigatorAndContentSplit.getElement(), 0);
+      setElementHeightOffset(contentTabPanel.getElement(), 0);
+      Timer t = new Timer() {
+        public void run() {
+          setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
+          setElementHeightOffset(contentTabPanel.getElement(), -1 * offset);
+        }
+      };
+      t.schedule(100);
     }
   }
 

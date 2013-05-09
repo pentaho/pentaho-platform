@@ -23,7 +23,6 @@ package org.pentaho.mantle.client.admin;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.ui.xul.MantleController;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;

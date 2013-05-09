@@ -19,7 +19,6 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.toolbars;
 
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarComboButton;
@@ -38,13 +37,6 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.IFileItemListener;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
