@@ -470,11 +470,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
-      editFile();
+      editFile(repositoryFile);
     } else if (mode == FileCommand.COMMAND.SCHEDULE_NEW) {
       ScheduleHelper.createSchedule(repositoryFile);
     } else if (mode == FileCommand.COMMAND.SHARE) {
-      (new ShareFileCommand()).execute();
+      ShareFileCommand sfc = new ShareFileCommand();
+      sfc.setSolutionPath(fileNameWithPath);
+      sfc.execute();
     } else {
       String url = null;
       String extension = ""; //$NON-NLS-1$
@@ -544,6 +546,43 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       });
     } catch (RequestException e) {
       // showError(e);
+    }
+  }
+
+  public void editFile(final RepositoryFile file) {
+
+    if (file.getName().endsWith(".analysisview.xaction")) { //$NON-NLS-1$
+      openFile(file, COMMAND.RUN);
+    } else {
+      // check to see if a plugin supports editing
+      ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(file.getName());
+      if (plugin != null && plugin.hasCommand(COMMAND.EDIT)) {
+        // load the editor for this plugin
+        String editUrl = getPath()
+           + "api/repos/" + pathToId(file.getPath()) + "/" + (plugin != null && (plugin.getCommandPerspective(COMMAND.EDIT) != null) ? plugin.getCommandPerspective(COMMAND.EDIT) : "editor"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        // See if it's already loaded
+        for (int i = 0; i < contentTabPanel.getTabCount(); i++) {
+          Widget w = contentTabPanel.getTab(i).getContent();
+          if (w instanceof IFrameTabPanel && ((IFrameTabPanel) w).getUrl().endsWith(editUrl)) {
+            // Already up, select and exit
+            contentTabPanel.selectTab(i);
+            return;
+          }
+        }
+
+        contentTabPanel
+           .showNewURLTab(Messages.getString("editingColon") + file.getTitle(), Messages.getString("editingColon") + file.getTitle(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
+
+        // Store representation of file in the frame for reference later when
+        // save is called
+        contentTabPanel.getCurrentFrame().setFileInfo(filesListPanel.getSelectedFileItems().get(0));
+
+      } else {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
+           Messages.getString("cannotEditFileType"), //$NON-NLS-1$
+           true, false, true);
+        dialogBox.center();
+      }
     }
   }
 

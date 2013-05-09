@@ -17,9 +17,15 @@
 
 package org.pentaho.mantle.client.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 /**
@@ -40,12 +46,37 @@ public class CopyFilesCommand extends AbstractCommand {
     this.repositoryFiles = selectedItems;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   /* (non-Javadoc)
    * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
    */
   @Override
   protected void performOperation() {
-    performOperation(false);
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          if(repositoryFiles == null){
+            repositoryFiles = new ArrayList<FileItem>();
+          }
+          repositoryFiles.add(new FileItem(repositoryFile, null, null, false, null));
+          performOperation(false);
+        }
+      });
+    }
+    else{
+      performOperation(false);
+    }
   }
 
   /* (non-Javadoc)
@@ -56,6 +87,11 @@ public class CopyFilesCommand extends AbstractCommand {
     SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
     clipBoard.setDataForCopy(repositoryFiles);
     clipBoard.setMimeType("jcrFiles/list");
+
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(this.getClass().getName());
+    event.setMessage("Success");
+    EventBusUtil.EVENT_BUS.fireEvent(event);
   }
 
 }
