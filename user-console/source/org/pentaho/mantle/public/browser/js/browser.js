@@ -452,14 +452,17 @@ pen.define([
 				$(buttonsType.buttons).each(function(idx, fb){
 					$('#'+fb.id).on("click", { model:model, handler:fb.handler }, function(event){
 						var path = null;
+						var title = null;
 						if(model.getLastClick() == "file"){
 							path = $(model.getFileClicked()[0]).attr("path");
+							title = $(model.getFileClicked()[0]).children('.name').text();
 						} else if(model.getLastClick() == "folder"){
 							path = $(model.getFolderClicked()[0]).attr("path");
+							title = $(model.getFileClicked()[0]).children('.name').text();
 						}
 
 						if((path != null) && event.data.handler){
-							event.data.handler(path);
+							event.data.handler(path, title);
 							event.stopPropagation();
 						}
 					});
