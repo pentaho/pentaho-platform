@@ -270,10 +270,25 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     roleBindingDao = null;
     authorizationPolicy = null;
     testJcrTemplate = null;
-
-    // null out fields to get back memory
     tenantManager = null;
     repo = null;
+    repositoryLifecyleManager = null;
+    defaultBackingRepositoryLifecycleManager = null;
+    roleBindingDaoTarget = null;
+    repositoryFileDao = null;
+    authorizationPolicy = null;
+    mp = null;
+    superAdminRoleName = null;
+    tenantAdminRoleName = null;
+    tenantAuthenticatedRoleName = null;
+    sysAdminUserName = null;
+    systemTenant = null;
+    pathConversionHelper = null;
+    userRoleDao = null;
+    testUserRoleDao = null;
+    repositoryFileAclDao = null;
+    jcrTransactionTemplate = null;
+    txnTemplate = null;
   }
 
   @Test
