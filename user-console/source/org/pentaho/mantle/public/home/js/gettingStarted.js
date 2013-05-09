@@ -21,7 +21,7 @@
 				ContextProvider.get(function(context) {
 					// Generate samples array descriptions
 			 		var samplesArray = new Array();
-			 		for (var i = 1; i <= 9; i++) {
+			 		for (var i = 1; i <= 8; i++) {
 			 			samplesArray.push({
 			 				title: context.i18n["getting_started_sample" + i],
 			 				description : context.i18n["getting_started_sample" + i + "_description"]
@@ -117,6 +117,12 @@
 			}
  		}
 
+ 		function postError(error) {
+ 			alert(error);
+
+ 			// TODOD
+ 		}
+
  		if ($(".IE").length > 0 && window.XDomainRequest) {
             // Use Microsoft XDR
             var xdr = new XDomainRequest();
@@ -125,7 +131,7 @@
                 postSuccess(xdr.responseText);
             };
             xdr.onerror = function(event) {
-            	alert(event);
+            	postError(event);
             };
 
             xdr.ontimeout = function(event) {
@@ -141,10 +147,7 @@
 				type: "GET",
 				success: postSuccess,
 				error : function(data, status, error) {
-					
-					if (status == "error") {
-						alert("status: " + status + " error: " + error);
-					}
+					postError(error);					
 				}
 			});
         }
