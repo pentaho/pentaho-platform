@@ -21,7 +21,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   private MenuBar menuBar;
   private Command command;
   private boolean enabled = true;
-  private boolean pressed = true;
+  private boolean pressed = false;
   private Label label = new Label("", false);
 
   public CustomDropDown(String labelText, MenuBar menuBar) {
@@ -64,7 +64,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   public void onBrowserEvent(Event event) {
     super.onBrowserEvent(event);
     if ((event.getTypeInt() & Event.ONCLICK) == Event.ONCLICK) {
-      if (enabled) {
+      if (enabled && !pressed) {
         pressed = true;
         addStyleDependentName("pressed");
         removeStyleDependentName("hover");

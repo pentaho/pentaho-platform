@@ -21,6 +21,7 @@ package org.pentaho.mantle.client.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
@@ -71,8 +72,11 @@ public class PerspectiveManager extends SimplePanel {
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
+  private static PerspectiveManager instance = new PerspectiveManager();
+  
   private CustomDropDown perspectiveDropDown;
-
+  private HashMap<String, MenuItem> perspectiveMenuItemMap = new HashMap<String,MenuItem>();
+  
   private PentahoMenuItem browserMenuItem;
   private PentahoMenuItem schedulesMenuItem;
 
@@ -81,8 +85,6 @@ public class PerspectiveManager extends SimplePanel {
   private ArrayList<IPluginPerspective> perspectives;
 
   private IPluginPerspective activePerspective;
-
-  private static PerspectiveManager instance = new PerspectiveManager();
 
   private boolean loaded = false;
 
@@ -184,6 +186,7 @@ public class PerspectiveManager extends SimplePanel {
       }
 
       final MenuItem menuItem = new MenuItem("", noopCmd);
+      perspectiveMenuItemMap.put(perspective.getId(), menuItem);
       ScheduledCommand cmd = new ScheduledCommand() {
         public void execute() {
           showPerspective(perspective);
@@ -251,7 +254,7 @@ public class PerspectiveManager extends SimplePanel {
     // return value to indicate if perspective now disabled
     for (int i = 0; i < perspectives.size(); i++) {
       if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
-        // TODO: update menu
+        perspectiveMenuItemMap.get(perspectiveId).setEnabled(enabled);
         return;
       }
     }
@@ -288,6 +291,10 @@ public class PerspectiveManager extends SimplePanel {
     if (!perspective.getTitle().startsWith("${")) {
       perspectiveDropDown.setText(perspective.getTitle());
     }
+    for (MenuItem m : perspectiveMenuItemMap.values()) {
+      m.getElement().removeClassName("custom-dropdown-selected");
+    }
+    perspectiveMenuItemMap.get(perspective.getId()).getElement().addClassName("custom-dropdown-selected");
 
     // before we show.. de-activate current perspective (based on shown widget)
     Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
