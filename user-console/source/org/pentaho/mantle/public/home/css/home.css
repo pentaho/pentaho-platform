@@ -81,18 +81,22 @@ button.btn-large.btn-block {
 
 #getting-started {
   min-height: 500px;
+  position: relative;
 }
 
 .card {
   display: table-cell;
-  cursor: pointer;
-  padding: 5px;
+  cursor: pointer;  
   text-align: center;
-  min-width: 96px;
+  min-width: 110px;
+  padding: 5px;
 }
 
 .selector-row {
-  position: relative;
+  position: absolute;
+  
+  left:0px;
+  bottom:0px;
 }
 
 .horizontal-selector {  
@@ -145,7 +149,8 @@ button.btn-large.btn-block {
   width: 100%;  
   color: #FFF;
   font-weight: bold;
-  top:35%;
+  top:30%;
+  height:200px;
 }
 
 .welcome-img {
@@ -161,10 +166,5 @@ button.btn-large.btn-block {
 
 #sample {
   width: 100%;
-  height: 450px;
-}
-
-.offscreen {
-  position: absolute;
-  left: -99999px;
+  height: 600px;
 }
