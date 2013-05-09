@@ -30,6 +30,7 @@ import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
@@ -397,6 +398,39 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       // bad mode passed in, using default
     }
     openFile(fileNameWithPath, realMode);
+  }
+
+  public void getFile(final String solutionPath, final SolutionFileHandler handler) {
+    final String moduleBaseURL = GWT.getModuleBaseURL();
+    final String moduleName = GWT.getModuleName();
+    final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    final String path = solutionPath; // Expecting some encoding here
+    final String url = contextURL + "api/repo/files/" + pathToId(path) + "/properties"; //$NON-NLS-1$
+
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("accept", "application/json");
+
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("repositoryFileDto", (JSONObject) JSONParser.parseLenient(response.getText()));
+            RepositoryFile repositoryFile = new RepositoryFile(jsonObject);
+            handler.handle(repositoryFile);
+          } else {
+            // showServerError(response);
+          }
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
   }
 
   public void openFile(final String fileNameWithPath, final FileCommand.COMMAND mode) {
