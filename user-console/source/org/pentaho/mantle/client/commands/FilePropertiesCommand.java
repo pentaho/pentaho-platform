@@ -18,6 +18,9 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
@@ -52,7 +55,38 @@ public class FilePropertiesCommand implements Command {
     this.defaultTab = defaultTab;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   public void execute() {
+    if(this.solutionPath != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.solutionPath, new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          FilePropertiesCommand.this.fileSummary = repositoryFile;
+          performAction();
+        }
+      });
+    }
+    else{
+      performAction();
+    }
+
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(this.getClass().getName());
+    event.setMessage("Success");
+    EventBusUtil.EVENT_BUS.fireEvent(event);
+  }
+
+  public void performAction(){
     // Checking if the user has access to manage permissions
     String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/canAccess?permissions="+MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
@@ -62,19 +96,19 @@ public class FilePropertiesCommand implements Command {
         public void onError(Request request, Throwable exception) {
           FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
           dialog.showTab(defaultTab);
-          dialog.center();            
+          dialog.center();
         }
 
         public void onResponseReceived(Request request, Response response) {
-            FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, Boolean.parseBoolean(response.getText()));
-            dialog.showTab(defaultTab);
-            dialog.center();            
+          FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, Boolean.parseBoolean(response.getText()));
+          dialog.showTab(defaultTab);
+          dialog.center();
         }
       });
     } catch (RequestException e) {
       FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
       dialog.showTab(defaultTab);
-      dialog.center();            
+      dialog.center();
     }
   }
 

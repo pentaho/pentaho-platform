@@ -118,60 +118,85 @@ pen.define([
 				}
 			];
 
+      that.initEventHandlers();
+
     },
 
 		buttons: [],
 
+    initEventHandlers: function(){
+      // listen for file action events
+      window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
+      window.top.mantle_addHandler("SolutionFileActionEvent", this.deleteHandlerCallback);
+    },
+
+    buildParameter: function(path){
+      return {
+        solutionPath: (path == null ? ":" : path.replace(/\//g, ":"))
+      };
+    },
+
+    eventLogger: function(event){
+      console.log(event.action + " : " + event.message);
+    },
+
 		openButtonHandler: function(path){
-			alert('Open ' + path);
+      window.top.mantle_openRepositoryFile(path, "RUN");
 		},
 
 		openNewButtonHandler: function(path){
-			alert('Open in a new window ' + path);
+      window.top.mantle_openRepositoryFile(path, "NEWWINDOW");
 		},
 
 		runInBackgroundHandler: function(path){
-			alert('Run in background ' + path);
+      window.top.mantle_openRepositoryFile(path, "BACKGROUND");
 		},
 
 		editHandler: function(path){
-			alert(path); // TODO
+      window.top.mantle_openRepositoryFile(path, "EDIT");
 		},
 
-		deleteHandler: function(path){
-			alert(path); // TODO
-		},
+    deleteHandler: function(path){
+      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path));
+    },
 
-		cutHandler: function(path){
-			alert(path); // TODO
-		},
+    deleteHandlerCallback: function(path){
+      if(event.action == 'org.pentaho.mantle.client.commands.DeleteFileCommand' && event.action == 'Success'){
+        // TODO need to refresh here
+        console.log("Delete Success. TODO - need to refresh browser");
+      }
+    },
 
-		copyHandler: function(path){
-			alert(path); // TODO
-		},
+    cutHandler: function(path){
+      window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
+    },
 
-		downloadHandler: function(path){
-			alert(path); // TODO
-		},
+    copyHandler: function(path){
+      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
+    },
+
+    downloadHandler: function(path){
+      window.top.executeCommand("ExportFileCommand", this.buildParameter(path));
+    },
 
 		shareHandler: function(path){
-			alert(path); // TODO
+      window.top.mantle_openRepositoryFile(path, "SHARE");
 		},
 
 		scheduleHandler: function(path){
-			alert(path); // TODO
+      window.top.mantle_openRepositoryFile(path, "SCHEDULE_NEW");
 		},
 
 		showHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("ShowGeneratedContentCommand", this.buildParameter(path));
 		},
 
-		favoritesHandler: function(path){
-			alert(path); // TODO
-		},
+    favoritesHandler: function(path, title){
+      window.top.mantle_addFavorite(path, title);
+    },
 
 		propertiesHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
 		}
 	};
 
