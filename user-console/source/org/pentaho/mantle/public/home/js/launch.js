@@ -8,8 +8,9 @@
 
 pen.define([
 	"common-ui/util/BootstrappedTabLoader",
-	"common-ui/util/ContextProvider"
-], function(BootstrappedTabLoader, ContextProvider) {
+	"common-ui/util/ContextProvider",
+	"common-ui/util/HandlebarsCompiler"
+], function(BootstrappedTabLoader, ContextProvider, HandlebarsCompiler) {
 
 	function init() {
 		var urlVars = getUrlVars();
@@ -25,7 +26,7 @@ pen.define([
 				ContextProvider.get(function(context) {
 					// Generate samples array descriptions
 			 		var samplesArray = new Array();
-			 		for (var i = 1; i <= 9; i++) {
+			 		for (var i = 1; i <= 8; i++) {
 			 			samplesArray.push({
 			 				title: context.i18n["getting_started_sample" + i],
 			 				description : context.i18n["getting_started_sample" + i + "_description"]
@@ -49,9 +50,45 @@ pen.define([
 				if (tabId == "tab2") {
 					bindCardInteractions(jHtml, ".sample-card", (urlVars.selectedTab == "tab2" ? urlVars.selectedContentIndex : 0), function(card) {
 						var cardIndex = jHtml.find(".sample-card").index(card);
+						
+						jHtml.find("#sample-frame").attr("src", "");
+						jHtml.find("#sample .alert").hide();
+
+						ContextProvider.get(function(context) {
+							var date = new Date();
+							var host = window.location.host;
+							var sampleId = context.config["sample" + (cardIndex+1) + "_id"].split(",");
+							
+							var url = "http://" + host + context.config.sample_url_base + context.config.sample_repo_dir_base + sampleId[0] + sampleId[1];
+							url += "?ts=" + date.getTime();
+							
+							var filePropsUrl ="http://" + host + context.config.sample_properties_url_base + context.config.sample_repo_dir_base + sampleId[0] + context.config.sample_properties_url_suffix;							
+							filePropsUrl += "?ts=" + date.getTime();
+
+							function error() {
+								ContextProvider.get(function(context) {
+									var errMsg = HandlebarsCompiler.compile(context.i18n.error_no_sample_content, { sample_title: $.trim(card.find(".card-title").text())});
+									$("#sample .alert").text(errMsg).show();
+								});
+							}
+
+							$.ajax(filePropsUrl, {
+								type: "GET",
+								success: function(data){
+									if (data == undefined) {
+										error();
+										return;
+									}
+									jHtml.find("#sample-frame").attr("src", url);
+								},
+								error: function(xtype, status, error) {
+									error();									
+								}
+							});
+						});
 
 						// TODO - LOAD SAMPLE
-						jHtml.find("#sample").text(cardIndex);
+						// jHtml.find("#sample").text(cardIndex);						
 					});
 
 				} else if (tabId == "tab3") {
@@ -67,15 +104,11 @@ pen.define([
 					// Bind click interactions
 					bindCardInteractions(jHtml, ".tutorial-card", (urlVars.selectedTab == "tab3" ? urlVars.selectedContentIndex : 0), function(card) {
 						ContextProvider.get(function(context) {
-
 							// Update video
 							var cardIndex = jHtml.find(".tutorial-card").index(card);
-							try{
+							
 							$("#tutorial-video").attr("src", context.config.youtube_embed_base + context.config["tutorial_link" + (cardIndex+1) + "_id"] + "?autoplay=1");
-							} catch (err) {
-						alert(err);
-					}
-
+							
 							// Copy title and description
 							jHtml.find(".detail-title").text(card.find(".card-title").text());
 							jHtml.find(".detail-description").text(card.find(".card-description").text());
