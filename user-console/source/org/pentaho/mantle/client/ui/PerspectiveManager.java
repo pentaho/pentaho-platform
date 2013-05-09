@@ -23,10 +23,11 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
-import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
@@ -81,11 +82,9 @@ public class PerspectiveManager extends SimplePanel {
 
   private IPluginPerspective activePerspective;
 
-  private ArrayList<ICallback<Void>> perspectivesLoadedCallbackList = new ArrayList<ICallback<Void>>();
-
   private static PerspectiveManager instance = new PerspectiveManager();
 
-  private boolean perspectiveCallbacksFired = false;
+  private boolean loaded = false;
 
   public static PerspectiveManager getInstance() {
     return instance;
@@ -171,12 +170,12 @@ public class PerspectiveManager extends SimplePanel {
     perspectiveDropDown = new CustomDropDown("", perspectiveMenuBar);
     setWidget(perspectiveDropDown);
     loadResourceBundle(perspectiveDropDown, perspectives.get(0));
-    
+
     ScheduledCommand noopCmd = new ScheduledCommand() {
       public void execute() {
       }
     };
-    
+
     for (final IPluginPerspective perspective : perspectives) {
 
       // if we have overlays add it to the list
@@ -202,23 +201,8 @@ public class PerspectiveManager extends SimplePanel {
 
     setPerspective(perspectives.get(0).getId());
 
-    firePerspectivesLoaded();
-  }
-
-  private void firePerspectivesLoaded() {
-    for (ICallback<Void> callback : perspectivesLoadedCallbackList) {
-      callback.onHandle(null);
-    }
-    perspectivesLoadedCallbackList.clear();
-    perspectiveCallbacksFired = true;
-  }
-
-  public void addPerspectivesLoadedCallback(ICallback<Void> callback) {
-    if (!perspectiveCallbacksFired) {
-      perspectivesLoadedCallbackList.add(callback);
-    } else {
-      callback.onHandle(null);
-    }
+    loaded = true;
+    EventBusUtil.EVENT_BUS.fireEvent(new PerspectivesLoadedEvent());
   }
 
   private void loadResourceBundle(final HasText textWidget, final IPluginPerspective perspective) {
@@ -249,6 +233,7 @@ public class PerspectiveManager extends SimplePanel {
       messageBundle.loadBundle(folder, baseName, true, new IResourceBundleLoadCallback() {
         public void bundleLoaded(String arg0) {
           String title = ResourceBundleTranslator.translate(perspective.getTitle(), messageBundle);
+          perspective.setTitle(title);
           textWidget.setText(title);
         }
       });
@@ -296,6 +281,13 @@ public class PerspectiveManager extends SimplePanel {
   }
 
   private void showPerspective(final IPluginPerspective perspective) {
+
+    if (activePerspective == perspective) {
+      return;
+    }
+    if (!perspective.getTitle().startsWith("${")) {
+      perspectiveDropDown.setText(perspective.getTitle());
+    }
 
     // before we show.. de-activate current perspective (based on shown widget)
     Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
@@ -480,5 +472,13 @@ public class PerspectiveManager extends SimplePanel {
       this.browserMenuItem.setChecked(browserChecked);
       this.schedulesMenuItem.setChecked(schedulesChecked);
     }
+  }
+
+  public boolean isLoaded() {
+    return loaded;
+  }
+
+  public void setLoaded(boolean loaded) {
+    this.loaded = loaded;
   }
 }

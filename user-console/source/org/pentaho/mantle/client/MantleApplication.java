@@ -24,7 +24,6 @@ import java.util.HashMap;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPaneNativeListener;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
@@ -32,6 +31,8 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
+import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
+import org.pentaho.mantle.client.events.PerspectivesLoadedEventHandler;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
@@ -336,12 +337,15 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }
 
     if (!StringUtils.isEmpty(startupPerspective)) {
-      ICallback<Void> callback = new ICallback<Void>() {
-        public void onHandle(Void nothing) {
-          PerspectiveManager.getInstance().setPerspective(startupPerspective);
-        }
-      };
-      PerspectiveManager.getInstance().addPerspectivesLoadedCallback(callback);
+      if (PerspectiveManager.getInstance().isLoaded()) {
+        PerspectiveManager.getInstance().setPerspective(startupPerspective);
+      } else {
+        EventBusUtil.EVENT_BUS.addHandler(PerspectivesLoadedEvent.TYPE, new PerspectivesLoadedEventHandler() {
+          public void onPerspectivesLoaded(PerspectivesLoadedEvent event) {
+            PerspectiveManager.getInstance().setPerspective(startupPerspective);
+          }
+        });
+      }
     }
 
   }

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
-import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
@@ -36,6 +35,8 @@ import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.FavoritesChangedEvent;
+import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
+import org.pentaho.mantle.client.events.PerspectivesLoadedEventHandler;
 import org.pentaho.mantle.client.events.RecentsChangedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
@@ -198,12 +199,15 @@ public class MantleController extends AbstractXulEventHandler {
     PerspectiveManager.getInstance().setSchedulesMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
     ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(true);
 
-    PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
-      @Override
-      public void onHandle(Void aVoid) {
-        PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
-      }
-    });
+    if (PerspectiveManager.getInstance().isLoaded()) {
+      PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
+    } else {
+      EventBusUtil.EVENT_BUS.addHandler(PerspectivesLoadedEvent.TYPE, new PerspectivesLoadedEventHandler() {
+        public void onPerspectivesLoaded(PerspectivesLoadedEvent event) {
+          PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
+        }
+      });
+    }
 
     // install language sub-menus
     Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
@@ -305,12 +309,15 @@ public class MantleController extends AbstractXulEventHandler {
                 bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
                 bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
 
-
-                PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
-                  public void onHandle(Void v) {
-                    executeAdminContent();
-                  }
-                });
+                if (PerspectiveManager.getInstance().isLoaded()) {
+                  executeAdminContent();
+                } else {
+                  EventBusUtil.EVENT_BUS.addHandler(PerspectivesLoadedEvent.TYPE, new PerspectivesLoadedEventHandler() {
+                    public void onPerspectivesLoaded(PerspectivesLoadedEvent event) {
+                      executeAdminContent();
+                    }
+                  });
+                }
 
                 setupNativeHooks(MantleController.this);
               }
@@ -780,8 +787,7 @@ public class MantleController extends AbstractXulEventHandler {
           loadAdminContent(overrideContentPanelId, overrideContentUrl);
           overrideContentPanelId = null;
           overrideContentUrl = null;
-        }
-        else {
+        } else {
           String usersAndGroupsPanelId = UserRolesAdminPanelController.getInstance().getId();
           if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
             sysAdminPanelsMap.put(usersAndGroupsPanelId, UserRolesAdminPanelController.getInstance());
