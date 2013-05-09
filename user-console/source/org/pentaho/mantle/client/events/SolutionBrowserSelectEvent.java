@@ -23,7 +23,7 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SolutionBrowserSelectEvent extends GwtEvent<SolutionBrowserSelectEventHandler> {
+public class SolutionBrowserSelectEvent extends GwtEvent<SolutionBrowserSelectEventHandler> implements ISolutionBrowserEvent {
 
   public static Type<SolutionBrowserSelectEventHandler> TYPE = new Type<SolutionBrowserSelectEventHandler>();
   
