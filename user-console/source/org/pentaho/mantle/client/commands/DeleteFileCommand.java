@@ -16,10 +16,16 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -44,11 +50,40 @@ public class DeleteFileCommand extends AbstractCommand {
     this.repositoryFiles = selectedItemsClone;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   protected void performOperation() {
-    performOperation(true);
+
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          if(repositoryFiles == null){
+            repositoryFiles = new ArrayList<FileItem>();
+          }
+          repositoryFiles.add(new FileItem(repositoryFile, null, null, false, null));
+          performOperation(true);
+        }
+      });
+    }
+    else{
+      performOperation(true);
+    }
   }
 
   protected void performOperation(boolean feedback) {
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(this.getClass().getName());
+
     String temp = "";
     for (FileItem fileItem : repositoryFiles) {
       temp += fileItem.getRepositoryFile().getId() + ","; //$NON-NLS-1$
@@ -68,16 +103,23 @@ public class DeleteFileCommand extends AbstractCommand {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
+
+          event.setMessage(Messages.getString("couldNotDeleteFile"));
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
         @Override
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == 200) {
+            event.setMessage("Success");
+            EventBusUtil.EVENT_BUS.fireEvent(event);
             new RefreshRepositoryCommand().execute(false);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
+            event.setMessage(Messages.getString("couldNotDeleteFile"));
+            EventBusUtil.EVENT_BUS.fireEvent(event);
           }
         }
 
@@ -86,6 +128,8 @@ public class DeleteFileCommand extends AbstractCommand {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
       dialogBox.center();
+      event.setMessage(Messages.getString("couldNotDeleteFile"));
+      EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
 }
