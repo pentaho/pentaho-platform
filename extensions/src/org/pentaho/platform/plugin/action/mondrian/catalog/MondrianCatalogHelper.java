@@ -52,6 +52,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.XmlParseException;
+import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
@@ -270,17 +271,17 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   public String generateInMemoryDatasourcesXml(IUnifiedRepository unifiedRepository) {
 
     StringBuffer datasourcesXML = new StringBuffer();
-    datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
-    datasourcesXML.append("<DataSources>"); //$NON-NLS-1$
-    datasourcesXML.append("<DataSource>"); //$NON-NLS-1$
-    datasourcesXML.append("<DataSourceName/>"); //$NON-NLS-1$
-    datasourcesXML.append("<DataSourceDescription/>"); //$NON-NLS-1$
-    datasourcesXML.append("<URL/>"); //$NON-NLS-1$
-    datasourcesXML.append("<DataSourceInfo/>"); //$NON-NLS-1$
-    datasourcesXML.append("<ProviderName/>"); //$NON-NLS-1$
-    datasourcesXML.append("<ProviderType/>"); //$NON-NLS-1$
-    datasourcesXML.append("<AuthenticationMode/>"); //$NON-NLS-1$
-    datasourcesXML.append("<Catalogs>"); //$NON-NLS-1$
+    datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<DataSources>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<DataSource>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<DataSourceName>Pentaho</DataSourceName>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<URL>" + PentahoRequestContextHolder.getRequestContext().getContextPath() + "Xmla</URL>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<ProviderName>PentahoXMLA</ProviderName>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<ProviderType>MDP</ProviderType>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"); //$NON-NLS-1$
+    datasourcesXML.append("<Catalogs>\n"); //$NON-NLS-1$
 
     //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
     /*IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -311,18 +312,18 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString(); //$NON-NLS-1$
           String definition = metadataNode.getProperty("definition").getString(); //$NON-NLS-1$
 
-          datasourcesXML.append("<Catalog name=\"" + catalogName + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>"); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append("<Definition>" + definition + "</Definition>"); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append("</Catalog>"); //$NON-NLS-1$
+          datasourcesXML.append("<Catalog name=\"" + catalogName + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append("<Definition>" + definition + "</Definition>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append("</Catalog>\n"); //$NON-NLS-1$
         } else {
           logger.warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_META_DATA_IS_NULL")); //$NON-NLS-1$
         }
       }
 
-      datasourcesXML.append("</Catalogs>"); //$NON-NLS-1$
-      datasourcesXML.append("</DataSource>"); //$NON-NLS-1$
-      datasourcesXML.append("</DataSources>"); //$NON-NLS-1$
+      datasourcesXML.append("</Catalogs>\n"); //$NON-NLS-1$
+      datasourcesXML.append("</DataSource>\n"); //$NON-NLS-1$
+      datasourcesXML.append("</DataSources>\n"); //$NON-NLS-1$
       return datasourcesXML.toString();
     } else {
       return null;
