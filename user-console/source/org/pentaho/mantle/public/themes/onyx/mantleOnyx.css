@@ -841,6 +841,12 @@ a:active, a:hover {
   display: block;
 }
 
+#pucToolBar {
+  display: block;
+  float: left;
+  width: 800px;
+}
+
 #pucHeader {
   display: block;
   background: black;
@@ -849,6 +855,10 @@ a:active, a:hover {
 
 #pucContent {
   box-shadow: 0px 0px 1px 2px #a9a2ad;
+}
+
+.custom-dropdown-popup {
+  z-index: 100;	
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem {

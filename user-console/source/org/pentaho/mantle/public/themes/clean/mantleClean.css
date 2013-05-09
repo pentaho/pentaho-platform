@@ -838,6 +838,12 @@ a:active, a:hover {
   display: block;
 }
 
+#pucToolBar {
+  display: block;
+  float: left;
+  width: 800px;
+}
+
 #pucHeader {
   display: block;
   background: #b9d2dd;

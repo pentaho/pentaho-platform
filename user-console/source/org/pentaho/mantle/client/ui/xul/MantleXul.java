@@ -131,7 +131,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     // Get the toolbar from the XUL doc
     Widget bar = (Widget) container.getDocumentRoot().getElementById("mainToolbarWrapper").getManagedObject(); //$NON-NLS-1$
     Widget xultoolbar = (Widget) container.getDocumentRoot().getElementById("mainToolbar").getManagedObject(); //$NON-NLS-1$
-    xultoolbar.setStylePrimaryName("pentaho-rounded-panel2-shadowed pentaho-shine pentaho-background"); //$NON-NLS-1$
+    xultoolbar.getElement().removeClassName("toolbar");
     toolbar.setStylePrimaryName("mainToolbar-Wrapper");
     toolbar.setWidget(bar);
 
