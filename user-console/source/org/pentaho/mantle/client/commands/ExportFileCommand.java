@@ -17,6 +17,9 @@
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -32,8 +35,31 @@ public class ExportFileCommand extends AbstractCommand {
     this.repositoryFile = repositoryFile;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   protected void performOperation() {
-    performOperation(true);
+
+    final SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+    if(this.getSolutionPath() != null){
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          ExportFileCommand.this.setRepositoryFile(repositoryFile);
+          performOperation(true);
+        }
+      });
+    }
+    else{
+      performOperation(true);
+    }
   }
 
   protected void performOperation(boolean feedback) {
@@ -43,6 +69,11 @@ public class ExportFileCommand extends AbstractCommand {
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
     String exportURL = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/download?withManifest=true";
     Window.open(exportURL, "_new", "");
+
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(this.getClass().getName());
+    event.setMessage("Success");
+    EventBusUtil.EVENT_BUS.fireEvent(event);
   }
 
   public RepositoryFile getRepositoryFile() {
