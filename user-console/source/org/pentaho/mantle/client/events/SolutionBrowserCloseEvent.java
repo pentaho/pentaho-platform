@@ -23,7 +23,7 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SolutionBrowserCloseEvent extends GwtEvent<SolutionBrowserCloseEventHandler> {
+public class SolutionBrowserCloseEvent extends GwtEvent<SolutionBrowserCloseEventHandler> implements ISolutionBrowserEvent {
 
   public static Type<SolutionBrowserCloseEventHandler> TYPE = new Type<SolutionBrowserCloseEventHandler>();
 

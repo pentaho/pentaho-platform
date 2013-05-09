@@ -28,6 +28,7 @@ import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.ISolutionBrowserEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserDeselectEvent;
@@ -36,6 +37,8 @@ import org.pentaho.mantle.client.events.SolutionBrowserOpenEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserOpenEventHandler;
 import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
+import org.pentaho.mantle.client.events.SolutionBrowserUndefinedEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserUndefinedEventHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -54,7 +57,7 @@ import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserOpenEventHandler, SolutionBrowserCloseEventHandler,
-    SolutionBrowserSelectEventHandler, SolutionBrowserDeselectEventHandler {
+    SolutionBrowserSelectEventHandler, SolutionBrowserDeselectEventHandler, SolutionBrowserUndefinedEventHandler {
 
   private MantleXul main;
 
@@ -83,6 +86,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserCloseEvent.TYPE, this);
     EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, this);
     EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserDeselectEvent.TYPE, this);
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserUndefinedEvent.TYPE, this);
     this.main = main;
   }
 
@@ -283,40 +287,27 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     openFileCommand.execute();
   }
 
+  public void onUndefinedEvent(SolutionBrowserUndefinedEvent event) {
+    onSolutionBrowserEvent(event);
+  }
+  
   public void onTabOpened(SolutionBrowserOpenEvent event) {
-    FileItem selectedItem = null;
-    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
-      selectedItem = event.getFileItems().get(0);
-    }
-    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
-    if (event.getWidget() != null) {
-      main.applyOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
-    }
+    onSolutionBrowserEvent(event);
   }
 
   public void onTabSelected(SolutionBrowserSelectEvent event) {
-    FileItem selectedItem = null;
-    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
-      selectedItem = event.getFileItems().get(0);
-    }
-    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
-    if (event.getWidget() != null) {
-      main.applyOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
-    }
+    onSolutionBrowserEvent(event);
   }
 
   public void onTabClosed(SolutionBrowserCloseEvent event) {
-    FileItem selectedItem = null;
-    if (event.getFileItems() != null && event.getFileItems().size() > 0) {
-      selectedItem = event.getFileItems().get(0);
-    }
-    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
-    if (event.getWidget() != null) {
-      main.removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
-    }
+    onSolutionBrowserEvent(event);
   }
 
   public void onTabDeselected(SolutionBrowserDeselectEvent event) {
+    onSolutionBrowserEvent(event);
+  }
+
+  private void onSolutionBrowserEvent(ISolutionBrowserEvent event) {
     FileItem selectedItem = null;
     if (event.getFileItems() != null && event.getFileItems().size() > 0) {
       selectedItem = event.getFileItems().get(0);
@@ -326,7 +317,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       main.removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
     }
   }
-
+  
   private void handleSolutionBrowserEvent(Widget panel, FileItem selectedFileItem) {
     this.selectedFileItem = selectedFileItem;
     setPropertiesEnabled(selectedFileItem != null && selectedFileItem.getRepositoryFile() != null);
