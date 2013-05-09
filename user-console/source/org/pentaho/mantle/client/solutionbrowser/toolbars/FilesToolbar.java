@@ -28,7 +28,7 @@ import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.MantleMenuBar;
-import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -104,8 +104,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     label.setStyleName("pentaho-titled-toolbar-label");
     add(label); //$NON-NLS-1$
     add(GLUE);
-    Image runImage = new Image(MantleImages.images.run());
-    Image runDisabledImage = new Image(MantleImages.images.runDisabled());
+    Image runImage = ImageUtil.getThemeableImage("icon-small", "icon-run");
+    Image runDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-run", "disabled");
     runBtn = new ToolbarButton(runImage, runDisabledImage);
     runBtn.setId("filesToolbarRun");
     runCmd = new FileCommand(FileCommand.COMMAND.RUN, null, repositoryFileProvider);
@@ -113,8 +113,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     runBtn.setToolTip(Messages.getString("open")); //$NON-NLS-1$
     add(runBtn);
 
-    Image editImage = new Image(MantleImages.images.update());
-    Image editDisabledImage = new Image(MantleImages.images.updateDisabled());
+    Image editImage = ImageUtil.getThemeableImage("icon-small", "icon-update");
+    Image editDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-update", "disabled");
     editBtn = new ToolbarButton(editImage, editDisabledImage);
     editBtn.setId("filesToolbarEdit");
     editCmd = new FileCommand(FileCommand.COMMAND.EDIT, null, repositoryFileProvider);
@@ -122,8 +122,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     editBtn.setToolTip(Messages.getString("edit")); //$NON-NLS-1$
     add(editBtn);
 
-    Image miscImage = new Image(MantleImages.images.misc());
-    Image miscDisabledImage = new Image(MantleImages.images.miscDisabled());
+    Image miscImage = ImageUtil.getThemeableImage("icon-small", "icon-misc");
+    Image miscDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-misc", "disabled");
     miscComboBtn = new ToolbarComboButton(miscImage, miscDisabledImage);
     miscComboBtn.setId("filesToolbarOptions");
 

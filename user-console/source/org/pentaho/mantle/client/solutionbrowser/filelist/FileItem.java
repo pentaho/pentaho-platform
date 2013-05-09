@@ -26,7 +26,7 @@ import java.util.HashMap;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.FileTypeEnabledOptions;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
@@ -129,6 +129,8 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   private String url;
   private String iconStr;
   private Image dropIndicator = new Image();
+  private Image invalidDrop = ImageUtil.getThemeableImage("icon-small", "icon-drop-invalid");
+  private Image validDrop = ImageUtil.getThemeableImage("icon-small", "icon-drop-valid");
   private boolean canDrop = false;
 
   public FileItem(RepositoryFile repositoryFile, FilesListPanel filesListPanel, FileTypeEnabledOptions options, boolean supportsACLs, String fileIconStr) {
@@ -161,11 +163,11 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     if (fileIconStr != null) {
       fileIcon.setUrl(fileIconStr);
     } else if (name.endsWith(ANALYSIS_VIEW_SUFFIX)) {
-      fileIcon.setResource(MantleImages.images.file_analysis());
+      fileIcon = ImageUtil.getThemeableImage("icon-small", "icon-analysis");
     } else if (name.endsWith(XACTION_SUFFIX)) {
-      fileIcon.setResource(MantleImages.images.file_action());
+      fileIcon = ImageUtil.getThemeableImage("icon-small", "icon-xaction");
     } else if (name.endsWith(URL_SUFFIX)) {
-      fileIcon.setResource(MantleImages.images.file_url());
+      fileIcon = ImageUtil.getThemeableImage("icon-small", "icon-url");
     } else {
       fileIcon.setUrl(GWT.getModuleBaseURL() + "images/fileIcon.gif");
     }
@@ -488,7 +490,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     setWidget(0, 0, dropIndicator);
     addStyleName("fileItemDragProxy");//$NON-NLS-1$
     setDroppable(false);
-    dropIndicator.setResource(MantleImages.images.drop_invalid());
+    dropIndicator = invalidDrop;
   }
 
   public void setDroppable(boolean canDrop) {
@@ -497,10 +499,10 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     }
     if (canDrop) {
 
-      dropIndicator.setResource(MantleImages.images.drop_valid());
+      dropIndicator = validDrop;
       addStyleName("validDrop");//$NON-NLS-1$
     } else {
-      dropIndicator.setResource(MantleImages.images.drop_invalid());
+      dropIndicator = invalidDrop;
       removeStyleName("validDrop");//$NON-NLS-1$
     }
 

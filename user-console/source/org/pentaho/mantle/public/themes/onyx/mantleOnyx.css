@@ -884,3 +884,51 @@ a:active, a:hover {
   background-image: url('images/dropdown_arrow_blue.png');
 }
 
+/* == == == */
+#mainToolbar #openButton .toolbar-button IMG {
+  background: url('../../../content/common-ui/resources/themes/images/open_32.png');
+  height: 32px;
+  width: 32px;
+}
+
+#mainToolbar #editContentButton .toolbar-toggle-button IMG {
+  background: url('../../../content/common-ui/resources/themes/images/editContent_32.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #editContentButton .toolbar-toggle-button-disabled IMG {
+  background: url('../../../content/common-ui/resources/themes/images/editContent_32_disabled.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #saveButton .toolbar-button IMG {
+  background: url('../../../content/common-ui/resources/themes/images/save_32.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #saveButton .toolbar-button-disabled IMG {
+  background: url('../../../content/common-ui/resources/themes/images/save_32_disabled.png');
+  height: 32px;
+  width: 32px;
+}
+
+#mainToolbar #saveAsButton .toolbar-button IMG {
+  background: url('../../../content/common-ui/resources/themes/images/saveAs_32.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #saveAsButton .toolbar-button-disabled IMG {
+  background: url('../../../content/common-ui/resources/themes/images/saveAs_32_disabled.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #showBrowserButton .toolbar-toggle-button IMG {
+  background: url('../../images/browser_hide_32.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #showBrowserButton .toolbar-toggle-button-down IMG {
+  background: url('../../images/browser_show_32.png');
+  height: 32px;
+  width: 32px;
+}
