@@ -207,14 +207,14 @@
 
 .hiddenFileLabel {
   width: 100%;
-  opacity: .7;
+  opacity: .5;
   font-style: italic;
   background-color: #ffffff;
 }
 
 .hiddenFileLabelSelected {
   width: 100%;
-  opacity: .7;
+  opacity: .5;
   font-style: italic;
   background-color: #dbdbdb;
 }
