@@ -111,6 +111,7 @@
             <div id="pucMenuBar"></div>
             <div id="pucPerspectives"></div>
             <div id="pucToolBar"></div>
+			<div id="pucUserDropDown"></div>
         </div>
 
         <div id="pucContent" style="width:100%;height:100%"></div>

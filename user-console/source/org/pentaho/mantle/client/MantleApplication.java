@@ -39,6 +39,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.ui.UserDropDown;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
@@ -233,6 +234,11 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       RootPanel.get("pucToolBar").setVisible(false);
     }
 
+    RootPanel.get("pucUserDropDown").add(new UserDropDown());
+    if (!StringUtils.isEmpty(startupPerspective)) {
+      RootPanel.get("pucUserDropDown").setVisible(true);
+    }
+    
     // update supported file types
     PluginOptionsHelper.buildEnabledOptionsList(settings);
 
