@@ -39,6 +39,7 @@ import org.owasp.esapi.Encoder;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
@@ -120,6 +121,7 @@ public class PentahoWebContextFilter implements Filter {
 
         out.write(requireScriptBytes);
 
+        printSessionName(out);
         printLocale(effectiveLocale, out);
 
         // print global resources defined in plugins
@@ -144,6 +146,16 @@ public class PentahoWebContextFilter implements Filter {
     }
   }
 
+  private void printSessionName(OutputStream out) throws IOException{
+    StringBuilder sb = new StringBuilder("<!-- Providing name for session -->\n");
+    if (PentahoSessionHolder.getSession() == null) {
+      sb.append("var SESSION_NAME = null;\n"); // Global variable
+    } else {
+        sb.append("var SESSION_NAME = '" + PentahoSessionHolder.getSession().getName() + "';\n"); // Global variable
+    }
+    out.write(sb.toString().getBytes());
+  }  
+  
   private void printLocale(Locale effectiveLocale, OutputStream out) throws IOException{
     StringBuilder sb = new StringBuilder("<!-- Providing computed Locale for session -->\n")
         .append("var SESSION_LOCALE = '" + effectiveLocale.toString() + "';\n")         // Global variable
