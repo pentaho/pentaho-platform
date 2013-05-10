@@ -9,8 +9,9 @@
 pen.define([
 	"common-ui/util/BootstrappedTabLoader",
 	"common-ui/util/ContextProvider",
-	"common-ui/util/HandlebarsCompiler"
-], function(BootstrappedTabLoader, ContextProvider, HandlebarsCompiler) {
+	"common-ui/util/HandlebarsCompiler",
+	"home/gettingStarted"
+], function(BootstrappedTabLoader, ContextProvider, HandlebarsCompiler, GettingStartedWidget) {
 
 	function init() {
 		var urlVars = getUrlVars();
@@ -24,30 +25,25 @@ pen.define([
 			defaultTabSelector : "#"+urlVars.selectedTab,
 			before: function() { 
 				ContextProvider.get(function(context) {
-					// Generate samples array descriptions
-			 		var samplesArray = new Array();
-			 		for (var i = 1; i <= 8; i++) {
-			 			samplesArray.push({
-			 				title: context.i18n["getting_started_sample" + i],
-			 				description : context.i18n["getting_started_sample" + i + "_description"]
-			 			});
-			 		}
-			 		ContextProvider.addProperty("getting_started_samples", samplesArray);
-
-			 		// Generate turorials array descriptions
-			 		var tutorialsArray = new Array();
-			 		for (var i = 1; i <=5; i++) {
-			 			tutorialsArray.push({
-			 				title: context.i18n["getting_started_video" + i],
-			 				description: context.i18n["getting_started_video" + i + "_description"]
-			 			});
-			 		}
-			 		ContextProvider.addProperty("getting_started_tutorials", tutorialsArray);
+					GettingStartedWidget.injectMessagesArray(
+						"getting_started_samples", 
+						context.config.getting_started_sample_message_template, 
+						context.config.getting_started_sample_link_template );
+					
+					GettingStartedWidget.injectMessagesArray(
+						"getting_started_tutorials", 
+						context.config.getting_started_video_message_template, 
+						context.config.getting_started_video_link_template );	
 		 		});
 			}, postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");
 
-				if (tabId == "tab2") {
+				if (tabId == "tab1") {
+					GettingStartedWidget.checkInternet(jHtml, function(){}, function() {
+						$("#welcome-video").hide();
+					});
+				}
+				else if (tabId == "tab2") {
 					bindCardInteractions(jHtml, ".sample-card", (urlVars.selectedTab == "tab2" ? urlVars.selectedContentIndex : 0), function(card) {
 						var cardIndex = jHtml.find(".sample-card").index(card);
 						
@@ -85,35 +81,45 @@ pen.define([
 									error();									
 								}
 							});
-						});
-
-						// TODO - LOAD SAMPLE
-						// jHtml.find("#sample").text(cardIndex);						
+						});				
 					});
 
 				} else if (tabId == "tab3") {
-					pen.require(["home/gettingStarted"], function(GettingStartedWidget) {
+					
+					function bindInteractions(internet) {
+						// Bind click interactions
+						bindCardInteractions(jHtml, ".tutorial-card", (urlVars.selectedTab == "tab3" ? urlVars.selectedContentIndex : 0), function(card) {
+							ContextProvider.get(function(context) {
+								// Update video
+								var cardIndex = jHtml.find(".tutorial-card").index(card);
+								
+								if (internet){
+									$("#tutorial-video").attr("src", context.config.youtube_embed_base + context.config["tutorial_link" + (cardIndex+1) + "_id"] + "?autoplay=1");	
+								}								
+								
+								// Copy title and description
+								jHtml.find(".detail-title").text(card.find(".card-title").text());
+								jHtml.find(".detail-description").text(card.find(".card-description").text());
+							})						
+						});	
+					}
+
+					GettingStartedWidget.checkInternet(jHtml, function() {
 						ContextProvider.get(function(context) {
 							jHtml.find(".tutorial-card").each(function(index) {
 								var youtubeLinkId = context.config["tutorial_link"+(index+1)+"_id"];
 								GettingStartedWidget.injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time");
-							});
+							});					
 						});
-					})
 
-					// Bind click interactions
-					bindCardInteractions(jHtml, ".tutorial-card", (urlVars.selectedTab == "tab3" ? urlVars.selectedContentIndex : 0), function(card) {
-						ContextProvider.get(function(context) {
-							// Update video
-							var cardIndex = jHtml.find(".tutorial-card").index(card);
-							
-							$("#tutorial-video").attr("src", context.config.youtube_embed_base + context.config["tutorial_link" + (cardIndex+1) + "_id"] + "?autoplay=1");
-							
-							// Copy title and description
-							jHtml.find(".detail-title").text(card.find(".card-title").text());
-							jHtml.find(".detail-description").text(card.find(".card-description").text());
-						})						
+						bindInteractions(true);
+						
+					}, function() {
+						$("#tutorial-video").hide();
+						bindInteractions(false);
 					});
+
+					
 				}
 				
 			}, postClick: function(tabSelector) {
