@@ -673,11 +673,11 @@ public class JcrRepositoryFileUtils {
     if (node.isNodeType(pentahoJcrConstants.getNT_FROZENNODE())) {
       String nodeTypeName = node.getProperty(pentahoJcrConstants.getJCR_FROZENPRIMARYTYPE()).getString();
       return pentahoJcrConstants.getPHO_NT_PENTAHOFILE().equals(nodeTypeName)
-          || pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER().equals(nodeTypeName) || pentahoJcrConstants.getPHO_METADATA().equals(nodeTypeName);
+          || pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER().equals(nodeTypeName);
     }
 
     return node.isNodeType(pentahoJcrConstants.getPHO_NT_PENTAHOFILE())
-        || node.isNodeType(pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER()) || node.isNodeType(pentahoJcrConstants.getPHO_METADATA());
+        || node.isNodeType(pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER());
   }
 
   /**
@@ -934,6 +934,15 @@ public class JcrRepositoryFileUtils {
     Assert.isTrue(fileItem.isNode());
     Node fileNode = (Node) fileItem;
 
+    return getTreeByNode(session, pentahoJcrConstants, pathConversionHelper,
+                lockHelper, fileNode, depth - 1, filter, showHidden, accessVoterManager);
+
+  }
+
+  private static RepositoryFileTree getTreeByNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+                                           final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Node fileNode,
+                                           final int depth, final String filter, final boolean showHidden, IRepositoryAccessVoterManager accessVoterManager) throws RepositoryException {
+
     RepositoryFile rootFile = JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
         lockHelper, fileNode, false, null);
     if ((!showHidden && rootFile.isHidden()) ||
@@ -952,8 +961,8 @@ public class JcrRepositoryFileUtils {
           RepositoryFile file = nodeToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode);
           if (isSupportedNodeType(pentahoJcrConstants, childNode) && (accessVoterManager.hasAccess(file, RepositoryFilePermission.READ, 
                   JcrRepositoryFileAclUtils.getAcl(session, pentahoJcrConstants, file.getId()), PentahoSessionHolder.getSession()))) {
-            RepositoryFileTree repositoryFileTree = getTree(session, pentahoJcrConstants, pathConversionHelper,
-                lockHelper, childNode.getPath(), depth - 1, filter, showHidden, accessVoterManager);
+            RepositoryFileTree repositoryFileTree = getTreeByNode(session, pentahoJcrConstants, pathConversionHelper,
+                lockHelper, childNode, depth - 1, filter, showHidden, accessVoterManager);
             if (repositoryFileTree != null) {
               children.add(repositoryFileTree);
             }
