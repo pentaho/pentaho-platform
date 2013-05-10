@@ -53,6 +53,25 @@ public class RunInBackgroundCommand extends AbstractCommand {
     this.repositoryFile = fileItem;
   }
 
+  private String solutionPath = null;
+  private String solutionTitle = null;
+
+  public String getSolutionTitle() {
+    return solutionTitle;
+  }
+
+  public void setSolutionTitle(String solutionTitle) {
+    this.solutionTitle = solutionTitle;
+  }
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   protected void performOperation() {
     performOperation(true);
   }
@@ -78,7 +97,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
   protected void performOperation(boolean feedback) {
 
-    String filePath = repositoryFile.getPath();
+    final String filePath = (this.getSolutionPath() != null) ? this.getSolutionPath() : repositoryFile.getPath();
+    final String fileName = (this.getSolutionTitle() != null) ? this.getSolutionTitle() : repositoryFile.getName();
     String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" //$NON-NLS-1$
         + urlPath + "/parameterizable"); //$NON-NLS-1$
@@ -95,7 +115,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
             final JSONObject scheduleRequest = new JSONObject();
-            scheduleRequest.put("inputFile", new JSONString(repositoryFile.getPath())); //$NON-NLS-1$
+            scheduleRequest.put("inputFile", new JSONString(filePath)); //$NON-NLS-1$
             scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
 
             final boolean hasParams = Boolean.parseBoolean(response.getText());
@@ -118,11 +138,11 @@ public class RunInBackgroundCommand extends AbstractCommand {
                     // force false for now, I have a feeling PM is going to want this, making it easy to turn back on
                     final boolean isEmailConfValid = false;
                     if (hasParams) {
-                      ScheduleParamsDialog dialog = new ScheduleParamsDialog(repositoryFile.getPath(), scheduleRequest,
+                      ScheduleParamsDialog dialog = new ScheduleParamsDialog(filePath, scheduleRequest,
                           isEmailConfValid);
                       dialog.center();
                     } else if (isEmailConfValid) {
-                      ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(null, repositoryFile.getPath(),
+                      ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(null, filePath,
                           scheduleRequest, null, null);
                       scheduleEmailDialog.center();
                     } else {
@@ -145,7 +165,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
                           public void onResponseReceived(Request request, Response response) {
                             if (response.getStatusCode() == 200) {
                               MessageDialogBox dialogBox = new MessageDialogBox(
-                                  Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted", repositoryFile.getName()), //$NON-NLS-1$ //$NON-NLS-2$
+                                  Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted", fileName), //$NON-NLS-1$ //$NON-NLS-2$
                                   false, false, true);
                               dialogBox.center();
                             } else {
