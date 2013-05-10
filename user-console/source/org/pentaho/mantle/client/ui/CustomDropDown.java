@@ -18,23 +18,97 @@
  */
 package org.pentaho.mantle.client.ui;
 
+import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
+import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 
+import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class CustomDropDown extends HorizontalPanel implements HasText {
 
   private static final String STYLE = "custom-dropdown";
-  private static final PopupPanel popup = new PopupPanel(true, false);
+  private static final PopupPanel popup = new PopupPanel(true, true) {
+    private FocusPanel pageBackground = null;
+
+    public void show() {
+      // show glass pane
+      super.show();
+      if (pageBackground == null) {
+        pageBackground = new FocusPanel() {
+          public void onBrowserEvent(Event event) {
+            int type = event.getTypeInt();
+            switch (type) {
+            case Event.ONKEYDOWN: {
+              if ((char) event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+                event.stopPropagation();
+                CustomDropDown.popup.hide();
+              }
+              return;
+            }
+            }
+            super.onBrowserEvent(event);
+          };
+        };
+        pageBackground.addClickHandler(new ClickHandler() {
+          public void onClick(ClickEvent event) {
+            CustomDropDown.popup.hide();
+            pageBackground.setVisible(false);
+            pageBackground.getElement().getStyle().setDisplay(Display.NONE);
+          }
+        });
+        RootPanel.get().add(pageBackground, 0, 0);
+      }
+      super.center();
+      pageBackground.setSize("100%", Window.getClientHeight() + Window.getScrollTop() + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+      pageBackground.setVisible(true);
+      pageBackground.getElement().getStyle().setDisplay(Display.BLOCK);
+
+      // hide <embeds>
+      // TODO: migrate to GlassPane Listener
+      FrameUtils.toggleEmbedVisibility(false);
+
+      // Notify listeners that we're showing a dialog (hide PDFs, flash).
+      GlassPane.getInstance().show();
+    }
+
+    public void hide(boolean autoClosed) {
+      super.hide(autoClosed);
+      pageBackground.setVisible(false);
+      GlassPane.getInstance().hide();
+    }
+
+    protected void onPreviewNativeEvent(final NativePreviewEvent event) {
+      // Switch on the event type
+      int type = event.getTypeInt();
+      switch (type) {
+      case Event.ONKEYDOWN: {
+        Event nativeEvent = Event.as(event.getNativeEvent());
+        if ((char) nativeEvent.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+          event.cancel();
+          hide();
+        }
+        return;
+      }
+      }
+    };
+  };
 
   private MenuBar menuBar;
   private Command command;
@@ -45,7 +119,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   public CustomDropDown(String labelText, MenuBar menuBar) {
     this.menuBar = menuBar;
 
-    sinkEvents(Event.ONCLICK | Event.MOUSEEVENTS);
+    sinkEvents(Event.ONCLICK | Event.MOUSEEVENTS | Event.KEYEVENTS);
 
     setText(labelText);
     label.setStyleName("custom-dropdown-label");
@@ -55,7 +129,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     add(dropDownArrow);
     setCellWidth(dropDownArrow, "100%");
     dropDownArrow.getElement().getParentElement().addClassName("custom-dropdown-arrow");
-    
+
     // prevent double-click from selecting text
     ElementUtils.preventTextSelection(getElement());
     ElementUtils.preventTextSelection(label.getElement());
@@ -88,7 +162,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
             popup.setPopupPosition(getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1);
           }
         });
-        popup.setWidth((getOffsetWidth()-2) + "px");
+        popup.setWidth((getOffsetWidth() - 2) + "px");
       }
     } else if ((event.getTypeInt() & Event.ONMOUSEOVER) == Event.ONMOUSEOVER) {
       if (enabled) {
@@ -127,8 +201,8 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
 
   protected void setMenuBar(MenuBar menuBar) {
     this.menuBar = menuBar;
-  }  
-  
+  }
+
   public static void hidePopup() {
     popup.hide();
   }
@@ -146,6 +220,4 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     }
   }
 
-  
-  
 }
