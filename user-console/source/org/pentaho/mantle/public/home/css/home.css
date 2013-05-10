@@ -27,7 +27,7 @@ button.btn-large.btn-block {
   min-width: 50px;
 }
 
-.pointer {
+.launch-link, .pointer {
   cursor: pointer;
 }
 
@@ -167,4 +167,8 @@ button.btn-large.btn-block {
 #sample {
   width: 100%;
   height: 600px;
+}
+
+.alert {
+  text-align: center;
 }
