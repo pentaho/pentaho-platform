@@ -129,9 +129,10 @@ pen.define([
       window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
     },
 
-    buildParameter: function(path){
+    buildParameter: function(path, title){
       return {
-        solutionPath: (path == null ? ":" : path.replace(/\//g, ":"))
+        solutionPath: (path == null ? ":" : path.replace(/\//g, ":")),
+        solutionTitle: (title ? null : title)
       };
     },
 
@@ -147,8 +148,8 @@ pen.define([
       window.top.mantle_openRepositoryFile(path, "NEWWINDOW");
 		},
 
-		runInBackgroundHandler: function(path){
-      window.top.mantle_openRepositoryFile(path, "BACKGROUND");
+		runInBackgroundHandler: function(path, title){
+      window.top.executeCommand("RunInBackgroundCommand", this.buildParameter(path, title));
 		},
 
 		editHandler: function(path){
@@ -172,8 +173,8 @@ pen.define([
     },
 
 		shareHandler: function(path){
-      window.top.mantle_openRepositoryFile(path, "SHARE");
-		},
+      window.top.executeCommand("ShareFileCommand", this.buildParameter(path));
+    },
 
 		scheduleHandler: function(path){
       window.top.mantle_openRepositoryFile(path, "SCHEDULE_NEW");

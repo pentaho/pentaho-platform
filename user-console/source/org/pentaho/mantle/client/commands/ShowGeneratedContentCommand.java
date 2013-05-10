@@ -27,6 +27,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.GeneratedContentDialog;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -62,12 +63,35 @@ public class ShowGeneratedContentCommand extends AbstractCommand {
     this.repositoryFile = selectedItem.getRepositoryFile();
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   /* (non-Javadoc)
    * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
    */
   @Override
   protected void performOperation() {
-    performOperation(false);
+
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          ShowGeneratedContentCommand.this.repositoryFile = repositoryFile;
+          performOperation(false);
+        }
+      });
+    }
+    else{
+      performOperation(false);
+    }
   }
 
   /* (non-Javadoc)
