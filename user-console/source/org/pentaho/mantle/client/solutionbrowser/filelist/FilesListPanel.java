@@ -19,11 +19,9 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.filelist;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
+import com.google.gwt.core.client.JsArrayString;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
@@ -167,7 +165,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     }
   }-*/;
 
-  public void populateFilesList(SolutionBrowserPanel perspective, SolutionTree solutionTree, TreeItem item) {
+  public void populateFilesList(SolutionBrowserPanel perspective, SolutionTree solutionTree, TreeItem item, JsArrayString filters) {
     filesList.clear();
     List<RepositoryFile> files;
     
@@ -179,7 +177,14 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();
       // Since we are only listing the files here. Get to each item of the tree and get the file from it
       for(RepositoryFileTree treeItem :tree.getChildren()) {
-        files.add(treeItem.getFile());
+        String fileName=treeItem.getFile().getName();
+        if(filters!=null){
+          for(int i=0;i<filters.length();i++)  {
+              if(fileName.endsWith(filters.get(i))) {
+                files.add(treeItem.getFile());
+              }
+          }
+        }
       }
     }
     // let's sort this list based on localized name
@@ -205,14 +210,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
           if (item == solutionTree.getTrashItem() && file.isFolder()) {
             icon = "mantle/images/folderIcon.png"; //$NON-NLS-1$
           }
-          // TODO Mapping Title to LocalizedName. Is this correct ? 
 
-          // String localizedName = file.getTitle();
-          // String description = file.getDescription();
-          // // TODO Mapping Title to ToolTip. Is this correct ?
-          // if (solutionTree.isUseDescriptionsForTooltip() && !StringUtils.isEmpty(description)) {
-          // tooltip = description;
-          // }
           final FileItem fileLabel = new FileItem(file,this, PluginOptionsHelper.getEnabledOptions(file.getName()), true, icon);
           // BISERVER-2317: Request for more IDs for Mantle UI elements
           // set element id as the filename

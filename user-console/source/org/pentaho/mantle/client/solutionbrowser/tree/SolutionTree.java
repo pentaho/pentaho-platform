@@ -19,11 +19,16 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.tree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
@@ -35,35 +40,17 @@ import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.FolderCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileTreeListener;
-import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.logical.shared.OpenEvent;
-import com.google.gwt.event.logical.shared.OpenHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.Focusable;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class SolutionTree extends Tree implements IRepositoryFileTreeListener, UserSettingsLoadedEventHandler, IRepositoryFileProvider {
   private boolean showLocalizedFileNames = true;
@@ -83,7 +70,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     super(MantleImages.images, false);
     setAnimationEnabled(true);
     sinkEvents(Event.ONDBLCLICK);
-    // popupMenu.setAnimationEnabled(false);
     DOM.setElementAttribute(getElement(), "oncontextmenu", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
     DOM.setStyleAttribute(focusable.getElement(), "fontSize", "0"); //$NON-NLS-1$ //$NON-NLS-2$
     DOM.setStyleAttribute(focusable.getElement(), "position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -221,44 +207,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     }
 
     try {
-      if (DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT) {
-        // load menu (Note: disabled as Delete and Properties have no meaning for Folders now
-        int left = Window.getScrollLeft() + DOM.eventGetClientX(event);
-        int top = Window.getScrollTop() + DOM.eventGetClientY(event);
-        final PopupPanel popupMenu = MantlePopupPanel.getInstance(true);
-        popupMenu.setPopupPosition(left, top);
-        MenuBar menuBar = new MenuBar(true);
-        menuBar.setAutoOpen(true);
-        if (getSelectedItem() != trashItem) {
-          menuBar
-              .addItem(new MenuItem(
-                  Messages.getString("createNewFolderEllipsis"), new FolderCommand(FolderCommand.COMMAND.CREATE_FOLDER, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile())));//$NON-NLS-1$
-          menuBar.addItem(new MenuItem(Messages.getString("delete"), new FolderCommand(FolderCommand.COMMAND.DELETE, popupMenu, getRepositoryFiles().get(0)))); //$NON-NLS-1$
-          menuBar.addSeparator();
-          MenuItem pasteMenuItem = menuBar
-              .addItem(new MenuItem(
-                  Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-          pasteMenuItem.setStyleName(SolutionBrowserClipboard.getInstance().hasContent() ? "gwt-MenuItem" : "disabledMenuItem"); //$NON-NLS-1$//$NON-NLS-2$
-          menuBar.addSeparator();
-          if (SolutionBrowserPanel.getInstance().isAdministrator()) {
-            menuBar
-                .addItem(new MenuItem(
-                    Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-            menuBar
-                .addItem(new MenuItem(
-                    Messages.getString("importRepositoryFilesElipsis"), new FolderCommand(FolderCommand.COMMAND.IMPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-            menuBar.addSeparator();
-          }
-          menuBar
-              .addItem(new MenuItem(
-                  Messages.getString("propertiesEllipsis"), new FolderCommand(FolderCommand.COMMAND.PROPERTIES, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-        } else {
-          menuBar.addItem(new MenuItem(Messages.getString("emptyTrashElipsis"), new FolderCommand(FolderCommand.COMMAND.EMPTY_TRASH, popupMenu, null))); //$NON-NLS-1$
-        }
-        popupMenu.setWidget(menuBar);
-        popupMenu.hide();
-        popupMenu.show();
-      } else if (DOM.eventGetType(event) == Event.ONDBLCLICK) {
+
+        if (DOM.eventGetType(event) == Event.ONDBLCLICK) {
         getSelectedItem().setState(!getSelectedItem().getState(), true);
       } else {
         super.onBrowserEvent(event);

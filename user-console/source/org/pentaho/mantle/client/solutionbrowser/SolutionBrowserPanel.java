@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.solutionbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.JsArrayString;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -105,6 +106,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private boolean isScheduler = false;
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
+  private JsArrayString filters;
 
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
@@ -159,7 +161,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
     public void onTreeItemSelected(TreeItem item) {
       filesListPanel.setShowHiddenFiles(solutionTree.isShowHiddenFiles());
-      filesListPanel.populateFilesList(SolutionBrowserPanel.this, solutionTree, item);
+      filesListPanel.populateFilesList(SolutionBrowserPanel.this, solutionTree, item, filters);
       filesListPanel.getToolbar().setEnabled(false);
     }
 
@@ -316,7 +318,14 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     $wnd.mantle_isNavigatorShowing = function(){
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
     }
+    $wnd.mantle_setDashboardsFilter = function(filters){
+          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setDashboardsFilter(Lcom/google/gwt/core/client/JsArrayString;)(filters);
+    }
   }-*/;
+
+  public void setDashboardsFilter(JsArrayString filters){
+    this.filters= filters;
+  }
 
   public void confirmBackgroundExecutionDialog(final String url) {
     final String title = Messages.getString("confirm"); //$NON-NLS-1$

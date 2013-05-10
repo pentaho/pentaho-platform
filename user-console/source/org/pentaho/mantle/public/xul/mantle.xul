@@ -67,9 +67,7 @@
     	<toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
     	<toolbarbutton id="saveButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
     	<toolbarbutton id="saveAsButton" image="images/spacer.gif" disabledimage="images/spacer.gif"  onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
-    	<toolbarspacer width="20"/>
-    	<toolbarbutton id="showBrowserButton" image="images/spacer.gif" downimage="images/spacer.gif" type="toggle" onclick="mantleXulHandler.showNavigatorClicked()" tooltiptext="${toggleSolutionBrowser}"/>
-  	</toolbar>  
+  	</toolbar>
   </window>
   
 	<hbox id="adminPerspective" flex="1">
