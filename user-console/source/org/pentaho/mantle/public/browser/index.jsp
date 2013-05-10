@@ -34,6 +34,18 @@
       FileBrowser.setContainer($("#fileBrowser"));
       FileBrowser.update();
 
+      // refresh file list on successful delete
+      window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
+        if(event.action == 'org.pentaho.mantle.client.commands.DeleteFileCommand'){
+          if(event.message == 'Success'){
+            FileBrowser.updateData();
+          }
+          else{
+            window.top.mantle_showMessage('Delete Error', event.message);
+          }
+        }
+      });
+
     });
 
 
