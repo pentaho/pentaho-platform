@@ -181,14 +181,26 @@ public class SaveCommand extends AbstractCommand {
     WaitPopup.getInstance().setVisible(false);
   }
 
-  
+  private void doSaveAs(String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite) {
+
+    String unableToSaveMessage = Messages.getString("unableToSaveMessage");
+    String save = Messages.getString("save");
+
+    doSaveAsNativeWrapper(elementId, filename, path, type, overwrite, save, unableToSaveMessage);
+
+  }
   /**
    * This method will call saveReportSpecAs(string filename, string solution, string path, bool overwrite)
    * 
    * @param elementId
    */
-  private native void doSaveAs(String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite)
+  private native void doSaveAsNativeWrapper(String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite, String save, String unableToSaveMessage)
   /*-{
+
+    var errorCallback = function() {
+      window.top.mantle_showMessage(save, unableToSaveMessage);
+    }
+
     var frame = $doc.getElementById(elementId);
     frame = frame.contentWindow;
     frame.focus();                                
@@ -205,7 +217,7 @@ public class SaveCommand extends AbstractCommand {
       frame.controller.saveAs(actualFileName, filename, path, overwrite);
     } else if (frame.handle_puc_save) {
       try {
-        var result = frame.handle_puc_save(path, filename, overwrite);
+        var result = frame.handle_puc_save(path, filename, overwrite, errorCallback);
         //if(result) {
           this.@org.pentaho.mantle.client.commands.SaveCommand::doTabRename()();
           this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodeURIComponent(result));
