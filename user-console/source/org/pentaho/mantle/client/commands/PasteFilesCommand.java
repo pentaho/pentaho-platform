@@ -23,6 +23,9 @@ import java.util.List;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -63,12 +66,34 @@ public class PasteFilesCommand extends AbstractCommand {
     this.destinationFolder = destinationFolder;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   /* (non-Javadoc)
    * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
    */
   @Override
   protected void performOperation() {
-    performOperation(false);
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          PasteFilesCommand.this.destinationFolder = repositoryFile;
+          performOperation(false);
+        }
+      });
+    }
+    else{
+      performOperation(false);
+    }
   }
 
   /* (non-Javadoc)
@@ -144,6 +169,10 @@ public class PasteFilesCommand extends AbstractCommand {
   }
   
   void performSave(final SolutionBrowserClipboard clipBoard, Integer overwriteMode) {
+
+    final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
+    event.setAction(this.getClass().getName());
+
     @SuppressWarnings("unchecked")
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     String temp = ""; //$NON-NLS-1$
@@ -174,6 +203,8 @@ public class PasteFilesCommand extends AbstractCommand {
           } else {
             new RefreshRepositoryCommand().execute(false);
           }
+          event.setMessage("Success");
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
         
       });
