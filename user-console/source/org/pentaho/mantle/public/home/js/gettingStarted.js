@@ -7,8 +7,9 @@
  */
  pen.define([
  	"common-ui/util/ContextProvider",
- 	"common-ui/util/BootstrappedTabLoader"
- ], function(ContextProvider, BootstrappedTabLoader) {
+ 	"common-ui/util/BootstrappedTabLoader",
+ 	"common-ui/util/HandlebarsCompiler"
+ ], function(ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
 
  	function init() {
 		$.support.cors = true;
@@ -19,56 +20,65 @@
 			defaultTabSelector : "#tab1",
 			before: function() {
 				ContextProvider.get(function(context) {
-					// Generate samples array descriptions
-			 		var samplesArray = new Array();
-			 		for (var i = 1; i <= 8; i++) {
-			 			samplesArray.push({
-			 				title: context.i18n["getting_started_sample" + i],
-			 				description : context.i18n["getting_started_sample" + i + "_description"]
-			 			});
-			 		}
-			 		ContextProvider.addProperty("getting_started_samples", samplesArray);
-
-			 		// Generate turorials array descriptions
-			 		var tutorialsArray = new Array();
-			 		for (var i = 1; i <=5; i++) {
-			 			tutorialsArray.push({
-			 				title: context.i18n["getting_started_video" + i],
-			 				description: context.i18n["getting_started_video" + i + "_description"]
-			 			});
-			 		}
-			 		ContextProvider.addProperty("getting_started_tutorials", tutorialsArray);
+					
+					injectMessagesArray(
+						"getting_started_samples", 
+						context.config.getting_started_sample_message_template, 
+						context.config.getting_started_sample_link_template );
+					
+					injectMessagesArray(
+						"getting_started_tutorials", 
+						context.config.getting_started_video_message_template, 
+						context.config.getting_started_video_link_template );				
 		 		});
 			},
 			postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");
-				if (tabId == "tab1") {
+
+				if (tabId == "tab1") {									
 					ContextProvider.get(function(context) {
-						injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
-		  				appendNavParams(jHtml, "tab1");	
+
+						checkInternet(jHtml, function() {
+							injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
+	  						appendNavParams(jHtml, "tab1");	
+						}, function() {
+							jHtml.find("#welcome-video-text").remove();
+						});						
 		  			});
 
 				} else if (tabId == "tab2") {
-					bindCardInteractions(jHtml, ".sample-card", "#sample-details-content", ".tab-pane:has(#sample-details)");
+					bindCardInteractions(jHtml, ".sample-card", "#sample-details-content", true);
 
 				} else if (tabId == "tab3") {
-					// Get context to retrieve tutorial links from config
-			 		ContextProvider.get(function(context) {
-						
-						jHtml.find(".tutorial-card").each(function(index) {
-				 			var youtubeLinkId = context.config["tutorial_link" + (index+1) + "_id"];
+							
 
-				 			injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time", function(time) {
-				 				if (index == 0) {
-				 					$(".video-length").text(formatSeconds(time));	
-				 				} 				
-				 			});
-				 		});
-			 		}); 		
 
-			 		bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", ".tab-pane:has(#tutorial-details)", function(card) {
-			 			$(".video-length").text(card.find(".tutorial-card-time").text());
-			 		}); 		
+			 		function bindInteractions(bindNavParams) {
+				 		bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", bindNavParams, function(card) {
+				 			$(".video-length").text(card.find(".tutorial-card-time").text());
+				 		}); 			
+			 		}
+
+			 		checkInternet( jHtml, function() {
+			 			// Get context to retrieve tutorial links from config
+				 		ContextProvider.get(function(context) {
+							
+							jHtml.find(".tutorial-card").each(function(index) {
+					 			var youtubeLinkId = context.config["tutorial_link" + (index+1) + "_id"];
+
+					 			injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time", function(time) {
+					 				if (index == 0) {
+					 					$(".video-length").text(formatSeconds(time));	
+					 				} 				
+					 			});
+					 		});
+				 		}); 
+
+			 			bindInteractions(true);			 
+
+			 		}, function() {
+						bindInteractions(false);
+			 		});
 				}
 			}
 		});
@@ -77,7 +87,7 @@
  	/**
  	 * Binds the interactions for the card selection and detail population
  	 */
- 	function bindCardInteractions(jParent, cardSelector, detailsContentSelector, tabContentSelector, postClick) {
+ 	function bindCardInteractions(jParent, cardSelector, detailsContentSelector, bindNavParams, postClick) {
  		var cards = jParent.find(cardSelector);
  		cards.bind("click", function() {
  			$(cardSelector + ".selected").removeClass("selected");
@@ -89,8 +99,11 @@
  			detailsContentContainer.find(".detail-title").text(card.find(".card-title").text());
  			detailsContentContainer.find(".detail-description").text(card.find(".card-description").text());
 
- 			var tabContent = $(tabContentSelector);
- 			appendNavParams(jParent, tabContent.attr("id"), cards.index(card));
+ 			
+ 			if (bindNavParams) {
+ 				appendNavParams(jParent, jParent.parent().attr("id"), cards.index(card));	
+ 			}
+ 			
 
  			// Execute specific on click functions
  			if (postClick) {
@@ -117,11 +130,7 @@
 			}
  		}
 
- 		function postError(error) {
- 			alert(error);
-
- 			// TODOD
- 		}
+ 		function postError(error) {}
 
  		if ($(".IE").length > 0 && window.XDomainRequest) {
             // Use Microsoft XDR
@@ -177,11 +186,82 @@
  			jTab = $(jTab);
  		}
 
- 		jTab.find("a.launch-link").attr("href", href);
+ 		var launchLink = jTab.find(".launch-link");
+
+ 		launchLink.unbind("click");
+ 		launchLink.bind("click", function() {
+ 			window.open(href, "_blank");
+ 		});
+ 	}
+
+ 	/**
+ 	 * Injects titles and descriptions to be used by tab content later. Takes a context property to store the
+ 	 * final array and the templates for the templates and link.
+ 	 */
+ 	function injectMessagesArray(contextProperty, messagesTemplate, linkTemplate) {
+ 		ContextProvider.get(function(context) {
+	 		var i = 1;
+			var str;
+
+			// Generate samples array descriptions
+	 		var array = new Array();	 	
+	 		while ( str = context.i18n[ HandlebarsCompiler.compile(messagesTemplate, {contentNumber: i++}) ] ) {
+
+	 			// Log error if no supporting link is provided in configuration
+	 			var link = HandlebarsCompiler.compile(linkTemplate, {contentNumber: i-1});
+	 			if ( !context.config[link] ) {
+	 				console.error(HandlebarsCompiler.compile(context.i18n.error_propterty_does_not_exist, {link: link}));
+	 				continue;
+	 			}			 			
+	 			
+	 			var infoArr = str.split("|");
+	 			array.push({ title: infoArr[0], description : infoArr[1] });			 			
+	 		}
+	 		ContextProvider.addProperty(contextProperty, array);
+ 		});
+ 	}
+
+ 	/**
+ 	 * Checks for an internet connection. If successful, the success function is run, otherwise an error message will be displayed
+ 	 */
+ 	function checkInternet( jParent, success, fail ) {
+ 		var errorMsg = jParent.find(".no-internet-error").hide();
+
+ 		$.ajax("http://gdata.youtube.com/feeds/api/videos/", {
+			type: "GET",
+			success: success,
+			error: function(xtype, status, error) {				
+
+				if (fail) {
+					fail();
+				}
+			
+				var launchLink = jParent.find(".launch-link");
+
+				ContextProvider.get(function(context){
+					if (launchLink.length > 0) {
+
+						launchLink.bind("click", function(){							
+								errorMsg.text(context.i18n.error_no_internet_access).show();
+
+								setTimeout(function(){
+									errorMsg.hide();
+								}, 1500);											
+							})					
+						
+					} else {
+						errorMsg.text(context.i18n.error_no_internet_access).show();
+					}
+				});
+				
+			}
+		});	
  	}
 
  	return {
  		init:init,
- 		injectYoutubeVideoDuration:injectYoutubeVideoDuration
+ 		injectYoutubeVideoDuration:injectYoutubeVideoDuration,
+ 		injectMessagesArray:injectMessagesArray,
+ 		checkInternet:checkInternet
  	};
  });
