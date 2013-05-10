@@ -1,6 +1,7 @@
 package org.apache.jackrabbit.core.security.authorization.acl;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
 
 /**
  * Customization of {@link ACLProvider}.
- * 
+ *
  * @author mlowery
  */
 public class PentahoACLProvider extends ACLProvider {
@@ -30,6 +31,7 @@ public class PentahoACLProvider extends ACLProvider {
   // Overrides to CompiledPermissions creation require we keep an extra reference
   // because this is private in ACLProvider
   private EntryCollector entryCollector;
+  private Map<Integer, PentahoCompiledPermissionsImpl> compiledPermissionsCache = new HashMap<Integer, PentahoCompiledPermissionsImpl>();
 
   /**
    * Overridden to:
@@ -85,7 +87,7 @@ public class PentahoACLProvider extends ACLProvider {
     entryCollector = new PentahoEntryCollector(systemSession, getRootNodeId(), configuration);
     return entryCollector;
   }
-  
+
   /**
    * Overridden to:
    * <ul>
@@ -95,14 +97,24 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   public CompiledPermissions compilePermissions(Set<Principal> principals) throws RepositoryException {
-      checkInitialized();
-      if (isAdminOrSystem(principals)) {
-          return getAdminPermissions();
-      } else if (isReadOnly(principals)) {
-          return getReadOnlyPermissions();
-      } else {
-          return new PentahoCompiledPermissionsImpl(principals, session, entryCollector, this, true);
-      }
+    checkInitialized();
+    if (isAdminOrSystem(principals)) {
+      return getAdminPermissions();
+    } else if (isReadOnly(principals)) {
+      return getReadOnlyPermissions();
+    } else {
+      return getCompiledPermissions(principals);
+    }
+  }
+
+  protected PentahoCompiledPermissionsImpl getCompiledPermissions(Set<Principal> principals) throws RepositoryException {
+    // check the cache first
+    if(compiledPermissionsCache.containsKey(principals.hashCode()))
+      return compiledPermissionsCache.get(principals.hashCode());
+
+    PentahoCompiledPermissionsImpl compiledPermissions =  new PentahoCompiledPermissionsImpl(principals, session, entryCollector, this, true);
+    compiledPermissionsCache.put(principals.hashCode(), compiledPermissions);
+    return compiledPermissions;
   }
 
   /**
@@ -114,17 +126,18 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   public boolean canAccessRoot(Set<Principal> principals) throws RepositoryException {
-      checkInitialized();
-      if (isAdminOrSystem(principals)) {
-          return true;
-      } else {
-          CompiledPermissions cp = new PentahoCompiledPermissionsImpl(principals, session, entryCollector, this, false);
-          try {
-              return cp.canRead(null, getRootNodeId());
-          } finally {
-              cp.close();
-          }
+    checkInitialized();
+    if (isAdminOrSystem(principals)) {
+
+      return true;
+    } else {
+      CompiledPermissions cp = getCompiledPermissions(principals);
+      try {
+        return cp.canRead(null, getRootNodeId());
+      } finally {
+        cp.close();
       }
+    }
   }
 
   private NodeId getRootNodeId() throws RepositoryException {
