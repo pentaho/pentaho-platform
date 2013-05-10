@@ -16,6 +16,7 @@
  */
 package org.apache.jackrabbit.core.security.authorization.acl;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,6 +28,9 @@ import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.cache.GrowingLRUMap;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
+import org.codehaus.jackson.map.util.LRUMap;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +53,9 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
    * nodeID (key). The map only contains an entry if the corresponding Node
    * is access controlled.
    */
-  private final EntryCache cache;
+  private final Map<IPentahoSession, EntryCache> cacheBySession = Collections.synchronizedMap(new LRUMap<IPentahoSession, EntryCache>(128,512));
 
-  private ConcurrentMap<NodeId, FutureEntries> futures = new ConcurrentHashMap<NodeId, FutureEntries>();
+  private final Map<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>> futuresBySession = Collections.synchronizedMap(new LRUMap<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>>(128,512));
 
   /**
    * Create a new instance.
@@ -62,14 +66,36 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
    */
   public CachingPentahoEntryCollector(SessionImpl systemSession, NodeId rootID, final Map configuration) throws RepositoryException {
     super(systemSession, rootID, configuration);
-    cache = new EntryCache();
 
+  }
+
+  private EntryCache getCache(){
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    if(cacheBySession.containsKey(session)){
+      return cacheBySession.get(session);
+    }
+    EntryCache newCache = new EntryCache();
+    cacheBySession.put(session, newCache);
+    return newCache;
+  }
+
+  private ConcurrentMap<NodeId, FutureEntries> getFutures(){
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    if(futuresBySession.containsKey(session)){
+      return futuresBySession.get(session);
+    }
+    ConcurrentMap<NodeId, FutureEntries> futures = new ConcurrentHashMap<NodeId, FutureEntries>();
+    futuresBySession.put(session, futures);
+    return futures;
   }
 
   @Override
   protected void close() {
     super.close();
-    cache.clear();
+
+    for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+      entry.getValue().clear();
+    }
   }
 
   //-----------------------------------------------------< EntryCollector >---
@@ -79,7 +105,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   @Override
   protected Entries getEntries(NodeImpl node) throws RepositoryException {
     NodeId nodeId = node.getNodeId();
-    Entries entries = cache.get(nodeId);
+    Entries entries = getCache().get(nodeId);
     if (entries == null) {
       // fetch entries and update the cache
       entries = updateCache(node);
@@ -92,7 +118,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
    */
   @Override
   protected Entries getEntries(NodeId nodeId) throws RepositoryException {
-    Entries entries = cache.get(nodeId);
+    Entries entries = getCache().get(nodeId);
     if (entries == null) {
       // fetch entries and update the cache
       NodeImpl n = getNodeById(nodeId);
@@ -111,11 +137,11 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
    */
   private Entries internalUpdateCache(NodeImpl node) throws RepositoryException {
     Entries entries = super.getEntries(node);
-    if ((isRootId(node.getNodeId()) && cache.specialCasesRoot()) || !entries.isEmpty()) {
+    if ((isRootId(node.getNodeId()) && getCache().specialCasesRoot()) || !entries.isEmpty()) {
       // adjust the 'nextId' to point to the next access controlled
       // ancestor node instead of the parent and remember the entries.
-      entries.setNextId(getNextID(node));
-      cache.put(node.getNodeId(), entries);
+      // entries.setNextId(getNextID(node));
+      getCache().put(node.getNodeId(), entries);
     } // else: not access controlled -> ignore.
     return entries;
   }
@@ -131,20 +157,6 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant runs fully synchronized
-   */
-  synchronized private Entries synchronizedUpdateCache(NodeImpl node) throws RepositoryException {
-    return internalUpdateCache(node);
-  }
-
-  /**
-   * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant runs fully parallel
-   */
-  private Entries parallelUpdateCache(NodeImpl node) throws RepositoryException {
-    return internalUpdateCache(node);
-  }
-
-  /**
    * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant blocks the current
    * thread if a concurrent update for the same node id takes place
    */
@@ -154,7 +166,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
     FutureEntries nfe = new FutureEntries();
     boolean found = true;
 
-    fe = futures.putIfAbsent(id, nfe);
+    fe = getFutures().putIfAbsent(id, nfe);
     if (fe == null) {
       found = false;
       fe = nfe;
@@ -167,11 +179,11 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
       // otherwise obtain result and when done notify waiting FutureEntries
       try {
         Entries e = internalUpdateCache(node);
-        futures.remove(id);
+        getFutures().remove(id);
         fe.setResult(e);
         return e;
       } catch (Throwable problem) {
-        futures.remove(id);
+        getFutures().remove(id);
         fe.setProblem(problem);
         if (problem instanceof RepositoryException) {
           throw (RepositoryException)problem;
@@ -195,7 +207,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
     NodeId nextId = null;
     while (nextId == null && !isRootId(n.getNodeId())) {
       NodeId parentId = n.getParentId();
-      if (cache.containsKey(parentId)) {
+      if (getCache().containsKey(parentId)) {
         nextId = parentId;
       } else {
         NodeImpl parent = (NodeImpl) n.getParent();
@@ -258,19 +270,27 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
         // clear the complete cache since the nextAcNodeId may
         // have changed due to the added ACL.
         log.debug("Policy added, clearing the cache");
-        cache.clear();
+        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+          entry.getValue().clear();
+        }
         break; // no need for further processing.
       } else if ((type & POLICY_REMOVED) == POLICY_REMOVED) {
         // clear the entry and change the entries having a nextID
         // pointing to this node.
-        cache.remove(nodeId, true);
+        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+          entry.getValue().remove(nodeId, true);
+        }
       } else if ((type & POLICY_MODIFIED) == POLICY_MODIFIED) {
         // simply clear the cache entry -> reload upon next access.
-        cache.remove(nodeId, false);
+        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+          entry.getValue().remove(nodeId, false);
+        }
       } else if ((type & MOVE) == MOVE) {
         // some sort of move operation that may affect the cache
         log.debug("Move operation, clearing the cache");
-        cache.clear();
+        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+          entry.getValue().clear();
+        }
         break; // no need for further processing.
       }
     }
