@@ -15,23 +15,17 @@ import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 
 import mondrian.util.Pair;
-import mondrian.xmla.DataSourcesConfig.DataSource;
 
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianDataSource;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.xml.sax.SAXException;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class MondrianImportHandler implements IPlatformImportHandler {
 
