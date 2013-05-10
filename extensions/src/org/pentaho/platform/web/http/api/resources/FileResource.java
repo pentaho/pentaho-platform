@@ -209,6 +209,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Consumes({ WILDCARD })
   public Response createFile(@PathParam("pathId") String pathId, InputStream fileContents) throws IOException {
     RepositoryFileOutputStream rfos = new RepositoryFileOutputStream(idToPath(pathId));
+    rfos.setCharsetName(httpServletRequest.getCharacterEncoding());
     IOUtils.copy(fileContents, rfos);
     rfos.close();
     fileContents.close();
