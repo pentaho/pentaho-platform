@@ -127,7 +127,6 @@ pen.define([
     initEventHandlers: function(){
       // listen for file action events
       window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
-      window.top.mantle_addHandler("SolutionFileActionEvent", this.deleteHandlerCallback);
     },
 
     buildParameter: function(path){
@@ -158,13 +157,6 @@ pen.define([
 
     deleteHandler: function(path){
       window.top.executeCommand("DeleteFileCommand", this.buildParameter(path));
-    },
-
-    deleteHandlerCallback: function(path){
-      if(event.action == 'org.pentaho.mantle.client.commands.DeleteFileCommand' && event.action == 'Success'){
-        // TODO need to refresh here
-        console.log("Delete Success. TODO - need to refresh browser");
-      }
     },
 
     cutHandler: function(path){

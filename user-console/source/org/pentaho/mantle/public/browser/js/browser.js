@@ -45,6 +45,12 @@ pen.define([
 		this.redraw();
 	};
 
+	FileBrowser.updateData = function(){
+		if(this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null){
+			this.fileBrowserModel.get('fileListModel').updateData();
+		}
+	};
+
 	FileBrowser.redraw = function(){
 		var myself = this;
 
@@ -653,6 +659,7 @@ pen.define([
 		setContainer: FileBrowser.setContainer,
 		setOpenFileHandler: FileBrowser.setOpenFileHandler,
 		update: FileBrowser.update,
+		updateData: FileBrowser.updateData,
 		redraw: FileBrowser.redraw,
 		templates: FileBrowser.templates
 	}
