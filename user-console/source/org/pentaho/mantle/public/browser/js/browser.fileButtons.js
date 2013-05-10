@@ -146,6 +146,7 @@ pen.define([
 
 		openNewButtonHandler: function(path){
       window.top.mantle_openRepositoryFile(path, "NEWWINDOW");
+      window.top.mantle_setPerspective('browser.perspective');
 		},
 
 		runInBackgroundHandler: function(path, title){

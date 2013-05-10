@@ -41,11 +41,23 @@
             FileBrowser.updateData();
           }
           else{
-            window.top.mantle_showMessage('Delete Error', event.message);
+            window.top.mantle_showMessage('Error', event.message);
           }
         }
       });
 
+      // refresh folder list on create new folder
+      window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
+        if(event.action == 'org.pentaho.mantle.client.commands.NewFolderCommand' ||
+           event.action == 'org.pentaho.mantle.client.commands.PasteFilesCommand'){
+          if(event.message == 'Success'){
+            FileBrowser.update();
+          }
+          else{
+            window.top.mantle_showMessage('Error', event.message);
+          }
+        }
+      });
     });
 
 

@@ -75,13 +75,31 @@ pen.define([
 					handler: $.proxy(that.propertiesHandler, that)
 				}
 			];
+
+      that.initEventHandlers();
 			
     },
 
 		buttons: [],
 
+    initEventHandlers: function(){
+      // listen for file action events
+      window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
+    },
+
+    buildParameter: function(path, title){
+      return {
+        solutionPath: (path == null ? ":" : path.replace(/\//g, ":")),
+        solutionTitle: (title ? null : title)
+      };
+    },
+
+    eventLogger: function(event){
+      console.log(event.action + " : " + event.message);
+    },
+
 		newFolderHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("NewFolderCommand", this.buildParameter(path));
 		},
 
 		openFolderHandler: function(path){
@@ -89,19 +107,19 @@ pen.define([
 		},
 
 		pasteHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
 		},
 
 		uploadHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("ImportFileCommand", this.buildParameter(path));
 		},
 
 		downloadHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("ExportFileCommand", this.buildParameter(path));
 		},
 
 		propertiesHandler: function(path){
-			alert(path); // TODO
+      window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
 		}
 
 	};

@@ -20,6 +20,9 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import com.google.gwt.core.client.GWT;
@@ -50,11 +53,37 @@ public class NewFolderCommand extends AbstractCommand {
     this.parentFolder = parentFolder;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   protected void performOperation() {
-    performOperation(true);
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          NewFolderCommand.this.parentFolder = repositoryFile;
+          performOperation(true);
+        }
+      });
+    }
+    else{
+      performOperation(true);
+    }
   }
 
   protected void performOperation(boolean feedback) {
+
+    final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
+    event.setAction(this.getClass().getName());
+
     final TextBox folderNameTextBox = new TextBox();
     folderNameTextBox.setTabIndex(1);
     folderNameTextBox.setVisibleLength(40);
@@ -87,18 +116,23 @@ public class NewFolderCommand extends AbstractCommand {
                   Messages.getString("error"), Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()), //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true);
               dialogBox.center();
-
+              event.setMessage(Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()));
+              EventBusUtil.EVENT_BUS.fireEvent(event);
             }
 
             @Override
             public void onResponseReceived(Request createFolderRequest, Response createFolderResponse) {
               if (createFolderResponse.getStatusText().equalsIgnoreCase("OK")) { //$NON-NLS-1$
                 new RefreshRepositoryCommand().execute(false);
+                event.setMessage("Success");
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(
                     Messages.getString("error"), Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
+                event.setMessage(Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()));
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               }
             }
 
