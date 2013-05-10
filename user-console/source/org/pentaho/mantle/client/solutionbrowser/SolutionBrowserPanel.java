@@ -30,6 +30,9 @@ import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
+import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
@@ -179,6 +182,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionTree.addTreeListener(treeListener);
     initializeExecutableFileTypes();
     buildUI();
+    EventBusUtil.EVENT_BUS.addHandler(SolutionBrowserSelectEvent.TYPE, new SolutionBrowserSelectEventHandler() {
+      public void onTabSelected(SolutionBrowserSelectEvent event) {
+        adjustContentPanelSize();
+      }
+    });
   }
 
   public static SolutionBrowserPanel getInstance() {
