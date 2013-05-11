@@ -169,7 +169,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     } else if (name.endsWith(URL_SUFFIX)) {
       fileIcon = ImageUtil.getThemeableImage("icon-small", "icon-url");
     } else {
-      fileIcon.setUrl(GWT.getModuleBaseURL() + "images/fileIcon.gif");
+      fileIcon = ImageUtil.getThemeableImage("icon-small", "icon-file");
     }
     fileIcon.setWidth("16px"); //$NON-NLS-1$
     fileLabel.setWidth("100%"); //$NON-NLS-1$
