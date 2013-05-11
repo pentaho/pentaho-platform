@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.Image;
  */
 public class ImageUtil {
 
-  private static final String BLANK_IMAGE_PATH = "mantle/images/spacer.gif";
+  public static final String BLANK_IMAGE_PATH = "mantle/images/spacer.gif";
 
   /**
    * Returns a GWT Image with the src value set to a blank image and applies the provided css style to the element
