@@ -387,14 +387,14 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     for (FileTreeItem treeItem : allNodes) {
       RepositoryFileTree userObject = (RepositoryFileTree) treeItem.getUserObject();
       if (userObject != null && userObject.getChildren().size() == 0) { // This is a leaf node so change the widget
-        treeItem.setWidget(new LeafItemWidget(treeItem.getText(), "mantle/images/treeLeaf.png")); //$NON-NLS-1$
+        treeItem.setWidget(new LeafItemWidget(treeItem.getText(), "icon-tree-leaf", "icon-folder")); //$NON-NLS-1$
         DOM.setStyleAttribute(treeItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
       }
     }
   }
 
   private void buildTrash() {
-    trashItem = new FileTreeItem(new LeafItemWidget("Recycle Bin", "mantle/images/recycle_bin.png")); //$NON-NLS-1$ //$NON-NLS-2$
+    trashItem = new FileTreeItem(new LeafItemWidget("Recycle Bin", "icon-tree-leaf", "icon-recycle-bin")); //$NON-NLS-1$ //$NON-NLS-2$
     this.addItem(trashItem);
     DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
   }
