@@ -106,15 +106,11 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 		schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
 		schedulesPanel.setStyleName("schedulesPanel");
     wrapperPanel.add(schedulesPanel);
-		
-    Label blockoutTimes = new Label(Messages.getString("blockoutTimes"));
-    blockoutTimes.setStyleName("workspaceHeading");
-    wrapperPanel.add(blockoutTimes);
-		
+
 		blockoutPanel = new BlockoutPanel(isAdmin);
 		blockoutPanel.setStyleName("schedulesPanel");
 		wrapperPanel.add(blockoutPanel);
-		
+
 		getElement().getStyle().setBackgroundColor("white");
     add(wrapperPanel);
 		
