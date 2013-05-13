@@ -330,12 +330,27 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private String getStartValue(JsJob block) {
-    return convertDateToValue(block.getNextRun());
+    
+    if(block.getNextRun() != null){
+      return convertDateToValue(block.getNextRun());
+    
+    } else if("COMPLETE".equals(block.getState()) && block.getJobTrigger() != null){
+      //if a job is complete, it will not have the date in the nextRun attribute
+      return convertDateToValue(block.getJobTrigger().getStartTime());
+    
+    }else{
+      return "-";
+    }
   }
 
   private String getEndValue(JsJob block) {
     if (block.getNextRun() instanceof Date) {
       return convertDateToValue(new Date(block.getNextRun().getTime() + block.getJobTrigger().getBlockDuration()));
+    
+    } else if("COMPLETE".equals(block.getState()) && block.getJobTrigger() != null && block.getJobTrigger().getStartTime() != null){
+      //if a job is complete, it will not have the date in the nextRun attribute
+      return convertDateToValue(new Date(block.getJobTrigger().getStartTime().getTime() + block.getJobTrigger().getBlockDuration()));
+    
     } else {
       return "-";
     }
