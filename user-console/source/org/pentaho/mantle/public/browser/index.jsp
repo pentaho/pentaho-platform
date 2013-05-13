@@ -46,11 +46,12 @@
         }
       });
 
-      // refresh folder list on create new folder / paste / import
+      // refresh folder list on create new folder / delete folder/ paste / import
       window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
-        if(event.action == 'org.pentaho.mantle.client.commands.NewFolderCommand'  ||
-           event.action == 'org.pentaho.mantle.client.commands.PasteFilesCommand' ||
-           event.action == 'org.pentaho.mantle.client.commands.ImportFileCommand'){
+        if(event.action == 'org.pentaho.mantle.client.commands.NewFolderCommand'    ||
+           event.action == 'org.pentaho.mantle.client.commands.DeleteFolderCommand' ||
+           event.action == 'org.pentaho.mantle.client.commands.ImportFileCommand'   ||
+           event.action == 'org.pentaho.mantle.client.commands.PasteFilesCommand'){
           if(event.message == 'Success'){
             FileBrowser.update(); // refresh folder list
           }
@@ -60,7 +61,6 @@
         }
       });
     });
-
 
   </script>
 
