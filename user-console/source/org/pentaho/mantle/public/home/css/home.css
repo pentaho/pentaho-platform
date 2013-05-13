@@ -4,7 +4,8 @@
 
 .main-container {
   padding-top: 20px;
-  max-width: 1024px;
+  width: 1230px;
+  margin: 0 auto;
 }
 
 .widget-panel.well {
@@ -80,7 +81,7 @@ button.btn-large.btn-block {
 }
 
 #getting-started {
-  min-height: 500px;
+  /* min-height: 500px; */
   position: relative;
 }
 
@@ -90,20 +91,23 @@ button.btn-large.btn-block {
   text-align: center;
   min-width: 110px;
   padding: 5px;
+  width: 150px;
 }
 
 .selector-row {
   position: absolute;
-  
   left:0px;
   bottom:0px;
 }
 
-.horizontal-selector {  
-  display: table;
-  background-color: #DCE7ED;
+#getting-started .horizontal-selector {
+  display: block;
+  background-color: #F1F1F1;
   padding: 2px;
   overflow-x:scroll;  
+  font-size: 12px;
+  border-top: 1px solid #c1d7e1;
+  height: 130px;
 }
 
 #launch-widget .horizontal-selector, #tutorial-selector.horizontal-selector {
@@ -126,8 +130,8 @@ button.btn-large.btn-block {
 }
 
 .sample-details-img {
-  width: 177px; 
-  height: 177px;
+  width: 200px;
+  height: 200px;
   background-image: url("../images/sample_large.png");
 }
 
@@ -148,15 +152,14 @@ button.btn-large.btn-block {
   text-align: center;
   width: 100%;  
   color: #FFF;
-  font-weight: bold;
-  top:30%;
-  height:200px;
+  top:20px;
+  height:20px;
 }
 
 .welcome-img {
   width:100%;
-  height:307px;
-  background-size: 100%;
+  height:220px;
+  /* background-size: 100%; */
   background-image: url("../images/welcome_play.jpg");
 }
 
@@ -168,7 +171,36 @@ button.btn-large.btn-block {
   width: 100%;
   height: 600px;
 }
+/* Added by Brett   */
+.bootstrap .well .sidebar {
+	border: 0;
+	background: transparent;
+}
 
+.bootstrap .nav-tabs {
+  border-bottom: 1px solid #c1d7e1;
+  background: #ffffff; /* Old browsers */
+  background: -moz-linear-gradient(top,  #ffffff 74%, #f4f4f4 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(74%,#ffffff), color-stop(100%,#f4f4f4)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #ffffff 74%,#f4f4f4 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #ffffff 74%,#f4f4f4 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #ffffff 74%,#f4f4f4 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #ffffff 74%,#f4f4f4 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f4f4f4',GradientType=0 ); /* IE6-9 */
+}
+.detail-title{
+  padding: 0 0 20px 0;
+  font-size: 16px;
+  color: #26363d;
+}
+.detail-description{
+  padding: 0 0 20px 0;
+  font-size: 14px;
+  color: #26363d;
+}
+#getting-started .tab-content {
+  position: relative;
+}
 .alert {
   text-align: center;
 }
