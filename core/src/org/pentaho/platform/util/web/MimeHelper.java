@@ -26,6 +26,8 @@ public class MimeHelper {
   private static final Map<String, String> mimes = new HashMap<String, String>();
 
   private static final Map<String, String> extensions = new HashMap<String, String>();
+  
+  private static final Map<String, String> defaultCharset = new HashMap<String, String>();
 
   static {
     
@@ -90,6 +92,9 @@ public class MimeHelper {
     MimeHelper.extensions.put(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.extensions.put(".properties", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
     
+    MimeHelper.defaultCharset.put("text/html", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+    MimeHelper.defaultCharset.put("text/plain", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+    
   }
 
   public static String getExtension(final String mimeType) {
@@ -106,6 +111,10 @@ public class MimeHelper {
       return null;
     }
     return MimeHelper.extensions.get(fileName.substring(index));
+  }
+  
+  public static String getDefaultCharset(final String mimeType){
+	  return MimeHelper.defaultCharset.get(mimeType);
   }
 
 }
