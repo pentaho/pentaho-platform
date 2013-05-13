@@ -36,7 +36,7 @@
 
       // refresh file list on successful delete
       window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-        if(event.action == 'org.pentaho.mantle.client.commands.DeleteFileCommand'){
+        if(event.action.indexOf('DeleteFileCommand') >= 0){
           if(event.message == 'Success'){
             FileBrowser.updateData(); // refresh file list
           }
@@ -48,10 +48,12 @@
 
       // refresh folder list on create new folder / delete folder/ paste / import
       window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
-        if(event.action == 'org.pentaho.mantle.client.commands.NewFolderCommand'    ||
-           event.action == 'org.pentaho.mantle.client.commands.DeleteFolderCommand' ||
-           event.action == 'org.pentaho.mantle.client.commands.ImportFileCommand'   ||
-           event.action == 'org.pentaho.mantle.client.commands.PasteFilesCommand'){
+
+        if((event.action.indexOf('NewFolderCommand') >= 0)    ||
+           (event.action.indexOf('DeleteFolderCommand') >= 0) ||
+           (event.action.indexOf('ImportFileCommand') >= 0)   ||
+           (event.action.indexOf('PasteFilesCommand') >= 0)){
+
           if(event.message == 'Success'){
             FileBrowser.update(); // refresh folder list
           }
