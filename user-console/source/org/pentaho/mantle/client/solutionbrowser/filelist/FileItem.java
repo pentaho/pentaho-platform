@@ -128,9 +128,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   private FileTypeEnabledOptions options;
   private String url;
   private String iconStr;
-  private Image dropIndicator = new Image();
-  private Image invalidDrop = ImageUtil.getThemeableImage("icon-small", "icon-drop-invalid");
-  private Image validDrop = ImageUtil.getThemeableImage("icon-small", "icon-drop-valid");
+  private Image dropIndicator = ImageUtil.getThemeableImage("icon-small", "icon-drop-invalid");
   private boolean canDrop = false;
 
   public FileItem(RepositoryFile repositoryFile, FilesListPanel filesListPanel, FileTypeEnabledOptions options, boolean supportsACLs, String fileIconStr) {
@@ -490,7 +488,9 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     setWidget(0, 0, dropIndicator);
     addStyleName("fileItemDragProxy");//$NON-NLS-1$
     setDroppable(false);
-    dropIndicator = invalidDrop;
+    dropIndicator.removeStyleName("icon-drop-valid");
+    dropIndicator.addStyleName("icon-drop-invalid");
+
   }
 
   public void setDroppable(boolean canDrop) {
@@ -499,10 +499,12 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     }
     if (canDrop) {
 
-      dropIndicator = validDrop;
+      dropIndicator.addStyleName("icon-drop-valid");
+      dropIndicator.removeStyleName("icon-drop-invalid");
       addStyleName("validDrop");//$NON-NLS-1$
     } else {
-      dropIndicator = invalidDrop;
+      dropIndicator.removeStyleName("icon-drop-valid");
+      dropIndicator.addStyleName("icon-drop-invalid");
       removeStyleName("validDrop");//$NON-NLS-1$
     }
 
