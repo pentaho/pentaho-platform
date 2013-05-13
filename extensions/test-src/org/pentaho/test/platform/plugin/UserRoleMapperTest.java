@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,7 +102,13 @@ public class UserRoleMapperTest {
     System.setProperty("org.osjava.sj.delimiter", "/");
     
   }
-  
+
+  @After
+  public void tearDown() {
+      microPlatform.stop();
+      microPlatform = null;
+  }
+
   @Test
   public void testReadRolesInSchema() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);;
