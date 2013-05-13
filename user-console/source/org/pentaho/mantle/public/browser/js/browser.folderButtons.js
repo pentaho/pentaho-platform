@@ -17,21 +17,6 @@ pen.define([
 
 			// retrieve i18n map
 			var that = this; // trap this
-			jQuery.i18n.properties({
-	      name: 'messages',
-	      mode: 'map',
-	      callback: function () {
-	      	// replace default text with locale properties
-					$(that.buttons).each(function(idx, fb){
-						if(fb.i18n){
-							var localeString = jQuery.i18n.prop(fb.i18n);
-							if(localeString){
-								fb.text = localeString;
-							}
-						}	
-					});
-	      }
-	    });
 
 			// initialize buttons definitions
 			that.buttons = [
@@ -42,10 +27,10 @@ pen.define([
 					handler: $.proxy(that.newFolderHandler, that)
 				},
 				{
-					id: "openButton",	
-					text: "Open",	
-					i18n: "contextAction_open", 							
-					handler: $.proxy(that.openFolderHandler, that)
+					id: "deleteFolderButton",	
+					text: "Delete",	
+					i18n: "contextAction_delete", 							
+					handler: $.proxy(that.deleteFolderHandler, that)
 				},
 				{id: "separator"},
 				{
@@ -76,6 +61,24 @@ pen.define([
 				}
 			];
 
+			// retrieve i18n map
+			jQuery.i18n.properties({
+	      name: 'messages',
+	      mode: 'map',
+	      language: that.urlParam('locale'),
+	      callback: function () {
+	      	// replace default text with locale properties
+					$(that.buttons).each(function(idx, fb){
+						if(fb.i18n){
+							var localeString = jQuery.i18n.prop(fb.i18n);
+							if(localeString && (localeString != '['+fb.i18n+']')){
+								fb.text = localeString;
+							}
+						}	
+					});
+	      }
+	    });
+
       that.initEventHandlers();
 			
     },
@@ -94,6 +97,16 @@ pen.define([
       };
     },
 
+    urlParam: function(paramName){
+      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+      if(value){
+      	return value[1];	
+      }
+      else{
+      	return null;
+      }
+    },
+
     eventLogger: function(event){
       console.log(event.action + " : " + event.message);
     },
@@ -102,8 +115,8 @@ pen.define([
       window.top.executeCommand("NewFolderCommand", this.buildParameter(path));
 		},
 
-		openFolderHandler: function(path){
-			alert(path); // TODO
+		deleteFolderHandler: function(path){
+			window.top.executeCommand("DeleteFolderCommand", this.buildParameter(path));
 		},
 
 		pasteHandler: function(path){

@@ -17,21 +17,6 @@ pen.define([
 
 			// retrieve i18n map
 			var that = this; // trap this
-			jQuery.i18n.properties({
-	      name: 'messages',
-	      mode: 'map',
-	      callback: function () {
-	      	// replace default text with locale properties
-					$(that.buttons).each(function(idx, fb){
-						if(fb.i18n){
-							var localeString = jQuery.i18n.prop(fb.i18n);
-							if(localeString){
-								fb.text = localeString;
-							}
-						}	
-					});
-	      }
-	    });
 
 			// initialize buttons definitions
 			that.buttons = [
@@ -118,6 +103,24 @@ pen.define([
 				}
 			];
 
+			// retrieve i18n map
+			jQuery.i18n.properties({
+	      name: 'messages',
+	      mode: 'map',
+	      language: that.urlParam('locale'),
+	      callback: function () {
+	      	// replace default text with locale properties
+					$(that.buttons).each(function(idx, fb){
+						if(fb.i18n){
+							var localeString = jQuery.i18n.prop(fb.i18n);
+							if(localeString && (localeString != '['+fb.i18n+']')){
+								fb.text = localeString;
+							}
+						}	
+					});
+	      }
+	    });
+
       that.initEventHandlers();
 
     },
@@ -134,6 +137,16 @@ pen.define([
         solutionPath: (path == null ? ":" : path.replace(/\//g, ":")),
         solutionTitle: (title ? null : title)
       };
+    },
+
+    urlParam: function(paramName){
+      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+      if(value){
+      	return value[1];	
+      }
+      else{
+      	return null;
+      }
     },
 
     eventLogger: function(event){

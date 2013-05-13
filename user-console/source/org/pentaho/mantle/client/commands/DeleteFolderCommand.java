@@ -20,6 +20,9 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -29,6 +32,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Label;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 public class DeleteFolderCommand extends AbstractCommand {
   
@@ -47,11 +51,36 @@ public class DeleteFolderCommand extends AbstractCommand {
     this.repositoryFile = repositoryFile;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   protected void performOperation() {
-    performOperation(true);
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          DeleteFolderCommand.this.repositoryFile = repositoryFile;
+          performOperation(true);
+        }
+      });
+    }
+    else{
+      performOperation(true);
+    }
   }
 
   protected void performOperation(boolean feedback) {
+
+    final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
+    event.setAction(this.getClass().getName());
 
     final String filesList = repositoryFile.getId();
     final Label messageTextBox = new Label(Messages.getString("deleteFolderWarning", repositoryFile.getName()));
@@ -76,16 +105,22 @@ public class DeleteFolderCommand extends AbstractCommand {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFolder"), //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true);
               dialogBox.center();
+              event.setMessage(Messages.getString("couldNotDeleteFolder"));
+              EventBusUtil.EVENT_BUS.fireEvent(event);
             }
 
             @Override
             public void onResponseReceived(Request request, Response response) {
               if (response.getStatusCode() == 200) {
                 new RefreshRepositoryCommand().execute(false);
+                event.setMessage("Success");
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFolder"), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
+                event.setMessage(Messages.getString("couldNotDeleteFolder"));
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               }
             }
 
@@ -94,6 +129,8 @@ public class DeleteFolderCommand extends AbstractCommand {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
+          event.setMessage(Messages.getString("couldNotDelete"));
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
       }
     };
