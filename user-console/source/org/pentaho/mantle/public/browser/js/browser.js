@@ -464,7 +464,7 @@ pen.define([
 							title = $(model.getFileClicked()[0]).children('.name').text();
 						} else if(model.getLastClick() == "folder"){
 							path = $(model.getFolderClicked()[0]).attr("path");
-							title = $(model.getFileClicked()[0]).children('.name').text();
+							title = $(model.getFolderClicked()[0]).children('.name').text();
 						}
 
 						if((path != null) && event.data.handler){
