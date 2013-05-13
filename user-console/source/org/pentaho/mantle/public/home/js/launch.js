@@ -64,28 +64,34 @@ pen.define([
 							function error() {
 								ContextProvider.get(function(context) {
 									var errMsg = HandlebarsCompiler.compile(context.i18n.error_no_sample_content, { sample_title: $.trim(card.find(".card-title").text())});
-									$("#sample .alert").text(errMsg).show();
+									jHtml.find("#sample .alert").text(errMsg).show();
+									jHtml.find("#sample-frame").hide();
+									jHtml.find("#sample").css("height", "auto");
 								});
 							}
 
 							$.ajax(filePropsUrl, {
-								type: "GET",
-								success: function(data){
+								dataType: "text",
+								success: function(data) {
 									if (data == undefined) {
 										error();
 										return;
 									}
 									jHtml.find("#sample-frame").attr("src", url);
-								},
-								error: function(xtype, status, error) {
-									error();									
+
+								}, 
+								error: function(err) {
+									error();
 								}
 							});
 						});				
 					});
 
 				} else if (tabId == "tab3") {
-					
+
+					// Fixes a scrolling issue when it is not necessary to scroll
+					jHtml.parent().css("overflow", "hidden");
+
 					function bindInteractions(internet) {
 						// Bind click interactions
 						bindCardInteractions(jHtml, ".tutorial-card", (urlVars.selectedTab == "tab3" ? urlVars.selectedContentIndex : 0), function(card) {
