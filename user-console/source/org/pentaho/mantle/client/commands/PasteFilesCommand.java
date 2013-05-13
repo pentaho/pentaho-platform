@@ -192,6 +192,8 @@ public class PasteFilesCommand extends AbstractCommand {
         @Override
         public void onError(Request pasteChildrenRequest, Throwable exception) {
           Window.alert(exception.getLocalizedMessage());
+          event.setMessage(exception.getLocalizedMessage());
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
         @Override
@@ -210,6 +212,8 @@ public class PasteFilesCommand extends AbstractCommand {
       });
     } catch (RequestException e) {
       Window.alert(e.getLocalizedMessage());
+      event.setMessage(e.getLocalizedMessage());
+      EventBusUtil.EVENT_BUS.fireEvent(event);
     }        
 
   }
