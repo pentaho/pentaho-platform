@@ -123,7 +123,7 @@ public class SessionTest extends BaseTest {
       
       PentahoHttpSessionListener httpSessionListener = new PentahoHttpSessionListener();
       httpSessionListener.sessionCreated(event);
-      PentahoHttpSessionListener.registerHttpSession(session.getId(), null, null, null, "Admin", null, Long.parseLong("100000")); //$NON-NLS-1$ //$NON-NLS-2$
+      PentahoHttpSessionListener.registerHttpSession(session.getId(), null, null, null, "Admin", session.getId(), Long.parseLong("100000")); //$NON-NLS-1$ //$NON-NLS-2$
       PentahoHttpSessionListener.deregisterHttpSession(session.getId());
       httpSessionListener.sessionDestroyed(event);
 

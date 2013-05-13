@@ -20,8 +20,6 @@ import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLo
  */
 public class PlatformImporterTest {
 
-
-
   @Test
   public void testNoMatchingMime() throws Exception {
     Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
@@ -94,6 +92,8 @@ public class PlatformImporterTest {
 
     // With custom domain id
     final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
+
+    importer.setRepositoryImportLogger(new Log4JRepositoryImportLogger());
 
     try{
       importer.importFile(bundle1);
