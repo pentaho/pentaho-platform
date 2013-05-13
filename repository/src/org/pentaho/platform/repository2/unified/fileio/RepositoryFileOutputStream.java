@@ -169,6 +169,10 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       }
     }
 
+    if(charsetName == null && mimeType != null){
+    	charsetName = MimeHelper.getDefaultCharset(mimeType);
+    }
+    
     //FIXME: not a good idea that we assume we are dealing with text.  Best if this is somehow moved to the RepositoryFileWriter
     // but I couldn't figure out a clean way to do that.  For now, charsetName is passed in here and we use it if available.
     final SimpleRepositoryFileData payload = new SimpleRepositoryFileData(bis, charsetName, mimeType);
