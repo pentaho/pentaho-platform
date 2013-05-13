@@ -51,11 +51,30 @@
 
 				} else if (tabId == "tab3") {
 							
-
-
 			 		function bindInteractions(bindNavParams) {
 				 		bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", bindNavParams, function(card) {
 				 			$(".video-length").text(card.find(".tutorial-card-time").text());
+
+				 			var cardIndex = $(".tutorial-card").index(card) + 1;
+
+				 			ContextProvider.get(function(context){
+
+				 				var videoIdProp = HandlebarsCompiler.compile( context.config.getting_started_video_link_template, {contentNumber: cardIndex} );
+				 				var videoId = context.config[videoIdProp];
+				 				var imgUrl = HandlebarsCompiler.compile( context.config.youtube_image_template, {videoId: videoId} );
+
+				 				if ($(".IE").length > 0) {
+				 					$(".tutorial-details-img").css( {
+				 						"filter": "progid:DXImageTransform.Microsoft.AlphaImageLoader( src='" + imgUrl + "', sizingMethod='scale')",
+				 						"-ms-filter": "progid:DXImageTransform.Microsoft.AlphaImageLoader( src='" + imgUrl + "', sizingMethod='scale')"
+				 					});
+
+				 				} else {
+				 					$(".tutorial-details-img").css("background-image", "url('"+ imgUrl + "')");
+				 				}
+				 				
+				 			});				 			
+				 			
 				 		}); 			
 			 		}
 
@@ -118,48 +137,20 @@
  	function injectYoutubeVideoDuration(youtubeLinkId, injectContent, injectSelector, post) {
  		var url ="http://gdata.youtube.com/feeds/api/videos/" + youtubeLinkId + "?v=2&alt=jsonc&prettyprint=true";
 
- 		function postSuccess(data) {
- 			if (typeof data=="string"){
- 				data = eval("(" + data + ")");
- 			}
- 			var videoLength = data.data.duration;
-			injectContent.find(injectSelector).text(formatSeconds(videoLength));
+		$.ajax(url, {
+			dataType: "jsonp",
+			success: function postSuccess(data) {
+	 			if (typeof data=="string"){
+	 				data = eval("(" + data + ")");
+	 			}
+	 			var videoLength = data.data.duration;
+				injectContent.find(injectSelector).text(formatSeconds(videoLength));
 
-			if (post) {
-				post(videoLength);
-			}
- 		}
-
- 		function postError(error) {}
-
- 		if ($(".IE").length > 0 && window.XDomainRequest) {
-            // Use Microsoft XDR
-            var xdr = new XDomainRequest();
-            xdr.open("get", url);
-            xdr.onload = function() {
-                postSuccess(xdr.responseText);
-            };
-            xdr.onerror = function(event) {
-            	postError(event);
-            };
-
-            xdr.ontimeout = function(event) {
-            	alert(event);
-            };
-
-            xdr.onprogress = function(event) {};
-
-            xdr.send();
-
-        } else {            
-			$.ajax(url, {
-				type: "GET",
-				success: postSuccess,
-				error : function(data, status, error) {
-					postError(error);					
+				if (post) {
+					post(videoLength);
 				}
-			});
-        }
+	 		}
+	 	}); 		
  	}
 
  	/**
@@ -227,35 +218,34 @@
  	function checkInternet( jParent, success, fail ) {
  		var errorMsg = jParent.find(".no-internet-error").hide();
 
- 		$.ajax("http://gdata.youtube.com/feeds/api/videos/", {
-			type: "GET",
-			success: success,
-			error: function(xtype, status, error) {				
+ 		if (navigator.onLine) {
+ 			if (success) {
+ 				success.call();
+ 			}
 
-				if (fail) {
-					fail();
-				}
-			
-				var launchLink = jParent.find(".launch-link");
-
-				ContextProvider.get(function(context){
-					if (launchLink.length > 0) {
-
-						launchLink.bind("click", function(){							
-								errorMsg.text(context.i18n.error_no_internet_access).show();
-
-								setTimeout(function(){
-									errorMsg.hide();
-								}, 1500);											
-							})					
-						
-					} else {
-						errorMsg.text(context.i18n.error_no_internet_access).show();
-					}
-				});
-				
+ 		} else {
+ 			if (fail) {
+				fail();
 			}
-		});	
+		
+			var launchLink = jParent.find(".launch-link");
+
+			ContextProvider.get(function(context){
+				if (launchLink.length > 0) {
+
+					launchLink.bind("click", function(){							
+							errorMsg.text(context.i18n.error_no_internet_access).show();
+
+							setTimeout(function(){
+								errorMsg.hide();
+							}, 1500);											
+						})					
+					
+				} else {
+					errorMsg.text(context.i18n.error_no_internet_access).show();
+				}
+			});		
+ 		} 		
  	}
 
  	return {
