@@ -120,7 +120,7 @@ button.btn-large.btn-block {
 
 .bg-img, .card-img, .details-img {
   display:inline-block;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat;  
 }
 
 .sample-card-img {
@@ -144,7 +144,7 @@ button.btn-large.btn-block {
 .tutorial-details-img {
   width: 245px;
   height: 163px;
-  background-image: url("../images/video.png");
+  background-size: 100%;  
 }
 
 .tutorial-card-time {
