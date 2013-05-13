@@ -79,14 +79,13 @@ public class FilePropertiesCommand implements Command {
     else{
       performAction();
     }
-
-    final SolutionFileActionEvent event = new SolutionFileActionEvent();
-    event.setAction(this.getClass().getName());
-    event.setMessage("Success");
-    EventBusUtil.EVENT_BUS.fireEvent(event);
   }
 
   public void performAction(){
+
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(this.getClass().getName());
+
     // Checking if the user has access to manage permissions
     String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/canAccess?permissions="+MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
@@ -97,18 +96,27 @@ public class FilePropertiesCommand implements Command {
           FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
           dialog.showTab(defaultTab);
           dialog.center();
+
+          event.setMessage(exception.getLocalizedMessage());
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
         public void onResponseReceived(Request request, Response response) {
           FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, Boolean.parseBoolean(response.getText()));
           dialog.showTab(defaultTab);
           dialog.center();
+
+          event.setMessage("Success");
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
       });
     } catch (RequestException e) {
       FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
       dialog.showTab(defaultTab);
       dialog.center();
+
+      event.setMessage(e.getLocalizedMessage());
+      EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
 

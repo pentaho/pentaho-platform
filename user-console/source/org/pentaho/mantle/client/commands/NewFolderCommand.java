@@ -139,6 +139,8 @@ public class NewFolderCommand extends AbstractCommand {
           });
         } catch (RequestException e) {
           Window.alert(e.getLocalizedMessage());
+          event.setMessage(e.getLocalizedMessage());
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
       }
