@@ -82,6 +82,7 @@ public class UserRoleMapperTest {
     microPlatform.define("connection-MDX", MDXConnection.class);
     microPlatform.define(IDBDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
     microPlatform.define(IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL);
+    microPlatform.define(UserDetailsService.class, TestUserDetailsService.class, Scope.GLOBAL);
     FileSystemBackedUnifiedRepository repo = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
     repo.setRootDir(new File("test-src/solution"));
     try {
@@ -344,7 +345,8 @@ public class UserRoleMapperTest {
   }
 
   public static class TestUserDetailsService implements UserDetailsService {
-    public UserDetails loadUserByUsername(String arg0)
+    public UserDetails loadUserByUsername(
+      final String username)
       throws UsernameNotFoundException, DataAccessException
     {
       return new UserDetails() {
@@ -362,17 +364,28 @@ public class UserRoleMapperTest {
             return true;
         }
         public String getUsername() {
-            return "admin";
+            return username;
         }
         public String getPassword() {
             return "password";
         }
         public GrantedAuthority[] getAuthorities() {
+          if (username == null) {
+              return new GrantedAuthority[0];
+          }
+          if (username.equals("admin")) {
             return new GrantedAuthority[] {
               new GrantedAuthorityImpl("ceo"),
-              new GrantedAuthorityImpl("admin"),
+              new GrantedAuthorityImpl("Admin"),
               new GrantedAuthorityImpl("Authenticated")
             };
+          } else if (username.equals("simplebob")) {
+            return new GrantedAuthority[] {
+              new GrantedAuthorityImpl("Role1"),
+              new GrantedAuthorityImpl("Role2")
+            };
+          }
+          return new GrantedAuthority[0];
         }
     };
     }
