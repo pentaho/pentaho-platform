@@ -180,9 +180,10 @@ public class BlockoutPanel extends SimplePanel {
 
   @SuppressWarnings("deprecation")
   private void createTable() {
+    int columnSize = 139;
     String[] tableHeaderNames = { Messages.getString("blockoutColumnStarts"), Messages.getString("blockoutColumnEnds"),
         Messages.getString("blockoutColumnRepeats"), Messages.getString("blockoutColumnRepeatsEndBy") };
-    int[] columnWidths = { 130, 130, 130, 130 };
+    int[] columnWidths = { columnSize, columnSize, columnSize, columnSize };
     BaseColumnComparator[] columnComparators = { BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE),
         BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE), BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE),
         BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE) };
