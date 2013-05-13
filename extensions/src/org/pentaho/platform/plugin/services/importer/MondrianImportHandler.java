@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 
 import mondrian.util.Pair;
-import mondrian.xmla.DataSourcesConfig.DataSource;
 
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
@@ -26,8 +25,6 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianDataSource;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.xml.sax.SAXException;
 
 public class MondrianImportHandler implements IPlatformImportHandler {
@@ -66,7 +63,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException,
       DomainAlreadyExistsException, DomainStorageException, IOException {
     boolean overwriteInRepossitory = bundle.overwriteInRepository();
-    boolean xmla = "true".equalsIgnoreCase(findParameterPropertyValue(bundle, ENABLE_XMLA)) ? true : false;
+    boolean xmla = "false".equalsIgnoreCase(findParameterPropertyValue(bundle, ENABLE_XMLA)) ? false : true;
     final String domainId = (String) bundle.getProperty(DOMAIN_ID);
 
     if (domainId == null) {
@@ -146,12 +143,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       throws ParserConfigurationException, SAXException, IOException, PlatformImportException
   {
     final Map<String, String> parameters = findParameters(bundle);
-
     final String dsName = findParameterPropertyValue(bundle, DATA_SOURCE);
-    if (dsName == null) {
-        // DataSource must be present.
-        throw new PlatformImportException("Bundle is missing required 'DataSource' property");
-    }
 
     final String provider;
     if (parameters.containsKey(PROVIDER)) {
@@ -162,11 +154,13 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     }
 
     StringBuilder sb =
-      new StringBuilder(
-        "DataSource="
-        + dsName
-        + ";Provider="
-        + provider);
+      new StringBuilder();
+
+    if (dsName != null) {
+        sb.append("DataSource=" + dsName + ";");
+    }
+
+    sb.append("Provider=" + provider);
 
     // Build a list of the remaining properties
     for (Entry<String, String> parameter : parameters.entrySet()) {
@@ -178,24 +172,13 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       }
     }
 
-    MondrianSchema schema = new MondrianSchema(catName, null);
-    String dsProvider = xmlaEnabled ? DataSource.PROVIDER_TYPE_MDP : "None:";
-
-    MondrianDataSource ds =
-      new MondrianDataSource(
-        catName,
-        "",
-        "",
-        "Provider=" + provider + ";DataSource=" + dsName,
-        "Provider=" + provider, dsProvider, DataSource.AUTH_MODE_UNAUTHENTICATED, null); 
-
     MondrianCatalog catalog =
       new MondrianCatalog(
         catName,
         sb.toString(),
         provider + ":" +  RepositoryFile.SEPARATOR + catName,
-        ds,
-        schema);
+        null,
+        null);
 
     return catalog;
   }
