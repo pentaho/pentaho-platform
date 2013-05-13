@@ -935,7 +935,7 @@ public class JcrRepositoryFileUtils {
     Node fileNode = (Node) fileItem;
 
     return getTreeByNode(session, pentahoJcrConstants, pathConversionHelper,
-                lockHelper, fileNode, depth - 1, filter, showHidden, accessVoterManager);
+                lockHelper, fileNode, depth, filter, showHidden, accessVoterManager);
 
   }
 

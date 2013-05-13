@@ -101,8 +101,6 @@ public class MantleController extends AbstractXulEventHandler {
 
   private XulToolbarbutton newAdhocBtn;
 
-  private XulToolbarbutton showBrowserBtn;
-
   private XulToolbarbutton contentEditBtn;
 
   private XulMenuitem propertiesMenuItem;
@@ -172,7 +170,6 @@ public class MantleController extends AbstractXulEventHandler {
     saveBtn = (XulToolbarbutton) document.getElementById("saveButton"); //$NON-NLS-1$
     saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton"); //$NON-NLS-1$
 
-    showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton"); //$NON-NLS-1$
     contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton"); //$NON-NLS-1$
 
     bf = new GwtBindingFactory(document);
@@ -225,7 +222,7 @@ public class MantleController extends AbstractXulEventHandler {
     final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
 
     // For the menu item
-    bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
+   // bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
 
     EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
       public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {

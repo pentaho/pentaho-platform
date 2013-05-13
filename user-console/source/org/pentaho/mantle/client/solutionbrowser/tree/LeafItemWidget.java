@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import org.pentaho.mantle.client.images.ImageUtil;
 
 /**
  * @author wseyler
@@ -30,11 +31,11 @@ public class LeafItemWidget extends Composite {
   Image leafImage;
   Label leafLabel;
   
-  public LeafItemWidget(String title, String imageUrl) {
+  public LeafItemWidget(String title, String... styleName) {
     HorizontalPanel widget = new HorizontalPanel();
     initWidget(widget);
     
-    leafImage = new Image(imageUrl);
+    leafImage = ImageUtil.getThemeableImage(styleName);
     widget.add(leafImage);
     
     leafLabel = new Label(title);

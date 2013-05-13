@@ -38,7 +38,7 @@
       window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
         if(event.action == 'org.pentaho.mantle.client.commands.DeleteFileCommand'){
           if(event.message == 'Success'){
-            FileBrowser.updateData();
+            FileBrowser.updateData(); // refresh file list
           }
           else{
             window.top.mantle_showMessage('Error', event.message);
@@ -46,12 +46,14 @@
         }
       });
 
-      // refresh folder list on create new folder
+      // refresh folder list on create new folder / delete folder/ paste / import
       window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
-        if(event.action == 'org.pentaho.mantle.client.commands.NewFolderCommand' ||
+        if(event.action == 'org.pentaho.mantle.client.commands.NewFolderCommand'    ||
+           event.action == 'org.pentaho.mantle.client.commands.DeleteFolderCommand' ||
+           event.action == 'org.pentaho.mantle.client.commands.ImportFileCommand'   ||
            event.action == 'org.pentaho.mantle.client.commands.PasteFilesCommand'){
           if(event.message == 'Success'){
-            FileBrowser.update();
+            FileBrowser.update(); // refresh folder list
           }
           else{
             window.top.mantle_showMessage('Error', event.message);
@@ -59,7 +61,6 @@
         }
       });
     });
-
 
   </script>
 

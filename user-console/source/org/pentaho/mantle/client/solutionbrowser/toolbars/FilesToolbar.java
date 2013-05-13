@@ -19,15 +19,14 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.toolbars;
 
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarComboButton;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarGroup;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.MantleMenuBar;
-import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -36,13 +35,6 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.IFileItemListener;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * @author wseyler
@@ -96,58 +88,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     label.setStyleName("pentaho-titled-toolbar-label");
     add(label); //$NON-NLS-1$
     add(GLUE);
-    Image runImage = ImageUtil.getThemeableImage("icon-small", "icon-run");
-    Image runDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-run", "disabled");
-    runBtn = new ToolbarButton(runImage, runDisabledImage);
-    runBtn.setId("filesToolbarRun");
-    runCmd = new FileCommand(FileCommand.COMMAND.RUN, null, repositoryFileProvider);
-    runBtn.setCommand(runCmd);
-    runBtn.setToolTip(Messages.getString("open")); //$NON-NLS-1$
-    add(runBtn);
-
-    Image editImage = ImageUtil.getThemeableImage("icon-small", "icon-update");
-    Image editDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-update", "disabled");
-    editBtn = new ToolbarButton(editImage, editDisabledImage);
-    editBtn.setId("filesToolbarEdit");
-    editCmd = new FileCommand(FileCommand.COMMAND.EDIT, null, repositoryFileProvider);
-    editBtn.setCommand(editCmd);
-    editBtn.setToolTip(Messages.getString("edit")); //$NON-NLS-1$
-    add(editBtn);
-
-    Image miscImage = ImageUtil.getThemeableImage("icon-small", "icon-misc");
-    Image miscDisabledImage = ImageUtil.getThemeableImage("icon-small", "icon-misc", "disabled");
-    miscComboBtn = new ToolbarComboButton(miscImage, miscDisabledImage);
-    miscComboBtn.setId("filesToolbarOptions");
-
-    createMenuItems();
-
-    miscComboBtn.setToolTip(Messages.getString("options")); //$NON-NLS-1$
-    miscComboBtn.setStylePrimaryName("mantle-toolbar-combo-button");
-    add(miscComboBtn);
     setEnabled(false);
-  }
-
-  private void createMenuItems() {
-    menuItems = new MenuItem[menuCommands.length];
-    menuFileCommands = new FileCommand[menuCommands.length];
-    for (int i = 0; i < menuCommands.length; i++) {
-      if (!MantleApplication.showAdvancedFeatures && menuCommands[i] == COMMAND.EDIT_ACTION) {
-        continue;
-      }
-      if (menuCommands[i] == null) {
-        miscMenus.addSeparator();
-      } else {
-        menuFileCommands[i] = new FileCommand(menuCommands[i], miscComboBtn.getPopup(), repositoryFileProvider);
-        menuItems[i] = miscMenus.addItem(Messages.getString(menuItemNames[i]), menuFileCommands[i]);
-        menuItems[i].getElement().setId(makeSafeId("file_toolbar_menuitem_" + Messages.getString(menuItemNames[i])));
-      }
-    }
-    miscComboBtn.setMenu(miscMenus);
-  }
-
-  private String makeSafeId(final String id) {
-    String safeid = id.replace(' ', '_').replaceAll("\\.", "").replaceAll(":", "");
-    return safeid.toLowerCase();
   }
 
   @Override
@@ -173,34 +114,9 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
   }
 
   public void itemSelected(FileItem item) {
-    updateMenus(item);
+
   }
 
-  /**
-   * @param selectedFileItem
-   */
-  private void updateMenus(FileItem selectedFileItem) {
-    setEnabled(selectedFileItem != null);
-    runBtn.setEnabled(selectedFileItem != null && selectedFileItem.isCommandEnabled(COMMAND.RUN, null)); //$NON-NLS-1$
-    editBtn.setEnabled(selectedFileItem != null && selectedFileItem.isCommandEnabled(COMMAND.EDIT, null)); //$NON-NLS-1$
-
-    // iterate over the commands and enable / disable appropriately
-    for (int i = 0; i < menuCommands.length; i++) {
-      // skip sharing if not supporting acls, also skip separators
-      if (menuCommands[i] == null || menuItems[i] == null) {
-        continue;
-      }
-
-      if (selectedFileItem != null && selectedFileItem.isCommandEnabled(menuCommands[i], null)) {
-        menuItems[i].setScheduledCommand(menuFileCommands[i]);
-        menuItems[i].setStyleName("gwt-MenuItem"); //$NON-NLS-1$
-      } else {
-        menuItems[i].setScheduledCommand(null);
-        menuItems[i].setStyleName("disabledMenuItem"); //$NON-NLS-1$
-      }
-    }
-    miscComboBtn.setMenu(miscMenus);
-  }
 
   /**
    * @author wseyler

@@ -21,6 +21,10 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.ImportDialog;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 public class ImportFileCommand extends AbstractCommand {
 
@@ -34,8 +38,31 @@ public class ImportFileCommand extends AbstractCommand {
     this.repositoryFile = repositoryFile;
   }
 
+  private String solutionPath = null;
+
+  public String getSolutionPath() {
+    return solutionPath;
+  }
+
+  public void setSolutionPath(String solutionPath) {
+    this.solutionPath = solutionPath;
+  }
+
   protected void performOperation() {
-    performOperation(true);
+
+    if(this.getSolutionPath() != null){
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          ImportFileCommand.this.repositoryFile = repositoryFile;
+          performOperation(true);
+        }
+      });
+    }
+    else{
+      performOperation(true);
+    }
   }
 
   protected void performOperation(boolean feedback) {
@@ -55,6 +82,11 @@ public class ImportFileCommand extends AbstractCommand {
 
       public void okPressed() {
         importDialog.getForm().submit();
+
+        final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
+        event.setAction(this.getClass().getName());
+        event.setMessage("Success");
+        EventBusUtil.EVENT_BUS.fireEvent(event);
       }
     };
     importDialog.setCallback(callback);

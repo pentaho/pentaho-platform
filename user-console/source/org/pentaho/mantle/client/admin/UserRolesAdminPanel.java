@@ -20,7 +20,7 @@
 
 package org.pentaho.mantle.client.admin;
 
-import org.pentaho.gwt.widgets.client.buttons.ImageButton;
+import org.pentaho.gwt.widgets.client.buttons.ThemeableImageButton;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -45,25 +45,33 @@ public class UserRolesAdminPanel extends SimplePanel {
 	protected ListBox selectedMembersListBox;
 	protected ListBox availableMembersListBox;
 	protected ListBox availableRolesListBox;
-	protected ImageButton addUserButton;
-	protected ImageButton removeUserButton;
-	protected ImageButton addAllUsersButton;
-	protected ImageButton removeAllUsersButton;
-	protected ImageButton addRoleButton;
-	protected ImageButton removeRoleButton;
-	protected ImageButton addAllRolesButton;
-	protected ImageButton removeAllRolesButton;
-	protected ImageButton newRoleButton;
-	protected ImageButton deleteRoleButton;
-	protected ImageButton newUserButton;
-	protected ImageButton deleteUserButton;
+	protected ThemeableImageButton addUserButton;
+	protected ThemeableImageButton removeUserButton;
+	protected ThemeableImageButton addAllUsersButton;
+	protected ThemeableImageButton removeAllUsersButton;
+	protected ThemeableImageButton addRoleButton;
+	protected ThemeableImageButton removeRoleButton;
+	protected ThemeableImageButton addAllRolesButton;
+	protected ThemeableImageButton removeAllRolesButton;
+	protected ThemeableImageButton newRoleButton;
+	protected ThemeableImageButton deleteRoleButton;
+	protected ThemeableImageButton newUserButton;
+	protected ThemeableImageButton deleteUserButton;
 	protected Button editPasswordButton;
 	protected PermissionsPanel rolesPermissionsPanel;
 	protected PermissionsPanel systemRolesPermissionsPanel;
 	protected PentahoTabPanel mainTabPanel;
 	protected HorizontalPanel usersPanel;
 	protected VerticalPanel usersLabelPanel;
-	
+
+  private static final String[] addButtonStyles = new String[]{ "pentaho-addbutton" };
+  private static final String[] removeButtonStyles = new String[]{ "pentaho-deletebutton" };
+
+  private static final String[] accumAddButtonStyles = new String[]{"icon-small", "icon-accum-add"};
+  private static final String[] accumAddAllButtonStyles = new String[]{"icon-small", "icon-accum-add-all"};
+  private static final String[] accumRemoveButtonStyles = new String[]{"icon-small", "icon-accum-remove"};
+  private static final String[] accumRemoveAllButtonStyles = new String[]{"icon-small", "icon-accum-remove-all"};
+
 	private static UserRolesAdminPanel instance = new UserRolesAdminPanel();
 
 	public static UserRolesAdminPanel getInstance() {
@@ -111,12 +119,12 @@ public class UserRolesAdminPanel extends SimplePanel {
     hSpacer.setWidth("100%");
     labelAndButtonsPanel.add(hSpacer);
     labelAndButtonsPanel.setCellWidth(hSpacer, "100%");
-		newUserButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "", 15, 15);
+    newUserButton = new ThemeableImageButton(addButtonStyles, null, null);
 		labelAndButtonsPanel.add(newUserButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
 		labelAndButtonsPanel.add(hSpacer);
-		deleteUserButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "", 16, 16);
+    deleteUserButton = new ThemeableImageButton(removeButtonStyles, null, null);
 		labelAndButtonsPanel.add(deleteUserButton);
 
 		usersListBox = new ListBox(true);
@@ -188,25 +196,25 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("110px");
 		arrowsPanel.add(hSpacer);
 
-		addRoleButton = new ImageButton(moduleBaseURL + "images/accum_add.png", "", "", 14, 13);
+		addRoleButton = new ThemeableImageButton(accumAddButtonStyles, null, null);
 		arrowsPanel.add(addRoleButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("10px");
 		arrowsPanel.add(hSpacer);
 
-		removeRoleButton = new ImageButton(moduleBaseURL + "images/accum_remove.png", "", "", 14, 13);
+		removeRoleButton = new ThemeableImageButton(accumRemoveButtonStyles, null, null);
 		arrowsPanel.add(removeRoleButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("30px");
 		arrowsPanel.add(hSpacer);
 
-		addAllRolesButton = new ImageButton(moduleBaseURL + "images/accum_add_all.png", "", "", 14, 13);
+		addAllRolesButton = new ThemeableImageButton(accumAddAllButtonStyles, null, null);
 		arrowsPanel.add(addAllRolesButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("10px");
 		arrowsPanel.add(hSpacer);
 
-		removeAllRolesButton = new ImageButton(moduleBaseURL + "images/accum_remove_all.png", "", "", 14, 13);
+		removeAllRolesButton = new ThemeableImageButton(accumRemoveAllButtonStyles, null, null);
 		arrowsPanel.add(removeAllRolesButton);
 
 		VerticalPanel selectedRolesPanel = new VerticalPanel();
@@ -282,12 +290,12 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setWidth("100%");
 		labelAndButtonsPanel.add(hSpacer);
 		labelAndButtonsPanel.setCellWidth(hSpacer, "100%");
-		newRoleButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "", 15, 15);
+		newRoleButton = new ThemeableImageButton(addButtonStyles, null, null);
 		labelAndButtonsPanel.add(newRoleButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
 		labelAndButtonsPanel.add(hSpacer);
-		deleteRoleButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "", 16, 16);
+		deleteRoleButton = new ThemeableImageButton(removeButtonStyles, null, null);
 		labelAndButtonsPanel.add(deleteRoleButton);
 
 		rolesListBox = new ListBox(true);
@@ -347,25 +355,25 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("80px");
 		arrowsPanel.add(hSpacer);
 
-		addUserButton = new ImageButton(moduleBaseURL + "images/accum_add.png", "", "", 14, 13);
+		addUserButton = new ThemeableImageButton(accumAddButtonStyles, null, null);
 		arrowsPanel.add(addUserButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("10px");
 		arrowsPanel.add(hSpacer);
 
-		removeUserButton = new ImageButton(moduleBaseURL + "images/accum_remove.png", "", "", 14, 13);
+		removeUserButton = new ThemeableImageButton(accumRemoveButtonStyles, null, null);
 		arrowsPanel.add(removeUserButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("30px");
 		arrowsPanel.add(hSpacer);
 
-		addAllUsersButton = new ImageButton(moduleBaseURL + "images/accum_add_all.png", "", "", 14, 13);
+		addAllUsersButton = new ThemeableImageButton(accumRemoveButtonStyles, null, null);
 		arrowsPanel.add(addAllUsersButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("10px");
 		arrowsPanel.add(hSpacer);
 
-		removeAllUsersButton = new ImageButton(moduleBaseURL + "images/accum_remove_all.png", "", "", 14, 13);
+		removeAllUsersButton = new ThemeableImageButton(accumAddAllButtonStyles, null, null);
 		arrowsPanel.add(removeAllUsersButton);
 
 		VerticalPanel selectedMembersPanel = new VerticalPanel();
