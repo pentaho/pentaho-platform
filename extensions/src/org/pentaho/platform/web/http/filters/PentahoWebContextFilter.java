@@ -142,7 +142,10 @@ public class PentahoWebContextFilter implements Filter {
           printResourcesForContext(contextName, out, httpRequest, cssOnly);
         }
 
-        close(out);
+        // Any subclass can add more information to webcontext.js
+        addCustomInfoToOutputStream(out);
+        
+        out.close();
         return;
       } finally {
         httpRequest.removeAttribute(FILTER_APPLIED);
@@ -223,6 +226,10 @@ public class PentahoWebContextFilter implements Filter {
 
   }
 
+  protected void addCustomInfoToOutputStream(OutputStream out) throws IOException {
+    
+  }
+  
   public void init(FilterConfig filterConfig) throws ServletException {
     // split out a fully qualified url, guaranteed to have a trailing slash
     String fullyQualifiedServerURL = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
