@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**
@@ -55,10 +56,13 @@ public class SystemResource extends AbstractJaxRSResource {
   private static final Log logger = LogFactory.getLog(FileResource.class);
   private ISystemConfig systemConfig;
 
+  public SystemResource() {
+    this(PentahoSystem.get(ISystemConfig.class));
+  }
+
   public SystemResource(ISystemConfig systemConfig) {
     this.systemConfig = systemConfig;
   }
-
   /**
    * Returns all users, roles, and ACLs in an XML document. Moved
    * here from now removed SystemAllResource class

@@ -320,7 +320,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
       if (idx > 0) {
         ext = ext.substring(idx, ext.length());
       }
-      ans = getLocaleExportList().contains(ext);
+      List<String> exportList = getLocaleExportList();
+      if(exportList != null){
+        ans = exportList.contains(ext);
+      }
+
     }
     return ans;
   }
