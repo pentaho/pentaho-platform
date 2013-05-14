@@ -63,6 +63,10 @@
 				 				var videoId = context.config[videoIdProp];
 				 				var imgUrl = HandlebarsCompiler.compile( context.config.youtube_image_template, {videoId: videoId} );
 
+				 				if (!navigator.onLine) {
+				 					imgUrl = "images/video.png";
+				 				}
+				 				
 				 				if ($(".IE").length > 0) {
 				 					$(".tutorial-details-img").css( {
 				 						"filter": "progid:DXImageTransform.Microsoft.AlphaImageLoader( src='" + imgUrl + "', sizingMethod='scale')",
