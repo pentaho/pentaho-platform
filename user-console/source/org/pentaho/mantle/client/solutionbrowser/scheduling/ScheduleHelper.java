@@ -16,25 +16,22 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.AbstractCommand;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
-
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ScheduleHelper {
 
@@ -51,6 +48,8 @@ public class ScheduleHelper {
 
   private static void showScheduleDialog(final String fileNameWithPath) {
 
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(ScheduleHelper.class.getName());
     try {
 
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
@@ -84,6 +83,8 @@ public class ScheduleHelper {
               public void onError(Request request, Throwable exception) {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
                 dialogBox.center();
+                event.setMessage(exception.getLocalizedMessage());
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               }
 
               public void onResponseReceived(Request request, Response response) {
@@ -98,6 +99,8 @@ public class ScheduleHelper {
                       public void onError(Request request, Throwable exception) {
                         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
                         dialogBox.center();
+                        event.setMessage(exception.getLocalizedMessage());
+                        EventBusUtil.EVENT_BUS.fireEvent(event);
                       }
 
                       public void onResponseReceived(Request request, Response response) {
@@ -105,18 +108,24 @@ public class ScheduleHelper {
                           final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
                           final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, hasParams, isEmailConfValid);
                           dialog.center();
+                          event.setMessage("Open");
+                          EventBusUtil.EVENT_BUS.fireEvent(event);
                         }
                       }
                     });
                   } catch (RequestException e) {
                     MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
                     dialogBox.center();
+                    event.setMessage(e.getLocalizedMessage());
+                    EventBusUtil.EVENT_BUS.fireEvent(event);
                   }
 
                 } else {
                   MessageDialogBox dialogBox = new MessageDialogBox(
                       Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                   dialogBox.center();
+                  event.setMessage(Messages.getString("serverErrorColon") + " " + response.getStatusCode());
+                  EventBusUtil.EVENT_BUS.fireEvent(event);
                 }
               }
 
@@ -124,12 +133,16 @@ public class ScheduleHelper {
           } catch (RequestException e) {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
             dialogBox.center();
+            event.setMessage(e.getLocalizedMessage());
+            EventBusUtil.EVENT_BUS.fireEvent(event);
           }
         }
 
       });
     } catch (RequestException e) {
       Window.alert(e.getMessage());
+      event.setMessage(e.getLocalizedMessage());
+      EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
 
