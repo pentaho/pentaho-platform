@@ -167,8 +167,9 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       if (!parameter.getKey().equals(DATA_SOURCE) && !parameter.getKey().equals(PROVIDER)) {
         sb.append(";");
         sb.append(parameter.getKey());
-        sb.append("=");
+        sb.append("=\"");
         sb.append(parameter.getValue());
+        sb.append("\"");
       }
     }
 
