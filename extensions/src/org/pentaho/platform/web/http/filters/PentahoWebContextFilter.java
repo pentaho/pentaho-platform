@@ -73,6 +73,14 @@ public class PentahoWebContextFilter implements Filter {
 
   }
 
+  protected void close(OutputStream out) {
+    try {
+      out.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
       ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -134,8 +142,7 @@ public class PentahoWebContextFilter implements Filter {
           printResourcesForContext(contextName, out, httpRequest, cssOnly);
         }
 
-        out.close();
-
+        close(out);
         return;
       } finally {
         httpRequest.removeAttribute(FILTER_APPLIED);
