@@ -154,7 +154,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     this.isEmailConfValid = isEmailConfValid;
     scheduleEditorWizardPanel = new ScheduleEditorWizardPanel(getDialogType(), showScheduleName);
     scheduleEditor = scheduleEditorWizardPanel.getScheduleEditor();
-    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/hasblockouts"; //$NON-NLS-1$
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/hasblockouts?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder hasBlockoutsRequest = new RequestBuilder(RequestBuilder.GET, url);
     hasBlockoutsRequest.setHeader("accept", "text/plain");
     try {
