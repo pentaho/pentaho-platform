@@ -192,7 +192,7 @@ a {
 <body class="pentaho-page-background">
 <div id="loginError" class="pentaho-dialog" style="width: 400px; display: none">
   <div class="Caption">
-    <span>Login Error</span>
+    <span><%=Messages.getInstance().getString("UI.PUC.LOGIN.ERROR.CAPTION")%></span>
   </div>
   <div style="width: auto; height: auto;">
     <table class="dialog-content pentaho-padding-sm" style="width: 100%;">
