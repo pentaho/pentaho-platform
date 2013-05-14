@@ -87,6 +87,7 @@ pen.define([
 
     initEventHandlers: function(){
       // listen for file action events
+      if(window.top.mantle_addHandler != undefined)
       window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
     },
 
@@ -112,7 +113,8 @@ pen.define([
     },
 
 		newFolderHandler: function(path){
-      window.top.executeCommand("NewFolderCommand", this.buildParameter(path));
+			if(window.top != undefined)
+      			window.top.executeCommand("NewFolderCommand", this.buildParameter(path));
 		},
 
 		deleteFolderHandler: function(path){
