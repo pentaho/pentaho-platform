@@ -75,7 +75,7 @@ public class ScheduleHelper {
           String moduleName = GWT.getModuleName();
           final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
           String urlPath = fileNameWithPath.replaceAll("/", ":");
-          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");
+          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable?ts=" + System.currentTimeMillis());
           scheduleFileRequestBuilder.setHeader("accept", "text/plain");
           try {
             scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
