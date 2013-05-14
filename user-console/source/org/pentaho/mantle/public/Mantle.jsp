@@ -106,7 +106,7 @@
 	-->
 	
 	<!-- Standard -->
-    <div cellspacing="0" cellpadding="0"  style="width: 100%; height: 100%;">
+    <div id="pucWrapper" cellspacing="0" cellpadding="0"  style="width: 100%; height: 100%;">
         <div id="pucHeader" cellspacing="0" cellpadding="0">
             <div id="pucMenuBar"></div>
             <div id="pucPerspectives"></div>
@@ -114,7 +114,7 @@
 			<div id="pucUserDropDown"></div>
         </div>
 
-        <div id="pucContent" style="width:100%;height:100%"></div>
+        <div id="pucContent" style="width:100%;"></div>
     </div>
 
 	<!-- Toolbar On Top -->

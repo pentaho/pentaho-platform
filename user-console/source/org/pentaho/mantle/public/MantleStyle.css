@@ -377,6 +377,17 @@ code {
 .logoPanel-Container {
 }
 
+#pucWrapper {
+	position: relative;
+}
+
+#pucContent {
+	position: absolute;	
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
 .pucContentDeck {
   height: 100%;
   width: 100%;
