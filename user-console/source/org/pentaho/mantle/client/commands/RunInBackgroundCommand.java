@@ -16,26 +16,24 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import java.util.Date;
-
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleEmailDialog;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleParamsDialog;
-
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleEmailDialog;
+import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleParamsDialog;
+
+import java.util.Date;
 
 public class RunInBackgroundCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -73,7 +71,19 @@ public class RunInBackgroundCommand extends AbstractCommand {
   }
 
   protected void performOperation() {
-    performOperation(true);
+    final SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+    if(this.getSolutionPath() != null){
+      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+        @Override
+        public void handle(RepositoryFile repositoryFile) {
+          RunInBackgroundCommand.this.repositoryFile = new FileItem(repositoryFile, null, null, false, null);
+          performOperation(true);
+        }
+      });
+    }
+    else{
+      performOperation(true);
+    }
   }
 
   @SuppressWarnings("deprecation")

@@ -16,27 +16,23 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.Command;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
-import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Command;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShareFileCommand implements Command {
+
+  private FilePropertiesDialog.Tabs defaultTab = FilePropertiesDialog.Tabs.PERMISSION;
 
   private String moduleBaseURL = GWT.getModuleBaseURL();
   private String moduleName = GWT.getModuleName();
@@ -60,10 +56,8 @@ public class ShareFileCommand implements Command {
 
   public void execute() {
     final SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-    selectedList = (sbp.getFilesListPanel().getRepositoryFiles() != null) ?
-       sbp.getFilesListPanel().getRepositoryFiles() : new ArrayList<RepositoryFile>();
-
     if(this.getSolutionPath() != null){
+      selectedList =  new ArrayList<RepositoryFile>();
       sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
         @Override
         public void handle(RepositoryFile repositoryFile) {
@@ -73,6 +67,7 @@ public class ShareFileCommand implements Command {
       });
     }
     else{
+      selectedList = sbp.getFilesListPanel().getRepositoryFiles();
       performOperation();
     }
   }
@@ -92,8 +87,8 @@ public class ShareFileCommand implements Command {
         builder.sendRequest(null, new RequestCallback() {
 
           public void onError(Request request, Throwable exception) {
-            FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION, false);
-            dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
+            FilePropertiesDialog dialog = new FilePropertiesDialog(item, new PentahoTabPanel(), null, defaultTab, false);
+            dialog.showTab(defaultTab);
             dialog.center();
 
             event.setMessage(exception.getMessage());
@@ -101,7 +96,7 @@ public class ShareFileCommand implements Command {
           }
 
           public void onResponseReceived(Request request, Response response) {
-              FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION, Boolean.parseBoolean(response.getText()));
+              FilePropertiesDialog dialog = new FilePropertiesDialog(item, new PentahoTabPanel(), null, defaultTab, Boolean.parseBoolean(response.getText()));
               dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
               dialog.center();
 
@@ -110,7 +105,7 @@ public class ShareFileCommand implements Command {
           }
         });
       } catch (RequestException e) {
-        FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION, false);
+        FilePropertiesDialog dialog = new FilePropertiesDialog(item, new PentahoTabPanel(), null, defaultTab, false);
         dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
         dialog.center();
 
