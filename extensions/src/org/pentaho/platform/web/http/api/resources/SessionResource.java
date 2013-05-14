@@ -23,7 +23,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
@@ -47,5 +50,15 @@ public class SessionResource extends AbstractJaxRSResource {
   public String doGetUserDir(@PathParam("user") String user) {
     return ClientRepositoryPaths.getUserHomeFolderPath(user) + "/workspace";
   }
-  
+
+  @GET
+  @Path("/setredirect")
+  @Produces(TEXT_PLAIN)
+  public Response setredirect() {
+    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+    pentahoSession.setAttribute("redirect", true);
+
+    return Response.ok().type(MediaType.TEXT_PLAIN).build();
+  }
+
 }
