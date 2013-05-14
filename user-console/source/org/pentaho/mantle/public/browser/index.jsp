@@ -43,7 +43,8 @@
 
       // refresh file list on successful delete
       window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-        if(event.action.indexOf('DeleteFileCommand') >= 0){
+        if((event.action.indexOf('DeleteFileCommand') >= 0 ) ||
+           (event.action.indexOf('PasteFilesCommand') >= 0)){
           if(event.message == 'Success'){
             FileBrowser.updateData(); // refresh file list
           }
@@ -55,12 +56,9 @@
 
       // refresh folder list on create new folder / delete folder/ paste / import
       window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
-
         if((event.action.indexOf('NewFolderCommand') >= 0)    ||
            (event.action.indexOf('DeleteFolderCommand') >= 0) ||
-           (event.action.indexOf('ImportFileCommand') >= 0)   ||
-           (event.action.indexOf('PasteFilesCommand') >= 0)){
-
+           (event.action.indexOf('ImportFileCommand') >= 0)){
           if(event.message == 'Success'){
             FileBrowser.update(); // refresh folder list
           }
@@ -69,6 +67,16 @@
           }
         }
       });
+
+      window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
+        if((event.action.indexOf('ScheduleHelper') >= 0)    ||
+           (event.action.indexOf('ShareFileCommand') >= 0)){
+          if(event.message == 'Open' || event.message == 'Success'){
+            parent.mantle_setPerspective('browser.perspective');
+          }
+        }
+      });
+
     });
 
   </script>
