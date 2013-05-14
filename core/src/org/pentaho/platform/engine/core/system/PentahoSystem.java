@@ -333,7 +333,7 @@ public class PentahoSystem {
 
 
       ISystemSettings settings = PentahoSystem.getSystemSettings();
-      String roleName = settings.getSystemSetting("acl-voter/admin-role", "Admin"); //$NON-NLS-1$ //$NON-NLS-2$
+      String roleName = (settings != null) ? settings.getSystemSetting("acl-voter/admin-role", "Admin") : "Admin";
 
       roles = new GrantedAuthority[1];
       roles[0] = new GrantedAuthorityImpl(roleName);
