@@ -143,7 +143,7 @@ public class PentahoWebContextFilter implements Filter {
         }
 
         // Any subclass can add more information to webcontext.js
-        addCustomInfoToOutputStream(out);
+        addCustomInfo(out);
         
         out.close();
         return;
@@ -226,7 +226,7 @@ public class PentahoWebContextFilter implements Filter {
 
   }
 
-  protected void addCustomInfoToOutputStream(OutputStream out) throws IOException {
+  protected void addCustomInfo(OutputStream out) throws IOException {
     
   }
   
