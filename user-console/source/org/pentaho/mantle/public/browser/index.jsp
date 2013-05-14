@@ -34,6 +34,13 @@
       FileBrowser.setContainer($("#fileBrowser"));
       FileBrowser.update();
 
+      if(window.top.mantle_addHandler == undefined) return; 
+
+      window.top.mantle_addHandler("ShowHiddenFilesEvent", function(event){
+        console.log("ShowHiddenFilesEvent");
+      });
+
+
       // refresh file list on successful delete
       window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
         if(event.action.indexOf('DeleteFileCommand') >= 0){

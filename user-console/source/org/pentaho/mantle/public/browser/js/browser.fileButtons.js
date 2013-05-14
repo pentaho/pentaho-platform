@@ -129,6 +129,7 @@ pen.define([
 
     initEventHandlers: function(){
       // listen for file action events
+      if(window.top.mantle_addHandler != undefined)
       window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
     },
 

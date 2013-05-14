@@ -489,8 +489,13 @@ pen.define([
 	var FileBrowserFolderTreeView = Backbone.View.extend({
 
 		events: {
-			"click .folder .icon" 	: "expandFolder",
-			"click .folder .name" 	: "clickFolder"
+			"click .folder .expandCollapse" : "expandFolder",
+			
+			"click .folder .icon" 			: "clickFolder",
+			"dblclick .folder .icon"		: "expandFolder",
+			
+			"click .folder .name" 			: "clickFolder",
+			"dblclick .folder .name"		: "expandFolder",
 		},
 
 		initialize: function(){
@@ -521,8 +526,26 @@ pen.define([
 		        //append content
 				myself.$el.append(templates.folders(data));
 
+
+				//fix folder widths
+				$(".folder").each(function(){
+					$(this).addClass("selected");
+				});
+
+				$(".element").each(function(){
+					var $this = $(this);
+					while($this.height() > 20){
+						$this.width($this.width() + 20);
+					}
+				});
+
+				$(".folder").each(function(){
+					$(this).removeClass("selected");
+				});
+
 				//close all children folders
 				myself.$el.find(".folders").hide();
+
 
 				//handle empty folders
 				$(".folders").each(function(){
@@ -542,18 +565,11 @@ pen.define([
 
 		expandFolder: function(event){
 			var $target = $(event.currentTarget).parent().parent();
-			this.model.set("clicked", $target.attr("id"));
-			this.model.set("clickedFolder",$target);
-
 			if($target.hasClass("open")){
 				$target.removeClass("open").find("> .folders").hide();
 			} else {
 				$target.addClass("open").find("> .folders").show();
 			}
-
-			$(".folder.selected").removeClass("selected");
-			$target.addClass("selected");
-
 			event.stopPropagation();
 		},
 
@@ -606,6 +622,13 @@ pen.define([
 			//require file list template
 			pen.require(["js/browser.templates"],function(templates){
 				myself.$el.empty().append(templates.files(data));
+
+				$(".file").each(function(){
+					var $this = $(this);
+					while($this.height() > 20){
+						$this.width($this.width() + 20);
+					}
+				});
 			});
 
 	      	setTimeout(function() {

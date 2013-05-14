@@ -59,13 +59,13 @@ pen.define([
 			"{{#ifCond file.folder 'true'}}" +
 				"<div id='{{file.id}}' class='folder' path='{{file.path}}'>" + 
 					"<div class='element'>" +
+						"<div class='expandCollapse'> </div>" +
 						"<div class='icon'> </div>" +
 						"{{#if file.title}}" + 
 							"<div class='name'>{{file.title}}</div>" +
 						"{{else}}" + 
 							"<div class='name'>{{file.name}}</div>" +
 						"{{/if}}" +
-						"<div class='options'> </div>" +
 					"</div>" +
 					"<div class='folders'>" +
 					"{{#each children}} {{> folder}} {{/each}}" + 
@@ -82,7 +82,6 @@ pen.define([
 				"<div id='{{id}}' class='file' path='{{path}}'>" + 
 					"<div class='icon {{classes}}'> </div>" +
 					"<div class='name'>{{name}}</div>" +
-					"<div class='options'> </div>" +
 				"</div>" +
 			"{{/ifCond}}");
 
