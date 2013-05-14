@@ -6,7 +6,7 @@
   <slate>
     <file>mantleSlate.css</file>
   </slate>
-  <clean>
-    <file>mantleClean.css</file>
-  </clean>
+  <crystal>
+    <file>mantleCrystal.css</file>
+  </crystal>
 </themes>
