@@ -98,10 +98,6 @@
 	background: #D3D3D3;
 }
 
-.fileBrowserColumn .body .folder.selected > .element > .name {
-	font-weight: bold;
-}
-
 .fileBrowserColumn .body div.folder > div.element > div.expandCollapse {
 	background: url("../resources/images/expandCollapse.png") no-repeat -1px 5px;
 }
@@ -131,7 +127,6 @@
 }
 
 .fileBrowserColumn .body .file.selected > .name {
-	font-weight: bold;
 	background: #D3D3D3;
 }
 
