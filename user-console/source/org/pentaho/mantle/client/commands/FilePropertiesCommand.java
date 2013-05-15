@@ -17,114 +17,30 @@
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileActionEvent;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Command;
+public class FilePropertiesCommand extends AbstractFilePropertiesCommand {
 
-public class FilePropertiesCommand implements Command {
+  public FilePropertiesCommand(){}
 
-  Tabs defaultTab = Tabs.GENERAL;
-
-  private RepositoryFile fileSummary;
-  private String moduleBaseURL = GWT.getModuleBaseURL();
-  private String moduleName = GWT.getModuleName();
-  private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-  private static final int MANAGE_ACLS = 3;
-  
-  public FilePropertiesCommand() {
-  }
-  
-  public FilePropertiesCommand(RepositoryFile fileSummary) {
-    this(fileSummary, Tabs.GENERAL);
-  }
-  
-  public FilePropertiesCommand(RepositoryFile fileSummary, Tabs defaultTab) {
-    this.fileSummary = fileSummary;
-    this.defaultTab = defaultTab;
+  public FilePropertiesCommand(RepositoryFile repositoryFile){
+    this.setRepositoryFile(repositoryFile);
   }
 
   private String solutionPath = null;
 
+  @Override
   public String getSolutionPath() {
     return solutionPath;
   }
 
+  @Override
   public void setSolutionPath(String solutionPath) {
     this.solutionPath = solutionPath;
   }
 
-  public void execute() {
-    if(this.solutionPath != null){
-      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-      sbp.getFile(this.solutionPath, new SolutionFileHandler() {
-        @Override
-        public void handle(RepositoryFile repositoryFile) {
-          FilePropertiesCommand.this.fileSummary = repositoryFile;
-          performAction();
-        }
-      });
-    }
-    else{
-      performAction();
-    }
-  }
-
-  public void performAction(){
-
-    final SolutionFileActionEvent event = new SolutionFileActionEvent();
-    event.setAction(this.getClass().getName());
-
-    // Checking if the user has access to manage permissions
-    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/canAccess?permissions="+MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-    try {
-      builder.sendRequest(null, new RequestCallback() {
-
-        public void onError(Request request, Throwable exception) {
-          FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
-          dialog.showTab(defaultTab);
-          dialog.center();
-
-          event.setMessage(exception.getLocalizedMessage());
-          EventBusUtil.EVENT_BUS.fireEvent(event);
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, Boolean.parseBoolean(response.getText()));
-          dialog.showTab(defaultTab);
-          dialog.center();
-
-          event.setMessage("Success");
-          EventBusUtil.EVENT_BUS.fireEvent(event);
-        }
-      });
-    } catch (RequestException e) {
-      FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
-      dialog.showTab(defaultTab);
-      dialog.center();
-
-      event.setMessage(e.getLocalizedMessage());
-      EventBusUtil.EVENT_BUS.fireEvent(event);
-    }
-  }
-
-  public Tabs getDefaultTab() {
-    return defaultTab;
-  }
-
-  public void setDefaultTab(Tabs defaultTab) {
-    this.defaultTab = defaultTab;
+  @Override
+  protected Tabs getActiveTab() {
+    return Tabs.GENERAL;
   }
 }
