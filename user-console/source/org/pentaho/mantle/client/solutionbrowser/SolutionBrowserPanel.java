@@ -41,6 +41,7 @@ import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
 import org.pentaho.mantle.client.events.ShowHiddenFilesEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
@@ -133,6 +134,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     public void execute() {
       solutionTree.setUseDescriptionsForTooltip(!solutionTree.isUseDescriptionsForTooltip());
       solutionTree.setSelectedItem(solutionTree.getSelectedItem(), true);
+      
+      //send event
+      final ShowDescriptionsEvent event = new ShowDescriptionsEvent();
+      event.setValue(solutionTree.isUseDescriptionsForTooltip());
+      EventBusUtil.EVENT_BUS.fireEvent(event);
 
       // update setting
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS"; //$NON-NLS-1$
