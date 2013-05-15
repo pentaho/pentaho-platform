@@ -57,7 +57,11 @@ pen.define([
 		//folder template with recursive behavior
 		templates.folderText =
 			"{{#ifCond file.folder 'true'}}" +
-				"<div id='{{file.id}}' class='folder' path='{{file.path}}'>" + 
+				"{{#if file.description}}" +
+				"<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.description}}' title='{{file.name}}'>" + 
+				"{{else}}" +
+				"<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.name}}' title='{{file.name}}'>" + 
+				"{{/if}}" +
 					"<div class='element'>" +
 						"<div class='expandCollapse'> </div>" +
 						"<div class='icon'> </div>" +
@@ -79,7 +83,11 @@ pen.define([
 		//file template
 		templates.file = Handlebars.compile(
 			"{{#ifCond folder 'false'}}" + 
-				"<div id='{{id}}' class='file' path='{{path}}'>" + 
+				"{{#if file.description}}" +
+				"<div id='{{id}}' class='file' path='{{path}}' title2='{{file.description}}' title='{{name2}}'>" + 
+				"{{else}}" +
+				"<div id='{{id}}' class='file' path='{{path}}' title2='{{name2}}' title='{{name2}}'>" +
+				"{{/if}}" +
 					"<div class='icon {{classes}}'> </div>" +
 					"<div class='name'>{{name}}</div>" +
 				"</div>" +
@@ -118,7 +126,8 @@ pen.define([
 				name: nameNoExtension,
 				id: this.file.id,
 				classes: extension,
-				folder: this.file.folder
+				folder: this.file.folder,
+				name2: this.file.name
 			}));
 		});
 

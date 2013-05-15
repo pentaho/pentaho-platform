@@ -27,57 +27,103 @@
     }
 
     var FileBrowser = null;
-    pen.require(["js/browser"], function(pentahoFileBrowser) {
-      FileBrowser = pentahoFileBrowser;
 
-      FileBrowser.setOpenFileHandler(openRepositoryFile);
-      FileBrowser.setContainer($("#fileBrowser"));
-      FileBrowser.update();
+    function initBrowser(showHiddenFiles, showDescriptions){
+      pen.require(["js/browser"], function(pentahoFileBrowser) {
+        FileBrowser = pentahoFileBrowser;
+        FileBrowser.setOpenFileHandler(openRepositoryFile);
+        FileBrowser.setContainer($("#fileBrowser"));
+        FileBrowser.setShowHiddenFiles(showHiddenFiles);
+        FileBrowser.setShowDescriptions(showDescriptions);
+        FileBrowser.update();
 
-      if(window.top.mantle_addHandler == undefined) return; 
+        if(window.top.mantle_addHandler == undefined) return; 
 
-      window.top.mantle_addHandler("ShowHiddenFilesEvent", function(event){
-        console.log("ShowHiddenFilesEvent");
+        window.top.mantle_addHandler("ShowHiddenFilesEvent", function(event){
+          if(event.value != undefined){
+            FileBrowser.setShowHiddenFiles(event.value);
+            FileBrowser.update();
+          }
+        });
+
+        window.top.mantle_addHandler("ShowDescriptionsEvent", function(event){
+          if(event.value != undefined){
+            FileBrowser.updateShowDescriptions(!event.value);
+          }
+        });
+
+
+        // refresh file list on successful delete
+        window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
+          if((event.action.indexOf('DeleteFileCommand') >= 0 ) ||
+             (event.action.indexOf('PasteFilesCommand') >= 0)){
+            if(event.message == 'Success'){
+              FileBrowser.updateData(); // refresh file list
+            }
+            else{
+              window.top.mantle_showMessage('Error', event.message);
+            }
+          }
+        });
+
+        // refresh folder list on create new folder / delete folder/ paste / import
+        window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
+          if((event.action.indexOf('NewFolderCommand') >= 0)    ||
+             (event.action.indexOf('DeleteFolderCommand') >= 0) ||
+             (event.action.indexOf('ImportFileCommand') >= 0)){
+            if(event.message == 'Success'){
+              FileBrowser.update(); // refresh folder list
+            }
+            else{
+              window.top.mantle_showMessage('Error', event.message);
+            }
+          }
+        });
+
+        window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
+          if((event.action.indexOf('ScheduleHelper') >= 0)    ||
+             (event.action.indexOf('ShareFileCommand') >= 0)){
+            if(event.message == 'Open' || event.message == 'Success'){
+              parent.mantle_setPerspective('browser.perspective');
+            }
+          }
+        });
+
       });
+    }
 
-
-      // refresh file list on successful delete
-      window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-        if((event.action.indexOf('DeleteFileCommand') >= 0 ) ||
-           (event.action.indexOf('PasteFilesCommand') >= 0)){
-          if(event.message == 'Success'){
-            FileBrowser.updateData(); // refresh file list
-          }
-          else{
-            window.top.mantle_showMessage('Error', event.message);
-          }
+    function checkShowHiddenFiles(){
+      $.ajax({
+        url: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
+        type: "GET",
+        async: true,
+        success: function(response){
+          checkShowDescriptions(response == "true");
+        },
+        error: function(response){
+          checkShowDescriptions(false);
         }
       });
+    }
 
-      // refresh folder list on create new folder / delete folder/ paste / import
-      window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
-        if((event.action.indexOf('NewFolderCommand') >= 0)    ||
-           (event.action.indexOf('DeleteFolderCommand') >= 0) ||
-           (event.action.indexOf('ImportFileCommand') >= 0)){
-          if(event.message == 'Success'){
-            FileBrowser.update(); // refresh folder list
-          }
-          else{
-            window.top.mantle_showMessage('Error', event.message);
-          }
+    function checkShowDescriptions(showHiddenFiles){
+      $.ajax({
+        url: "/pentaho/api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS",
+        type: "GET",
+        async: true,
+        success: function(response){
+          initBrowser(showHiddenFiles, !(response == "true"));
+        },
+        error: function(response){
+          initBrowser(showHiddenFiles, false);
         }
       });
+    }
+    
+    //init component
 
-      window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-        if((event.action.indexOf('ScheduleHelper') >= 0)    ||
-           (event.action.indexOf('ShareFileCommand') >= 0)){
-          if(event.message == 'Open' || event.message == 'Success'){
-            parent.mantle_setPerspective('browser.perspective');
-          }
-        }
-      });
-
-    });
+    checkShowHiddenFiles();
+    
 
   </script>
 

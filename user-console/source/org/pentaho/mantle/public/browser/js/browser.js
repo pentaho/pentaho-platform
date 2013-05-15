@@ -26,15 +26,28 @@ pen.define([
 	FileBrowser.fileBrowserModel = null;
 	FileBrowser.fileBrowserView = null;
 	FileBrowser.openFileHandler = undefined;
+	FileBrowser.showHiddenFiles = false;
+	FileBrowser.showDescriptions = false;
 
+	FileBrowser.setShowHiddenFiles = function(value){
+		this.showHiddenFiles = value;
+	};
+
+	FileBrowser.setShowDescriptions = function(value){
+		this.showDescriptions = value;
+	};
+
+	FileBrowser.updateShowDescriptions = function(value){
+		this.fileBrowserModel.set("showDescriptions", value);
+	};
 
 	FileBrowser.setContainer =  function($container){
 		this.$container = $container;
-	}
+	};
 
 	FileBrowser.setOpenFileHandler = function(handler){
 		this.openFileHandler = handler;
-	}
+	};
 
 	FileBrowser.init = function(){
 
@@ -57,7 +70,9 @@ pen.define([
 		pen.require(["common-ui/util/PentahoSpinner"],function(spin){
 			myself.fileBrowserModel = new FileBrowserModel({
 				spinConfig: spin,
-				openFileHandler: myself.openFileHandler
+				openFileHandler: myself.openFileHandler,
+				showHiddenFiles: myself.showHiddenFiles,
+				showDescriptions: myself.showDescriptions
 			});
 			myself.FileBrowserView = new FileBrowserView({
 				model: myself.fileBrowserModel,
@@ -91,6 +106,9 @@ pen.define([
 
 			openFileHandler: undefined,
 
+			showHiddenFiles: false,
+			showDescriptions: false,
+
 			spinConfig: undefined
 		},
 
@@ -112,10 +130,14 @@ pen.define([
 	      	//create two models
 			foldersTreeModel = new FileBrowserFolderTreeModel({	
 				spinner: spinner1,
+				showHiddenFiles: myself.get("showHiddenFiles"),
+				showDescriptions: myself.get("showDescriptions")
 			});
 			fileListModel = new FileBrowserFileListModel({
 				spinner: spinner2,
-				openFileHandler: myself.get("openFileHandler")
+				openFileHandler: myself.get("openFileHandler"),
+				showHiddenFiles: myself.get("showHiddenFiles"),
+				showDescriptions: myself.get("showDescriptions")
 			});
 
 			//assign backbone events
@@ -131,6 +153,8 @@ pen.define([
 
 			myself.set("foldersTreeModel", foldersTreeModel);
 			myself.set("fileListModel", fileListModel);
+
+			myself.on("change:showDescriptions", myself.updateDescriptions, myself);
 		},
 
 		updateClicked: function(){
@@ -168,8 +192,15 @@ pen.define([
 		updateFileList: function(){
 			var myself = this;
 			//trigger file list update
-			myself.get("fileListModel").set("path", this.get("clickedFolder").attr("path"));
+			myself.get("fileListModel").set("path", myself.get("clickedFolder").attr("path"));
 
+		},
+
+		updateDescriptions: function(){
+			var myself = this;
+
+			myself.get("fileListModel").set("showDescriptions", myself.get("showDescriptions"));
+			myself.get("foldersTreeModel").set("showDescriptions", myself.get("showDescriptions"));
 		}
 	});
 
@@ -183,7 +214,10 @@ pen.define([
 			updateData: false,
 			
 			runSpinner: false,
-			spinner: undefined
+			spinner: undefined,
+
+			showHiddenFiles: false,
+			showDescriptions: false
 		},
 
 		initialize: function(){
@@ -226,7 +260,7 @@ pen.define([
 		},
 
 		getFileTreeRequest: function(path){
-			return "/pentaho/api/repo/files/"+path+"/children?depth=-1&showHidden=true";
+			return "/pentaho/api/repo/files/"+path+"/children?depth=-1&showHidden="+this.get("showHiddenFiles");
 		}
 
 	});
@@ -242,8 +276,10 @@ pen.define([
 			runSpinner: false,
 			spinner: undefined,
 
-			openFileHander: undefined
+			openFileHander: undefined,
 
+			showHiddenFiles: false,
+			showDescriptions: false
 		},
 
 		initialize: function(){
@@ -285,7 +321,7 @@ pen.define([
 
 
 		getFileListRequest: function(path){
-			return "/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden=true";
+			return "/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden="+this.get("showHiddenFiles");
 		}
 
 	});
@@ -318,6 +354,8 @@ pen.define([
 	    	//check buttons enabled
 	    	this.model.on("change:clickedFolder", this.checkButtonsEnabled, this);
 	    	this.model.on("change:clickedFile", this.checkButtonsEnabled, this);
+
+	    	
 	  	},
 
 	  	initializeLayout: function(){
@@ -506,6 +544,8 @@ pen.define([
 			myself.model.on("change:runSpinner", myself.manageSpinner, myself);
 			myself.model.on("change:data", myself.render, myself);
 
+			myself.model.on("change:showDescriptions", this.updateDescriptions, this);
+
 			if(data == undefined){ //update data
 				//start spinner
 				myself.$el.html(spinner.spin());
@@ -598,7 +638,32 @@ pen.define([
 			} else {
 				myself.model.get("spinner").stop();
 			}
+	    },
+
+	    updateDescriptions: function(){
+	    	var $folders = $(".folder"),
+	    		showDescriptions = this.model.get("showDescriptions");
+
+
+	    	if(showDescriptions){
+	    		$folders.each(function(){
+	    			var $this = $(this),
+	    				title = $this.attr("title"),
+	    				title2 = $this.attr("title2");
+
+	    			$this.attr("title", title2).attr("title2", title);
+	    		});
+	    	} else {
+	    		$folders.each(function(){
+	    			var $this = $(this),
+	    				title = $this.attr("title"),
+	    				title2 = $this.attr("title2");
+
+	    			$this.attr("title",title2).attr("title2", title);
+	    		});
+	    	}
 	    }
+
 	});
 
 
@@ -613,6 +678,8 @@ pen.define([
 				data = myself.model.get("data");
 			this.model.on("change:data", this.updateFileList, this);
 			myself.model.on("change:runSpinner", myself.manageSpinner, myself);
+
+			myself.model.on("change:showDescriptions", myself.updateDescriptions, this);
 		},	
 
 		render: function(){
@@ -673,6 +740,29 @@ pen.define([
 			} else {
 				myself.model.get("spinner").stop();
 			}
+	    },
+
+	    updateDescriptions: function(){
+	    	var $files = $(".file"),
+	    		showDescriptions = this.model.get("showDescriptions");
+
+	    	if(showDescriptions){
+	    		$files.each(function(){
+	    			var $this = $(this),
+	    				title = $this.attr("title"),
+	    				title2 = $this.attr("title2");
+
+	    			$this.attr("title", title2).attr("title2", title);
+	    		});
+	    	} else {
+	    		$files.each(function(){
+	    			var $this = $(this),
+	    				title = $this.attr("title"),
+	    				title2 = $this.attr("title2");
+
+	    			$this.attr("title",title2).attr("title2", title);
+	    		});
+	    	}
 	    }
 
 	});
@@ -681,6 +771,9 @@ pen.define([
 	return {
 		setContainer: FileBrowser.setContainer,
 		setOpenFileHandler: FileBrowser.setOpenFileHandler,
+		setShowHiddenFiles: FileBrowser.setShowHiddenFiles,
+		setShowDescriptions: FileBrowser.setShowDescriptions,
+		updateShowDescriptions: FileBrowser.updateShowDescriptions,
 		update: FileBrowser.update,
 		updateData: FileBrowser.updateData,
 		redraw: FileBrowser.redraw,
