@@ -57,7 +57,7 @@ public class FolderCommand implements Command {
     SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
 
     if (mode == COMMAND.PROPERTIES) {
-      new FilePropertiesCommand(repositoryFile, FilePropertiesDialog.Tabs.GENERAL).execute();
+      new FilePropertiesCommand(repositoryFile).execute();
     } else if (mode == COMMAND.DELETE) {
       TreeItem item = sbp.getSolutionTree().getSelectedItem();
       RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();
