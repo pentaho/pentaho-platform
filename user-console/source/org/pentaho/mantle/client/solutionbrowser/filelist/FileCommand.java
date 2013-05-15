@@ -19,30 +19,17 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.filelist;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.PopupPanel;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.commands.CopyFilesCommand;
-import org.pentaho.mantle.client.commands.CutFilesCommand;
-import org.pentaho.mantle.client.commands.DeleteFileCommand;
-import org.pentaho.mantle.client.commands.DeletePermanentFileCommand;
-import org.pentaho.mantle.client.commands.ExportFileCommand;
-import org.pentaho.mantle.client.commands.FilePropertiesCommand;
-import org.pentaho.mantle.client.commands.ImportFileCommand;
-import org.pentaho.mantle.client.commands.NewFolderCommand;
-import org.pentaho.mantle.client.commands.RestoreFileCommand;
-import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
-import org.pentaho.mantle.client.commands.ShareFileCommand;
+import org.pentaho.mantle.client.commands.*;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
-import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
-import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
 
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.PopupPanel;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileCommand implements Command {
 
@@ -112,7 +99,7 @@ public class FileCommand implements Command {
         sbp.openFile(selectedItem.getRepositoryFile(), mode);
       }
     } else if (mode == COMMAND.PROPERTIES) {
-      new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary, FilePropertiesDialog.Tabs.GENERAL).execute();
+      new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary).execute();
     } else if (mode == COMMAND.EDIT) {
       sbp.editFile();
     } else if (mode == COMMAND.DELETE) {
@@ -137,8 +124,7 @@ public class FileCommand implements Command {
       List<FileItem> selectedItemsClone = new ArrayList<FileItem>(selectedItems);
       new CutFilesCommand(selectedItemsClone).execute();      
     } else if (mode == COMMAND.GENERATED_CONTENT) {
-      FilePropertiesCommand historyCommand = new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary);
-      historyCommand.setDefaultTab(Tabs.HISTORY);
+      ShowHistoryCommand historyCommand = new ShowHistoryCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary);
       historyCommand.execute();
     } else if (mode == COMMAND.RESTORE) {
       List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();

@@ -16,9 +16,16 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 
 public class ShowHistoryCommand extends AbstractFilePropertiesCommand {
+
+  public ShowHistoryCommand(){}
+
+  public ShowHistoryCommand(RepositoryFile repositoryFile){
+    this.setRepositoryFile(repositoryFile);
+  }
 
   private String solutionPath = null;
 
