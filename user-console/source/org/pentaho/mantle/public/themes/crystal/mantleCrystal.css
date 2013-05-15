@@ -883,7 +883,7 @@ a:active, a:hover {
 }
 
 #pucHeader {
-/* moved to global clean */
+/* moved to global crystal */
   min-width: 820px;
 }
 
@@ -1004,7 +1004,7 @@ a:active, a:hover {
 
 /* == == == */
 #mainToolbar #openButton .toolbar-button IMG {
-  background: url('../../../content/common-ui/resources/themes/clean/images/open_32.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/open_32.png');
   height: 32px;
   width: 32px;
 }
