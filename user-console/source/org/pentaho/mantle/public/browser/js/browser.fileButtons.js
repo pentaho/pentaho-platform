@@ -87,7 +87,7 @@ pen.define([
 					id: "showButton", 
 					text: "Show Generated Content...", 
 					i18n: "contextAction_showGeneratedContent",
-					handler: $.proxy(that.showHandler, that)
+					handler: $.proxy(that.historyHandler, that)
 				},
 				{
 					id: "favoritesButton", 
@@ -195,8 +195,8 @@ pen.define([
       window.top.mantle_openRepositoryFile(path, "SCHEDULE_NEW");
 		},
 
-		showHandler: function(path){
-      window.top.executeCommand("ShowGeneratedContentCommand", this.buildParameter(path));
+		historyHandler: function(path){
+      window.top.executeCommand("ShowHistoryCommand", this.buildParameter(path));
 		},
 
     favoritesHandler: function(path, title){
