@@ -706,6 +706,7 @@ pen.define([
 		clickFile: function(event){
 			var $target = $(event.currentTarget);
 			this.model.set("clicked", $target.attr("id"));
+      this.model.set("clickedFile", undefined); // [BISERVER-9128] (FF) on change does not trigger unless value is reset
 			this.model.set("clickedFile", $target);
 
 			$(".file.selected").removeClass("selected");
