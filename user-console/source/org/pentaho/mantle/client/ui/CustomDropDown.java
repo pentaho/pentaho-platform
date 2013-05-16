@@ -44,7 +44,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class CustomDropDown extends HorizontalPanel implements HasText {
 
   private static final String STYLE = "custom-dropdown";
-  private static final PopupPanel popup = new PopupPanel(true, true) {
+  private final PopupPanel popup = new PopupPanel(true, true) {
     private FocusPanel pageBackground = null;
 
     public void show() {
@@ -58,7 +58,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
             case Event.ONKEYDOWN: {
               if ((char) event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
                 event.stopPropagation();
-                CustomDropDown.popup.hide();
+                popup.hide();
               }
               return;
             }
@@ -68,7 +68,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         };
         pageBackground.addClickHandler(new ClickHandler() {
           public void onClick(ClickEvent event) {
-            CustomDropDown.popup.hide();
+            popup.hide();
             pageBackground.setVisible(false);
             pageBackground.getElement().getStyle().setDisplay(Display.NONE);
           }
@@ -116,7 +116,11 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   private boolean pressed = false;
   private Label label = new Label("", false);
 
-  public CustomDropDown(String labelText, MenuBar menuBar) {
+  public enum MODE {
+    MAJOR, MINOR
+  }
+
+  public CustomDropDown(String labelText, MenuBar menuBar, MODE mode) {
     this.menuBar = menuBar;
 
     sinkEvents(Event.ONCLICK | Event.MOUSEEVENTS | Event.KEYEVENTS);
@@ -135,6 +139,14 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     ElementUtils.preventTextSelection(label.getElement());
 
     popup.setStyleName("custom-dropdown-popup");
+    if (MODE.MAJOR.equals(mode)) {
+      popup.getElement().setId("customDropdownPopupMajor");
+      popup.setStyleDependentName("major", true);
+      dropDownArrow.getElement().getParentElement().addClassName("custom-dropdown-arrow-major");
+    } else {
+      popup.getElement().setId("customDropdownPopupMinor");
+      dropDownArrow.getElement().getParentElement().addClassName("custom-dropdown-arrow-minor");
+    }
     popup.addCloseHandler(new CloseHandler<PopupPanel>() {
       public void onClose(CloseEvent<PopupPanel> event) {
         pressed = false;
@@ -155,7 +167,6 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         pressed = true;
         addStyleDependentName("pressed");
         removeStyleDependentName("hover");
-        final PopupPanel popup = CustomDropDown.popup;
         popup.setWidget(menuBar);
         popup.setPopupPositionAndShow(new PositionCallback() {
           public void setPosition(int offsetWidth, int offsetHeight) {
@@ -203,7 +214,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     this.menuBar = menuBar;
   }
 
-  public static void hidePopup() {
+  public void hidePopup() {
     popup.hide();
   }
 
