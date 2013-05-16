@@ -204,3 +204,32 @@ button.btn-large.btn-block {
 .alert {
   text-align: center;
 }
+
+
+.file-xanalyzer {
+  background: url("../images/analyzer.png");
+}
+.file-xdash {
+  background: url("../images/dashboard.png");
+}
+.file-xcdf {
+  background: url("../images/cdf.png");
+}
+.file-prpti {
+  background: url("../images/pir.png");
+}
+.file-prpt {
+  background: url("../images/prpt.png");
+}
+.file-xaction {
+  background: url("../images/xaction.png");
+}
+.file-url {
+  background: url("../images/url.png");
+}
+.file-html {
+  background: url("../images/html.png");
+}
+.file-unknown {
+  background: url("../images/generic.png");
+}
