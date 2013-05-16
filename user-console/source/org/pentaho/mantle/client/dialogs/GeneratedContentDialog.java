@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.gen2.table.client.SelectionGrid;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -32,7 +33,6 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SourcesTableEvents;
 import com.google.gwt.user.client.ui.TableListener;
-import com.google.gwt.widgetideas.table.client.SelectionGrid.SelectionPolicy;
 
 /**
  * @author wseyler
@@ -74,7 +74,7 @@ public class GeneratedContentDialog extends PromptDialogBox implements IDialogCa
     String[] headers = {"Type", "Date"};
     int[] widths = { 20, 200 };
     BaseColumnComparator[] columnComparators = {null, BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)};
-    table = new BaseTable( headers, widths, columnComparators, SelectionPolicy.MULTI_ROW );
+    table = new BaseTable( headers, widths, columnComparators, SelectionGrid.SelectionPolicy.MULTI_ROW );
     table.setWidth("500px");
     table.setHeight("150px");
     table.addDoubleClickListener(this);
