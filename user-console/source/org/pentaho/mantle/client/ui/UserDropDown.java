@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.MenuItem;
 public class UserDropDown extends CustomDropDown {
   
   public UserDropDown() {
-    super(UserDropDown.getUsername(), null);
+    super(UserDropDown.getUsername(), null, MODE.MINOR);
     MenuBar menuBar = new MenuBar(true);
     menuBar.addItem(new MenuItem(Messages.getString("logout"), new LogoutCommand()));
     setMenuBar(menuBar);
