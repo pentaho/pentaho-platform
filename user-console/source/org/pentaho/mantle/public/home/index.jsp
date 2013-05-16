@@ -184,9 +184,9 @@
                         <div class="span2">
                           {{#unless isEmpty}}
                           {{#if isFavorite}}
-                          <img src="images/favorite1.png" title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;"/>
                           {{else}}
-                          <img src="images/favorite0.png" title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;">
+                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;" />
                           {{/if}}
                           {{/unless}}
                         </div>
@@ -238,7 +238,7 @@
                         </div>
                         <div class="span2">
                           {{#unless isEmpty}}
-                          <img src="images/favorite1.png" title="{{../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;"/>
                           {{/unless}}
                         </div>
                       </div>
