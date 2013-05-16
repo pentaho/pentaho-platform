@@ -55,8 +55,7 @@
 
         // refresh file list on successful delete
         window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-          if((event.action.indexOf('DeleteFileCommand') >= 0 ) ||
-             (event.action.indexOf('PasteFilesCommand') >= 0)){
+          if(event.action.indexOf('DeleteFileCommand') >= 0){
             if(event.message == 'Success'){
               FileBrowser.updateData(); // refresh file list
             }
@@ -66,16 +65,16 @@
           }
         });
 
-      window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-        if((event.action.indexOf('ScheduleHelper') >= 0)    ||
-           (event.action.indexOf('ShareFileCommand') >= 0)){
-          if(event.message == 'Open' || event.message == 'Success'){
-            window.top.mantle_setPerspective('browser.perspective'); // change to browse perspective
+        window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
+          if((event.action.indexOf('ScheduleHelper') >= 0)    ||
+             (event.action.indexOf('ShareFileCommand') >= 0)){
+            if(event.message == 'Open' || event.message == 'Success'){
+              window.top.mantle_setPerspective('browser.perspective'); // change to browse perspective
+            }
           }
-        }
-      });
+        });
 
-      // refresh folder list on create new folder / delete folder / import
+        // refresh folder list on create new folder / delete folder / import
         window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
           if((event.action.indexOf('NewFolderCommand') >= 0)    ||
              (event.action.indexOf('DeleteFolderCommand') >= 0) ||
@@ -85,6 +84,14 @@
             }
             else{
               window.top.mantle_showMessage('Error', event.message);
+            }
+          }
+        });
+
+        window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
+          if(event.action.indexOf('PasteFilesCommand') >= 0){
+            if(event.message == 'Success'){
+              FileBrowser.updateData(); // refresh file list
             }
           }
         });

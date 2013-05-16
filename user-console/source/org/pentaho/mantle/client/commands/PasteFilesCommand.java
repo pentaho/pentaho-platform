@@ -202,9 +202,8 @@ public class PasteFilesCommand extends AbstractCommand {
           if (action == SolutionBrowserClipboard.ClipboardAction.CUT) {
             new DeleteFileCommand(clipboardFileItems).execute(false);
             clipBoard.clear();
-          } else {
-            new RefreshRepositoryCommand().execute(false);
           }
+
           event.setMessage("Success");
           EventBusUtil.EVENT_BUS.fireEvent(event);
         }
