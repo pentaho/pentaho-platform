@@ -39,6 +39,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.gen2.table.client.SelectionGrid.SelectionPolicy;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -53,7 +54,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.widgetideas.table.client.SelectionGrid.SelectionPolicy;
 
 public class BlockoutPanel extends SimplePanel {
   private BaseTable table;
@@ -186,7 +186,6 @@ public class BlockoutPanel extends SimplePanel {
     tablePanel.add(tableControls);
   }
 
-  @SuppressWarnings("deprecation")
   private void createTable() {
     int columnSize = 139;
     String[] tableHeaderNames = { Messages.getString("blockoutColumnStarts"), Messages.getString("blockoutColumnEnds"),
