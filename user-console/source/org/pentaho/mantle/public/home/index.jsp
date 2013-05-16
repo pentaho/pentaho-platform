@@ -170,15 +170,15 @@
                     <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
-                          {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">    {{/if}}
-                          {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">   {{/if}}
-                          {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">         {{/if}}
-                          {{#if prpti}}       <img src="images/pir.png" class="content-icon">         {{/if}}
-                          {{#if prpt}}        <img src="images/prpt.png" class="content-icon">        {{/if}}
-                          {{#if xaction}}     <img src="images/xaction.png" class="content-icon">     {{/if}}
-                          {{#if url}}         <img src="images/url.png" class="content-icon">         {{/if}}
-                          {{#if html}}        <img src="images/html.png" class="content-icon">        {{/if}}
-                          {{#if unknownType}} <img src="images/generic.png" class="content-icon">     {{/if}}
+                          {{#if xanalyzer}}   <i class="pull-left content-icon file-xanalyzer"/>  {{/if}}
+                          {{#if xdash}}       <i class="pull-left content-icon file-xdash"/>      {{/if}}
+                          {{#if xcdf}}        <i class="pull-left content-icon file-xcdf"/>       {{/if}}
+                          {{#if prpti}}       <i class="pull-left content-icon file-prpti"/>      {{/if}}
+                          {{#if prpt}}        <i class="pull-left content-icon file-prpt"/>       {{/if}}
+                          {{#if xaction}}     <i class="pull-left content-icon file-xaction"/>    {{/if}}
+                          {{#if url}}         <i class="pull-left content-icon file-url"/>        {{/if}}
+                          {{#if html}}        <i class="pull-left content-icon file-html"/>       {{/if}}
+                          {{#if unknownType}} <i class="pull-left content-icon file-unknown"/>    {{/if}}
                           <span class="pad-left">{{title}}</span>
                         </div>
                         <div class="span2">
@@ -225,15 +225,15 @@
                     <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
-                          {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">   {{/if}}
-                          {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">  {{/if}}
-                          {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">        {{/if}}
-                          {{#if prpti}}       <img src="images/pir.png" class="content-icon">        {{/if}}
-                          {{#if prpt}}        <img src="images/prpt.png" class="content-icon">       {{/if}}
-                          {{#if xaction}}     <img src="images/xaction.png" class="content-icon">    {{/if}}
-                          {{#if url}}         <img src="images/url.png" class="content-icon">        {{/if}}
-                          {{#if html}}        <img src="images/html.png" class="content-icon">       {{/if}}
-                          {{#if unknownType}} <img src="images/generic.png" class="content-icon">    {{/if}}
+                          {{#if xanalyzer}}   <i class="pull-left content-icon file-xanalyzer"/>  {{/if}}
+                          {{#if xdash}}       <i class="pull-left content-icon file-xdash"/>      {{/if}}
+                          {{#if xcdf}}        <i class="pull-left content-icon file-xcdf"/>       {{/if}}
+                          {{#if prpti}}       <i class="pull-left content-icon file-prpti"/>      {{/if}}
+                          {{#if prpt}}        <i class="pull-left content-icon file-prpt"/>       {{/if}}
+                          {{#if xaction}}     <i class="pull-left content-icon file-xaction"/>    {{/if}}
+                          {{#if url}}         <i class="pull-left content-icon file-url"/>        {{/if}}
+                          {{#if html}}        <i class="pull-left content-icon file-html"/>       {{/if}}
+                          {{#if unknownType}} <i class="pull-left content-icon file-unknown"/>    {{/if}}
                           <span class="pad-left">{{title}}</span>
                         </div>
                         <div class="span2">
