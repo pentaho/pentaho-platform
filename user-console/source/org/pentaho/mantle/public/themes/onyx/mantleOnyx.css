@@ -848,18 +848,30 @@ a:active, a:hover {
 #pucUserDropDown .custom-dropdown {
   width: 132px;
   min-width: 132px;
+  padding-top: 10px;  
 }
 
 #pucUserDropDown .custom-dropdown-arrow {
   width: 30px;
+  background-image: url('images/arrow-dark-small.png');
 }
 
 #pucUserDropDown .custom-dropdown-label {
   text-align: right;
+  font-size: 18px;
+}
+
+#pucUserDropDown .custom-dropdown-pressed .custom-dropdown-arrow {
+  background-image: url('images/arrow-light-small.png');
 }
 
 #pucUserDropDown .custom-dropdown-arrow .gwt-Label {
   width: 30px;
+}
+
+#customDropdownPopupMinor  .gwt-MenuBar-vertical .gwt-MenuItem {
+  padding: 10px 30px 10px 0px;
+  text-align: right;
 }
 
 #pucPerspectives {

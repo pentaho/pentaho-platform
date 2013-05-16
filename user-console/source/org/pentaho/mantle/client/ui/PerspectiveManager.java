@@ -31,6 +31,7 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.CustomDropDown.MODE;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
@@ -169,7 +170,7 @@ public class PerspectiveManager extends SimplePanel {
     });
 
     MenuBar perspectiveMenuBar = new MenuBar(true);
-    perspectiveDropDown = new CustomDropDown("", perspectiveMenuBar);
+    perspectiveDropDown = new CustomDropDown("", perspectiveMenuBar, MODE.MAJOR);
     setWidget(perspectiveDropDown);
     loadResourceBundle(perspectiveDropDown, perspectives.get(0));
 
@@ -191,7 +192,7 @@ public class PerspectiveManager extends SimplePanel {
         public void execute() {
           showPerspective(perspective);
           perspectiveDropDown.setText(menuItem.getText());
-          CustomDropDown.hidePopup();
+          perspectiveDropDown.hidePopup();
         }
       };
       menuItem.setScheduledCommand(cmd);
