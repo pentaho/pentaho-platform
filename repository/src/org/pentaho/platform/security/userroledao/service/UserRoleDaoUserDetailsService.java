@@ -91,10 +91,12 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
         int authsSize = userRoles != null ? userRoles.size() : 0;
         GrantedAuthority[] auths = new GrantedAuthority[authsSize];
         int i = 0;
-        for (IPentahoRole role : userRoles) {
-            auths[i++] = new GrantedAuthorityImpl(role.getName());
+        if (userRoles != null)
+        {
+	        for (IPentahoRole role : userRoles) {
+	            auths[i++] = new GrantedAuthorityImpl(role.getName());
+	        }
         }
-
         List<GrantedAuthority> dbAuths = new ArrayList<GrantedAuthority>(Arrays.asList(auths));
         addCustomAuthorities(user.getUsername(), dbAuths);
 

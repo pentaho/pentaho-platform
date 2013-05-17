@@ -207,6 +207,7 @@ public class FileBasedSolutionRepository extends SolutionRepositoryBase {
     if ((runtimeContext == null) || (runtimeContext.getInstanceId() == null)
         || (runtimeContext.getActionName() == null)) {
       error(Messages.getInstance().getErrorString("SolutionRepository.ERROR_0004_INVALID_CONTEXT")); //$NON-NLS-1$
+      return null;		// let's not crash on these...
     }
     genLogIdFromInfo(runtimeContext.getInstanceId(), SolutionRepositoryBase.LOG_NAME, runtimeContext.getActionName());
     File f = getFile(runtimeContext, actionPath);

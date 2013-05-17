@@ -89,9 +89,10 @@ public class TestAclPublisher extends BaseTest {
         RepositoryFile subFolder = new RepositoryFile("subFolder" + j, topFolder, null); //$NON-NLS-1$
         for (int k = 0; k < filesPerFolder; k++) {
           RepositoryFile aFile = new RepositoryFile("aFile" + k, subFolder, fileData); //$NON-NLS-1$
-          if (aFile == null) {
-            // Ignored - it won't be.
-          }
+//          if (aFile == null) {
+//            // Ignored - it won't be. 
+//        	  // that's particularly true since we did a new and it can't be unless we're out of mem..
+//          }
         }
       }
     }

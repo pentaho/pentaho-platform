@@ -15,6 +15,7 @@
 package org.pentaho.platform.repository2.unified.fileio;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -31,28 +32,34 @@ public class RepositoryFileReader extends InputStreamReader {
     SimpleRepositoryFileData fileData = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
     return fileData.getEncoding();
   }
-  static protected String getEncoding(String path) throws FileNotFoundException {
+  static protected String getEncoding(String path) throws FileNotFoundException, IOException {
     IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
-    RepositoryFile file = (new RepositoryFileInputStream(path)).getFile();
+    RepositoryFileInputStream rfis = new RepositoryFileInputStream(path);
+    RepositoryFile file = rfis.getFile();
     SimpleRepositoryFileData fileData = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
-    return fileData.getEncoding();
+    String retString = fileData.getEncoding();
+    rfis.close();
+    return retString;
   }
-  static protected String getEncoding(Serializable id) throws FileNotFoundException {
+  static protected String getEncoding(Serializable id) throws FileNotFoundException, IOException {
     IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
-    RepositoryFile file = (new RepositoryFileInputStream(id)).getFile();
+    RepositoryFileInputStream rfis = new RepositoryFileInputStream(id);
+    RepositoryFile file = rfis.getFile();
     SimpleRepositoryFileData fileData = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
-    return fileData.getEncoding();
+    String retString = fileData.getEncoding();
+    rfis.close();
+    return retString;
   }
 
-  public RepositoryFileReader(String path) throws FileNotFoundException, UnsupportedEncodingException {
+  public RepositoryFileReader(String path) throws FileNotFoundException, UnsupportedEncodingException, IOException {
     super(new RepositoryFileInputStream(path), getEncoding(path));
   }
 
-  public RepositoryFileReader(RepositoryFile file) throws FileNotFoundException, UnsupportedEncodingException {
+  public RepositoryFileReader(RepositoryFile file) throws FileNotFoundException, UnsupportedEncodingException, IOException {
     super(new RepositoryFileInputStream(file.getPath()), getEncoding(file.getPath()));
   }
 
-  public RepositoryFileReader(Serializable id) throws FileNotFoundException, UnsupportedEncodingException {
+  public RepositoryFileReader(Serializable id) throws FileNotFoundException, UnsupportedEncodingException, IOException {
     super(new RepositoryFileInputStream(id), getEncoding(id));
   }
 }

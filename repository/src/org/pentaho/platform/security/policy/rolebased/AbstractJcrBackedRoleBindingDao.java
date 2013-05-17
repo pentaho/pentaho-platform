@@ -301,12 +301,13 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     Node tenantRootFolderNode = null;
     try {
       tenantRootFolderNode = (Node) session.getItem(ServerRepositoryPaths.getTenantRootFolderPath(tenant));
+      Node authzFolderNode =  tenantRootFolderNode.getNode(FOLDER_NAME_AUTHZ);
+      Node roleBasedFolderNode = authzFolderNode.getNode(FOLDER_NAME_ROLEBASED);
+      return roleBasedFolderNode.getNode(FOLDER_NAME_RUNTIMEROLES);
     } catch (PathNotFoundException e) {
       Assert.state(false, Messages.getInstance().getString(
           "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
     }
-    Node authzFolderNode =  tenantRootFolderNode.getNode(FOLDER_NAME_AUTHZ);
-    Node roleBasedFolderNode = authzFolderNode.getNode(FOLDER_NAME_ROLEBASED);
-    return roleBasedFolderNode.getNode(FOLDER_NAME_RUNTIMEROLES);
+    return null;
   }
 }

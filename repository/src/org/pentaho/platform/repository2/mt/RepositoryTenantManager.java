@@ -140,9 +140,16 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       Assert.state(false, Messages.getInstance().getString(
           "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
     }
-    Node authzFolderNode = tenantRootFolderNode.addNode(FOLDER_NAME_AUTHZ, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
-    session.save();
-    return authzFolderNode;
+    if (tenantRootFolderNode == null) {
+        Assert.state(false, Messages.getInstance().getString(
+                "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
+    }
+    else {
+    	Node authzFolderNode = tenantRootFolderNode.addNode(FOLDER_NAME_AUTHZ, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
+    	session.save();
+        return authzFolderNode;
+    }
+    return null;
   }
 
   public Node createRoleBasedFolderNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,

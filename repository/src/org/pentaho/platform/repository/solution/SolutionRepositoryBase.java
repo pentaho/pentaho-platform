@@ -501,7 +501,8 @@ public abstract class SolutionRepositoryBase extends PentahoMessenger implements
         SolutionRepositoryBase.logger.error(e.toString());
       } finally {
         try {
-          fNewOut.close();
+        	if (fNewOut != null)
+        		fNewOut.close();
         } catch (Exception e) {
           // TODO, we should probably log the error, and return a failure status
         }

@@ -576,12 +576,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         RepositoryFile fileToBeDeleted = getFileById(fileId);
         // Get repository file info and acl info of parent
-        if(fileToBeDeleted != null) {
-          RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl(fileToBeDeleted.getId());
-          // Invoke accessVoterManager to see if we have access to perform this operation
-          if (!accessVoterManager.hasAccess(fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl, PentahoSessionHolder.getSession())) {
-            return null;
-          }
+        if(fileToBeDeleted == null)
+        	return null;		// should probably log an error - right now just don't crash.
+        		
+        RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl(fileToBeDeleted.getId());
+        // Invoke accessVoterManager to see if we have access to perform this operation
+        if (!accessVoterManager.hasAccess(fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl, PentahoSessionHolder.getSession())) {
+          return null;
         }
         List<RepositoryFilePermission> perms = new ArrayList<RepositoryFilePermission>();
         perms.add(RepositoryFilePermission.DELETE);
@@ -745,7 +746,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       final boolean copy) {
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
-      @Override
+      @SuppressWarnings("null")
+	@Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         RepositoryFile file = getFileById(fileId);
         RepositoryFileAcl acl = aclDao.getAcl(fileId);

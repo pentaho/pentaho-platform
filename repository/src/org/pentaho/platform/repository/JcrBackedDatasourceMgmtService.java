@@ -80,8 +80,12 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     try {
       fileToDelete = repository.getFile(getPath(name));
     } catch (UnifiedRepositoryException ure) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName(), ure.getLocalizedMessage()), ure);//$NON-NLS-1$
+    	if (fileToDelete == null)
+    		throw new DatasourceMgmtServiceException(Messages.getInstance()
+    				.getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",name, ure.getLocalizedMessage()), ure);//$NON-NLS-1$
+    	else
+    		throw new DatasourceMgmtServiceException(Messages.getInstance()
+              .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName(), ure.getLocalizedMessage()), ure);//$NON-NLS-1$
     }
     deleteDatasource(fileToDelete);
   }
@@ -92,8 +96,12 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     try {
       fileToDelete = repository.getFileById(id);
     } catch (UnifiedRepositoryException ure) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName(), ure.getLocalizedMessage()), ure);      //$NON-NLS-1$
+    	if (fileToDelete == null)
+	        throw new DatasourceMgmtServiceException(Messages.getInstance()
+	                .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",id, ure.getLocalizedMessage()), ure);      //$NON-NLS-1$
+    	else
+    		throw new DatasourceMgmtServiceException(Messages.getInstance()
+	          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName(), ure.getLocalizedMessage()), ure);      //$NON-NLS-1$
     }
     deleteDatasource(fileToDelete);
   }
@@ -133,8 +141,12 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     try {
       file = repository.getFileById(id);
     } catch (UnifiedRepositoryException ure) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName()), ure);//$NON-NLS-1$
+    	if (file == null)
+    		throw new DatasourceMgmtServiceException(Messages.getInstance()
+    				.getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", id), ure);//$NON-NLS-1$
+    	else
+    		throw new DatasourceMgmtServiceException(Messages.getInstance()
+				.getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName()), ure);//$NON-NLS-1$
     }
     if(file != null) {
       return getDatasource(file);
@@ -142,7 +154,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     return null;    
   }
 
-  private IDatabaseConnection getDatasource(RepositoryFile file) throws DatasourceMgmtServiceException {
+  @SuppressWarnings("null")
+private IDatabaseConnection getDatasource(RepositoryFile file) throws DatasourceMgmtServiceException {
     try {
       if(file != null) {
         NodeRepositoryFileData data = repository.getDataForRead(file.getId(), NodeRepositoryFileData.class);
