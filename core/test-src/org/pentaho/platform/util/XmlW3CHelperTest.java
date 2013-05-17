@@ -36,11 +36,12 @@ public class XmlW3CHelperTest extends TestCase {
 //    String domString = "<root><subroot>this is sub root</subroot></root>";//$NON-NLS-1$
 
     Class resourceClass = this.getClass();
-    InputStream in = new FileInputStream(path);
 
     byte bytes[] = new byte[10000];
     try {
-      in.read(bytes);
+    	InputStream in = new FileInputStream(path);
+    	in.read(bytes);
+    	in.close();
     } catch (Exception e) {
       // should not get here
       Assert.assertTrue(e.getMessage(), false);

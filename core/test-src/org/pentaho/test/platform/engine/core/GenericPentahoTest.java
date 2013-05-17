@@ -133,7 +133,8 @@ public class GenericPentahoTest extends TestCase {
     return outputStream;
   }
 
-  public boolean compare(String testName, String extension) {
+  @SuppressWarnings("null")
+public boolean compare(String testName, String extension) {
 
     InputStream goldenStream = null;
     InputStream tmpFileStream = null;

@@ -268,7 +268,8 @@ public class PMDUIComponent extends XmlComponent {
     }
   }
 
-  public Document getLookup() {
+  @SuppressWarnings("null")
+public Document getLookup() {
     // Create a document that describes the result
     Document doc = DocumentHelper.createDocument();
 

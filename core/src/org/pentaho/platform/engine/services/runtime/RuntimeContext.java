@@ -373,6 +373,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     if (outputParameter == null) {
       warn(Messages.getInstance().getErrorString(
           "RuntimeContext.ERROR_0021_INVALID_OUTPUT_REQUEST", outputName, actionSequence.getSequenceName())); //$NON-NLS-1$
+      return null;
     }
 
     String filePath = "~/workspace/" + FilenameUtils.getBaseName(getSolutionPath()) + extension; //$NON-NLS-1$

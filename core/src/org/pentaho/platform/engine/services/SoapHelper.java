@@ -95,7 +95,8 @@ public class SoapHelper {
     return element;
   }
   
-  private static Element createSoapElement(String name, IPentahoResultSet resultSet) {
+  @SuppressWarnings("null")
+private static Element createSoapElement(String name, IPentahoResultSet resultSet) {
 
     Element resultSetElement = new DefaultElement(name);
     Object[][] columnHeaders = resultSet.getMetaData().getColumnHeaders();

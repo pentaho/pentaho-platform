@@ -256,7 +256,9 @@ public class JFreeChartEngine {
         renderer = new BubbleRenderer();
         break;
       default:
-        break;
+    	  // should log something if invalid type - at the leaders return null if no renderer
+    	  return null;
+//        break;
     }
 
     if (tooltips) {
@@ -323,7 +325,8 @@ public class JFreeChartEngine {
         ((XYDotRenderer) renderer).setDotWidth(chartDefinition.getDotWidth());
         break;
       default:
-        break;
+    	  // should log something if invalid type - at the leaders return null if no renderer
+    	  return null;
     }
     
     if(renderer != null && legend) {
@@ -393,7 +396,8 @@ public class JFreeChartEngine {
         ((XYDotRenderer) renderer).setDotWidth(chartDefinition.getDotWidth());
         break;
       default:
-        break;
+    	  // should log something if invalid type - at the leaders return null if no renderer
+    	  return null;
     }
     if (tooltips) {
       XYToolTipGenerator generator = new StandardXYToolTipGenerator(chartDefinition.getTooltipContent(),
@@ -443,7 +447,9 @@ public class JFreeChartEngine {
         renderer = chartDefinition.isStacked() ? new StackedXYAreaRenderer2() : new XYAreaRenderer();
         break;
       default:
-        break;
+    	  // should at least log a message if the type is invalid, but don't fall through with bad renderer...
+    	  return null;
+        
     }
     if (tooltips) {
       XYToolTipGenerator generator = new StandardXYToolTipGenerator(chartDefinition.getTooltipContent(),
@@ -1299,10 +1305,6 @@ public class JFreeChartEngine {
 
       // TODO implement
       // chart.setBorderStroke(chartDefintion.getBorderStroke());
-    }
-
-    // format legend
-    ChartDefinition chartDefinition = (ChartDefinition) dataset;
     if (chartDefinition.getLegendFont() != null &&  chart.getLegend() != null) {
       chart.getLegend().setItemFont(chartDefinition.getLegendFont());
     }
@@ -1312,7 +1314,7 @@ public class JFreeChartEngine {
     if (chartDefinition.getLegendPosition() != null && chart.getLegend() != null) {
       chart.getLegend().setPosition(chartDefinition.getLegendPosition());
     }
-	
+    }
     return (chart);
   }
 

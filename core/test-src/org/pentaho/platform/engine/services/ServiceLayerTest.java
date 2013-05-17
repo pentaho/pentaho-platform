@@ -82,6 +82,7 @@ public class ServiceLayerTest extends TestCase {
         str.append(buffer, 0, n);
         n = reader.read(buffer);
       }
+      reader.close();
       String xactionStr = str.toString();
 
       solutionEngine.setSession(session);

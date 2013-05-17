@@ -284,6 +284,7 @@ public class XForm {
       }
       xformBody
           .append("<xf:select1 ").append(appearance).append(" model=\"").append(formName).append("\" id=\"").append(fieldName).append("\" ref=\"").append(fieldName).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      if (values != null) {
       Iterator listIterator = values.iterator();
       while (listIterator.hasNext()) {
         String value = XmlHelper.encode(listIterator.next().toString());
@@ -293,6 +294,7 @@ public class XForm {
         }
         xformBody
             .append("<xf:item><xf:label>").append(displayValue).append("</xf:label><xf:value>").append(value).append("</xf:value></xf:item>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+      }
       }
       xformBody.append("</xf:select1>"); //$NON-NLS-1$
     } else if ((type == XForm.TYPE_LIST_MULTI) || (type == XForm.TYPE_CHECK_MULTI)
@@ -314,6 +316,8 @@ public class XForm {
       }
       xformBody
           .append("<xf:select ").append(appearance).append(" model=\"").append(formName).append("\" id=\"").append(fieldName).append("\" ref=\"").append(fieldName).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      if (values != null) 
+      {
       Iterator listIterator = values.iterator();
       while (listIterator.hasNext()) {
         String value = XmlHelper.encode(listIterator.next().toString());
@@ -323,6 +327,7 @@ public class XForm {
         }
         xformBody
             .append("<xf:item><xf:label>").append(displayValue).append("</xf:label><xf:value>").append(value).append("</xf:value></xf:item>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+      }
       }
       xformBody.append("</xf:select>"); //$NON-NLS-1$
     }

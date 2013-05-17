@@ -207,7 +207,8 @@ public class XmlHelper {
       rdr = new FileReader(f);
       rdr.read(cbuf);
     } finally {
-      rdr.close();
+    	if (rdr != null)
+    		rdr.close();
     }
     String strEnc = String.valueOf(cbuf);
     return XmlHelper.getEncoding(strEnc);

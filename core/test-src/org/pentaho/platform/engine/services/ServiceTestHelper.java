@@ -43,6 +43,7 @@ public class ServiceTestHelper {
            		str.append( buffer, 0, n );
            		n = reader.read( buffer );
            	}
+           	reader.close();
             xactionStr = str.toString();
         } catch (Exception e) {
         	// we should not get here

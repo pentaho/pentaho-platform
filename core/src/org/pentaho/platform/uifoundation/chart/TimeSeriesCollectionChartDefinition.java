@@ -354,7 +354,8 @@ public class TimeSeriesCollectionChartDefinition extends TimeSeriesCollection im
           RegularTimePeriod.DEFAULT_TIME_ZONE);
       TimeSeriesDataItem timeSeriesDataItem = new TimeSeriesDataItem(regularTimePeriod, ((Number) rowData[2])
           .doubleValue());
-      wrkSeries.add(timeSeriesDataItem);
+      if (wrkSeries != null)	// really should never happen since gets created in firstPass...
+    	  wrkSeries.add(timeSeriesDataItem);
       rowData = data.next();
     }
     if (!firstPass) {

@@ -367,6 +367,7 @@ public class ChartHelper {
       if ((content == null) || content.equals("")) { //$NON-NLS-1$
         content = "&nbsp;"; //$NON-NLS-1$
       }
+/* can't get here - content set to non-null right above!
       if (content == null) {
         StringBuffer buffer = new StringBuffer();
         PentahoSystem.get(IMessageFormatter.class, userSession).formatErrorMessage(
@@ -374,7 +375,7 @@ public class ChartHelper {
         content = buffer.toString();
         result = false;
       }
-
+*/
       outputStream.append(content);
 
     } finally {
