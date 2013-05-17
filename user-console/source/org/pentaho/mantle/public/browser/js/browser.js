@@ -186,7 +186,7 @@ pen.define([
 		}, 
 
 		getFileClicked: function(){
-			return this.get("clickedFile");
+			return $('#'+this.get("clickedFile")); // [BISERVER-9128] - wrap in jquery object
 		},
 
 		updateFileList: function(){
@@ -244,6 +244,7 @@ pen.define([
 
 			$.ajax({
 				async: true,
+				cache: false, // prevent IE from caching the request
 				dataType: "json",
 			 	url: url,
 			 	success: function(response){
@@ -304,6 +305,7 @@ pen.define([
 
 			$.ajax({
 				async: true,
+				cache: false, // prevent IE from caching the request
 				dataType: "json",
 			 	url: url,
 			 	success: function(response){
@@ -704,11 +706,13 @@ pen.define([
 		},
 
 		clickFile: function(event){
-			var $target = $(event.currentTarget);
-			this.model.set("clicked", $target.attr("id"));
-      this.model.set("clickedFile", undefined); // [BISERVER-9128] (FF) on change does not trigger unless value is reset
-			this.model.set("clickedFile", $target);
+			var $target = $(event.currentTarget).eq(0);
+			var id = $target.attr("id");
+			this.model.set("clicked", id);
 
+			// [BISERVER-9128] FF does not detect on change on object attribute, using primitive (id) instead
+			this.model.set("clickedFile", id); 
+ 
 			$(".file.selected").removeClass("selected");
 			$target.addClass("selected");
 		},
