@@ -1158,13 +1158,14 @@ public class MockUnifiedRepository implements IUnifiedRepository {
           found = r;
         }
       }
-      FileRecord parentFolder = root.getFileRecord(origPath);
-      parentFolder.addChild(found);
-      trash.getIdToOrigPathMap().remove(fileId);
-
-      RepositoryFile popFile = new RepositoryFile.Builder(found.getFile()).originalParentFolderPath(null)
-          .deletedDate(null).build();
-      found.setFile(popFile);
+      if (found != null) {
+	      FileRecord parentFolder = root.getFileRecord(origPath);
+	      parentFolder.addChild(found);
+	      trash.getIdToOrigPathMap().remove(fileId);
+	      RepositoryFile popFile = new RepositoryFile.Builder(found.getFile()).originalParentFolderPath(null)
+	          .deletedDate(null).build();
+	      found.setFile(popFile);
+      }
     }
 
     public List<FileRecord> getTrashedFiles(final String path, final String filter) {

@@ -59,7 +59,8 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
     return creds;
   }
 
-  private String getUserId() {
+  @SuppressWarnings("null")
+private String getUserId() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null, "this method cannot be called with a null IPentahoSession");
     return JcrTenantUtils.getTenantedUser(pentahoSession.getName());

@@ -303,7 +303,7 @@ public class MessageFormatter implements IMessageFormatter {
     formatFailureMessage(mimeType, context, messageBuffer, null);
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({ "deprecation", "null" })
   public void formatResultSetAsHTMLRows(final IPentahoResultSet resultSet, final StringBuffer messageBuffer) {
     boolean hasColumnHeaders = false;
     boolean hasRowHeaders = false;
@@ -365,7 +365,7 @@ public class MessageFormatter implements IMessageFormatter {
     formatSuccessMessage(mimeType, context, messageBuffer, doMessages, true);
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({ "deprecation", "null" })
   public void formatSuccessMessage(final String mimeType, final IRuntimeContext context,
       final StringBuffer messageBuffer, final boolean doMessages, final boolean doWrapper) {
 

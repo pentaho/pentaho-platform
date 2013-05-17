@@ -34,7 +34,8 @@ public class GlobalPentahoSessionHolderStrategy implements IPentahoSessionHolder
     session = null;
   }
 
-  public void setSession(IPentahoSession session) {
+  @SuppressWarnings("static-access")
+public void setSession(IPentahoSession session) {
     this.session = session;
   }
 

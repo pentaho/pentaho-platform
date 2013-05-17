@@ -50,7 +50,9 @@ public class ManifestUtil {
       final URL codeBase = clazz.getProtectionDomain().getCodeSource().getLocation();
       if (codeBase.getPath().endsWith(".jar")) { //$NON-NLS-1$
         final JarInputStream jin = new JarInputStream(codeBase.openStream());
-        return jin.getManifest();
+        Manifest mfest = jin.getManifest();
+        jin.close();
+        return mfest;
       }
     } catch (Exception e) {
       // TODO handle this exception

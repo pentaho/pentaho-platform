@@ -51,10 +51,11 @@ public class FilterDefinitionFactory {
     } else {
       //
     }
-    if (false) {
-      System.out.println(txt);
-    }
-    fd.fromXml(node);
+//    if (false) {
+//      System.out.println(txt);
+//    }
+    if (fd != null)
+    	fd.fromXml(node);
 
     return fd;
   }

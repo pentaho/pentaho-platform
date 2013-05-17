@@ -306,7 +306,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     // optimization for when running in pre-authenticated mode (i.e. Spring Security filters have setup holder with
     //   current user meaning we don't have to hit the back-end again)
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    if (auth != null) {
+    if (auth != null && username != null) {
       Object ssPrincipal = auth.getPrincipal();
       if (ssPrincipal instanceof UserDetails) {
         if (username.equals(((UserDetails) ssPrincipal).getUsername())) {

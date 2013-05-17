@@ -311,6 +311,7 @@ public class PieDatasetChartDefinition extends DefaultPieDataset implements Char
 
           Number currentNumber = null;
           try { // If value has been set then we get it
+        	  if (columnHeaders != null && column < columnHeaders.length)
             currentNumber = getValue(columnHeaders[column]);
           } catch (UnknownKeyException uke) { // else we just set it
             // to zero
@@ -322,7 +323,8 @@ public class PieDatasetChartDefinition extends DefaultPieDataset implements Char
           double currentValue = currentNumber.doubleValue();
 
           double newValue = ((Number) rowData[column]).doubleValue();
-          setValue(columnHeaders[column], new Double(newValue + currentValue));
+       	  if (columnHeaders != null && column < columnHeaders.length)
+       		 setValue(columnHeaders[column], new Double(newValue + currentValue));
         }
       }
       rowData = data.next();

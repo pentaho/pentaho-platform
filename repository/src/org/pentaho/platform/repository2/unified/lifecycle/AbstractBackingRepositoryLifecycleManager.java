@@ -205,7 +205,8 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   /**
    * Returns the username of the current user.
    */
-  protected String internalGetUsername() {
+  @SuppressWarnings("null")
+protected String internalGetUsername() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null);
     return pentahoSession.getName();

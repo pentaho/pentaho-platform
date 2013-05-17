@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.hibernate.util.JDBCExceptionReporter.WarningHandler;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
@@ -85,6 +86,11 @@ public class StandaloneApplicationContext implements IApplicationContext {
     ITempFileDeleter fileDeleter = null;
     if ((session != null) && trackFile) {
       fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
+    }
+    if (session == null)
+    {
+    	// should warn here in some fahsion...
+    	return null;
     }
     String name = session.getName();
 	  final String newPrefix = new StringBuilder().append(prefix)

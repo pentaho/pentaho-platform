@@ -121,7 +121,10 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
       tempTenant = JcrTenantUtils.getTenant(runtimeRoleName, false);
     }    
     if (!TenantUtils.isAccessibleTenant(tempTenant)) {
-      throw new NotFoundException("Tenant " + tenant.getId() + " not found");
+    	if (tenant != null)
+    		throw new NotFoundException("Tenant " + tenant.getId() + " not found");
+    	else 
+    		throw new NotFoundException("Tenant not found");
     }
     Assert.notNull(logicalRoleNames);
           jcrTemplate.execute(new JcrCallback() {

@@ -133,6 +133,8 @@ public class FileInfo {
       // descriptions
       Document doc = repository.getSolutionDocument(solutionId, path, fileName, ISolutionRepository.ACTION_EXECUTE);
       if (doc == null) {
+/* Not sure what the code below was intended to do (since it's pretty elaborate) but it can never get executed in the
+   current context....
         if (doc != null) {
           type = FileInfo.FILE_TYPE_ACTIVITY;
           mimeType = "text/xml"; //$NON-NLS-1$
@@ -173,6 +175,7 @@ public class FileInfo {
             }
           }
         }
+        */
       }
     } else if (fileNameCaseless.endsWith(".xml")) { //$NON-NLS-1$
       visible = false;

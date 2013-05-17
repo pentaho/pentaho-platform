@@ -776,7 +776,8 @@ public class JcrRepositoryFileUtils {
     }
   }
 
-  private static String getUsername() {
+  @SuppressWarnings("null")
+private static String getUsername() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null);
     return pentahoSession.getName();

@@ -400,6 +400,7 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
         if (rowData[column] instanceof Number) {
           Number currentNumber = null;
           try { // If value has been set then we get it
+        	  if (rowHeaders != null && columnHeaders != null && rowHeaders.length < row && columnHeaders.length < column)
             currentNumber = getValue(rowHeaders[row], columnHeaders[column]);
           } catch (UnknownKeyException uke) { // else we just set it
             // to zero
@@ -410,14 +411,17 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
           }
           double currentValue = currentNumber.doubleValue();
           double newValue = ((Number) rowData[column]).doubleValue();
+    	  if (rowHeaders != null && columnHeaders != null && rowHeaders.length < row && columnHeaders.length < column)
           setValue(new Double(currentValue + newValue), rowHeaders[row], columnHeaders[column]);
         } else if (includeNullCategories && rowData[column] == null) {
           Number currentNumber = null;
           try { // If value has been set then we get it
+        	  if (rowHeaders != null && columnHeaders != null && rowHeaders.length < row && columnHeaders.length < column)
             currentNumber = getValue(rowHeaders[row], columnHeaders[column]);
           } catch (UnknownKeyException uke) { // else we just set it
             currentNumber = null;
           }
+    	  if (rowHeaders != null && columnHeaders != null && rowHeaders.length < row && columnHeaders.length < column)
           setValue(currentNumber, rowHeaders[row], columnHeaders[column]);
         }
       }

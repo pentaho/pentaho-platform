@@ -57,7 +57,8 @@ public class GlobalPentahoRequestContextHolderStrategy implements IPentahoReques
     requestContext = null;
   }
 
-  public void setRequestContext(IPentahoRequestContext requestContext) {
+  @SuppressWarnings("static-access")
+public void setRequestContext(IPentahoRequestContext requestContext) {
     this.requestContext = requestContext;
   }
 
