@@ -808,7 +808,6 @@ public class SchedulesPanel extends SimplePanel {
 
     // Add it to the root panel.
     setWidget(tableAndPager);
-    getElement().getStyle().setBackgroundColor("white");
   }
 
   private void controlJobs(final Set<JsJob> jobs, String function, final Method method, final boolean refreshData) {

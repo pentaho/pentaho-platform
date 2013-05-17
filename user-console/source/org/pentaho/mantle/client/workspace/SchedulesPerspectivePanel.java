@@ -111,7 +111,6 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 		blockoutPanel.setStyleName("schedulesPanel");
 		wrapperPanel.add(blockoutPanel);
 
-		getElement().getStyle().setBackgroundColor("white");
     add(wrapperPanel);
 		
 	}
