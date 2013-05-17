@@ -59,6 +59,16 @@ function includeResources(resourceTree) {
 function customizeThemeStyling() {
   // if it is IE, inject an IE class to the body tag to allow for custom IE css by --> .IE .myclass {}
   if (document.all) {
-    document.getElementsByTagName("body")[0].className += " IE";
+
+    var className = " IE";
+
+    // Add specific version
+    var regEx = new RegExp("MSIE ([0-9]{1,})[\.0-9]{0,}");
+    if (regEx.exec(navigator.userAgent) != null) {
+      var version = parseInt( RegExp.$1 );
+      className += " IE" + version;
+    }
+    
+    document.getElementsByTagName("body")[0].className += className;
   }
 }
