@@ -978,3 +978,7 @@ a:active, a:hover {
   height: 32px;
   width: 32px;
 }
+
+.schedulerPerspective {
+  background: white;
+}
