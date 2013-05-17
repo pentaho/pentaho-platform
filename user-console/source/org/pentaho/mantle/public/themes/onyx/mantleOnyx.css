@@ -771,31 +771,8 @@ a:active, a:hover {
 }
 
 /* Special styles for Schedule tables to avoid impacting others, to be removed once tables styles are addressed globally */
-.schedulesPanel .pentaho-table {
-  border-spacing: 1px;
-  background-color: #848484;
-}
-
-.schedulesPanel .pentaho-table th{
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  border-spacing: 1px;
-  padding: 10px 10px 12px 10px;
-  font-weight: normal;
-}
 .schedulesPanel .toolbar {
   background:none;
-}
-.schedulesPanel .dataTable td {
-  padding: 10px 10px 12px 10px;
-}
-.schedulesPanel .headerTable td {
-  padding: 10px 10px 12px 10px;
-
-}
-.schedulesPanel .pentaho-table {
-  border-spacing: 1px;
-  background-color: #848484;
 }
 .schedulesPanel .pentaho-table th{
   font-family: Arial, sans-serif;
