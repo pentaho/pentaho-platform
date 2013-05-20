@@ -678,3 +678,8 @@ code {
 .IE8 #adminContentPanel {
   height: 95% !important;
 }
+
+/* BISERVER-9132 - allows for scrolling in the admin perspective and  schedule perspective*/
+.applicationShell>div>div {
+  overflow: auto;
+}
