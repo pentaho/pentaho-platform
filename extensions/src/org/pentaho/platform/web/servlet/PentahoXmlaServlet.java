@@ -21,8 +21,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -43,6 +43,7 @@ import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.olap4j.OlapConnection;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -86,14 +87,16 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   // ~ Static fields/initializers ======================================================================================
 
+  /**
+   * A cache of {@link RepositoryContentFinder} implementations.
+   * The key is the datasource URL.
+   */
+  final ICacheManager cacheMgr = PentahoSystem.getCacheManager(null);
+
+  final String CACHE_REGION = "org.pentaho.platform.web.servlet.PentahoXmlaServlet";
+
   private static final long serialVersionUID = 5801343357261568600L;
   private static final Log logger = LogFactory.getLog(PentahoXmlaServlet.class);
-
-  /**
-   * A map of datasource URL to {@link RepositoryContentFinder} implementation.
-   */
-  private final Map<String, RepositoryContentFinder> finders =
-    new ConcurrentHashMap<String, RepositoryContentFinder>();
 
   private final IUnifiedRepository repo;
 
@@ -103,6 +106,9 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   public PentahoXmlaServlet() {
     super();
+    if (!cacheMgr.cacheEnabled(CACHE_REGION)) {
+      cacheMgr.addCacheRegion(CACHE_REGION);
+    }
     repo = PentahoSystem.get(IUnifiedRepository.class);
     mondrianCatalogService = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
     try {
@@ -123,8 +129,12 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     // do anything with security.
     // BEWARE before making modifications that check security rights or all
     // other kind of stateful things.
-    if (!finders.containsKey(dataSourcesUrl)) {
-      finders.put(
+    @SuppressWarnings("rawtypes")
+    Set keys = cacheMgr.getAllKeysFromRegionCache(CACHE_REGION);
+
+    if (!keys.contains(dataSourcesUrl)) {
+      cacheMgr.putInRegionCache(
+        CACHE_REGION,
         dataSourcesUrl,
         new DynamicContentFinder(dataSourcesUrl) {
           @Override
@@ -157,7 +167,8 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
           }
         });
       }
-      return finders.get(dataSourcesUrl);
+    return (RepositoryContentFinder)
+      cacheMgr.getFromRegionCache(CACHE_REGION, dataSourcesUrl);
     }
 
     private String generateInMemoryDatasourcesXml() {
