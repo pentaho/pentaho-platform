@@ -274,13 +274,10 @@ pen.define([
     favoritesHandler: function(path, title){
     	if(this.isFavorite){
     		window.top.mantle_removeFavorite(path);	
-    		this.isFavorite = false;
     	}
     	else{
     		window.top.mantle_addFavorite(path, title);
-    		this.isFavorite = true;	
     	}
-    	this.updateFavoritesButton();
     },
 
 		propertiesHandler: function(path){

@@ -155,6 +155,16 @@ pen.define([
 			myself.set("fileListModel", fileListModel);
 
 			myself.on("change:showDescriptions", myself.updateDescriptions, myself);
+
+			window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
+		},
+
+		onFavoritesChanged: function(){
+			// BISERVER-9127	- Reselect current file
+			var that = this;
+			setTimeout(function(){
+				that.get('fileListModel').trigger("change:clickedFile");
+			}, 100);
 		},
 
 		updateClicked: function(){
