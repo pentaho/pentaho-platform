@@ -122,15 +122,26 @@ pen.define([
 	    });
 
       that.initEventHandlers();
-
+      that.refreshFavoritesList();
     },
 
 		buttons: [],
 
+		favoriteItems: [],
+
+		updateFavoriteItems: true,
+
+		isFavorite: false,
+
     initEventHandlers: function(){
+    	var that = this; // trap this
+
       // listen for file action events
-      if(window.top.mantle_addHandler != undefined)
-      window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
+      if(window.top.mantle_addHandler != undefined){
+      	window.top.mantle_addHandler("SolutionFileActionEvent", $.proxy(that.eventLogger, that));
+      	window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(that.onFavoritesChanged, that));
+      	window.top.mantle_addHandler("GenericEvent", $.proxy(that.onNewFavoritesItems, that));		
+      }
     },
 
     buildParameter: function(path, title){
@@ -152,6 +163,67 @@ pen.define([
 
     eventLogger: function(event){
       console.log(event.action + " : " + event.message);
+    },
+
+    // Listen for changes in favorites. Do not update list immediately.
+    onFavoritesChanged: function(event){
+    	this.updateFavoriteItems = true;
+    	console.log("Favorite items marked for update..." );
+    },
+
+    // Handle response from FavoritesController. Update favorite items.
+    onNewFavoritesItems: function(event){
+    	if(event.eventSubType == 'favoritesListResponse'){
+        this.favoriteItems = JSON.parse(event.stringParam);
+        this.updateFavoriteItems = false;
+        console.log('Favorite items updated...');
+      }
+    },
+
+    isItemAFavorite: function(path){
+    	var isFave = false;
+      $.each(this.favoriteItems, function(idx, fave) {
+        if(path == fave.fullPath) {
+          isFave = true;
+          return false; // break the $.each loop
+        }
+      });
+      return isFave;
+    },
+
+    // Send request to FavoritesController to get the current list of favorites.
+    refreshFavoritesList: function(){
+			if(this.updateFavoriteItems && window.top.mantle_fireEvent){
+        window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "favoritesListRequest"});  
+      }
+    },
+
+    // Respond to changes in selected file
+    onFileSelect: function(path){
+    	this.refreshFavoritesList(); // refresh if necessary
+    	this.toggleFavoriteContext(path);
+    },
+
+    toggleFavoriteContext: function(path){
+    	if(this.isItemAFavorite(path)){
+    		this.isFavorite = true;
+    		this.updateFavoritesButton();
+    	}
+    	else{
+    		this.isFavorite = false;
+    		this.updateFavoritesButton();
+    	}
+    },
+
+    updateFavoritesButton: function(){
+    	if(this.isFavorite){
+    		$favoritesButton = $('#favoritesButton');
+    		$favoritesButton.text(jQuery.i18n.prop("contextAction_removeFromFavorites"));
+    	}
+    	else{
+    		$favoritesButton = $('#favoritesButton');
+    		$favoritesButton.text(jQuery.i18n.prop("contextAction_addToFavorites"));
+    	}
     },
 
 		openButtonHandler: function(path){
@@ -200,7 +272,15 @@ pen.define([
 		},
 
     favoritesHandler: function(path, title){
-      window.top.mantle_addFavorite(path, title);
+    	if(this.isFavorite){
+    		window.top.mantle_removeFavorite(path);	
+    		this.isFavorite = false;
+    	}
+    	else{
+    		window.top.mantle_addFavorite(path, title);
+    		this.isFavorite = true;	
+    	}
+    	this.updateFavoritesButton();
     },
 
 		propertiesHandler: function(path){
