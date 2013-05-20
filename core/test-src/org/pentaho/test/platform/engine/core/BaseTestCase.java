@@ -22,12 +22,12 @@
 
 package org.pentaho.test.platform.engine.core;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -133,7 +133,7 @@ public abstract class BaseTestCase extends TestCase {
   }
 
   public IRuntimeContext run(String actionSequencePath, String actionSequence, IParameterProvider parameterProvider,
-      IOutputHandler outputHandler) throws IOException {
+      IOutputHandler outputHandler) {
     List messages = new ArrayList();
     String instanceId = null;
     ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
@@ -167,7 +167,12 @@ public abstract class BaseTestCase extends TestCase {
       assertTrue(e.getMessage(), false);
     } finally {
       if (reader != null) {
-        reader.close();
+        try {
+          reader.close();
+        } catch (Exception ex) {
+          ex.printStackTrace();
+          assertTrue(ex.getMessage(), false);
+        }
       }
     }
     return runtimeContext;
