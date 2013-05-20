@@ -24,24 +24,25 @@ padding: 0px 0px 20px 0px;
   padding-left: 40px;
   background: transparent;
   height: 100%;
-  width: 100%;
+  width: 1230px;
+  margin: 0 auto;
 }
 
-.admin-perspective .pentaho-tab-deck-panel {
-  background-color: #f1f1f1;
-}
+
 
 #adminCatTree .gwt-Label {
-  font-size: 13px;
+  font-size: 16px;
   color: #5c5c5c;
   cursor: pointer;
   cursor: hand;
   height: 26px;
   padding-top: 10px;
   padding-left: 10px;
+  padding-bottom: 5px;
   background-image: url('images/grey_triangle_right.png');
   background-position: 95% center;
   background-repeat: no-repeat;
+  font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
 
 .ie  #adminCatTree .gwt-Label {
@@ -56,7 +57,7 @@ padding: 0px 0px 20px 0px;
 
 #adminCatTree .tree-item-custom-widget-selected {
   border: 0px solid transparent;
-  background: #e7eff3;
+  background: #c1d7e1;
 
 }
 
@@ -106,8 +107,8 @@ padding: 0px 0px 20px 0px;
 }
 
 #mainMenubar {
-  padding-left: 18px;
-  padding-top: 5px;
+  padding-left: 20px;
+  padding-top: 0px;
 }
 
 .mantle-perspective-switcher {
@@ -255,14 +256,14 @@ padding: 0px 0px 20px 0px;
 }
 
 .mantle-default-tab-background {
-  background: #f1f1f1; /* Old browsers */
-background: -moz-linear-gradient(top,  #f1f1f1 0%, #fcfcfc 23%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f1f1f1), color-stop(23%,#fcfcfc)); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%); /* Opera 11.10+ */
-background: -ms-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%); /* IE10+ */
-background: linear-gradient(to bottom,  #f1f1f1 0%,#fcfcfc 23%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#fcfcfc',GradientType=0 ); /* IE6-9 */
+  background: #FFF;/*
+  background: -moz-linear-gradient(top,  #f1f1f1 0%, #fcfcfc 23%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f1f1f1), color-stop(23%,#fcfcfc));
+  background: -webkit-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
+  background: -o-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
+  background: -ms-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
+  background: linear-gradient(to bottom,  #f1f1f1 0%,#fcfcfc 23%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#fcfcfc',GradientType=0 ); */
 
 
 }
@@ -682,18 +683,18 @@ a:active, a:hover {
 
 .files-list-panel{
   background: white;
-  border: 1px solid black;
+  border: 1px solid #abc9d9;
 }
 .files-toolbar{
-  border: 1px solid #aaaaaa;
+  border: 1px solid #abc9d9;
 }
 
 .folder-list-panel{
   border: 1px solid black;
 }
 .puc-navigator-panel {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-top: 1px solid #aaaaaa;
+  background-color: #f1f1f1;
+  border-top: 1px solid #abc9d9;
 }
 
 .mantle-toolbar-combo-button-hovering{
@@ -809,9 +810,10 @@ a:active, a:hover {
 }
 
 .custom-dropdown-label {
-  font-size: 32px;
+  font-size: 28px;
   color: #26353d; 
   padding-left: 10px;
+  font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
 
 #pucUserDropDown {
@@ -872,6 +874,8 @@ a:active, a:hover {
 
 #pucHeader .gwt-MenuBar-horizontal .gwt-MenuItem {
   color: #777; 
+  font-size: 13px;
+  padding: 4px;
 }
 
 #pucContent {
@@ -888,6 +892,7 @@ a:active, a:hover {
   width: 242px;
   font-size: 16px;
   color: #50798c;
+  font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem:hover {
@@ -935,7 +940,7 @@ a:active, a:hover {
 
 .gwt-MenuBar-horizontal .gwt-MenuItem-selected{
   background-color: #8bb4c7;
-  border: 1px solid #8bb4c7;
+  border: 0px solid #8bb4c7;
 }
 
 .gwt-MenuBar-vertical {
