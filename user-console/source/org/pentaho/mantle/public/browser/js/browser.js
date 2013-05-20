@@ -167,6 +167,9 @@ pen.define([
 
 		updateFileClicked: function(){
 			this.set("clickedFile",this.get("fileListModel").get("clickedFile"));
+
+      // BISERVER-9127 - Provide the selected path to the FileButtons object
+			fileButtons.onFileSelect(this.getFileClicked().attr("path"));
 		},
 
 		updateFolderLastClick: function(){

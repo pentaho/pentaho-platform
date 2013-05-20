@@ -128,6 +128,18 @@ pen.define(["home/favorites"], function(Favorites) {
       this.loadFavorites($.proxy(this._possiblyReloadRecents, this));
     },
 
+    onFavoritesListRequestEvent: function(event) {
+      if(event.eventSubType == 'favoritesListRequest'){
+        if(window.parent.mantle_fireEvent){
+          var response = {
+            eventSubType: 'favoritesListResponse',
+            stringParam: JSON.stringify(this.favorites.currentItems)
+          };
+          window.parent.mantle_fireEvent('GenericEvent', response);
+        }
+      }
+    },
+
     _possiblyReloadRecents: function() {
       if(this.favoritesActionSource && this.favoritesActionSource == 'favorites') {
         var that = this;
@@ -152,9 +164,10 @@ pen.define(["home/favorites"], function(Favorites) {
     _registerCallbacks: function() {
       if(window.parent.mantle_addHandler) {
         window.parent.mantle_addHandler("FavoritesChangedEvent", this.onFavoritesChanged.bind(this));
-      }
-      if(window.parent.mantle_addHandler) {
         window.parent.mantle_addHandler("RecentsChangedEvent", this.onRecentsChanged.bind(this));
+
+        // expose current favorites list as an event-bus "service"
+        window.parent.mantle_addHandler("GenericEvent", this.onFavoritesListRequestEvent.bind(this));
       }
 
     }
