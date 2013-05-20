@@ -32,7 +32,7 @@
   	This transaction manager is responsible for starting jcr transactions using a jcr session. Notice that it uses the
   	jcrSessionFactory bean, which creates jcr sessions using the credentials of the logged in user.
   -->
-  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager" scope="prototype">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
   </bean>
 
@@ -41,14 +41,14 @@
   	jcrAdminSessionFactory bean, which creates jcr sessions using the credentials of the jcr repository admin. This transaction
   	manager is intended for internal use only, when the system needs to perform a transaction as the jcr admin.
   -->
-  <bean id="jcrAdminTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+  <bean id="jcrAdminTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager" scope="prototype">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
   </bean>
 
   <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
 
   <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService"
-        scope="singleton">
+        scope="session">
     <constructor-arg ref="unifiedRepository"/>
     <constructor-arg ref="IDatabaseDialectService"/>
   </bean>
