@@ -138,7 +138,7 @@ public class TestCipherEncryptionService {
     int maxTimes = 100; // Try
     int i=0;
     while (list.size() > 0) {
-      Thread.currentThread().sleep(2000); // Sleep for 2 seconds
+      Thread.sleep(2000); // Sleep for 2 seconds
       i++;
       if (i > maxTimes) {
         Assert.fail("It took too long to run the threading test.");

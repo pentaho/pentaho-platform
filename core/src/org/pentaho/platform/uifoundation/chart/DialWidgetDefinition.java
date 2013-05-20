@@ -311,7 +311,7 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
 
     Node valueFontNode = dialNode.selectSingleNode("domain-tick-font"); //$NON-NLS-1$
     if (valueFontNode != null) {
-      Node fontNode = titleFontNode.selectSingleNode("font"); //$NON-NLS-1$
+      Node fontNode = valueFontNode.selectSingleNode("font"); //$NON-NLS-1$
       if(fontNode != null) {
        String fontStr = fontNode.getText().trim();
        if (!"".equals(fontStr)) { //$NON-NLS-1$

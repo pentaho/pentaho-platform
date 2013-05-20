@@ -39,23 +39,20 @@ public class FilterDefinitionFactory {
   public static FilterDefinition create(final Element node, final IPentahoSession session, final ILogger logger)
       throws FilterPanelException {
     FilterDefinition fd = null;
-    String txt = null; // to assist in debugging
-    if (null != (txt = XmlDom4JHelper.getNodeText("session-attribute", node))) { //$NON-NLS-1$
+    if (null != XmlDom4JHelper.getNodeText("session-attribute", node)) { //$NON-NLS-1$
       fd = new SessionFilterDefinition(node, session, logger);
-    } else if (null != (txt = XmlDom4JHelper.getNodeText("global-attribute", node))) { //$NON-NLS-1$
+    } else if (null != XmlDom4JHelper.getNodeText("global-attribute", node)) { //$NON-NLS-1$
       fd = new GlobalFilterDefinition(node, session, logger);
-    } else if (null != (txt = XmlDom4JHelper.getNodeText("data-solution", node))) { //$NON-NLS-1$
+    } else if (null != XmlDom4JHelper.getNodeText("data-solution", node)) { //$NON-NLS-1$
       fd = new ActionFilterDefinition(node, session, logger);
-    } else if (null != (txt = XmlDom4JHelper.getNodeText("static-lov", node))) { //$NON-NLS-1$
+    } else if (null != XmlDom4JHelper.getNodeText("static-lov", node)) { //$NON-NLS-1$
       fd = new StaticFilterDefinition(node, session, logger);
     } else {
       //
     }
-    if (false) {
-      System.out.println(txt);
+    if (fd != null) {
+      fd.fromXml(node);
     }
-    fd.fromXml(node);
-
     return fd;
   }
 }

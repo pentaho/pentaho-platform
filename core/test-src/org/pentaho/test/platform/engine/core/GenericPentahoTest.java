@@ -55,7 +55,7 @@ public class GenericPentahoTest extends TestCase {
     super();
     init();
   }
-  
+
   private void init() {
     InputStream s = null;
     // start with a default solution path
@@ -88,7 +88,7 @@ public class GenericPentahoTest extends TestCase {
     }
 
     IPentahoSession session = new StandaloneSession("system"); //$NON-NLS-1$
-    ISolutionEngine solutionEngine = PentahoSystem.get( ISolutionEngine.class, session);
+    ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
     assertNotNull("SolutionEngine is null", solutionEngine); //$NON-NLS-1$
     solutionEngine.setLoggingLevel(ILogger.ERROR);
     solutionEngine.init(session);
@@ -133,6 +133,7 @@ public class GenericPentahoTest extends TestCase {
     return outputStream;
   }
 
+  @SuppressWarnings("null")
   public boolean compare(String testName, String extension) {
 
     InputStream goldenStream = null;
@@ -155,6 +156,7 @@ public class GenericPentahoTest extends TestCase {
       // this gets caught in the assert below
     }
     assertNotNull(Messages.getInstance().getString("GenericTest.USER_TEST_FILE_INVALID", filePath), goldenStream); //$NON-NLS-1$
+    assertNotNull(Messages.getInstance().getString("GenericTest.USER_TEST_FILE_INVALID", filePath), tmpFileStream); //$NON-NLS-1$
 
     // compare the two files
 
@@ -184,6 +186,21 @@ public class GenericPentahoTest extends TestCase {
       }
     } catch (Exception e) {
       return false;
+    } finally {
+      if (goldenStream != null) {
+        try {
+          goldenStream.close();
+        } catch (Exception e) {
+          return false;
+        }
+      }
+      if (tmpFileStream != null) {
+        try {
+          tmpFileStream.close();
+        } catch (Exception e) {
+          return false;
+        }
+      }
     }
     return true;
 
@@ -192,9 +209,9 @@ public class GenericPentahoTest extends TestCase {
   public String getSolutionPath() {
     return solutionPath;
   }
-  
+
   public void testNothing() {
     assertTrue(true);
   }
-  
+
 }

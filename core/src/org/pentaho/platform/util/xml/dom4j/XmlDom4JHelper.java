@@ -289,11 +289,10 @@ public class XmlDom4JHelper {
     format.setSuppressDeclaration(suppressDeclaration);
     if (encoding != null) {
       format.setEncoding(encoding.toLowerCase());
-    }
-    if (!suppressDeclaration) {
-      doc.setXMLEncoding(encoding.toUpperCase());
-    }
-    
+      if (!suppressDeclaration) {
+        doc.setXMLEncoding(encoding.toUpperCase());
+      }
+    }    
     XMLWriter writer = new XMLWriter(outputStream, format);
     writer.write(doc);
     writer.flush();

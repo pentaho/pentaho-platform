@@ -7,6 +7,11 @@ import org.pentaho.platform.engine.services.solution.SimpleContentGenerator;
 
 public class MockContentGenerator extends SimpleContentGenerator {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -2265799756443767907L;
+
   @Override
   public void createContent(OutputStream out) throws Exception {
 

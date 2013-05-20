@@ -147,8 +147,8 @@ public class ActionDelegateTest {
           "other indexed messages_" + i + " text", action1.getOtherMessages().get(i));
     }
 
-    assertEquals("action string type input \"scalarMessage\" is incorrect/not set", "scalar message text", action1
-        .getTextOfScalarMessage());
+    assertEquals("action string type input \"scalarMessage\" is incorrect/not set", "scalar message text",
+        action1.getTextOfScalarMessage());
   }
 
   @Test
@@ -160,8 +160,8 @@ public class ActionDelegateTest {
     execute("testMappedInput.xaction", action1, action2);
 
     assertEquals("action1 string type input \"message\" is incorrect/not set", "message text", action1.getMessage());
-    assertEquals("action2 string type input \"message\" is incorrect/not set", "internalMessage text", action2
-        .getMessage());
+    assertEquals("action2 string type input \"message\" is incorrect/not set", "internalMessage text",
+        action2.getMessage());
     assertEquals("should see the message from action1 here", "Action 1 was here!", action2.getMessageBoard());
   }
 
@@ -178,9 +178,10 @@ public class ActionDelegateTest {
     assertNotNull("varArgs not set", action.getVarArgs());
     assertTrue("varArg1 was not set", action.getVarArgs().containsKey("varArg1"));
     assertEquals("varArg1 has incorrect value", "varArg1 text", action.getVarArgs().get("varArg1"));
-    assertFalse("varArg2 was set. We expect null values to be skipped.  See BeanUtil.setValue", action.getVarArgs().containsKey("varArg2"));
+    assertFalse("varArg2 was set. We expect null values to be skipped.  See BeanUtil.setValue", action.getVarArgs()
+        .containsKey("varArg2"));
   }
-  
+
   @Test
   public void testComponentDefinitionInputs() {
     TestAction action = new TestAction();
@@ -191,10 +192,10 @@ public class ActionDelegateTest {
       //ignore errors here. we expect an error but want to check it with an assert
     }
 
-    assertEquals("string type input \"embeddedMessage\" is incorrect/not set", "embedded message text", action
-        .getEmbeddedMessage());
-    assertEquals("numeric type input \"embeddedNumber\" is incorrect/not set", new Integer(2001), action
-        .getEmbeddedNumber());
+    assertEquals("string type input \"embeddedMessage\" is incorrect/not set", "embedded message text",
+        action.getEmbeddedMessage());
+    assertEquals("numeric type input \"embeddedNumber\" is incorrect/not set", new Integer(2001),
+        action.getEmbeddedNumber());
     assertNull(
         "bad numeric \"badEmbeddedNumber\" should not have been set, is [" + action.getBadEmbeddedNumber() + "]",
         action.getBadEmbeddedNumber());
@@ -218,8 +219,8 @@ public class ActionDelegateTest {
 
     execute("testCustomTypeIO.xaction", action1, action2);
 
-    assertSame("custom type object should have been passed from action1 to action2", testCustomType, action2
-        .getCustom());
+    assertSame("custom type object should have been passed from action1 to action2", testCustomType,
+        action2.getCustom());
   }
 
   /**
@@ -332,8 +333,8 @@ public class ActionDelegateTest {
 
     assertNotNull("output stream was not set on action1", action1.getMyContentOutputStream());
 
-    assertTrue("output stream should contain this text", action1.getMyContentOutputStream().toString().contains(
-        "message input text"));
+    assertTrue("output stream should contain this text",
+        action1.getMyContentOutputStream().toString().contains("message input text"));
   }
 
   /*
@@ -367,8 +368,8 @@ public class ActionDelegateTest {
     assertEquals("long type input \"count\" is incorrect/not set", new Long(99), action.getCount());
 
     assertNotNull("property-map type input \"veggieData\" is not set", action.getVeggieData());
-    assertMapsEquivalent("property-map type input \"veggieData\" is incorrect", veggieDataExpected, action
-        .getVeggieData());
+    assertMapsEquivalent("property-map type input \"veggieData\" is incorrect", veggieDataExpected,
+        action.getVeggieData());
 
     assertNotNull("property-map-list type input \"fruitData\" is not set", action.getFruitData());
     assertEquals("property-map-list type input \"fruitData\" wrong size", fruitDataExpected.size(), action
@@ -411,8 +412,7 @@ public class ActionDelegateTest {
 
     private int actionIdx = 0;
 
-    public TestPluginManager(){
-      int i=0;
+    public TestPluginManager() {
     }
 
     @Override
@@ -486,31 +486,37 @@ public class ActionDelegateTest {
 
       }
 
+      @SuppressWarnings("unused")
       public void removeVersion(String fileId) {
         // TODO Auto-generated method stub
 
       }
 
+      @SuppressWarnings("unused")
       public void removeAllVersions() {
         // TODO Auto-generated method stub
 
       }
 
+      @SuppressWarnings("unused")
       public void makeTransient() {
         // TODO Auto-generated method stub
 
       }
 
+      @SuppressWarnings("unused")
       public String getUrl() {
         // TODO Auto-generated method stub
         return null;
       }
 
+      @SuppressWarnings("unused")
       public String getTitle() {
         // TODO Auto-generated method stub
         return null;
       }
 
+      @SuppressWarnings("unused")
       public Reader getReader() throws ContentException {
         // TODO Auto-generated method stub
         return null;
@@ -525,6 +531,7 @@ public class ActionDelegateTest {
         return BOS;
       }
 
+      @SuppressWarnings("unused")
       public String getName() {
         // TODO Auto-generated method stub
         return null;
@@ -540,27 +547,31 @@ public class ActionDelegateTest {
         return null;
       }
 
+      @SuppressWarnings("unused")
       public String getId() {
         // TODO Auto-generated method stub
         return null;
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "unused" })
       public List getFileVersions() {
         // TODO Auto-generated method stub
         return null;
       }
 
+      @SuppressWarnings("unused")
       public long getFileSize() {
         // TODO Auto-generated method stub
         return 0;
       }
 
+      @SuppressWarnings("unused")
       public String getFileId() {
         // TODO Auto-generated method stub
         return null;
       }
 
+      @SuppressWarnings("unused")
       public Date getFileDateTime() {
         // TODO Auto-generated method stub
         return null;
@@ -571,6 +582,7 @@ public class ActionDelegateTest {
         return null;
       }
 
+      @SuppressWarnings("unused")
       public String getActionName() {
         // TODO Auto-generated method stub
         return null;

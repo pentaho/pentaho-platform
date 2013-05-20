@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -41,7 +39,6 @@ import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 public class SoapHelper {
-  private static final Log logger = LogFactory.getLog(SoapHelper.class);
 
   public static String getSoapHeader() {
     return "<SOAP-ENV:Envelope " + //$NON-NLS-1$
@@ -95,6 +92,7 @@ public class SoapHelper {
     return element;
   }
   
+  @SuppressWarnings("null")
   private static Element createSoapElement(String name, IPentahoResultSet resultSet) {
 
     Element resultSetElement = new DefaultElement(name);

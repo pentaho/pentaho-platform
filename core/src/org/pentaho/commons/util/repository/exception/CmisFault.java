@@ -22,6 +22,11 @@ package org.pentaho.commons.util.repository.exception;
 
 public abstract class CmisFault extends Exception {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 4519010697714251409L;
+
   private int errorCode;
   
   private String errorMessage;

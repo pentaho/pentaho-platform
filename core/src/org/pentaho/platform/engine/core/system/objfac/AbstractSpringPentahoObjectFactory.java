@@ -21,21 +21,29 @@
  */
 package org.pentaho.platform.engine.core.system.objfac;
 
-import org.pentaho.platform.api.engine.*;
-import org.pentaho.platform.engine.core.messages.Messages;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPentahoInitializer;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoObjectReference;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.engine.core.messages.Messages;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.spring.PublishedBeanRegistry;
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringPentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.*;
 
 /**
  * Framework for Spring-based object factories.  Subclasses are required only to implement

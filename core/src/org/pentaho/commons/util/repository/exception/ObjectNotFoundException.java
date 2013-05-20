@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class ObjectNotFoundException  extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 2868342503893317255L;
+
 }

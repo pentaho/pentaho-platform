@@ -28,10 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.jfree.data.general.Dataset;
-import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
-import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
@@ -115,9 +113,6 @@ public abstract class AbstractJFreeChartComponent extends AbstractChartComponent
 
   @Override
   public boolean setDataAction(final String chartDefinition) {
-    IActionSequenceResource resource = new ActionSequenceResource(
-        "", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "text/xml", //$NON-NLS-1$ //$NON-NLS-2$
-        chartDefinition);
     try {
       Document dataActionDocument = jcrHelper.getSolutionDocument(chartDefinition, 1);
       if (dataActionDocument == null) {

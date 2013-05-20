@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class ConstraintViolationException extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1107315009902728874L;
+
 }

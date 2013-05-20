@@ -127,10 +127,6 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
           "Consider using a RequestScope in a Web environment.");
     }
 
-    public Object resolveContextualObject(String key) {
-      return null;
-    }
-
     public String getConversationId() {
       return SpringScopeSessionHolder.SESSION.get().getId();
     }

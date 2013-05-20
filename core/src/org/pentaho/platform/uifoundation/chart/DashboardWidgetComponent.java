@@ -215,10 +215,7 @@ public class DashboardWidgetComponent extends XmlComponent {
         // set the value to be displayed on the dial
         widget.setValue(new Double(value));
 
-      } else {
-        error(Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE")); //$NON-NLS-1$
-        return null;
-      }
+      } 
     }
     /*
      * else if( type == TYPE_THERMOMETER ) { // load the XML document that

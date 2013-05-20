@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class RuntimeException  extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 4572794325760955791L;
+
 }

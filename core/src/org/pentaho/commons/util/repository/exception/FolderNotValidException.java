@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class FolderNotValidException  extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1259275935249183754L;
+
 }

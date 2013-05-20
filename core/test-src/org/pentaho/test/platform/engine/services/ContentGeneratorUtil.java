@@ -52,8 +52,10 @@ public class ContentGeneratorUtil {
     List<String> messages = new ArrayList<String>();
     cg.setOutputHandler(outputHandler);
     IMimeTypeListener mimeTypeListener = new IMimeTypeListener() {
+      @SuppressWarnings("unused")
       public String mimeType = null;
       
+      @SuppressWarnings("unused")
       public String name = null;
     
     public void setMimeType(String mimeType) {

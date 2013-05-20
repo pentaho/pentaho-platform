@@ -94,14 +94,12 @@ public class FilterPanel {
   }
 
   public boolean populate(final Map parameterProviders, final Map defaultValues) {
-    int ok = 0;
     int fail = 0;
     if (filterList != null) {
       Iterator filtersIterator = filterList.iterator();
       while (filtersIterator.hasNext()) {
         FilterDefinition filterDefinition = (FilterDefinition) filtersIterator.next();
         if (filterDefinition.populate(parameterProviders, (String[]) defaultValues.get(filterDefinition.getName()))) {
-          ok++;
         } else {
           fail++;
         }
