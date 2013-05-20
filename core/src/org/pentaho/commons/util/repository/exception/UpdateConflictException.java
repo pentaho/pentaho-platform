@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class UpdateConflictException extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -8910248912073686599L;
+
 }

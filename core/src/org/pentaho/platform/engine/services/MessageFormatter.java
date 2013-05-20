@@ -32,7 +32,6 @@ import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.ActionSequenceException;
 import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
@@ -303,7 +302,7 @@ public class MessageFormatter implements IMessageFormatter {
     formatFailureMessage(mimeType, context, messageBuffer, null);
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({ "deprecation", "null" })
   public void formatResultSetAsHTMLRows(final IPentahoResultSet resultSet, final StringBuffer messageBuffer) {
     boolean hasColumnHeaders = false;
     boolean hasRowHeaders = false;
@@ -365,7 +364,7 @@ public class MessageFormatter implements IMessageFormatter {
     formatSuccessMessage(mimeType, context, messageBuffer, doMessages, true);
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({ "deprecation", "null" })
   public void formatSuccessMessage(final String mimeType, final IRuntimeContext context,
       final StringBuffer messageBuffer, final boolean doMessages, final boolean doWrapper) {
 

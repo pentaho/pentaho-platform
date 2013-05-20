@@ -78,7 +78,7 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   private static final String DOMAIN_LABEL_ROTATION_DIRECTION_NODE_NAME = "domain-label-rotation-dir"; //$NON-NLS-1$
 
   private static final String MAX_BAR_WIDTH_NODE_NAME = "max-bar-width"; //$NON-NLS-1$
-  
+
   private static final String INCLUDE_NULL_CATEGORIES_NODE_NAME = "include-null-categories"; //$NON-NLS-1$
 
   private int chartType = JFreeChartEngine.UNDEFINED_CHART_TYPE;
@@ -93,6 +93,7 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   protected String noDataMessage = null;
 
   private RectangleEdge titlePosition = RectangleEdge.TOP;
+
   private RectangleEdge legendPosition = RectangleEdge.BOTTOM;
 
   private Font titleFont = TextTitle.DEFAULT_FONT;
@@ -123,7 +124,7 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   private Font legendFont = null;
 
   private boolean legendBorderVisible = true;
-  
+
   private boolean includeNullCategories = true;
 
   private boolean threeD = false;
@@ -153,9 +154,10 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   private double rangeMaximum = ValueAxis.DEFAULT_UPPER_BOUND;
 
   private Double rangeTickUnits = null;
-  
+
   //ADDED
   private Float backgroundAlpha;
+
   private Float foregroundAlpha;
 
   // line attributes are duplicated in 3 classes:
@@ -217,16 +219,16 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
     if (chartAttributes == null) {
       return;
     }
-    	
-	 // set the alfa layers
+
+    // set the alfa layers
     Node backgroundAlphaNode = chartAttributes.selectSingleNode(ChartDefinition.BACKGROUND_ALPHA_NODE_NAME);
     Node foregroundAlphaNode = chartAttributes.selectSingleNode(ChartDefinition.FOREGROUND_ALPHA_NODE_NAME);
 
-    if(backgroundAlphaNode != null) {
-      setBackgroundAlpha(chartAttributes.selectSingleNode(ChartDefinition.BACKGROUND_ALPHA_NODE_NAME));  
+    if (backgroundAlphaNode != null) {
+      setBackgroundAlpha(chartAttributes.selectSingleNode(ChartDefinition.BACKGROUND_ALPHA_NODE_NAME));
     }
-    if(foregroundAlphaNode != null) {
-      setForegroundAlpha(chartAttributes.selectSingleNode(ChartDefinition.FOREGROUND_ALPHA_NODE_NAME));  
+    if (foregroundAlphaNode != null) {
+      setForegroundAlpha(chartAttributes.selectSingleNode(ChartDefinition.FOREGROUND_ALPHA_NODE_NAME));
     }
 
     // get the chart type from the chart node -- this overrides the current
@@ -267,8 +269,10 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
       CategoryDatasetChartDefinition.getLogger().warn(
           Messages.getInstance().getString(
               "CHART.WARN_DEPRECATED_CHILD", ChartDefinition.SUBTITLE_NODE_NAME, ChartDefinition.SUBTITLES_NODE_NAME));//$NON-NLS-1$ 
-      CategoryDatasetChartDefinition.getLogger().warn(
-          Messages.getInstance().getString("CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", ChartDefinition.SUBTITLE_NODE_NAME));//$NON-NLS-1$  
+      CategoryDatasetChartDefinition.getLogger()
+          .warn(
+              Messages.getInstance().getString(
+                  "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", ChartDefinition.SUBTITLE_NODE_NAME));//$NON-NLS-1$  
     }
 
     if (subTitleNodes != null) {
@@ -291,9 +295,9 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
     setHeight(chartAttributes.selectSingleNode(ChartDefinition.HEIGHT_NODE_NAME));
 
     // set category rotation direction
-    setCategoryLabelRotation(chartAttributes
-        .selectSingleNode(CategoryDatasetChartDefinition.DOMAIN_LABEL_ROTATION_DIRECTION_NODE_NAME), chartAttributes
-        .selectSingleNode(CategoryDatasetChartDefinition.DOMAIN_LABEL_ROTATION_ANGLE_NODE_NAME));
+    setCategoryLabelRotation(
+        chartAttributes.selectSingleNode(CategoryDatasetChartDefinition.DOMAIN_LABEL_ROTATION_DIRECTION_NODE_NAME),
+        chartAttributes.selectSingleNode(CategoryDatasetChartDefinition.DOMAIN_LABEL_ROTATION_ANGLE_NODE_NAME));
 
     // set the border on or off
     setBorderVisible(chartAttributes.selectSingleNode(ChartDefinition.CHART_BORDER_VISIBLE_NODE_NAME));
@@ -360,10 +364,11 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
     setLegendBorderVisible(chartAttributes.selectSingleNode(ChartDefinition.DISPLAY_LEGEND_BORDER_NODE_NAME));
 
     // first see if Pentaho System sets this property
-    String defaultIncludeNullCategories = PentahoSystem.getSystemSetting("Charting/" + INCLUDE_NULL_CATEGORIES_NODE_NAME, "true"); //$NON-NLS-1$ //$NON-NLS-2$
-    
+    String defaultIncludeNullCategories = PentahoSystem.getSystemSetting(
+        "Charting/" + INCLUDE_NULL_CATEGORIES_NODE_NAME, "true"); //$NON-NLS-1$ //$NON-NLS-2$
+
     setIncludeNullCategories("true".equals(defaultIncludeNullCategories)); //$NON-NLS-1$
-    
+
     // set whether to include null categories
     setIncludeNullCategories(chartAttributes.selectSingleNode(INCLUDE_NULL_CATEGORIES_NODE_NAME));
   }
@@ -400,7 +405,9 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
         if (rowData[column] instanceof Number) {
           Number currentNumber = null;
           try { // If value has been set then we get it
-            currentNumber = getValue(rowHeaders[row], columnHeaders[column]);
+            if (rowHeaders != null && row < rowHeaders.length && columnHeaders != null && column < columnHeaders.length) {
+              currentNumber = getValue(rowHeaders[row], columnHeaders[column]);
+            }
           } catch (UnknownKeyException uke) { // else we just set it
             // to zero
             currentNumber = new Double(0.0);
@@ -410,15 +417,21 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
           }
           double currentValue = currentNumber.doubleValue();
           double newValue = ((Number) rowData[column]).doubleValue();
-          setValue(new Double(currentValue + newValue), rowHeaders[row], columnHeaders[column]);
+          if (rowHeaders != null && row < rowHeaders.length && columnHeaders != null && column < columnHeaders.length) {
+            setValue(new Double(currentValue + newValue), rowHeaders[row], columnHeaders[column]);
+          }
         } else if (includeNullCategories && rowData[column] == null) {
           Number currentNumber = null;
           try { // If value has been set then we get it
-            currentNumber = getValue(rowHeaders[row], columnHeaders[column]);
+            if (rowHeaders != null && row < rowHeaders.length && columnHeaders != null && column < columnHeaders.length) { 
+              currentNumber = getValue(rowHeaders[row], columnHeaders[column]);
+            }
           } catch (UnknownKeyException uke) { // else we just set it
             currentNumber = null;
           }
-          setValue(currentNumber, rowHeaders[row], columnHeaders[column]);
+          if (rowHeaders != null && row < rowHeaders.length && columnHeaders != null && column < columnHeaders.length) { 
+            setValue(currentNumber, rowHeaders[row], columnHeaders[column]);
+          }
         }
       }
       row++;
@@ -850,7 +863,6 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
     }
   }
 
-
   private RectangleEdge getPosition(final Node positionNode) {
     if (positionNode != null) {
       String positionStr = positionNode.getText();
@@ -1275,7 +1287,7 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   public boolean isIncludeNullCategories() {
     return includeNullCategories;
   }
-  
+
   /**
    * @param boolean includeNullCategories
    *        Set whether the dataset should include null categories
@@ -1343,50 +1355,49 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   }
 
   public void setRangeTickUnits(final Node rangeTickUnitsNode) {
-      if (rangeTickUnitsNode != null) {
-          String rangeTickVal = rangeTickUnitsNode.getText();
-          String dotLess = rangeTickVal.replace(".", "");
-          if (Integer.parseInt(dotLess) > 0) {
-            setRangeTickUnits(Double.parseDouble(rangeTickVal));
-          }
+    if (rangeTickUnitsNode != null) {
+      String rangeTickVal = rangeTickUnitsNode.getText();
+      String dotLess = rangeTickVal.replace(".", "");
+      if (Integer.parseInt(dotLess) > 0) {
+        setRangeTickUnits(Double.parseDouble(rangeTickVal));
       }
+    }
   }
 
   public void setRangeTickUnits(final double rangeTickUnits) {
-      this.rangeTickUnits = rangeTickUnits;
+    this.rangeTickUnits = rangeTickUnits;
   }
 
   public Double getRangeTickUnits() {
-      return this.rangeTickUnits;
+    return this.rangeTickUnits;
   }
 
   public String getNoDataMessage() {
     return noDataMessage;
   }
-  
+
   //ADDED
   public Float getBackgroundAlpha() {
-        return backgroundAlpha;
-   }
+    return backgroundAlpha;
+  }
 
-	public void setBackgroundAlpha(Node backgroundAlphaNode) {
-		if (backgroundAlphaNode != null) {
-			Float backgroundAlphaValue = new Float(backgroundAlphaNode.getText());
-			this.backgroundAlpha = backgroundAlphaValue;
-		}
-
-	}
-
-    public Float getForegroundAlpha() {
-        return foregroundAlpha;
+  public void setBackgroundAlpha(Node backgroundAlphaNode) {
+    if (backgroundAlphaNode != null) {
+      Float backgroundAlphaValue = new Float(backgroundAlphaNode.getText());
+      this.backgroundAlpha = backgroundAlphaValue;
     }
 
-    public void setForegroundAlpha(Node foregroundAlphaNode) {
-        if (foregroundAlphaNode != null) {
-            Float foregroundAlphaValue = new Float(foregroundAlphaNode.getText());
-            this.foregroundAlpha = foregroundAlphaValue;
-        }
-	}
+  }
 
+  public Float getForegroundAlpha() {
+    return foregroundAlpha;
+  }
+
+  public void setForegroundAlpha(Node foregroundAlphaNode) {
+    if (foregroundAlphaNode != null) {
+      Float foregroundAlphaValue = new Float(foregroundAlphaNode.getText());
+      this.foregroundAlpha = foregroundAlphaValue;
+    }
+  }
 
 }

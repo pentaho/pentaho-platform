@@ -367,14 +367,6 @@ public class ChartHelper {
       if ((content == null) || content.equals("")) { //$NON-NLS-1$
         content = "&nbsp;"; //$NON-NLS-1$
       }
-      if (content == null) {
-        StringBuffer buffer = new StringBuffer();
-        PentahoSystem.get(IMessageFormatter.class, userSession).formatErrorMessage(
-            "text/html", Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET"), messages, buffer); //$NON-NLS-1$ //$NON-NLS-2$
-        content = buffer.toString();
-        result = false;
-      }
-
       outputStream.append(content);
 
     } finally {

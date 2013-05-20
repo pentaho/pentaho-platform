@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class FilterNotValidException  extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -8008173478044015868L;
+
 }

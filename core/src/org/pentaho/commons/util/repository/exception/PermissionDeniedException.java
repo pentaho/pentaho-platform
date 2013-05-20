@@ -25,4 +25,9 @@ package org.pentaho.commons.util.repository.exception;
  */
 public class PermissionDeniedException extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 3895738326764220732L;
+
 }

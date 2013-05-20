@@ -256,7 +256,8 @@ public class JFreeChartEngine {
         renderer = new BubbleRenderer();
         break;
       default:
-        break;
+        // should log an error if invalid chart type passed in - at least return null for no renderer
+        return null;
     }
 
     if (tooltips) {
@@ -323,13 +324,14 @@ public class JFreeChartEngine {
         ((XYDotRenderer) renderer).setDotWidth(chartDefinition.getDotWidth());
         break;
       default:
-        break;
+        // should log an error if invalid chart type passed in - at least return null for no renderer
+        return null;
     }
-    
-    if(renderer != null && legend) {
-      renderer.setLegendItemURLGenerator( new StandardXYSeriesLabelGenerator());
+
+    if (renderer != null && legend) {
+      renderer.setLegendItemURLGenerator(new StandardXYSeriesLabelGenerator());
     }
-    
+
     if (tooltips) {
       XYToolTipGenerator generator = new StandardXYToolTipGenerator(chartDefinition.getTooltipContent(),
           new DecimalFormat(chartDefinition.getTooltipXFormat()),
@@ -341,8 +343,8 @@ public class JFreeChartEngine {
       renderer.setURLGenerator(new StandardXYURLGenerator());
     }
 
-    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(), chartDefinition
-        .getLineWidth()));
+    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(),
+        chartDefinition.getLineWidth()));
 
     XYPlot plot = new XYPlot(chartDefinition, domainAxis, rangeAxis, renderer);
     JFreeChartEngine.updatePlot(plot, chartDefinition);
@@ -393,20 +395,21 @@ public class JFreeChartEngine {
         ((XYDotRenderer) renderer).setDotWidth(chartDefinition.getDotWidth());
         break;
       default:
-        break;
+        // should log an error if invalid chart type passed in - at least return null for no renderer
+        return null;
     }
     if (tooltips) {
       XYToolTipGenerator generator = new StandardXYToolTipGenerator(chartDefinition.getTooltipContent(),
-          new SimpleDateFormat(chartDefinition.getTooltipXFormat()), new DecimalFormat(chartDefinition
-              .getTooltipYFormat()));
+          new SimpleDateFormat(chartDefinition.getTooltipXFormat()), new DecimalFormat(
+              chartDefinition.getTooltipYFormat()));
       renderer.setToolTipGenerator(generator);
     }
     if (urls) {
       renderer.setURLGenerator(new StandardXYURLGenerator());
     }
 
-    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(), chartDefinition
-        .getLineWidth()));
+    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(),
+        chartDefinition.getLineWidth()));
 
     XYPlot plot = new XYPlot(chartDefinition, domainAxis, rangeAxis, renderer);
     JFreeChartEngine.updatePlot(plot, chartDefinition);
@@ -443,20 +446,21 @@ public class JFreeChartEngine {
         renderer = chartDefinition.isStacked() ? new StackedXYAreaRenderer2() : new XYAreaRenderer();
         break;
       default:
-        break;
+        // should log an error if invalid chart type passed in - at least return null for no renderer
+        return null;
     }
     if (tooltips) {
       XYToolTipGenerator generator = new StandardXYToolTipGenerator(chartDefinition.getTooltipContent(),
-          new SimpleDateFormat(chartDefinition.getTooltipXFormat()), new DecimalFormat(chartDefinition
-              .getTooltipYFormat()));
+          new SimpleDateFormat(chartDefinition.getTooltipXFormat()), new DecimalFormat(
+              chartDefinition.getTooltipYFormat()));
       renderer.setToolTipGenerator(generator);
     }
     if (urls) {
       renderer.setURLGenerator(new StandardXYURLGenerator());
     }
 
-    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(), chartDefinition
-        .getLineWidth()));
+    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(),
+        chartDefinition.getLineWidth()));
 
     XYPlot plot = new XYPlot(chartDefinition, domainAxis, rangeAxis, renderer);
     JFreeChartEngine.updatePlot(plot, chartDefinition);
@@ -757,7 +761,8 @@ public class JFreeChartEngine {
     boolean legend = chartDefinition.isLegendIncluded();
 
     if (order == null) {
-      throw new IllegalArgumentException(Messages.getInstance().getString("JFreeChartEngine.ERROR_0001_NULL_ORDER_ARGUMENT")); //$NON-NLS-1$
+      throw new IllegalArgumentException(Messages.getInstance().getString(
+          "JFreeChartEngine.ERROR_0001_NULL_ORDER_ARGUMENT")); //$NON-NLS-1$
     }
     MultiplePiePlot plot = new MultiplePiePlot(chartDefinition);
     JFreeChartEngine.updatePlot(plot, chartDefinition);
@@ -809,8 +814,8 @@ public class JFreeChartEngine {
       renderer.setBaseItemURLGenerator(new StandardCategoryURLGenerator());
     }
 
-    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(), chartDefinition
-        .getLineWidth()));
+    renderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(),
+        chartDefinition.getLineWidth()));
     renderer.setShapesVisible(chartDefinition.isMarkersVisible());
     renderer.setBaseShapesFilled(chartDefinition.isMarkersVisible());
 
@@ -1001,8 +1006,8 @@ public class JFreeChartEngine {
     }
 
     //setting some line attributes
-    lineRenderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(), chartDefinition
-        .getLineWidth()));
+    lineRenderer.setStroke(JFreeChartEngine.getLineStyleStroke(chartDefinition.getLineStyle(),
+        chartDefinition.getLineWidth()));
     lineRenderer.setShapesVisible(chartDefinition.isMarkersVisible());
     lineRenderer.setBaseShapesFilled(chartDefinition.isMarkersVisible());
 
@@ -1297,22 +1302,16 @@ public class JFreeChartEngine {
         chart.getTitle().setFont(chartDefinition.getTitleFont());
       }
 
-      // TODO implement
-      // chart.setBorderStroke(chartDefintion.getBorderStroke());
+      if (chartDefinition.getLegendFont() != null && chart.getLegend() != null) {
+        chart.getLegend().setItemFont(chartDefinition.getLegendFont());
+      }
+      if (!chartDefinition.isLegendBorderVisible() && chart.getLegend() != null) {
+        chart.getLegend().setBorder(BlockBorder.NONE);
+      }
+      if (chartDefinition.getLegendPosition() != null && chart.getLegend() != null) {
+        chart.getLegend().setPosition(chartDefinition.getLegendPosition());
+      }
     }
-
-    // format legend
-    ChartDefinition chartDefinition = (ChartDefinition) dataset;
-    if (chartDefinition.getLegendFont() != null &&  chart.getLegend() != null) {
-      chart.getLegend().setItemFont(chartDefinition.getLegendFont());
-    }
-    if (!chartDefinition.isLegendBorderVisible() &&  chart.getLegend() != null) {
-      chart.getLegend().setBorder(BlockBorder.NONE);
-    }
-    if (chartDefinition.getLegendPosition() != null && chart.getLegend() != null) {
-      chart.getLegend().setPosition(chartDefinition.getLegendPosition());
-    }
-	
     return (chart);
   }
 
@@ -1641,8 +1640,8 @@ public class JFreeChartEngine {
     double y1 = 0.0;
     double x2 = width;
     double y2 = height;
-    BufferedImage texture = (BufferedImage) JFreeChartEngine.getImage(textureNode
-        .selectSingleNode(JFreeChartEngine.TEXTURE_IMAGE_NODE_NAME), session);
+    BufferedImage texture = (BufferedImage) JFreeChartEngine.getImage(
+        textureNode.selectSingleNode(JFreeChartEngine.TEXTURE_IMAGE_NODE_NAME), session);
     if (textureNode.selectSingleNode(JFreeChartEngine.X1_NODE_NAME) != null) {
       x1 = Double.parseDouble(textureNode.selectSingleNode(JFreeChartEngine.X1_NODE_NAME).getText());
     }
@@ -1712,9 +1711,10 @@ public class JFreeChartEngine {
   public static Image getImage(final String imageName, final IPentahoSession session) {
     Image image = null;
     try {
-      IActionSequenceResource resource = new ActionSequenceResource("", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "", //$NON-NLS-1$ //$NON-NLS-2$
+      IActionSequenceResource resource = new ActionSequenceResource(
+          "", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "", //$NON-NLS-1$ //$NON-NLS-2$
           imageName);
-      InputStream is =  resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+      InputStream is = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
       image = ImageIO.read(is);
     } catch (IOException e) {
       JFreeChartEngine.log.error(null, e);

@@ -2,8 +2,6 @@ package org.pentaho.platform.engine.security;
 
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
@@ -31,7 +29,6 @@ import org.springframework.security.vote.AccessDecisionVoter;
 public class PentahoSubstringRoleVoter implements AccessDecisionVoter {
     // ~ Static fields/initializers ======================================================================================
 
-    private static final Log logger = LogFactory.getLog(PentahoSubstringRoleVoter.class);
 
     // ~ Instance fields =================================================================================================
 

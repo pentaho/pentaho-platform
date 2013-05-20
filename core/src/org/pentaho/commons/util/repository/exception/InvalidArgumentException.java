@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class InvalidArgumentException  extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -6687501280564155122L;
+
 }

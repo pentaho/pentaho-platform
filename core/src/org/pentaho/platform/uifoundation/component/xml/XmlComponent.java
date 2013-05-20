@@ -36,6 +36,10 @@ import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.XmlHelper;
 
 public abstract class XmlComponent extends BaseUIComponent implements IXMLComponent {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 7269657964926730872L;
   private static final Log log = LogFactory.getLog(XmlComponent.class);
 
   public XmlComponent(final IPentahoUrlFactory urlFactory, final List messages, final String sourcePath) {

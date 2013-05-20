@@ -411,9 +411,9 @@ public class SimpleRuntimeElement extends PentahoBase implements IRuntimeElement
   public void setBigDecimalProperty(final String key, final BigDecimal value) {
     this.updateOk();
     trace(Messages.getInstance().getString("RTREPO.DEBUG_PROPERTY_GETSET", "setBigDecimal", key)); //$NON-NLS-1$ //$NON-NLS-2$
-    checkType(key, value.getClass().getName(), true);
     Map theMap = getParamMapBD();
     if (value != null) {
+      checkType(key, value.getClass().getName(), true);
       theMap.put(key, value.toString());
     } else {
       theMap.remove(key);
@@ -463,9 +463,9 @@ public class SimpleRuntimeElement extends PentahoBase implements IRuntimeElement
   public void setDateProperty(final String key, final Date value) {
     this.updateOk();
     trace(Messages.getInstance().getString("RTREPO.DEBUG_PROPERTY_GETSET", "setDate", key)); //$NON-NLS-1$ //$NON-NLS-2$
-    checkType(key, value.getClass().getName(), true);
     Map theMap = getParamMapDT();
     if (value != null) {
+      checkType(key, value.getClass().getName(), true);
       theMap.put(key, value);
     } else {
       theMap.remove(key);
@@ -520,9 +520,9 @@ public class SimpleRuntimeElement extends PentahoBase implements IRuntimeElement
   public void setLongProperty(final String key, final Long value) {
     this.updateOk();
     trace(Messages.getInstance().getString("RTREPO.DEBUG_PROPERTY_GETSET", "setLong", key)); //$NON-NLS-1$ //$NON-NLS-2$
-    checkType(key, value.getClass().getName(), true);
     Map theMap = getParamMapLong();
     if (value != null) {
+      checkType(key, value.getClass().getName(), true);
       theMap.put(key, value);
     } else {
       theMap.remove(key);
@@ -581,9 +581,9 @@ public class SimpleRuntimeElement extends PentahoBase implements IRuntimeElement
   public void setListProperty(final String key, final List value) {
     this.updateOk();
     trace(Messages.getInstance().getString("RTREPO.DEBUG_PROPERTY_GETSET", "setList", key)); //$NON-NLS-1$ //$NON-NLS-2$
-    checkType(key, value.getClass().getName(), true);
     Map theMap = getParamMapCPLX();
     if (value != null) {
+      checkType(key, value.getClass().getName(), true);
       theMap.put(key, value);
     } else {
       theMap.remove(key);
@@ -603,9 +603,9 @@ public class SimpleRuntimeElement extends PentahoBase implements IRuntimeElement
   public void setMapProperty(final String key, final Map value) {
     this.updateOk();
     trace(Messages.getInstance().getString("RTREPO.DEBUG_PROPERTY_GETSET", "setMap", key)); //$NON-NLS-1$ //$NON-NLS-2$
-    checkType(key, value.getClass().getName(), true);
     Map theMap = getParamMapCPLX();
     if (value != null) {
+      checkType(key, value.getClass().getName(), true);
       theMap.put(key, value);
     } else {
       theMap.remove(key);

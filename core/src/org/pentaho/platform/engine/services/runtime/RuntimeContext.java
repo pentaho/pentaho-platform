@@ -361,6 +361,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     return outputHandler.getFeedbackContentItem();
   }
 
+  @SuppressWarnings("unused")
   private int getContentSequenceNumber() {
     return contentSequenceNumber++;
   }
@@ -373,6 +374,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     if (outputParameter == null) {
       warn(Messages.getInstance().getErrorString(
           "RuntimeContext.ERROR_0021_INVALID_OUTPUT_REQUEST", outputName, actionSequence.getSequenceName())); //$NON-NLS-1$
+      return null;
     }
 
     String filePath = "~/workspace/" + FilenameUtils.getBaseName(getSolutionPath()) + extension; //$NON-NLS-1$
@@ -1707,11 +1709,10 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       createFeedbackParameter("path", "path", "", getSolutionPath(), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       // ProSolutionEngine proSolutionEngine = (ProSolutionEngine) solutionEngine;
       IParameterProvider parameterProvider = (IParameterProvider) parameterProviders.get("PRO_EDIT_SUBSCRIPTION"); //$NON-NLS-1$
-      String editId = null;
       if (parameterProvider == null) { // Then we are not editing subscriptions
         parameterProvider = (IParameterProvider) parameterProviders.get(IParameterProvider.SCOPE_REQUEST);
       } else {
-        editId = parameterProvider.getStringParameter("subscribe-id", null); //$NON-NLS-1$
+        parameterProvider.getStringParameter("subscribe-id", null); //$NON-NLS-1$
       }
       Iterator parameterNameIterator = parameterProvider.getParameterNames();
       while (parameterNameIterator.hasNext()) {
