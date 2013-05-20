@@ -114,7 +114,7 @@
 			<div id="pucUserDropDown"></div>
         </div>
 
-        <div id="pucContent" style="width:100%;"></div>
+        <div id="pucContent"></div>
     </div>
 
 	<!-- Toolbar On Top -->
