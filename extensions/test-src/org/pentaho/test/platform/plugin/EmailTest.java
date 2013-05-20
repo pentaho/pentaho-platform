@@ -96,7 +96,7 @@ public class EmailTest extends BaseTestCase {
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     EmailTest test = new EmailTest();
     try {
       test.testEmailLoop();
