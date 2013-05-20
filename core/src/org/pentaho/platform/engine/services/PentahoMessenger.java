@@ -34,6 +34,10 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 
 public abstract class PentahoMessenger extends PentahoBase {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1617348282619161790L;
   private List messages;
   DateFormat dateFormat = LocaleHelper.getFullDateFormat(true, true);
 

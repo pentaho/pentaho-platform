@@ -45,7 +45,6 @@ public class CleanXmlHelperTest extends TestCase {
         "bart simpson was here", //$NON-NLS-1$
         "<root>encoding=bad</root>" }; //$NON-NLS-1$
 
-    Class resourceClass = this.getClass();
 
     try {
 

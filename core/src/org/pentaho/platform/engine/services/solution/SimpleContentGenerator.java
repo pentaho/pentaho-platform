@@ -21,7 +21,6 @@ package org.pentaho.platform.engine.services.solution;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
 
-import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
@@ -38,7 +37,6 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       throw new InvalidParameterException( Messages.getInstance().getString("SimpleContentGenerator.ERROR_0001_NO_OUTPUT_HANDLER") );  //$NON-NLS-1$
     }
 
-    IParameterProvider requestParams = parameterProviders.get( IParameterProvider.SCOPE_REQUEST );
     if (instanceId == null){
       setInstanceId(UUIDUtil.getUUIDAsString()); 
     }

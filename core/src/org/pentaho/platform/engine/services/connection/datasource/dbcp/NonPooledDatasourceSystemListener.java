@@ -30,9 +30,7 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
   public static final String DATASOURCE_REGION = "DATASOURCE";//$NON-NLS-1$
   public boolean startup(final IPentahoSession session) {
     /*try {*/
-      ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
       Logger.debug(this, "NonPooledDatasourceSystemListener: called for startup"); //$NON-NLS-1$
-      boolean cachingAvailable = cacheManager != null && cacheManager.cacheEnabled();
       /*IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,session);
       if(cachingAvailable) {
         if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {

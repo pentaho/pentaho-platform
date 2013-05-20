@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class StreamNotSupportedException extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 6239576285459291482L;
+
 }

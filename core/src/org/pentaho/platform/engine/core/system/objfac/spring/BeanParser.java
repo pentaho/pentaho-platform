@@ -1,19 +1,17 @@
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Parses a bean from Spring XML
@@ -66,23 +64,7 @@ public class BeanParser extends AbstractBeanDefinitionParser {
     return new GenericBeanDefinition(definition);
   }
 
-  /**
-   * Returns the bean definition prepared by the builder and has connected it to the {@code source} object.
-   *
-   * @param builder
-   * @param source
-   * @param context
-   * @return
-   */
-  private AbstractBeanDefinition getSourcedBeanDefinition(BeanDefinitionBuilder builder, Object source,
-                                                          ParserContext context) {
-
-    AbstractBeanDefinition definition = builder.getRawBeanDefinition();
-    definition.setSource(context.extractSource(source));
-
-    return definition;
-  }
-
+  
   /*
     * (non-Javadoc)
     * @see org.springframework.beans.factory.xml.AbstractBeanDefinitionParser#shouldGenerateIdAsFallback()

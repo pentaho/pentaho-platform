@@ -31,7 +31,7 @@ public class BufferedContentItem extends SimpleContentItem {
 
   private IContentListener listener;
   
-  private String name;
+  protected String name;
 
   public BufferedContentItem(final IContentListener listener) {
     super();

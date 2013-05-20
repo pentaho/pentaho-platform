@@ -46,14 +46,24 @@ public class ManifestUtil {
    * or <code>null</code> if the code is not in a jar file.
    */
   public static Manifest getManifest(final Class clazz) {
+    JarInputStream jin = null;
     try {
       final URL codeBase = clazz.getProtectionDomain().getCodeSource().getLocation();
       if (codeBase.getPath().endsWith(".jar")) { //$NON-NLS-1$
-        final JarInputStream jin = new JarInputStream(codeBase.openStream());
-        return jin.getManifest();
+        jin = new JarInputStream(codeBase.openStream());
+        Manifest manifest = jin.getManifest();
+        return manifest;
       }
     } catch (Exception e) {
       // TODO handle this exception
+    } finally {
+      if (jin != null) {
+        try {
+          jin.close();
+        } catch (Exception ex) {
+          // TODO determine what to do if the close failed.  Most likely nothing since we would have probably failed earlier!
+        }
+      }
     }
     return null;
   }

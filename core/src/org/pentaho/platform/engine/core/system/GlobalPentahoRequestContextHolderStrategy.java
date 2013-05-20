@@ -57,8 +57,8 @@ public class GlobalPentahoRequestContextHolderStrategy implements IPentahoReques
     requestContext = null;
   }
 
-  public void setRequestContext(IPentahoRequestContext requestContext) {
-    this.requestContext = requestContext;
+  public void setRequestContext(IPentahoRequestContext inRequestContext) {
+    requestContext = inRequestContext;
   }
 
 }

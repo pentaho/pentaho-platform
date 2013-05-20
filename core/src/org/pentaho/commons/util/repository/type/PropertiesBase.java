@@ -31,7 +31,7 @@ public abstract class PropertiesBase {
   public static final String LASTMODIFICATIONDATE="LastModificationDate"; //$NON-NLS-1$
   public static final String CHANGETOKEN="ChangeToken"; //$NON-NLS-1$
   
-  private String name;
+  protected String name;
 
   public PropertiesBase( String name ) {
     this.name = name;

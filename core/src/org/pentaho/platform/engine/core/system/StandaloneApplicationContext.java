@@ -83,7 +83,10 @@ public class StandaloneApplicationContext implements IApplicationContext {
   
   public File createTempFile(final IPentahoSession session, final String prefix, final String extn, final File parentDir, boolean trackFile) throws IOException {
     ITempFileDeleter fileDeleter = null;
-    if ((session != null) && trackFile) {
+    if (session == null) {
+      return null;
+    }
+    if (trackFile) {
       fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
     }
     String name = session.getName();
