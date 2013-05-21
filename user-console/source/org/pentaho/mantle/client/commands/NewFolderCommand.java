@@ -164,7 +164,7 @@ public class NewFolderCommand extends AbstractCommand {
 
 
   private final List<Character> reservedChars = Collections.unmodifiableList(Arrays.asList(new Character[]{
-     '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n'}));
+     '/', ':', ';', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n'}));
 
   /**
    * Checks for presence of reserved chars as well as illegal permutations of legal chars.
