@@ -116,6 +116,40 @@
 
         <div id="pucContent"></div>
     </div>
+<script type="text/javascript">
+    document.getElementById("pucWrapper").style.position = "absolute";
+    document.getElementById("pucWrapper").style.left = "-5000px";
+    pen.require(["common-ui/util/BusyIndicator"], function(busy){
+
+        busy.show("<%= properties.getString("loadingConsole") %>", "<%= properties.getString("pleaseWait") %>", "pucPleaseWait");
+
+        window.notifyOfLoad = function(area){
+            var allFramesLoaded = true;
+            for(var i=0; i<window.frames.length; i++){
+                if(window.frames[i].document.readyState != "complete"){
+                    allFramesLoaded = false;
+                    break;
+                }
+            }
+
+            if(allFramesLoaded){
+                busy.hide("pucPleaseWait");
+                document.getElementById("pucWrapper").style.left = "0";
+                document.getElementById("pucWrapper").style.position = "relative";
+            } else {
+                // check again in a bit
+                setTimeout("notifyOfLoad()", 300);
+            }
+        }
+
+
+        // Remove when notifyOfLoad is called from PUC
+        setTimeout(function(){
+            notifyOfLoad();
+        }, 4000);
+    });
+
+</script>
 
 	<!-- Toolbar On Top -->
 	<!-- 
