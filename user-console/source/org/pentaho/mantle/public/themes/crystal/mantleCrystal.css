@@ -823,8 +823,8 @@ a:active, a:hover {
 }
 
 #pucUserDropDown .custom-dropdown {
-  width: 132px;
-  min-width: 132px;
+  width: 105px;
+  min-width: 105px;
   padding-top: 10px;  
 }
 
@@ -844,6 +844,28 @@ a:active, a:hover {
 
 #pucUserDropDown .custom-dropdown-arrow .gwt-Label {
   width: 30px;
+}
+
+#pucPerspectives .custom-dropdown {
+  width: 130px;
+  min-width: 130px;
+}
+
+#pucPerspectives .custom-dropdown-arrow {
+  width: 30px;
+  background-image: url('images/dropdown_arrow_gray.png');
+}
+
+#pucPerspectives .custom-dropdown-label {
+  text-align: left;
+}
+
+#pucPerspectives .custom-dropdown-pressed .custom-dropdown-arrow {
+  background-image: url('images/dropdown_arrow_blue.png');
+}
+
+#pucPerspectives .custom-dropdown-arrow .gwt-Label {
+  width: 40px;
 }
 
 #customDropdownPopupMinor  .gwt-MenuBar-vertical .gwt-MenuItem {
