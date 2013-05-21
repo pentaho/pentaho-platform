@@ -109,7 +109,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
     final String filePath = (this.getSolutionPath() != null) ? this.getSolutionPath() : repositoryFile.getPath();
     final String fileName = (this.getSolutionTitle() != null) ? this.getSolutionTitle() : repositoryFile.getName();
-    String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$ //$NON-NLS-2$
+    String urlPath = URL.encodePathSegment(filePath.replaceAll("/", ":")); //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" //$NON-NLS-1$
         + urlPath + "/parameterizable"); //$NON-NLS-1$
     scheduleFileRequestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -125,7 +125,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
             final JSONObject scheduleRequest = new JSONObject();
-            scheduleRequest.put("inputFile", new JSONString(filePath)); //$NON-NLS-1$
+            scheduleRequest.put("inputFile", new JSONString(filePath.replaceAll(":", "/"))); //$NON-NLS-1$
             scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
 
             final boolean hasParams = Boolean.parseBoolean(response.getText());
