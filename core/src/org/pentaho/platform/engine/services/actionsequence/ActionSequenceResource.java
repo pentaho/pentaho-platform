@@ -117,6 +117,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
     }
   }
 
+  @SuppressWarnings("resource")
   public static InputStream getInputStream(String filePath, Locale locale) {
     InputStream inputStream = null;
     if (filePath.startsWith("system")) {

@@ -116,7 +116,7 @@ public class XForm {
   public static String transform(final String xForm, final String method, final IPentahoSession session,
       final IDocumentResourceLoader loader) throws TransformerException {
 
-    HashMap<String,String> parameters = new HashMap<String,String>();
+    HashMap<String, String> parameters = new HashMap<String, String>();
     if (method != null) {
       parameters.put("form-method", method); //$NON-NLS-1$
     } else {
@@ -284,15 +284,17 @@ public class XForm {
       }
       xformBody
           .append("<xf:select1 ").append(appearance).append(" model=\"").append(formName).append("\" id=\"").append(fieldName).append("\" ref=\"").append(fieldName).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-      Iterator listIterator = values.iterator();
-      while (listIterator.hasNext()) {
-        String value = XmlHelper.encode(listIterator.next().toString());
-        String displayValue = (displayNames != null) ? XmlHelper.encode((String) displayNames.get(value)) : value;
-        if (displayValue == null) {
-          displayValue = value;
+      if (values != null) {
+        Iterator listIterator = values.iterator();
+        while (listIterator.hasNext()) {
+          String value = XmlHelper.encode(listIterator.next().toString());
+          String displayValue = (displayNames != null) ? XmlHelper.encode((String) displayNames.get(value)) : value;
+          if (displayValue == null) {
+            displayValue = value;
+          }
+          xformBody
+              .append("<xf:item><xf:label>").append(displayValue).append("</xf:label><xf:value>").append(value).append("</xf:value></xf:item>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
         }
-        xformBody
-            .append("<xf:item><xf:label>").append(displayValue).append("</xf:label><xf:value>").append(value).append("</xf:value></xf:item>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
       }
       xformBody.append("</xf:select1>"); //$NON-NLS-1$
     } else if ((type == XForm.TYPE_LIST_MULTI) || (type == XForm.TYPE_CHECK_MULTI)
@@ -314,15 +316,17 @@ public class XForm {
       }
       xformBody
           .append("<xf:select ").append(appearance).append(" model=\"").append(formName).append("\" id=\"").append(fieldName).append("\" ref=\"").append(fieldName).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-      Iterator listIterator = values.iterator();
-      while (listIterator.hasNext()) {
-        String value = XmlHelper.encode(listIterator.next().toString());
-        String displayValue = (displayNames != null) ? XmlHelper.encode((String) displayNames.get(value)) : value;
-        if (displayValue == null) {
-          displayValue = value;
+      if (values != null) {
+        Iterator listIterator = values.iterator();
+        while (listIterator.hasNext()) {
+          String value = XmlHelper.encode(listIterator.next().toString());
+          String displayValue = (displayNames != null) ? XmlHelper.encode((String) displayNames.get(value)) : value;
+          if (displayValue == null) {
+            displayValue = value;
+          }
+          xformBody
+              .append("<xf:item><xf:label>").append(displayValue).append("</xf:label><xf:value>").append(value).append("</xf:value></xf:item>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
         }
-        xformBody
-            .append("<xf:item><xf:label>").append(displayValue).append("</xf:label><xf:value>").append(value).append("</xf:value></xf:item>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
       }
       xformBody.append("</xf:select>"); //$NON-NLS-1$
     }

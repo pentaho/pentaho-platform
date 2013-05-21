@@ -20,12 +20,10 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import java.util.Map;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.pentaho.database.DatabaseDialectException;
@@ -46,7 +44,6 @@ public class PooledDatasourceHelper {
   public static PoolingDataSource setupPooledDataSource(IDatabaseConnection databaseConnection) throws DBDatasourceServiceException{
     PoolingDataSource poolingDataSource = null;
     String driverClass = null;
-    String url = null;
     try {
 	    ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
 	    IDatabaseDialectService databaseDialectService = PentahoSystem.get(IDatabaseDialectService.class);
@@ -57,17 +54,14 @@ public class PooledDatasourceHelper {
         driverClass = dialect.getNativeDriver();
       }
       try {
-        url = dialect.getURLWithExtraOptions(databaseConnection);
+        dialect.getURLWithExtraOptions(databaseConnection);
       } catch (DatabaseDialectException e) {
-        url = null;
       }
 
 	    // Read default connecion pooling parameter
       String maxdleConn = PentahoSystem.getSystemSetting("dbcp-defaults/max-idle-conn", null);  //$NON-NLS-1$ 
       String minIdleConn = PentahoSystem.getSystemSetting("dbcp-defaults/min-idle-conn", null);  //$NON-NLS-1$    
 	    String maxActConn = PentahoSystem.getSystemSetting("dbcp-defaults/max-act-conn", null);  //$NON-NLS-1$
-	    String numIdleConn = PentahoSystem.getSystemSetting("dbcp-defaults/num-idle-conn", null);  //$NON-NLS-1$
-	    String validQuery = null;
 	    String whenExhaustedAction = PentahoSystem.getSystemSetting("dbcp-defaults/when-exhausted-action", null);  //$NON-NLS-1$
 	    String wait = PentahoSystem.getSystemSetting("dbcp-defaults/wait", null);  //$NON-NLS-1$
 	    String testWhileIdleValue = PentahoSystem.getSystemSetting("dbcp-defaults/test-while-idle", null);  //$NON-NLS-1$
@@ -77,7 +71,6 @@ public class PooledDatasourceHelper {
 	    boolean testOnBorrow = !StringUtil.isEmpty(testOnBorrowValue) ? Boolean.parseBoolean(testOnBorrowValue) : false;
 	    boolean testOnReturn = !StringUtil.isEmpty(testOnReturnValue) ? Boolean.parseBoolean(testOnReturnValue) : false;
 	    int maxActiveConnection = -1;
-	    int numIdleConnection = -1;
 	    long waitTime = -1;
 	    byte whenExhaustedActionType = -1;
 	    int minIdleConnection =  !StringUtil.isEmpty(minIdleConn) ? Integer.parseInt(minIdleConn) : -1;
@@ -92,13 +85,6 @@ public class PooledDatasourceHelper {
 	         maxActiveConnection = Integer.parseInt(maxActConn);
 	      }
 	    }
-      if(attributes.containsKey(IDBDatasourceService.MAX_IDLE_KEY)) {
-        numIdleConnection = Integer.parseInt(attributes.get(IDBDatasourceService.MAX_IDLE_KEY));
-      } else  {
-        if(!StringUtil.isEmpty(numIdleConn)) {
-          numIdleConnection = Integer.parseInt(numIdleConn);
-        }
-      }
       if(attributes.containsKey(IDBDatasourceService.MAX_WAIT_KEY)) {
         waitTime = Integer.parseInt(attributes.get(IDBDatasourceService.MAX_WAIT_KEY));
       } else  {
@@ -107,7 +93,7 @@ public class PooledDatasourceHelper {
         }
       }
       if(attributes.containsKey(IDBDatasourceService.QUERY_KEY)) {
-        validQuery = attributes.get(IDBDatasourceService.QUERY_KEY);
+        attributes.get(IDBDatasourceService.QUERY_KEY);
       }
       if(!StringUtil.isEmpty(whenExhaustedAction)) {
         whenExhaustedActionType = Byte.parseByte(whenExhaustedAction);
@@ -129,26 +115,6 @@ public class PooledDatasourceHelper {
       pool.setTestOnReturn(testOnReturn);
       pool.setTestOnBorrow(testOnBorrow);
       pool.setTestWhileIdle(testWhileIdle);
-	    /*
-	    ConnectionFactory creates connections on behalf of the pool.
-	    Here, we use the DriverManagerConnectionFactory because that essentially
-	    uses DriverManager as the source of connections.
-	    */
-	    ConnectionFactory factory = new DriverManagerConnectionFactory(url, databaseConnection.getUsername(),
-	        databaseConnection.getPassword());
-
-	    /*
-	    Puts pool-specific wrappers on factory connections.  For clarification:
-	    "[PoolableConnection]Factory," not "Poolable[ConnectionFactory]."
-	    */
-      PoolableConnectionFactory pcf = new PoolableConnectionFactory(factory, // ConnectionFactory
-	        pool, // ObjectPool
-	        null, // KeyedObjectPoolFactory
-	        validQuery, // String (validation query)
-	        false, // boolean (default to read-only?)
-	        true // boolean (default to auto-commit statements?)
-	    );
-
 	    /*
 	    initialize the pool to X connections
 	    */

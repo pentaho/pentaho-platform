@@ -23,10 +23,10 @@ package org.pentaho.platform.engine.services;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.services.audit.AuditConnection;
 import org.pentaho.test.platform.engine.core.BaseTest;
@@ -84,7 +84,6 @@ public class AuditConnectionTest extends BaseTest {
     startTest();
     try {
       // Load mock object factory with mock datasource service that produces null datasources
-      StandaloneSession session = new StandaloneSession();
       StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
       factory.init("test-res/solution/system/pentahoObjects.datasourceservice.null.spring.xml", null );
       PentahoSystem.registerObjectFactory(factory);

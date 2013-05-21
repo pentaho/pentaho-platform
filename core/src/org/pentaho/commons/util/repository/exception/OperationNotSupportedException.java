@@ -21,5 +21,10 @@
 package org.pentaho.commons.util.repository.exception;
 
 public class OperationNotSupportedException extends CmisFault  {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -3665302958605776696L;
   
 }

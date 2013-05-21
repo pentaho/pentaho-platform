@@ -33,7 +33,6 @@ public class PooledDatasourceSystemListener implements IPentahoSystemListener {
   public static final String DATASOURCE_REGION = "DATASOURCE";//$NON-NLS-1$
   public boolean startup(final IPentahoSession session) {
     /*try {*/
-      ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
       Logger.debug(this, "PooledDatasourceSystemListener: called for startup"); //$NON-NLS-1$
       /*IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,session);
       if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_POOL)) {

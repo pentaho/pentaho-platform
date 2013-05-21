@@ -19,6 +19,7 @@ package org.pentaho.platform.engine.services;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,17 +53,17 @@ public class ServiceLayerTest extends TestCase {
     return SOLUTION_PATH;
   }
 
-  public void testEmptyActionSequence() {
+  public void testEmptyActionSequence() throws IOException {
     StandaloneApplicationContext applicationContext = new StandaloneApplicationContext(getSolutionPath(), ""); //$NON-NLS-1$
     String objectFactoryCreatorCfgFile = getSolutionPath() + SYSTEM_FOLDER + "/" + DEFAULT_SPRING_CONFIG_FILE_NAME; //$NON-NLS-1$
-    
+
     PentahoSystem.setSystemSettingsService(new PathBasedSystemSettings());
     IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
     pentahoObjectFactory.init(objectFactoryCreatorCfgFile, null);
     PentahoSystem.registerObjectFactory(pentahoObjectFactory);
-    
+
     PentahoSystem.init(applicationContext);
-    
+
     List messages = new ArrayList();
     String instanceId = null;
     IPentahoSession session = new StandaloneSession("system");
@@ -71,11 +72,11 @@ public class ServiceLayerTest extends TestCase {
     solutionEngine.init(session);
     HashMap parameterProviderMap = new HashMap();
     IPentahoUrlFactory urlFactory = new SimpleUrlFactory("");
-
+    Reader reader = null;
     try {
       File file = new File(getSolutionPath() + "/services_layer/test1.xaction");
       StringBuilder str = new StringBuilder();
-      Reader reader = new FileReader(file);
+      reader = new FileReader(file);
       char buffer[] = new char[4096];
       int n = reader.read(buffer);
       while (n != -1) {
@@ -96,6 +97,10 @@ public class ServiceLayerTest extends TestCase {
       // we should not get here
       e.printStackTrace();
       assertTrue(e.getMessage(), false);
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
     }
 
   }

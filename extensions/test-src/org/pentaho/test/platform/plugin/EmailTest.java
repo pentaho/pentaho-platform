@@ -56,7 +56,7 @@ public class EmailTest extends BaseTestCase {
     super.tearDown();
   }
   
-  public void testEmailLoop() {
+  public void testEmailLoop() throws Exception {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     OutputStream outputStream = getOutputStream(SOLUTION_PATH, "text_only_email-loop", ".html"); //$NON-NLS-1$ //$NON-NLS-2$
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true);
@@ -66,7 +66,7 @@ public class EmailTest extends BaseTestCase {
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
   }
 
-  public void testEmailOnly() {
+  public void testEmailOnly() throws Exception {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     OutputStream outputStream = getOutputStream(SOLUTION_PATH, "text_only_email", ".html"); //$NON-NLS-1$ //$NON-NLS-2$
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true);
@@ -86,7 +86,7 @@ public class EmailTest extends BaseTestCase {
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
   }*/
 
-  public void testEmailHtml() {
+  public void testEmailHtml() throws Exception {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     OutputStream outputStream = getOutputStream(SOLUTION_PATH, "text_html_attach_email", ".html"); //$NON-NLS-1$ //$NON-NLS-2$
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true);
@@ -96,7 +96,7 @@ public class EmailTest extends BaseTestCase {
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     EmailTest test = new EmailTest();
     try {
       test.testEmailLoop();

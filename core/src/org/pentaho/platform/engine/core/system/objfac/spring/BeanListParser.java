@@ -50,23 +50,6 @@ public class BeanListParser extends AbstractBeanDefinitionParser {
     return definition;
   }
 
-  /**
-   * Returns the bean definition prepared by the builder and has connected it to the {@code source} object.
-   *
-   * @param builder
-   * @param source
-   * @param context
-   * @return
-   */
-  private AbstractBeanDefinition getSourcedBeanDefinition(BeanDefinitionBuilder builder, Object source,
-                                                          ParserContext context) {
-
-    AbstractBeanDefinition definition = builder.getRawBeanDefinition();
-    definition.setSource(context.extractSource(source));
-
-    return definition;
-  }
-
   /*
     * (non-Javadoc)
     * @see org.springframework.beans.factory.xml.AbstractBeanDefinitionParser#shouldGenerateIdAsFallback()

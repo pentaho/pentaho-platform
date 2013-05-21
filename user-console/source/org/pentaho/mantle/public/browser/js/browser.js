@@ -155,6 +155,16 @@ pen.define([
 			myself.set("fileListModel", fileListModel);
 
 			myself.on("change:showDescriptions", myself.updateDescriptions, myself);
+
+			window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
+		},
+
+		onFavoritesChanged: function(){
+			// BISERVER-9127	- Reselect current file
+			var that = this;
+			setTimeout(function(){
+				that.get('fileListModel').trigger("change:clickedFile");
+			}, 100);
 		},
 
 		updateClicked: function(){
@@ -167,6 +177,9 @@ pen.define([
 
 		updateFileClicked: function(){
 			this.set("clickedFile",this.get("fileListModel").get("clickedFile"));
+
+      // BISERVER-9127 - Provide the selected path to the FileButtons object
+			fileButtons.onFileSelect(this.getFileClicked().attr("path"));
 		},
 
 		updateFolderLastClick: function(){

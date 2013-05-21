@@ -39,7 +39,6 @@ public class BiPlatformRepositoryClient {
   
   private String password;
   
-  private HttpClient httpClientInstance = null;
   
   public BiPlatformRepositoryClient() {
     objectService = new BiPlatformRepositoryClientObjectService();

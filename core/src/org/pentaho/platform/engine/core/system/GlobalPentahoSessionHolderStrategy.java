@@ -34,8 +34,8 @@ public class GlobalPentahoSessionHolderStrategy implements IPentahoSessionHolder
     session = null;
   }
 
-  public void setSession(IPentahoSession session) {
-    this.session = session;
+  public void setSession(IPentahoSession insession) {
+    session = insession;
   }
 
 }

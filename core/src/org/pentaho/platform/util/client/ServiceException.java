@@ -22,6 +22,11 @@ package org.pentaho.platform.util.client;
 
 public class ServiceException extends Exception {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 3965771811870311265L;
+
   public ServiceException( Exception causedBy ) {
     super( causedBy );
   }

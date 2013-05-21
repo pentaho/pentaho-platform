@@ -22,4 +22,9 @@ package org.pentaho.commons.util.repository.exception;
 
 public class StorageException  extends CmisFault {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1433548704696509345L;
+
 }

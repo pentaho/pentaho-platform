@@ -114,6 +114,7 @@ public class ActionInfo {
     return ActionInfo.buildSolutionPath(this.solutionName, this.path, this.actionName);
   }
 
+  @SuppressWarnings("null")
   public static String buildSolutionPath(final String solution, String path, String filename) {
     StringBuffer buf = new StringBuffer(ISolutionRepository.SEPARATOR);
     
