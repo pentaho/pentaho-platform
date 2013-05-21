@@ -121,7 +121,7 @@
     document.getElementById("pucWrapper").style.left = "-5000px";
     pen.require(["common-ui/util/BusyIndicator"], function(busy){
 
-        busy.show("<%= properties.getString("loadingConsole") %>", "<%= properties.getString("pleaseWait") %>", "pucPleaseWait");
+        busy.show("<%= properties.getString("pleaseWait") %>", "<%= properties.getString("loadingConsole") %>", "pucPleaseWait");
 
         window.notifyOfLoad = function(area){
             var allFramesLoaded = true;
