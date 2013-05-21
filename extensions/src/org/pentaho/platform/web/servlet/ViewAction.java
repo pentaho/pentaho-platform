@@ -219,14 +219,11 @@ public class ViewAction extends ServletBase {
   protected void setupRequestHandler(final HttpServletRequest request, final HttpServletRequestHandler requestHandler) {
     String prompt = request.getParameter("prompt"); //$NON-NLS-1$
     String actionPath = request.getParameter("path"); //$NON-NLS-1$
-    String solutionName = actionPath.substring(0, actionPath.indexOf('/', 1));
-    String actionName = actionPath.substring(actionPath.lastIndexOf('/'));
     String processId = this.getClass().getName();
     String instanceId = request.getParameter("instance-id"); //$NON-NLS-1$
     requestHandler.setInstanceId(instanceId);
     requestHandler.setProcessId(processId);
-    String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
-    requestHandler.setActionPath(actionSeqPath);
+    requestHandler.setActionPath(actionPath);
     requestHandler.setForcePrompt((prompt != null) && prompt.equalsIgnoreCase("yes")); //$NON-NLS-1$
   }
 
