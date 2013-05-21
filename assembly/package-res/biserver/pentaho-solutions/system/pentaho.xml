@@ -146,5 +146,5 @@
    		<max-folder-limit>500000000</max-folder-limit>
 
    </file-upload-defaults>
-  <default-theme>onyx</default-theme>
+  <default-theme>crystal</default-theme>
 </pentaho-system>
