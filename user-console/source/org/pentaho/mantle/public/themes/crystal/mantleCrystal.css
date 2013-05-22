@@ -18,6 +18,7 @@ margin: 0 auto;
 color: #1973bc;
 font-size: 24px;
 padding: 0px 0px 20px 0px;
+font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
 .admin-perspective {
   padding-top: 40px;
@@ -53,12 +54,12 @@ padding: 0px 0px 20px 0px;
   color: #1973bc;
   cursor: pointer;
   cursor: hand;
+    background-image: none;
 }
 
 #adminCatTree .tree-item-custom-widget-selected {
   border: 0px solid transparent;
   background: #c1d7e1;
-
 }
 
 #adminCatTree .tree-item-custom-widget {
@@ -97,17 +98,17 @@ padding: 0px 0px 20px 0px;
 }
 
 .mantle-perspective-toggle-down {
-  border-top: 2px solid #fe700f;
+  border-top: 2px solid #1973bc;
   color: white;
 }
 
 .mantle-perspective-toggle-down-hovering {
-  border-top: 2px solid #fe700f;
+  border-top: 2px solid #1973bc;
   color: white;
 }
 
 #mainMenubar {
-  padding-left: 20px;
+  padding-left: 14px;
   padding-top: 0px;
 }
 
@@ -157,19 +158,19 @@ padding: 0px 0px 20px 0px;
 .solutionDisclosureHeaderWidget {
   background-color:#EEEEEE;
   border:5px solid #EEEEEE;
-  color:#778645;
+  color: #1973bc;
 }
 
 .solutionDisclosureHeaderWidgetHover {
   background-color:#DDDDDD;
   border:5px solid #DDDDDD;
-  color:#EF6507;
+  color: #1973bc;
 }
 
 .solutionDisclosureWidget {
   background-color:#EEEEEE;
   border:1px solid #808080;
-  color:#778645;
+  color: #1973bc;
 }
 
 .classicNavigatorTable {
@@ -187,28 +188,28 @@ padding: 0px 0px 20px 0px;
 }
 
 .classicNavigatorFileLabelHover {
-  color: #EF6507;
+  color: #1973bc;
 }
 
 .classicNavigatorFileLabel {
-  color: #778645;
+  color: #1973bc;
 }
 
 .numSolutionsLabel {
-  color: #778645;
+  color: #1973bc;
 }
 
 .breadCrumbLabel {
-  color: #778645;
+  color: #1973bc;
 }
 
 .breadCrumbLabelHover {
-  color: #EF6507;
+  color: #1973bc;
 }
 
 .hiddenFileLabel {
   width: 100%;
-  opacity: .7;
+  opacity: .5;
   font-style: italic;
   background-color: #ffffff;
 }
@@ -319,17 +320,17 @@ padding: 0px 0px 20px 0px;
 }
 
 a, a:visited {
-  color:#ef8033;
+  color:#1973bc;
 }
 
 a:active, a:hover {
-  color:#949e3e;
+  color:#1973bc;
 }
 
 .filePropertyTabContent {
-  border-left: 2px solid #87944C;
-  border-bottom: 2px solid #87944C;
-  border-right: 2px solid #87944C;
+  border-left: 2px solid #cbdde8;
+  border-bottom: 2px solid #cbdde8;
+  border-right: 2px solid #cbdde8;
 }
 
 .filePropertiesDialogContent {
@@ -388,7 +389,7 @@ a:active, a:hover {
   For precaution, this fix is only applied to the Schedule table (BISERVER-8539).
 */
 .IE #schedule-table th {
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
+  /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');*/
 }
 
 .backgroundContentTableCell {
@@ -492,7 +493,7 @@ a:active, a:hover {
 }
 
 .workspace-resource-link {
-  color: #ef8033;
+  color: #1973bc;
   text-decoration: underline;
   cursor: hand;
 }
@@ -591,7 +592,7 @@ a:active, a:hover {
 }
 
 .gwt-RichTextArea {
-  border: 1px solid black;
+  border: 1px solid #cbdde8;
   background-color: white;
 }
 
@@ -600,42 +601,42 @@ a:active, a:hover {
 }
 
 .gwt-RichTextToolbar .gwt-PushButton-up {
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
 }
 
 .gwt-RichTextToolbar .gwt-PushButton-up-hovering {
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
   border-color: #E8F1FF rgb(157, 174, 205) rgb(157, 174, 205) rgb(232, 241, 255);
 }
 
 .gwt-RichTextToolbar .gwt-PushButton-down {
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
   border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
 }
 
 .gwt-RichTextToolbar .gwt-PushButton-down-hovering {
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
   border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
 }
 
 .gwt-RichTextToolbar .gwt-ToggleButton-up {
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
 }
 
 .gwt-RichTextToolbar .gwt-ToggleButton-up-hovering {
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
   border-color: #E8F1FF rgb(157, 174, 205) rgb(157, 174, 205) rgb(232, 241, 255);
 }
 
 .gwt-RichTextToolbar .gwt-ToggleButton-down {
   background-color: #E8F1FF;
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
   border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
 }
 
 .gwt-RichTextToolbar .gwt-ToggleButton-down-hovering {
   background-color: #E8F1FF;
-  border: 1px solid #C3D9FF;
+  border: 1px solid #cbdde8;
   border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
 }
 
@@ -694,7 +695,7 @@ a:active, a:hover {
 }
 .puc-navigator-panel {
   background-color: #f1f1f1;
-  border-top: 1px solid #abc9d9;
+  border-right: 1px solid #abc9d9;
 }
 
 .mantle-toolbar-combo-button-hovering{
@@ -897,7 +898,7 @@ a:active, a:hover {
 #pucHeader .gwt-MenuBar-horizontal .gwt-MenuItem {
   color: #777; 
   font-size: 13px;
-  padding: 4px;
+  padding: 4px 12px;
 }
 
 #pucContent {
