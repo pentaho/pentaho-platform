@@ -688,6 +688,7 @@ a:active, a:hover {
 }
 .files-toolbar{
   border: 1px solid #abc9d9;
+  background-color: #fff;
 }
 
 .folder-list-panel{
