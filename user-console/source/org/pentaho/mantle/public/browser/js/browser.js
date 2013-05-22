@@ -121,8 +121,7 @@ pen.define([
 			var foldersObj = {}
 			
 			//get spinner and give a new to each browser
-	      	var config = myself.get("spinConfig");
-	      	config.color = "#BBB";
+	      	var config = myself.get("spinConfig").getLargeConfig();
 
 	      	var spinner1 = new Spinner(config),
 	      		spinner2 = new Spinner(config);
