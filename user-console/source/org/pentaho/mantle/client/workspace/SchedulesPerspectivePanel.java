@@ -111,7 +111,11 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 		blockoutPanel.setStyleName("schedulesPanel");
 		wrapperPanel.add(blockoutPanel);
 
-    add(wrapperPanel);
+
+    SimplePanel sPanel = new SimplePanel();
+    sPanel.add(wrapperPanel);
+    sPanel.setStylePrimaryName("schedulerPerspective-wrapper");
+    add(sPanel);
 		
 	}
 
