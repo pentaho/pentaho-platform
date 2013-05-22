@@ -158,7 +158,7 @@
               {{#if isEmpty}}
               <div class="empty-panel content-panel">
                 <div class="centered">
-                  <div class="">{{i18n.empty_recents_panel_message}}</div>
+                  <div class="empty-message">{{i18n.empty_recents_panel_message}}</div>
                   <button class="pentaho-button" onclick="window.top.mantle_setPerspective('browser.perspective');">{{i18n.browse}}</button>
                 </div>
               </div>
@@ -213,7 +213,7 @@
               {{#if isEmpty}}
               <div class="empty-panel content-panel">
                 <div class="centered">
-                  <div class="">{{i18n.empty_favorites_panel_message}}</div>
+                  <div class="empty-message">{{i18n.empty_favorites_panel_message}}</div>
                   <button class="pentaho-button" onclick="window.top.mantle_setPerspective('browser.perspective')">{{i18n.browse}}</button>
                 </div>
               </div>
