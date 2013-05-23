@@ -19,6 +19,8 @@ package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import java.io.Serializable;
 
+import mondrian.olap.Util;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -36,32 +38,32 @@ public class MondrianCatalog implements Serializable {
 
   private String definition;
 
-  private MondrianDataSource dataSource;
-
   private MondrianSchema schema;
 
 
   // We will hold the extra information not directly related to XMLA properties
   private MondrianCatalogComplementInfo mondrianCatalogComplementInfo;
 
-  private String whereCondition;
-
-
-  public MondrianCatalog(final String name, final String dataSourceInfo, final String definition,
-      final MondrianDataSource dataSource, final MondrianSchema schema) {
-
-    this(name, dataSourceInfo, definition, dataSource, schema, new MondrianCatalogComplementInfo());
+  public MondrianCatalog(
+    final String name,
+    final String dataSourceInfo,
+    final String definition,
+    final MondrianSchema schema)
+  {
+    this(name, dataSourceInfo, definition, schema, new MondrianCatalogComplementInfo());
   }
 
 
-  public MondrianCatalog(final String name, final String dataSourceInfo, final String definition,
-                         final MondrianDataSource dataSource, final MondrianSchema schema,
-                         final MondrianCatalogComplementInfo mondrianCatalogComplementInfo) {
-
+  public MondrianCatalog(
+    final String name,
+    final String dataSourceInfo,
+    final String definition,
+    final MondrianSchema schema,
+    final MondrianCatalogComplementInfo mondrianCatalogComplementInfo)
+  {
     this.name = name;
     this.dataSourceInfo = dataSourceInfo;
     this.definition = definition;
-    this.dataSource = dataSource;
     this.schema = schema;
     this.mondrianCatalogComplementInfo = mondrianCatalogComplementInfo;
   }
@@ -78,6 +80,10 @@ public class MondrianCatalog implements Serializable {
     return dataSourceInfo;
   }
 
+  public boolean isJndi() {
+    return Util.parseConnectString(dataSourceInfo).get("DataSource") != null;
+  }
+
   public MondrianSchema getSchema() {
     return schema;
   }
@@ -86,24 +92,9 @@ public class MondrianCatalog implements Serializable {
     return mondrianCatalogComplementInfo;
   }
 
-  /**
-   * Returns dataSource with overridden dataSourceInfo (if any). 
-   */
-  public MondrianDataSource getEffectiveDataSource() {
-    if (null != dataSourceInfo) {
-      return new MondrianDataSource(dataSource, dataSourceInfo);
-    } else {
-      return dataSource;
-    }
-  }
-
-  public MondrianDataSource getDataSource() {
-    return dataSource;
-  }
-
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("name", name).append("dataSourceInfo", dataSourceInfo).append( //$NON-NLS-1$//$NON-NLS-2$
-        "definition", definition).append("dataSource", dataSource).append("schema", schema).toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "definition", definition).append("schema", schema).toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }
 }
