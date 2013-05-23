@@ -683,3 +683,7 @@ code {
 .applicationShell>div>div {
   overflow: auto;
 }
+
+#adminCatTree {
+  width: 237px;
+}
