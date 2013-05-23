@@ -47,7 +47,6 @@ import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianDataSource;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -132,8 +131,7 @@ public class MondrianCatalogHelperTest {
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
 		MondrianSchema schema = new MondrianSchema("SteelWheels", null);
-		MondrianDataSource ds = new MondrianDataSource("SteelWheels", "", "", "Provider=mondrian;DataSource=SampleData;", "", "", "", null);
-		MondrianCatalog cat = new MondrianCatalog("SteelWheels", "Provider=mondrian;DataSource=SampleData;", "solution:test/charts/steelwheels.mondrian.xml", ds, schema);
+		MondrianCatalog cat = new MondrianCatalog("SteelWheels", "Provider=mondrian;DataSource=SampleData;", "solution:test/charts/steelwheels.mondrian.xml", schema);
 		File file = new File("test-src/solution/test/charts/steelwheels.mondrian.xml");
 		String mondrianSchema = IOUtils.toString(new FileInputStream(file));
 		session.setAttribute("MONDRIAN_SCHEMA_XML_CONTENT", mondrianSchema);
