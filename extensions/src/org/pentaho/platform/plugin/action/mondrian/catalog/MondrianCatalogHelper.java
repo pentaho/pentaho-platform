@@ -23,7 +23,6 @@ import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.agg.AggregationManager;
 import mondrian.xmla.DataSourcesConfig;
-import mondrian.xmla.DataSourcesConfig.DataSource;
 import mondrian.xmla.DataSourcesConfig.DataSources;
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
@@ -153,8 +152,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       // Was the catalog found by name?
       if (foundCatalog != null) {
         // first check dataSourceInfo
-        String foundDataSourceInfo = cleanseDataSourceInfo(foundCatalog.getEffectiveDataSource().getDataSourceInfo());
-        String newDataSourceInfo = cleanseDataSourceInfo(catalog.getEffectiveDataSource().getDataSourceInfo());
+        String foundDataSourceInfo = cleanseDataSourceInfo(foundCatalog.getDataSourceInfo());
+        String newDataSourceInfo = cleanseDataSourceInfo(catalog.getDataSourceInfo());
 
         if (!foundDataSourceInfo.equals(newDataSourceInfo)) {
           return false;
@@ -686,10 +685,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       for (DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs) {
         catalogNames.add(catalog.name);
       }
-      // create dataSource
-      MondrianDataSource mondrianDataSource = new MondrianDataSource(dataSource.name, dataSource.description,
-          dataSource.url, dataSource.dataSourceInfo, dataSource.providerName, dataSource.providerType,
-          dataSource.authenticationMode, catalogNames);
 
       Map<String, MondrianCatalog> catalogs = (Map<String, MondrianCatalog>) cacheMgr.getFromRegionCache(
           MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString());
@@ -701,8 +696,12 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           try {
             MondrianSchema schema = makeSchema(docAtUrlToString(catalog.definition, pentahoSession));
 
-            MondrianCatalog mondrianCatalog = new MondrianCatalog(useSchemaNameAsCatalogName ? schema.getName()
-                : catalog.name, catalog.dataSourceInfo, catalog.definition, mondrianDataSource, schema);
+            MondrianCatalog mondrianCatalog =
+              new MondrianCatalog(
+                useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
+                catalog.dataSourceInfo,
+                catalog.definition,
+                schema);
 
             catalogs.put(mondrianCatalog.getName(), mondrianCatalog);
             catalogs.put(mondrianCatalog.getDefinition(), mondrianCatalog);
@@ -729,10 +728,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       for (DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs) {
         catalogNames.add(catalog.name);
       }
-      // create dataSource
-      MondrianDataSource mondrianDataSource = new MondrianDataSource(dataSource.name, dataSource.description,
-          dataSource.url, dataSource.dataSourceInfo, dataSource.providerName, dataSource.providerType,
-          dataSource.authenticationMode, catalogNames);
+
       for (DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs) {
         if (catalog.definition.startsWith("solution:")) { //$NON-NLS-1$
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
@@ -741,9 +737,14 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
             MondrianCatalogComplementInfo catalogComplementInfo = getCatalogComplementInfoMap(catalog.definition);
 
-            MondrianCatalog mondrianCatalog = new MondrianCatalog(useSchemaNameAsCatalogName ? schema.getName()
-                : catalog.name, catalog.dataSourceInfo, catalog.definition, mondrianDataSource, schema,
+            MondrianCatalog mondrianCatalog =
+              new MondrianCatalog(
+                useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
+                catalog.dataSourceInfo,
+                catalog.definition,
+                schema,
                 catalogComplementInfo);
+
             localCatalogs.add(mondrianCatalog);
           } catch (Exception e) {
             MondrianCatalogHelper.logger.error(
@@ -887,7 +888,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     List<MondrianCatalog> filtered = new ArrayList<MondrianCatalog>();
     for (MondrianCatalog orig : origList) {
       if (hasAccess(orig, CatalogPermission.READ, pentahoSession)
-          && (!jndiOnly || orig.getEffectiveDataSource().isJndi())) {
+          && (!jndiOnly || orig.isJndi())) {
         filtered.add(orig);
       }
     }
@@ -939,19 +940,12 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       dsUrl += "/"; //$NON-NLS-1$
     }
     dsUrl += "Xmla"; //$NON-NLS-1$
-    String dsAuthMode = DataSource.AUTH_MODE_UNAUTHENTICATED;
-    String dsProviderName = "Pentaho"; //$NON-NLS-1$
-
-    // DataSources where ProviderType=None are filtered by PentahoXmlaServlet
-    String dsProviderType = enableXmla ? DataSource.PROVIDER_TYPE_MDP : "None"; //$NON-NLS-1$
 
     String catDef = "solution:" + schemaSolutionPath; //$NON-NLS-1$
 
     MondrianSchema mondrianSchema = mondrianCatalogService.loadMondrianSchema(catDef, session);
 
     String catName = mondrianSchema.getName();
-    String dsName = "Provider=Mondrian;DataSource=" + mondrianSchema.getName(); //$NON-NLS-1$
-    String dsDesc = "Published Mondrian Schema " + mondrianSchema.getName() + " using jndi datasource " + jndiName; //$NON-NLS-1$ //$NON-NLS-2$
     String[] roleNames = mondrianSchema.getRoleNames();
 
     // verify JNDI
@@ -974,13 +968,14 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     String catConnectStr = "Provider=mondrian;DataSource=" + jndiName; //$NON-NLS-1$
 
-    MondrianDataSource ds = new MondrianDataSource(dsName, dsDesc, dsUrl, catConnectStr, dsProviderName,
-        dsProviderType, dsAuthMode, null);
-
     // MB - 12/2009 - TODO: Figure out the empty list
     // Curious why we aren't adding the cubes from the read schema into the created schema.
-    MondrianCatalog cat = new MondrianCatalog(catName, catConnectStr, catDef, ds, new MondrianSchema(catName,
-        new ArrayList<MondrianCube>(), roleNames));
+    MondrianCatalog cat =
+      new MondrianCatalog(
+        catName,
+        catConnectStr,
+        catDef,
+        new MondrianSchema(catName, new ArrayList<MondrianCube>(), roleNames));
 
     try {
       mondrianCatalogService.addCatalog(cat, overwrite, session);

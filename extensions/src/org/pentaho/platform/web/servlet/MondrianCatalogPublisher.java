@@ -17,7 +17,6 @@
 */
 package org.pentaho.platform.web.servlet;
 
-import mondrian.xmla.DataSourcesConfig.DataSource;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +33,6 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianDataSource;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
@@ -179,23 +177,11 @@ public class MondrianCatalogPublisher extends RepositoryFilePublisher {
       dsUrl += "/"; //$NON-NLS-1$
     }
     dsUrl += "Xmla"; //$NON-NLS-1$
-    
-    MondrianDataSource ds = new MondrianDataSource(
-        "Provider=Mondrian;DataSource=Pentaho",
-        "Pentaho BI Platform Datasources",
-        dsUrl, 
-        "Provider=Mondrian", // no default jndi datasource should be specified
-        "PentahoXMLA", 
-        DataSource.PROVIDER_TYPE_MDP, 
-        DataSource.AUTH_MODE_UNAUTHENTICATED, 
-        null
-      );
 
     MondrianCatalog cat = new MondrianCatalog(
         catName, 
         catConnectStr, 
-        catDef, 
-        ds, 
+        catDef,
         new MondrianSchema(catName, new ArrayList<MondrianCube>())
       );
 
