@@ -81,7 +81,11 @@ public class MondrianCatalog implements Serializable {
   }
 
   public boolean isJndi() {
-    return Util.parseConnectString(dataSourceInfo).get("DataSource") != null;
+    return getJndi() != null;
+  }
+
+  public String getJndi() {
+      return Util.parseConnectString(dataSourceInfo).get("DataSource");
   }
 
   public MondrianSchema getSchema() {
