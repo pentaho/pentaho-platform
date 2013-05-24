@@ -78,7 +78,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   public Response setUserSetting(@PathParam("setting") String setting, String settingValue) {
     IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
     settingsService.setUserSetting(setting, settingValue);
-    return getUserSetting(setting);
+    return Response.ok(settingValue).build();
   }
 
 }

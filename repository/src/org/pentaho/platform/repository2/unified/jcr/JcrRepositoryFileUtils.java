@@ -1052,6 +1052,7 @@ public class JcrRepositoryFileUtils {
     }
 
     checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, metadataNode, null);
+    session.refresh(true);
   }
 
   private static void setMetadataItemForFile(final Session session, final String metadataKey,

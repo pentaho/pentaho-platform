@@ -487,7 +487,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.getReferrers", fileId)); //$NON-NLS-1$
   }
 
-  public void setFileMetadata(final Serializable fileId, final Map<String, Serializable> metadataMap) {
+  public synchronized void setFileMetadata(final Serializable fileId, final Map<String, Serializable> metadataMap) {
     callLogThrow(new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.setFileMetadata(fileId, metadataMap);
@@ -496,7 +496,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.setFileMetadata", fileId, metadataMap)); //$NON-NLS-1$
   }
 
-  public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
+  public synchronized Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     return callLogThrow(new Callable<Map<String, Serializable>>() {
       public Map<String, Serializable> call() throws Exception {
         return delegatee.getFileMetadata(fileId);
