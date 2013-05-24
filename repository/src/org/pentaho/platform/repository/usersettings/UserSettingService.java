@@ -37,6 +37,7 @@ public class UserSettingService implements IUserSettingService {
 
   public static final String SETTING_PREFIX = "_USERSETTING"; //$NON-NLS-1$
   IPentahoSession session = null;
+  private static final byte[] lock = new byte[0];
 
   protected IUnifiedRepository repository;
 
@@ -155,8 +156,12 @@ public class UserSettingService implements IUserSettingService {
     return defaultSetting;
   }
 
-  public synchronized void setUserSetting(String settingName, String settingValue) {
+  public void setUserSetting(String settingName, String settingValue) {
+    
     String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    
+    synchronized (lock) {
+    
     Serializable id = repository.getFile(homePath).getId();
 
     Map<String, Serializable> fileMetadata = repository.getFileMetadata(id);
@@ -165,6 +170,7 @@ public class UserSettingService implements IUserSettingService {
     }
     fileMetadata.put(SETTING_PREFIX + settingName, settingValue);
     repository.setFileMetadata(id, fileMetadata);
+    }
   }
 
   // ////////////////////////////////////////////////////////////////////////////////////////////////
