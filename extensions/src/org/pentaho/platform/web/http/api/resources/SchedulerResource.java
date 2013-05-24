@@ -67,7 +67,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 
@@ -145,13 +144,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
     Job job = null;
     try {
-      IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-      String outName = RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile());
-
-      if (!StringUtils.isEmpty(scheduleRequest.getJobName())) {
-        outName = scheduleRequest.getJobName();
-      }
-
       IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger(scheduleRequest, scheduler);
 
       HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
@@ -160,8 +152,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
       }
 
       if (hasInputFile) {
-        String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
-            + "/workspace/" + outName + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
+        SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver(scheduleRequest);
+        String outputFile = outputPathResolver.resolveOutputFilePath();
         String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
         job = scheduler.createJob(scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
             new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile));
