@@ -17,6 +17,7 @@
 
  .main-container {
 	padding-top: 20px;
+	padding-bottom: 20px;
 	max-width: 1024px;
 	margin: 0 auto;
 }
@@ -28,7 +29,8 @@
 }
 
  .fileBrowserColumn {
- 	height: 600px;
+ 	height: 100%;
+ 	position: relative;
  }
 
  .fileBrowserColumn .header {
@@ -42,7 +44,11 @@
  }
 
  .fileBrowserColumn .body {
- 	height: 535px;
+ 	position: absolute;
+ 	top: 69px; /* Matches .header style of padding-bottom 20px + margin !0px + height 20px + .bootstrap .well 19px*/
+ 	bottom: 19px; /* .bootstrap .well padding-bottom of 19px */
+ 	left: 19px; /* .bootstrap .well padding-left of 19px */
+ 	right: 19px; /* .bootstrap .well padding-right of 19px */
 
  	overflow: auto;
  }
@@ -175,7 +181,10 @@
 	background-image: url("../../../content/pentaho-cdf/resources/cdfFileType.png");
 }
 
-
-
-
-
+.fill-absolute {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
