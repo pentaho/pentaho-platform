@@ -108,30 +108,33 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     setWidget(3, 0, new Label(Messages.getString("owner") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
     setWidget(3, 1, ownerLabel);
 
-    setWidget(4, 0, new Label(Messages.getString("location") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(4, 1, locationLabel);
+    setWidget(4, 0, new Label(Messages.getString("source") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(4, 1, sourceLabel);
 
-    setWidget(5, 0, new Label(Messages.getString("size") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(5, 1, sizeLabel);
+    setWidget(5, 0, new Label(Messages.getString("location") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(5, 1, locationLabel);
 
-    addHr(6, 0, 2);
+    setWidget(6, 0, new Label(Messages.getString("size") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(6, 1, sizeLabel);
 
-    setWidget(7, 0, new Label(Messages.getString("created") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(7, 1, createdLabel);
+    addHr(7, 0, 2);
 
-    setWidget(8, 0, new Label(Messages.getString("lastModified") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(8, 1, lastModifiedDateLabel);
+    setWidget(8, 0, new Label(Messages.getString("created") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(8, 1, createdLabel);
 
-    addHr(9, 0, 2);
+    setWidget(9, 0, new Label(Messages.getString("lastModified") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(9, 1, lastModifiedDateLabel);
+
+    addHr(10, 0, 2);
 
     if (isInTrash) {
-      setWidget(10, 0, new Label(Messages.getString("dateDeleted") + ":")); //$NON-NLS-1$//$NON-NLS-2$
-      setWidget(10, 1, deletedDateLabel);
+      setWidget(11, 0, new Label(Messages.getString("dateDeleted") + ":")); //$NON-NLS-1$//$NON-NLS-2$
+      setWidget(11, 1, deletedDateLabel);
 
       Label lbl = new Label(Messages.getString("originalLocation") + ":"); //$NON-NLS-1$ //$NON-NLS-2$
       lbl.addStyleName("nowrap"); //$NON-NLS-1$     
-      setWidget(11, 0, lbl);
-      setWidget(11, 1, originalLocationLabel);
+      setWidget(12, 0, lbl);
+      setWidget(12, 1, originalLocationLabel);
 
       Button restoreButton = new Button("Restore");
       restoreButton.setStylePrimaryName("pentaho-button");
@@ -146,12 +149,12 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
         }
 
       });
-      setWidget(12, 3, restoreButton);
+      setWidget(13, 3, restoreButton);
 
-      addHr(13, 0, 2);
+      addHr(14, 0, 2);
     }
 
-    setWidget(13, 0, metadataPermsPanel);
+    setWidget(14, 0, metadataPermsPanel);
 
     setCellPadding(2);
     setCellSpacing(2);
@@ -207,6 +210,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     nameLabel.setText(fileSummary.getTitle());
     typeLabel
         .setText(fileSummary.isFolder() ? Messages.getString("folder") : fileSummary.getName().substring(fileSummary.getName().lastIndexOf("."))); //$NON-NLS-1$//$NON-NLS-2$
+    sourceLabel.setText(isInTrash ? Messages.getString("recycleBin") : fileSummary.getPath()); //$NON-NLS-1$//$NON-NLS-2$
     locationLabel
         .setText(isInTrash ? Messages.getString("recycleBin") : fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"))); //$NON-NLS-1$//$NON-NLS-2$
     sizeLabel.setText(NumberFormat.getDecimalFormat().format(fileSummary.getFileSize() / 1000.00)
