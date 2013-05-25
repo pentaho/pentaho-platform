@@ -144,8 +144,8 @@
 <body data-spy="scroll" data-target=".sidebar">
 
 
-<div class="container-fluid main-container">
-  <div id="fileBrowser" class="row-fluid" style="margin-bottom: 30px">
+<div class="container-fluid main-container fill-absolute">
+  <div id="fileBrowser" class="row-fluid fill-absolute">
 </div>
 
 
