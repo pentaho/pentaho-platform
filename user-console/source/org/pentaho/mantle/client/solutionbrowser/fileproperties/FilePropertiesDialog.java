@@ -67,7 +67,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
    * @param defaultTab
    */
   public FilePropertiesDialog(RepositoryFile fileSummary, final PentahoTabPanel propertyTabs, final IDialogCallback callback, Tabs defaultTab, final boolean canManageAcls) {
-    super(fileSummary.getName() + " " + Messages.getString("properties"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    super(fileSummary.getTitle() + " " + Messages.getString("properties"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     boolean isInTrash = fileSummary.getPath().contains("/.trash/pho:");
     setContent(propertyTabs);
     this.canManageAcls = canManageAcls;

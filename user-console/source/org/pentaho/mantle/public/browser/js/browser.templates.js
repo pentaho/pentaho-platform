@@ -84,12 +84,12 @@ pen.define([
 		templates.file = Handlebars.compile(
 			"{{#ifCond folder 'false'}}" + 
 				"{{#if file.description}}" +
-				"<div id='{{id}}' class='file' path='{{path}}' title2='{{file.description}}' title='{{name2}}'>" + 
+				"<div id='{{id}}' class='file' path='{{path}}' title2='{{file.description}}' title='{{fileWithExtension}}'>" + 
 				"{{else}}" +
-				"<div id='{{id}}' class='file' path='{{path}}' title2='{{name2}}' title='{{name2}}'>" +
+				"<div id='{{id}}' class='file' path='{{path}}' title2='{{fileWithExtension}}' title='{{fileWithExtension}}'>" +
 				"{{/if}}" +
 					"<div class='icon {{classes}}'> </div>" +
-					"<div class='name'>{{name}}</div>" +
+					"<div class='name'>{{title}}</div>" +
 				"</div>" +
 			"{{/ifCond}}");
 
@@ -113,7 +113,9 @@ pen.define([
 		Handlebars.registerHelper('file', function(){
 			//handle file name
 			var name 	= this.file.name,
+			    title   = this.file.title,
 				path 	= this.file.path;
+			
 
 			var correctName = (name == "" ? path : name);
 
@@ -124,10 +126,11 @@ pen.define([
 			return new Handlebars.SafeString(templates.file({
 				path: path,
 				name: nameNoExtension,
+				title: title,
 				id: this.file.id,
 				classes: extension,
 				folder: this.file.folder,
-				name2: this.file.name
+				fileWithExtension: this.file.name
 			}));
 		});
 
