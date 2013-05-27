@@ -190,7 +190,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     
     String tenantCreatorId = PentahoSessionHolder.getSession().getName();
     RepositoryFile tenantRootFolder = createTenantFolder(parentTenant, tenantName, tenantCreatorId);
-    
+
     userRoleDao.createRole(newTenant, tenantAdminRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, authenticatedRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, anonymousRoleName, "", new String[0]);
@@ -198,7 +198,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     
     String tenantAdminRoleId = tenantedRoleNameResolver.getPrincipleId(newTenant, tenantAdminRoleName);
     RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);
-    
+
+    this.jcrTemplate.save();
     // If parent tenant is null then we assume we're creating the system tenant. In which case we'll give the system tenant admin permissions on the root folder.
     if (parentTenant == null) {
       repositoryFileAclDao.addAce(tenantRootFolder.getId(), tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL));
@@ -234,7 +235,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       RepositoryFileSid fileOwnerSid = new RepositoryFileSid(tenantCreatorId);
       createInitialTenantFolders(newTenant, tenantRootFolder, fileOwnerSid);
     } catch (Exception ex) {
-      
+      throw new RuntimeException("Error creating initial tenant folders", ex);
     }
     return newTenant;
   }

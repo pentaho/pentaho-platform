@@ -76,11 +76,8 @@ import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObj
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
+import org.pentaho.platform.repository2.unified.jcr.*;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
-import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -598,21 +595,13 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       
     // tenant public folder
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()), acmeAuthenticatedAuthoritySid,
-        EnumSet.of(RepositoryFilePermission.WRITE, RepositoryFilePermission.READ, RepositoryFilePermission.DELETE));
-    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId())
-        .getOwner());
+        EnumSet.of(RepositoryFilePermission.READ));
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId()).getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
         Privilege.JCR_READ_ACCESS_CONTROL));
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
-        Privilege.JCR_ADD_CHILD_NODES));
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
-        Privilege.JCR_MODIFY_PROPERTIES));
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
-        Privilege.JCR_NODE_TYPE_MANAGEMENT));
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
-        Privilege.JCR_MODIFY_ACCESS_CONTROL));
+
     // tenant home folder
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId()).isEntriesInheriting());
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()), acmeAuthenticatedAuthoritySid,
@@ -672,6 +661,28 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
         tenantAcme, USERNAME_SUZY), Privilege.JCR_WRITE));
+
+    assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()), acmeAuthenticatedAuthoritySid,
+        EnumSet.of(RepositoryFilePermission.READ));
+
+    // Test admin access ot tenant public folder
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId())
+        .getOwner());
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
+        Privilege.JCR_READ));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
+        Privilege.JCR_READ_ACCESS_CONTROL));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
+        Privilege.JCR_ADD_CHILD_NODES));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
+        Privilege.JCR_MODIFY_PROPERTIES));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
+        Privilege.JCR_NODE_TYPE_MANAGEMENT));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
+        Privilege.JCR_MODIFY_ACCESS_CONTROL));
+
+
+
   }
 
     @Test 
@@ -1134,7 +1145,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     node.setProperty("hello:world", "whatever");
     NodeRepositoryFileData badNodeData2 = new NodeRepositoryFileData(node);
 
-    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     try {
       repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("a/b").folder(true).build(), null);
@@ -1289,12 +1300,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
     userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
-        
-    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
-    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
-        repositoryAdminUsername, "c:/build/testrepo_7", Mode.CUSTOM);
-    dumpToFile.execute();
+
     List<RepositoryFile> children = repo.getChildren(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId());
     assertEquals(1, children.size());
   }
@@ -1444,9 +1452,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
-        
-    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     assertNotNull(createSampleFile(parentFolderPath, "helloworld.sample", "Hello World!", false, 500));
@@ -1526,7 +1531,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -1560,7 +1565,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
 
-    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     RepositoryFile lockedFile = repo.getFile(clientPath);
     assertTrue(lockedFile.isLocked());
     assertNotNull(lockedFile.getLockDate());
@@ -1604,20 +1609,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
 
-    // login as another tenant member; make sure we cannot unlock
-    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
-    assertFalse(repo.canUnlockFile(newFile.getId()));
-    try {
-      repo.unlockFile(newFile.getId());
-      fail();
-    } catch (UnifiedRepositoryException e) {
-    }
-
-    try {
-      repo.updateFile(repo.getFileById(newFile.getId()), content, "update by tiffany");
-      fail();
-    } catch (UnifiedRepositoryException e) {
-    }
   }
 
   @Test
@@ -1637,7 +1628,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String fileName = "helloworld.sample";
     RepositoryFile newFile = createSampleFile(parentFolderPath, fileName, "dfdfd", true, 3, true);
@@ -1671,7 +1662,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     // tiffany shouldn't see suzy's deleted file
-    assertEquals(0, repo.getDeletedFiles(parentFolder.getPath()).size());
     assertEquals(0, repo.getDeletedFiles().size());
 
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
@@ -1693,20 +1683,20 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     }
 
     // test preservation of original path even if that path no longer exists
-    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile test1Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test1").folder(
         true).build(), null);
     newFile = createSampleFile(test1Folder.getPath(), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile.getId(), null);
-    assertNull(repo.getFile("/public/test1/helloworld.sample"));
+    assertNull(repo.getFile("/home/suzy/test1/helloworld.sample"));
     // rename original parent folder
     repo.moveFile(test1Folder.getId(),
-        ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test2", null);
+        ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "test2", null);
     assertNull(repo.getFile(test1Folder.getPath()));
     repo.undeleteFile(newFile.getId(), null);
-    assertNotNull(repo.getFile("/public/test1/helloworld.sample"));
-    assertNull(repo.getFile("/public/test2/helloworld.sample")); // repo should create any missing folders on undelete
-    assertEquals("/public/test1/helloworld.sample", repo.getFileById(newFile.getId()).getPath());
+    assertNotNull(repo.getFile("/home/suzy/test1/helloworld.sample"));
+    assertNull(repo.getFile("/home/suzy/test2/helloworld.sample")); // repo should create any missing folders on undelete
+    assertEquals("/home/suzy/test1/helloworld.sample", repo.getFileById(newFile.getId()).getPath());
 
     // test versioned parent folder
     RepositoryFile test5Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test5").folder(
@@ -1720,13 +1710,13 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertTrue(repo.getVersionSummaries(test5Folder.getId()).size() > versionCountBefore);
 
     // test permanent delete without undelete
-    RepositoryFile newFile6 = createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), fileName, "dfdfd", true, 3);
+    RepositoryFile newFile6 = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile6.getId(), true, null);
 
     // test undelete where path to restored file already exists
-    RepositoryFile newFile7 = createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), fileName, "dfdfd", true, 3);
+    RepositoryFile newFile7 = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile7.getId(), null);
-    createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), fileName, "dfdfd", true, 3);
+    createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()), fileName, "dfdfd", true, 3);
 
     try {
       repo.undeleteFile(newFile7.getId(), null);
@@ -1751,7 +1741,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String fileName = "helloworld.sample";
-    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile test3Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test3").folder(
         true).build(), null);
 
@@ -1769,7 +1759,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String suzyTrashFileIdPath = suzyTrashFolderIdPath + "/pho:" + newFile3.getId();
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, suzyTrashFileIdPath));
     String absTrashPath = suzyTrashFileIdPath + "/helloworld.sample";
-    SimpleJcrTestUtils.move(testJcrTemplate, "/pentaho/acme/public/test3/helloworld.sample", absTrashPath);
+    SimpleJcrTestUtils.move(testJcrTemplate, "/pentaho/acme/home/suzy/test3/helloworld.sample", absTrashPath);
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, absTrashPath));
     Date expectedDate = new Date();
     SimpleJcrTestUtils.setDate(testJcrTemplate, suzyTrashFileIdPath + "/pho:deletedDate", expectedDate);
@@ -1854,7 +1844,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2024,7 +2014,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
-    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2189,9 +2179,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
-    final String testFolderPath = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test";
+    final String testFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "test";
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     assertEquals(new RepositoryFileSid(USERNAME_SUZY), repo.getAcl(newFolder.getId()).getOwner());
 
@@ -2230,7 +2220,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
@@ -2264,7 +2254,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     defaultBackingRepositoryLifecycleManager.newTenant();        
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
@@ -2291,7 +2281,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
-    assertTrue(repo.hasAccess(ClientRepositoryPaths.getPublicFolderPath(), EnumSet.of(RepositoryFilePermission.READ)));
+    assertTrue(repo.hasAccess(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()), EnumSet.of(RepositoryFilePermission.READ)));
     
     login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
     assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths
@@ -2314,7 +2304,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     defaultBackingRepositoryLifecycleManager.newTenant();
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile acmePublicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile acmePublicFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     List<RepositoryFileAce> expectedEffectiveAces1 = repo.getEffectiveAces(acmePublicFolder.getId());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(acmePublicFolder.getId(), newFolder, null);
@@ -2349,7 +2339,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     defaultBackingRepositoryLifecycleManager.newTenant();        
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
@@ -2374,7 +2364,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     RepositoryFileSid tiffanySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme,
         USERNAME_TIFFANY));
@@ -2400,7 +2390,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     defaultBackingRepositoryLifecycleManager.newTenant();    
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile srcFolder = new RepositoryFile.Builder("src").folder(true).build();
     RepositoryFile destFolder = new RepositoryFile.Builder("dest").folder(true).build();
     srcFolder = repo.createFolder(parentFolder.getId(), srcFolder, null);
@@ -2453,7 +2443,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     defaultBackingRepositoryLifecycleManager.newTenant();
-    RepositoryFile publicFolderFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getPublicFolderPath())
+    RepositoryFile publicFolderFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()))
         .getPath(), "helloworld.sample", "ddfdf", false, 83);
     RepositoryFileAcl publicFolderFileAcl = new RepositoryFileAcl.Builder(publicFolderFile.getId(), userNameUtils.getPrincipleId(
         tenantAcme, USERNAME_ADMIN), RepositoryFileSid.Type.USER).entriesInheriting(false).ace(new RepositoryFileSid(roleNameUtils.getPrincipleId(
@@ -2494,7 +2484,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});    
     defaultBackingRepositoryLifecycleManager.newTenant();
-    RepositoryFile publicFolderFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getPublicFolderPath())
+    RepositoryFile publicFolderFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()))
         .getPath(), "helloworld.sample", "ddfdf", false, 83);
     RepositoryFileAcl publicFolderFileAcl = new RepositoryFileAcl.Builder(publicFolderFile.getId(), userNameUtils.getPrincipleId(
         tenantAcme, USERNAME_ADMIN), RepositoryFileSid.Type.USER).entriesInheriting(false).ace(new RepositoryFileSid(roleNameUtils.getPrincipleId(
@@ -2547,9 +2537,18 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     defaultBackingRepositoryLifecycleManager.newTenant();
     
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
+
+    RepositoryFileAcl acls = repo.getAcl(newFolder.getId());
+
+    RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(acls);
+    newAclBuilder.entriesInheriting(false).ace(
+        userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY), RepositoryFileSid.Type.USER, RepositoryFilePermission.READ);
+    repo.updateAcl(newAclBuilder.build());
+
+
     login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     RepositoryFileAcl newAcl = repo.getAcl(newFolder.getId());
     
@@ -2577,7 +2576,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile moveTest1Folder = new RepositoryFile.Builder("moveTest1").folder(true).versioned(true).build();
     moveTest1Folder = repo.createFolder(parentFolder.getId(), moveTest1Folder, null);
     RepositoryFile moveTest2Folder = new RepositoryFile.Builder("moveTest2").folder(true).versioned(true).build();
@@ -2586,15 +2585,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     testFolder = repo.createFolder(moveTest1Folder.getId(), testFolder, null);
     // move folder into new folder
     repo.moveFile(testFolder.getId(), moveTest2Folder.getPath(), null);
-    assertNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "moveTest1"
+    assertNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "moveTest1"
         + RepositoryFile.SEPARATOR + "test"));
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "moveTest2"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "moveTest2"
         + RepositoryFile.SEPARATOR + "test"));
     // rename within same folder
     repo.moveFile(testFolder.getId(), moveTest2Folder.getPath() + RepositoryFile.SEPARATOR + "newTest", null);
-    assertNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "moveTest2"
+    assertNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "moveTest2"
         + RepositoryFile.SEPARATOR + "test"));
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "moveTest2"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "moveTest2"
         + RepositoryFile.SEPARATOR + "newTest"));
 
     RepositoryFile newFile = createSampleFile(moveTest2Folder.getPath(), "helloworld.sample", "ddfdf", false, 83);
@@ -2628,7 +2627,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile testFile1 = createSimpleFile(parentFolder.getId(), "testfile1");
     RepositoryFile testFile2 = createSimpleFile(parentFolder.getId(), "testfile2");
     repo.copyFile(testFile1.getId(), testFile2.getPath(), null);
@@ -2648,7 +2647,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile testFolder1 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder1")
         .folder(true).build(), null);
     RepositoryFile testFolder1Child = repo.createFolder(testFolder1.getId(), new RepositoryFile.Builder("testfolder1")
@@ -2667,7 +2666,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile testFolder1 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder1")
         .folder(true).build(), null);
     RepositoryFile testFile1 = createSimpleFile(testFolder1.getId(), "testfile1");
@@ -2692,7 +2691,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile copyTest1Folder = new RepositoryFile.Builder("copyTest1").folder(true).versioned(true).build();
     RepositoryFileSid fileOwnerSid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY));
     copyTest1Folder = repo.createFolder(parentFolder.getId(), copyTest1Folder, new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
@@ -2702,22 +2701,22 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     testFolder = repo.createFolder(copyTest1Folder.getId(), testFolder, new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
     // copy folder into new folder
     repo.copyFile(testFolder.getId(), copyTest2Folder.getPath(), null);
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest1"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "copyTest1"
         + RepositoryFile.SEPARATOR + "test"));
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "test"));
     // copy folder into new folder and rename
     repo.copyFile(testFolder.getId(), copyTest2Folder.getPath() + RepositoryFile.SEPARATOR + "newTest2", null);
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest1"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "copyTest1"
         + RepositoryFile.SEPARATOR + "test"));
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "newTest2"));
 
     // copy within same folder
     repo.copyFile(testFolder.getId(), copyTest2Folder.getPath() + RepositoryFile.SEPARATOR + "newTest", null);
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "test"));
-    assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "newTest"));
 
     RepositoryFile newFile = createSampleFile(copyTest2Folder.getPath(), "helloworld.sample", "ddfdf", false, 83);
@@ -2771,17 +2770,17 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_GEORGE, tenantDuff, new String[]{tenantAuthenticatedRoleName});
     
-    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     RepositoryFile newFile = createSampleFile(parentFolder.getPath(), "hello.xaction", "", false, 2, false);
+    RepositoryFileAcl acls = repo.getAcl(newFile.getId());
+
+    RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(acls);
+    newAclBuilder.entriesInheriting(false).ace(
+        userNameUtils.getPrincipleId(tenantDuff, USERNAME_PAT), RepositoryFileSid.Type.USER, RepositoryFilePermission.ALL);
+    repo.updateAcl(newAclBuilder.build());
+
     login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
-    RepositoryFileAcl fetchedAcl = repo.getAcl(newFile.getId());
-    List<RepositoryFileAce> fetchedAces = repo.getEffectiveAces(newFile.getId());
-    //RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(fetchedAcl);
-    //newAclBuilder.entriesInheriting(false).aces(fetchedAces).ace(
-    //    userNameUtils.getPrincipleId(tenantDuff, USERNAME_GEORGE), RepositoryFileSid.Type.USER,
-    //    RepositoryFilePermission.ALL);
-    //repo.updateAcl(newAclBuilder.build());
-    
+
     
     userRoleDao.deleteUser(userGeorge);
     login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
@@ -2818,8 +2817,24 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile newFile = createSampleFile(parentFolderPath, expectedName, sampleString, sampleBoolean,
         sampleInteger);
+    RepositoryFileAcl acls = repo.getAcl(newFile.getId());
+
+    RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(acls);
+    newAclBuilder.entriesInheriting(false).ace(
+        userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), RepositoryFileSid.Type.USER, RepositoryFilePermission.ALL);
+    repo.updateAcl(newAclBuilder.build());
+
+//    newFile = repo.getFile(newFile.getPath());
+    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
+        repositoryAdminUsername, "dumpTestAdminCreate", Mode.CUSTOM);
+
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
-    repo.deleteFile(newFile.getId(), null);
+
+    try{
+      repo.deleteFile(newFile.getId(), null);
+    } finally{
+      dumpToFile.execute();
+    }
   }
 
   @Test
@@ -2854,6 +2869,53 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   }
 
   @Test
+  public void testGetTreeWithFileTypeFilter() throws Exception {
+    RepositoryFileTree root = null;
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
+    final String dataString = "Hello World!";
+    final String encoding = "UTF-8";
+    byte[] data = dataString.getBytes(encoding);
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(data);
+    final String mimeType = "text/plain";
+    final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
+    RepositoryFile newFile1 = repo.createFile(publicFolder.getId(), new RepositoryFile.Builder("helloworld.xaction")
+        .versioned(true).hidden(false).build(), content, null);
+
+    RepositoryFile newFile2 = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("testFolder")
+        .versioned(false).hidden(false).folder(true).build(), null, null);
+
+    root = repo.getTree(publicFolder.getPath(), 1, "*|FILES", true);
+    assertFalse(root.getChildren().isEmpty());
+    assertEquals(1, root.getChildren().size());
+    assertEquals("helloworld.xaction", root.getChildren().get(0).getFile().getName());
+
+    root = repo.getTree(publicFolder.getPath(), 1, "*", true);
+    assertFalse(root.getChildren().isEmpty());
+    assertEquals(2, root.getChildren().size());
+
+    root = repo.getTree(publicFolder.getPath(), 1, "*|FILES_FOLDERS", true);
+    assertFalse(root.getChildren().isEmpty());
+    assertEquals(2, root.getChildren().size());
+
+
+    root = repo.getTree(publicFolder.getPath(), 1, "*|FOLDERS", true);
+    assertFalse(root.getChildren().isEmpty());
+    assertEquals(1, root.getChildren().size());
+    assertEquals("testFolder", root.getChildren().get(0).getFile().getName());
+
+  }
+
+  @Test
   public void testGetTreeWithShowHidden() throws Exception {
     RepositoryFileTree root = null;
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
@@ -2865,7 +2927,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()));
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
     byte[] data = dataString.getBytes(encoding);
@@ -3075,7 +3137,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -3470,6 +3532,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     SecurityContextHolder.getContext().setAuthentication(auth);
     
     createUserHomeFolder(tenant, username);
+    defaultBackingRepositoryLifecycleManager.newTenant();
   }
   
   protected void logout() {

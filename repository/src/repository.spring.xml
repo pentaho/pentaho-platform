@@ -45,7 +45,6 @@
     <property name="transactionManager" ref="jcrTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
-        org.pentaho.platform.api.mt.ITenantManager.createTenant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.getChildTenants=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.updateTentant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.deleteTenant=PROPAGATION_REQUIRED
@@ -458,7 +457,7 @@
   
   <bean id="jcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
-    <property name="allowCreate" value="false"/>
+    <property name="allowCreate" value="true"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
 

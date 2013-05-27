@@ -36,6 +36,7 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -925,6 +926,12 @@ public class JcrRepositoryFileUtils {
     return toVersionSummary(pentahoJcrConstants, versionHistory, version);
   }
 
+  private enum FILES_TYPE_FILTER {
+    FILES, FOLDERS, FILES_FOLDERS
+  }
+
+  private static final Pattern FILES_TYPES_PATTERN = Pattern.compile("[^\\|]+\\|(.*)");
+
   public static RepositoryFileTree getTree(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final String absPath,
       final int depth, final String filter, final boolean showHidden, IRepositoryAccessVoterManager accessVoterManager) throws RepositoryException {
@@ -934,14 +941,30 @@ public class JcrRepositoryFileUtils {
     Assert.isTrue(fileItem.isNode());
     Node fileNode = (Node) fileItem;
 
+    // Check for File type filter
+    FILES_TYPE_FILTER types = FILES_TYPE_FILTER.FILES_FOLDERS;
+    if(StringUtils.hasText(filter)){
+      Matcher m = FILES_TYPES_PATTERN.matcher(filter);
+      if(m.matches()){
+        FILES_TYPE_FILTER newType = FILES_TYPE_FILTER.valueOf(m.group(1));
+        if(newType != null){
+          types = newType;
+          // note it only makes sense to have FILES if the depth is 1
+          if(types == FILES_TYPE_FILTER.FILES && depth != 1){
+            types = FILES_TYPE_FILTER.FILES_FOLDERS;
+          }
+        }
+      }
+    }
+
     return getTreeByNode(session, pentahoJcrConstants, pathConversionHelper,
-                lockHelper, fileNode, depth, filter, showHidden, accessVoterManager);
+                lockHelper, fileNode, depth, filter, showHidden, accessVoterManager, types);
 
   }
 
   private static RepositoryFileTree getTreeByNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
                                            final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Node fileNode,
-                                           final int depth, final String filter, final boolean showHidden, IRepositoryAccessVoterManager accessVoterManager) throws RepositoryException {
+                                           final int depth, final String filter, final boolean showHidden, IRepositoryAccessVoterManager accessVoterManager, FILES_TYPE_FILTER types) throws RepositoryException {
 
     RepositoryFile rootFile = JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
         lockHelper, fileNode, false, null);
@@ -958,11 +981,17 @@ public class JcrRepositoryFileUtils {
         NodeIterator childNodes = filter != null ? fileNode.getNodes(filter) : fileNode.getNodes();
         while (childNodes.hasNext()) {
           Node childNode = childNodes.nextNode();
+
+          boolean pentahoFolder = isPentahoFolder(pentahoJcrConstants, childNode);
+          if(!pentahoFolder && types == FILES_TYPE_FILTER.FOLDERS || pentahoFolder && types == FILES_TYPE_FILTER.FILES){
+            continue;
+          }
+
           RepositoryFile file = nodeToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode);
           if (isSupportedNodeType(pentahoJcrConstants, childNode) && (accessVoterManager.hasAccess(file, RepositoryFilePermission.READ, 
                   JcrRepositoryFileAclUtils.getAcl(session, pentahoJcrConstants, file.getId()), PentahoSessionHolder.getSession()))) {
             RepositoryFileTree repositoryFileTree = getTreeByNode(session, pentahoJcrConstants, pathConversionHelper,
-                lockHelper, childNode, depth - 1, filter, showHidden, accessVoterManager);
+                lockHelper, childNode, depth - 1, filter, showHidden, accessVoterManager, types);
             if (repositoryFileTree != null) {
               children.add(repositoryFileTree);
             }

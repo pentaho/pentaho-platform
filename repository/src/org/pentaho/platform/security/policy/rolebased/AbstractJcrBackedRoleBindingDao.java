@@ -157,7 +157,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
         boundLogicalRoleNames.putAll(roleId, immutableRoleBindings.get(runtimeRoleName));
       }
     }
-    
+
     // update cache
     boundLogicalRoleNamesCache.putAll(boundLogicalRoleNames.asMap());
     // now add in those runtime roles that have no bindings to the cache
@@ -302,8 +302,9 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     try {
       tenantRootFolderNode = (Node) session.getItem(ServerRepositoryPaths.getTenantRootFolderPath(tenant));
     } catch (PathNotFoundException e) {
-      Assert.state(false, Messages.getInstance().getString(
-          "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
+      throw new RepositoryException("Error retrieving RuntimeRoles for folder, folder not found", e);
+      //Assert.state(false, Messages.getInstance().getString(
+      // "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
     }
     Node authzFolderNode =  tenantRootFolderNode.getNode(FOLDER_NAME_AUTHZ);
     Node roleBasedFolderNode = authzFolderNode.getNode(FOLDER_NAME_ROLEBASED);

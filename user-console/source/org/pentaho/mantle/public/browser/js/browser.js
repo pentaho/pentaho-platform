@@ -273,7 +273,7 @@ pen.define([
 		},
 
 		getFileTreeRequest: function(path){
-			return "/pentaho/api/repo/files/"+path+"/children?depth=-1&showHidden="+this.get("showHiddenFiles");
+			return "/pentaho/api/repo/files/"+path+"/children?depth=-1&showHidden="+this.get("showHiddenFiles")+"&filter=*|FOLDERS";
 		}
 
 	});
@@ -335,7 +335,7 @@ pen.define([
 
 
 		getFileListRequest: function(path){
-			return "/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden="+this.get("showHiddenFiles");
+			return "/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden="+this.get("showHiddenFiles")+"&filter=*|FILES";
 		}
 
 	});
