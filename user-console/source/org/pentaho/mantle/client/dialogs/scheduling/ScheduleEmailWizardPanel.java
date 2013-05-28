@@ -15,13 +15,12 @@
  * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  */
-package org.pentaho.mantle.client.solutionbrowser.scheduling;
+package org.pentaho.mantle.client.dialogs.scheduling;
 
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
-import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;

@@ -258,6 +258,22 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   @GET
+  @Path("/isScheduleAllowed")
+  @Produces(TEXT_PLAIN)
+  public String isScheduleAllowed(@QueryParam("id") String id) {
+    Boolean canSchedule = false;
+    canSchedule = policy.isAllowed(SchedulerAction.NAME);
+    if (canSchedule) {
+      Map<String, Serializable> metadata = repository.getFileMetadata(id);
+      if (metadata.containsKey("_PERM_SCHEDULABLE")) {
+        canSchedule = Boolean.parseBoolean((String) metadata.get("_PERM_SCHEDULABLE"));
+      }
+    }
+    return "" + canSchedule; //$NON-NLS-1$
+  }
+  
+  
+  @GET
   @Path("/canSchedule")
   @Produces(TEXT_PLAIN)
   public String doGetCanSchedule() {

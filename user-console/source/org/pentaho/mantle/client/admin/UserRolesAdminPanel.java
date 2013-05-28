@@ -24,7 +24,6 @@ import org.pentaho.gwt.widgets.client.buttons.ThemeableImageButton;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -36,7 +35,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class UserRolesAdminPanel extends SimplePanel {
 
-	private String moduleBaseURL = GWT.getModuleBaseURL();
 	protected PasswordTextBox userPasswordTextBox;
 	protected ListBox rolesListBox;
 	protected ListBox systemRolesListBox;

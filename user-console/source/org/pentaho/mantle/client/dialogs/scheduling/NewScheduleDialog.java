@@ -17,18 +17,11 @@
  * @created Jul 30, 2008 
  * @author wseyler
  */
-package org.pentaho.mantle.client.solutionbrowser.scheduling;
+package org.pentaho.mantle.client.dialogs.scheduling;
 
 import java.util.Date;
 import java.util.List;
 
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.YearlyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.DurationValues;
-import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -39,8 +32,12 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
-import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
-import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
+import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.DailyRecurrenceEditor;
+import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.MonthlyRecurrenceEditor;
+import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.WeeklyRecurrenceEditor;
+import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.YearlyRecurrenceEditor;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEditor.DurationValues;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEditor.ScheduleType;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.BlockoutPanel;
 import org.pentaho.mantle.client.workspace.JsBlockStatus;
