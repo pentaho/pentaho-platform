@@ -34,7 +34,6 @@ import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.commands.ShowHistoryCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -135,9 +134,6 @@ public class FileCommand implements Command {
     } else if (mode == COMMAND.CUT) {
       List<FileItem> selectedItemsClone = new ArrayList<FileItem>(selectedItems);
       new CutFilesCommand(selectedItemsClone).execute();      
-    } else if (mode == COMMAND.GENERATED_CONTENT) {
-      ShowHistoryCommand historyCommand = new ShowHistoryCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary);
-      historyCommand.execute();
     } else if (mode == COMMAND.RESTORE) {
       List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
       for (FileItem fileItem : selectedItems) {

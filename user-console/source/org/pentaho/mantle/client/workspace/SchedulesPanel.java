@@ -35,7 +35,6 @@ import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
@@ -62,6 +61,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -76,7 +76,7 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 public class SchedulesPanel extends SimplePanel {
 
-    private ToolbarButton controlScheduleButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-run"));
+  private ToolbarButton controlScheduleButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-run"));
   private ToolbarButton editButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-editbutton"));
   private ToolbarButton triggerNowButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-execute"));
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-deletebutton"));
@@ -87,8 +87,7 @@ public class SchedulesPanel extends SimplePanel {
   private Set<JsJob> selectedJobs = null;
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
-  private CellTable<JsJob> table =
-      new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
   private SimplePager pager;
 
@@ -165,8 +164,8 @@ public class SchedulesPanel extends SimplePanel {
   };
 
   public SchedulesPanel(final boolean isAdmin, final boolean isScheduler) {
-      createUI(isAdmin, isScheduler);
-      refresh();
+    createUI(isAdmin, isScheduler);
+    refresh();
   }
 
   public void refresh() {
@@ -273,30 +272,16 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-    @SuppressWarnings("EmptyCatchBlock")
-    private void createUI(boolean isAdmin, final boolean isScheduler) {
+  private void createUI(boolean isAdmin, final boolean isScheduler) {
 
     table.getElement().setId("schedule-table");
     table.setStylePrimaryName("pentaho-table");
 
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
-        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 2 && event.getValue().hasResourceName()) {
-          // get history for the entire resource
-          PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
-          String resource = event.getValue().getFullResourceName();
-          resource = resource.replace("/", ":");
-          dialog.setContent(new GeneratedContentPanel(resource, null, event.getValue().getUserName()));
-          dialog.setSize("600px", "300px");
-          dialog.center();
-        } else if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 0) {
-          // get history for the specific schedule (by name)
-          PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
-          String resource = event.getValue().getFullResourceName();
-          resource = resource.replace("/", ":");
-          dialog.setContent(new GeneratedContentPanel(resource, event.getValue().getJobParam("lineage-id"), event.getValue().getUserName()));
-          dialog.setSize("600px", "300px");
-          dialog.center();
+        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 3) {
+          // switch to browse perspective, open at the given path
+          Window.alert(event.getValue().getOutputPath());
         }
       }
     });
@@ -321,46 +306,45 @@ public class SchedulesPanel extends SimplePanel {
     };
     idColumn.setSortable(true);
 
-    Column<JsJob, SafeHtml> nameColumn = new Column<JsJob, SafeHtml>(new SafeHtmlCell()) {
-      public SafeHtml getValue(JsJob job) {
-        try {
-          return new SafeHtmlBuilder().appendHtmlConstant(
-              "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(job.getJobName()).toSafeHtml().asString() + "'>" + job.getJobName()
-                  + "</span>").toSafeHtml();
-        } catch (Throwable t) {
-        }
-        return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
+    TextColumn<JsJob> nameColumn = new TextColumn<JsJob>() {
+      public String getValue(JsJob job) {
+        return job.getJobName();
       }
     };
     nameColumn.setSortable(true);
 
-    Column<JsJob, SafeHtml> resourceColumn = new Column<JsJob, SafeHtml>(new SafeHtmlCell()) {
-      public SafeHtml getValue(JsJob job) {
-        try {
-          if (!job.hasResourceName()) {
-            String val = job.getShortResourceName();
-            return new SafeHtmlBuilder().appendHtmlConstant(
-                "<span title='" + new SafeHtmlBuilder().appendEscaped(job.getFullResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
-          } else {
-            String val = job.getShortResourceName();
-            return new SafeHtmlBuilder().appendHtmlConstant(
-                "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(job.getFullResourceName()).toSafeHtml().asString() + "'>"
-                    + val + "</span>").toSafeHtml();
-          }
-        } catch (Throwable t) {
-        }
-        return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
+    TextColumn<JsJob> resourceColumn = new TextColumn<JsJob>() {
+      public String getValue(JsJob job) {
+        return job.getFullResourceName();
       }
     };
     resourceColumn.setSortable(true);
+
+    Column<JsJob, SafeHtml> outputPathColumn = new Column<JsJob, SafeHtml>(new SafeHtmlCell()) {
+      public SafeHtml getValue(JsJob job) {
+        try {
+          String outputPath = job.getOutputPath();
+          if (StringUtils.isEmpty(outputPath)) {
+            return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
+          } else {
+            return new SafeHtmlBuilder().appendHtmlConstant(
+                "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(outputPath).toSafeHtml().asString() + "'>" + outputPath
+                    + "</span>").toSafeHtml();
+          }
+        } catch (Throwable t) {
+          return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
+        }
+      }
+    };
+    outputPathColumn.setSortable(true);
 
     TextColumn<JsJob> scheduleColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
         try {
           return job.getJobTrigger().getDescription();
         } catch (Throwable t) {
+          return "-";
         }
-        return "-";
       }
     };
     scheduleColumn.setSortable(true);
@@ -370,8 +354,8 @@ public class SchedulesPanel extends SimplePanel {
         try {
           return job.getUserName();
         } catch (Throwable t) {
+          return "-";
         }
-        return "-";
       }
     };
     userNameColumn.setSortable(true);
@@ -381,8 +365,8 @@ public class SchedulesPanel extends SimplePanel {
         try {
           return job.getState();
         } catch (Throwable t) {
+          return "-";
         }
-        return "-";
       }
     };
     stateColumn.setSortable(true);
@@ -397,8 +381,8 @@ public class SchedulesPanel extends SimplePanel {
           DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
           return format.format(date);
         } catch (Throwable t) {
+          return "-";
         }
-        return "-";
       }
     };
     nextFireColumn.setSortable(true);
@@ -413,8 +397,8 @@ public class SchedulesPanel extends SimplePanel {
           DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
           return format.format(date);
         } catch (Throwable t) {
+          return "-";
         }
-        return "-";
       }
     };
     lastFireColumn.setSortable(true);
@@ -423,7 +407,8 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumn(nameColumn, Messages.getString("scheduleName"));
     table.addColumn(scheduleColumn, Messages.getString("recurrence"));
     table.addColumn(resourceColumn, Messages.getString("sourceFile"));
-    
+    table.addColumn(outputPathColumn, Messages.getString("outputPath"));
+
     table.addColumn(lastFireColumn, Messages.getString("lastFire"));
     table.addColumn(nextFireColumn, Messages.getString("nextFire"));
     table.addColumn(userNameColumn, Messages.getString("user"));
@@ -436,14 +421,16 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumnStyleName(4, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(7, "backgroundContentHeaderTableCell");
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
-    table.setColumnWidth(resourceColumn, 220, Unit.PX);
+    table.setColumnWidth(resourceColumn, 200, Unit.PX);
+    table.setColumnWidth(outputPathColumn, 200, Unit.PX);
     table.setColumnWidth(scheduleColumn, 150, Unit.PX);
-    table.setColumnWidth(lastFireColumn, 150, Unit.PX);
-    table.setColumnWidth(nextFireColumn, 150, Unit.PX);
-    table.setColumnWidth(userNameColumn, 150, Unit.PX);
-    table.setColumnWidth(stateColumn, 100, Unit.PX);
+    table.setColumnWidth(lastFireColumn, 130, Unit.PX);
+    table.setColumnWidth(nextFireColumn, 130, Unit.PX);
+    table.setColumnWidth(userNameColumn, 120, Unit.PX);
+    table.setColumnWidth(stateColumn, 60, Unit.PX);
 
     dataProvider.addDataDisplay(table);
     List<JsJob> list = dataProvider.getList();
@@ -485,6 +472,24 @@ public class SchedulesPanel extends SimplePanel {
           String r2 = null;
           if (o2 != null) {
             r2 = o2.getShortResourceName();
+          }
+
+          return (o2 != null) ? r1.compareTo(r2) : 1;
+        }
+        return -1;
+      }
+    });
+    columnSortHandler.setComparator(outputPathColumn, new Comparator<JsJob>() {
+      public int compare(JsJob o1, JsJob o2) {
+        if (o1 == o2) {
+          return 0;
+        }
+
+        if (o1 != null) {
+          String r1 = o1.getOutputPath();
+          String r2 = null;
+          if (o2 != null) {
+            r2 = o2.getOutputPath();
           }
 
           return (o2 != null) ? r1.compareTo(r2) : 1;
@@ -567,6 +572,7 @@ public class SchedulesPanel extends SimplePanel {
 
     table.getColumnSortList().push(idColumn);
     table.getColumnSortList().push(resourceColumn);
+    table.getColumnSortList().push(outputPathColumn);
     table.getColumnSortList().push(nameColumn);
 
     table.getSelectionModel().addSelectionChangeHandler(new Handler() {
@@ -683,20 +689,20 @@ public class SchedulesPanel extends SimplePanel {
     bar.add(controlScheduleButton);
     bar.addSpacer(20);
 
-      if (isAdmin) {
-          final ToolbarButton controlSchedulerButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-start-scheduler"));
-          controlSchedulerButton.setCommand(new Command() {
-            public void execute() {
-              toggleSchedulerOnOff(controlSchedulerButton, isScheduler);
-            }
-          });
-          updateControlSchedulerButtonState(controlSchedulerButton, isScheduler);
+    if (isAdmin) {
+      final ToolbarButton controlSchedulerButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-start-scheduler"));
+      controlSchedulerButton.setCommand(new Command() {
+        public void execute() {
+          toggleSchedulerOnOff(controlSchedulerButton, isScheduler);
+        }
+      });
+      updateControlSchedulerButtonState(controlSchedulerButton, isScheduler);
 
-          bar.add(controlSchedulerButton);
-          bar.addSpacer(20);
-      }
+      bar.add(controlSchedulerButton);
+      bar.addSpacer(20);
+    }
 
-      editButton.setCommand(new Command() {
+    editButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
           JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
@@ -746,7 +752,8 @@ public class SchedulesPanel extends SimplePanel {
                               public void onResponseReceived(Request request, Response response) {
                                 if (response.getStatusCode() == Response.SC_OK) {
                                   final boolean hasParams = Boolean.parseBoolean(response.getText());
-                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, hasParams, isEmailConfValid, true, AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
+                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, hasParams, isEmailConfValid, true,
+                                      AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
                                   schedDialog.center();
                                 }
                               }

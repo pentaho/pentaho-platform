@@ -45,13 +45,12 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class FilePropertiesDialog extends PromptDialogBox {
   public enum Tabs {
-    GENERAL, PERMISSION, HISTORY
+    GENERAL, PERMISSION
   }
 
   private PentahoTabPanel propertyTabs;
   private GeneralPanel generalTab;
   private PermissionsPanel permissionsTab;
-  private GeneratedContentPanel generatedContentTab;
 
   private String moduleBaseURL = GWT.getModuleBaseURL();
   private String moduleName = GWT.getModuleName();
@@ -73,9 +72,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     this.canManageAcls = canManageAcls;
     generalTab = new GeneralPanel(this, fileSummary);
 
-    if (!fileSummary.isFolder()) {
-      generatedContentTab = new GeneratedContentPanel(SolutionBrowserPanel.pathToId(fileSummary.getPath()), null, null);
-    }
     if (canManageAcls && !isInTrash) {
       permissionsTab = new PermissionsPanel(fileSummary);
     }
@@ -111,9 +107,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     this.propertyTabs.addTab(Messages.getString("general"), Messages.getString("general"), false, generalTab);
     if (canManageAcls && permissionsTab != null) {
       this.propertyTabs.addTab(Messages.getString("share"), Messages.getString("share"), false, permissionsTab);
-    }
-    if (generatedContentTab != null) {
-      this.propertyTabs.addTab(Messages.getString("history"), Messages.getString("history"), false, generatedContentTab);
     }
     getWidget().setHeight("100%"); //$NON-NLS-1$
     getWidget().setWidth("100%"); //$NON-NLS-1$
@@ -191,11 +184,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
           break;
         case PERMISSION:
           if (canManageAcls && pTab.getContent() == permissionsTab) {
-            propertyTabs.selectTab(pTab);
-          }
-          break;
-        case HISTORY:
-          if (pTab.getContent() == generatedContentTab) {
             propertyTabs.selectTab(pTab);
           }
           break;

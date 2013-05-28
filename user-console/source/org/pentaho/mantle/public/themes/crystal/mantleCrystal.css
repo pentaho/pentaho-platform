@@ -496,6 +496,7 @@ a:active, a:hover {
   color: #1973bc;
   text-decoration: underline;
   cursor: hand;
+  cursor: pointer;
 }
 
 .workspacePanel {
