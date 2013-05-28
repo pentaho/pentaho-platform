@@ -114,6 +114,26 @@ public class SaveCommand extends AbstractCommand {
                 });
                 overWriteDialog.center();
               } else {
+                
+                //[Fix for PIR-833]
+                //1) create a new interactive report. Save it in directory home as report1 
+                //2) click "save as" button and wait for the file chooser to pop up. 
+                //3) browse to directory home, and select report1. 
+                //4) change the value in the filechooser's filename field to be report2. 
+                //5) Ok the dialog. Observe the error message: "Unable to save your file."
+                
+                //filePath: /home/admin/report1.prpt
+                //fileName: report2
+                //title: report1
+                //file.getName(): report1.prpt
+                
+                if(file != null 
+                    && !file.isFolder()
+                    && !fileName.equals(title)
+                    && filePath.endsWith(file.getName())){
+                  SaveCommand.this.path = filePath.substring(0, filePath.lastIndexOf("/"+file.getName()));
+                }                
+                
                 doSaveAs(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true);
                 Window.setTitle(Messages.getString("productName") + " - " + name); //$NON-NLS-1$ //$NON-NLS-2$
                 persistFileInfoInFrame();
