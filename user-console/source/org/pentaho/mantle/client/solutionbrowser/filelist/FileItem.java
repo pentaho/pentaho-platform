@@ -47,9 +47,6 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     public static final String XACTION_SUFFIX = ".xaction"; //$NON-NLS-1$
     public static final String URL_SUFFIX = ".url"; //$NON-NLS-1$
 
-    private static String SEPARATOR = "separator"; //$NON-NLS-1$
-    private static String SCHEDULE = "scheduleEllipsis";
-
     // by creating a single popupMenu, we're reducing total # of widgets used
     // and we can be sure to hide any existing ones by calling hide
     static PopupPanel popupMenu = new MantlePopupPanel(true);

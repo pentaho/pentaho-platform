@@ -1,4 +1,4 @@
-package org.pentaho.mantle.client.solutionbrowser.scheduling;
+package org.pentaho.mantle.client.dialogs.scheduling;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.mantle.client.messages.Messages;

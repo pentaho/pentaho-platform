@@ -32,10 +32,10 @@ import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
+import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
 import com.google.gwt.cell.client.SafeHtmlCell;

@@ -30,9 +30,9 @@ import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTy
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.dialogs.scheduling.NewBlockoutScheduleDialog;
 import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;

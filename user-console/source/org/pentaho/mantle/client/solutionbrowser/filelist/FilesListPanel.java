@@ -19,9 +19,11 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.filelist;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import com.google.gwt.core.client.JsArrayString;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
@@ -38,6 +40,7 @@ import org.pentaho.mantle.client.solutionbrowser.toolbars.FilesToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -65,7 +68,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
   public FilesListPanel() {
     super();
     // Create the toolbar
-    toolbar = new FilesToolbar(this);
+    toolbar = new FilesToolbar();
     SimplePanel toolbarWrapper = new SimplePanel();
     toolbarWrapper.add(toolbar);
     toolbarWrapper.setStyleName("files-toolbar"); //$NON-NLS-1$

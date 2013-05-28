@@ -695,3 +695,99 @@ code {
   right: 0;
   bottom: 0;
 }
+
+
+
+
+
+
+.schedule-editor-caption-panel {
+  margin-top: 6px;
+  padding: 5px;
+}
+.startLabel {
+  padding-right: 1ex;
+  white-space: nowrap;
+  /*border:1px dotted red;*/
+}
+
+.middleLabel {
+  padding-right: 1ex;
+  padding-left: 1ex;
+  white-space: nowrap;
+  /*border:1px dotted red;*/
+}
+.endLabel {
+  padding-left: 1ex;
+  white-space: nowrap;
+  /*border:1px dotted red;*/
+}
+
+.schedule-label {
+  margin-top: 4px;
+}
+
+.cron-label {
+  margin-top: 6px;
+}
+
+.start-date-picker {
+  width: 10em;
+}
+
+.end-date-picker {
+  width: 10em;
+}
+
+.recurrenceRadioButton label {
+  padding-right: 1ex;
+  white-space: nowrap;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-right: 2px;
+}
+
+.recurrenceRadioButton {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 10px;
+}
+
+.day-of-month-textbox {
+  margin-left: 6px;
+}
+
+.day-of-week-checkbox {
+  padding-left: 4px;
+}
+
+.weeklyRecurrencePanel {
+}
+
+/* begin schedule editor ------------------------------------------------------*/
+.scheduleEditor {
+  /* can't add a margin here, IE7 can't handle it */
+  /*margin: 10px;*/
+  /*background-color: #CCCCFF; for testing*/
+  width: 100%;
+}
+
+.scheduleDescription {
+  width: 70%;
+  /*background-color: red; for testing */
+}
+
+.scheduleCombo {
+  margin-right: 5px;
+}
+/* end schedule editor ----------------------------------------------------------*/
+/* end recurrence dialog ----------------------------------------------------------*/
+
+.pentaho-schedule-create {
+	padding: 10px;
+	width: 100%;
+}
+
+.timeZonePicker {
+  width: 100%; 
+}

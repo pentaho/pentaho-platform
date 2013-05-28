@@ -17,7 +17,7 @@
  * @created Jul 30, 2008 
  * @author wseyler
  */
-package org.pentaho.mantle.client.solutionbrowser.scheduling;
+package org.pentaho.mantle.client.dialogs.scheduling;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -25,8 +25,6 @@ import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
-import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
-import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleParamsWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.workspace.JsJob;

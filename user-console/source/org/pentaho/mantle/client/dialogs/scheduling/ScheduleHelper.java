@@ -14,14 +14,8 @@
  *
  * Copyright 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.mantle.client.solutionbrowser.scheduling;
+package org.pentaho.mantle.client.dialogs.scheduling;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -33,6 +27,17 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
+
 public class ScheduleHelper {
 
   static {
@@ -42,7 +47,7 @@ public class ScheduleHelper {
   private static native void setupNativeHooks(ScheduleHelper scheduleHelper)
   /*-{
     $wnd.mantle_confirmBackgroundExecutionDialog = function(url) {
-      @org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);      
+      @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);      
     }
   }-*/;
 
@@ -75,7 +80,8 @@ public class ScheduleHelper {
           String moduleName = GWT.getModuleName();
           final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
           String urlPath = fileNameWithPath.replaceAll("/", ":");
-          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable?ts=" + System.currentTimeMillis());
+          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable?ts="
+              + System.currentTimeMillis());
           scheduleFileRequestBuilder.setHeader("accept", "text/plain");
           try {
             scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -177,15 +183,41 @@ public class ScheduleHelper {
       }
 
       protected void performOperation() {
-        schedule();
+
+        // hit the server and check: isScheduleAllowed
+        final String url = GWT.getHostPageBaseURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getId(); //$NON-NLS-1$
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+        requestBuilder.setHeader("accept", "text/plain");
+        final MessageDialogBox errorDialog = new MessageDialogBox(
+            Messages.getString("error"), Messages.getString("noSchedulePermission"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+        try {
+          requestBuilder.sendRequest(null, new RequestCallback() {
+
+            public void onError(Request request, Throwable caught) {
+              errorDialog.center();
+            }
+
+            public void onResponseReceived(Request request, Response response) {
+              if ("true".equalsIgnoreCase(response.getText())) {
+                schedule();
+              } else {
+                errorDialog.center();
+              }
+            }
+          });
+        } catch (RequestException re) {
+          errorDialog.center();
+        }
+
       }
 
       protected void performOperation(boolean feedback) {
-        schedule();
+        performOperation();
       }
 
     };
     scheduleCommand.execute();
+
   }
 
   /**
