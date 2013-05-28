@@ -767,7 +767,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     this.dragController = dragController;
   }
 
-  private String getPath() {
+  public String getPath() {
     String mypath = Window.Location.getPath();
     if (!mypath.endsWith("/")) { //$NON-NLS-1$
       mypath = mypath.substring(0, mypath.lastIndexOf("/") + 1); //$NON-NLS-1$
