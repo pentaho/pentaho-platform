@@ -227,9 +227,22 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
     String contextPath = requestContext.getContextPath();
 
     IPentahoUrlFactory urlFactory = new SimpleUrlFactory(contextPath); //$NON-NLS-1$
-   
-    IRuntimeContext runtime = solutionEngine.execute(doc.toString(), "chartbeans_mql", "myprocessid", false, true, //$NON-NLS-1$ //$NON-NLS-2$
-        "myinstanceid", true, parameterProviders, outputHandler, null, urlFactory, new ArrayList()); //$NON-NLS-1$
+
+    IRuntimeContext runtime;
+    IParameterProvider requestParmProvider = parameterProviders.get("request");
+      if (requestParmProvider.hasParameter("obj_id") ) {
+
+        final String obj_id = (String) requestParmProvider.getParameter("obj_id");
+        final String msg_name = (String) requestParmProvider.getParameter("message_name");
+        final String job_id = (String) requestParmProvider.getParameter("job_id");
+
+        runtime = solutionEngine.execute(doc.toString(), obj_id, job_id, false, true, //$NON-NLS-1$ //$NON-NLS-2$
+            msg_name, true, parameterProviders, outputHandler, null, urlFactory, new ArrayList()); //$NON-NLS-1$
+      }
+      else {
+        runtime = solutionEngine.execute(doc.toString(), "chartbeans_mql", "myprocessid", false, true, //$NON-NLS-1$ //$NON-NLS-2$
+            "myinstanceid", true, parameterProviders, outputHandler, null, urlFactory, new ArrayList()); //$NON-NLS-1$
+      }
 
     if ((runtime != null) && (runtime.getStatus() != IRuntimeContext.RUNTIME_STATUS_SUCCESS)) {
       StringBuilder buf = new StringBuilder();
