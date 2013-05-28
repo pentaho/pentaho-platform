@@ -84,12 +84,6 @@ pen.define([
 					handler: $.proxy(that.scheduleHandler, that)
 				},
 				{
-					id: "showButton", 
-					text: "Show Generated Content...", 
-					i18n: "contextAction_showGeneratedContent",
-					handler: $.proxy(that.historyHandler, that)
-				},
-				{
 					id: "favoritesButton", 
 					text: "Add to Favorites", 
 					i18n: "contextAction_addToFavorites",
@@ -265,10 +259,6 @@ pen.define([
 
 		scheduleHandler: function(path){
       window.top.mantle_openRepositoryFile(path, "SCHEDULE_NEW");
-		},
-
-		historyHandler: function(path){
-      window.top.executeCommand("ShowHistoryCommand", this.buildParameter(path));
 		},
 
     favoritesHandler: function(path, title){
