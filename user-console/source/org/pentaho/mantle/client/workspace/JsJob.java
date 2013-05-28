@@ -78,6 +78,16 @@ public class JsJob extends JavaScriptObject {
     return resource;
   }
   
+  public final String getOutputPath() {
+    String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
+    if (resource == null || "".equals(resource)) {
+      return "";
+    }
+    resource = resource.substring(resource.indexOf(":"));
+    resource = resource.substring(resource.indexOf("/"), resource.lastIndexOf("/"));
+    return resource;
+  }  
+  
   public final String getShortResourceName() {
     String resource = getFullResourceName();
     if (resource.indexOf("/") != -1) {
