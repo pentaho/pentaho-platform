@@ -19,19 +19,9 @@
  */
 package org.pentaho.mantle.client.solutionbrowser;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -40,6 +30,7 @@ import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
 import org.pentaho.mantle.client.events.ShowHiddenFilesEvent;
@@ -56,7 +47,6 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.toolbars.BrowserToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
@@ -64,8 +54,36 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.TreeListener;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 @SuppressWarnings("deprecation")
 public class SolutionBrowserPanel extends HorizontalPanel {
@@ -478,9 +496,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
-    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
+      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
       editFile(repositoryFile);
     } else if (mode == FileCommand.COMMAND.SCHEDULE_NEW) {
       ScheduleHelper.createSchedule(repositoryFile);
@@ -504,6 +522,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       if (mode == FileCommand.COMMAND.NEWWINDOW) {
         Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
+        PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
         contentTabPanel.showNewURLTab(repositoryFile.getTitle(), repositoryFile.getTitle(), url, true);
         addRecent(fileNameWithPath, repositoryFile.getTitle());
       }

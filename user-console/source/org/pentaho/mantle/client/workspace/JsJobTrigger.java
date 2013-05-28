@@ -19,12 +19,12 @@ package org.pentaho.mantle.client.workspace;
 
 import java.util.Date;
 
-import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEditor.ScheduleType;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.JavaScriptObject;

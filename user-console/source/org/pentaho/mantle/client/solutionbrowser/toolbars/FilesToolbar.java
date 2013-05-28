@@ -19,7 +19,6 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.toolbars;
 
-import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarComboButton;
@@ -28,7 +27,6 @@ import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.mantle.client.MantleMenuBar;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
@@ -36,25 +34,18 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.IFileItemListener;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
+import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.PopupPanel;
+
 /**
  * @author wseyler
  * 
  */
 public class FilesToolbar extends Toolbar implements IFileItemListener {
-  private static final String SEPARATOR = "separator"; //$NON-NLS-1$
   protected String FILE_GROUP_STYLE_NAME = "filesToolbarGroup"; //$NON-NLS-1$
-  private IRepositoryFileProvider repositoryFileProvider;
-
-  private static final String menuItemNames[] = { "openInNewWindow", //$NON-NLS-1$
-      "runInBackground", //$NON-NLS-1$
-      // edit action is a advanced feature, hidden normally
-      "editAction", //$NON-NLS-1$
-      "delete", //$NON-NLS-1$
-      SEPARATOR, "share", //$NON-NLS-1$
-      "scheduleEllipsis", //$NON-NLS-1$
-      SEPARATOR, "showHistoryEllipsis", //$NON-NLS-1$
-      "propertiesEllipsis" //$NON-NLS-1$ 
-  };
 
   FileCommand.COMMAND menuCommands[] = { COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT_ACTION, COMMAND.DELETE, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW,
       null, COMMAND.GENERATED_CONTENT, COMMAND.PROPERTIES };
@@ -67,9 +58,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
 
   MenuBar miscMenus = new MantleMenuBar(true);
 
-  public FilesToolbar(IRepositoryFileProvider repositoryFileProvider) {
+  public FilesToolbar() {
     super();
-    this.repositoryFileProvider = repositoryFileProvider;
 
     // Formatting stuff
     setHorizontalAlignment(ALIGN_RIGHT);
