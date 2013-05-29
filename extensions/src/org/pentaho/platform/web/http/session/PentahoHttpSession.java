@@ -90,8 +90,10 @@ public class PentahoHttpSession extends BaseSession {
   @Override
   public void destroy() {
     // audit session destruction
-    AuditHelper.audit(getId(), getName(), getActionName(), getObjectName(), "", MessageTypes.SESSION_END, "", "", ((System.currentTimeMillis() - authenticationTime) / 1000F), null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    
+    if ("anonymousUser" != getName()) {
+      AuditHelper.audit(getId(), getName(), getActionName(), getObjectName(),
+          "", MessageTypes.SESSION_END, "", "", ((System.currentTimeMillis() - authenticationTime) / 1000F), null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
     super.destroy();
   }
 
