@@ -365,13 +365,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("30px");
 		arrowsPanel.add(hSpacer);
 
-		addAllUsersButton = new ThemeableImageButton(accumRemoveButtonStyles, null, null);
+		addAllUsersButton = new ThemeableImageButton(accumAddAllButtonStyles, null, null);
 		arrowsPanel.add(addAllUsersButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("10px");
 		arrowsPanel.add(hSpacer);
 
-		removeAllUsersButton = new ThemeableImageButton(accumAddAllButtonStyles, null, null);
+		removeAllUsersButton = new ThemeableImageButton(accumRemoveAllButtonStyles, null, null);
 		arrowsPanel.add(removeAllUsersButton);
 
 		VerticalPanel selectedMembersPanel = new VerticalPanel();

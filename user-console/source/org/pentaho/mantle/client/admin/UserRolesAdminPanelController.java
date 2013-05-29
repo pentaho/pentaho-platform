@@ -91,7 +91,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					initializeAvailableUsers(name);
-					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
+					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "api/userroledao/roles", rolesListBox);
 				}
 			});
 		} catch (RequestException e) {
@@ -109,7 +109,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					initializeRoles(name, "roles", rolesListBox);
+					initializeRoles(name, "api/userroledao/roles", rolesListBox);
 					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
@@ -139,7 +139,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					checkForError(Messages.getString("Error"), response);
 					availableMembersListBox.clear();
 					selectedMembersListBox.clear();
-					initializeRoles(null, "roles", rolesListBox);
+					initializeRoles(null, "api/userroledao/roles", rolesListBox);
 					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
@@ -194,7 +194,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					selectedRolesListBox.clear();
 					editPasswordButton.setEnabled(false);
 					initializeAvailableUsers(null);
-					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
+					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "api/userroledao/roles", rolesListBox);
 				}
 			});
 		} catch (RequestException e) {
@@ -327,7 +327,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					selectedRolesListBox.clear();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
-					NodeList roles = doc.getElementsByTagName("role");
+					NodeList roles = doc.getElementsByTagName("roles");
 					for (int i = 0; i < roles.getLength(); i++) {
 						Node roleNode = roles.item(i);
 						String role = roleNode.getFirstChild().getNodeValue();
@@ -378,7 +378,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					selectedMembersListBox.clear();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
-					NodeList users = doc.getElementsByTagName("user");
+					NodeList users = doc.getElementsByTagName("users");
 					for (int i = 0; i < users.getLength(); i++) {
 						Node userNode = users.item(i);
 						String user = userNode.getFirstChild().getNodeValue();
