@@ -184,7 +184,7 @@ public class SaveCommand extends AbstractCommand {
     fileInfo.setName(this.name);
     fileInfo.setPath(this.path);
     fileInfo.setType(this.type);
-    SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().setFileInfo(fileInfo);
+    SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().setFileInfo(fileInfo);   
   }
 
   private void clearValues() {
@@ -248,8 +248,8 @@ public class SaveCommand extends AbstractCommand {
         var result = frame.handle_puc_save(path, filename, overwrite, errorCallback);
         //if(result) {
           this.@org.pentaho.mantle.client.commands.SaveCommand::doTabRename()();
-          this.@org.pentaho.mantle.client.commands.SaveCommand::updateFrameURL(Ljava/lang/String;)(decodeURIComponent(result));
           this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodeURIComponent(result));
+          this.@org.pentaho.mantle.client.commands.SaveCommand::setDeepLinkUrl(Ljava/lang/String;)(decodeURIComponent(result));
         //}        
       } catch (e) {
         //TODO: externalize message once a solution to do so is found.
@@ -275,25 +275,8 @@ public class SaveCommand extends AbstractCommand {
 		SolutionBrowserPanel.getInstance().addRecent(fullPathWithName, name);
 	  }
   }
-  //used via JSNI - JIRA BISERVER-9063
-  //update URL context after save for deep linking
-  @SuppressWarnings("static-access")
-  private void updateFrameURL(String fullPathWithName){
-    String currentUrl =  SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getUrl();          
-    ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(fullPathWithName);
-    if (plugin != null && plugin.hasCommand(COMMAND.EDIT)) {
-      // load the editor for this plugin
-      String extension = ""; //$NON-NLS-1$     
-      if (fullPathWithName.lastIndexOf(".") > 0) { //$NON-NLS-1$
-        extension = fullPathWithName.substring(fullPathWithName.lastIndexOf(".") + 1); //$NON-NLS-1$
-      }
-      if(SolutionBrowserPanel.getInstance().getExecutableFileExtensions().contains(extension) ){
-        String editor =  (plugin != null && (plugin.getCommandPerspective(COMMAND.EDIT) != null) ? plugin.getCommandPerspective(COMMAND.EDIT) : "editor");
-        String editUrl = SolutionBrowserPanel.getInstance().getPath()
-         + "api/repos/" + SolutionBrowserPanel.getInstance().pathToId(fullPathWithName) + "/" +  editor; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().setUrl(editUrl );
-      }
-    }
-  }
-
+  //used via JSNI
+   private void setDeepLinkUrl(String fullPathWithName){
+     SolutionBrowserPanel.getInstance().setDeepLinkUrl(fullPathWithName);
+   }
 }

@@ -547,6 +547,18 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     FavoritePickList.getInstance().remove(favoritePickItem);
   }
 
+  public void setDeepLinkUrl(String fileNameWithPath){    
+    ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(fileNameWithPath);
+    if (plugin != null && plugin.hasCommand(COMMAND.EDIT)) {
+      // load the editor for this plugin
+      String editUrl = getPath()
+         + "api/repos/" + pathToId(fileNameWithPath) + "/" 
+          + (plugin != null && (plugin.getCommandPerspective(COMMAND.EDIT) != null) ? plugin.getCommandPerspective(COMMAND.EDIT) : "editor"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      if(!contentTabPanel.getCurrentFrame().getUrl().contains(editUrl)){
+        contentTabPanel.getCurrentFrame().setUrl(editUrl);
+      }
+    }
+  }
   protected void initializeExecutableFileTypes() {
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
