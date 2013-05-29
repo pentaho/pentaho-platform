@@ -24,6 +24,7 @@ import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.jcr.ILockHelper;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.security.userroledao.messages.Messages;
 import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrSystemException;
@@ -40,10 +41,10 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   public JcrUserRoleDao(JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao, IPathConversionHelper pathConversionHelper,
-      ILockHelper  lockHelper, IRepositoryDefaultAclHandler  defaultAclHandler)
+      ILockHelper  lockHelper, IRepositoryDefaultAclHandler  defaultAclHandler, final List<String> systemRoles)
       throws NamespaceException {
     super(userNameUtils, roleNameUtils, authenticatedRoleName, tenantAdminRoleName, repositoryAdminUsername,
-        repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler);
+        repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler, systemRoles);
     this.adminJcrTemplate = adminJcrTemplate;
   }
 
@@ -61,7 +62,9 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error updating role.", e);
+
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE"), e);
     }
   }
 
@@ -80,7 +83,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error updating role.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE"), e);
     }
   }
 
@@ -98,7 +102,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof AuthorizableExistsException)) {
         throw new AlreadyExistsException("");
       }
-      throw new UncategorizedUserRoleDaoException("Error creating role.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0002_CREATING_ROLE"), e);
     }
   }
 
@@ -117,7 +122,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof AuthorizableExistsException)) {
         throw new AlreadyExistsException("");
       }
-      throw new UncategorizedUserRoleDaoException("Error creating user.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0003_CREATING_USER"), e);
     }
     return user;
   }
@@ -136,7 +142,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error deleting role. " + role.getName(), e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0004_DELETING_ROLE", role.getName()), e);
     }
   }
 
@@ -154,7 +161,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error deleting user. " + user.getUsername(), e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0005_DELETING_USER", user.getUsername()), e);
     }
   }
 
@@ -183,7 +191,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error updating role.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE"), e);
     }
   }
 
@@ -202,7 +211,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error updating user.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0006_UPDATING_USER"), e);
     }
   }
 
@@ -221,7 +231,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       if ((e instanceof JcrSystemException) && (e.getCause() instanceof NotFoundException)) {
         throw (NotFoundException) e.getCause();
       }
-      throw new UncategorizedUserRoleDaoException("Error setting user password.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0007_UPDATING_USER_PASSWORD"), e);
     }
   }
 
@@ -241,7 +252,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         }
       });
     } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException("Error listing roles.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0008_LISTING_ROLES"), e);
     }
   }
 
@@ -261,7 +273,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         }
       });
     } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException("Error listing users.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0009_LISTING_USERS"), e);
     }
   }
 
@@ -275,7 +288,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         }
       });
     } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException("Error getting role.", e);    }
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0010_GETTING_ROLE"), e);    }
   }
 
   @Override
@@ -288,7 +302,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         }
       });
     } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException("Error getting role.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0010_GETTING_ROLE"), e);
     }
   }
 
@@ -303,7 +318,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         }
       });
     } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException("Error listing role members.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0011_LISTING_ROLE_MEMBERS"), e);
     }
   }
 
@@ -318,7 +334,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         }
       });
     } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException("Error listing role members.", e);
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance().getString(
+          "JcrUserRoleDao.ERROR_0011_LISTING_ROLE_MEMBERS"), e);
     }
   }
 }

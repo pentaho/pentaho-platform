@@ -216,26 +216,27 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public void onMantleSettingsLoaded(MantleSettingsLoadedEvent event) {
     final HashMap<String, String> settings = event.getSettings();
+    final boolean showOnlyPerspective = Boolean.parseBoolean(Window.Location.getParameter("showOnlyPerspective"));
     final String startupPerspective = Window.Location.getParameter("startupPerspective");
 
     mantleRevisionOverride = settings.get("user-console-revision");
     RootPanel.get("pucMenuBar").add(MantleXul.getInstance().getMenubar());
-    if (!StringUtils.isEmpty(startupPerspective)) {
+    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
       RootPanel.get("pucMenuBar").setVisible(false);
     }
 
     RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
-    if (!StringUtils.isEmpty(startupPerspective)) {
+    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
       RootPanel.get("pucPerspectives").setVisible(false);
     }
 
     RootPanel.get("pucToolBar").add(MantleXul.getInstance().getToolbar());
-    if (!StringUtils.isEmpty(startupPerspective)) {
+    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
       RootPanel.get("pucToolBar").setVisible(false);
     }
 
     RootPanel.get("pucUserDropDown").add(new UserDropDown());
-    if (!StringUtils.isEmpty(startupPerspective)) {
+    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
       RootPanel.get("pucUserDropDown").setVisible(true);
     }
     
@@ -246,7 +247,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     contentDeck.add(new Label());
     contentDeck.showWidget(0);
     contentDeck.add(SolutionBrowserPanel.getInstance());
-    if (!StringUtils.isEmpty(startupPerspective)) {
+    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
       SolutionBrowserPanel.getInstance().setVisible(false);
     }
 
