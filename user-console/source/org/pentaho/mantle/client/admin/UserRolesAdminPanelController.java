@@ -127,7 +127,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			}
 		}
 
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteRoles?roles=" + selectedRoles;
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteRoles?roleNames=" + selectedRoles;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -179,7 +179,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			}
 		}
 
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?users=" + selectedUsers;
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?userNames=" + selectedUsers;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -234,8 +234,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 	// -- Remote Calls.
 	
-	private void initializeRoles(final String defaultValue, String service, final ListBox listBox) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrolelist/" + service;
+	private void initializeRoles(final String defaultValue, String serviceUrl, final ListBox listBox) {
+		final String url = GWT.getHostPageBaseURL() + serviceUrl;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
@@ -274,7 +274,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}	
 	
 	private void initializeAvailableUsers(final String defaultValue) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrolelist/users";
+		final String url = GWT.getHostPageBaseURL() + "api/userroledao/users";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
@@ -313,7 +313,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	private void getRolesForUser(String user) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrolelist/getRolesForUser?user=" + user;
+		final String url = GWT.getHostPageBaseURL() + "api/userroledao/userRoles?userName=" + user;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
@@ -364,7 +364,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	private void getUsersInRole(String role) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrolelist/getUsersInRole?role=" + role;
+		final String url = GWT.getHostPageBaseURL() + "api/userroledao/roleMembers?roleName=" + role;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
@@ -473,7 +473,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				public void onResponseReceived(Request request, Response response) {
                     checkForError(Messages.getString("Error"), response);
 					getRolesForUser(userName);
-					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
+					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "api/userroledao/roles", rolesListBox);
 				}
 			});
 		} catch (RequestException e) {
@@ -506,8 +506,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		processLDAPmode();
 		initializeActionBaseSecurityElements();
 		initializeAvailableUsers(null);
-		initializeRoles(null, "roles", rolesListBox);		
-		initializeRoles(null, "extraRoles", systemRolesListBox);
+		initializeRoles(null, "api/userroledao/roles", rolesListBox);		
+		initializeRoles(null, "api/userrolelist/extraRoles", systemRolesListBox);
 	}
 
 	public String getId() {

@@ -40,10 +40,10 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   public JcrUserRoleDao(JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao, IPathConversionHelper pathConversionHelper,
-      ILockHelper  lockHelper, IRepositoryDefaultAclHandler  defaultAclHandler)
+      ILockHelper  lockHelper, IRepositoryDefaultAclHandler  defaultAclHandler, final List<String> systemRoles)
       throws NamespaceException {
     super(userNameUtils, roleNameUtils, authenticatedRoleName, tenantAdminRoleName, repositoryAdminUsername,
-        repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler);
+        repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler, systemRoles);
     this.adminJcrTemplate = adminJcrTemplate;
   }
 

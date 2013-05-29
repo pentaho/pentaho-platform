@@ -64,6 +64,41 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   }  
   
+  @GET
+  @Path("/users")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public UserListWrapper getUsers() throws Exception {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+    return new UserListWrapper(roleDao.getUsers());
+  }
+
+  @GET
+  @Path("/roles")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public RoleListWrapper getRoles() throws Exception {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+    return new RoleListWrapper(roleDao.getRoles());
+  }
+
+  @GET
+  @Path("/userRoles")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public RoleListWrapper getUserRoles(@QueryParam("tenant") String tenantPath
+      , @QueryParam("userName") String userName) throws Exception {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+    return new RoleListWrapper(roleDao.getUserRoles(getTenant(tenantPath),userName));
+  }
+
+  @GET
+  @Path("/roleMembers")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public UserListWrapper getRoleMembers(@QueryParam("tenant") String tenantPath
+      , @QueryParam("roleName") String roleName) throws Exception {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+    return new UserListWrapper(roleDao.getRoleMembers(getTenant(tenantPath),roleName));
+  }
+
+  
   
   @PUT
   @Path("/assignRoleToUser")
@@ -90,23 +125,21 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response removeRoleFromUser(@QueryParam("tenant") String tenantPath
       , @QueryParam("userName") String userName
       , @QueryParam("roleNames") String roleNames) {
-    if (tokenToString(roleNames).contains(adminRole)) {
-      String errMessage = checkAdminRole(null, userName + "|");
-      if (errMessage != null) {
-        return processErrorResponse(errMessage);
+    try {
+      IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      StringTokenizer tokenizer = new StringTokenizer(roleNames, "|");
+      Set<String> assignedRoles = new HashSet<String>();
+      for (IPentahoRole pentahoRole : roleDao.getUserRoles(getTenant(tenantPath), userName)) {
+        assignedRoles.add(pentahoRole.getName());
       }
+      while (tokenizer.hasMoreTokens()) {
+        assignedRoles.remove(tokenizer.nextToken());
+      }
+      roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
+      return Response.ok().build();
+    } catch(Throwable th) {
+      return processErrorResponse(th.getLocalizedMessage());
     }
-    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    StringTokenizer tokenizer = new StringTokenizer(roleNames, "|");
-    Set<String> assignedRoles = new HashSet<String>();
-    for (IPentahoRole pentahoRole : roleDao.getUserRoles(getTenant(tenantPath), userName)) {
-      assignedRoles.add(pentahoRole.getName());
-    }
-    while (tokenizer.hasMoreTokens()) {
-      assignedRoles.remove(tokenizer.nextToken());
-    }
-    roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
-    return Response.ok().build();
   }
 
   @PUT
@@ -128,13 +161,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes({ WILDCARD })
   public Response removeAllRolesFromUser(@QueryParam("tenant") String tenantPath
       , @QueryParam("userName") String userName) {
-    String errMessage = checkAdminRole(null, userName + "|");
-    if (errMessage != null) {
-      return processErrorResponse(errMessage);
+    try {
+      IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      roleDao.setUserRoles(getTenant(tenantPath), userName, new String[0]);
+      return Response.ok().build();
+    } catch(Throwable th) {
+      return processErrorResponse(th.getLocalizedMessage());
     }
-    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    roleDao.setUserRoles(getTenant(tenantPath), userName, new String[0]);
-    return Response.ok().build();
   }
 
   @PUT
@@ -162,23 +195,21 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response removeUserFromRole(@QueryParam("tenant") String tenantPath
       , @QueryParam("userNames") String userNames
       , @QueryParam("roleName") String roleName) {
-    if (roleName.equals(adminRole)) {
-      String errMessage = checkAdminRole(null, userNames);
-      if (errMessage != null) {
-        return processErrorResponse(errMessage);
+    try {
+      IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
+      Set<String> assignedUserNames = new HashSet<String>();
+      for (IPentahoUser pentahoUser : roleDao.getRoleMembers(getTenant(tenantPath), roleName)) {
+        assignedUserNames.add(pentahoUser.getUsername());
       }
+      while (tokenizer.hasMoreTokens()) {
+        assignedUserNames.remove(tokenizer.nextToken());
+      }
+      roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
+      return Response.ok().build();
+    } catch(Throwable th) {
+      return processErrorResponse(th.getLocalizedMessage());
     }
-    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
-    Set<String> assignedUserNames = new HashSet<String>();
-    for (IPentahoUser pentahoUser : roleDao.getRoleMembers(getTenant(tenantPath), roleName)) {
-      assignedUserNames.add(pentahoUser.getUsername());
-    }
-    while (tokenizer.hasMoreTokens()) {
-      assignedUserNames.remove(tokenizer.nextToken());
-    }
-    roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
-    return Response.ok().build();
   }
 
   @PUT
@@ -200,12 +231,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes({ WILDCARD })
   public Response removeAllUsersFromRole(@QueryParam("tenant") String tenantPath
       , @QueryParam("roleName") String roleName) {
-    if (adminRole.equals(roleName)) {
-      return processErrorResponse("Illegal to remove all users from the " + adminRole + " role");
+    try {
+      IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      roleDao.setRoleMembers(getTenant(tenantPath), roleName, new String[0]);
+      return Response.ok().build();
+    } catch(Throwable th) {
+      return processErrorResponse(th.getLocalizedMessage());
     }
-    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    roleDao.setRoleMembers(getTenant(tenantPath), roleName, new String[0]);
-    return Response.ok().build();
   }
 
   @PUT
@@ -232,18 +264,18 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path("/deleteRoles")
   @Consumes({ WILDCARD })
-  public Response deleteRole(@QueryParam("roles") String roles) {
-    String errMessage = checkAdminRole(roles, null);
-    if (errMessage != null) {
-      return processErrorResponse(errMessage);
-    }
-    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    StringTokenizer tokenizer = new StringTokenizer(roles, "|");
-    while (tokenizer.hasMoreTokens()) {
-      IPentahoRole role = roleDao.getRole(null, tokenizer.nextToken());
-      if (role != null) {
-        roleDao.deleteRole(role);
+  public Response deleteRole(@QueryParam("roleNames") String roleNames) {
+    try {
+      IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      StringTokenizer tokenizer = new StringTokenizer(roleNames, "|");
+      while (tokenizer.hasMoreTokens()) {
+        IPentahoRole role = roleDao.getRole(null, tokenizer.nextToken());
+        if (role != null) {
+          roleDao.deleteRole(role);
+        }
       }
+    } catch(Throwable th) {
+      return processErrorResponse(th.getLocalizedMessage());
     }
     return Response.ok().build();
   }
@@ -251,18 +283,18 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path("/deleteUsers")
   @Consumes({ WILDCARD })
-  public Response deleteUser(@QueryParam("users") String users) {
-    String errMessage = checkAdminRole(null, users);
-    if (errMessage != null) {
-      return processErrorResponse(errMessage);
-    }
-    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    StringTokenizer tokenizer = new StringTokenizer(users, "|");
-    while (tokenizer.hasMoreTokens()) {
-      IPentahoUser user = roleDao.getUser(null, tokenizer.nextToken());
-      if (user != null) {
-        roleDao.deleteUser(user);
+  public Response deleteUser(@QueryParam("userNames") String userNames) {
+    try {
+      IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
+      while (tokenizer.hasMoreTokens()) {
+        IPentahoUser user = roleDao.getUser(null, tokenizer.nextToken());
+        if (user != null) {
+          roleDao.deleteUser(user);
+        }
       }
+    } catch(Throwable th) {
+      return processErrorResponse(th.getLocalizedMessage());
     }
     return Response.ok().build();
   }
@@ -336,40 +368,6 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return result;
   }
 
-  /**
-   * Checks to see if the removal of the received roles and users would
-   * cause the system to have no login associated with the Admin role.
-   * This check is to be made before any changes take place
-   * @param deleteRoles  Roles to be deleted separated with | char
-   * @param deleteUsers  Users to be deleted separated with | char
-   * @return Error message if invalid or null if ok
-   */
-  private String checkAdminRole(String deleteRoles, String deleteUsers) {
-    //Make sure system roles are not being deleted
-    if (deleteRoles != null && deleteRoles.length() > 0) {
-      StringTokenizer tokenizer = new StringTokenizer(deleteRoles, "|");
-      while (tokenizer.hasMoreTokens()) {
-        String token = tokenizer.nextToken();
-        if (systemRoles.contains(token)) {
-          return ("Illegal to remove the " + token + " role");
-        }
-      }
-    }
-    //Make sure the last user with Admin role is not being deleted
-    ITenant tenant = getTenant(null);
-    IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-    HashSet<String> usersInAdminRole = new HashSet<String>(userRoleListService.getUsersInRole(tenant, adminRole));
-    if (deleteUsers != null && deleteUsers.length() > 0) {
-      StringTokenizer tokenizer = new StringTokenizer(deleteUsers, "|");
-      while (tokenizer.hasMoreTokens()) {
-        usersInAdminRole.remove(tokenizer.nextToken());
-        if (usersInAdminRole.size() == 0) {
-          return "Illegal to remove the last user with " + adminRole + " role";
-        }
-      }
-    }
-    return null;
-  }
 
   private Response processErrorResponse(String errMessage) {
     return Response.ok(errMessage).build();

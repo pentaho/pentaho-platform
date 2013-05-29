@@ -342,6 +342,7 @@
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="lockHelper"/>
     <constructor-arg ref="defaultAclHandler" />
+    <constructor-arg ref="singleTenantSystemAuthorities"/>
   </bean>
 
   <!-- 

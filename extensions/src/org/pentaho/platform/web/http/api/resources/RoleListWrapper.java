@@ -5,11 +5,21 @@ import java.util.Collection;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+
 @XmlRootElement(name="roleList")
 public class RoleListWrapper {
   List<String> roles = new ArrayList<String>();
 
   public RoleListWrapper() {
+  }
+  
+  public RoleListWrapper(List<IPentahoRole> roles) {
+    List<String> roleList = new ArrayList<String>();
+    for(IPentahoRole role:roles) {
+      roleList.add(role.getName());
+    }
+    this.roles.addAll(roleList);
   }
   
   public RoleListWrapper(Collection<String> roles) {

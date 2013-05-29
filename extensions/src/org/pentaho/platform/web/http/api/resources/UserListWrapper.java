@@ -3,13 +3,24 @@ package org.pentaho.platform.web.http.api.resources;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 
 @XmlRootElement(name="userList")
 public class UserListWrapper {
   List<String> users = new ArrayList<String>();
 
   public UserListWrapper() {
+  }
+  
+  public UserListWrapper(List<IPentahoUser> users) {
+    List<String> userList = new ArrayList<String>();
+    for(IPentahoUser user:users) {
+      userList.add(user.getUsername());
+    }
+    this.users.addAll(userList);
   }
   
   public UserListWrapper(Collection<String> users) {

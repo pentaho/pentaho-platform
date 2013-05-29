@@ -87,13 +87,15 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   ILockHelper lockHelper;
 
+  List<String> systemRoles;
+  
   HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
 
   public AbstractJcrBackedUserRoleDao(ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
-      final IRepositoryDefaultAclHandler defaultAclHandler) throws NamespaceException {
+      final IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles) throws NamespaceException {
     this.tenantedUserNameUtils = userNameUtils;
     this.tenantedRoleNameUtils = roleNameUtils;
     this.authenticatedRoleName = authenticatedRoleName;
@@ -104,10 +106,15 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     this.pathConversionHelper = pathConversionHelper;
     this.lockHelper = lockHelper;
     this.defaultAclHandler = defaultAclHandler;
+    this.systemRoles = systemRoles;
   }
 
   public void setRoleMembers(Session session, final ITenant theTenant, final String roleName,
       final String[] memberUserNames) throws RepositoryException, NotFoundException {
+    List<IPentahoUser> currentRoleMembers = getRoleMembers(session, theTenant, roleName);
+    if(tenantAdminRoleName.equals(roleName) && (currentRoleMembers != null && currentRoleMembers.size() > 0) && memberUserNames.length == 0) {
+      throw new RepositoryException("Removing last admin user from role [" + tenantAdminRoleName + "] is not allowed");
+    }
     Group jackrabbitGroup = getJackrabbitGroup(theTenant, roleName, session);
 
     if ((jackrabbitGroup == null)
@@ -184,6 +191,10 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   public void setUserRoles(Session session, final ITenant theTenant, final String userName, final String[] roles)
       throws RepositoryException, NotFoundException {
+    if(hasAdminRole(getUserRoles(theTenant, userName)) && (roles.length == 0 || hasAdminRole(roles))) {
+      throw new RepositoryException("Unassigning/removing user with last admin role [" + userName + "] is not allowed");
+    }
+
     Set<String> roleSet = new HashSet<String>();
     if (roles != null) {
       roleSet.addAll(Arrays.asList(roles));
@@ -286,22 +297,30 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
   public void deleteRole(Session session, final IPentahoRole role) throws NotFoundException, RepositoryException {
-    Group jackrabbitGroup = getJackrabbitGroup(role.getTenant(), role.getName(), session);
-    if (jackrabbitGroup != null
-        && TenantUtils.isAccessibleTenant(tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()))) {
-      jackrabbitGroup.remove();
+    if(canDeleteRole(session, role)) {
+      Group jackrabbitGroup = getJackrabbitGroup(role.getTenant(), role.getName(), session);
+      if (jackrabbitGroup != null
+          && TenantUtils.isAccessibleTenant(tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()))) {
+        jackrabbitGroup.remove();
+      } else {
+        throw new NotFoundException(""); //$NON-NLS-1$
+      }
     } else {
-      throw new NotFoundException(""); //$NON-NLS-1$
+      throw new RepositoryException("Removing system defined roles is not allowed to be deleted");
     }
   }
 
   public void deleteUser(Session session, final IPentahoUser user) throws NotFoundException, RepositoryException {
-    User jackrabbitUser = getJackrabbitUser(user.getTenant(), user.getUsername(), session);
-    if (jackrabbitUser != null
-        && TenantUtils.isAccessibleTenant(tenantedUserNameUtils.getTenant(jackrabbitUser.getID()))) {
-      jackrabbitUser.remove();
+    if(canDeleteUser(session, user)) {
+      User jackrabbitUser = getJackrabbitUser(user.getTenant(), user.getUsername(), session);
+      if (jackrabbitUser != null
+          && TenantUtils.isAccessibleTenant(tenantedUserNameUtils.getTenant(jackrabbitUser.getID()))) {
+        jackrabbitUser.remove();
+      } else {
+        throw new NotFoundException(""); //$NON-NLS-1$
+      }
     } else {
-      throw new NotFoundException(""); //$NON-NLS-1$
+      throw new RepositoryException("Atleast one user need to be part of role [" + tenantAdminRoleName + "]");
     }
   }
 
@@ -659,5 +678,63 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return JcrRepositoryFileUtils
         .nodeToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper, folderNode);
   }
-
+  
+  /**
+   * Checks to see if the removal of the received roles and users would
+   * cause the system to have no login associated with the Admin role.
+   * This check is to be made before any changes take place
+   * @param deleteRoles  Roles to be deleted separated with | char
+   * @param deleteUsers  Users to be deleted separated with | char
+   * @return Error message if invalid or null if ok
+   * @throws RepositoryException 
+   */
+  
+  private boolean canDeleteUser(Session session, final IPentahoUser user) throws RepositoryException {
+    boolean userHasAdminRole = false;
+    List<IPentahoRole> roles = getUserRoles(null, user.getUsername());
+    for(IPentahoRole role:roles) {
+      if(tenantAdminRoleName.equals(role.getName())) {
+        userHasAdminRole = true;
+        break;
+      }
+    }
+    if(userHasAdminRole) {
+      List<IPentahoUser> usersWithAdminRole = getRoleMembers(session, null, tenantAdminRoleName);
+      if(usersWithAdminRole != null) {
+        
+      } else {
+        throw new RepositoryException("Atleast one user need to be part of role [" + tenantAdminRoleName + "]");
+      }
+      if(usersWithAdminRole.size() > 1) {
+        return true;
+      } else if(usersWithAdminRole.size() == 1) {
+        return false;
+      } else {
+        throw new RepositoryException("Atleast one user need to be part of role [" + tenantAdminRoleName + "]");
+      }
+    }
+    return true;
+  }
+  
+  private boolean canDeleteRole(Session session, final IPentahoRole role) {
+    return !(role != null && systemRoles.contains(role.getName()));
+  }
+  
+  private boolean hasAdminRole(List<IPentahoRole> roles) {
+    for(IPentahoRole role:roles) {
+      if(tenantAdminRoleName.equals(role.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  private boolean hasAdminRole(String[] roles) {
+    for(int i=0;i<roles.length;i++) {
+      if(tenantAdminRoleName.equals(roles[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
