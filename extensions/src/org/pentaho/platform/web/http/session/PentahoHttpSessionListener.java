@@ -82,8 +82,10 @@ public class PentahoHttpSessionListener implements HttpSessionListener {
             String value = ""; //$NON-NLS-1$
             long startTime = Long.parseLong(info[4]);
             long endTime = new Date().getTime();
-            AuditHelper.audit(instanceId, userId, activityId, objectType, processId, messageType, message, value,
-                ((endTime - startTime) / 1000), null);
+            if ("anonymousUser" != userId) {
+              AuditHelper.audit(instanceId, userId, activityId, objectType, processId, messageType, message, value,
+                  ((endTime - startTime) / 1000), null);
+            }
           }
         }
       }
