@@ -113,14 +113,16 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       final String[] memberUserNames) throws RepositoryException, NotFoundException {
     List<IPentahoUser> currentRoleMembers = getRoleMembers(session, theTenant, roleName);
     if(tenantAdminRoleName.equals(roleName) && (currentRoleMembers != null && currentRoleMembers.size() > 0) && memberUserNames.length == 0) {
-      throw new RepositoryException("Removing last admin user from role [" + tenantAdminRoleName + "] is not allowed");
+      throw new RepositoryException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0001_LAST_ADMIN_ROLE", tenantAdminRoleName));
     }
     Group jackrabbitGroup = getJackrabbitGroup(theTenant, roleName, session);
 
     if ((jackrabbitGroup == null)
         || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID())
             : theTenant)) {
-      throw new NotFoundException("Role not found"); //$NON-NLS-1$
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0002_ROLE_NOT_FOUND"));
     }
     HashMap<String, User> currentlyAssignedUsers = new HashMap<String, User>();
     Iterator<Authorizable> currentMembers = jackrabbitGroup.getMembers();
@@ -170,7 +172,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if ((jackrabbitUser == null)
         || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
             : theTenant)) {
-      throw new NotFoundException("User not found"); //$NON-NLS-1$
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND"));
     }
 
     HashMap<String, Group> finalCollectionOfAssignedGroups = new HashMap<String, Group>();
@@ -192,7 +195,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   public void setUserRoles(Session session, final ITenant theTenant, final String userName, final String[] roles)
       throws RepositoryException, NotFoundException {
     if(hasAdminRole(getUserRoles(theTenant, userName)) && (roles.length == 0 || hasAdminRole(roles))) {
-      throw new RepositoryException("Unassigning/removing user with last admin role [" + userName + "] is not allowed");
+      throw new RepositoryException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0005_LAST_ADMIN_USER", userName));
     }
 
     Set<String> roleSet = new HashSet<String>();
@@ -206,7 +210,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if ((jackrabbitUser == null)
         || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
             : theTenant)) {
-      throw new NotFoundException("User not found"); //$NON-NLS-1$
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND"));
     }
     HashMap<String, Group> currentlyAssignedGroups = new HashMap<String, Group>();
     Iterator<Group> currentGroups = jackrabbitUser.memberOf();
@@ -251,8 +256,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       tenant = JcrTenantUtils.getCurrentTenant();
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
-      throw new NotFoundException("Tenant " + theTenant.getId() + " not found"); //$NON-NLS-1$//$NON-NLS-2$
-
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0006_TENANT_NOT_FOUND", theTenant.getId()));
     }
     String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, role);
 
@@ -277,8 +282,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       tenant = JcrTenantUtils.getCurrentTenant();
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
-      throw new NotFoundException("Tenant " + theTenant.getId() + " not found"); //$NON-NLS-1$//$NON-NLS-2$
-
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0006_TENANT_NOT_FOUND", theTenant.getId()));
     }
     String userId = tenantedUserNameUtils.getPrincipleId(tenant, user);
     UserManager tenantUserMgr = getUserManager(tenant, session);
@@ -306,8 +311,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         throw new NotFoundException(""); //$NON-NLS-1$
       }
     } else {
-      throw new RepositoryException("Removing system defined roles is not allowed to be deleted");
-    }
+      throw new RepositoryException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0007_ATTEMPTED_SYSTEM_ROLE_DELETE"));
+    } 
   }
 
   public void deleteUser(Session session, final IPentahoUser user) throws NotFoundException, RepositoryException {
@@ -320,7 +326,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         throw new NotFoundException(""); //$NON-NLS-1$
       }
     } else {
-      throw new RepositoryException("Atleast one user need to be part of role [" + tenantAdminRoleName + "]");
+      throw new RepositoryException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0004_LAST_USER_NEEDED_IN_ROLE", tenantAdminRoleName));
     }
   }
 
@@ -384,7 +391,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         jackrabbitGroup.setProperty("description", session.getValueFactory().createValue(description)); //$NON-NLS-1$
       }
     } else {
-      throw new NotFoundException("Role not found"); //$NON-NLS-1$
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0002_ROLE_NOT_FOUND"));
     }
   }
 
@@ -394,7 +402,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if ((jackrabbitUser == null)
         || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
             : theTenant)) {
-      throw new NotFoundException("User not found"); //$NON-NLS-1$
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND"));
     }
     if (description == null) {
       jackrabbitUser.removeProperty("description"); //$NON-NLS-1$
@@ -409,8 +418,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if ((jackrabbitUser == null)
         || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
             : theTenant)) {
-      throw new NotFoundException("User not found"); //$NON-NLS-1$
-
+      throw new NotFoundException(Messages.getInstance().getString(
+          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND"));
     }
     jackrabbitUser.changePassword(password);
   }
@@ -703,14 +712,16 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       if(usersWithAdminRole != null) {
         
       } else {
-        throw new RepositoryException("Atleast one user need to be part of role [" + tenantAdminRoleName + "]");
+        throw new RepositoryException(Messages.getInstance().getString(
+            "AbstractJcrBackedUserRoleDao.ERROR_0004_LAST_USER_NEEDED_IN_ROLE", tenantAdminRoleName));
       }
       if(usersWithAdminRole.size() > 1) {
         return true;
       } else if(usersWithAdminRole.size() == 1) {
         return false;
       } else {
-        throw new RepositoryException("Atleast one user need to be part of role [" + tenantAdminRoleName + "]");
+        throw new RepositoryException(Messages.getInstance().getString(
+            "AbstractJcrBackedUserRoleDao.ERROR_0004_LAST_USER_NEEDED_IN_ROLE", tenantAdminRoleName));
       }
     }
     return true;
