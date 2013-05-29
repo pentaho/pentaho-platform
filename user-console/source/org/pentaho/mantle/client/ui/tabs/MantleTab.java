@@ -47,6 +47,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
   private PopupPanel popupMenu = new MantlePopupPanel(true);
+  private boolean solutionBrowserShowing;
 
   private static enum TABCOMMANDTYPE {
     BACK, RELOAD, RELOAD_ALL, CLOSE, CLOSE_ALL, CLOSE_OTHERS, NEW_WINDOW, CREATE_DEEP_LINK
@@ -256,5 +257,13 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
         // ((IFrameTabPanel) getContent()).setId(text);
         ((IFrameTabPanel) getContent()).setId(text + System.currentTimeMillis());
       }
+  }
+
+  public boolean isSolutionBrowserShowing() {
+    return solutionBrowserShowing;
+  }
+
+  public void setSolutionBrowserShowing(boolean solutionBrowserShowing) {
+    this.solutionBrowserShowing = solutionBrowserShowing;
   }
 }
