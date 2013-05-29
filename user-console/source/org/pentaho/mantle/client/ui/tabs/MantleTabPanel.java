@@ -557,12 +557,20 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void selectTab(final PentahoTab selectedTab) {
+
+    //Save previous tab's solution browser panel navigator state
+    MantleTab prevTab = (MantleTab) getSelectedTab();
+    boolean prevState=SolutionBrowserPanel.getInstance().isNavigatorShowing();
+    if(prevTab!=null){
+      prevTab.setSolutionBrowserShowing(prevState);
+    }
     super.selectTab(selectedTab);
 
     if (selectedTab == null) {
       return;
     }
-
+    //restore previous state of solution browser panel navigator
+    SolutionBrowserPanel.getInstance().setNavigatorShowing(selectedTab.isSolutionBrowserShowing());
     Widget selectTabContent = null;
     if (getTab(getSelectedTabIndex()) != null) {
       selectTabContent = getTab(getSelectedTabIndex()).getContent();
