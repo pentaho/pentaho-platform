@@ -217,7 +217,7 @@ public class GenericServlet extends ServletBase {
       IContentGenerator contentGenerator = (IContentGenerator)pluginManager.getBean(contentGeneratorId);
       if (contentGenerator == null) {
         OutputStream out = response.getOutputStream();
-        String message = Messages.getErrorString("GenericServlet.ERROR_0002_BAD_GENERATOR", ESAPI.encoder().encodeForHTML(contentGeneratorId)); //$NON-NLS-1$
+        String message = Messages.getInstance().getErrorString("GenericServlet.ERROR_0002_BAD_GENERATOR", ESAPI.encoder().encodeForHTML(contentGeneratorId)); //$NON-NLS-1$
         error(message);
         out.write(message.getBytes());
         return;
