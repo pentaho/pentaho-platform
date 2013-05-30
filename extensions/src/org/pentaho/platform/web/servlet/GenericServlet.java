@@ -55,6 +55,7 @@ import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.messages.Messages;
+import org.owasp.esapi.ESAPI;
 
 public class GenericServlet extends ServletBase {
 
@@ -216,7 +217,7 @@ public class GenericServlet extends ServletBase {
       IContentGenerator contentGenerator = (IContentGenerator)pluginManager.getBean(contentGeneratorId);
       if (contentGenerator == null) {
         OutputStream out = response.getOutputStream();
-        String message = Messages.getInstance().getErrorString("GenericServlet.ERROR_0002_BAD_GENERATOR", contentGeneratorId); //$NON-NLS-1$
+        String message = Messages.getErrorString("GenericServlet.ERROR_0002_BAD_GENERATOR", ESAPI.encoder().encodeForHTML(contentGeneratorId)); //$NON-NLS-1$
         error(message);
         out.write(message.getBytes());
         return;
