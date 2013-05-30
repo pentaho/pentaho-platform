@@ -77,21 +77,33 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 public class SchedulesPanel extends SimplePanel {
 
   private ToolbarButton controlScheduleButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-run"));
+
   private ToolbarButton editButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-editbutton"));
+
   private ToolbarButton triggerNowButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-execute"));
+
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-deletebutton"));
+
   private ToolbarButton filterButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-add"));
-  private ToolbarButton filterRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-remove"));
+
+  private ToolbarButton filterRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small",
+      "icon-filter-remove"));
 
   private JsArray<JsJob> allJobs;
+
   private Set<JsJob> selectedJobs = null;
+
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
-  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE,
+      (CellTableResources) GWT.create(CellTableResources.class));
+
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
+
   private SimplePager pager;
 
   private FilterDialog filterDialog;
+
   private IDialogCallback filterDialogCallback = new IDialogCallback() {
     public void okPressed() {
       filters.clear();
@@ -328,7 +340,8 @@ public class SchedulesPanel extends SimplePanel {
             return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
           } else {
             return new SafeHtmlBuilder().appendHtmlConstant(
-                "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(outputPath).toSafeHtml().asString() + "'>" + outputPath
+                "<span class='workspace-resource-link' title='"
+                    + new SafeHtmlBuilder().appendEscaped(outputPath).toSafeHtml().asString() + "'>" + outputPath
                     + "</span>").toSafeHtml();
           }
         } catch (Throwable t) {
@@ -623,18 +636,26 @@ public class SchedulesPanel extends SimplePanel {
 
     Toolbar bar = new Toolbar();
     bar.addSpacer(10);
+
     bar.add(Toolbar.GLUE);
 
-    ToolbarButton refresh = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-refresh"));
-    refresh.setToolTip(Messages.getString("refreshTooltip"));
-    refresh.setCommand(new Command() {
-      public void execute() {
-        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
-        cmd.execute();
-      }
-    });
-    bar.add(refresh);
+    // Add control scheduler button
+    if (isAdmin) {
+      final ToolbarButton controlSchedulerButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small",
+          "icon-start-scheduler"));
 
+      controlSchedulerButton.setCommand(new Command() {
+        public void execute() {
+          toggleSchedulerOnOff(controlSchedulerButton, isScheduler);
+        }
+      });
+      updateControlSchedulerButtonState(controlSchedulerButton, isScheduler);
+
+      bar.add(controlSchedulerButton);
+      bar.addSpacer(20);
+    }
+
+    // Add filter button
     filterButton.setCommand(new Command() {
       public void execute() {
         if (filterDialog == null) {
@@ -648,6 +669,7 @@ public class SchedulesPanel extends SimplePanel {
     filterButton.setToolTip(Messages.getString("filterSchedules"));
     bar.add(filterButton);
 
+    // Add remove filters button
     filterRemoveButton.setCommand(new Command() {
       public void execute() {
         filterDialog = null;
@@ -661,7 +683,20 @@ public class SchedulesPanel extends SimplePanel {
     filterRemoveButton.setEnabled(filters.size() > 0);
     bar.add(filterRemoveButton);
 
+    // Add refresh button
+    ToolbarButton refresh = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-refresh"));
+    refresh.setToolTip(Messages.getString("refreshTooltip"));
+    refresh.setCommand(new Command() {
+      public void execute() {
+        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
+        cmd.execute();
+      }
+    });
+    bar.add(refresh);
+
     bar.addSpacer(20);
+
+    // Add execute now button
     triggerNowButton.setToolTip(Messages.getString("executeNow"));
     triggerNowButton.setCommand(new Command() {
       public void execute() {
@@ -670,7 +705,10 @@ public class SchedulesPanel extends SimplePanel {
         }
       }
     });
+    triggerNowButton.setEnabled(false);
     bar.add(triggerNowButton);
+
+    // Add control schedule button
     controlScheduleButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
@@ -684,24 +722,11 @@ public class SchedulesPanel extends SimplePanel {
       }
     });
     controlScheduleButton.setEnabled(false);
-    scheduleRemoveButton.setEnabled(false);
-    triggerNowButton.setEnabled(false);
     bar.add(controlScheduleButton);
+
     bar.addSpacer(20);
 
-    if (isAdmin) {
-      final ToolbarButton controlSchedulerButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-start-scheduler"));
-      controlSchedulerButton.setCommand(new Command() {
-        public void execute() {
-          toggleSchedulerOnOff(controlSchedulerButton, isScheduler);
-        }
-      });
-      updateControlSchedulerButtonState(controlSchedulerButton, isScheduler);
-
-      bar.add(controlSchedulerButton);
-      bar.addSpacer(20);
-    }
-
+    // Add edit button
     editButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
@@ -722,13 +747,15 @@ public class SchedulesPanel extends SimplePanel {
                   final JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
 
                   // check email is setup
-                  RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/emailconfig/isValid");
+                  RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
+                      + "api/emailconfig/isValid");
                   emailValidRequest.setHeader("accept", "text/plain");
                   try {
                     emailValidRequest.sendRequest(null, new RequestCallback() {
 
                       public void onError(Request request, Throwable exception) {
-                        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                        MessageDialogBox dialogBox = new MessageDialogBox(
+                            Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
                         dialogBox.center();
                       }
 
@@ -738,21 +765,23 @@ public class SchedulesPanel extends SimplePanel {
 
                           // check if has parameterizable
                           String urlPath = jsJob.getFullResourceName().replaceAll("/", ":");
-                          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repo/files/"
-                              + urlPath + "/parameterizable");
+                          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT
+                              .getHostPageBaseURL() + "api/repo/files/" + urlPath + "/parameterizable");
                           scheduleFileRequestBuilder.setHeader("accept", "text/plain");
                           try {
                             scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
 
                               public void onError(Request request, Throwable exception) {
-                                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                                MessageDialogBox dialogBox = new MessageDialogBox(
+                                    Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
                                 dialogBox.center();
                               }
 
                               public void onResponseReceived(Request request, Response response) {
                                 if (response.getStatusCode() == Response.SC_OK) {
                                   final boolean hasParams = Boolean.parseBoolean(response.getText());
-                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, hasParams, isEmailConfValid, true,
+                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob,
+                                      scheduleDialogCallback, hasParams, isEmailConfValid, true,
                                       AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
                                   schedDialog.center();
                                 }
@@ -786,10 +815,12 @@ public class SchedulesPanel extends SimplePanel {
     editButton.setToolTip(Messages.getString("editTooltip"));
     bar.add(editButton);
 
+    // Add remove button
     scheduleRemoveButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("warning"), Messages.getString("yes"), Messages.getString("no"), false, true);
+          final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("warning"), Messages.getString("yes"),
+              Messages.getString("no"), false, true);
           prompt.setContent(new Label(Messages.getString("deleteConfirmSchedles", "" + selectedJobs.size())));
 
           prompt.setCallback(new IDialogCallback() {
@@ -807,6 +838,7 @@ public class SchedulesPanel extends SimplePanel {
       }
     });
     scheduleRemoveButton.setToolTip(Messages.getString("remove"));
+    scheduleRemoveButton.setEnabled(false);
     bar.add(scheduleRemoveButton);
 
     tableAndPager.add(bar);
@@ -856,7 +888,8 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void controlScheduler(final ToolbarButton controlSchedulerButton, final String function, final boolean isScheduler) {
+  private void controlScheduler(final ToolbarButton controlSchedulerButton, final String function,
+      final boolean isScheduler) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
