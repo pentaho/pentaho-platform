@@ -47,13 +47,9 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
   ScheduleEditorValidator scheduleEditorValidator;
 
   public ScheduleEditorWizardPanel(final AbstractWizardDialog.ScheduleDialogType type) {
-    this(type, true);
-  }
-
-  public ScheduleEditorWizardPanel(final AbstractWizardDialog.ScheduleDialogType type, final boolean showScheduleName) {
     super();
 
-    scheduleEditor = new ScheduleEditor(type, showScheduleName);
+    scheduleEditor = new ScheduleEditor(type);
     scheduleEditorValidator = new ScheduleEditorValidator(scheduleEditor);
     init();
     layout();
@@ -155,10 +151,6 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
 
   public String getRepeatInterval() {
     return scheduleEditor.getRepeatInSecs().toString();
-  }
-
-  public void setFocus() {
-    scheduleEditor.setFocus();
   }
 
 }

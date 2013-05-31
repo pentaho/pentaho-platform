@@ -22,7 +22,7 @@ import java.util.Date;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleRecurrenceDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;
@@ -102,7 +102,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           final JsJob jsJob = tmpJsJob;
 
           if (jsJob != null) {
-            scheduleTextBox.setValue("" + (Long.parseLong(jsJob.getJobParam("age")) / 86400L));
+            scheduleTextBox.setValue("" + (Long.parseLong(jsJob.getJobParamValue("age")) / 86400L));
           } else {
             scheduleTextBox.setText("180");
           }
@@ -200,7 +200,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               scheduleLabelPanel.add(new Label(Messages.getString("deleteGeneratedFilesOlderThan"), false));
               scheduleLabelPanel.add(scheduleTextBox);
               scheduleLabelPanel.add(new Label(Messages.getString("daysUsingTheFollowingRules"), false));
-              NewScheduleDialog editSchedule = new NewScheduleDialog(jsJob, callback, false, false, false, AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
+              ScheduleRecurrenceDialog editSchedule = new ScheduleRecurrenceDialog(null, jsJob, callback, false, false, AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
               editSchedule.addCustomPanel(scheduleLabelPanel, DockPanel.NORTH);
               editSchedule.center();
             }

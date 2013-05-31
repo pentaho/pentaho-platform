@@ -30,7 +30,6 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.images.ImageUtil;
@@ -781,8 +780,7 @@ public class SchedulesPanel extends SimplePanel {
                                 if (response.getStatusCode() == Response.SC_OK) {
                                   final boolean hasParams = Boolean.parseBoolean(response.getText());
                                   final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob,
-                                      scheduleDialogCallback, hasParams, isEmailConfValid, true,
-                                      AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
+                                      scheduleDialogCallback, hasParams, isEmailConfValid);
                                   schedDialog.center();
                                 }
                               }

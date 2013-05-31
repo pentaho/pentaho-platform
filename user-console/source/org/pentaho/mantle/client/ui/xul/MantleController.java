@@ -17,9 +17,7 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -56,7 +54,6 @@ import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
-import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
@@ -217,12 +214,6 @@ public class MantleController extends AbstractXulEventHandler {
       }
     }
     buildFavoritesAndRecent(false);
-
-    // Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
-    final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
-
-    // For the menu item
-   // bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
 
     EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
       public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {

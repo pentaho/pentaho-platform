@@ -49,7 +49,7 @@ public class JsJob extends JavaScriptObject {
 
   public final native void setState(String newState) /*-{ this.state = newState; }-*/; //
   
-  public final String getJobParam(String name) {
+  public final String getJobParamValue(String name) {
     if (hasJobParams()) {
       JsArray<JsJobParam> params = getJobParams();
       for (int i=0;i<params.length();i++) {
@@ -62,15 +62,28 @@ public class JsJob extends JavaScriptObject {
     return null;
   }
 
+  public final JsJobParam getJobParam(String name) {
+    if (hasJobParams()) {
+      JsArray<JsJobParam> params = getJobParams();
+      for (int i=0;i<params.length();i++) {
+        JsJobParam param = params.get(i);
+        if (param.getName().equals(name)) {
+          return param;
+        }
+      }
+    }
+    return null;
+  }  
+  
   private final native boolean hasJobParams() /*-{ return this.jobParams != null; }-*/; //
 
   public final boolean hasResourceName() {
-    String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
+    String resource = getJobParamValue("ActionAdapterQuartzJob-StreamProvider");
     return (resource != null && !"".equals(resource));
   }  
   
   public final String getFullResourceName() {
-    String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
+    String resource = getJobParamValue("ActionAdapterQuartzJob-StreamProvider");
     if (resource == null || "".equals(resource)) {
       return getJobName();
     }
@@ -79,13 +92,19 @@ public class JsJob extends JavaScriptObject {
   }
   
   public final String getOutputPath() {
-    String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
+    String resource = getJobParamValue("ActionAdapterQuartzJob-StreamProvider");
     if (resource == null || "".equals(resource)) {
       return "";
     }
     resource = resource.substring(resource.indexOf(":"));
     resource = resource.substring(resource.indexOf("/"), resource.lastIndexOf("/"));
     return resource;
+  }  
+
+  public final void setOutputPath(String outputPath) {
+    JsJobParam resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
+    //input file = /public/Inventory.prpt:outputFile = /public/FUCKer.*
+    resource.setValue("input file = " + getFullResourceName() + ":outputFile = " + outputPath);
   }  
   
   public final String getShortResourceName() {

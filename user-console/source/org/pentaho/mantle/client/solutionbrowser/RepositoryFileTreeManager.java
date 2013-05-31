@@ -65,6 +65,9 @@ public class RepositoryFileTreeManager {
       if (!fetching && fileTree == null) {
         fetching = true;
         fetchRepositoryFileTree(true, depth, filter, showHidden);
+      } else {
+        listener.beforeFetchRepositoryFileTree();
+        listener.onFetchRepositoryFileTree(fileTree, trashItems);
       }
     }
   }

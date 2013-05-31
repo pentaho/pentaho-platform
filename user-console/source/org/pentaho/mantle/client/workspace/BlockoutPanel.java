@@ -148,7 +148,7 @@ public class BlockoutPanel extends SimplePanel {
         Set<JsJob> jobs = getSelectedSet();
         JsJob jsJob = jobs.iterator().next();
 
-        NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true, false);
+        NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true);
         table.selectRow(list.indexOf(jsJob));
         blockoutDialog.setUpdateMode();
         blockoutDialog.center();

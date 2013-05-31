@@ -103,7 +103,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
     }
 
     if (editJob != null) {
-      String lineageId = editJob.getJobParam("lineage-id");
+      String lineageId = editJob.getJobParamValue("lineage-id");
       JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
       lineageIdValue.push(lineageId);
       JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
@@ -136,6 +136,8 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
             if (callback != null) {
               callback.okPressed();
             }
+            ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
+            successDialog.center();
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
                 Messages.getString("error"), response.getText(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$

@@ -16,17 +16,22 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.regexp.shared.RegExp;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -34,32 +39,29 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class NewFolderCommand extends AbstractCommand {
 
-  RepositoryFile destinationFolder;
-  String moduleBaseURL = GWT.getModuleBaseURL();
-  String moduleName = GWT.getModuleName();
-  String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+  private String solutionPath = null;
+  private String moduleBaseURL = GWT.getModuleBaseURL();
+  private String moduleName = GWT.getModuleName();
+  private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
   private RepositoryFile parentFolder;
 
+  private ICallback<String> callback;
+  
   public NewFolderCommand() {
   }
 
   public NewFolderCommand(RepositoryFile parentFolder) {
     this.parentFolder = parentFolder;
   }
-
-  private String solutionPath = null;
 
   public String getSolutionPath() {
     return solutionPath;
@@ -86,7 +88,6 @@ public class NewFolderCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-
     final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
     event.setAction(this.getClass().getName());
 
@@ -116,8 +117,10 @@ public class NewFolderCommand extends AbstractCommand {
           return;
         }
 
+        solutionPath = parentFolder.getPath() + "/" + URL.encodePathSegment(folderNameTextBox.getText());
+        
         String createDirUrl = contextURL
-            + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + URL.encodePathSegment(folderNameTextBox.getText())); //$NON-NLS-1$
+            + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(solutionPath); //$NON-NLS-1$
         RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
 
         try {
@@ -136,6 +139,7 @@ public class NewFolderCommand extends AbstractCommand {
             @Override
             public void onResponseReceived(Request createFolderRequest, Response createFolderResponse) {
               if (createFolderResponse.getStatusText().equalsIgnoreCase("OK")) { //$NON-NLS-1$
+                NewFolderCommand.this.callback.onHandle(solutionPath);
                 new RefreshRepositoryCommand().execute(false);
                 event.setMessage("Success");
                 EventBusUtil.EVENT_BUS.fireEvent(event);
@@ -177,7 +181,6 @@ public class NewFolderCommand extends AbstractCommand {
        "..".equals(name)) { // no .. //$NON-NLS-1$
       return false;
     }
-
     return true;
   }
 
@@ -198,4 +201,12 @@ public class NewFolderCommand extends AbstractCommand {
     return RegExp.compile(buf.toString());
   }
 
+  public ICallback<String> getCallback() {
+    return callback;
+  }
+
+  public void setCallback(ICallback<String> callback) {
+    this.callback = callback;
+  }
+  
 }

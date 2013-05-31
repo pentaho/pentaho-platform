@@ -64,7 +64,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
 
   ScheduleParamsWizardPanel scheduleParamsWizardPanel;
   ScheduleEmailDialog scheduleEmailDialog;
-  NewScheduleDialog parentDialog;
+  ScheduleRecurrenceDialog parentDialog;
 
   String filePath;
 
@@ -75,7 +75,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   Boolean done = false;
   boolean isEmailConfValid = false;
 
-  public ScheduleParamsDialog(NewScheduleDialog parentDialog, boolean isEmailConfValid, JsJob editJob) {
+  public ScheduleParamsDialog(ScheduleRecurrenceDialog parentDialog, boolean isEmailConfValid, JsJob editJob) {
     super(ScheduleDialogType.SCHEDULER, Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = parentDialog.filePath;
@@ -174,7 +174,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   protected boolean onFinish() {
     scheduleParams = getScheduleParams(false);
     if (editJob != null) {
-      String lineageId = editJob.getJobParam("lineage-id");
+      String lineageId = editJob.getJobParamValue("lineage-id");
       JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
       lineageIdValue.push(lineageId);
       JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
@@ -209,7 +209,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
               if (callback != null) {
                 callback.okPressed();
               }
-
+              ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
+              successDialog.center();
             } else {
               MessageDialogBox dialogBox = new MessageDialogBox(
                   Messages.getString("error"), response.getText(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
@@ -371,11 +372,11 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     return callback;
   }
 
-  public NewScheduleDialog getParentDialog() {
+  public ScheduleRecurrenceDialog getParentDialog() {
     return parentDialog;
   }
 
-  public void setParentDialog(NewScheduleDialog parentDialog) {
+  public void setParentDialog(ScheduleRecurrenceDialog parentDialog) {
     this.parentDialog = parentDialog;
   }
 

@@ -98,7 +98,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
   };
   private SplitLayoutPanel solutionNavigatorPanel = new SplitLayoutPanel();
-  private SolutionTree solutionTree = new SolutionTree();
+  private SolutionTree solutionTree = new SolutionTree(true);
   private FilesListPanel filesListPanel = new FilesListPanel();
   private Timer resizeTimer;
 

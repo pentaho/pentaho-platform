@@ -25,18 +25,18 @@ import org.pentaho.mantle.client.workspace.JsJobTrigger;
 
 import com.google.gwt.json.client.JSONObject;
 
-public class NewBlockoutScheduleDialog extends NewScheduleDialog {
+public class NewBlockoutScheduleDialog extends ScheduleRecurrenceDialog {
   private boolean updateMode = false;
 
   public NewBlockoutScheduleDialog(final String filePath, final IDialogCallback callback, final boolean hasParams,
       final boolean isEmailConfValid) {
-    super(ScheduleDialogType.BLOCKOUT, Messages.getString("newBlockoutSchedule"), filePath, callback, hasParams, //$NON-NLS-1$
+    super(null, ScheduleDialogType.BLOCKOUT, Messages.getString("newBlockoutSchedule"), filePath, null, null, callback, hasParams, //$NON-NLS-1$
         isEmailConfValid);
   }
 
   public NewBlockoutScheduleDialog(final JsJob jsJob, final IDialogCallback callback, final boolean hasParams,
-      final boolean isEmailConfValid, final boolean showScheduleName) {
-    super(jsJob, callback, hasParams, isEmailConfValid, showScheduleName, ScheduleDialogType.BLOCKOUT);
+      final boolean isEmailConfValid) {
+    super(null, jsJob, callback, hasParams, isEmailConfValid, ScheduleDialogType.BLOCKOUT);
   }
 
   @Override

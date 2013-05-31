@@ -64,7 +64,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -103,7 +102,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
 
   private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
 
-  private static final String SCHEDULE_LABEL = "schedule-label"; //$NON-NLS-1$
+  protected static final String SCHEDULE_LABEL = "schedule-label"; //$NON-NLS-1$
 
   protected static final String SCHEDULE_EDITOR_CAPTION_PANEL = "schedule-editor-caption-panel"; //$NON-NLS-1$
 
@@ -150,8 +149,6 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     }
   } /* end enum */
 
-  private TextBox scheduleNameTextBox = new TextBox();
-
   private RunOnceEditor runOnceEditor = null;
 
   private RecurrenceEditor recurrenceEditor = null;
@@ -191,19 +188,12 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   
   protected ListBox timeZonePicker = null;
 
-  public ScheduleEditor(ScheduleDialogType type, boolean showScheduleName) {
+  public ScheduleEditor(ScheduleDialogType type) {
     super();
     isBlockoutDialog = (type == ScheduleDialogType.BLOCKOUT);
     startTimePicker = new TimePicker();
 
     setStylePrimaryName("scheduleEditor"); //$NON-NLS-1$
-
-    if (!isBlockoutDialog && showScheduleName) {
-      Label scheduleNameLabel = new Label(MSGS.scheduleName());
-      scheduleNameLabel.setStyleName(SCHEDULE_LABEL);
-      add(scheduleNameLabel);
-      add(scheduleNameTextBox);
-    }
 
     scheduleCombo = createScheduleCombo();
     Label l = new Label(MSGS.recurrenceColon());
@@ -613,14 +603,6 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     setScheduleType(ScheduleType.RUN_ONCE);
   }
 
-  public String getScheduleName() {
-    return scheduleNameTextBox.getText();
-  }
-
-  public void setScheduleName(String scheduleName) {
-    scheduleNameTextBox.setText(scheduleName);
-  }
-
   public String getCronString() {
     switch (getScheduleType()) {
       case RUN_ONCE:
@@ -930,10 +912,6 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     return scheduleTypeToTemporalValueMap.get(st);
   }
 
-  public void setFocus() {
-    scheduleNameTextBox.setFocus(true);
-  }
-
   public void setOnChangeHandler(ICallback<IChangeHandler> handler) {
     this.onChangeHandler = handler;
   }
@@ -973,7 +951,6 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     runOnceEditor.setOnChangeHandler(handler);
     recurrenceEditor.setOnChangeHandler(handler);
     cronEditor.setOnChangeHandler(handler);
-    scheduleNameTextBox.addChangeHandler(changeHandler);
 
     if (daysListBox != null) {
       this.daysListBox.addChangeHandler(changeHandler);

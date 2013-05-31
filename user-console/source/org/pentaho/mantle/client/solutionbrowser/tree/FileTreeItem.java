@@ -19,7 +19,6 @@ package org.pentaho.mantle.client.solutionbrowser.tree;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -57,11 +56,6 @@ public class FileTreeItem extends TreeItem {
 
   public void setURL(String url) {
     this.url = url;
-  }
-
-  @Override
-  protected Focusable getFocusable() {
-    return ((SolutionTree) this.getTree()).getFocusable();
   }
 
   public RepositoryFile getRepositoryFile() {

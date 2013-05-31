@@ -19,16 +19,11 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.tree;
 
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.logical.shared.OpenEvent;
-import com.google.gwt.event.logical.shared.OpenHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
@@ -47,10 +42,19 @@ import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
 
 public class SolutionTree extends Tree implements IRepositoryFileTreeListener, UserSettingsLoadedEventHandler, IRepositoryFileProvider {
   private boolean showLocalizedFileNames = true;
@@ -61,13 +65,16 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
   public RepositoryFileTree repositoryFileTree;
   public List<RepositoryFile> trashItems;
   public FileTreeItem trashItem;
+  private boolean showTrash = true;
 
   private TreeItem selectedItem = null;
+  private String selectedPath = null;
 
-  FocusPanel focusable = new FocusPanel();
-  
-  public SolutionTree() {
+  private FocusPanel focusable = new FocusPanel();
+
+  public SolutionTree(boolean showTrash) {
     super(MantleImages.images, false);
+    this.showTrash = showTrash;
     setAnimationEnabled(true);
     sinkEvents(Event.ONDBLCLICK);
     DOM.setElementAttribute(getElement(), "oncontextmenu", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -88,8 +95,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
           if (selectedItem instanceof FileTreeItem) {
-            RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
-            if(repositoryFile != null && repositoryFile.isHidden()) {
+            RepositoryFile repositoryFile = ((FileTreeItem) selectedItem).getRepositoryFile();
+            if (repositoryFile != null && repositoryFile.isHidden()) {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
                 ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
               } else {
@@ -114,11 +121,11 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
           if (selectedItem instanceof FileTreeItem) {
-            RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
-            if(repositoryFile != null && repositoryFile.isHidden()) {
+            RepositoryFile repositoryFile = ((FileTreeItem) selectedItem).getRepositoryFile();
+            if (repositoryFile != null && repositoryFile.isHidden()) {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-              ((LeafItemWidget) treeItemWidget).getParent().addStyleName("hidden"); //$NON-NLS-1$
-              ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
+                ((LeafItemWidget) treeItemWidget).getParent().addStyleName("hidden"); //$NON-NLS-1$
+                ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
               } else {
                 selectedItem.addStyleName("hidden"); //$NON-NLS-1$
                 selectedItem.addStyleName("selected"); //$NON-NLS-1$                
@@ -139,7 +146,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
           }
         }
       }
-
     });
     // By default, expanding a node does not select it. Add that in here
     this.addOpenHandler(new OpenHandler<TreeItem>() {
@@ -152,11 +158,11 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
     EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, this);
     UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
-      
+
       public void onSuccess(JsArray<JsSetting> settings) {
         onUserSettingsLoaded(new UserSettingsLoadedEvent(settings));
       }
-      
+
       public void onFailure(Throwable caught) {
       }
     }, false);
@@ -187,12 +193,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     int eventType = DOM.eventGetType(event);
     switch (eventType) {
     case Event.ONMOUSEDOWN:
-    	if (DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT) {
-    		TreeItem selectedItem = findSelectedItem(null, event.getClientX(), event.getClientY());
-            if (selectedItem != null) {
-            	setSelectedItem(selectedItem);
-            }
-    	}
+      if (DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT) {
+        TreeItem selectedItem = findSelectedItem(null, event.getClientX(), event.getClientY());
+        if (selectedItem != null) {
+          setSelectedItem(selectedItem);
+        }
+      }
     case Event.ONMOUSEUP:
     case Event.ONCLICK:
       try {
@@ -208,7 +214,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
     try {
 
-        if (DOM.eventGetType(event) == Event.ONDBLCLICK) {
+      if (DOM.eventGetType(event) == Event.ONDBLCLICK) {
         getSelectedItem().setState(!getSelectedItem().getState(), true);
       } else {
         super.onBrowserEvent(event);
@@ -223,30 +229,28 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
   }
 
   private TreeItem findSelectedItem(TreeItem item, int x, int y) {
-	 if (item == null) {
-	   for (int i = 0; i < getItemCount(); i++) {
-	     TreeItem selected = findSelectedItem(getItem(i), x, y);
-	     if (selected != null) {
-	        return selected;
-	     }
-	   }
-	   return null;
-	 }
+    if (item == null) {
+      for (int i = 0; i < getItemCount(); i++) {
+        TreeItem selected = findSelectedItem(getItem(i), x, y);
+        if (selected != null) {
+          return selected;
+        }
+      }
+      return null;
+    }
 
-	 for (int i = 0; i < item.getChildCount(); i++) {
-	   TreeItem selected = findSelectedItem(item.getChild(i), x, y);
-	   if (selected != null) {
-	     return selected;
-	   }
-	 }
+    for (int i = 0; i < item.getChildCount(); i++) {
+      TreeItem selected = findSelectedItem(item.getChild(i), x, y);
+      if (selected != null) {
+        return selected;
+      }
+    }
 
-	 if (x >= item.getAbsoluteLeft()
-	   && x <= item.getAbsoluteLeft() + item.getOffsetWidth()
-	   && y >= item.getAbsoluteTop()
-	   && y <= item.getAbsoluteTop() + item.getOffsetHeight()) {
-	   return item;
-	 }
-	 return null;
+    if (x >= item.getAbsoluteLeft() && x <= item.getAbsoluteLeft() + item.getOffsetWidth() && y >= item.getAbsoluteTop()
+        && y <= item.getAbsoluteTop() + item.getOffsetHeight()) {
+      return item;
+    }
+    return null;
   }
 
   protected void onLoad() {
@@ -281,7 +285,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     clear();
     // get document root item
     RepositoryFile rootRepositoryFile = repositoryFileTree.getFile();
-    if(!rootRepositoryFile.isHidden() || (rootRepositoryFile.isHidden() && isShowHiddenFiles())) {
+    if (!rootRepositoryFile.isHidden() || (rootRepositoryFile.isHidden() && isShowHiddenFiles())) {
       FileTreeItem rootItem = null;
       if (createRootNode) {
         rootItem = new FileTreeItem();
@@ -312,8 +316,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
       }
     }
     fixLeafNodes();
-    buildTrash();
-    if (selectedItem != null) {
+    if (showTrash) {
+      buildTrash();
+    }
+    if (selectedPath != null) {
+      select(selectedPath);
+    } else if (selectedItem != null) {
       ArrayList<TreeItem> parents = new ArrayList<TreeItem>();
       while (selectedItem != null) {
         parents.add(selectedItem);
@@ -372,6 +380,37 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
   public List<RepositoryFile> getTrashItems() {
     return trashItems;
+  }
+
+  public void select(String path) {
+    this.selectedPath = path;
+    ArrayList<String> pathSegments = new ArrayList<String>();
+    if (path != null) {
+      if (path.startsWith("/")) { //$NON-NLS-1$
+        path = path.substring(1);
+      }
+      StringTokenizer st = new StringTokenizer(path, '/');
+      for (int i = 0; i < st.countTokens(); i++) {
+        String token = st.tokenAt(i);
+        pathSegments.add(token);
+      }
+    }
+    TreeItem item = getTreeItem(pathSegments);
+    selectedItem = item;
+    ArrayList<TreeItem> parents = new ArrayList<TreeItem>();
+    if (item != null) {
+      this.setSelectedItem(item, false);
+      parents.add(item);
+      item = item.getParentItem();
+      while (item != null) {
+        parents.add(item);
+        item = item.getParentItem();
+      }
+      Collections.reverse(parents);
+      selectFromList(parents);
+      // this.setSelectedItem(selectedItem, false);
+      // selectedItem.setSelected(true);
+    }
   }
 
   public ArrayList<String> getPathSegments(String path) {
@@ -474,7 +513,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
       RepositoryFile file = treeItem.getFile();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
-      if ((!file.isHidden() || (file.isHidden() && isShowHiddenFiles()))  && !StringUtils.isEmpty(fileName)) {
+      if ((!file.isHidden() || (file.isHidden() && isShowHiddenFiles())) && !StringUtils.isEmpty(fileName)) {
 
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
@@ -484,10 +523,10 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         childTreeItem.getElement().setAttribute("id", file.getPath());//$NON-NLS-1$
         childTreeItem.setUserObject(treeItem);
         childTreeItem.setRepositoryFile(file);
-        if(file.isHidden() && file.isFolder()) {
+        if (file.isHidden() && file.isFolder()) {
           childTreeItem.addStyleDependentName("hidden");
-        } 
-        
+        }
+
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
         childTreeItem.setURL(fileName);
         if (showLocalizedFileNames) {
@@ -623,10 +662,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
   public boolean isCreateRootNode() {
     return createRootNode;
-  }
-
-  Focusable getFocusable() {
-    return this.focusable;
   }
 
   public List<RepositoryFile> getRepositoryFiles() {

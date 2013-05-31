@@ -112,8 +112,10 @@ public class ScheduleHelper {
                       public void onResponseReceived(Request request, Response response) {
                         if (response.getStatusCode() == Response.SC_OK) {
                           final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
-                          final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, hasParams, isEmailConfValid);
+
+                          NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, hasParams, isEmailConfValid);
                           dialog.center();
+                          
                           event.setMessage("Open");
                           EventBusUtil.EVENT_BUS.fireEvent(event);
                         }
