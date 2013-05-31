@@ -756,10 +756,29 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     if (showSolutionBrowser) {
       solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
       navigatorAndContentSplit.setWidgetSize(solutionNavigatorPanel, defaultSplitPosition);
+
+      //Show splitter pane
+      if(this.navigatorAndContentSplit!=null){
+        for(int i=0;i<this.navigatorAndContentSplit.getWidgetCount();i++){
+          if(this.navigatorAndContentSplit.getWidget(i).getStyleName().equals("gwt-SplitLayoutPanel-HDragger")){
+            this.navigatorAndContentSplit.getWidget(i).getElement().getParentElement().removeClassName("hidden");
+            this.contentTabPanel.getElement().getParentElement().removeClassName("alignleft");
+          }
+        }
+      }
     } else {
+      //Hide splitter pane
+      if(this.navigatorAndContentSplit!=null){
+        for(int i=0;i<this.navigatorAndContentSplit.getWidgetCount();i++){
+          if(this.navigatorAndContentSplit.getWidget(i).getStyleName().equals("gwt-SplitLayoutPanel-HDragger")){
+            this.navigatorAndContentSplit.getWidget(i).getElement().getParentElement().setClassName("hidden");
+            this.contentTabPanel.getElement().getParentElement().setClassName("alignleft");
+          }
+        }
+       }
       navigatorAndContentSplit.setWidgetSize(solutionNavigatorPanel, 0);
       solutionNavigatorPanel.setVisible(false);
-    }
+      }
     adjustContentPanelSize();
   }
 
