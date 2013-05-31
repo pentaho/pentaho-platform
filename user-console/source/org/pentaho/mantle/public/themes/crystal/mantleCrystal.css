@@ -6,19 +6,24 @@
   padding-left: 40px;
 }
 
-#adminContentPanel.vbox > tbody > tr > td {  
+#adminContentPanel.vbox > tbody > tr > td {
   height: 100%;
 }
 .schedulerPerspective{
   background: transparent;
   width: 1230px;
-margin: 0 auto;
+  margin: 0 auto;
+  padding: 30px 40px 40px 40px;
 }
 .workspaceHeading {
-color: #1973bc;
-font-size: 24px;
-padding: 0px 0px 20px 0px;
-font-family: OpenSansLight, Helvetica, Arial, Sans serif;
+  color: #1973bc;
+  font-size: 22px;
+  padding: 0px 0px 0px 0px;
+  font-family: OpenSansLight, Helvetica, Arial, Sans serif;
+}
+
+.schedulesPanel .workspaceHeading {
+  padding: 0px 0px 10px 0px;
 }
 .admin-perspective {
   padding-top: 40px;
@@ -29,7 +34,9 @@ font-family: OpenSansLight, Helvetica, Arial, Sans serif;
   margin: 0 auto;
 }
 
-
+#adminCatTree .tree-scroll-panel{
+  background: transparent;
+}
 
 #adminCatTree .gwt-Label {
   font-size: 16px;
@@ -54,7 +61,7 @@ font-family: OpenSansLight, Helvetica, Arial, Sans serif;
   color: #1973bc;
   cursor: pointer;
   cursor: hand;
-    background-image: none;
+  background-image: none;
 }
 
 #adminCatTree .tree-item-custom-widget-selected {
@@ -68,12 +75,14 @@ font-family: OpenSansLight, Helvetica, Arial, Sans serif;
   width: auto !important;}
 
 .adminCatTreeItem {
-  border-top: 1px solid #dfdfdf;	
+  border-top: 1px solid #dfdfdf;
 }
 
 .adminCatTreeItemLast {
-  border-bottom: 1px solid #dfdfdf;	
+  border-bottom: 1px solid #dfdfdf;
 }
+
+
 
 .mantle-perspective-toggle {
   background: black;
@@ -344,8 +353,8 @@ a:active, a:hover {
 }
 
 .backgroundContentTable {
- background: black;
- font-size: 13px;
+  background: black;
+  font-size: 13px;
 }
 
 .backgroundContentHeaderTableCell {
@@ -518,7 +527,7 @@ a:active, a:hover {
 }
 
 .workspaceMessage {
-	font-size: 13px;
+  font-size: 13px;
 }
 
 .gwt-TextBox-readonly {
@@ -781,16 +790,17 @@ a:active, a:hover {
   padding: 20px 20px 0px 57px;
 }
 .launcher-bottom-text{
-    line-height: 1.5; padding: 10px 20px 0px 40px; font-size: 13px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 16px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
+  line-height: 1.5; padding: 10px 20px 0px 40px; font-size: 13px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 16px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
 }
 
 .schedulesPanel .toolbar {
   background:none;
+  border: 0;
 }
 .schedulesPanel .pentaho-table th{
   font-size: 16px;
   border-spacing: 2px;
-  padding: 10px 10px 12px 10px;
+  padding: 8px 10px 10px 10px;
   font-weight: normal;
 }
 
@@ -801,7 +811,7 @@ a:active, a:hover {
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
   border-top: 1px solid transparent;
-  border-bottom: 0px solid transparent;  
+  border-bottom: 0px solid transparent;
 }
 
 .custom-dropdown-pressed {
@@ -814,7 +824,7 @@ a:active, a:hover {
 
 .custom-dropdown-label {
   font-size: 28px;
-  color: #26353d; 
+  color: #26353d;
   padding-left: 10px;
   font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
@@ -828,7 +838,7 @@ a:active, a:hover {
 #pucUserDropDown .custom-dropdown {
   width: 105px;
   min-width: 105px;
-  padding-top: 10px;  
+  padding-top: 10px;
 }
 
 #pucUserDropDown .custom-dropdown-arrow {
@@ -893,22 +903,22 @@ a:active, a:hover {
 }
 
 #pucHeader {
-/* moved to global crystal */
+  /* moved to global crystal */
   min-width: 820px;
 }
 
 #pucHeader .gwt-MenuBar-horizontal .gwt-MenuItem {
-  color: #777; 
+  color: #777;
   font-size: 13px;
   padding: 4px 12px;
 }
 
 #pucContent {
-/*  box-shadow: 0px 0px 1px 2px #a9a2ad; */
+  /*  box-shadow: 0px 0px 1px 2px #a9a2ad; */
 }
 
 .custom-dropdown-popup {
-  z-index: 100;	
+  z-index: 100;
   box-shadow: 2px 2px 4px 0px #d0d0d0;
 }
 
@@ -964,8 +974,9 @@ a:active, a:hover {
 
 
 .gwt-MenuBar-horizontal .gwt-MenuItem-selected{
-  background-color: #8bb4c7;
-  border: 0px solid #8bb4c7;
+  background-color: #8ab3c6;
+  border: 0px solid #8ab3c6;
+  color: #fff;
 }
 
 .gwt-MenuBar-vertical {
@@ -985,19 +996,19 @@ a:active, a:hover {
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-checkbox-unchecked{
-	color: #698492;
+  color: #698492;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-checkbox-checked{
-	color: #698492;
+  color: #698492;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-selected:hover {
-  background-color: #d8eace;
+  background-color: #dce7ed;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-selected {
-  background-color: #dde8ee;
+  background-color: #d7e9cd;
   color: #293b46;
   vertical-align: bottom;
 }
@@ -1013,6 +1024,21 @@ a:active, a:hover {
   border-top: 1px solid #cbdde8;
 }
 
+.gwt-MenuBar-vertical .gwt-MenuItem-checkbox-checked-selected:hover {
+  background-color: #dce7ed;
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItem-checkbox-unchecked-selected:hover {
+  background-color: #dce7ed;
+}
+
+gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
+  background-color: #dce7ed;
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItem-selected:hover {
+  background-color:  #dce7ed;
+}
 
 
 /* == == == */
