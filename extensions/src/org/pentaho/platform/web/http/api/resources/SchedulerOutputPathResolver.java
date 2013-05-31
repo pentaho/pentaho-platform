@@ -1,6 +1,8 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -17,6 +19,8 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 public class SchedulerOutputPathResolver {
 
   final String DEFAULT_SETTING_KEY = "default-scheduler-output-path";
+
+  private static final Log logger = LogFactory.getLog(SchedulerOutputPathResolver.class);
 
   private IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   private IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -57,29 +61,49 @@ public class SchedulerOutputPathResolver {
   }
 
   private boolean isValidOutputPath(String path){
-    RepositoryFile repoFile = repository.getFile(path);
-    if(repoFile != null && repoFile.isFolder()){
-      return true;
+    try {
+      RepositoryFile repoFile = repository.getFile(path);
+      if(repoFile != null && repoFile.isFolder()){
+        return true;
+      }
     }
-
+    catch (Exception e){
+      logger.warn(e.getMessage(), e);
+    }
     return false;
   }
 
   private String getUserSettingOutputPath(){
-    IUserSetting userSetting = settingsService.getUserSetting(DEFAULT_SETTING_KEY, null);
-    if(userSetting != null && StringUtils.isNotBlank(userSetting.getSettingValue())){
-      return userSetting.getSettingValue();
+    try {
+      IUserSetting userSetting = settingsService.getUserSetting(DEFAULT_SETTING_KEY, null);
+      if(userSetting != null && StringUtils.isNotBlank(userSetting.getSettingValue())){
+        return userSetting.getSettingValue();
+      }
     }
-
+    catch(Exception e){
+      logger.warn(e.getMessage(), e);
+    }
     return null;
   }
 
   private String getSystemSettingOutputPath(){
-    return PentahoSystem.getSystemSettings().getSystemSetting(DEFAULT_SETTING_KEY, null);
+    try {
+      return PentahoSystem.getSystemSettings().getSystemSetting(DEFAULT_SETTING_KEY, null);
+    }
+    catch(Exception e){
+      logger.warn(e.getMessage(), e);
+    }
+    return null;
   }
 
   private String getUserHomeDirectoryPath(){
-    return ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName());
+    try {
+      return ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName());
+    }
+    catch(Exception e){
+      logger.warn(e.getMessage(), e);
+    }
+    return null;
   }
 
 }
