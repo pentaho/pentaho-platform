@@ -8,6 +8,14 @@ body{
   height: 100%;
 }
 
+.hidden{
+  display:none;
+}
+
+.alignleft{
+  left:0 !important;
+}
+
 .workspaceHeading {
   color: #5C5C5C;
   font-size: 24px;
