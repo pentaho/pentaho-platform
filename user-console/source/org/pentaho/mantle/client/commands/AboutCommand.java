@@ -16,10 +16,22 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
+import java.util.Date;
 
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.messages.Messages;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class AboutCommand extends AbstractCommand {
 
@@ -31,15 +43,41 @@ public class AboutCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    final SelectFolderDialog folderChooser = new SelectFolderDialog();
-    folderChooser.setCallback(new IDialogCallback() {
-      public void okPressed() {
-        Window.alert(folderChooser.getSelectedPath());
-      }
+    if (MantleApplication.mantleRevisionOverride != null && MantleApplication.mantleRevisionOverride.length() > 0) {
+      showAboutDialog(MantleApplication.mantleRevisionOverride);
+    } else {
+      final String url = GWT.getHostPageBaseURL() + "api/version/show"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      try {
+        requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void cancelPressed() {
+          public void onError(Request request, Throwable exception) {
+            // showError(exception);
+          }
+
+          public void onResponseReceived(Request request, Response response) {
+            showAboutDialog(response.getText());
+          }
+        });
+      } catch (RequestException e) {
+        Window.alert(e.getMessage());
+        // showError(e);
       }
-    });
-    folderChooser.center();
+    }
+  }
+
+  private void showAboutDialog(String version) {
+    @SuppressWarnings("deprecation")
+    String licenseInfo = Messages.getString("licenseInfo", "" + ((new Date()).getYear() + 1900));
+    String releaseLabel = Messages.getString("release");
+    PromptDialogBox dialogBox = new PromptDialogBox(Messages.getString("aboutDialogTitle"), Messages.getString("ok"), null, false, true); //$NON-NLS-1$
+
+    VerticalPanel aboutContent = new VerticalPanel();
+    aboutContent.add(new Label(releaseLabel + " " + version));
+    aboutContent.add(new HTML(licenseInfo));
+
+    dialogBox.setContent(aboutContent);
+    dialogBox.center();
   }
 }
