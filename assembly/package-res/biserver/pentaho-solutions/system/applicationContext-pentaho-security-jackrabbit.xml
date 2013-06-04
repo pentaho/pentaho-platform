@@ -10,7 +10,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
 
   <bean id="userRoleListService0" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService">
-    <constructor-arg ref="userRoleDaoProxy"/>
+    <constructor-arg>
+    	<pen:bean class="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao"/>
+    </constructor-arg>
     <constructor-arg>
 			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
     </constructor-arg>
