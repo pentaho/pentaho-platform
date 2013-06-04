@@ -417,6 +417,11 @@
         <idref local="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="50"/>
+      </pen:attributes>
+    </pen:publish>
   </bean>
 
   <!-- 
@@ -431,6 +436,11 @@
         <idref local="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="nosecurity" value="true"/>
+      </pen:attributes>
+    </pen:publish>
   </bean>
 
   <!-- The username to use to do internal work for no particular user. -->
