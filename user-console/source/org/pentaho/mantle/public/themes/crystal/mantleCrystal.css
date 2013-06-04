@@ -82,7 +82,11 @@
   border-bottom: 1px solid #dfdfdf;
 }
 
-
+.select-folder-tree {
+  height: 160px;
+  overflow: auto;
+  width: 300px;
+}
 
 .mantle-perspective-toggle {
   background: black;

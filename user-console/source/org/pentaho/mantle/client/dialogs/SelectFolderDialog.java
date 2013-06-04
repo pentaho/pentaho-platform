@@ -37,20 +37,26 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class SelectFolderDialog extends PromptDialogBox {
 
-  private SolutionTree tree = new SolutionTree(false) {
-    public void onBrowserEvent(Event event) {
-      if (DOM.eventGetType(event) == Event.ONDBLCLICK && getSelectedItem().getChildCount() == 0) {
-        SelectFolderDialog.this.onOk();
-        event.stopPropagation();
-        event.preventDefault();
-      } else {
-        super.onBrowserEvent(event);
-      }
-    };
-  };
+  private SolutionTree tree;
 
   public SelectFolderDialog() {
     super(Messages.getString("selectFolder"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    tree = new SolutionTree(false) {
+      public void onBrowserEvent(Event event) {
+        try {
+          if (DOM.eventGetType(event) == Event.ONDBLCLICK && getSelectedItem().getChildCount() == 0) {
+            SelectFolderDialog.this.onOk();
+            event.stopPropagation();
+            event.preventDefault();
+          } else {
+            super.onBrowserEvent(event);
+          }
+        } catch (Throwable t) {
+          // Window.alert(t);
+        }
+      };
+    };
 
     tree.getElement().getStyle().setMargin(0d, Unit.PX);
     SimplePanel treeWrapper = new SimplePanel(tree);

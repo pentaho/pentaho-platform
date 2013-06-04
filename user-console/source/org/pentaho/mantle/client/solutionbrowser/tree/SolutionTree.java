@@ -255,11 +255,13 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
   protected void onLoad() {
     super.onLoad();
-    try {
-      fixLeafNodes();
-      DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
-    } catch (NullPointerException e) {
-      // This is sometimes thrown because the dom does not yet contain the trash items or the leaf nodes.
+    if (trashItem != null) {
+      try {
+        fixLeafNodes();
+        DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
+      } catch (NullPointerException e) {
+        // This is sometimes thrown because the dom does not yet contain the trash items or the leaf nodes.
+      }
     }
   }
 
