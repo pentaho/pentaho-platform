@@ -182,7 +182,9 @@
 
     </div>
   </div>
-  <div id="login-footer" class="beforeSlide"><%=Messages.getInstance().getString("UI.PUC.LOGIN.COPYRIGHT", String.valueOf(year))%></div>
+  <div id="login-footer-wrapper">
+    <div id="login-footer" class="beforeSlide"><%=Messages.getInstance().getString("UI.PUC.LOGIN.COPYRIGHT", String.valueOf(year))%></div>
+  </div>
 </div>
 
 <div id="loginError" class="pentaho-dialog">
