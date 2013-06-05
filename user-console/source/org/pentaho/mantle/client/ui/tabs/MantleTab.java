@@ -21,6 +21,7 @@ package org.pentaho.mantle.client.ui.tabs;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
@@ -93,6 +94,9 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       String url = Window.Location.getProtocol() + "//" + Window.Location.getHostName() + ":" + Window.Location.getPort() + Window.Location.getPath() //$NON-NLS-1$ //$NON-NLS-2$
           + "?name=" + getLabelText() + "&startup-url="; //$NON-NLS-1$ //$NON-NLS-2$
       String startup = ((IFrameTabPanel) getContent()).getUrl();
+      if (!StringUtils.isEmpty(((IFrameTabPanel) getContent()).getDeepLinkUrl())) {
+        startup = ((IFrameTabPanel) getContent()).getDeepLinkUrl();
+      }
 
       final TextArea urlbox = new TextArea();
       urlbox.setText(url + URL.encodeComponent(startup));

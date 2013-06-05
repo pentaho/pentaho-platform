@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class IFrameTabPanel extends VerticalPanel {
 
   private String url;
+  private String deepLinkUrl;
   private String name;
   private CustomFrame frame;
   private SolutionFileInfo fileInfo;
@@ -311,4 +312,12 @@ public class IFrameTabPanel extends VerticalPanel {
   public void setId(String id){
     frame.getElement().setAttribute("id", id); //$NON-NLS-1$
   }
+  
+  public String getDeepLinkUrl() {
+    return deepLinkUrl;
+  }
+
+  public void setDeepLinkUrl(String deepLinkUrl) {
+    this.deepLinkUrl = deepLinkUrl;
+  }  
 }
