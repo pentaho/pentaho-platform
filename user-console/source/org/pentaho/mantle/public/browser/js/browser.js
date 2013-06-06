@@ -83,6 +83,19 @@ pen.define([
 		//this.FileBrowserView.render();
 	};
 
+	FileBrowser.openFolder = function(path){
+		//first select folder
+		var $folder = $("[path='"+path+"']"),
+			$parentFolder = $folder.parent(".folders");
+		while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
+			$parentFolder.show();
+			$parentFolder.parent().addClass("open");
+			$parentFolder = $parentFolder.parent().parent();
+		}
+
+		$folder.find("> .element .name").trigger("click");
+	}
+
 	
 
 
@@ -794,7 +807,8 @@ pen.define([
 		update: FileBrowser.update,
 		updateData: FileBrowser.updateData,
 		redraw: FileBrowser.redraw,
-		templates: FileBrowser.templates
+		templates: FileBrowser.templates,
+		openFolder: FileBrowser.openFolder
 	}
 });
 
