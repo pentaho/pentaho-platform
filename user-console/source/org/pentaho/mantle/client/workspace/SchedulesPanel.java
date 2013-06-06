@@ -32,8 +32,11 @@ import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
@@ -60,7 +63,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -292,7 +294,11 @@ public class SchedulesPanel extends SimplePanel {
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
         if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 3) {
           // switch to browse perspective, open at the given path
-          Window.alert(event.getValue().getOutputPath());
+          PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
+          GenericEvent gevent = new GenericEvent();
+          gevent.setEventSubType("OpenFolderEvent");
+          gevent.setStringParam(event.getValue().getOutputPath());
+          EventBusUtil.EVENT_BUS.fireEvent(gevent);
         }
       }
     });
@@ -437,12 +443,12 @@ public class SchedulesPanel extends SimplePanel {
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 200, Unit.PX);
-    table.setColumnWidth(outputPathColumn, 200, Unit.PX);
-    table.setColumnWidth(scheduleColumn, 150, Unit.PX);
+    table.setColumnWidth(outputPathColumn, 180, Unit.PX);
+    table.setColumnWidth(scheduleColumn, 170, Unit.PX);
     table.setColumnWidth(lastFireColumn, 130, Unit.PX);
     table.setColumnWidth(nextFireColumn, 130, Unit.PX);
-    table.setColumnWidth(userNameColumn, 120, Unit.PX);
-    table.setColumnWidth(stateColumn, 60, Unit.PX);
+    table.setColumnWidth(userNameColumn, 100, Unit.PX);
+    table.setColumnWidth(stateColumn, 70, Unit.PX);
 
     dataProvider.addDataDisplay(table);
     List<JsJob> list = dataProvider.getList();

@@ -858,22 +858,12 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    String name = scheduleName;
-    String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$"; //$NON-NLS-1$
-    // make sure it matches regex
-    if (name.matches(alphaNumeric)) {
-      //    DO NOT DELETE - verifyBlockoutConflict(schedule, trigger);
-      JsJobTrigger trigger = getJsJobTrigger();
-      JSONObject schedule = getSchedule();
+    //    DO NOT DELETE - verifyBlockoutConflict(schedule, trigger);
+    JsJobTrigger trigger = getJsJobTrigger();
+    JSONObject schedule = getSchedule();
 
-      handleWizardPanels(schedule, trigger);
-      return true;
-    }
-
-    MessageDialogBox dialogBox = new MessageDialogBox(
-        Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-    dialogBox.center();
-    return false;
+    handleWizardPanels(schedule, trigger);
+    return true;
   }
 
   private void showScheduleEmailDialog(final JSONObject schedule) {
