@@ -70,6 +70,9 @@ public class PerspectiveManager extends SimplePanel {
   public static final String ADMIN_PERSPECTIVE = "admin.perspective";
   public static final String SCHEDULES_PERSPECTIVE = "schedules.perspective";
   public static final String OPENED_PERSPECTIVE = "opened.perspective";
+  public static final String HOME_PERSPECTIVE = "home.perspective";
+  public static final String BROWSER_PERSPECTIVE = "browser.perspective";
+  
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
