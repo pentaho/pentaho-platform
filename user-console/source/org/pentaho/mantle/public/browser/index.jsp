@@ -96,6 +96,10 @@
           }
         });
 
+        window.top.mantle_addHandler("GenericEvent", function(paramJson){
+          if(paramJson.eventSubType == "OpenFolderEvent")
+            FileBrowser.openFolder(paramJson.stringParam);
+        });
       });
     }
 
@@ -131,6 +135,9 @@
 
     checkShowHiddenFiles();
     
+    function openFolder(path){
+
+    }
 
   </script>
 
