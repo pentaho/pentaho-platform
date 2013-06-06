@@ -20,6 +20,7 @@
   font-size: 22px;
   padding: 0px 0px 0px 0px;
   font-family: OpenSansLight, Helvetica, Arial, Sans serif;
+  cursor: default;
 }
 
 .schedulesPanel .workspaceHeading {
