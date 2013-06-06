@@ -18,16 +18,24 @@
 package org.pentaho.mantle.client.dialogs.scheduling;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
 import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
@@ -44,8 +52,20 @@ public class NewScheduleDialog extends PromptDialogBox {
   private ScheduleRecurrenceDialog recurrenceDialog = null;
   
   private TextBox scheduleNameTextBox = new TextBox();
-  private TextBox scheduleLocationTextBox = new TextBox();
-
+  private static TextBox scheduleLocationTextBox = new TextBox();
+  private static HandlerRegistration changeHandlerReg = null;
+  private static HandlerRegistration keyHandlerReg = null;
+  
+  static {
+    scheduleLocationTextBox.setText(getDefaultSaveLocation());
+  }
+  
+  private static native String getDefaultSaveLocation()
+  /*-{
+    return window.top.HOME_FOLDER;
+  }-*/;
+  
+  
   public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
     super(Messages.getString("newSchedule"), Messages.getString("nextStep"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     this.jsJob = jsJob;
@@ -79,7 +99,7 @@ public class NewScheduleDialog extends PromptDialogBox {
     scheduleNameLabelPanel.add(scheduleNameInfoLabel);
     
     String defaultName = filePath.substring(filePath.lastIndexOf("/")+1, filePath.lastIndexOf("."));
-    scheduleNameTextBox.setVisibleLength(60);
+    scheduleNameTextBox.getElement().setId("schedule-name-input");
     scheduleNameTextBox.setText(defaultName);
     
     content.add(scheduleNameLabelPanel);
@@ -106,11 +126,33 @@ public class NewScheduleDialog extends PromptDialogBox {
       }
     });
     browseButton.setStyleName("pentaho-button");
+
+    ChangeHandler ch = new ChangeHandler() {
+      public void onChange(ChangeEvent event) {
+        updateButtonState();
+      }
+    };
+    KeyUpHandler kh = new KeyUpHandler() {
+      public void onKeyUp(KeyUpEvent event) {
+        updateButtonState();
+      }
+    };    
     
-    scheduleLocationTextBox.setVisibleLength(60);
+    if (keyHandlerReg != null) {
+      keyHandlerReg.removeHandler();
+    }
+    if (changeHandlerReg != null) {
+      changeHandlerReg.removeHandler();
+    }
+    keyHandlerReg = scheduleNameTextBox.addKeyUpHandler(kh);
+    changeHandlerReg = scheduleLocationTextBox.addChangeHandler(ch);
+    scheduleNameTextBox.addChangeHandler(ch);
+    
+    scheduleLocationTextBox.getElement().setId("generated-content-location");
     HorizontalPanel locationPanel = new HorizontalPanel();
     scheduleLocationTextBox.setEnabled(false);
     locationPanel.add(scheduleLocationTextBox);
+    locationPanel.setCellVerticalAlignment(scheduleLocationTextBox, HasVerticalAlignment.ALIGN_MIDDLE);
     locationPanel.add(browseButton);
     
     content.add(locationPanel);
@@ -121,9 +163,20 @@ public class NewScheduleDialog extends PromptDialogBox {
     }
     
     setContent(content);
+    updateButtonState();
   }
   
   protected void onOk() {
+    String name = scheduleNameTextBox.getText();
+    String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$"; //$NON-NLS-1$
+    // make sure it matches regex
+    if (!name.matches(alphaNumeric)) {
+      MessageDialogBox errorDialog = new MessageDialogBox(
+          Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+      errorDialog.center();
+      return;
+    }
+    
     if (jsJob != null) {
       jsJob.setJobName(scheduleNameTextBox.getText());
       jsJob.setOutputPath(scheduleLocationTextBox.getText());
@@ -142,6 +195,12 @@ public class NewScheduleDialog extends PromptDialogBox {
     super.onOk();
   }
 
+  private void updateButtonState() {
+    boolean hasLocation = !StringUtils.isEmpty(scheduleLocationTextBox.getText());
+    boolean hasName = !StringUtils.isEmpty(scheduleNameTextBox.getText());
+    okButton.setEnabled(hasLocation && hasName);
+  }
+  
   public void setFocus() {
     scheduleNameTextBox.setFocus(true);
   }

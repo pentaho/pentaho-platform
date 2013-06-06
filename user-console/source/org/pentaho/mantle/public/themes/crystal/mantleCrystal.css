@@ -87,6 +87,8 @@
   height: 160px;
   overflow: auto;
   width: 300px;
+  border: 1px solid #cbdde8;
+  background-color: white;
 }
 
 .mantle-perspective-toggle {
@@ -976,7 +978,15 @@ a:active, a:hover {
   background-image: url('images/dropdown_arrow_blue.png');
 }
 
+#generated-content-location {
+  width: 360px;
+  height: 25px;
+}
 
+#schedule-name-input {
+  width: 360px;
+  height: 25px;
+}
 
 .gwt-MenuBar-horizontal .gwt-MenuItem-selected{
   background-color: #8ab3c6;
