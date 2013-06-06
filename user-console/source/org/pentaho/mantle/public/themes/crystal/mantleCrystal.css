@@ -1104,3 +1104,130 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
   height: 32px;
   width: 32px;
 }
+
+/*****************************************/
+/*** Overrides for the schedules table ***/
+/*****************************************/
+.pentaho-table .cellTableWidget {
+  background-color: white;
+  font-size: 13px;
+  border-bottom: 1px solid #6f7277;
+}
+
+.pentaho-table .cellTableFirstColumn {
+
+}
+
+.pentaho-table .cellTableLastColumn {
+
+}
+
+.pentaho-table .cellTableFooter {
+  border-top: 2px solid #6f7277;
+  padding: 3px 15px;
+  text-align: left;
+  color: #4b4a4a;
+  text-shadow: #ddf 1px 1px 0;
+  overflow: hidden;
+}
+
+.pentaho-table .cellTableHeader {
+  padding: 3px 15px;
+  text-align: left;
+  color: white;
+  overflow: hidden;
+}
+
+.pentaho-table .cellTableCell {
+  padding: 2px 15px;
+  overflow: hidden;
+}
+
+.pentaho-table .cellTableFirstColumnFooter {
+
+}
+
+.pentaho-table .cellTableFirstColumnHeader {
+
+}
+
+.pentaho-table .cellTableLastColumnFooter {
+
+}
+
+.pentaho-table .cellTableLastColumnHeader {
+
+}
+
+.pentaho-table .cellTableSortableHeader {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.pentaho-table .cellTableSortableHeader:hover {
+  color: #dfdfdf;
+}
+
+.pentaho-table .cellTableSortedHeaderAscending {
+
+}
+
+.pentaho-table .cellTableSortedHeaderDescending {
+
+}
+
+.pentaho-table .cellTableEvenRow {
+  background: #ffffff;
+}
+
+.pentaho-table .cellTableEvenRowCell {
+  border: 2px solid #ffffff;
+}
+
+.pentaho-table .cellTableOddRow {
+  background: #f0f0f0;
+}
+
+.pentaho-table .cellTableOddRowCell {
+  border: 2px solid #f0f0f0;
+}
+
+.pentaho-table .cellTableHoveredRow {
+  background: #dce7ed;
+}
+
+.pentaho-table .cellTableHoveredRowCell {
+  border: 2px solid #dce7ed;
+}
+
+.pentaho-table .cellTableKeyboardSelectedRow {
+  background: #d7e9cd;
+}
+
+.pentaho-table .cellTableKeyboardSelectedRowCell {
+  border: 2px solid #d7e9cd;
+}
+
+.pentaho-table .cellTableSelectedRow {
+  background: #d7e9cd;
+  color: #26363d;
+  height: auto;
+  overflow: auto;
+}
+
+.pentaho-table .cellTableSelectedRowCell {
+  border: 2px solid #d7e9cd;
+}
+
+/**
+ * The keyboard selected cell is visible over selection.
+ */
+.pentaho-table .cellTableKeyboardSelectedCell {
+}
+
+.pentaho-table .cellTableLoading {
+  margin: 30px;
+}
+/*************************************/
+/*** END of schedules table styles ***/
+/*************************************/

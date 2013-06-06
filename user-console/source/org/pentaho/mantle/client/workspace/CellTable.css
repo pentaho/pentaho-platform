@@ -14,6 +14,16 @@
  * the License.
  */
 @def selectionBorderWidth 2px;
+
+
+/*
+  Add the @external flag to tell GWT compiler to NOT obfuscate the cellTable* classes (all of them).
+  This allows for theme-driven overrides in external CSS files. Treat these styles as defaults.
+  Themed overrides should be set in mantleCrystal.css/mantleOnyx.css/...
+*/
+@external .cellTable*;
+
+
 .cellTableWidget {
   background-color: white;
   font-size: .7em;
