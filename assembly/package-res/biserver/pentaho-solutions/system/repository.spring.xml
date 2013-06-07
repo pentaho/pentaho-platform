@@ -417,7 +417,7 @@
         <idref local="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
-    <pen:publish as-type="INTERFACES">
+    <pen:publish as-type="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao">
       <pen:attributes>
         <pen:attr key="priority" value="50"/>
       </pen:attributes>
@@ -436,7 +436,7 @@
         <idref local="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
-    <pen:publish as-type="INTERFACES">
+    <pen:publish as-type="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao">
       <pen:attributes>
         <pen:attr key="nosecurity" value="true"/>
       </pen:attributes>
