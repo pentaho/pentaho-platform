@@ -28,9 +28,9 @@ import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
  * @author wseyler
@@ -43,7 +43,7 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
   private static final String PENTAHO_SCHEDULE = "pentaho-schedule-create"; //$NON-NLS-1$
   
   boolean parametersComplete = true;
-  CaptionPanel parametersCaptionPanel = new CaptionPanel(MSGS.parameters());
+  SimplePanel scheduleParameterPanel = new SimplePanel();
   Label scheduleDescription = new Label();
   Frame parametersFrame;
   String scheduledFilePath;  
@@ -193,9 +193,10 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
   private void layout() {
     this.addStyleName(PENTAHO_SCHEDULE);
     this.add(scheduleDescription, NORTH);
-    this.add(parametersCaptionPanel, CENTER);
-    this.setCellHeight(parametersCaptionPanel, "100%");
-    parametersCaptionPanel.setHeight("100%");
+    scheduleParameterPanel.setStyleName("schedule-parameter-panel");
+    this.add(scheduleParameterPanel, CENTER);
+    this.setCellHeight(scheduleParameterPanel, "100%");
+    scheduleParameterPanel.setHeight("100%");
   }
 
   /* (non-Javadoc)
@@ -209,13 +210,13 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
   public void setParametersUrl(String url) {
     if (url == null) {
       if (parametersFrame != null) {
-        parametersCaptionPanel.remove(parametersFrame);
+        scheduleParameterPanel.remove(parametersFrame);
         parametersFrame = null;
       }
     } else {
       if (parametersFrame == null) {
         parametersFrame = new Frame();
-        parametersCaptionPanel.add(parametersFrame);
+        scheduleParameterPanel.add(parametersFrame);
         parametersFrame.setHeight("100%"); //$NON-NLS-1$
         
         //DOM.setElementAttribute(parametersFrame.getElement(), "onload", "schedulerParamsLoadedCallback('" + scheduledFilePath + "')");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

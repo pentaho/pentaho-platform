@@ -150,6 +150,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     }
     setParametersUrl("api/repos/" + urlPath + "/parameterUi" + urlParams); //$NON-NLS-1$ //$NON-NLS-2$
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
+    setSize("650px", "450px");
   }
 
   void setScheduleDescription(String description) {

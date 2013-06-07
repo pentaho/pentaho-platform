@@ -971,6 +971,12 @@ a:active, a:hover {
   height: 25px;
 }
 
+.schedule-dialog-button-panel {
+  padding-right: 3px;
+  padding-bottom: 2px;
+  width: 100%;
+}
+
 /* == == == */
 #mainToolbar #openButton .toolbar-button IMG {
   background: url('../../../content/common-ui/resources/themes/images/open_32.png');

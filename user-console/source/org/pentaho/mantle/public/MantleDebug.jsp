@@ -37,11 +37,7 @@
 		        
     <script type="text/javascript" src="mantle/nativeScripts.js"></script>
     <script type="text/javascript">
-    
-    
 		/** webcontext.js is created by a PentahoWebContextFilter. This filter searches for an incoming URI having "webcontext.js" in it. If it finds that, it write CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL and it values from the servlet request to this js **/ 
-		
-		
 		var CONTEXT_PATH = '/pentaho/';
 		
 		var FULL_QUALIFIED_URL = 'http://localhost:8080/pentaho/';
@@ -59,7 +55,7 @@
 		document.write("<script type='text/javascript' src='/pentaho/js/require.js'></scr"+"ipt>");
 		document.write("<script type='text/javascript' src='/pentaho/js/require-cfg.js'></scr"+"ipt>");
 		<!-- Providing name for session -->
-		var SESSION_NAME = 'suzy';
+		var SESSION_NAME = 'admin';
 		<!-- Providing computed Locale for session -->
 		var SESSION_LOCALE = 'en';
 		if(typeof(pen) != 'undefined' && pen.define){pen.define('Locale', {locale:'en'})};<!-- Injecting web resources defined in by plugins as external-resources for: global-->

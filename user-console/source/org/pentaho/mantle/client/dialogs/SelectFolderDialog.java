@@ -37,30 +37,42 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class SelectFolderDialog extends PromptDialogBox {
 
-  private SolutionTree tree;
+  private static class MySolutionTree extends SolutionTree {
+    public SelectFolderDialog localThis;
+
+    public MySolutionTree(boolean showTrash) {
+      super(showTrash);
+      super.setScrollOnSelectEnabled(false);
+    }
+
+    public void onBrowserEvent(Event event) {
+      try {
+        if (DOM.eventGetType(event) == Event.ONDBLCLICK && getSelectedItem().getChildCount() == 0) {
+          localThis.onOk();
+          event.stopPropagation();
+          event.preventDefault();
+        } else {
+          super.onBrowserEvent(event);
+        }
+      } catch (Throwable t) {
+        // Window.alert(t);
+      }
+    };
+  }
+
+  private static MySolutionTree tree = new MySolutionTree(false);
 
   public SelectFolderDialog() {
     super(Messages.getString("selectFolder"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-    tree = new SolutionTree(false) {
-      public void onBrowserEvent(Event event) {
-        try {
-          if (DOM.eventGetType(event) == Event.ONDBLCLICK && getSelectedItem().getChildCount() == 0) {
-            SelectFolderDialog.this.onOk();
-            event.stopPropagation();
-            event.preventDefault();
-          } else {
-            super.onBrowserEvent(event);
-          }
-        } catch (Throwable t) {
-          // Window.alert(t);
-        }
-      };
-    };
+    if (tree == null) {
+      tree = new MySolutionTree(false);
+    }
+    tree.localThis = this;
 
-    tree.getElement().getStyle().setMargin(0d, Unit.PX);
     SimplePanel treeWrapper = new SimplePanel(tree);
     treeWrapper.getElement().addClassName("select-folder-tree");
+    tree.getElement().getStyle().setMargin(0d, Unit.PX);
 
     Toolbar bar = new Toolbar();
     bar.setStyleName("select-folder-toolbar");

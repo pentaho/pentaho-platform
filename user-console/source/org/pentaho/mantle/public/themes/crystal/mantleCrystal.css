@@ -988,6 +988,12 @@ a:active, a:hover {
   height: 25px;
 }
 
+.schedule-dialog-button-panel {
+  padding-right: 3px;
+  padding-bottom: 2px;
+  width: 100%;
+}
+
 .gwt-MenuBar-horizontal .gwt-MenuItem-selected{
   background-color: #8ab3c6;
   border: 0px solid #8ab3c6;

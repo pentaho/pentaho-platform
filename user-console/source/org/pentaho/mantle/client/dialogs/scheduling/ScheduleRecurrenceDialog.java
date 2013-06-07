@@ -198,7 +198,8 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       finishButton.setText(Messages.getString("ok")); //$NON-NLS-1$
     }
     setupExisting(jsJob);
-    setHeight("100%"); //$NON-NLS-1$
+    //setHeight("100%"); //$NON-NLS-1$
+    setSize("650px", "450px");
   }
 
   private void setupExisting(JsJob jsJob) {

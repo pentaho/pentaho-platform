@@ -73,6 +73,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
     this.setWizardPanels(wizardPanels);
     setPixelSize(635, 375);
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
+    setSize("650px", "450px");
   }
 
   public boolean onKeyDownPreview(char key, int modifiers) {

@@ -23,9 +23,11 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
 import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -33,6 +35,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -45,80 +52,76 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   private String filePath;
   private IDialogCallback callback;
-  private boolean hasParams;
   private boolean isEmailConfValid;
   private JsJob jsJob;
 
   private ScheduleRecurrenceDialog recurrenceDialog = null;
-  
+
   private TextBox scheduleNameTextBox = new TextBox();
   private static TextBox scheduleLocationTextBox = new TextBox();
   private static HandlerRegistration changeHandlerReg = null;
   private static HandlerRegistration keyHandlerReg = null;
-  
+
   static {
     scheduleLocationTextBox.setText(getDefaultSaveLocation());
   }
-  
+
   private static native String getDefaultSaveLocation()
   /*-{
     return window.top.HOME_FOLDER;
   }-*/;
-  
-  
-  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
+
+  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean isEmailConfValid) {
     super(Messages.getString("newSchedule"), Messages.getString("nextStep"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     this.jsJob = jsJob;
     this.filePath = jsJob.getFullResourceName();
     this.callback = callback;
-    this.hasParams = hasParams;
     this.isEmailConfValid = isEmailConfValid;
     createUI();
   }
 
-  public NewScheduleDialog(String filePath, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
+  public NewScheduleDialog(String filePath, IDialogCallback callback, boolean isEmailConfValid) {
     super(Messages.getString("newSchedule"), Messages.getString("nextStep"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     this.filePath = filePath;
     this.callback = callback;
-    this.hasParams = hasParams;
     this.isEmailConfValid = isEmailConfValid;
     createUI();
   }
 
   private void createUI() {
     VerticalPanel content = new VerticalPanel();
-    
+
     HorizontalPanel scheduleNameLabelPanel = new HorizontalPanel();
     Label scheduleNameLabel = new Label(Messages.getString("scheduleName"));
     scheduleNameLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-    
+
     Label scheduleNameInfoLabel = new Label(Messages.getString("scheduleNameInfo"));
     scheduleNameInfoLabel.setStyleName("msg-Label");
-    
+
     scheduleNameLabelPanel.add(scheduleNameLabel);
     scheduleNameLabelPanel.add(scheduleNameInfoLabel);
-    
-    String defaultName = filePath.substring(filePath.lastIndexOf("/")+1, filePath.lastIndexOf("."));
+
+    String defaultName = filePath.substring(filePath.lastIndexOf("/") + 1, filePath.lastIndexOf("."));
     scheduleNameTextBox.getElement().setId("schedule-name-input");
     scheduleNameTextBox.setText(defaultName);
-    
+
     content.add(scheduleNameLabelPanel);
     content.add(scheduleNameTextBox);
 
     Label scheduleLocationLabel = new Label(Messages.getString("generatedContentLocation"));
     scheduleLocationLabel.setStyleName(ScheduleEditor.SCHEDULE_LABEL);
     content.add(scheduleLocationLabel);
-    
+
     Button browseButton = new Button(Messages.getString("select"));
     browseButton.addClickHandler(new ClickHandler() {
-      
+
       public void onClick(ClickEvent event) {
         final SelectFolderDialog selectFolder = new SelectFolderDialog();
         selectFolder.setCallback(new IDialogCallback() {
           public void okPressed() {
             scheduleLocationTextBox.setText(selectFolder.getSelectedPath());
           }
-          
+
           public void cancelPressed() {
           }
         });
@@ -136,8 +139,8 @@ public class NewScheduleDialog extends PromptDialogBox {
       public void onKeyUp(KeyUpEvent event) {
         updateButtonState();
       }
-    };    
-    
+    };
+
     if (keyHandlerReg != null) {
       keyHandlerReg.removeHandler();
     }
@@ -147,52 +150,84 @@ public class NewScheduleDialog extends PromptDialogBox {
     keyHandlerReg = scheduleNameTextBox.addKeyUpHandler(kh);
     changeHandlerReg = scheduleLocationTextBox.addChangeHandler(ch);
     scheduleNameTextBox.addChangeHandler(ch);
-    
+
     scheduleLocationTextBox.getElement().setId("generated-content-location");
     HorizontalPanel locationPanel = new HorizontalPanel();
     scheduleLocationTextBox.setEnabled(false);
     locationPanel.add(scheduleLocationTextBox);
     locationPanel.setCellVerticalAlignment(scheduleLocationTextBox, HasVerticalAlignment.ALIGN_MIDDLE);
     locationPanel.add(browseButton);
-    
+
     content.add(locationPanel);
 
     if (jsJob != null) {
       scheduleNameTextBox.setText(jsJob.getJobName());
       scheduleLocationTextBox.setText(jsJob.getOutputPath());
     }
-    
+
     setContent(content);
+    content.getElement().getStyle().clearHeight();
+    content.getParent().setHeight("100%");
+
+    okButton.getParent().getParent().setStyleName("schedule-dialog-button-panel");
+    
     updateButtonState();
+    setSize("650px", "450px");
   }
-  
+
   protected void onOk() {
     String name = scheduleNameTextBox.getText();
     String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$"; //$NON-NLS-1$
     // make sure it matches regex
     if (!name.matches(alphaNumeric)) {
-      MessageDialogBox errorDialog = new MessageDialogBox(
-          Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox errorDialog = new MessageDialogBox(Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
       errorDialog.center();
       return;
     }
-    
-    if (jsJob != null) {
-      jsJob.setJobName(scheduleNameTextBox.getText());
-      jsJob.setOutputPath(scheduleLocationTextBox.getText());
-      if (recurrenceDialog == null) {
-        recurrenceDialog = new ScheduleRecurrenceDialog(this, jsJob, callback, hasParams, isEmailConfValid, ScheduleDialogType.SCHEDULER);
-      }
-    } else if (recurrenceDialog == null) {
-      recurrenceDialog = new ScheduleRecurrenceDialog(this, filePath, scheduleLocationTextBox.getText(), scheduleNameTextBox.getText(), callback, hasParams,
-          isEmailConfValid);
-    } else {
-      recurrenceDialog.scheduleName = scheduleNameTextBox.getText();
-      recurrenceDialog.outputLocation = scheduleLocationTextBox.getText();
+
+    // check if has parameterizable
+    WaitPopup.getInstance().setVisible(true);
+    String urlPath = filePath.replaceAll("/", ":");
+    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repo/files/" + urlPath
+        + "/parameterizable");
+    scheduleFileRequestBuilder.setHeader("accept", "text/plain");
+    try {
+      scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          WaitPopup.getInstance().setVisible(false);
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          WaitPopup.getInstance().setVisible(false);
+          if (response.getStatusCode() == Response.SC_OK) {
+            final boolean hasParams = Boolean.parseBoolean(response.getText());
+            if (jsJob != null) {
+              jsJob.setJobName(scheduleNameTextBox.getText());
+              jsJob.setOutputPath(scheduleLocationTextBox.getText());
+              if (recurrenceDialog == null) {
+                recurrenceDialog = new ScheduleRecurrenceDialog(NewScheduleDialog.this, jsJob, callback, hasParams, isEmailConfValid,
+                    ScheduleDialogType.SCHEDULER);
+              }
+            } else if (recurrenceDialog == null) {
+              recurrenceDialog = new ScheduleRecurrenceDialog(NewScheduleDialog.this, filePath, scheduleLocationTextBox.getText(), scheduleNameTextBox
+                  .getText(), callback, hasParams, isEmailConfValid);
+            } else {
+              recurrenceDialog.scheduleName = scheduleNameTextBox.getText();
+              recurrenceDialog.outputLocation = scheduleLocationTextBox.getText();
+            }
+            recurrenceDialog.setParentDialog(NewScheduleDialog.this);
+            recurrenceDialog.center();
+            NewScheduleDialog.super.onOk();
+          }
+        }
+      });
+    } catch (RequestException e) {
+      WaitPopup.getInstance().setVisible(false);
+      // showError(e);
     }
-    recurrenceDialog.setParentDialog(this);
-    recurrenceDialog.center();
-    super.onOk();
   }
 
   private void updateButtonState() {
@@ -200,7 +235,7 @@ public class NewScheduleDialog extends PromptDialogBox {
     boolean hasName = !StringUtils.isEmpty(scheduleNameTextBox.getText());
     okButton.setEnabled(hasLocation && hasName);
   }
-  
+
   public void setFocus() {
     scheduleNameTextBox.setFocus(true);
   }
