@@ -66,9 +66,9 @@ pen.define([
 						"<div class='expandCollapse'> </div>" +
 						"<div class='icon'> </div>" +
 						"{{#if file.title}}" + 
-							"<div class='name'>{{file.title}}</div>" +
+							"<div class='title'>{{file.title}}</div>" +
 						"{{else}}" + 
-							"<div class='name'>{{file.name}}</div>" +
+							"<div class='title'>{{file.name}}</div>" +
 						"{{/if}}" +
 					"</div>" +
 					"<div class='folders'>" +
@@ -89,7 +89,7 @@ pen.define([
 				"<div id='{{id}}' class='file' path='{{path}}' title2='{{fileWithExtension}}' title='{{fileWithExtension}}'>" +
 				"{{/if}}" +
 					"<div class='icon {{classes}}'> </div>" +
-					"<div class='name'>{{title}}</div>" +
+					"<div class='title'>{{title}}</div>" +
 				"</div>" +
 			"{{/ifCond}}");
 
