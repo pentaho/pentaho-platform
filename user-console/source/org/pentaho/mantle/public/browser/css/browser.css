@@ -101,7 +101,6 @@
 }
 
 .fileBrowserColumn .body .folder.selected > .element > .name{
-	background: #D3D3D3;
 }
 
 .fileBrowserColumn .body div.folder > div.element > div.expandCollapse {
@@ -133,7 +132,6 @@
 }
 
 .fileBrowserColumn .body .file.selected > .name {
-	background: #D3D3D3;
 }
 
 .fileBrowserColumn .body .file .icon,
