@@ -81,7 +81,7 @@
 
 .fileBrowserColumn .body .folder .expandCollapse,
 .fileBrowserColumn .body .folder .icon,
-.fileBrowserColumn .body .folder .name {
+.fileBrowserColumn .body .folder .title {
 	display: inline-block;
 	height: 20px;
 	vertical-align: top;
@@ -97,10 +97,10 @@
 	margin-right: 4px;
 }
 
-.fileBrowserColumn .body .folder .name {
+.fileBrowserColumn .body .folder .title {
 }
 
-.fileBrowserColumn .body .folder.selected > .element > .name{
+.fileBrowserColumn .body .folder.selected > .element > .title{
 }
 
 .fileBrowserColumn .body div.folder > div.element > div.expandCollapse {
@@ -131,11 +131,11 @@
 	margin-right: 4px;
 }
 
-.fileBrowserColumn .body .file.selected > .name {
+.fileBrowserColumn .body .file.selected > .title {
 }
 
 .fileBrowserColumn .body .file .icon,
-.fileBrowserColumn .body .file .name {
+.fileBrowserColumn .body .file .title {
 	display: inline-block;
 	height: 20px;
 	vertical-align: top;
