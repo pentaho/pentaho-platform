@@ -53,9 +53,9 @@ pen.define([
 
 	};
 
-	FileBrowser.update = function(initialPath){
+	FileBrowser.update = function(){
 
-		this.redraw(initialPath);
+		this.redraw();
 	};
 
 	FileBrowser.updateData = function(){
@@ -64,7 +64,7 @@ pen.define([
 		}
 	};
 
-	FileBrowser.redraw = function(initialPath){
+	FileBrowser.redraw = function(){
 		var myself = this;
 
 		pen.require(["common-ui/util/PentahoSpinner"],function(spin){
@@ -72,13 +72,11 @@ pen.define([
 				spinConfig: spin,
 				openFileHandler: myself.openFileHandler,
 				showHiddenFiles: myself.showHiddenFiles,
-				showDescriptions: myself.showDescriptions,
-				startFolder: "/home/"+initialPath
+				showDescriptions: myself.showDescriptions
 			});
 			myself.FileBrowserView = new FileBrowserView({
 				model: myself.fileBrowserModel,
-				el: myself.$container,
-
+				el: myself.$container
 			});
 		});
 
@@ -86,10 +84,17 @@ pen.define([
 	};
 
 	FileBrowser.openFolder = function(path){
-		var myself = this;
+		//first select folder
+		var $folder = $("[path='"+path+"']"),
+			$parentFolder = $folder.parent(".folders");
+		while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
+			$parentFolder.show();
+			$parentFolder.parent().addClass("open");
+			$parentFolder = $parentFolder.parent().parent();
+		}
 
-		myself.fileBrowserModel.set("startFolder", path);
-	};
+		$folder.find("> .element .name").trigger("click");
+	}
 
 	
 
@@ -117,9 +122,7 @@ pen.define([
 			showHiddenFiles: false,
 			showDescriptions: false,
 
-			spinConfig: undefined,
-
-			startFolder: "/"
+			spinConfig: undefined
 		},
 
 		initialize: function(){
@@ -140,8 +143,7 @@ pen.define([
 			foldersTreeModel = new FileBrowserFolderTreeModel({	
 				spinner: spinner1,
 				showHiddenFiles: myself.get("showHiddenFiles"),
-				showDescriptions: myself.get("showDescriptions"),
-				startFolder: myself.get("startFolder")
+				showDescriptions: myself.get("showDescriptions")
 			});
 			fileListModel = new FileBrowserFileListModel({
 				spinner: spinner2,
@@ -167,14 +169,6 @@ pen.define([
 			myself.on("change:showDescriptions", myself.updateDescriptions, myself);
 
 			window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
-
-			myself.on("change:startFolder" , myself.updateStartFolder, myself);
-		},
-
-		updateStartFolder: function(){
-			var myself = this;
-
-			myself.get("foldersTreeModel").set("startFolder", myself.get("startFolder"));
 		},
 
 		onFavoritesChanged: function(){
@@ -248,9 +242,7 @@ pen.define([
 			spinner: undefined,
 
 			showHiddenFiles: false,
-			showDescriptions: false,
-
-			startFolder: "/"
+			showDescriptions: false
 		},
 
 		initialize: function(){
@@ -454,9 +446,9 @@ pen.define([
 
 			if(lastClick == "file" && fileClicked != undefined){
 				obj.folderName = undefined;
-				obj.fileName = $(fileClicked.find('.title')[0]).text();
+				obj.fileName = $(fileClicked.find('.name')[0]).text();
 			} else if(lastClick == "folder" && folderClicked != undefined){
-				obj.folderName = $(folderClicked.find('.title')[0]).text();
+				obj.folderName = $(folderClicked.find('.name')[0]).text();
 				obj.fileName = undefined;
 			}	
 
@@ -495,7 +487,7 @@ pen.define([
 			var folderClicked = this.model.getFolderClicked();
 
 			var obj = {
-				folderName : folderClicked != undefined? folderClicked.find("> .element .title").text() : undefined
+				folderName : folderClicked != undefined? folderClicked.find("> .element .name").text() : undefined
 			}
 
 			//require files header template
@@ -534,10 +526,10 @@ pen.define([
 						var title = null;
 						if(model.getLastClick() == "file"){
 							path = $(model.getFileClicked()[0]).attr("path");
-							title = $(model.getFileClicked()[0]).children('.title').text();
+							title = $(model.getFileClicked()[0]).children('.name').text();
 						} else if(model.getLastClick() == "folder"){
 							path = $(model.getFolderClicked()[0]).attr("path");
-							title = $(model.getFolderClicked()[0]).children('.title').text();
+							title = $(model.getFolderClicked()[0]).children('.name').text();
 						}
 
 						if((path != null) && event.data.handler){
@@ -567,8 +559,8 @@ pen.define([
 			"click .folder .icon" 			: "clickFolder",
 			"dblclick .folder .icon"		: "expandFolder",
 			
-			"click .folder .title" 			: "clickFolder",
-			"dblclick .folder .title"		: "expandFolder",
+			"click .folder .name" 			: "clickFolder",
+			"dblclick .folder .name"		: "expandFolder",
 		},
 
 		initialize: function(){
@@ -580,8 +572,6 @@ pen.define([
 			myself.model.on("change:data", myself.render, myself);
 
 			myself.model.on("change:showDescriptions", this.updateDescriptions, this);
-
-			myself.model.on("change:startFolder", this.setFolder, this);
 
 			if(data == undefined){ //update data
 				//start spinner
@@ -635,9 +625,6 @@ pen.define([
 				myself.$el.children().each(function(){
 					$(this).addClass("first");
 				});
-
-				//set inicial folder start
-				myself.setFolder();
 			});
 
 
@@ -702,19 +689,6 @@ pen.define([
 	    			$this.attr("title",title2).attr("title2", title);
 	    		});
 	    	}
-	    },
-
-	    setFolder: function(){
-			var $folder = $("[path='"+this.model.get("startFolder")+"']"),
-				$parentFolder = $folder.parent(".folders");
-
-			while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
-				$parentFolder.show();
-				$parentFolder.parent().addClass("open");
-				$parentFolder = $parentFolder.parent().parent();
-			}
-
-			$folder.find("> .element .title").trigger("click");
 	    }
 
 	});

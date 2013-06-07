@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder"%>
-<%
-  String userName = PentahoSessionHolder.getSession().getName();
-%>
 <html lang="en"  class="bootstrap">
 <head>
   <meta charset="utf-8" class="bootstrap">
@@ -39,14 +35,14 @@
         FileBrowser.setContainer($("#fileBrowser"));
         FileBrowser.setShowHiddenFiles(showHiddenFiles);
         FileBrowser.setShowDescriptions(showDescriptions);
-        FileBrowser.update("<%=userName%>");
+        FileBrowser.update();
 
         if(window.top.mantle_addHandler == undefined) return; 
 
         window.top.mantle_addHandler("ShowHiddenFilesEvent", function(event){
           if(event.value != undefined){
             FileBrowser.setShowHiddenFiles(event.value);
-            FileBrowser.update("<%=userName%>");
+            FileBrowser.update();
           }
         });
 
@@ -84,7 +80,7 @@
              (event.action.indexOf('DeleteFolderCommand') >= 0) ||
              (event.action.indexOf('ImportFileCommand') >= 0)){
             if(event.message == 'Success'){
-              FileBrowser.update("<%=userName%>"); // refresh folder list
+              FileBrowser.update(); // refresh folder list
             }
             else{
               window.top.mantle_showMessage('Error', event.message);
