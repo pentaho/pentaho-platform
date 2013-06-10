@@ -76,7 +76,7 @@ public class SelectFolderDialog extends PromptDialogBox {
 
     Toolbar bar = new Toolbar();
     bar.setStyleName("select-folder-toolbar");
-    bar.add(new Label(Messages.getString("selectFolderToolbarLabel"), false));
+    bar.add(new Label(Messages.getString("newFolderColon"), false));
     bar.add(Toolbar.GLUE);
 
     ToolbarButton add = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "pentaho-addbutton"));

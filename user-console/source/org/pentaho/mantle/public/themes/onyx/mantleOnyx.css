@@ -74,9 +74,9 @@
 }
 
 .select-folder-tree {
-  height: 160px;
+  height: 360px;
   overflow: auto;
-  width: 300px;
+  width: 380px;
   border: 1px solid #cbdde8;
   background-color: white;
 }
