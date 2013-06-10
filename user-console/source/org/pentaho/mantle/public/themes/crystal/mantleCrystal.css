@@ -26,6 +26,10 @@
 .schedulesPanel .workspaceHeading {
   padding: 0px 0px 10px 0px;
 }
+
+.schedule-dialog-content {
+}
+
 .admin-perspective {
   padding-top: 40px;
   padding-left: 40px;

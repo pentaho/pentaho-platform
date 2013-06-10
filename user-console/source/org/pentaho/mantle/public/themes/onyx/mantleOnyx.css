@@ -794,6 +794,11 @@ a:active, a:hover {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
 }
 
+.schedule-dialog-content {
+  border: 1px solid black;
+  background: #d4d6db;
+}
+
 .custom-dropdown {
   width: 254px;
   cursor: hand;

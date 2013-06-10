@@ -1,5 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
+\ * This program is free software; you can redistribute it and/or modify it under the 
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
  * Foundation.
  *
@@ -166,6 +166,8 @@ public class NewScheduleDialog extends PromptDialogBox {
     }
 
     setContent(content);
+    content.getElement().getParentElement().addClassName("schedule-dialog-content");
+    content.getElement().getParentElement().removeClassName("dialog-content");
     content.getElement().getStyle().clearHeight();
     content.getParent().setHeight("100%");
 
