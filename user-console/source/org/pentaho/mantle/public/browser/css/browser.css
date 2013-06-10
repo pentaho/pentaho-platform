@@ -122,6 +122,12 @@
 	background: url("../resources/images/folder.png") no-repeat 4px 3px;
 }
 
+.fileBrowserColumn .body div.trash > div.element > div.icon,
+.fileBrowserColumn .body div.trash.empty > div.element > div.icon,
+.fileBrowserColumn .body div.trash.open.empty > div.element > div.icon {
+	background: url("../resources/images/trash.png") no-repeat -10px 3px;
+}
+
 .fileBrowserColumn .body div.folder.open > div.element > div.icon {
 	background: url("../resources/images/folder.png") no-repeat -16px 3px;
 }

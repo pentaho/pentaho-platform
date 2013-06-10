@@ -9,15 +9,19 @@
 pen.define([
 	"js/browser.fileButtons",
 	"js/browser.folderButtons",
+    "js/browser.trashButtons",
+    "js/browser.trashItemButtons",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
   "js/browser.templates"
-], function(FileButtons, FolderButtons) {
+], function(FileButtons, FolderButtons, TrashButtons, TrashItemButtons) {
 
 	var fileButtons = new FileButtons();
 	var folderButtons = new FolderButtons();
+    var trashButtons = new TrashButtons();
+    var trashItemButtons = new TrashItemButtons();
 
 	this.FileBrowser = {};
 
@@ -77,7 +81,7 @@ pen.define([
 			});
 			myself.FileBrowserView = new FileBrowserView({
 				model: myself.fileBrowserModel,
-				el: myself.$container,
+				el: myself.$container
 
 			});
 		});
@@ -100,6 +104,8 @@ pen.define([
 
 			fileButtons : fileButtons,
 			folderButtons : folderButtons,
+      trashButtons : trashButtons,
+      trashItemButtons : trashItemButtons,
 
 			foldersTreeModel: undefined,
 			fileListModel: undefined,
@@ -190,14 +196,26 @@ pen.define([
 		},
 
 		updateFolderClicked: function(){
-			this.set("clickedFolder",this.get("foldersTreeModel").get("clickedFolder"));
+            var clickedFolder=this.get("foldersTreeModel").get("clickedFolder");
+            if(clickedFolder.attr("path")===".trash"){
+                this.updateTrashLastClick();
+            }
+            this.set("clickedFolder",clickedFolder);
 		},
 
 		updateFileClicked: function(){
-			this.set("clickedFile",this.get("fileListModel").get("clickedFile"));
 
+            var clickedFile=this.get("fileListModel").get("clickedFile");
+            if(this.attributes.clickedFolder.attr("path")===".trash"){
+                this.updateTrashItemLastClick();
+            }
+            else{
       // BISERVER-9127 - Provide the selected path to the FileButtons object
 			fileButtons.onFileSelect(this.getFileClicked().attr("path"));
+            }
+
+            this.set("clickedFile",clickedFile);
+
 		},
 
 		updateFolderLastClick: function(){
@@ -207,6 +225,14 @@ pen.define([
 		updateFileLastClick: function(){
 			this.set("lastClick", "file");
 		},
+
+        updateTrashLastClick: function(){
+            this.set("lastClick", "trash");
+        },
+
+        updateTrashItemLastClick: function(){
+            this.set("lastClick", "trashItem");
+        },
 
 		getLastClick: function(){
 			return this.get("lastClick");
@@ -265,6 +291,26 @@ pen.define([
 			myself.set("runSpinner",true);
 
 			myself.fetchData("/", function(response){
+                    var trash={
+                        "file": {
+                            "trash": "trash",
+                            "createdDate": "1365427106132",
+                            "fileSize": "0",
+                            "folder": "true",
+                            "hidden": "false",
+                            "id:": "Trash Can",
+                            "locale": "en",
+                            "locked": "false",
+                            "name": "trash",
+                            "ownerType": "-1",
+                            "path": ".trash",
+                            "title": "trash",
+                            "versioned": "false"
+                        }
+                    };
+                    //Add trash to data model
+                    response.children.push(trash);
+
 				myself.set("data", response);
 			});
 		},
@@ -313,7 +359,8 @@ pen.define([
 			openFileHander: undefined,
 
 			showHiddenFiles: false,
-			showDescriptions: false
+      showDescriptions: false,
+      deletedFiles: ""
 		},
 
 		initialize: function(){
@@ -328,7 +375,36 @@ pen.define([
 			myself.set("runSpinner",true);
 
 			myself.fetchData(myself.get("path"), function(response){
+
+                //If we have trash data we reformat it to match the handlebar templates
+                if(myself.get("path")===".trash"){
+                  var newResp = {
+                    children: []
+                  }
+                    if(response.repositoryFileDto){
+                        myself.deletedFiles="";
+                        for (var i=0;i<response.repositoryFileDto.length;i++){
+                            var file = {
+                                file: Object
+                            }
+
+                            file.file=response.repositoryFileDto[i];
+                            if(file.file.id){
+                                if(!myself.deletedFiles){
+                                    myself.deletedFiles=file.file.id+",";
+                                }
+                                else{
+                                    myself.deletedFiles=myself.deletedFiles+file.file.id+",";
+                                }
+                            }
+                            newResp.children.push(file);
+                        }
+                    }
+                    myself.set("data", newResp);
+                }
+                else{
 				myself.set("data", response);
+                }
 			});
 		},
 
@@ -354,13 +430,17 @@ pen.define([
 			});
 		},
 
-
 		getFileListRequest: function(path){
-			return "/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden="+this.get("showHiddenFiles")+"&filter=*|FILES";
+            var request;
+            if(path === ".trash"){
+              request="/pentaho/api/repo/files/deleted";
 		}
-
+            else {
+              request="/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden="+this.get("showHiddenFiles")+"&filter=*|FILES";
+            }
+            return request;
+        }
 	});
-
 
 	var FileBrowserView = Backbone.View.extend({
 		attributes: {
@@ -521,6 +601,15 @@ pen.define([
 				buttonsType = this.model.defaults.folderButtons;
 			}	
 
+      else if (lastClick == "trash"){
+        buttonsType = this.model.defaults.trashButtons;
+      }
+
+
+      else if (lastClick == "trashItem"){
+         buttonsType = this.model.defaults.trashItemButtons;
+      }
+
 			var model = this.model; // trap model
 
 			//require buttons template
@@ -532,6 +621,8 @@ pen.define([
 					$('#'+fb.id).on("click", { model:model, handler:fb.handler }, function(event){
 						var path = null;
 						var title = null;
+            var fileList = null;
+
 						if(model.getLastClick() == "file"){
 							path = $(model.getFileClicked()[0]).attr("path");
 							title = $(model.getFileClicked()[0]).children('.title').text();
@@ -539,11 +630,21 @@ pen.define([
 							path = $(model.getFolderClicked()[0]).attr("path");
 							title = $(model.getFolderClicked()[0]).children('.title').text();
 						}
+            else if(model.getLastClick() == "trash"){
+                fileList = model.attributes.fileListModel.deletedFiles;
+            }
+            else if(model.getLastClick() == "trashItem"){
+                fileList = $(model.getFileClicked()[0]).attr("id")+",";
+            }
 
 						if((path != null) && event.data.handler){
 							event.data.handler(path, title);
 							event.stopPropagation();
 						}
+            else{
+                event.data.handler(fileList);
+                event.stopPropagation();
+            }
 					});
 				});
 
@@ -636,7 +737,7 @@ pen.define([
 					$(this).addClass("first");
 				});
 
-				//set inicial folder start
+				//set initial folder start
 				myself.setFolder();
 			});
 

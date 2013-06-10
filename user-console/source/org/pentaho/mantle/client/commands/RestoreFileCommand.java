@@ -40,7 +40,17 @@ public class RestoreFileCommand implements Command {
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
   
   List<RepositoryFile> repositoryFiles;
-  
+
+  String fileList;
+
+  public String getFileList() {
+    return fileList;
+  }
+
+  public void setFileList(String fileList) {
+    this.fileList = fileList;
+  }
+
   public RestoreFileCommand() {
   }
   
@@ -57,11 +67,19 @@ public class RestoreFileCommand implements Command {
   @Override
   public void execute() {
     String temp = "";
-    for (RepositoryFile repoFile : repositoryFiles) {
-      temp += repoFile.getId() + ","; //$NON-NLS-1$
+    if(repositoryFiles!=null){
+       for (RepositoryFile repoFile : repositoryFiles) {
+        temp += repoFile.getId() + ","; //$NON-NLS-1$
+      }
     }
+
+    //Add file names from js
+    temp=temp+fileList;
+
     // remove trailing ","
     temp = temp.substring(0, temp.length()-1);
+
+
     final String filesList = temp;
 
     String deleteFilesURL = contextURL + "api/repo/files/restore"; //$NON-NLS-1$
