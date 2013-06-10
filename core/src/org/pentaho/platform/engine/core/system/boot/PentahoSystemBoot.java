@@ -393,4 +393,22 @@ public class PentahoSystemBoot {
     return define(key, implClass.getName(), Scope.LOCAL);
   }
 
+  /**
+   * Hold an object instance by key name.
+   * @param key  the key to retrieval of this object
+   * @param instance  the actual instance that is served back to you when requested.
+   * @return  the current {@link MicroPlatform} instance, for chaining
+   */
+
+  public PentahoSystemBoot define(String key, Object instance) {
+    if (factory instanceof IPentahoDefinableObjectFactory) {
+      IPentahoDefinableObjectFactory definableFactory = (IPentahoDefinableObjectFactory) getFactory();
+      definableFactory.defineInstance(key, instance);
+    } else {
+      throw new NoSuchMethodError("defineInstance is only supported by IPentahoDefinableObjectFactory"); //$NON-NLS-1$
+    }
+    return this;
+  }
+
+
 }
