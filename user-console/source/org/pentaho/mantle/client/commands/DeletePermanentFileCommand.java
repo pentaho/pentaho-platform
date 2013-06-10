@@ -23,6 +23,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -46,6 +47,16 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
   List<RepositoryFile> repositoryFiles;
 
+  private String fileList = null;
+
+  public String getFileList() {
+    return fileList;
+  }
+
+  public void setFileList(String fileList) {
+    this.fileList = fileList;
+  }
+
   public DeletePermanentFileCommand() {
   }
   
@@ -60,11 +71,17 @@ public class DeletePermanentFileCommand extends AbstractCommand {
    * @see com.google.gwt.user.client.Command#execute()
    */
   protected void performOperation(boolean feedback) {
-    if (repositoryFiles == null || repositoryFiles.size() < 1) {
-      return; // No files to delete
+
+    int size=0;
+    if(repositoryFiles!=null){
+    size=repositoryFiles.size();
+    }
+    if(fileList!=null && !fileList.isEmpty()){
+      StringTokenizer str=new StringTokenizer(fileList,",");
+      size+=str.countTokens();
     }
     VerticalPanel vp = new VerticalPanel();
-    vp.add(new Label(Messages.getString("deleteQuestion", Integer.toString(repositoryFiles.size())))); //$NON-NLS-1$
+    vp.add(new Label(Messages.getString("deleteQuestion", Integer.toString(size)))); //$NON-NLS-1$
     final PromptDialogBox deleteConfirmDialog = new PromptDialogBox(Messages.getString("deleteConfirm"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     final IDialogCallback callback = new IDialogCallback() {
@@ -76,11 +93,18 @@ public class DeletePermanentFileCommand extends AbstractCommand {
       public void okPressed() {
         String temp = "";
 
-        for (RepositoryFile fileItem : repositoryFiles) {
-          temp += fileItem.getId() + ","; //$NON-NLS-1$
+        if(repositoryFiles!=null){
+          for (RepositoryFile fileItem : repositoryFiles) {
+            temp += fileItem.getId() + ","; //$NON-NLS-1$
+          }
         }
+
+        //Add js file list
+        temp=temp + fileList;
+
         // remove trailing ","
         temp = temp.substring(0, temp.length() - 1);
+
         final String filesList = temp;
 
         String deleteFilesURL = contextURL + "api/repo/files/deletepermanent"; //$NON-NLS-1$

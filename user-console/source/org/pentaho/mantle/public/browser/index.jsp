@@ -59,7 +59,9 @@
 
         // refresh file list on successful delete
         window.top.mantle_addHandler("SolutionFileActionEvent", function(event){
-          if(event.action.indexOf('DeleteFileCommand') >= 0){
+          if(event.action.indexOf('DeleteFileCommand') >= 0 ||
+            (event.action.indexOf('RestoreFileCommand') >= 0)||
+            (event.action.indexOf('DeletePermanentFileCommand')>= 0)){
             if(event.message == 'Success'){
               FileBrowser.updateData(); // refresh file list
             }
@@ -82,6 +84,8 @@
         window.top.mantle_addHandler("SolutionFolderActionEvent", function(event){
           if((event.action.indexOf('NewFolderCommand') >= 0)    ||
              (event.action.indexOf('DeleteFolderCommand') >= 0) ||
+             (event.action.indexOf('RestoreFileCommand') >= 0)||
+             (event.action.indexOf('DeletePermanentFileCommand')>= 0) ||
              (event.action.indexOf('ImportFileCommand') >= 0)){
             if(event.message == 'Success'){
               FileBrowser.update("<%=userName%>"); // refresh folder list
