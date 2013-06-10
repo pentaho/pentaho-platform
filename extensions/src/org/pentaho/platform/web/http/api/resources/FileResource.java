@@ -417,40 +417,42 @@ public class FileResource extends AbstractJaxRSResource {
       }
     }
     boolean hasParameters = false;
-    try {
-      IContentGenerator parameterContentGenerator = PentahoSystem.get(IPluginManager.class).getContentGenerator(
-          repositoryFile.getName().substring(repositoryFile.getName().indexOf('.') + 1), "parameter");
-      if (parameterContentGenerator != null) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        parameterContentGenerator.setOutputHandler(new SimpleOutputHandler(outputStream, false));
-        parameterContentGenerator.setMessagesList(new ArrayList<String>());
-        Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
-        SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-        parameterProvider.setParameter("path", repositoryFile.getPath());
-        parameterProviders.put(IParameterProvider.SCOPE_REQUEST, parameterProvider);
-        parameterContentGenerator.setParameterProviders(parameterProviders);
-        parameterContentGenerator.setSession(PentahoSessionHolder.getSession());
-        parameterContentGenerator.createContent();
-        if (outputStream.size() > 0) {
-          Document document = DocumentHelper.parseText(outputStream.toString());
-
-          // exclude all parameters that are of type "system", xactions set system params that have to be ignored.
-          @SuppressWarnings("rawtypes")
-          List nodes = document.selectNodes("parameters/parameter");
-          for (int i = 0; i < nodes.size() && !hasParameters; i++) {
-            Element elem = (Element) nodes.get(i);
-            Element attrib = (Element) elem
-                .selectSingleNode("attribute[@namespace='http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core' and @name='role']");
-            if (attrib == null || !"system".equals(attrib.attributeValue("value"))) {
-              hasParameters = true;
+    if (hasParameterUi) {
+      try {
+        IContentGenerator parameterContentGenerator = PentahoSystem.get(IPluginManager.class).getContentGenerator(
+            repositoryFile.getName().substring(repositoryFile.getName().indexOf('.') + 1), "parameter");
+        if (parameterContentGenerator != null) {
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          parameterContentGenerator.setOutputHandler(new SimpleOutputHandler(outputStream, false));
+          parameterContentGenerator.setMessagesList(new ArrayList<String>());
+          Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
+          SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
+          parameterProvider.setParameter("path", repositoryFile.getPath());
+          parameterProviders.put(IParameterProvider.SCOPE_REQUEST, parameterProvider);
+          parameterContentGenerator.setParameterProviders(parameterProviders);
+          parameterContentGenerator.setSession(PentahoSessionHolder.getSession());
+          parameterContentGenerator.createContent();
+          if (outputStream.size() > 0) {
+            Document document = DocumentHelper.parseText(outputStream.toString());
+  
+            // exclude all parameters that are of type "system", xactions set system params that have to be ignored.
+            @SuppressWarnings("rawtypes")
+            List nodes = document.selectNodes("parameters/parameter");
+            for (int i = 0; i < nodes.size() && !hasParameters; i++) {
+              Element elem = (Element) nodes.get(i);
+              Element attrib = (Element) elem
+                  .selectSingleNode("attribute[@namespace='http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core' and @name='role']");
+              if (attrib == null || !"system".equals(attrib.attributeValue("value"))) {
+                hasParameters = true;
+              }
             }
           }
         }
+      } catch (Exception e) {
+        logger.error(Messages.getInstance().getString("FileResource.PARAM_FAILURE", e.getMessage()), e); //$NON-NLS-1$
       }
-    } catch (Exception e) {
-      logger.error(Messages.getInstance().getString("FileResource.PARAM_FAILURE", e.getMessage()), e); //$NON-NLS-1$
     }
-    return Boolean.toString(hasParameterUi && hasParameters);
+    return Boolean.toString(hasParameters);
   }
 
   /**
