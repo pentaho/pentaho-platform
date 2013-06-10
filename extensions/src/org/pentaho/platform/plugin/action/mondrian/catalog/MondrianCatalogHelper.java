@@ -152,10 +152,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       // Was the catalog found by name?
       if (foundCatalog != null) {
         // first check dataSourceInfo
-        String foundDataSourceInfo = cleanseDataSourceInfo(foundCatalog.getDataSourceInfo());
-        String newDataSourceInfo = cleanseDataSourceInfo(catalog.getDataSourceInfo());
-
-        if (!foundDataSourceInfo.equals(newDataSourceInfo)) {
+        if(!compareDataSourceInfo(catalog, foundCatalog)){
           return false;
         }
 
@@ -167,6 +164,17 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           return true;
         }
       }
+    }
+    return false;
+  }
+
+  private boolean compareDataSourceInfo(final MondrianCatalog catalog,final MondrianCatalog foundCatalog) {
+   
+    String foundDataSourceInfo = cleanseDataSourceInfo(foundCatalog.getDataSourceInfo());
+    String newDataSourceInfo = cleanseDataSourceInfo(catalog.getDataSourceInfo());
+
+    if (foundDataSourceInfo.equals(newDataSourceInfo)) {
+      return true;
     }
     return false;
   }
@@ -451,7 +459,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     return tmp.equals(def2);
   }
 
-  protected String cleanseDataSourceInfo(String dataSourceInfo) {
+  protected String cleanseDataSourceInfo(final String dataSourceInfo) {
     if (dataSourceInfo == null) {
       return null;
     }
@@ -459,6 +467,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     PropertyList propertyList = Util.parseConnectString(dataSourceInfo);
     if (propertyList.get("EnableXmla") != null) { //$NON-NLS-1$
       propertyList.remove("EnableXmla"); //$NON-NLS-1$
+    }
+    //the stored catalog will retain the overwrite=true and needs to be removed
+    if (propertyList.get("overwrite") != null) { //$NON-NLS-1$
+      propertyList.remove("overwrite"); //$NON-NLS-1$
     }
     return propertyList.toString();
   }
