@@ -57,11 +57,15 @@ pen.define([
 		//folder template with recursive behavior
 		templates.folderText =
 			"{{#ifCond file.folder 'true'}}" +
-				"{{#if file.description}}" +
-				"<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.description}}' title='{{file.name}}'>" + 
-				"{{else}}" +
-				"<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.name}}' title='{{file.name}}'>" + 
-				"{{/if}}" +
+                "{{#ifCond file.path '.trash'}}" +
+                "<div id='{{file.id}}' class='trash folder' path='{{file.path}}' title2='{{file.description}}' title='{{file.name}}'>" +
+                "{{else}}" +
+                    "{{#if file.description}}" +
+                    "<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.description}}' title='{{file.name}}'>" +
+                    "{{else}}" +
+                    "<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.name}}' title='{{file.name}}'>" +
+					"{{/if}}" +
+				"{{/ifCond}}" +
 					"<div class='element'>" +
 						"<div class='expandCollapse'> </div>" +
 						"<div class='icon'> </div>" +

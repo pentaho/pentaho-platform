@@ -318,9 +318,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
       }
     }
     fixLeafNodes();
-    if (showTrash) {
-      buildTrash();
-    }
+
     if (selectedPath != null) {
       select(selectedPath);
     } else if (selectedItem != null) {
