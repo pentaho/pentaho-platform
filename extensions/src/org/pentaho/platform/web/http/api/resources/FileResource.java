@@ -440,6 +440,10 @@ public class FileResource extends AbstractJaxRSResource {
             List nodes = document.selectNodes("parameters/parameter");
             for (int i = 0; i < nodes.size() && !hasParameters; i++) {
               Element elem = (Element) nodes.get(i);
+              if (elem.attributeValue("name").equalsIgnoreCase("output-target")) {
+                hasParameters = true;
+                continue;
+              }
               Element attrib = (Element) elem
                   .selectSingleNode("attribute[@namespace='http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core' and @name='role']");
               if (attrib == null || !"system".equals(attrib.attributeValue("value"))) {
