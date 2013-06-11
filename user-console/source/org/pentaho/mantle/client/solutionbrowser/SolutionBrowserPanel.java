@@ -38,6 +38,7 @@ import org.pentaho.mantle.client.events.SolutionBrowserSelectEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
@@ -620,7 +621,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         // Store representation of file in the frame for reference later when
         // save is called
-        contentTabPanel.getCurrentFrame().setFileInfo(filesListPanel.getSelectedFileItems().get(0));
+        SolutionFileInfo fileInfo = new SolutionFileInfo();
+        fileInfo.setName(file.getName());
+        fileInfo.setPath(file.getPath());
+        fileInfo.setType(SolutionFileInfo.Type.XACTION);
+        contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
 
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
@@ -661,7 +666,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         // Store representation of file in the frame for reference later when
         // save is called
-        contentTabPanel.getCurrentFrame().setFileInfo(filesListPanel.getSelectedFileItems().get(0));
+        SolutionFileInfo fileInfo = new SolutionFileInfo();
+        fileInfo.setName(file.getName());
+        fileInfo.setPath(file.getPath());
+        fileInfo.setType(SolutionFileInfo.Type.XACTION);
+        contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
 
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
