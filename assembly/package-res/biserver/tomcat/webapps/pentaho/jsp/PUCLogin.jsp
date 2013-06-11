@@ -138,12 +138,21 @@
     <div id="login-form-container">
       <div id="animate-wrapper">
         <h1><%=Messages.getInstance().getString("UI.PUC.LOGIN.TITLE")%></h1>
-        <form name="login" id="login" action="j_spring_security_check" method="POST" class="form-inline">
-          <div>
-            <input id="j_username" name="j_username" type="text" placeholder="<%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%>">
-            <input id="j_password" name="j_password" type="password" placeholder="<%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%>">
-            <button type="submit" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-            <input type="hidden" name="locale" value="en">
+        <form name="login" id="login" action="j_spring_security_check" method="POST">
+          <div class="row-fluid nowrap">
+            <div class="input-container">
+              <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></label>
+              <input id="j_username" name="j_username" type="text" placeholder="">
+            </div>
+            <div class="input-container">
+              <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></label>
+              <input id="j_password" name="j_password" type="password" placeholder="">
+            </div>
+            <div class="input-container">
+              <label>&nbsp;</label>
+              <button type="submit" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+              <input type="hidden" name="locale" value="en">
+            </div>
           </div>
           <div id="eval-users-toggle-container">
             <%
@@ -151,7 +160,7 @@
             %>
             <div id="eval-users-toggle" onClick="toggleEvalPanel()">
               <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
-              <div class="custom-dropdown-arrow small"></div>
+                <div id="eval-arrow" class="closed"></div>
             </div>
 
             <%
@@ -165,19 +174,33 @@
         </form>
       </div>
 
-      <div id="evaluationPanel" class="row-fluid">
-        <div class="span6 well">
-          <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.ADMIN_USER")%></div>
-          <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%> admin</div>
-          <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%> password</div>
-          <button class="btn" onClick="loginAs('admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+      <div class="row-fluid">
+        <div id="evaluationPanel" class="span10 row-fluid">
+          <div id="role-admin-panel" class="span6 well">
+            <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.ADMIN_USER")%></div>
+            <div class="row-fluid">
+              <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
+              <div class="span6 login-label">admin</div>
+            </div>
+            <div class="row-fluid">
+              <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
+              <div class="span6 login-label">password</div>
+            </div>
+            <button class="btn" onClick="loginAs('admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
+          </div>
+          <div id="role-business-user-panel" class="span6 well ">
+            <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
+            <div class="row-fluid">
+              <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
+              <div class="span6 login-label">suzy</div>
+            </div>
+            <div class="row-fluid">
+              <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
+              <div class="span6 login-label">password</div>
+            </div>
+            <button class="btn" onClick="loginAs('suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
         </div>
-        <div class="span6 well">
-          <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
-          <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%> suzy</div>
-          <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%> password</div>
-          <button class="btn" onClick="loginAs('suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-        </div>
+      </div>
       </div>
 
     </div>
@@ -214,6 +237,7 @@
   function toggleEvalPanel() {
     var evaluationPanel = $("#evaluationPanel");
     evaluationPanel.toggleClass("afterSlide");
+    $("#eval-arrow").toggleClass("closed");
   }
   <%
   }
