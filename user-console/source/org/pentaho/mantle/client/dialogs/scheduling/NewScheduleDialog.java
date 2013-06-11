@@ -208,7 +208,7 @@ public class NewScheduleDialog extends PromptDialogBox {
             final boolean hasParams = Boolean.parseBoolean(response.getText());
             if (jsJob != null) {
               jsJob.setJobName(scheduleNameTextBox.getText());
-              jsJob.setOutputPath(scheduleLocationTextBox.getText());
+              jsJob.setOutputPath(scheduleLocationTextBox.getText(), scheduleNameTextBox.getText());
               if (recurrenceDialog == null) {
                 recurrenceDialog = new ScheduleRecurrenceDialog(NewScheduleDialog.this, jsJob, callback, hasParams, isEmailConfValid,
                     ScheduleDialogType.SCHEDULER);

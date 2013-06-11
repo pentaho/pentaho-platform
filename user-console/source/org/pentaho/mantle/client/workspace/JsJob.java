@@ -101,10 +101,10 @@ public class JsJob extends JavaScriptObject {
     return resource;
   }  
 
-  public final void setOutputPath(String outputPath) {
+  public final void setOutputPath(String outputPath, String outputFileName) {
     JsJobParam resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
-    //input file = /public/Inventory.prpt:outputFile = /public/FUCKer.*
-    resource.setValue("input file = " + getFullResourceName() + ":outputFile = " + outputPath);
+    //input file = /public/Inventory.prpt:outputFile = /public/TEST.*
+    resource.setValue("input file = " + getFullResourceName() + ":outputFile = " + outputPath + "/" + outputFileName + ".*");
   }  
   
   public final String getShortResourceName() {
