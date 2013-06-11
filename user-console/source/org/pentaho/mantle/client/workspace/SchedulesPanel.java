@@ -87,7 +87,7 @@ public class SchedulesPanel extends SimplePanel {
   private ToolbarButton openOutputFolderButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-open-folder"));
 
   private JsArray<JsJob> allJobs;
-
+  
   private Set<JsJob> selectedJobs = null;
 
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
