@@ -39,6 +39,7 @@ import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.YearlyRecur
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEditor.DurationValues;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEditor.ScheduleType;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.workspace.BlockoutPanel;
 import org.pentaho.mantle.client.workspace.JsBlockStatus;
 import org.pentaho.mantle.client.workspace.JsJob;
@@ -826,8 +827,10 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
               if (callback != null) {
                 callback.okPressed();
               }
-              ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
-              successDialog.center();
+              if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
+                ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
+                successDialog.center();
+              }
             } else {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
                   response.getText(), false, false, true);

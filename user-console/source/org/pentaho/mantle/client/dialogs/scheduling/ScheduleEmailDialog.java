@@ -23,6 +23,7 @@ import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.workspace.JsJob;
 
 import com.google.gwt.core.client.GWT;
@@ -139,8 +140,10 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
             if (callback != null) {
               callback.okPressed();
             }
-            ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
-            successDialog.center();
+            if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
+              ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
+              successDialog.center();
+            }
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
                 Messages.getString("error"), response.getText(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
