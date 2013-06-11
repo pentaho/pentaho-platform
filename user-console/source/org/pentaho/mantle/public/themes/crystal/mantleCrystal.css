@@ -1241,3 +1241,24 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 /*************************************/
 /*** END of schedules table styles ***/
 /*************************************/
+
+#admin-users-panel,
+#admin-roles-panel,
+#admin-system-roles-panel {
+  padding:10px;
+}
+
+.users-roles-list {
+  height: 432px;
+  width: 200px;
+}
+.users-roles-selection-list {
+  height: 317px;
+  width: 200px;
+}
+#admin-roles-panel .users-roles-selection-list {
+  height: 268px;
+}
+#admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
+  height: 26px;
+}
