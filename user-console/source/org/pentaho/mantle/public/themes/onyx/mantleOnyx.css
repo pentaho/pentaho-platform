@@ -1034,3 +1034,24 @@ a:active, a:hover {
 .schedulerPerspective {
   background: white;
 }
+
+#admin-users-panel,
+#admin-roles-panel,
+#admin-system-roles-panel {
+  padding:10px;
+}
+
+.users-roles-list {
+  height: 432px;
+  width: 200px;
+}
+.users-roles-selection-list {
+  height: 320px;
+  width: 200px;
+}
+#admin-roles-panel .users-roles-selection-list {
+  height: 273px;
+}
+#admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
+  height: 19px;
+}

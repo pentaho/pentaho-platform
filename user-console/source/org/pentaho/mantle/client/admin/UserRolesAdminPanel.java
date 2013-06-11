@@ -98,6 +98,8 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 	private Widget createUsersPanel() {
 		HorizontalPanel mainUsersPanel = new HorizontalPanel();
+    mainUsersPanel.getElement().setId("admin-users-panel");
+
 		//mainUsersPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
@@ -126,10 +128,9 @@ public class UserRolesAdminPanel extends SimplePanel {
 		labelAndButtonsPanel.add(deleteUserButton);
 
 		usersListBox = new ListBox(true);
+    usersListBox.addStyleName("users-roles-list");
 		availablePanel.add(usersListBox);
 		usersListBox.setVisibleItemCount(20);
-		usersListBox.setWidth("200px");
-		usersListBox.setHeight("432px");
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("24px");
@@ -179,8 +180,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		availableRolesListBox = new ListBox(true);
 		availableRolesPanel.add(availableRolesListBox);
 		availableRolesListBox.setVisibleItemCount(20);
-		availableRolesListBox.setWidth("200px");
-		availableRolesListBox.setHeight("324px");
+		availableRolesListBox.addStyleName("users-roles-selection-list");
 
 		VerticalPanel vSpacer = new VerticalPanel();
 		vSpacer.setWidth("15px");
@@ -221,14 +221,14 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedRolesListBox = new ListBox(true);
 		selectedRolesPanel.add(selectedRolesListBox);
 		selectedRolesListBox.setVisibleItemCount(20);
-		selectedRolesListBox.setWidth("200px");
-		selectedRolesListBox.setHeight("324px");
+		selectedRolesListBox.addStyleName("users-roles-selection-list");
 
 		return mainUsersPanel;
 	}
 	
 	private Widget createSystemRolesPanel() {
 		HorizontalPanel mainSystemRolesPanel = new HorizontalPanel();
+    mainSystemRolesPanel.getElement().setId("admin-system-roles-panel");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainSystemRolesPanel.add(hSpacer);
@@ -242,12 +242,12 @@ public class UserRolesAdminPanel extends SimplePanel {
 		HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
 		availablePanel.add(labelAndButtonsPanel);
 		labelAndButtonsPanel.add(new Label(Messages.getString("rolesColon")));
+    labelAndButtonsPanel.setStyleName("pentaho-fieldgroup-minor");
 
 		systemRolesListBox = new ListBox(true);
 		availablePanel.add(systemRolesListBox);
 		systemRolesListBox.setVisibleItemCount(20);
-		systemRolesListBox.setWidth("200px");
-		systemRolesListBox.setHeight("435px");
+		systemRolesListBox.addStyleName("users-roles-list");
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("24px");
@@ -270,6 +270,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 	private Widget createRolesPanel() {
 
 		HorizontalPanel mainRolesPanel = new HorizontalPanel();
+    mainRolesPanel.getElement().setId("admin-roles-panel");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainRolesPanel.add(hSpacer);
@@ -299,8 +300,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		rolesListBox = new ListBox(true);
 		availablePanel.add(rolesListBox);
 		rolesListBox.setVisibleItemCount(20);
-		rolesListBox.setWidth("200px");
-		rolesListBox.setHeight("432px");
+		rolesListBox.addStyleName("users-roles-list");
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("24px");
@@ -334,12 +334,12 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		VerticalPanel availableMembersPanel = new VerticalPanel();
 		usersPanel.add(availableMembersPanel);
+
 		availableMembersPanel.add(new Label(Messages.getString("available") + ":"));
 		availableMembersListBox = new ListBox(true);
 		availableMembersPanel.add(availableMembersListBox);
 		availableMembersListBox.setVisibleItemCount(20);
-		availableMembersListBox.setWidth("200px");
-		availableMembersListBox.setHeight("265px");
+		availableMembersListBox.addStyleName("users-roles-selection-list");
 
 		VerticalPanel vSpacer = new VerticalPanel();
 		vSpacer.setWidth("15px");
@@ -380,8 +380,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedMembersListBox = new ListBox(true);
 		selectedMembersPanel.add(selectedMembersListBox);
 		selectedMembersListBox.setVisibleItemCount(20);
-		selectedMembersListBox.setWidth("200px");
-		selectedMembersListBox.setHeight("265px");
+		selectedMembersListBox.addStyleName("users-roles-selection-list");
 
 		return mainRolesPanel;
 	}
