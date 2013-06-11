@@ -24,6 +24,9 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -60,9 +63,6 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   public DeletePermanentFileCommand() {
   }
   
-  /**
-   * @param fileSummary
-   */
   public DeletePermanentFileCommand(List<RepositoryFile> selectedItemsClone) {
     repositoryFiles = selectedItemsClone;
   }
@@ -71,7 +71,9 @@ public class DeletePermanentFileCommand extends AbstractCommand {
    * @see com.google.gwt.user.client.Command#execute()
    */
   protected void performOperation(boolean feedback) {
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
 
+    event.setAction(this.getClass().getName());
     int size=0;
     if(repositoryFiles!=null){
     size=repositoryFiles.size();
@@ -118,16 +120,22 @@ public class DeletePermanentFileCommand extends AbstractCommand {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true);
               dialogBox.center();
+              event.setMessage(Messages.getString("couldNotDelete"));
+              EventBusUtil.EVENT_BUS.fireEvent(event);
             }
 
             @Override
             public void onResponseReceived(Request request, Response response) {
               if (response.getStatusCode() == 200) {
                 new RefreshRepositoryCommand().execute(false);
+                event.setMessage("Success");
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
+                event.setMessage(Messages.getString("couldNotDelete"));
+                EventBusUtil.EVENT_BUS.fireEvent(event);
               }
             }
 
@@ -136,6 +144,8 @@ public class DeletePermanentFileCommand extends AbstractCommand {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
+          event.setMessage(Messages.getString("couldNotDelete"));
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
       }
     };

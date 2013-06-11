@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -66,6 +68,8 @@ public class RestoreFileCommand implements Command {
    */
   @Override
   public void execute() {
+    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    event.setAction(this.getClass().getName());
     String temp = "";
     if(repositoryFiles!=null){
        for (RepositoryFile repoFile : repositoryFiles) {
@@ -93,16 +97,22 @@ public class RestoreFileCommand implements Command {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
           dialogBox.center();
+          event.setMessage("couldNotDelete");
+          EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
         @Override
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == 200) {
             new RefreshRepositoryCommand().execute(false);
+            event.setMessage("Success");
+            EventBusUtil.EVENT_BUS.fireEvent(event);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
+            event.setMessage(Messages.getString("couldNotDelete"));
+            EventBusUtil.EVENT_BUS.fireEvent(event);
           }                
         }
         
@@ -111,6 +121,8 @@ public class RestoreFileCommand implements Command {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
       dialogBox.center();
+      event.setMessage("couldNotDelete");
+      EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
 }
