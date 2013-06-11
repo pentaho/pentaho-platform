@@ -16,11 +16,15 @@
  */
 package org.pentaho.mantle.client.commands;
 
+
 import java.util.Date;
 
+import com.google.gwt.json.client.*;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
@@ -36,10 +40,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.json.client.JSONNull;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
 
 public class RunInBackgroundCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -59,6 +59,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
   private String solutionPath = null;
   private String solutionTitle = null;
+  private String outputLocationPath = null;
+  private String outputName = null;
 
   public String getSolutionTitle() {
     return solutionTitle;
@@ -76,6 +78,30 @@ public class RunInBackgroundCommand extends AbstractCommand {
     this.solutionPath = solutionPath;
   }
 
+  public String getOutputLocationPath() {
+    return outputLocationPath;
+  }
+
+  public void setOutputLocationPath(String outputLocationPath) {
+    this.outputLocationPath = outputLocationPath;
+  }
+
+  public String getModuleBaseURL() {
+    return moduleBaseURL;
+  }
+
+  public void setModuleBaseURL(String moduleBaseURL) {
+    this.moduleBaseURL = moduleBaseURL;
+  }
+
+  public String getOutputName() {
+    return outputName;
+  }
+
+  public void setOutputName(String outputName) {
+    this.outputName = outputName;
+  }
+
   protected void performOperation() {
     final SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
     if(this.getSolutionPath() != null){
@@ -83,7 +109,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
         @Override
         public void handle(RepositoryFile repositoryFile) {
           RunInBackgroundCommand.this.repositoryFile = new FileItem(repositoryFile, null, null, false, null);
-          performOperation(true);
+          showDialog(true);
         }
       });
     }
@@ -111,6 +137,18 @@ public class RunInBackgroundCommand extends AbstractCommand {
     return trigger;
   }
 
+  protected void showDialog(final boolean feedback){
+    final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog(solutionPath){
+      @Override
+      protected void onSelect(final String name, final String outputLocationPath) {
+        setOutputName(name);
+        setOutputLocationPath(outputLocationPath);
+        performOperation(feedback);
+      }
+    };
+    outputLocationDialog.center();
+  }
+
   protected void performOperation(boolean feedback) {
 
     final String filePath = (this.getSolutionPath() != null) ? this.getSolutionPath() : repositoryFile.getPath();
@@ -132,7 +170,22 @@ public class RunInBackgroundCommand extends AbstractCommand {
           if (response.getStatusCode() == Response.SC_OK) {
             final JSONObject scheduleRequest = new JSONObject();
             scheduleRequest.put("inputFile", new JSONString(filePath.replaceAll(":", "/"))); //$NON-NLS-1$
-            scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
+
+            // Set job name
+            if(StringUtils.isEmpty(getOutputName())){
+              scheduleRequest.put("jobName", JSONNull.getInstance()); //$NON-NLS-1$
+            }
+            else{
+              scheduleRequest.put("jobName", new JSONString(getOutputName().replaceAll(":", "/"))); //$NON-NLS-1$
+            }
+
+            // Set output path location
+            if(StringUtils.isEmpty(getOutputLocationPath())){
+              scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
+            }
+            else{
+              scheduleRequest.put("outputFile", new JSONString(getOutputLocationPath().replaceAll(":", "/"))); //$NON-NLS-1$
+            }
 
             final boolean hasParams = Boolean.parseBoolean(response.getText());
 
@@ -181,7 +234,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
                           public void onResponseReceived(Request request, Response response) {
                             if (response.getStatusCode() == 200) {
                               MessageDialogBox dialogBox = new MessageDialogBox(
-                                  Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted", fileName), //$NON-NLS-1$ //$NON-NLS-2$
+                                  Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted"), //$NON-NLS-1$ //$NON-NLS-2$
                                   false, false, true);
                               dialogBox.center();
                             } else {
