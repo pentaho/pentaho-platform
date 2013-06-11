@@ -733,7 +733,7 @@ public class SchedulesPanel extends SimplePanel {
 
     // add open folder button
     openOutputFolderButton.setEnabled(false);
-    openOutputFolderButton.setToolTip(Messages.getString("openFolderTooltip"));
+    openOutputFolderButton.setToolTip(Messages.getString("openScheduleOutputLocationTooltip"));
     bar.add(openOutputFolderButton);
     openOutputFolderButton.setCommand(new Command() {
       public void execute() {
