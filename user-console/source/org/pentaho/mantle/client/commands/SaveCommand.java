@@ -95,8 +95,14 @@ public class SaveCommand extends AbstractCommand {
                 // trim off the analysisview.xaction from the localized-name
                 tabName = tabName.substring(0, tabName.indexOf("analysisview.xaction") - 1);
               } 
-
-               if (dialog.doesSelectedFileExist()) {
+              
+               JsArrayString extensions = getPossibleExtensions(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId());
+               String fileExtension = null;
+               if(extensions.length() == 1) {
+            	   fileExtension = extensions.get(0);
+               }
+              
+               if (dialog.doesSelectedFileExist(fileExtension)) {
                 dialog.hide();
                 PromptDialogBox overWriteDialog = new PromptDialogBox(Messages.getString("question"), Messages.getString("yes"), Messages.getString("no"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     false, true);
