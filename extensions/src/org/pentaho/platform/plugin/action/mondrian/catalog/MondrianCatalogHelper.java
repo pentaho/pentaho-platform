@@ -461,8 +461,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       propertyList.remove("EnableXmla"); //$NON-NLS-1$
     }
     if (propertyList.get("overwrite") != null) { //$NON-NLS-1$
-+      propertyList.remove("overwrite"); //$NON-NLS-1$
-+   }
+       propertyList.remove("overwrite"); //$NON-NLS-1$
+    }
     return propertyList.toString();
   }
 
