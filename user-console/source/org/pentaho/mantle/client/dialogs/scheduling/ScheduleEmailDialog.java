@@ -17,6 +17,7 @@
  */
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import com.google.gwt.json.client.*;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
@@ -36,9 +37,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 
 public class ScheduleEmailDialog extends AbstractWizardDialog {
   FileItem fileItem = null;
@@ -93,7 +91,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
+    final JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
     JsArray<JsSchedulingParameter> emailParams = scheduleEmailWizardPanel.getEmailParams();
 
     if (scheduleParams == null) {
@@ -140,7 +138,15 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
             if (callback != null) {
               callback.okPressed();
             }
-            if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
+
+            JSONValue rib = scheduleRequest.get("runInBackground");
+            if(rib != null && rib.isBoolean() != null && rib.isBoolean().booleanValue()){
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                 Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted"), //$NON-NLS-1$ //$NON-NLS-2$
+                 false, false, true);
+              dialogBox.center();
+            }
+            else if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
               ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
               successDialog.center();
             } else {
