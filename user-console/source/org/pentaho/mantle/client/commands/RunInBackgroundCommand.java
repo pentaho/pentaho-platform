@@ -187,6 +187,9 @@ public class RunInBackgroundCommand extends AbstractCommand {
               scheduleRequest.put("outputFile", new JSONString(getOutputLocationPath().replaceAll(":", "/"))); //$NON-NLS-1$
             }
 
+            //BISERVER-9321
+            scheduleRequest.put("runInBackground", JSONBoolean.getInstance(true));
+
             final boolean hasParams = Boolean.parseBoolean(response.getText());
 
             RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, contextURL

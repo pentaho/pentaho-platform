@@ -215,7 +215,15 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
               if (callback != null) {
                 callback.okPressed();
               }
-              if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
+
+              JSONValue rib = jobSchedule.get("runInBackground");
+              if(rib != null && rib.isBoolean() != null && rib.isBoolean().booleanValue()){
+                MessageDialogBox dialogBox = new MessageDialogBox(
+                   Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted"), //$NON-NLS-1$ //$NON-NLS-2$
+                   false, false, true);
+                dialogBox.center();
+              }
+              else if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
                 ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
                 successDialog.center();
               } else {
