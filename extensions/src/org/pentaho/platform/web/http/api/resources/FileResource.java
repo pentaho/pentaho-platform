@@ -440,7 +440,8 @@ public class FileResource extends AbstractJaxRSResource {
             List nodes = document.selectNodes("parameters/parameter");
             for (int i = 0; i < nodes.size() && !hasParameters; i++) {
               Element elem = (Element) nodes.get(i);
-              if (elem.attributeValue("name").equalsIgnoreCase("output-target")) {
+              if (elem.attributeValue("name").equalsIgnoreCase("output-target") && 
+                  elem.attributeValue("is-mandatory").equalsIgnoreCase("true")) {
                 hasParameters = true;
                 continue;
               }
