@@ -830,6 +830,11 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
               if (!PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE)) {
                 ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
                 successDialog.center();
+              } else {
+                MessageDialogBox dialogBox = new MessageDialogBox(
+                    Messages.getString("scheduleUpdatedTitle"), Messages.getString("scheduleUpdatedMessage"), //$NON-NLS-1$ //$NON-NLS-2$ 
+                    false, false, true);
+                dialogBox.center();
               }
             } else {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
