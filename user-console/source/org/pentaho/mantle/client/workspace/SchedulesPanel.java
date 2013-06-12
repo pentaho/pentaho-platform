@@ -87,7 +87,7 @@ public class SchedulesPanel extends SimplePanel {
   private ToolbarButton openOutputFolderButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-open-folder"));
 
   private JsArray<JsJob> allJobs;
-  
+
   private Set<JsJob> selectedJobs = null;
 
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
@@ -293,6 +293,7 @@ public class SchedulesPanel extends SimplePanel {
       }
     });
     table.setSelectionModel(selectionModel);
+    
     Label noDataLabel = new Label(Messages.getString("noSchedules"));
     noDataLabel.setStyleName("noDataForScheduleTable");
     table.setEmptyTableWidget(noDataLabel);
@@ -313,7 +314,11 @@ public class SchedulesPanel extends SimplePanel {
 
     TextColumn<JsJob> resourceColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
-        return job.getFullResourceName();
+        if (job.getFullResourceName().contains(".")) {
+          return job.getFullResourceName().substring(0, job.getFullResourceName().lastIndexOf("."));
+        } else {
+          return job.getFullResourceName();
+        }
       }
     };
     resourceColumn.setSortable(true);
@@ -390,7 +395,9 @@ public class SchedulesPanel extends SimplePanel {
 
     table.addColumn(lastFireColumn, Messages.getString("lastFire"));
     table.addColumn(nextFireColumn, Messages.getString("nextFire"));
-    table.addColumn(userNameColumn, Messages.getString("user"));
+    if (isAdmin) {
+      table.addColumn(userNameColumn, Messages.getString("user"));
+    }
     table.addColumn(stateColumn, Messages.getString("state"));
 
     table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
@@ -399,14 +406,18 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(4, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
-    table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
+    if (isAdmin) {
+      table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
+    }
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 200, Unit.PX);
     table.setColumnWidth(scheduleColumn, 170, Unit.PX);
     table.setColumnWidth(lastFireColumn, 130, Unit.PX);
     table.setColumnWidth(nextFireColumn, 130, Unit.PX);
-    table.setColumnWidth(userNameColumn, 100, Unit.PX);
+    if (isAdmin) {
+      table.setColumnWidth(userNameColumn, 100, Unit.PX);
+    }
     table.setColumnWidth(stateColumn, 70, Unit.PX);
 
     dataProvider.addDataDisplay(table);
@@ -612,7 +623,9 @@ public class SchedulesPanel extends SimplePanel {
       }
     });
     filterButton.setToolTip(Messages.getString("filterSchedules"));
-    bar.add(filterButton);
+    if (isAdmin) {
+      bar.add(filterButton);
+    }
 
     // Add remove filters button
     filterRemoveButton.setCommand(new Command() {
@@ -626,7 +639,9 @@ public class SchedulesPanel extends SimplePanel {
     });
     filterRemoveButton.setToolTip(Messages.getString("removeFilters"));
     filterRemoveButton.setEnabled(filters.size() > 0);
-    bar.add(filterRemoveButton);
+    if (isAdmin) {
+      bar.add(filterRemoveButton);
+    }
 
     // Add refresh button
     ToolbarButton refresh = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-refresh"));

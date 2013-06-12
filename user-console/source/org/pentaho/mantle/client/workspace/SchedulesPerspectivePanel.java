@@ -99,7 +99,12 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 
     wrapperPanel = new VerticalPanel();
 		
-    Label schedulesLabel = new Label(Messages.getString("schedules"));
+    String schedulesLabelStr = Messages.getString("mySchedules");
+    if (isAdmin) {
+      schedulesLabelStr = Messages.getString("manageSchedules");
+    }
+    
+    Label schedulesLabel = new Label(schedulesLabelStr);
     schedulesLabel.setStyleName("workspaceHeading");
     wrapperPanel.add(schedulesLabel);
 		

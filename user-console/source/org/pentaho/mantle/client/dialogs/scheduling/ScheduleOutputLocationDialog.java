@@ -58,7 +58,7 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox
     VerticalPanel content = new VerticalPanel();
 
     HorizontalPanel scheduleNameLabelPanel = new HorizontalPanel();
-    Label scheduleNameLabel = new Label(Messages.getString("scheduleName"));
+    Label scheduleNameLabel = new Label(Messages.getString("scheduleNameColon"));
     scheduleNameLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
     Label scheduleNameInfoLabel = new Label(Messages.getString("scheduleNameInfo"));
