@@ -82,11 +82,6 @@ public class ImportFileCommand extends AbstractCommand {
 
       public void okPressed() {
         importDialog.getForm().submit();
-
-        final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
-        event.setAction(this.getClass().getName());
-        event.setMessage("Success");
-        EventBusUtil.EVENT_BUS.fireEvent(event);
       }
     };
     importDialog.setCallback(callback);
