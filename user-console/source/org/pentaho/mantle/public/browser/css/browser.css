@@ -153,6 +153,11 @@
 	background: no-repeat url("../../images/fileIcon.gif") 50% 50%;
 }
 
+.fileBrowserColumn .body .file .icon.trashFolder{
+	background: url("../resources/images/folder.png") no-repeat -16px 3px;
+}
+
+
 .fileBrowserColumn .body .file .icon.xaction{
 	background-image: url("../../../api/repos/xaction/resources/images/xaction_file_image.png");
 }
