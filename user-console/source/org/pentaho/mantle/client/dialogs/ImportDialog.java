@@ -23,7 +23,8 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
 import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
 import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -78,7 +79,6 @@ public class ImportDialog extends PromptDialogBox {
     form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
       @Override
       public void onSubmitComplete(SubmitCompleteEvent sce) {
-        new RefreshRepositoryCommand().execute(false);
         MantleApplication.hideBusyIndicator();
         okButton.setEnabled(false); 
         cancelButton.setEnabled(true);
@@ -89,7 +89,11 @@ public class ImportDialog extends PromptDialogBox {
         } else {
           Window.alert (Messages.getString("importSuccessMessage"));
         }
-        
+
+        // BISERVER-9319 Refresh browse perspective after import
+        final GenericEvent event = new GenericEvent();
+        event.setEventSubType("RefreshBrowsePerspectiveEvent");
+        EventBusUtil.EVENT_BUS.fireEvent(event);
       }
     });
 
