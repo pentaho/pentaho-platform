@@ -77,7 +77,7 @@ pen.define([
 				openFileHandler: myself.openFileHandler,
 				showHiddenFiles: myself.showHiddenFiles,
 				showDescriptions: myself.showDescriptions,
-				startFolder: "/home/"+initialPath
+				startFolder: initialPath
 			});
 			myself.FileBrowserView = new FileBrowserView({
 				model: myself.fileBrowserModel,
@@ -298,13 +298,13 @@ pen.define([
                             "fileSize": "0",
                             "folder": "true",
                             "hidden": "false",
-                            "id:": "Trash Can",
+                            "id:": "Trash",
                             "locale": "en",
                             "locked": "false",
-                            "name": "trash",
+                            "name": "Trash",
                             "ownerType": "-1",
                             "path": ".trash",
-                            "title": "trash",
+                            "title": "Trash",
                             "versioned": "false"
                         }
                     };
@@ -381,7 +381,7 @@ pen.define([
                   var newResp = {
                     children: []
                   }
-                    if(response.repositoryFileDto){
+                    if(response && response.repositoryFileDto){
                         myself.deletedFiles="";
                         for (var i=0;i<response.repositoryFileDto.length;i++){
                             var file = {
@@ -389,6 +389,7 @@ pen.define([
                             }
 
                             file.file=response.repositoryFileDto[i];
+                            file.file.trash="true";
                             if(file.file.id){
                                 if(!myself.deletedFiles){
                                     myself.deletedFiles=file.file.id+",";
