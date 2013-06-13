@@ -105,8 +105,15 @@
         });
 
         window.top.mantle_addHandler("GenericEvent", function(paramJson){
-          if(paramJson.eventSubType == "OpenFolderEvent")
+          if(paramJson.eventSubType == "OpenFolderEvent"){
             FileBrowser.openFolder(paramJson.stringParam);
+          }
+          else if(paramJson.eventSubType == "RefreshBrowsePerspectiveEvent"){
+            FileBrowser.update("<%=userName%>"); // refresh folder list
+          }
+          else if(paramJson.eventSubType == "RefreshCurrentFolderEvent"){
+            FileBrowser.updateData();
+          }
         });
       });
     }
