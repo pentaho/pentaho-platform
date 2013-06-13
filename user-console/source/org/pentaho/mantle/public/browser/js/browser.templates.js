@@ -86,15 +86,27 @@ pen.define([
 
 		//file template
 		templates.file = Handlebars.compile(
-			"{{#ifCond folder 'false'}}" + 
+			"{{#ifCond folder 'false' }}" +
 				"{{#if file.description}}" +
-				"<div id='{{id}}' class='file' path='{{path}}' title2='{{file.description}}' title='{{fileWithExtension}}'>" + 
+				"<div id='{{id}}' class='file' originalParentFolderPath='{{originalParentFolderPath}}' path='{{path}}' title2='{{file.description}}' title='{{fileWithExtension}}'>" +
 				"{{else}}" +
-				"<div id='{{id}}' class='file' path='{{path}}' title2='{{fileWithExtension}}' title='{{fileWithExtension}}'>" +
+				"<div id='{{id}}' class='file' originalParentFolderPath='{{originalParentFolderPath}}' path='{{path}}' title2='{{fileWithExtension}}' title='{{fileWithExtension}}'>" +
 				"{{/if}}" +
 					"<div class='icon {{classes}}'> </div>" +
 					"<div class='title'>{{title}}</div>" +
 				"</div>" +
+			"{{/ifCond}}" +
+			"{{#ifCond trash 'true'}}" +
+				"{{#ifCond folder 'true'}}" +
+					"{{#if file.description}}" +
+					"<div id='{{id}}' class='file' originalParentFolderPath='{{originalParentFolderPath}}' path='{{path}}' title2='{{file.description}}' title='{{fileWithExtension}}'>" +
+					"{{else}}" +
+					"<div id='{{id}}' class='file' originalParentFolderPath='{{originalParentFolderPath}}' path='{{path}}' title2='{{fileWithExtension}}' title='{{fileWithExtension}}'>" +
+					"{{/if}}" +
+						"<div class='icon trashFolder'> </div>" +
+						"<div class='title'>{{title}}</div>" +
+					"</div>" +
+					"{{/ifCond}}"+
 			"{{/ifCond}}");
 
 		//files template to create list of files based on one object
@@ -129,6 +141,8 @@ pen.define([
 
 			return new Handlebars.SafeString(templates.file({
 				path: path,
+				trash: this.file.trash,
+                originalParentFolderPath: this.file.originalParentFolderPath,
 				name: nameNoExtension,
 				title: title,
 				id: this.file.id,

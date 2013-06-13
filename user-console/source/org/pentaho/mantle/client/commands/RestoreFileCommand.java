@@ -121,7 +121,7 @@ public class RestoreFileCommand implements Command {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
       dialogBox.center();
-      event.setMessage("couldNotDelete");
+      event.setMessage(Messages.getString("couldNotDelete"));
       EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
