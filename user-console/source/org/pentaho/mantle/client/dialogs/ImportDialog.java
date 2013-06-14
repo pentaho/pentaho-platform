@@ -92,7 +92,7 @@ public class ImportDialog extends PromptDialogBox {
 
         // BISERVER-9319 Refresh browse perspective after import
         final GenericEvent event = new GenericEvent();
-        event.setEventSubType("RefreshBrowsePerspectiveEvent");
+        event.setEventSubType("ImportDialogEvent");
         EventBusUtil.EVENT_BUS.fireEvent(event);
       }
     });
