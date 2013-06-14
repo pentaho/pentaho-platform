@@ -171,6 +171,9 @@ public class SaveCommand extends AbstractCommand {
    var frame = $doc.getElementById(elementId);
    frame = frame.contentWindow;
    frame.focus();
+   if (frame.getPossibleFileExtensions) {
+     return frame.getPossibleFileExtensions();
+   }
    if (frame.gCtrlr.repositoryBrowserController.getPossibleFileExtensions) {
      return frame.gCtrlr.repositoryBrowserController.getPossibleFileExtensions();
    }
