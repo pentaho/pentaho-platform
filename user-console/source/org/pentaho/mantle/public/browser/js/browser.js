@@ -197,7 +197,7 @@ pen.define([
 
 		updateFolderClicked: function(){
             var clickedFolder=this.get("foldersTreeModel").get("clickedFolder");
-            if(clickedFolder.attr("path")===".trash"){
+            if(clickedFolder.obj.attr("path")===".trash"){
                 this.updateTrashLastClick();
             }
             this.set("clickedFolder",clickedFolder);
@@ -206,12 +206,12 @@ pen.define([
 		updateFileClicked: function(){
 
             var clickedFile=this.get("fileListModel").get("clickedFile");
-            if(this.attributes.clickedFolder.attr("path")===".trash"){
+            if(this.get("clickedFolder").obj.attr("path")===".trash"){
                 this.updateTrashItemLastClick();
             }
             else{
       // BISERVER-9127 - Provide the selected path to the FileButtons object
-			fileButtons.onFileSelect(this.getFileClicked().attr("path"));
+			fileButtons.onFileSelect(clickedFile.obj.attr("path"));
             }
 
             this.set("clickedFile",clickedFile);
@@ -239,17 +239,17 @@ pen.define([
 		},
 
 		getFolderClicked: function(){
-			return this.get("clickedFolder");
+			return this.get("clickedFolder") == null || this.get("clickedFolder") == undefined ? null : this.get("clickedFolder").obj;
 		}, 
 
 		getFileClicked: function(){
-			return $('#'+this.get("clickedFile")); // [BISERVER-9128] - wrap in jquery object
+			return this.get("clickedFile") == null || this.get("clickedFile") == undefined ? null : this.get("clickedFile").obj ; // [BISERVER-9128] - wrap in jquery object
 		},
 
 		updateFileList: function(){
 			var myself = this;
 			//trigger file list update
-			myself.get("fileListModel").set("path", myself.get("clickedFolder").attr("path"));
+			myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"));
 
 		},
 
@@ -757,8 +757,15 @@ pen.define([
 
 		clickFolder: function(event){
 			var $target = $(event.currentTarget).parent().parent();
-			this.model.set("clicked", $target.attr("id"));
-			this.model.set("clickedFolder",$target);
+			//BISERVER-9259 - added time parameter to force change event
+			this.model.set("clicked", {
+				obj: $target.attr("id"),
+				time: (new Date()).getTime()
+			});
+			this.model.set("clickedFolder", {
+				obj: $target,
+				time: (new Date()).getTime()
+			});
 
 			$(".folder.selected").removeClass("selected");
 			$target.addClass("selected");
@@ -816,7 +823,9 @@ pen.define([
 				$parentFolder = $parentFolder.parent().parent();
 			}
 
-			$folder.find("> .element .title").trigger("click");
+			$folder.find("> .element .title").click();
+			$folder.addClass("open");
+			$folder.find("> .folders").show();
 	    }
 
 	});
@@ -860,11 +869,16 @@ pen.define([
 
 		clickFile: function(event){
 			var $target = $(event.currentTarget).eq(0);
-			var id = $target.attr("id");
-			this.model.set("clicked", id);
+			//BISERVER-9259 - added time parameter to force change event
+			this.model.set("clicked", {
+				obj: $target,
+				time: (new Date()).getTime()
+			});
 
-			// [BISERVER-9128] FF does not detect on change on object attribute, using primitive (id) instead
-			this.model.set("clickedFile", id); 
+			this.model.set("clickedFile", {
+				obj: $target,
+				time: (new Date()).getTime()
+			}); 
  
 			$(".file.selected").removeClass("selected");
 			$target.addClass("selected");
