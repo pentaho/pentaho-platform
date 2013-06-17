@@ -18,4 +18,5 @@ public interface IBackgroundExecutionStreamProvider extends Serializable {
   OutputStream getOutputStream() throws Exception;
   InputStream getInputStream() throws Exception;
   void setStreamingAction(IStreamingAction streamingAction);
+  void setOutputFilePath(String filePath);
 }

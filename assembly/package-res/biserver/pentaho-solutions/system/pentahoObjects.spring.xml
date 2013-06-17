@@ -46,9 +46,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   </bean>
   <!--  Use this schema factory to disable PMD security -->
   <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository" scope="singleton"/>-->
-  <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService"
-        scope="session">
-
+  <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService">
       <constructor-arg ref="unifiedRepository"/>
   </bean>
   <bean id="IEmailService" class="org.pentaho.platform.plugin.services.email.EmailService" scope="session"/>

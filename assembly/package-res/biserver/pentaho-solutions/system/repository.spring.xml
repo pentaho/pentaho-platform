@@ -796,6 +796,9 @@
       </pen:attributes>
     </pen:publish>
   </bean>
+  <bean class="org.pentaho.platform.repository2.DefaultClientRepositoryPathsStrategy">
+    <pen:publish as-type="INTERFACES" />
+  </bean>
 
   <!-- 
   	This bean defines how jcr transactions are propogated, when methods in the role binding dao are called.
