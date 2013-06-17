@@ -68,7 +68,7 @@ public class SchedulerOutputPathResolver {
     // evaluate fallback output paths
     String[] fallBackPaths = new String[]{
        getUserSettingOutputPath(),    // user setting
-       //getSystemSettingOutputPath(),  // system setting
+       getSystemSettingOutputPath(),  // system setting
        getUserHomeDirectoryPath()     // home directory
     };
 
