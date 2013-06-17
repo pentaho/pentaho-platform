@@ -17,6 +17,7 @@
   <!-- The continuous target is used by CI ... this is the list of -->
   <!-- tasks that the CI machine will run.                         -->
   <!-- DO NOT change the CI machine's ant task .. change this list -->
+  <property name="junit.haltonerror" value="yes" description="Fail the build if a error occurs" />
   <target name="continuous"
           depends="clean-all,resolve,cobertura,publish" />
 
