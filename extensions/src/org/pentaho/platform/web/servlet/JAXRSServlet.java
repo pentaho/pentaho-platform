@@ -18,8 +18,13 @@ package org.pentaho.platform.web.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -28,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.MessageBodyWriter;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -64,6 +70,36 @@ public class JAXRSServlet extends SpringServlet {
   public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     if (logger.isDebugEnabled()) {
       logger.debug("servicing request for resource " + request.getPathInfo()); //$NON-NLS-1$
+    }
+
+    // Extension to allow accept type override from mime-type query param
+    final String mimeType = request.getParameter("mime-type");
+    if(mimeType != null){
+      final HttpServletRequest originalRequest = request;
+
+      request = (HttpServletRequest) Proxy.newProxyInstance(getClass().getClassLoader(),
+          new Class[]{HttpServletRequest.class},
+          new InvocationHandler() {
+            public Object invoke(Object proxy, Method method,
+                                 Object[] args) throws Throwable {
+              if(method.getName().equals("getHeaders") && args.length > 0 && args[0].equals("accept")){
+                return new Enumeration(){
+                  boolean hasMore = true;
+                  @Override
+                  public boolean hasMoreElements() {
+                    return hasMore;
+                  }
+
+                  @Override
+                  public Object nextElement() {
+                    hasMore = false;
+                    return mimeType;
+                  }
+                };
+              }
+              return method.invoke(originalRequest, args);
+            }
+          });
     }
     super.service(request, response);
   }
