@@ -63,6 +63,7 @@ import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryMalformedNameException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
@@ -1027,6 +1028,65 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(referrers.get(0).getName(), referrerFileName);
   }
 
+  @Test
+  public void testMissingRef() throws Exception {
+    // if a user does not have permission to a reference, it is removed from the node structure and 
+    // replaced with a missing link.  previous releases would throw an exception.
+    
+    // create a file that suzy does not have permission to
+    // create a file that suzy has permission to but references the one she doesn't
+    // load the file as suzy, make sure no exceptions occur and that the node is a missing reference
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    
+    DataNode node = new DataNode("kdjd");
+    RepositoryFile sampleFile = createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), "helloworld2.sample", "dfdd", true, 83);
+    RepositoryFileAcl acl = repo.getAcl(sampleFile.getId());
+    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(false).clearAces().build();
+    repo.updateAcl(newAcl);
+    node.setProperty("urei2", new DataNodeRef(sampleFile.getId()));
+    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String expectedName = "helloworld.doesnotmatter";
+    RepositoryFile parentFolder = repo.getFile(parentFolderPath);
+    assertNotNull(parentFolder);
+    final String expectedPath = parentFolderPath + RepositoryFile.SEPARATOR + expectedName;
+    NodeRepositoryFileData data = new NodeRepositoryFileData(node);
+    RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(expectedName).build(), data, null);
+    assertNotNull(newFile.getId());
+    
+    // now check that the ref is missing
+    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
+    RepositoryFile foundFile = repo.getFile(expectedPath);
+    assertNotNull(foundFile);
+
+    DataNode foundNode = repo.getDataForRead(newFile.getId(), NodeRepositoryFileData.class).getNode();
+    DataProperty d = foundNode.getProperty("urei2");
+    assertNotNull(d);
+    assertTrue(d.getType() == DataPropertyType.REF);
+    assertTrue(d.getRef().getId() == DataNodeRef.REF_MISSING);
+    
+    // now change permissions back so she can get access to the node, confirm things are back to normal
+    
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    newAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(true).clearAces().build();
+    repo.updateAcl(newAcl);    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    foundFile = repo.getFile(expectedPath);
+    assertNotNull(foundFile);
+
+    foundNode = repo.getDataForRead(newFile.getId(), NodeRepositoryFileData.class).getNode();
+    d = foundNode.getProperty("urei2");
+    assertNotNull(d);
+    assertTrue(d.getType() == DataPropertyType.REF);
+    assertTrue(d.getRef().getId().equals(sampleFile.getId()));
+  }
+  
   @Test
   public void testCreateNodeFile() throws Exception {
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});

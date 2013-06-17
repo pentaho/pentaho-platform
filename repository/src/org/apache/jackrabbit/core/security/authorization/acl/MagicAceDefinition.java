@@ -24,7 +24,9 @@ public class MagicAceDefinition {
   
   public boolean applyToTarget;
   
-  public MagicAceDefinition(final String path, final String logicalRole, final Privilege[] privileges, final boolean applyToTarget, final boolean applyToChildren, final boolean applyToAncestors) {
+  public String[] exceptChildren;
+  
+  public MagicAceDefinition(final String path, final String logicalRole, final Privilege[] privileges, final boolean applyToTarget, final boolean applyToChildren, final boolean applyToAncestors, final String[] exceptChildren) {
     super();
     this.path = path;
     this.logicalRole = logicalRole;
@@ -32,6 +34,7 @@ public class MagicAceDefinition {
     this.applyToChildren = applyToChildren;
     this.applyToAncestors = applyToAncestors;
     this.applyToTarget = applyToTarget;
+    this.exceptChildren = exceptChildren;
   }
 
   @Override
@@ -44,6 +47,7 @@ public class MagicAceDefinition {
     result = prime * result + (applyToChildren ? 1231 : 1237);
     result = prime * result + (applyToAncestors ? 8 : 9);
     result = prime * result + (applyToTarget ? 6 : 7);
+    result = prime * result + Arrays.hashCode(exceptChildren);
     return result;
   }
 
@@ -73,6 +77,8 @@ public class MagicAceDefinition {
     if (applyToAncestors != other.applyToAncestors)
       return false;
     if (applyToTarget != other.applyToTarget)
+      return false;
+    if (!Arrays.equals(exceptChildren,  other.exceptChildren))
       return false;
     return true;
   }

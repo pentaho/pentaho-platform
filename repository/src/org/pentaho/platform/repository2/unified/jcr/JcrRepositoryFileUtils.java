@@ -371,7 +371,7 @@ public class JcrRepositoryFileUtils {
     }
   }
 
-  private static String getAbsolutePath(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static String getAbsolutePath(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node) throws RepositoryException {
     if (node.isNodeType(pentahoJcrConstants.getNT_FROZENNODE())) {
       return session.getNodeByIdentifier(node.getProperty(pentahoJcrConstants.getJCR_FROZENUUID()).getString())
