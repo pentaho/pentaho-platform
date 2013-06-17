@@ -502,8 +502,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       // showError(e);
     }
   }
-
+  
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
+	
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
@@ -535,6 +536,14 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         addRecent(fileNameWithPath, repositoryFile.getTitle());
       }
     }
+    
+    // Store representation of file in the frame for reference later when
+    // save is called
+    SolutionFileInfo fileInfo = new SolutionFileInfo();
+    fileInfo.setName(repositoryFile.getName());
+    fileInfo.setPath(repositoryFile.getPath());
+    fileInfo.setType(SolutionFileInfo.Type.XACTION);
+    contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
   }
 
   public void addRecent(String fileNameWithPath, String title) {
@@ -619,14 +628,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         contentTabPanel
            .showNewURLTab(Messages.getString("editingColon") + file.getTitle(), Messages.getString("editingColon") + file.getTitle(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
 
-        // Store representation of file in the frame for reference later when
-        // save is called
-        SolutionFileInfo fileInfo = new SolutionFileInfo();
-        fileInfo.setName(file.getName());
-        fileInfo.setPath(file.getPath());
-        fileInfo.setType(SolutionFileInfo.Type.XACTION);
-        contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
-
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
            Messages.getString("cannotEditFileType"), //$NON-NLS-1$
@@ -663,14 +664,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         contentTabPanel
             .showNewURLTab(Messages.getString("editingColon") + file.getTitle(), Messages.getString("editingColon") + file.getTitle(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
-
-        // Store representation of file in the frame for reference later when
-        // save is called
-        SolutionFileInfo fileInfo = new SolutionFileInfo();
-        fileInfo.setName(file.getName());
-        fileInfo.setPath(file.getPath());
-        fileInfo.setType(SolutionFileInfo.Type.XACTION);
-        contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
 
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
