@@ -7,11 +7,19 @@ import org.pentaho.platform.core.mt.Tenant;
 public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleNameResolver {
 
   public static final String DEFAULT_DELIMETER = "-";
-  
+  public static final String ALTERNATE_DELIMETER = "_";
+
   public boolean userNameNaturallyContainsEmbeddedTenantName = false;
   private String delimeter = DEFAULT_DELIMETER;
   private boolean principalNameFollowsTenantName = false;
-  
+
+  public DefaultTenantedPrincipleNameResolver() {
+  }
+
+  public DefaultTenantedPrincipleNameResolver(String delimiter) {
+    setDelimeter(delimiter);
+  }
+
   public ITenant getTenant(String principalId) {
     String tenantName = null;
     int delimiterIndex = principalId.indexOf(getDelimeter());

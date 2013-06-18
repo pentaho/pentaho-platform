@@ -338,6 +338,7 @@
     </constructor-arg>
   </bean>
   <bean id="tenantedRoleNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
+  	<property name="delimeter" value="_" />  
   </bean>
   
   <bean id="tenantedUserNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">

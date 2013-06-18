@@ -153,7 +153,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
   private JcrTemplate adminTemplate;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
-  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver();
+  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver(
+      DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER);
   private String sysAdminRoleName;
   private String tenantAdminRoleName;
   private String tenantAuthenticatedRoleName;

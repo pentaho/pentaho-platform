@@ -85,7 +85,8 @@ public class TestPrincipalProvider implements PrincipalProvider {
   
   private ITenantedPrincipleNameResolver tenantedUserNameUtils = new DefaultTenantedPrincipleNameResolver();
 
-  private ITenantedPrincipleNameResolver tenantedRoleNameUtils = new DefaultTenantedPrincipleNameResolver();
+  private ITenantedPrincipleNameResolver tenantedRoleNameUtils = new DefaultTenantedPrincipleNameResolver(
+      DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER);
   
   private boolean primeWithSampleUsers;
   
