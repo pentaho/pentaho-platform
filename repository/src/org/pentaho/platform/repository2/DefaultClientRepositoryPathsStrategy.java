@@ -14,8 +14,8 @@
  */
 package org.pentaho.platform.repository2;
 
+import org.pentaho.platform.api.repository.IClientRepositoryPathsStrategy;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.ClientRepositoryPaths.IClientRepositoryPathsStrategy;
 
 public class DefaultClientRepositoryPathsStrategy implements IClientRepositoryPathsStrategy {
 
