@@ -15,6 +15,8 @@
 package org.pentaho.platform.repository2.unified.jcr.transform;
 
 import java.util.Calendar;
+
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
@@ -182,7 +184,13 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
           break;
         }
         case PropertyType.REFERENCE: {
-          dataNode.setProperty(propName, new DataNodeRef(prop.getNode().getIdentifier()));
+          try {
+            dataNode.setProperty(propName, new DataNodeRef(prop.getNode().getIdentifier()));
+          } catch (ItemNotFoundException e) {
+            // reference is missing, replace with missing data ref
+            // this situation can occur if the user does not have permission to access the reference.
+            dataNode.setProperty(propName,  new DataNodeRef(DataNodeRef.REF_MISSING));
+          }
           break;
         }
         default: {
