@@ -63,6 +63,7 @@ public class JAXRSServlet extends SpringServlet {
   public static final String MIME_TYPE = "mime-type";
   public static final String GET_HEADERS = "getHeaders";
   public static final String ACCEPT = "accept";
+  public static final String GET = "GET";
 
   @Override
   protected ConfigurableApplicationContext getContext() {
@@ -71,38 +72,41 @@ public class JAXRSServlet extends SpringServlet {
 
   @Override
   public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
     if (logger.isDebugEnabled()) {
       logger.debug("servicing request for resource " + request.getPathInfo()); //$NON-NLS-1$
     }
 
-    // Extension to allow accept type override from mime-type query param
-    final String mimeType = request.getParameter(MIME_TYPE);
-    if(mimeType != null){
-      final HttpServletRequest originalRequest = request;
+    if(request.getMethod().equals(GET)){
+      // Extension to allow accept type override from mime-type query param
+      final String mimeType = request.getParameter(MIME_TYPE);
+      if(mimeType != null){
+        final HttpServletRequest originalRequest = request;
 
-      request = (HttpServletRequest) Proxy.newProxyInstance(getClass().getClassLoader(),
-          new Class[]{HttpServletRequest.class},
-          new InvocationHandler() {
-            public Object invoke(Object proxy, Method method,
-                                 Object[] args) throws Throwable {
-              if(method.getName().equals(GET_HEADERS) && args.length > 0 && args[0].equals(ACCEPT)){
-                return new Enumeration(){
-                  boolean hasMore = true;
-                  @Override
-                  public boolean hasMoreElements() {
-                    return hasMore;
-                  }
+        request = (HttpServletRequest) Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class[]{HttpServletRequest.class},
+            new InvocationHandler() {
+              public Object invoke(Object proxy, Method method,
+                                   Object[] args) throws Throwable {
+                if(method.getName().equals(GET_HEADERS) && args.length > 0 && args[0].equals(ACCEPT)){
+                  return new Enumeration(){
+                    boolean hasMore = true;
+                    @Override
+                    public boolean hasMoreElements() {
+                      return hasMore;
+                    }
 
-                  @Override
-                  public Object nextElement() {
-                    hasMore = false;
-                    return mimeType;
-                  }
-                };
+                    @Override
+                    public Object nextElement() {
+                      hasMore = false;
+                      return mimeType;
+                    }
+                  };
+                }
+                return method.invoke(originalRequest, args);
               }
-              return method.invoke(originalRequest, args);
-            }
-          });
+            });
+      }
     }
     super.service(request, response);
   }
