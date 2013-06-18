@@ -176,7 +176,7 @@ public class ActionAdapterQuartzJob implements Job {
           }
 
           // BISERVER-9414 - validate that output path still exist
-          SchedulerOutputPathResolver resolver = new SchedulerOutputPathResolver(streamProvider.getOutputPath());
+          SchedulerOutputPathResolver resolver = new SchedulerOutputPathResolver(streamProvider.getOutputPath(), actionUser);
           String outputPath = resolver.resolveOutputFilePath();
           if(!outputPath.equals(streamProvider.getOutputPath())){
             streamProvider.setOutputFilePath(outputPath); // set fallback path

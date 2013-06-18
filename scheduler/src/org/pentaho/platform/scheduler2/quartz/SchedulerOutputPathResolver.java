@@ -25,7 +25,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository.IClientRepositoryPathsStrategy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -33,6 +35,11 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * @author Rowell Belen
@@ -40,51 +47,72 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 public class SchedulerOutputPathResolver {
 
   final String DEFAULT_SETTING_KEY = "default-scheduler-output-path";
+  public static final String SCHEDULER_ACTION_NAME = "org.pentaho.scheduler.manage";
 
   private static final Log logger = LogFactory.getLog(SchedulerOutputPathResolver.class);
 
-  private IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
-  private IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-  private IUserSettingService settingsService = null;
-
   private String jobName;
   private String outputDirectory;
+  private String actionUser;
 
-  public SchedulerOutputPathResolver(String outputPathPattern){
+  public SchedulerOutputPathResolver(final String outputPathPattern, final String actionUser){
     this.jobName = FilenameUtils.getBaseName(outputPathPattern);
     this.outputDirectory = FilenameUtils.getPathNoEndSeparator(outputPathPattern);
-    this.settingsService = PentahoSystem.get(IUserSettingService.class, pentahoSession);
+    this.actionUser = actionUser;
   }
 
   public String resolveOutputFilePath(){
 
     final String fileNamePattern = "/" + this.jobName + ".*";
-
     final String outputFilePath = "/" + this.outputDirectory;
-    if(StringUtils.isNotBlank(outputFilePath) && isValidOutputPath(outputFilePath)){
-      return outputFilePath + fileNamePattern; // return if valid
-    }
 
-    // evaluate fallback output paths
-    String[] fallBackPaths = new String[]{
-       getUserSettingOutputPath(),    // user setting
-       getSystemSettingOutputPath(),  // system setting
-       getUserHomeDirectoryPath()     // home directory
+    // Enclose validation logic in the context of the job creator's session, not the current session
+    final Callable<String> callable = new Callable<String>() {
+      @Override
+      public String call() throws Exception {
+
+        if(StringUtils.isNotBlank(outputFilePath) && isValidOutputPath(outputFilePath)){
+          return outputFilePath + fileNamePattern; // return if valid
+        }
+
+        // evaluate fallback output paths
+        String[] fallBackPaths = new String[]{
+           getUserSettingOutputPath(),    // user setting
+           getSystemSettingOutputPath(),  // system setting
+           getUserHomeDirectoryPath()     // home directory
+        };
+
+        for(String path : fallBackPaths){
+          if(StringUtils.isNotBlank(path) && isValidOutputPath(path)){
+            return path + fileNamePattern; // return the first valid path
+          }
+        }
+
+        return null; // it should never reach here because the user directory is the ultimate fallback
+      }
     };
 
-    for(String path : fallBackPaths){
-      if(StringUtils.isNotBlank(path) && isValidOutputPath(path)){
-        return path + fileNamePattern; // return the first valid path
+    return runAsUser(callable);
+  }
+
+
+  private String runAsUser(Callable<String> callable) {
+    try {
+      if(callable != null){
+        return SecurityHelper.getInstance().runAsUser(this.actionUser, callable);
       }
     }
+    catch(Exception e){
+      logger.error(e.getMessage(), e);
+    }
 
-    return null; // it should never reach here
+    return null;
   }
 
   private boolean isValidOutputPath(String path){
     try {
-      RepositoryFile repoFile = repository.getFile(path);
-      if(repoFile != null && repoFile.isFolder()){
+      RepositoryFile repoFile = getRepository().getFile(path);
+      if(repoFile != null && repoFile.isFolder() && isScheduleAllowed(repoFile.getId())){
         return true;
       }
     }
@@ -96,7 +124,7 @@ public class SchedulerOutputPathResolver {
 
   private String getUserSettingOutputPath(){
     try {
-      IUserSetting userSetting = settingsService.getUserSetting(DEFAULT_SETTING_KEY, null);
+      IUserSetting userSetting = getUserSettingService().getUserSetting(DEFAULT_SETTING_KEY, null);
       if(userSetting != null && StringUtils.isNotBlank(userSetting.getSettingValue())){
         return userSetting.getSettingValue();
       }
@@ -119,8 +147,8 @@ public class SchedulerOutputPathResolver {
 
   private String getUserHomeDirectoryPath(){
     try {
-      IClientRepositoryPathsStrategy pathsStrategy = PentahoSystem.get(IClientRepositoryPathsStrategy.class, pentahoSession);
-      return pathsStrategy.getUserHomeFolderPath(pentahoSession.getName());
+      IClientRepositoryPathsStrategy pathsStrategy = PentahoSystem.get(IClientRepositoryPathsStrategy.class, getScheduleCreatorSession());
+      return pathsStrategy.getUserHomeFolderPath(getScheduleCreatorSession().getName());
     }
     catch(Exception e){
       logger.warn(e.getMessage(), e);
@@ -128,4 +156,32 @@ public class SchedulerOutputPathResolver {
     return null;
   }
 
+  private IPentahoSession getScheduleCreatorSession(){
+    return PentahoSessionHolder.getSession();
+  }
+
+  private IUnifiedRepository getRepository(){
+    return PentahoSystem.get(IUnifiedRepository.class, getScheduleCreatorSession());
+  }
+
+  private IUserSettingService getUserSettingService(){
+    return PentahoSystem.get(IUserSettingService.class, getScheduleCreatorSession());
+  }
+
+  private IAuthorizationPolicy getAuthorizationPolicy(){
+    return PentahoSystem.get(IAuthorizationPolicy.class, getScheduleCreatorSession());
+  }
+
+  private boolean isScheduleAllowed(final Serializable repositoryId){
+    boolean canSchedule = false;
+    canSchedule = getAuthorizationPolicy().isAllowed(SCHEDULER_ACTION_NAME);
+    if (canSchedule) {
+      Map<String, Serializable> metadata = getRepository().getFileMetadata(repositoryId);
+      if (metadata.containsKey("_PERM_SCHEDULABLE")) {
+        canSchedule = Boolean.parseBoolean((String) metadata.get("_PERM_SCHEDULABLE"));
+      }
+    }
+
+    return canSchedule;
+  }
 }
