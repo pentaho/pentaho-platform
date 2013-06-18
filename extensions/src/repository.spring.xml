@@ -769,17 +769,19 @@
   
   <!-- IUserRoleDao implementation -->
   <bean id="userRoleDao" class="org.pentaho.platform.security.userroledao.jackrabbit.JcrUserRoleDao">
-	<constructor-arg ref="adminJcrTemplate"/>
-  	<constructor-arg ref="tenantedUserNameUtils"/>
-  	<constructor-arg ref="tenantedRoleNameUtils"/>
-  	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-  	<constructor-arg ref="singleTenantAdminAuthorityName"/>
-  	<constructor-arg ref="repositoryAdminUsername"/>
-  	<constructor-arg ref="repositoryFileAclDao"/>
-  	<constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="tenantedRoleNameUtils"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="repositoryFileDao"/>
     <constructor-arg ref="pathConversionHelper"/>
-    <constructor-arg ref="lockHelper"/>        
-   	<constructor-arg ref="defaultAclHandler" />    	  	
+    <constructor-arg ref="lockHelper"/>
+    <constructor-arg ref="defaultAclHandler" />
+    <constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="extraRoles"/>
   </bean>
 
   <!-- IUserRoleDao implementation -->
