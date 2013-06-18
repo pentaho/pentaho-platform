@@ -77,4 +77,17 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
     this.principalNameFollowsTenantName = userNameFollowsTenantName;
   }
 
+  @Override
+  public boolean isValid(String principleId) {
+
+    int delimiterIndex = principleId.indexOf(getDelimeter());
+    if ( delimiterIndex >= 0) {
+      return true;
+    }
+    else {
+      return false;
+    }
+
+  }
+
 }

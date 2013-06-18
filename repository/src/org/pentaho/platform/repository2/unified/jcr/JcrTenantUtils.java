@@ -57,6 +57,14 @@ public class JcrTenantUtils {
     }
   }
 
+  public static boolean isTenatedRole(String principal) {
+    if (principal != null && !principal.equals("administrators") && getRoleNameUtils() != null) {
+      return getRoleNameUtils().isValid(principal);
+    } else {
+      return false;
+    }
+  }
+  
   public static String getTenantedUser(String username) {
     if (username != null && !username.equals(getRepositoryAdminUserName()) && getUserNameUtils() != null) {
       ITenant tenant = getUserNameUtils().getTenant(username);
@@ -73,6 +81,14 @@ public class JcrTenantUtils {
       }
     } else {
       return username;
+    }
+  }
+  
+  public static boolean isTenantedUser(String username) {
+    if (username != null && !username.equals(getRepositoryAdminUserName()) && getUserNameUtils() != null) {
+      return getUserNameUtils().isValid(username);
+    } else {
+      return false;
     }
   }
 
