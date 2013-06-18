@@ -100,14 +100,21 @@ public class PentahoEntryCollector extends EntryCollector {
     boolean applyToTarget = Boolean.valueOf(tokens[3]);
     boolean applyToChildren = Boolean.valueOf(tokens[4]);
     boolean applyToAncestors = Boolean.valueOf(tokens[5]);
-
+    String exceptChildren[] = null;
+    if (tokens.length > 6) {
+      exceptChildren = new String[tokens.length - 6];
+      for (int i = 6; i < tokens.length; i++) {
+        exceptChildren[i-6] = tokens[i];
+      }
+    }
+    
     String[] privilegeTokens = privilegeString.split("\\,"); //$NON-NLS-1$
     List<Privilege> privileges = new ArrayList<Privilege>(privilegeTokens.length);
     for (String privilegeToken : privilegeTokens) {
       privileges.add(systemSession.getAccessControlManager().privilegeFromName(privilegeToken));
     }
 
-    return new MagicAceDefinition(path, logicalRole, privileges.toArray(new Privilege[0]), applyToTarget, applyToChildren, applyToAncestors);
+    return new MagicAceDefinition(path, logicalRole, privileges.toArray(new Privilege[0]), applyToTarget, applyToChildren, applyToAncestors, exceptChildren);
   }
 
   /**
@@ -260,6 +267,16 @@ public class PentahoEntryCollector extends EntryCollector {
         }
         if (!match && def.applyToChildren) {
           match = path.startsWith(substitutedPath + "/");
+          // check to see if we should exclude the match due to the exclude list
+          if (match && def.exceptChildren != null) {
+            for (String childPath : def.exceptChildren) {
+              String substitutedChildPath = MessageFormat.format(childPath, tenant.getRootFolderAbsolutePath());
+              if (path.startsWith(substitutedChildPath + "/")) {
+                match = false;
+                break;
+              }
+            }
+          }
         }
         if (!match && def.applyToAncestors) {
           match = substitutedPath.startsWith(path + "/");

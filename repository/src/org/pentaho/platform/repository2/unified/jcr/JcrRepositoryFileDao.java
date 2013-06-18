@@ -131,9 +131,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
+    // create a temporary folder object with correct path for default acl purposes.
+    String path = JcrRepositoryFileUtils.getAbsolutePath(session, pentahoJcrConstants, folderNode);
+    RepositoryFile tmpFolder = new RepositoryFile.Builder(folder).path(path).build();
     // we must create the acl during checkout
     JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(),
-        acl == null ? defaultAclHandler.createDefaultAcl(folder) : acl);
+        acl == null ? defaultAclHandler.createDefaultAcl(tmpFolder) : acl);
     session.save();
     if (folder.isVersioned()) {
       JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, folderNode,
@@ -187,8 +190,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, parentFolderId, file,
             content == null ? emptyContent : content,
             findTransformerForWrite(content == null ? emptyContent.getClass() : content.getClass()));
+        // create a tmp file with correct path for default acl creation purposes.
+        String path = JcrRepositoryFileUtils.getAbsolutePath(session, pentahoJcrConstants, fileNode);
+        RepositoryFile tmpFile = new RepositoryFile.Builder(file).path(path).build();
         // we must create the acl during checkout
-        aclDao.createAcl(fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(file) : acl);
+        aclDao.createAcl(fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(tmpFile) : acl);
         session.save();
         if (file.isVersioned()) {
           JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, fileNode,

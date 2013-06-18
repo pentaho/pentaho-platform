@@ -18,6 +18,8 @@ import java.io.Serializable;
 
 public class DataNodeRef {
   
+  public static final String REF_MISSING = "REF_MISSING"; //$NON-NLS-1$
+  
   private Serializable id;
   
   public DataNodeRef(final Serializable id) {
