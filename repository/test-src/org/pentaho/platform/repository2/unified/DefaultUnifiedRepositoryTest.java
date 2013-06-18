@@ -177,7 +177,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   private MicroPlatform mp;
 
   private ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
-  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver();
+
+  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver(
+      DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER);
 
   private String superAdminRoleName;
   private String tenantAdminRoleName;

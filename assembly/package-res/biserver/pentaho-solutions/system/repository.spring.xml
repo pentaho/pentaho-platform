@@ -589,6 +589,7 @@
   	This bean is responsible for converting deriving a user's tenant and user name from a user id and visa-versa.
    -->
   <bean id="tenantedRoleNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
+  	<property name="delimeter" value="_" />
   </bean>
 
   <!-- 
