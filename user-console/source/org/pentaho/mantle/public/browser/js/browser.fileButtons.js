@@ -7,9 +7,10 @@
  */
 
 pen.define([
+  "js/browser.utils.js",
   "common-ui/jquery-i18n",
   "common-ui/jquery"
-], function() {
+], function(BrowserUtils) {
 
 	var local = {
 
@@ -17,6 +18,8 @@ pen.define([
 
 			// retrieve i18n map
 			var that = this; // trap this
+
+      that.browserUtils = new BrowserUtils();
 
 			// initialize buttons definitions
 			that.buttons = [
@@ -119,6 +122,8 @@ pen.define([
       that.refreshFavoritesList();
     },
 
+    browserUtils: null,
+
 		buttons: [],
 
 		favoriteItems: [],
@@ -196,6 +201,19 @@ pen.define([
     onFileSelect: function(path){
     	this.refreshFavoritesList(); // refresh if necessary
     	this.toggleFavoriteContext(path);
+
+      // BISERVER-9415
+      var extension = path.substring(path.lastIndexOf('.') + 1, path.length);
+      if(this.browserUtils.isFileExecutable(extension)){
+        $('#editButton').show();
+        $('#runButton').show();
+        $('#scheduleButton').show();
+      }
+      else{
+        $('#editButton').hide();
+        $('#runButton').hide();
+        $('#scheduleButton').hide();
+      }
     },
 
     toggleFavoriteContext: function(path){
