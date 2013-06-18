@@ -36,4 +36,12 @@ public interface ITenantedPrincipleNameResolver {
    * @return principle id
    */
   public String getPrincipleId(ITenant tenant, String principalName);
+
+  /**
+   * Return flag indicating that principleId is a valid tenated string.
+   * 
+   * @param principleId
+   * @return principle id
+   */
+  public boolean isValid(String principleId);
 }

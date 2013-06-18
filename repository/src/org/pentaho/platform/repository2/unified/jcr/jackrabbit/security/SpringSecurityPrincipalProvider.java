@@ -192,6 +192,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * </p>
    */
   public synchronized Principal getPrincipal(final String principalName) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug ("principalName: [" + principalName + "]");
+    }
+    
     checkInitialized();
     Assert.notNull(principalName);
     // first handle AclMetadataPrincipal, admin, anonymous, and everyone
@@ -205,55 +210,62 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     } else if (EveryonePrincipal.getInstance().getName().equals(principalName)) {
       return EveryonePrincipal.getInstance();
     } else {
-      // 1. first try the role cache
-      Principal roleFromCache = (Principal) roleCache.get(JcrTenantUtils.getTenantedRole(principalName));
-      if (roleFromCache != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("role " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        return roleFromCache;
-      } else {
-        if (logger.isTraceEnabled()) {
-          logger.trace("role " + principalName + " not found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-      }
 
-      // 2. then try the user cache
-      Principal userFromUserCache = (Principal) userCache.get(JcrTenantUtils.getTenantedUser(principalName));
-      if (userFromUserCache != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("user " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
+      if (JcrTenantUtils.isTenantedUser(principalName)) {
+        // 1. then try the user cache
+        final Principal userFromUserCache = (Principal) userCache.get(JcrTenantUtils.getTenantedUser(principalName));
+        if (userFromUserCache != null) {
+          if (logger.isTraceEnabled()) {
+            logger.trace("user " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
+          }
+          return userFromUserCache;
+        } else {
+          if (logger.isTraceEnabled()) {
+            logger.trace("user " + principalName + " not found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
+          }
         }
-        return userFromUserCache;
-      } else {
-        if (logger.isTraceEnabled()) {
-          logger.trace("user " + principalName + " not found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-      }
 
-      // 3. then try the springSecurityUserCache and, failing that, actual
-      // back-end user lookup
-      UserDetails userDetails = internalGetUserDetails(principalName);
-      if (userDetails != null) {
-        Principal user = new UserPrincipal(principalName);
+        // 2. then try the springSecurityUserCache and, failing that, actual
+        // back-end user lookup
+        final UserDetails userDetails = internalGetUserDetails(principalName);
         if (userDetails != null) {
+          final Principal user = new UserPrincipal(principalName);
           userCache.put(principalName, user);
+          return user;
         }
-        return user;
+
+      } else if (JcrTenantUtils.isTenatedRole(principalName)) {
+
+        // 1. first try the role cache
+        final Principal roleFromCache = (Principal) roleCache.get(JcrTenantUtils.getTenantedRole(principalName));
+        if (roleFromCache != null) {
+          if (logger.isTraceEnabled()) {
+            logger.trace("role " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
+          }
+          return roleFromCache;
+        } else {
+          if (logger.isTraceEnabled()) {
+            logger.trace("role " + principalName + " not found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
+          }
+        }
+
+        // 2. finally just assume role; this assumption serves two purposes:
+        // (1) avoid any role search config by the user
+        // and (2) performance (if we don't care that a role is not
+        // present--why look it up); finally, a Group returned
+        // by this class will be caught in
+        // SpringSecurityLoginModule.getPrincipal and the login will fail
+        final Principal roleToCache = createSpringSecurityRolePrincipal(principalName);
+        roleCache.put(principalName, roleToCache);
+        if (logger.isTraceEnabled()) {
+          logger.trace("assuming " + principalName + " is a role"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return roleToCache;
+
       }
 
-      // 4. finally just assume role; this assumption serves two purposes:
-      // (1) avoid any role search config by the user
-      // and (2) performance (if we don't care that a role is not
-      // present--why look it up); finally, a Group returned
-      // by this class will be caught in
-      // SpringSecurityLoginModule.getPrincipal and the login will fail
-      roleFromCache = createSpringSecurityRolePrincipal(principalName);
-      roleCache.put(principalName, roleFromCache);
-      if (logger.isTraceEnabled()) {
-        logger.trace("assuming " + principalName + " is a role"); //$NON-NLS-1$ //$NON-NLS-2$
-      }
-      return roleFromCache;
+      return null;
+     
     }
   }
 
@@ -284,8 +296,16 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       if (user == null) {
         return new PrincipalIteratorAdapter(groups);
       }
-      for (GrantedAuthority role : user.getAuthorities()) {
-        groups.add(createSpringSecurityRolePrincipal(role.getAuthority()));
+      for (final GrantedAuthority role : user.getAuthorities()) {
+
+        final String roleAuthority = role.getAuthority();
+        final Principal fromCache = (Principal) roleCache.get(roleAuthority);
+
+        if (fromCache != null) {
+          groups.add(fromCache);
+        } else {
+          groups.add(createSpringSecurityRolePrincipal(roleAuthority));
+        }
       }
     }
     groups.add(EveryonePrincipal.getInstance());
@@ -325,9 +345,17 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         user = getUserDetailsService().loadUserByUsername(username);
         auths = new GrantedAuthority[user.getAuthorities().length];
         // cache the roles while we're here
-        for (GrantedAuthority grantedAuth : user.getAuthorities()) {
-          roleCache.put(grantedAuth.getAuthority(), createSpringSecurityRolePrincipal(grantedAuth.getAuthority()));
-          auths[index++] = new GrantedAuthorityImpl(JcrTenantUtils.getTenantedRole(grantedAuth.getAuthority()));
+        for (final GrantedAuthority grantedAuth : user.getAuthorities()) {
+          
+          final String grantedAuthString = grantedAuth.getAuthority();
+          final String tenatedRoleString = JcrTenantUtils.getTenantedRole(grantedAuthString);
+
+          if (!roleCache.containsKey(grantedAuthString)) {
+            final SpringSecurityRolePrincipal ssRolePrincipal = new SpringSecurityRolePrincipal(tenatedRoleString);
+            roleCache.put(grantedAuthString, ssRolePrincipal);
+          }
+
+          auths[index++] = new GrantedAuthorityImpl(tenatedRoleString);
         }
         if (logger.isTraceEnabled()) {
           logger.trace("found user in back-end " + user.getUsername()); //$NON-NLS-1$
@@ -392,11 +420,15 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   protected UserDetailsService getUserDetailsService() {
-    if (PentahoSystem.getInitializedOK()) {
-      userDetailsService = PentahoSystem.get(UserDetailsService.class);
+    if (null != userDetailsService) {
       return userDetailsService;
     } else {
-      return null;
+      if (PentahoSystem.getInitializedOK()) {
+        userDetailsService = PentahoSystem.get(UserDetailsService.class);
+        return userDetailsService;
+      } else {
+        return null;
+      }
     }
   }
 
