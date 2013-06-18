@@ -92,7 +92,7 @@ public class ClientRepositoryPaths {
     }
 
     if (strategyName.equals(DEFAULT)) {
-      strategy = PentahoSystem.get(IClientRepositoryPathsStrategy.class, PentahoSessionHolder.getSession());
+      strategy = new DefaultClientRepositoryPathsStrategy();
     } else {
       // Try to load a custom strategy
       try {
