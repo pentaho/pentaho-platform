@@ -60,6 +60,9 @@ public class JAXRSServlet extends SpringServlet {
   private static final long serialVersionUID = 457538570048660945L;
 
   private static final Log logger = LogFactory.getLog(JAXRSServlet.class);
+  public static final String MIME_TYPE = "mime-type";
+  public static final String GET_HEADERS = "getHeaders";
+  public static final String ACCEPT = "accept";
 
   @Override
   protected ConfigurableApplicationContext getContext() {
@@ -73,7 +76,7 @@ public class JAXRSServlet extends SpringServlet {
     }
 
     // Extension to allow accept type override from mime-type query param
-    final String mimeType = request.getParameter("mime-type");
+    final String mimeType = request.getParameter(MIME_TYPE);
     if(mimeType != null){
       final HttpServletRequest originalRequest = request;
 
@@ -82,7 +85,7 @@ public class JAXRSServlet extends SpringServlet {
           new InvocationHandler() {
             public Object invoke(Object proxy, Method method,
                                  Object[] args) throws Throwable {
-              if(method.getName().equals("getHeaders") && args.length > 0 && args[0].equals("accept")){
+              if(method.getName().equals(GET_HEADERS) && args.length > 0 && args[0].equals(ACCEPT)){
                 return new Enumeration(){
                   boolean hasMore = true;
                   @Override
