@@ -174,6 +174,14 @@ public class ActionAdapterQuartzJob implements Job {
           if (actionBean instanceof IStreamingAction) {
             streamProvider.setStreamingAction((IStreamingAction) actionBean);
           }
+
+          // BISERVER-9414 - validate that output path still exist
+          SchedulerOutputPathResolver resolver = new SchedulerOutputPathResolver(streamProvider.getOutputPath());
+          String outputPath = resolver.resolveOutputFilePath();
+          if(!outputPath.equals(streamProvider.getOutputPath())){
+            streamProvider.setOutputFilePath(outputPath); // set fallback path
+          }
+
           OutputStream stream = streamProvider.getOutputStream();
           if (stream instanceof ISourcesStreamEvents) {
             ((ISourcesStreamEvents) stream).addListener(new IStreamListener() {

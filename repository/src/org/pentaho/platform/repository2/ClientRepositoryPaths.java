@@ -18,6 +18,9 @@ import java.lang.reflect.Constructor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository.IClientRepositoryPathsStrategy;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 public class ClientRepositoryPaths {
 
@@ -89,7 +92,7 @@ public class ClientRepositoryPaths {
     }
 
     if (strategyName.equals(DEFAULT)) {
-      strategy = new DefaultClientRepositoryPathsStrategy();
+      strategy = PentahoSystem.get(IClientRepositoryPathsStrategy.class, PentahoSessionHolder.getSession());
     } else {
       // Try to load a custom strategy
       try {
@@ -108,25 +111,4 @@ public class ClientRepositoryPaths {
     ClientRepositoryPaths.strategyName = strategyName;
     initialize();
   }
-
-  public static interface IClientRepositoryPathsStrategy {
-    String getPublicFolderName();
-    
-    String getHomeFolderName();
-
-    String getUserHomeFolderName(final String username);
-    
-    String getPublicFolderPath();
-
-    String getHomeFolderPath();
-    
-    String getUserHomeFolderPath(final String username);
-    
-    String getRootFolderPath();
-    
-    String getEtcFolderPath();
-    
-    String getEtcFolderName();
-  }
-
 }
