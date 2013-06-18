@@ -276,7 +276,9 @@ pen.define([
 			showHiddenFiles: false,
 			showDescriptions: false,
 
-			startFolder: "/"
+			startFolder: "/",
+
+			sequenceNumber: 0
 		},
 
 		initialize: function(){
@@ -317,7 +319,8 @@ pen.define([
 
 		fetchData: function(path, callback){
 			var myself = this,
-				tree = null;
+				tree = null,
+				localSequenceNumber = myself.get("sequenceNumber");
 
 			var url = this.getFileTreeRequest(path == null ? ":" : path.replace(/\//g, ":"));
 
@@ -327,7 +330,8 @@ pen.define([
 				dataType: "json",
 			 	url: url,
 			 	success: function(response){
-					if(callback != undefined){
+					if(localSequenceNumber == myself.get("sequenceNumber") && callback != undefined){
+						myself.set("sequenceNumber", localSequenceNumber+1);
 						callback(response);
 					}
 				},
@@ -359,8 +363,10 @@ pen.define([
 			openFileHander: undefined,
 
 			showHiddenFiles: false,
-      showDescriptions: false,
-      deletedFiles: ""
+      		showDescriptions: false,
+      		deletedFiles: "",
+
+			sequenceNumber: 0
 		},
 
 		initialize: function(){
@@ -411,7 +417,8 @@ pen.define([
 
 		fetchData: function(path, callback){
 			var myself = this,
-				url = this.getFileListRequest(path == null ? ":" : path.replace(/\//g, ":"));
+				url = this.getFileListRequest(path == null ? ":" : path.replace(/\//g, ":")),
+				localSequenceNumber = myself.get("sequenceNumber");
 
 			$.ajax({
 				async: true,
@@ -419,7 +426,8 @@ pen.define([
 				dataType: "json",
 			 	url: url,
 			 	success: function(response){
-			 		if(callback != undefined){
+			 		if(localSequenceNumber == myself.get("sequenceNumber") && callback != undefined){
+			 			myself.set("sequenceNumber", localSequenceNumber+1);
 			 			callback(response);
 			 		}
 				},
