@@ -16,7 +16,9 @@
     <constructor-arg>
 			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
     </constructor-arg>
-		<constructor-arg ref="singleTenantSystemAuthorities" />
+	<constructor-arg ref="singleTenantSystemAuthorities" />
+    <constructor-arg ref="extraRoles" />
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>		
   </bean>
 
   <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">

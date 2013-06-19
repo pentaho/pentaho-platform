@@ -379,9 +379,11 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     pentahoRole = userRoleDao.createRole(mainTenant_2, ROLE_7, ROLE_DESCRIPTION_7, null);
 
     List<String> systemRoles = Arrays.asList(new String[] {"Admin"});
+    List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+    String adminRole = "Admin";
 
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
     userDetailsService.setUserRoleDao(userRoleDao);
     logout();
     login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
@@ -389,20 +391,20 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     List<String> allRolesForDefaultTenant = service.getAllRoles();
     List<String> allRolesForTenant =  service.getAllRoles(mainTenant_2);
     assertTrue(allRolesForDefaultTenant.size() == 3 + DEFAULT_ROLE_COUNT);
-    assertTrue(allRolesForTenant.size() == 0);
+    assertTrue(allRolesForTenant.size() == 2);
     
     logout();
     login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     allRolesForDefaultTenant = service.getAllRoles();
     allRolesForTenant =  service.getAllRoles(mainTenant_1);
     assertTrue(allRolesForDefaultTenant.size() == 4 + DEFAULT_ROLE_COUNT);
-    assertTrue(allRolesForTenant.size() == 0);
+    assertTrue(allRolesForTenant.size() == 2);
     
     allRolesForTenant =  service.getAllRoles(mainTenant_2);
     assertTrue(allRolesForTenant.size() == 4 + DEFAULT_ROLE_COUNT);
     
     allRolesForTenant =  service.getAllRoles(mainTenant_1);
-    assertTrue(allRolesForTenant.size() == 0);
+    assertTrue(allRolesForTenant.size() == 2);
     
     logout();
     login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
@@ -411,7 +413,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     assertTrue(allRolesForTenant.size() == 3 + DEFAULT_ROLE_COUNT);
     
     allRolesForTenant =  service.getAllRoles(mainTenant_2);
-    assertTrue(allRolesForTenant.size() == 0);
+    assertTrue(allRolesForTenant.size() == 2);
 
     
     cleanupUserAndRoles("admin", mainTenant_1);
@@ -447,8 +449,10 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     userDetailsService.setUserRoleDao(userRoleDao);
     
     List<String> systemRoles = Arrays.asList(new String[] {"Admin"});
-    
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
+    List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+    String adminRole = "Admin";
+
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
     service.setUserRoleDao(userRoleDao);
     service.setUserDetailsService(userDetailsService);
 
@@ -542,8 +546,11 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityName);
+
+    List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+    String adminRole = "Admin";
     
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
     service.setUserDetailsService(userDetailsService);
 
     logout();
@@ -609,7 +616,11 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityName);
     List<String> systemRoles = new ArrayList<String>();
     systemRoles.add("Admin");
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
+    
+    List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+    String adminRole = "Admin";
+    
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
     
     List<String> usersInRole_1 = service.getUsersInRole(mainTenant_1, ROLE_1);
     List<String> usersInRole_2 = service.getUsersInRole(null, ROLE_2);

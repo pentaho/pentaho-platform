@@ -343,6 +343,7 @@
     <constructor-arg ref="lockHelper"/>
     <constructor-arg ref="defaultAclHandler" />
     <constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="extraRoles"/>
   </bean>
 
   <!-- 
