@@ -321,6 +321,14 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       User jackrabbitUser = getJackrabbitUser(user.getTenant(), user.getUsername(), session);
       if (jackrabbitUser != null
           && TenantUtils.isAccessibleTenant(tenantedUserNameUtils.getTenant(jackrabbitUser.getID()))) {
+        
+        // [BISERVER-9215] Adding new user with same user name as a previously deleted user, defaults to all previous roles
+        Iterator<Group> currentGroups = jackrabbitUser.memberOf();
+        while (currentGroups.hasNext()) {
+          currentGroups.next().removeMember(jackrabbitUser);
+        }
+        // [BISERVER-9215]
+        
         jackrabbitUser.remove();
       } else {
         throw new NotFoundException(""); //$NON-NLS-1$
