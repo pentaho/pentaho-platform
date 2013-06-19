@@ -142,6 +142,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         final String userOrRoleString = usersAndRolesList.getValue(usersAndRolesList.getSelectedIndex());
         removeRecipient(userOrRoleString, fileInfo);
         usersAndRolesList.removeItem(usersAndRolesList.getSelectedIndex());
+        existingUsersAndRoles.remove(userOrRoleString);
       }
     });
 

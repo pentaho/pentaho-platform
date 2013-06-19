@@ -20,7 +20,6 @@ package org.pentaho.platform.security.userroledao.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -47,17 +46,21 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   private IUserRoleDao userRoleDao;
   private UserDetailsService userDetailsService;
   private List<String> systemRoles;
+  private List<String> extraRoles;
+  private String adminRole;
   
   // ~ Constructors ====================================================================================================
   public UserRoleDaoUserRoleListService() {
     super();
   }
 
-  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService, List<String> systemRoles) {
+  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService, List<String> systemRoles, List<String> extraRoles, final String adminRole) {
     super();
     this.userRoleDao = userRoleDao;
     this.userDetailsService = userDetailsService;
     this.systemRoles = systemRoles;
+    this.extraRoles = extraRoles;
+    this.adminRole = adminRole;
   }
   // ~ Methods =========================================================================================================
 
@@ -67,8 +70,19 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     for (IPentahoRole role : roles) {
       auths.add(role.getName());
     }
-
+    // We will not allow user to update permission for Administrator
+    if(auths.contains(adminRole)) {
+      auths.remove(adminRole);
+    }
+    // Add extra roles to the list of roles if it does not already have it
+    for(String extraRole:extraRoles) {
+      if(!auths.contains(extraRole)) {
+        auths.add(extraRole);    
+      }
+    }
+    
     return auths;
+    
   }
   
   @Override

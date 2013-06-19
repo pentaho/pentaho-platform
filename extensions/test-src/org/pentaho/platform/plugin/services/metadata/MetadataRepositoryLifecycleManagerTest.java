@@ -24,6 +24,7 @@ import static junit.framework.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.jcr.Repository;
@@ -179,8 +180,10 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     userDetailsService.setUserRoleDao(userRoleDao);
     List<String> systemRoles = new ArrayList<String>();
     systemRoles.add("Administrator");
+    List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+    String adminRole = "Admin";
     userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService,
-        systemRoles);
+        systemRoles, extraRoles, adminRole);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserDetailsService(userDetailsService);
     mp.defineInstance(IUserRoleListService.class, userRoleListService);

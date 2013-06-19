@@ -69,7 +69,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.*;
-
+import java.util.Arrays;
 import static javax.ws.rs.core.MediaType.*;
 import static junit.framework.Assert.*;
 import static org.mockito.Matchers.anyBoolean;
@@ -188,8 +188,10 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     userDetailsService.setUserRoleDao(userRoleDao);
     List<String> systemRoles = new ArrayList<String>();
     systemRoles.add("Admin");
+    List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+    String adminRole = "Admin";
     
-    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
+    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
     ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 

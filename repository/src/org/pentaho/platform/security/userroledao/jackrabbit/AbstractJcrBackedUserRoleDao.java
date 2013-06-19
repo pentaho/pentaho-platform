@@ -44,7 +44,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.engine.core.system.TenantUtils;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.security.userroledao.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -89,13 +89,15 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   List<String> systemRoles;
   
+  List<String> extraRoles;
+  
   HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
 
   public AbstractJcrBackedUserRoleDao(ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
-      final IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles) throws NamespaceException {
+      final IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles) throws NamespaceException {
     this.tenantedUserNameUtils = userNameUtils;
     this.tenantedRoleNameUtils = roleNameUtils;
     this.authenticatedRoleName = authenticatedRoleName;
@@ -107,6 +109,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     this.lockHelper = lockHelper;
     this.defaultAclHandler = defaultAclHandler;
     this.systemRoles = systemRoles;
+    this.extraRoles = extraRoles;
   }
 
   public void setRoleMembers(Session session, final ITenant theTenant, final String roleName,
@@ -454,11 +457,14 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       while (it.hasNext()) {
         Group group = (Group) it.next();
         IPentahoRole pentahoRole = convertToPentahoRole(group);
-        if (includeSubtenants) {
-          roles.add(pentahoRole);
-        } else {
-          if (pentahoRole.getTenant() != null && pentahoRole.getTenant().equals(theTenant)) {
+        // Exclude the system role from the list of roles to be returned back
+        if(!extraRoles.contains(pentahoRole.getName())) {
+          if (includeSubtenants) {
             roles.add(pentahoRole);
+          } else {
+            if (pentahoRole.getTenant() != null && pentahoRole.getTenant().equals(theTenant)) {
+              roles.add(pentahoRole);
+            }
           }
         }
       }
@@ -600,7 +606,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
             : theTenant)) {
       Iterator<Group> groups = jackrabbitUser.memberOf();
       while (groups.hasNext()) {
-        roles.add(convertToPentahoRole(groups.next()));
+        IPentahoRole role = convertToPentahoRole(groups.next());
+        // Exclude the extra role from the list of roles to be returned back
+        if(!extraRoles.contains(role.getName())) {
+          roles.add(role);
+        }
       }
     }
     return roles;

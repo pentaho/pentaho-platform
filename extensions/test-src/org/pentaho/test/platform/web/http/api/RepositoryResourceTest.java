@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Arrays;
 import javax.jcr.Repository;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -220,8 +220,10 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
       userDetailsService.setUserRoleDao(userRoleDao);
       List<String> systemRoles = new ArrayList<String>();
       systemRoles.add("Admin");
+      List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
+      String adminRole = "Admin";
       
-      userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
+      userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
       ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
       ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 
