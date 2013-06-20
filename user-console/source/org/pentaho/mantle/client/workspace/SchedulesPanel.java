@@ -24,6 +24,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -54,6 +57,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
@@ -323,6 +327,40 @@ public class SchedulesPanel extends SimplePanel {
     };
     resourceColumn.setSortable(true);
 
+    Column<JsJob, SafeHtml> outputPathColumn = new Column<JsJob, SafeHtml>(
+       new ClickableSafeHtmlCell()) {
+      @Override
+      public SafeHtml getValue(JsJob jsJob) {
+        try {
+          String outputPath = jsJob.getOutputPath();
+          if (StringUtils.isEmpty(outputPath)) {
+            return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
+          } else {
+            return new SafeHtmlBuilder().appendHtmlConstant(
+               "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(outputPath).toSafeHtml().asString() + "'>" + outputPath
+                  + "</span>").toSafeHtml();
+          }
+        } catch (Throwable t) {
+          return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
+        }
+      }
+    };
+
+    outputPathColumn.setFieldUpdater(new FieldUpdater<JsJob, SafeHtml>() {
+      @Override
+      public void update(int index, JsJob jsJob, SafeHtml value) {
+        if(!value.equals("-")){
+          PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
+          GenericEvent event = new GenericEvent();
+          event.setEventSubType("OpenFolderEvent");
+          event.setStringParam(jsJob.getOutputPath());
+          EventBusUtil.EVENT_BUS.fireEvent(event);
+        }
+      }
+    });
+
+    outputPathColumn.setSortable(true);
+
     TextColumn<JsJob> scheduleColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
         try {
@@ -392,6 +430,7 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumn(nameColumn, Messages.getString("scheduleName"));
     table.addColumn(scheduleColumn, Messages.getString("recurrence"));
     table.addColumn(resourceColumn, Messages.getString("sourceFile"));
+    table.addColumn(outputPathColumn, Messages.getString("outputPath"));
 
     table.addColumn(lastFireColumn, Messages.getString("lastFire"));
     table.addColumn(nextFireColumn, Messages.getString("nextFire"));
@@ -409,9 +448,11 @@ public class SchedulesPanel extends SimplePanel {
     if (isAdmin) {
       table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
     }
+    table.addColumnStyleName(7, "backgroundContentHeaderTableCell");
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 200, Unit.PX);
+    table.setColumnWidth(outputPathColumn, 180, Unit.PX);
     table.setColumnWidth(scheduleColumn, 170, Unit.PX);
     table.setColumnWidth(lastFireColumn, 130, Unit.PX);
     table.setColumnWidth(nextFireColumn, 130, Unit.PX);
@@ -460,6 +501,24 @@ public class SchedulesPanel extends SimplePanel {
           String r2 = null;
           if (o2 != null) {
             r2 = o2.getShortResourceName();
+          }
+
+          return (o2 != null) ? r1.compareTo(r2) : 1;
+        }
+        return -1;
+      }
+    });
+    columnSortHandler.setComparator(outputPathColumn, new Comparator<JsJob>() {
+      public int compare(JsJob o1, JsJob o2) {
+        if (o1 == o2) {
+          return 0;
+        }
+
+        if (o1 != null) {
+          String r1 = o1.getOutputPath();
+          String r2 = null;
+          if (o2 != null) {
+            r2 = o2.getOutputPath();
           }
 
           return (o2 != null) ? r1.compareTo(r2) : 1;
@@ -542,6 +601,7 @@ public class SchedulesPanel extends SimplePanel {
 
     table.getColumnSortList().push(idColumn);
     table.getColumnSortList().push(resourceColumn);
+    table.getColumnSortList().push(outputPathColumn);
     table.getColumnSortList().push(nameColumn);
 
     table.getSelectionModel().addSelectionChangeHandler(new Handler() {
@@ -725,18 +785,21 @@ public class SchedulesPanel extends SimplePanel {
                         }
                       }
                     });
-                  } catch (RequestException e) {
+                  }
+                  catch (RequestException e) {
                     // showError(e);
                   }
 
-                } else {
+                }
+                else {
                   MessageDialogBox dialogBox = new MessageDialogBox(
-                      Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                     Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                   dialogBox.center();
                 }
               }
             });
-          } catch (RequestException e) {
+          }
+          catch (RequestException e) {
             // showError(e);
           }
         }

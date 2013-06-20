@@ -36,9 +36,7 @@ import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.*;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
@@ -136,6 +134,9 @@ public class ActionAdapterQuartzJob implements Job {
   protected void invokeAction(final IAction actionBean, final String actionUser, final JobExecutionContext context, final Map<String, Serializable> params)
       throws Exception {
 
+    final IScheduler scheduler = PentahoSystem.getObjectFactory().get(IScheduler.class, "IScheduler2", null);
+    final Map<String, Serializable> jobParams = new HashMap<String, Serializable>(params); // shallow copy
+
     // remove the scheduling infrastructure properties
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONID);
@@ -150,11 +151,12 @@ public class ActionAdapterQuartzJob implements Job {
           .getClass().getName(), actionUser, QuartzScheduler.prettyPrintMap(params)));
     }
 
-    Callable<Object> actionBeanRunner = new Callable<Object>() {
+    Callable<Boolean> actionBeanRunner = new Callable<Boolean>() {
 
-      public Object call() throws Exception {
+      public Boolean call() throws Exception {
         // sync job params to the action bean
         ActionHarness actionHarness = new ActionHarness(actionBean);
+        boolean updateJob = false;
 
         final Map<String, Object> actionParams = new HashMap<String, Object>();
         actionParams.putAll(params);
@@ -180,6 +182,7 @@ public class ActionAdapterQuartzJob implements Job {
           String outputPath = resolver.resolveOutputFilePath();
           if(!outputPath.equals(streamProvider.getOutputPath())){
             streamProvider.setOutputFilePath(outputPath); // set fallback path
+            updateJob = true; // job needs to be deleted and recreated with the new output path
           }
 
           OutputStream stream = streamProvider.getOutputStream();
@@ -209,19 +212,46 @@ public class ActionAdapterQuartzJob implements Job {
 
         actionBean.execute();
 
-        return null;
+        return updateJob;
       }
     };
 
+    boolean requiresUpdate = false;
     if ((actionUser == null) || (actionUser.equals("system session"))) { //$NON-NLS-1$
       // For now, don't try to run quartz jobs as authenticated if the user
       // that created the job is a system user. See PPP-2350
-      SecurityHelper.getInstance().runAsAnonymous(actionBeanRunner);
+      requiresUpdate = SecurityHelper.getInstance().runAsAnonymous(actionBeanRunner);
     } else {
-      SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
+      requiresUpdate = SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
     }
-    IScheduler scheduler = PentahoSystem.getObjectFactory().get(IScheduler.class, "IScheduler2", null);
+
     scheduler.fireJobCompleted(actionBean, actionUser, params, streamProvider);
+
+    if(requiresUpdate){
+      log.warn("Output path for job: " + context.getJobDetail().getName() + " has changed. Job requires update");
+      try {
+        final IJobTrigger trigger = scheduler.getJob(context.getJobDetail().getName()).getJobTrigger();
+        final Class<IAction> iaction = (Class<IAction>) actionBean.getClass();
+
+        // remove job with outdated/invalid output path
+        scheduler.removeJob(context.getJobDetail().getName());
+
+        // recreate the job in the context of the original creator
+        SecurityHelper.getInstance().runAsUser(actionUser, new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            streamProvider.setStreamingAction(null); // remove generated content
+            String jobName = StringUtils.substringBetween(context.getJobDetail().getName(), ":", ":");
+            org.pentaho.platform.api.scheduler2.Job j = scheduler.createJob(jobName, iaction, jobParams, trigger, streamProvider);
+            log.warn("New Job: " + j.getJobId() + " created");
+            return null;
+          }
+        });
+      }
+      catch(Exception e){
+        log.error(e.getMessage(), e);
+      }
+    }
 
     if (log.isDebugEnabled()) {
       log.debug(MessageFormat.format("Scheduling system successfully invoked action {0} as user {1} with params [ {2} ]", actionBean //$NON-NLS-1$
