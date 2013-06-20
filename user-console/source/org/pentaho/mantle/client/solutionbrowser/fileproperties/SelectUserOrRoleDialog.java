@@ -47,21 +47,21 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
   private static ListBox usersListBox = new ListBox(false);
   private static ListBox rolesListBox = new ListBox(false);
 
-  static {
+  public SelectUserOrRoleDialog(ArrayList<String> existing, final IUserRoleSelectedCallback callback) {
+    super(Messages.getString("selectUserOrRole"), Messages.getString("ok"), Messages.getString("cancel"), false, true, contentTable); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     usersListBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         rolesListBox.setSelectedIndex(-1);
+        okButton.setEnabled(true);
       }
     });
     rolesListBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         usersListBox.setSelectedIndex(-1);
+        okButton.setEnabled(true);
       }
     });
-  }
-
-  public SelectUserOrRoleDialog(ArrayList<String> existing, final IUserRoleSelectedCallback callback) {
-    super(Messages.getString("selectUserOrRole"), Messages.getString("ok"), Messages.getString("cancel"), false, true, contentTable); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    
     setCallback(new IDialogCallback() {
 
       public void cancelPressed() {
@@ -81,6 +81,7 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
     usersListBox.getElement().setId("userOrRoleDialogUsersList");
     rolesListBox.getElement().setId("userOrRoleDialogRolesList");
     okButton.getElement().setId("userOrRoleDialogOkButton");
+    okButton.setEnabled(false);
     cancelButton.getElement().setId("userOrRoleDialogCancelButton");
 
     usersListBox.setVisibleItemCount(5);
