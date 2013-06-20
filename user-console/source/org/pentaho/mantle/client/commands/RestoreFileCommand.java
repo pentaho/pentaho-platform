@@ -94,10 +94,10 @@ public class RestoreFileCommand implements Command {
 
         @Override
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRestoreItem"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
           dialogBox.center();
-          event.setMessage("couldNotDelete");
+          event.setMessage("couldNotRestoreItem");
           EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
@@ -108,20 +108,20 @@ public class RestoreFileCommand implements Command {
             event.setMessage("Success");
             EventBusUtil.EVENT_BUS.fireEvent(event);
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRestoreItem"), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
-            event.setMessage(Messages.getString("couldNotDelete"));
+            event.setMessage(Messages.getString("couldNotRestoreItem"));
             EventBusUtil.EVENT_BUS.fireEvent(event);
           }                
         }
         
       });
     } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRestoreItem"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
       dialogBox.center();
-      event.setMessage(Messages.getString("couldNotDelete"));
+      event.setMessage(Messages.getString("couldNotRestoreItem"));
       EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
