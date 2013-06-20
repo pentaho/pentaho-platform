@@ -28,6 +28,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.VerticalAlign;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -170,6 +171,7 @@ public class NewScheduleDialog extends PromptDialogBox {
     content.getElement().getParentElement().removeClassName("dialog-content");
     content.getElement().getStyle().clearHeight();
     content.getParent().setHeight("100%");
+    content.getElement().getParentElement().getStyle().setVerticalAlign(VerticalAlign.TOP);
 
     okButton.getParent().getParent().setStyleName("schedule-dialog-button-panel");
     
