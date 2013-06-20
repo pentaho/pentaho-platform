@@ -197,7 +197,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   public void setUserRoles(Session session, final ITenant theTenant, final String userName, final String[] roles)
       throws RepositoryException, NotFoundException {
-    if(hasAdminRole(getUserRoles(theTenant, userName)) && (roles.length == 0 || hasAdminRole(roles))) {
+    if(hasAdminRole(getUserRoles(theTenant, userName)) && (roles.length == 0)) {
       throw new RepositoryException(Messages.getInstance().getString(
           "AbstractJcrBackedUserRoleDao.ERROR_0005_LAST_ADMIN_USER", userName));
     }
