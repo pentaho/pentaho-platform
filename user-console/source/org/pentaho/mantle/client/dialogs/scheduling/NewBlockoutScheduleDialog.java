@@ -30,7 +30,7 @@ public class NewBlockoutScheduleDialog extends ScheduleRecurrenceDialog {
 
   public NewBlockoutScheduleDialog(final String filePath, final IDialogCallback callback, final boolean hasParams,
       final boolean isEmailConfValid) {
-    super(null, ScheduleDialogType.BLOCKOUT, Messages.getString("newBlockoutSchedule"), filePath, null, null, callback, hasParams, //$NON-NLS-1$
+    super(null, ScheduleDialogType.BLOCKOUT, Messages.getString("newBlockoutSchedule"), filePath, "", "", callback, hasParams, //$NON-NLS-1$
         isEmailConfValid);
   }
 
