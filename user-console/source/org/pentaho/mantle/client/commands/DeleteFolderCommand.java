@@ -126,10 +126,10 @@ public class DeleteFolderCommand extends AbstractCommand {
 
           });
         } catch (RequestException e) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFolder"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
-          event.setMessage(Messages.getString("couldNotDelete"));
+          event.setMessage(Messages.getString("couldNotDeleteFolder"));
           EventBusUtil.EVENT_BUS.fireEvent(event);
         }
       }

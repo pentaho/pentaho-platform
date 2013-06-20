@@ -388,7 +388,7 @@ pen.define([
                     children: []
                   }
                     if(response && response.repositoryFileDto){
-                        myself.deletedFiles="";
+                        myself.set("deletedFiles","");
                         for (var i=0;i<response.repositoryFileDto.length;i++){
                             var file = {
                                 file: Object
@@ -397,17 +397,21 @@ pen.define([
                             file.file=response.repositoryFileDto[i];
                             file.file.trash="true";
                             if(file.file.id){
-                                if(!myself.deletedFiles){
-                                    myself.deletedFiles=file.file.id+",";
+                                if(myself.get("deletedFiles")==""){
+                                    myself.set("deletedFiles",file.file.id+",");
                                 }
                                 else{
-                                    myself.deletedFiles=myself.deletedFiles+file.file.id+",";
+                                    myself.set("deletedFiles",myself.get("deletedFiles")+file.file.id+",");
                                 }
                             }
                             newResp.children.push(file);
                         }
                     }
                     myself.set("data", newResp);
+                    if(myself.get("deletedFiles")==""){
+                        FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
+                }
+
                 }
                 else{
 				myself.set("data", response);
@@ -517,9 +521,6 @@ pen.define([
 
 			myself.updateButtons();
 			myself.updateButtonsHeader();
-
-			//this.foldersTreeView.render();
-
 			myself.updateFolderBrowserHeader();
 			myself.updateFileBrowserHeader();
 
@@ -640,7 +641,7 @@ pen.define([
 							title = $(model.getFolderClicked()[0]).children('.title').text();
 						}
             else if(model.getLastClick() == "trash"){
-                fileList = model.attributes.fileListModel.deletedFiles;
+              fileList = model.get("fileListModel").get("deletedFiles");
             }
             else if(model.getLastClick() == "trashItem"){
                 fileList = $(model.getFileClicked()[0]).attr("id")+",";
@@ -678,7 +679,7 @@ pen.define([
 			"dblclick .folder .icon"		: "expandFolder",
 			
 			"click .folder .title" 			: "clickFolder",
-			"dblclick .folder .title"		: "expandFolder",
+      "dblclick .folder .title"		: "expandFolder"
 		},
 
 		initialize: function(){

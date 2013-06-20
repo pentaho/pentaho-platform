@@ -62,6 +62,13 @@ pen.define([
             };
         },
 
+        onTrashSelect: function(empty){
+           //if trash can is empty grey out purge button
+           if(empty){
+            $("#purge").attr("disabled", "disabled");
+           }
+        },
+
         urlParam: function(paramName){
             var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
             if(value){

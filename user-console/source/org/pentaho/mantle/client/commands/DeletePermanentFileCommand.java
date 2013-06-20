@@ -117,10 +117,10 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
             @Override
             public void onError(Request request, Throwable exception) {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true);
               dialogBox.center();
-              event.setMessage(Messages.getString("couldNotDelete"));
+              event.setMessage(Messages.getString("couldNotDeleteFile"));
               EventBusUtil.EVENT_BUS.fireEvent(event);
             }
 
@@ -131,20 +131,20 @@ public class DeletePermanentFileCommand extends AbstractCommand {
                 event.setMessage("Success");
                 EventBusUtil.EVENT_BUS.fireEvent(event);
               } else {
-                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
-                event.setMessage(Messages.getString("couldNotDelete"));
+                event.setMessage(Messages.getString("couldNotDeleteFile"));
                 EventBusUtil.EVENT_BUS.fireEvent(event);
               }
             }
 
           });
         } catch (RequestException e) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
-          event.setMessage(Messages.getString("couldNotDelete"));
+          event.setMessage(Messages.getString("couldNotDeleteFile"));
           EventBusUtil.EVENT_BUS.fireEvent(event);
         }
       }
