@@ -204,15 +204,21 @@ pen.define([
 
       // BISERVER-9415
       var extension = path.substring(path.lastIndexOf('.') + 1, path.length);
-      if(this.browserUtils.isFileExecutable(extension)){
-        $('#editButton').show();
+      if(this.browserUtils.isScheduleAllowed(extension)){
         $('#runButton').show();
         $('#scheduleButton').show();
       }
       else{
-        $('#editButton').hide();
         $('#runButton').hide();
         $('#scheduleButton').hide();
+      }
+
+      // BISERVER-9435
+      if(this.browserUtils.isFileExecutable(extension)){
+        $('#editButton').show();
+      }
+      else{
+        $('#editButton').hide();
       }
     },
 
