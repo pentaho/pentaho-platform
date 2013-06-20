@@ -14,6 +14,8 @@ pen.define([
     executableTypesUrl : 'api/repos/executableTypes',
     executableTypes: [],
 
+    scheduleBlackList: ['xdash'],
+
     _init: function() {
 
       var that = this; // trap this
@@ -64,6 +66,18 @@ pen.define([
         }
       });
       return isExecutable;
+    },
+
+    isScheduleAllowed: function(fileExtension){
+      var isExecutable = this.isFileExecutable(fileExtension);
+      var isInScheduleBlackList = false;
+      $.each(this.scheduleBlackList, function(idx, ext) {
+        if(fileExtension == ext) {
+          isInScheduleBlackList = true;
+          return false; // break the $.each loop
+        }
+      });
+      return isExecutable && !isInScheduleBlackList;
     }
   };
 
