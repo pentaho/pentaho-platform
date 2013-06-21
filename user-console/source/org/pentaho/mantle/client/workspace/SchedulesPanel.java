@@ -348,13 +348,14 @@ public class SchedulesPanel extends SimplePanel {
 
     outputPathColumn.setFieldUpdater(new FieldUpdater<JsJob, SafeHtml>() {
       @Override
-      public void update(int index, JsJob jsJob, SafeHtml value) {
-        if(!value.equals("-")){
-          PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
-          GenericEvent event = new GenericEvent();
-          event.setEventSubType("OpenFolderEvent");
-          event.setStringParam(jsJob.getOutputPath());
-          EventBusUtil.EVENT_BUS.fireEvent(event);
+      public void update(final int index, final JsJob jsJob, final SafeHtml value) {
+        if (!value.equals("-")) {
+          validateOutputLocation(jsJob.getOutputPath(), new Command() {
+            @Override
+            public void execute() {
+              openOutputLocation(jsJob.getOutputPath());
+            }
+          });
         }
       }
     });
@@ -815,14 +816,16 @@ public class SchedulesPanel extends SimplePanel {
     bar.add(openOutputFolderButton);
     openOutputFolderButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJobs != null) {
-          // switch to browse perspective, open at the given path
-          PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
-          GenericEvent gevent = new GenericEvent();
-          gevent.setEventSubType("OpenFolderEvent");
-          gevent.setStringParam(selectedJobs.iterator().next().getOutputPath());
-          EventBusUtil.EVENT_BUS.fireEvent(gevent);
-        }
+      if (selectedJobs != null) {
+        // switch to browse perspective, open at the given path
+        final String outputLocation = selectedJobs.iterator().next().getOutputPath();
+        validateOutputLocation(outputLocation, new Command() {
+          @Override
+          public void execute() {
+            openOutputLocation(outputLocation);
+          }
+        });
+      }
       }
     });
 
@@ -929,6 +932,53 @@ public class SchedulesPanel extends SimplePanel {
       // showError(e);
     }
   }
+
+  private void validateOutputLocation(final String outputLocation, final Command successCallback) {
+
+    if(StringUtils.isEmpty(outputLocation)){
+      return;
+    }
+
+    final String outputLocationPath = outputLocation.replaceAll("/", ":");
+    final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + outputLocationPath + "/children?depth=1"; //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    try {
+      builder.sendRequest(null, new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+          showValidateOutputLocationError();
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            if(successCallback != null){
+              successCallback.execute();
+            }
+          }
+          else{
+            showValidateOutputLocationError();
+          }
+        }
+      });
+    } catch (RequestException e) {
+      showValidateOutputLocationError();
+    }
+  }
+
+  private void openOutputLocation(final String outputLocation){
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
+    GenericEvent event = new GenericEvent();
+    event.setEventSubType("OpenFolderEvent");
+    event.setStringParam(outputLocation);
+    EventBusUtil.EVENT_BUS.fireEvent(event);
+  }
+
+  private void showValidateOutputLocationError(){
+    String title = Messages.getString("outputLocationErrorTitle");
+    String message = Messages.getString("outputLocationErrorMessage");
+    MessageDialogBox dialogBox = new MessageDialogBox(title, message, false, false, true, "Close", null, null); //$NON-NLS-1$
+    dialogBox.center();
+  }
+
 
   private native JsArray<JsJob> parseJson(String json)
   /*-{
