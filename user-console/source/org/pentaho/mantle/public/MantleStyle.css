@@ -821,3 +821,7 @@ code {
 #admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
   height: 26px;
 }
+
+.IE .pentaho-dialog .dialogMiddleCenterInner .dialog-content{
+  text-align: left;
+}
