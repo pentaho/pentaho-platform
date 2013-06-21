@@ -975,7 +975,7 @@ public class SchedulesPanel extends SimplePanel {
   private void showValidateOutputLocationError(){
     String title = Messages.getString("outputLocationErrorTitle");
     String message = Messages.getString("outputLocationErrorMessage");
-    MessageDialogBox dialogBox = new MessageDialogBox(title, message, false, false, true, "Close", null, null); //$NON-NLS-1$
+    MessageDialogBox dialogBox = new MessageDialogBox(title, message, false, false, true, Messages.getString("close"), null, null); //$NON-NLS-1$
     dialogBox.center();
   }
 
