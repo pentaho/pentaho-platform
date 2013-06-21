@@ -27,10 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository.IClientRepositoryPathsStrategy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -38,6 +38,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -50,10 +53,17 @@ public class SchedulerOutputPathResolver {
   public static final String SCHEDULER_ACTION_NAME = "org.pentaho.scheduler.manage";
 
   private static final Log logger = LogFactory.getLog(SchedulerOutputPathResolver.class);
+  private static final List<RepositoryFilePermission> permissions = new ArrayList<RepositoryFilePermission>();
 
   private String jobName;
   private String outputDirectory;
   private String actionUser;
+
+  static {
+    // initialize permissions
+    permissions.add(RepositoryFilePermission.READ);
+    permissions.add(RepositoryFilePermission.WRITE);
+  }
 
   public SchedulerOutputPathResolver(final String outputPathPattern, final String actionUser){
     this.jobName = FilenameUtils.getBaseName(outputPathPattern);
@@ -71,7 +81,7 @@ public class SchedulerOutputPathResolver {
       @Override
       public String call() throws Exception {
 
-        if(StringUtils.isNotBlank(outputFilePath) && isValidOutputPath(outputFilePath)){
+        if(StringUtils.isNotBlank(outputFilePath) && isValidOutputPath(outputFilePath) && isPermitted(outputFilePath)){
           return outputFilePath + fileNamePattern; // return if valid
         }
 
@@ -183,5 +193,15 @@ public class SchedulerOutputPathResolver {
     }
 
     return canSchedule;
+  }
+  
+  private boolean isPermitted(final String path){
+    try {
+      return getRepository().hasAccess(path, EnumSet.copyOf(permissions));
+    }
+    catch(Exception e){
+      logger.warn(e.getMessage(), e);
+    }
+    return false;
   }
 }
