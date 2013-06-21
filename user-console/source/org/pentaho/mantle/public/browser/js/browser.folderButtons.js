@@ -86,9 +86,11 @@ pen.define([
 		buttons: [],
 
     initEventHandlers: function(){
-      // listen for file action events
-      if(window.top.mantle_addHandler != undefined)
-      window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
+    	// listen for file action events
+    	if(window.top.mantle_addHandler) {
+    		window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
+    		window.top.mantle_addHandler("SolutionFileActionEvent", this.postPropertiesHandler);
+    	}
     },
 
     buildParameter: function(path, title){
@@ -122,19 +124,23 @@ pen.define([
 		},
 
 		pasteHandler: function(path){
-      window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
+			window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
 		},
 
 		uploadHandler: function(path){
-      window.top.executeCommand("ImportFileCommand", this.buildParameter(path));
+			window.top.executeCommand("ImportFileCommand", this.buildParameter(path));
 		},
 
 		downloadHandler: function(path){
-      window.top.executeCommand("ExportFileCommand", this.buildParameter(path));
+			window.top.executeCommand("ExportFileCommand", this.buildParameter(path));
 		},
 
 		propertiesHandler: function(path){
-      window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
+			window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
+		},
+
+		postPropertiesHandler: function() {
+			$(window.parent.document).find(".pentaho-dialog").attr("id", "browse-properties-dialog");
 		}
 
 	};
