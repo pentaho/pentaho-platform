@@ -92,10 +92,15 @@ pen.define([
 	FileBrowser.openFolder = function(path){
 		var myself = this;
 
-		myself.fileBrowserModel.set("startFolder", path);
+		if(myself.fileBrowserModel.get('startFolder') == path){
+			myself.fileBrowserModel.trigger('change:startFolder'); // force onchange
+		}
+		else{
+			myself.fileBrowserModel.set("startFolder", path);	
+		}
 	};
 
-	
+
 
 
 	var FileBrowserModel = Backbone.Model.extend({
@@ -179,6 +184,10 @@ pen.define([
 
 		updateStartFolder: function(){
 			var myself = this;
+
+			if(myself.get("fileListModel").get("path") == myself.get("startFolder")){
+				myself.get("fileListModel").trigger("change:path"); // if path is the same, trigger file list refresh
+			}
 
 			myself.get("foldersTreeModel").set("startFolder", myself.get("startFolder"));
 		},
@@ -414,6 +423,7 @@ pen.define([
 
                 }
                 else{
+        response.ts = new Date(); // force backbone to trigger onchange event even if response is the same
 				myself.set("data", response);
                 }
 			});
