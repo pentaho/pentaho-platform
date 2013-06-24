@@ -43,9 +43,10 @@ public class DefaultContentSystemListener implements IPentahoSystemListener {
 		}
 		catch (Exception e) {
 			Logger.error(this.getClass().getName(), e.getMessage());
-			return false;
 		}
 		
+		//  we return true even of an exception is caught.
+		//  if we would return a false then the server will not start.
 		return true;
 	}
 }

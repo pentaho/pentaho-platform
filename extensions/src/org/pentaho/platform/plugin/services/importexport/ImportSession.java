@@ -194,4 +194,16 @@ public class ImportSession {
   public HashSet<String> getFoldersCreatedImplicitly() {
     return foldersCreatedImplicitly;
   }
+  
+  /**
+   *  Sets the AclProperties.
+   *  @param applyAclSettingsFlag 
+   *  @param retainOwnershipFlag 
+   *  @param overwriteAclSettingsFlag
+   */
+  public void setAclProperties(boolean applyAclSettingsFlag, boolean retainOwnershipFlag, boolean overwriteAclSettingsFlag) {
+		setApplyAclSettings(applyAclSettingsFlag);
+		setRetainOwnership(retainOwnershipFlag);
+		setOverwriteAclSettings(overwriteAclSettingsFlag);
+  }
 }
