@@ -93,7 +93,7 @@ public class RepositoryImportResource {
 				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
 				
 				Level level = Level.toLevel(logLevel);
-				ImportSession importSession = PentahoSystem.get(ImportSession.class);
+				ImportSession importSession = ImportSession.getSession();
 				importSession.setApplyAclSettings(applyAclSettingsFlag);
 				importSession.setRetainOwnership(retainOwnershipFlag);
 				importSession.setOverwriteAclSettings(overwriteAclSettingsFlag);

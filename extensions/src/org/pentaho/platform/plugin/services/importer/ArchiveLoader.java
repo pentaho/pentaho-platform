@@ -25,14 +25,18 @@ public class ArchiveLoader {
     this.importer = importer;
   }
 
+
   public void loadAll(File directory, FilenameFilter filenameFilter) {
     File[] files = directory.listFiles(filenameFilter);
-    for (File file : files) {
-      try {
-        importer.importFile(createBundle(file));
-      } catch (Exception e) {
-        importer.getRepositoryImportLogger().error(e);
-      }
+  if (files != null && files.length > 0 ) {
+	    for (File file : files) {
+	      try {
+	    	System.out.println(this.getClass().getName() + ": importing " + file.getName());
+	        importer.importFile(createBundle(file));
+	      } catch (Exception e) {
+	        importer.getRepositoryImportLogger().error(e);
+	      }
+	    }
     }
   }
 
