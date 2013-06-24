@@ -44,7 +44,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   
   public ImportSession getImportSession() {
     if (importSession.get() == null) {
-      importSession.set(PentahoSystem.get(ImportSession.class));
+      importSession.set(ImportSession.getSession());
     } 
     return importSession.get();
   }
@@ -83,7 +83,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
                 , PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR);
           } else {
             getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
-            ImportSession importSession = PentahoSystem.get(ImportSession.class);
+            ImportSession importSession = ImportSession.getSession();
             importSession.getSkippedFiles().add(repositoryFilePath);
           }
         }

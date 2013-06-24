@@ -1,9 +1,13 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Will import all the zip files in a given directory using the supplied IPlatformImporter
@@ -18,20 +22,33 @@ public class ArchiveLoader {
       return name.endsWith(".zip");
     }
   };
+  static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(".yyyyMMddHHmm");
 
   private IPlatformImporter importer;
+  private Date loadStamp;
 
   public ArchiveLoader(IPlatformImporter importer) {
-    this.importer = importer;
+    this(importer, new Date());
   }
+
+  ArchiveLoader(IPlatformImporter importer, Date loadStamp)
+  {
+    this.importer = importer;
+    this.loadStamp = loadStamp;
+  }
+
 
   public void loadAll(File directory, FilenameFilter filenameFilter) {
     File[] files = directory.listFiles(filenameFilter);
-    for (File file : files) {
-      try {
-        importer.importFile(createBundle(file));
-      } catch (Exception e) {
-        importer.getRepositoryImportLogger().error(e);
+    if (files != null) {
+      for (File file : files) {
+        try {
+          importer.getRepositoryImportLogger().debug(this.getClass().getName() + ": importing " + file.getName());
+          importer.importFile(createBundle(file));
+          file.renameTo(new File(file.getPath() + DATE_FORMAT.format(loadStamp)));
+        } catch (Exception e) {
+          importer.getRepositoryImportLogger().error(e);
+        }
       }
     }
   }

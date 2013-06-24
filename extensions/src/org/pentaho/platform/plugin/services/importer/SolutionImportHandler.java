@@ -59,7 +59,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	}
 	
 	public ImportSession getImportSession() {
-	  return PentahoSystem.get(ImportSession.class);
+	  return ImportSession.getSession();
 	}
 
 	public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
@@ -69,7 +69,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		SolutionRepositoryImportSource importSource = new SolutionRepositoryImportSource(zipImportStream);
 		LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
 		
-    //importSession.set(PentahoSystem.get(ImportSession.class));
+    //importSession.set(ImportSession.getSession());
 		
 		IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 		for (IRepositoryFileBundle file : importSource.getFiles()) {
