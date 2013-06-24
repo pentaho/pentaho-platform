@@ -73,7 +73,7 @@ pen.define([
 					i18n: "contextAction_download",
 					handler: $.proxy(that.downloadHandler, that)
 				},
-				{id: "separator"},
+				{id: "optional-separator"},
 				{
 					id: "shareButton", 
 					text: "Share...", 
@@ -158,6 +158,17 @@ pen.define([
       else{
       	return null;
       }
+    },
+
+    canDownload: function(canDownload) {
+    	if (canDownload) {
+            $('#downloadButton').show();
+			$('#optional-separator').show();            
+        }
+        else{
+        	$('#downloadButton').hide();
+			$('#optional-separator').hide();
+        }
     },
 
     eventLogger: function(event){

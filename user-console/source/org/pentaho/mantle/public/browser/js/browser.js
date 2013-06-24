@@ -32,6 +32,9 @@ pen.define([
 	FileBrowser.openFileHandler = undefined;
 	FileBrowser.showHiddenFiles = false;
 	FileBrowser.showDescriptions = false;
+	FileBrowser.canDownload = false;
+	FileBrowser.canPublish = false;
+
 
 	FileBrowser.setShowHiddenFiles = function(value){
 		this.showHiddenFiles = value;
@@ -40,6 +43,14 @@ pen.define([
 	FileBrowser.setShowDescriptions = function(value){
 		this.showDescriptions = value;
 	};
+
+	FileBrowser.setCanDownload = function(value){
+		this.canDownload = value;
+	}
+
+	FileBrowser.setCanPublish = function(value){
+		this.canPublish = value;
+	}
 
 	FileBrowser.updateShowDescriptions = function(value){
 		this.fileBrowserModel.set("showDescriptions", value);
@@ -77,6 +88,8 @@ pen.define([
 				openFileHandler: myself.openFileHandler,
 				showHiddenFiles: myself.showHiddenFiles,
 				showDescriptions: myself.showDescriptions,
+				canDownload: myself.canDownload,
+				canPublish: myself.canPublish,
 				startFolder: initialPath
 			});
 			myself.FileBrowserView = new FileBrowserView({
@@ -127,6 +140,9 @@ pen.define([
 
 			showHiddenFiles: false,
 			showDescriptions: false,
+
+			canDownload: false,
+			canPublish: false,
 
 			spinConfig: undefined,
 
@@ -205,11 +221,36 @@ pen.define([
 		},
 
 		updateFolderClicked: function(){
+
+			var myself = this;			
             var clickedFolder=this.get("foldersTreeModel").get("clickedFolder");
             if(clickedFolder.obj.attr("path")===".trash"){
                 this.updateTrashLastClick();
             }
             this.set("clickedFolder",clickedFolder);
+            folderButtons.canDownload(this.get("canDownload"));
+			folderButtons.canPublish(false);
+			
+			if (this.get("canPublish")) {
+				
+				var path = clickedFolder.obj.attr("path");
+				var urlParm = (path == null ? ":" : path.replace(/\//g, ":"));			
+				var url = "/pentaho/api/repo/files/" + urlParm + "/canAccess?permissions=1"
+
+				 $.ajax({
+					url: url,
+					type: "GET",
+					async: true,
+					success: function(response){
+						folderButtons.canPublish(response == "true");
+					},
+					error: function(response){
+						alert("ERROR:  " +  response);
+					}
+				});
+
+			}
+
 		},
 
 		updateFileClicked: function(){
@@ -222,10 +263,11 @@ pen.define([
       // BISERVER-9127 - Provide the selected path to the FileButtons object
 			fileButtons.onFileSelect(clickedFile.obj.attr("path"));
             }
-
             this.set("clickedFile",clickedFile);
+			fileButtons.canDownload(this.get("canDownload"));
 
 		},
+
 
 		updateFolderLastClick: function(){
 			this.set("lastClick", "folder");
@@ -964,6 +1006,8 @@ pen.define([
 		setOpenFileHandler: FileBrowser.setOpenFileHandler,
 		setShowHiddenFiles: FileBrowser.setShowHiddenFiles,
 		setShowDescriptions: FileBrowser.setShowDescriptions,
+		setCanDownload: FileBrowser.setCanDownload,
+		setCanPublish: FileBrowser.setCanPublish,
 		updateShowDescriptions: FileBrowser.updateShowDescriptions,
 		update: FileBrowser.update,
 		updateData: FileBrowser.updateData,
