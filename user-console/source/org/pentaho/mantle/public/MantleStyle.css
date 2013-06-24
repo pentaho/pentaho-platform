@@ -825,3 +825,21 @@ code {
 .IE .pentaho-dialog .dialogMiddleCenterInner .dialog-content{
   text-align: left;
 }
+
+/* BISERVER 9312 */
+#blockout-table {
+  height: auto !important;
+}
+
+#blockout-table .gwt-ScrollTable {
+  height: auto !important; 
+}
+
+#blockout-table .gwt-ScrollTable>div {
+  position: inherit !important;
+  height: auto !important;  
+}
+
+#blockout-table .gwt-ScrollTable .dataWrapper{
+  height: auto !important; 
+}
