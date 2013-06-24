@@ -1,13 +1,13 @@
 package org.pentaho.platform.plugin.services.importer;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 
 /**
  * Will import all the zip files in a given directory using the supplied IPlatformImporter
@@ -34,9 +34,9 @@ public class ArchiveLoader {
   ArchiveLoader(IPlatformImporter importer, Date loadStamp)
   {
     this.importer = importer;
+    ImportSession.getSession().setAclProperties(true, true, false);
     this.loadStamp = loadStamp;
   }
-
 
   public void loadAll(File directory, FilenameFilter filenameFilter) {
     File[] files = directory.listFiles(filenameFilter);
@@ -54,6 +54,7 @@ public class ArchiveLoader {
   }
 
   private IPlatformImportBundle createBundle(File file) throws FileNotFoundException {
+	    
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     bundleBuilder.input(createInputStream(file));
     bundleBuilder.charSet("UTF-8");
@@ -61,6 +62,9 @@ public class ArchiveLoader {
     bundleBuilder.path("/");
     bundleBuilder.overwriteFile(false);
     bundleBuilder.name(file.getName());
+    bundleBuilder.applyAclSettings(true);
+    bundleBuilder.overwriteAclSettings(false);
+    bundleBuilder.retainOwnership(true);
     return bundleBuilder.build();
   }
 
