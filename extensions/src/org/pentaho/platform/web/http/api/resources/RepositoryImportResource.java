@@ -93,10 +93,7 @@ public class RepositoryImportResource {
 				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
 				
 				Level level = Level.toLevel(logLevel);
-				ImportSession importSession = ImportSession.getSession();
-				importSession.setApplyAclSettings(applyAclSettingsFlag);
-				importSession.setRetainOwnership(retainOwnershipFlag);
-				importSession.setOverwriteAclSettings(overwriteAclSettingsFlag);
+				ImportSession.getSession().setAclProperties(applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag);
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 				bundleBuilder.input(fileIS);
