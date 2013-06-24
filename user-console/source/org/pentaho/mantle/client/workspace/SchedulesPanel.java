@@ -24,9 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -42,6 +39,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
@@ -56,6 +54,9 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -290,7 +291,11 @@ public class SchedulesPanel extends SimplePanel {
     table.setStylePrimaryName("pentaho-table");
     table.setWidth("100%", true);
 
-    // final SingleSelectionModel<JsJob> selectionModel = new SingleSelectionModel<JsJob>();
+    //BISERVER-9331 Column sort indicators should be to the right of header text in the Manage Schedules table.
+    if (table.getHeaderBuilder() instanceof AbstractHeaderOrFooterBuilder) {
+      ((AbstractHeaderOrFooterBuilder<JsJob>)table.getHeaderBuilder()).setSortIconStartOfLine(false);
+    }
+    
     final MultiSelectionModel<JsJob> selectionModel = new MultiSelectionModel<JsJob>(new ProvidesKey<JsJob>() {
       public Object getKey(JsJob item) {
         return item.getJobId();
