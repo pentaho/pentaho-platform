@@ -61,7 +61,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     if (localeParent != null && unifiedRepository != null) {
       //If the parent file (content) got skipped because it existed then we will not import the locale information
       String fullPath = RepositoryFilenameUtils.concat(localeBundle.getPath(), localeBundle.getFile().getName());
-      if (PentahoSystem.get(ImportSession.class).getSkippedFiles().contains(fullPath)) {
+      if (ImportSession.getSession().getSkippedFiles().contains(fullPath)) {
         getLogger().trace("Not importing Locale [" + localeBundle.getFile().getName() + "] since parent file not written ");
       } else {
         getLogger().trace("Processing Locale [" + localeBundle.getFile().getName() + "]");

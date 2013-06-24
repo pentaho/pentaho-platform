@@ -1,10 +1,15 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import junit.framework.Assert;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 
 import java.io.*;
+import java.util.Date;
 
 import static org.mockito.Mockito.*;
 import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_FILTER;
@@ -13,6 +18,9 @@ import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_F
  * Created with IntelliJ IDEA. User: kwalker Date: 6/20/13 Time: 12:37 PM
  */
 public class ArchiveLoaderTest {
+
+  private static final Date LOAD_STAMP = new Date(123456789);
+
   @Test
   public void testWillImportAllZipsInADirectory() throws Exception {
     final IPlatformImporter importer = mock(IPlatformImporter.class);
@@ -22,13 +30,21 @@ public class ArchiveLoaderTest {
     final File jobs = mock(File.class);
     String jobsName = "jobs.zip";
     when(jobs.getName()).thenReturn(jobsName);
+    when(jobs.getPath()).thenReturn("/root/path/" + jobsName);
     final File reports = mock(File.class);
     String reportsName = "reports.zip";
     when(reports.getName()).thenReturn(reportsName);
+    when(reports.getPath()).thenReturn("/root/path/" + reportsName);
     when(directory.listFiles(ZIPS_FILTER)).thenReturn(new File[] { jobs, reports });
+    IRepositoryImportLogger logger = mock(IRepositoryImportLogger.class);
+    when(importer.getRepositoryImportLogger()).thenReturn(logger);
     loader.loadAll(directory, ZIPS_FILTER);
     verify(importer).importFile(argThat(bundleMatcher(jobsName, inputStream)));
+    verify(jobs).renameTo(argThat(fileMatcher(jobs)));
     verify(importer).importFile(argThat(bundleMatcher(reportsName, inputStream)));
+    verify(reports).renameTo(argThat(fileMatcher(reports)));
+    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing jobs.zip");
+    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing reports.zip");
   }
 
   @Test
@@ -43,6 +59,7 @@ public class ArchiveLoaderTest {
     final File reports = mock(File.class);
     String reportsName = "reports.zip";
     when(reports.getName()).thenReturn(reportsName);
+    when(reports.getPath()).thenReturn("/root/path/" + reportsName);
     when(directory.listFiles(ZIPS_FILTER)).thenReturn(new File[] { jobs, reports });
     Exception exception = new RuntimeException();
     doThrow(exception).when(importer).importFile(argThat(bundleMatcher(jobsName, inputStream)));
@@ -50,13 +67,38 @@ public class ArchiveLoaderTest {
     when(importer.getRepositoryImportLogger()).thenReturn(logger);
     loader.loadAll(directory, ZIPS_FILTER);
     verify(importer).importFile(argThat(bundleMatcher(jobsName, inputStream)));
-    verify(importer).importFile(argThat(bundleMatcher(reportsName, inputStream)));
     verify(logger).error(exception);
-
+    verify(importer).importFile(argThat(bundleMatcher(reportsName, inputStream)));
+    verify(jobs, never()).renameTo(any(File.class));
+    verify(reports).renameTo(argThat(fileMatcher(reports)));
+    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing jobs.zip");
+    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing reports.zip");
   }
 
-  private ArchiveLoader createArchiveLoader(final IPlatformImporter importer, final FileInputStream inputStream) {
-    return new ArchiveLoader(importer) {
+  @Test
+  public void testDoesNotBombWhenDirectoryDoesNotExist() throws Exception {
+    IPlatformImporter importer = mock(IPlatformImporter.class);
+    ArchiveLoader loader = new ArchiveLoader(importer);
+    try {
+      loader.loadAll(new File("/fake/path/that/does/not/exist"),ArchiveLoader.ZIPS_FILTER);
+    } catch (Exception e) {
+      Assert.fail("Expected no exception but got " + e.getMessage());
+    }
+  }
+
+  @Test
+  public void testDoesNotBombWhenZeroFilesFound() throws Exception {
+    final IPlatformImporter importer = mock(IPlatformImporter.class);
+    final ArchiveLoader loader = new ArchiveLoader(importer);
+    final File directory = mock(File.class);
+    when(directory.listFiles(ZIPS_FILTER)).thenReturn(new File[] {});
+    loader.loadAll(directory, ZIPS_FILTER);
+  }
+
+  private ArchiveLoader createArchiveLoader(
+    final IPlatformImporter importer, final FileInputStream inputStream)
+  {
+    return new ArchiveLoader(importer, LOAD_STAMP) {
       @Override
       FileInputStream createInputStream(File file) throws FileNotFoundException {
         return inputStream;
@@ -75,6 +117,20 @@ public class ArchiveLoaderTest {
         } catch (IOException e) {
           return false;
         }
+      }
+    };
+  }
+
+  private Matcher<File> fileMatcher(final File origFile) {
+    return new BaseMatcher<File>() {
+      @Override
+      public boolean matches(final Object item) {
+        return ((File) item).getName().equals(origFile.getName() + ".197001020517");
+      }
+
+      @Override
+      public void describeTo(final Description description) {
+
       }
     };
   }

@@ -28,7 +28,18 @@ public class ImportSession {
   private boolean applyAclSettings;
   private boolean retainOwnership;
   private boolean overwriteAclSettings;
-  private String currentManifestKey; 
+  private String currentManifestKey;
+  
+  private static ThreadLocal<ImportSession> sessions = new ThreadLocal<ImportSession>();
+
+  public static ImportSession getSession(){
+    if(sessions.get() != null){
+      return sessions.get();
+    }
+    ImportSession session = new ImportSession();
+    sessions.set(session);
+    return session;
+  }
 
   public Log getLogger() {
     if (log == null) {
