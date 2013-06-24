@@ -16,6 +16,8 @@ pen.define([
 
     scheduleBlackList: ['xdash'],
 
+    editBlackList: ['prpt'],
+
     _init: function() {
 
       var that = this; // trap this
@@ -78,6 +80,18 @@ pen.define([
         }
       });
       return isExecutable && !isInScheduleBlackList;
+    },
+
+    isEditAllowed: function(fileExtension){
+      var isExecutable = this.isFileExecutable(fileExtension);
+      var isInEditBlackList = false;
+      $.each(this.editBlackList, function(idx, ext) {
+        if(fileExtension == ext) {
+          isInEditBlackList = true;
+          return false; // break the $.each loop
+        }
+      });
+      return isExecutable && !isInEditBlackList;
     }
   };
 

@@ -214,7 +214,8 @@ pen.define([
       }
 
       // BISERVER-9435
-      if(this.browserUtils.isFileExecutable(extension)){
+      if(this.browserUtils.isFileExecutable(extension) && 
+         this.browserUtils.isEditAllowed(extension) ){
         $('#editButton').show();
       }
       else{
