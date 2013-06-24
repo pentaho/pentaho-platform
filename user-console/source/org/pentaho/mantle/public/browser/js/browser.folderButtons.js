@@ -52,7 +52,7 @@ pen.define([
 					i18n: "contextAction_download",
 					handler: $.proxy(that.downloadHandler, that)
 				},
-				{id: "separator"},
+				{id: "optional-separator"},
 				{
 					id: "propertiesButton",
 					text: "Properties", 
@@ -108,6 +108,38 @@ pen.define([
       else{
       	return null;
       }
+    },
+
+    canPublish: function(canPublish) {
+    	if (canPublish) {
+            $('#uploadButton').show();
+        }
+        else{
+        	$('#uploadButton').hide();
+        }
+		if  ( (  $('#uploadButton').css('display') == "none" ) &&
+				  (  $('#downloadButton').css('display') == "none" )  ) {
+				$('#optional-separator').hide() }
+			else {
+				$('#optional-separator').show() 
+			}
+
+    },
+
+    canDownload: function(canDownload) {
+    	if (canDownload) {
+            $('#downloadButton').show();
+        }
+        else{
+        	$('#downloadButton').hide();
+        }
+		if  ( (  $('#uploadButton').css('display') == "none" ) &&
+				  (  $('#downloadButton').css('display') == "none" )  ) {
+				$('#optional-separator').hide() }
+			else {
+				$('#optional-separator').show() 
+			}
+
     },
 
     eventLogger: function(event){
