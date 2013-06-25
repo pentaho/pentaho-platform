@@ -586,4 +586,19 @@
     </user-data-constraint>
   </security-constraint>
 
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/unavailable.html</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/unavailable.html</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/unavailable.html</location>
+	</error-page>
+
+
 </web-app>
