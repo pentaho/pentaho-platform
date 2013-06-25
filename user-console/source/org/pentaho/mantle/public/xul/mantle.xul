@@ -21,9 +21,6 @@
 		</menubar>
 		
 		<menubar id="viewmenu" label="${view}" layout="vertical">
-			<menuitem id="showBrowserMenuItem" label="${showBrowser}" command="mantleXulHandler.showBrowserClicked()" type="checkbox" checked="true" />		
-			<menuitem id="showWorkspaceMenuItem" label="${showWorkspace}" command="mantleXulHandler.showWorkspaceClicked()" type="checkbox" checked="false" />		
-			<menubarseparator id="showStuffSeparator"/>
 			<menuitem id="useDescriptionsMenuItem" label="${useDescriptionsForTooltips}" command="mantleXulHandler.useDescriptionsForTooltipsClicked()" type="checkbox" checked="false" />		
 			<menuitem id="showHiddenFilesMenuItem" label="${showHiddenFiles}" command="mantleXulHandler.showHiddenFilesClicked()" type="checkbox" checked="false" />		
 			<menubarseparator id="descriptionsSeparator"/>
