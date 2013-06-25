@@ -32,6 +32,9 @@ pen.define([
     FileBrowser.openFileHandler = undefined;
     FileBrowser.showHiddenFiles = false;
     FileBrowser.showDescriptions = false;
+	  FileBrowser.canDownload = false;
+	  FileBrowser.canPublish = false;
+
 
     FileBrowser.setShowHiddenFiles = function(value){
         this.showHiddenFiles = value;
@@ -40,6 +43,14 @@ pen.define([
     FileBrowser.setShowDescriptions = function(value){
         this.showDescriptions = value;
     };
+
+	FileBrowser.setCanDownload = function(value){
+		this.canDownload = value;
+	}
+
+	FileBrowser.setCanPublish = function(value){
+		this.canPublish = value;
+	}
 
     FileBrowser.updateShowDescriptions = function(value){
         this.fileBrowserModel.set("showDescriptions", value);
@@ -77,6 +88,8 @@ pen.define([
                 openFileHandler: myself.openFileHandler,
                 showHiddenFiles: myself.showHiddenFiles,
                 showDescriptions: myself.showDescriptions,
+				        canDownload: myself.canDownload,
+			          canPublish: myself.canPublish,
                 startFolder: initialPath
             });
             myself.FileBrowserView = new FileBrowserView({
@@ -92,7 +105,12 @@ pen.define([
     FileBrowser.openFolder = function(path){
         var myself = this;
 
+		if(myself.fileBrowserModel.get('startFolder') == path){
+			myself.fileBrowserModel.trigger('change:startFolder'); // force onchange
+		}
+		else{
         myself.fileBrowserModel.set("startFolder", path);
+		}
     };
 
 
@@ -122,6 +140,9 @@ pen.define([
 
             showHiddenFiles: false,
             showDescriptions: false,
+
+			      canDownload: false,
+		        canPublish: false,
 
             spinConfig: undefined,
 
@@ -180,6 +201,10 @@ pen.define([
         updateStartFolder: function(){
             var myself = this;
 
+			if(myself.get("fileListModel").get("path") == myself.get("startFolder")){
+				myself.get("fileListModel").trigger("change:path"); // if path is the same, trigger file list refresh
+			}
+
             myself.get("foldersTreeModel").set("startFolder", myself.get("startFolder"));
         },
 
@@ -196,11 +221,16 @@ pen.define([
         },
 
         updateFolderClicked: function(){
+
+			var myself = this;
             var clickedFolder=this.get("foldersTreeModel").get("clickedFolder");
             if(clickedFolder.obj.attr("path")==".trash"){
                 this.updateTrashLastClick();
             }
             this.set("clickedFolder",clickedFolder);
+            folderButtons.canDownload(this.get("canDownload"));
+			      folderButtons.canPublish(this.get("canPublish"));
+
         },
 
         updateFileClicked: function(){
@@ -213,10 +243,11 @@ pen.define([
                 // BISERVER-9127 - Provide the selected path to the FileButtons object
                 fileButtons.onFileSelect(clickedFile.obj.attr("path"));
             }
-
             this.set("clickedFile",clickedFile);
+			fileButtons.canDownload(this.get("canDownload"));
 
         },
+
 
         updateFolderLastClick: function(){
             this.set("lastClick", "folder");
@@ -415,6 +446,7 @@ pen.define([
 
                 }
                 else{
+        response.ts = new Date(); // force backbone to trigger onchange event even if response is the same
                     myself.set("data", response);
                 }
             });
@@ -969,6 +1001,8 @@ pen.define([
         setOpenFileHandler: FileBrowser.setOpenFileHandler,
         setShowHiddenFiles: FileBrowser.setShowHiddenFiles,
         setShowDescriptions: FileBrowser.setShowDescriptions,
+		setCanDownload: FileBrowser.setCanDownload,
+		setCanPublish: FileBrowser.setCanPublish,
         updateShowDescriptions: FileBrowser.updateShowDescriptions,
         update: FileBrowser.update,
         updateData: FileBrowser.updateData,

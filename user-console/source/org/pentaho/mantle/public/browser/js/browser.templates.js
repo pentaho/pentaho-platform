@@ -60,7 +60,11 @@ pen.define([
         "{{#if predicate}}" +
             "<div class='separator'></div>" +
             "{{else}}" +
+					"{{#if optional}}" +
+					    "<div id='optional-separator' class='separator'></div>" +
+					"{{else}}" +
             "<button id='{{id}}' class='btn btn-block' onclick={{handler}}''>{{text}}</button>" +
+					"{{/if}}" +
             "{{/if}}");
 
     //buttons template to create list of buttons based on one object
@@ -133,7 +137,8 @@ pen.define([
         return new Handlebars.SafeString(templates.button({
             id: this.id,
             text:this.text,
-            predicate: (this.id=="separator")
+        predicate: (this.id=="separator"),
+				optional: (this.id=="optional-separator")
         }));
     });
 
