@@ -12,13 +12,13 @@
 		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/quartz"
 		validationQuery="select 1"/>
 
-	<Resource name="jdbc/ProAuditWarehouse" auth="Container" type="javax.sql.DataSource"
+	<Resource name="jdbc/pentaho_operations_mart" auth="Container" type="javax.sql.DataSource"
 		factory="org.apache.commons.dbcp.BasicDataSourceFactory" maxActive="20" maxIdle="5"
 		maxWait="10000" username="hibuser" password="password"
 		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/hibernate"
 		validationQuery="select 1"/>
 
-	<Resource name="jdbc/ProAuditInput" auth="Container" type="javax.sql.DataSource"
+	<Resource name="jdbc/pro_audit_input" auth="Container" type="javax.sql.DataSource"
 		factory="org.apache.commons.dbcp.BasicDataSourceFactory" maxActive="20" maxIdle="5"
 		maxWait="10000" username="hibuser" password="password"
 		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/hibernate"
