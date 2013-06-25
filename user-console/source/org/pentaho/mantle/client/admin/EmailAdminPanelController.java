@@ -195,7 +195,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	private void getEmailConfig() {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/getEmailConfig";
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/getEmailConfig?cb=" + System.currentTimeMillis();
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
