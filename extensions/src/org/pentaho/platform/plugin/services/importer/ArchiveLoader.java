@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.util.logging.Logger;
 
 /**
  * Will import all the zip files in a given directory using the supplied IPlatformImporter
@@ -43,11 +44,11 @@ public class ArchiveLoader {
     if (files != null) {
       for (File file : files) {
         try {
-          importer.getRepositoryImportLogger().debug(this.getClass().getName() + ": importing " + file.getName());
+          Logger.debug(this.getClass().getName(),this.getClass().getName() + ": importing " + file.getName());
           importer.importFile(createBundle(file));
           file.renameTo(new File(file.getPath() + DATE_FORMAT.format(loadStamp)));
         } catch (Exception e) {
-          importer.getRepositoryImportLogger().error(e);
+          Logger.error(this.getClass().getName(),e.getMessage(),e);
         }
       }
     }
