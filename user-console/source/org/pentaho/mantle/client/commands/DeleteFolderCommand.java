@@ -83,8 +83,9 @@ public class DeleteFolderCommand extends AbstractCommand {
     event.setAction(this.getClass().getName());
 
     final String filesList = repositoryFile.getId();
-    final Label messageTextBox = new Label(Messages.getString("deleteFolderWarning", repositoryFile.getName()));
-    final PromptDialogBox folderDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("delete"), Messages.getString("yesDelete"), Messages.getString("no"), true, true);
+    final String folderName = repositoryFile.getName();
+    final Label messageTextBox = new Label(Messages.getString("moveToTrashQuestionFolder",folderName));
+    final PromptDialogBox folderDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     folderDeleteWarningDialogBox.setContent(messageTextBox);
 
     final IDialogCallback callback = new IDialogCallback() {
