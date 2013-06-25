@@ -95,6 +95,10 @@
     <dependency org="pentaho" name="cgg" rev="${dependency.pentaho-cgg-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="cgg" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
+     <!-- CDA plugin -->
+     <dependency org="pentaho" name="cda" rev="${dependency.pentaho-cda-plugin.revision}" changing="true" transitive="false" conf="plugin->default" >
+      <artifact name="cda" type="zip"/><!-- download the zip file, not the jar -->
+    </dependency>
 
     <!-- Solutions bundles -->
     <dependency org="pentaho" name="pentaho-cdf-samples" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="solution->default">
