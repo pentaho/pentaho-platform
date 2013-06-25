@@ -1,5 +1,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -16,7 +17,20 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 @Path("/authorization/action")
 public class AuthorizationActionResource {
 
+  @SuppressWarnings("serial")
+  private List<String> actionNames = new ArrayList<String>() {{
+    add("org.pentaho.security.administerSecurity");
+    add("org.pentaho.security.publish");
+    add("org.pentaho.repository.create");
+    add("org.pentaho.repository.read");
+    add("org.pentaho.scheduler.manage");
+    
+  }};
+    
   private List<IAuthorizationAction> authActionList; 
+  
+  public AuthorizationActionResource() {
+  }
   
   public AuthorizationActionResource(List<IAuthorizationAction> authActionList) {
     
@@ -31,13 +45,23 @@ public class AuthorizationActionResource {
 
     boolean validInput = false;
 
-    for (IAuthorizationAction a : authActionList) {
+    /*
+    for (IAuthorizationAction a : getActionList()) {
       if (a.getName().equals(authAction)) {
         validInput = true;
         break;
       }
 
     }
+    */
+    for (String s: actionNames) {
+      if (s.equals(authAction)) {
+        validInput= true;
+        break;
+      }
+      
+    }
+    
 
     if (validInput) {
       IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
@@ -49,5 +73,14 @@ public class AuthorizationActionResource {
     }
 
     return Response.ok("false").build();
+  }
+
+  private List<IAuthorizationAction> getActionList() {
+    
+    if (authActionList == null) {
+      authActionList = PentahoSystem.getAll(IAuthorizationAction.class);
+    }
+    return authActionList;
+
   }
 }
