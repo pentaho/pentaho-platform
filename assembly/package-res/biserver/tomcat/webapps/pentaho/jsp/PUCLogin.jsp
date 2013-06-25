@@ -186,7 +186,7 @@
               <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
               <div class="span6 login-value">password</div>
             </div>
-            <button class="btn" onClick="loginAs('admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
+            <button class="btn" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
           </div>
           <div id="role-business-user-panel" class="span6 well ">
             <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
@@ -198,7 +198,7 @@
               <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
               <div class="span6 login-value">password</div>
             </div>
-            <button class="btn" onClick="loginAs('suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
+            <button class="btn" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
         </div>
       </div>
       </div>

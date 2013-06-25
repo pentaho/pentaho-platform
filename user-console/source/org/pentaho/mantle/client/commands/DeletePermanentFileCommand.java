@@ -51,13 +51,33 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   List<RepositoryFile> repositoryFiles;
 
   private String fileList = null;
+  private String type=null;
+  private String mode=null;
 
   public String getFileList() {
     return fileList;
+
   }
 
   public void setFileList(String fileList) {
     this.fileList = fileList;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+
+  public String getMode() {
+    return mode;
+  }
+
+  public void setMode(String mode) {
+    this.mode = mode;
   }
 
   public DeletePermanentFileCommand() {
@@ -74,17 +94,19 @@ public class DeletePermanentFileCommand extends AbstractCommand {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
 
     event.setAction(this.getClass().getName());
-    int size=0;
-    if(repositoryFiles!=null){
-    size=repositoryFiles.size();
-    }
-    if(fileList!=null && !fileList.isEmpty()){
-      StringTokenizer str=new StringTokenizer(fileList,",");
-      size+=str.countTokens();
-    }
     VerticalPanel vp = new VerticalPanel();
-    vp.add(new Label(Messages.getString("deleteQuestion", Integer.toString(size)))); //$NON-NLS-1$
-    final PromptDialogBox deleteConfirmDialog = new PromptDialogBox(Messages.getString("deleteConfirm"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    String deleteMessage;
+    final PromptDialogBox deleteConfirmDialog;
+
+    if (mode.equals("purge")){
+      deleteMessage=Messages.getString("deleteAllQuestion");
+      deleteConfirmDialog = new PromptDialogBox(Messages.getString("emptyTrash"), Messages.getString("yesEmptyTrash"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+    else {
+      deleteMessage=Messages.getString("deleteQuestion", type);
+      deleteConfirmDialog = new PromptDialogBox(Messages.getString("permDelete"), Messages.getString("yesPermDelete"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+    vp.add(new Label(deleteMessage)); //$NON-NLS-1$
 
     final IDialogCallback callback = new IDialogCallback() {
 
