@@ -180,7 +180,7 @@
 
         function checkPublish(canDownload, showHiddenFiles, showDescriptions){
             $.ajax({
-                url: "/pentaho/api/authorization/action/isauthorized?authAction=org.pentaho.security.publish",
+                url: "/pentaho/api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
                 type: "GET",
                 async: true,
                 success: function(response){

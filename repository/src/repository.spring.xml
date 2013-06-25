@@ -580,23 +580,12 @@
     </pen:publish>
   </bean>
 
-
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
-      <util:list>
-        <value>org.pentaho.repository.read</value>
-        <value>org.pentaho.repository.create</value>
-        <value>org.pentaho.scheduler.manage</value>
-        <value>org.pentaho.security.administerSecurity</value>
-      </util:list>
+	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
     </entry>
     <entry key-ref="superAdminAuthorityName">
-      <util:list>
-        <value>org.pentaho.repository.read</value>
-        <value>org.pentaho.repository.create</value>
-		<value>org.pentaho.scheduler.manage</value>        
-        <value>org.pentaho.security.administerSecurity</value>
-	  </util:list>
+	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
     </entry>
   </util:map>
 
