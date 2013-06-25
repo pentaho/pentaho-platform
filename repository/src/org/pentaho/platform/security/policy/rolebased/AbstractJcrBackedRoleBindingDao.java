@@ -1,6 +1,17 @@
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
@@ -12,7 +23,6 @@ import javax.jcr.Value;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -29,7 +39,8 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
 
   protected ITenantedPrincipleNameResolver tenantedRoleNameUtils;
   
-  protected Map<String, List<String>> immutableRoleBindings;
+  protected Map<String, List<IAuthorizationAction>> immutableRoleBindings;
+  protected Map<String, List<String>> immutableRoleBindingNames;
   
   protected Map<String, List<String>> bootstrapRoleBindings;
   
@@ -48,7 +59,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   @SuppressWarnings("unchecked")
   protected Map boundLogicalRoleNamesCache = Collections.synchronizedMap(new LRUMap());
   
-  public AbstractJcrBackedRoleBindingDao(final List<String> logicalRoleNames, final Map<String, List<String>> immutableRoleBindings, final Map<String, List<String>> bootstrapRoleBindings,
+  public AbstractJcrBackedRoleBindingDao(final List<String> logicalRoleNames, final Map<String, List<IAuthorizationAction>> immutableRoleBindings, final Map<String, List<String>> bootstrapRoleBindings,
       final String superAdminRoleName, final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles) {
     super();
     // TODO: replace with IllegalArgumentException
@@ -68,6 +79,17 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     this.bootstrapRoleBindings = bootstrapRoleBindings;
     this.superAdminRoleName = superAdminRoleName;
     this.tenantedRoleNameUtils = tenantedRoleNameUtils;
+    
+    immutableRoleBindingNames = new HashMap<String, List<String>> ();
+    for (final Entry<String, List<IAuthorizationAction>> entry : immutableRoleBindings.entrySet() ) {
+      final List<String> roles = new ArrayList<String> ();
+      for (final IAuthorizationAction a : entry.getValue() ) {
+        roles.add(a.getName());
+      }
+      immutableRoleBindingNames.put(entry.getKey(), roles);
+    }
+    
+    
   }
   
   public List<String> getBoundLogicalRoleNames(Session session, List<String> runtimeRoleNames) throws NamespaceException, RepositoryException {
@@ -91,7 +113,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
       boundRoleNames.addAll(getBoundLogicalRoleNames(session, mapEntry.getKey(), mapEntry.getValue()));
     }
     if (includeSuperAdminLogicalRoles) {
-      boundRoleNames.addAll(immutableRoleBindings.get(superAdminRoleName));
+      boundRoleNames.addAll(immutableRoleBindingNames.get(superAdminRoleName));
     }
     return new ArrayList<String>(boundRoleNames);
   }
@@ -154,7 +176,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     for (String runtimeRoleName : uncachedRuntimeRoleNames) {
       if (immutableRoleBindings.containsKey(runtimeRoleName)) {
         String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-        boundLogicalRoleNames.putAll(roleId, immutableRoleBindings.get(runtimeRoleName));
+        boundLogicalRoleNames.putAll(roleId, immutableRoleBindingNames.get(runtimeRoleName));
       }
     }
 
@@ -263,7 +285,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
       }
     }
     // add all immutable bindings
-    map.putAll(immutableRoleBindings);
+    map.putAll(immutableRoleBindingNames);
     return map;
   }
 
