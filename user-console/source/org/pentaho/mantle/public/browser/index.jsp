@@ -65,12 +65,8 @@
                             (event.action.indexOf('RestoreFileCommand') >= 0)||
                             (event.action.indexOf('DeletePermanentFileCommand')>= 0)){
                         if(event.message == 'Success'){
-                            //Refresh folders to parent path if restoring a file or folder
-                            if((event.action.indexOf('RestoreFileCommand')>= 0)){
-                                var parentPath=FileBrowser.fileBrowserModel.getFileClicked().attr("originalParentFolderPath");
-                                FileBrowser.update(parentPath); // refresh folder list
-                            }
                             FileBrowser.updateData(); // refresh file list
+                            FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
                         }
                         else{
                             window.top.mantle_showMessage('Error', event.message);

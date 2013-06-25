@@ -22,17 +22,17 @@ pen.define([
             that.buttons = [
                 {
                     id: "restore",
-                    text: "Restore Deleted File",
+                    text: "Restore",
                     i18n: "contextAction_restore",
                     handler: $.proxy(that.restoreHandler, that)
                 },
 
-                    {
-                        id: "perDel",
-                        text: "Permanently Delete File",
-                        i18n: "contextAction_permDelete",
-                        handler: $.proxy(that.permDeleteHandler, that)
-                    }
+                {
+                    id: "permDel",
+                    text: "Permanently Delete",
+                    i18n: "contextAction_permDelete",
+                    handler: $.proxy(that.permDeleteHandler, that)
+                }
             ];
 
             // retrieve i18n map
@@ -63,9 +63,11 @@ pen.define([
                 window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
         },
 
-        buildParameter: function(fileList){
+        buildParameter: function(fileList, type, mode){
             return {
-                fileList: fileList
+                fileList: fileList,
+                type: type,
+                mode: mode
             };
         },
 
@@ -83,12 +85,12 @@ pen.define([
             console.log(event.action + " : " + event.message);
         },
 
-        restoreHandler: function(files){
-            window.top.executeCommand("RestoreFileCommand", this.buildParameter(files));
+        restoreHandler: function(files, type, mode){
+            window.top.executeCommand("RestoreFileCommand", this.buildParameter(files, type, mode));
         },
 
-        permDeleteHandler: function(files){
-            window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(files));
+        permDeleteHandler: function(files, type, mode){
+            window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(files,type,mode));
         }
     };
 
