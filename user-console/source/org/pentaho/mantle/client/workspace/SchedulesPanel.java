@@ -89,8 +89,6 @@ public class SchedulesPanel extends SimplePanel {
 
   private ToolbarButton filterRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-remove"));
 
-  private ToolbarButton openOutputFolderButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-open-folder"));
-
   private JsArray<JsJob> allJobs;
 
   private Set<JsJob> selectedJobs = null;
@@ -616,7 +614,6 @@ public class SchedulesPanel extends SimplePanel {
         selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
         JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
         editButton.setEnabled(isScheduler);
-        openOutputFolderButton.setEnabled(isScheduler);
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop"));
         } else {
@@ -814,25 +811,6 @@ public class SchedulesPanel extends SimplePanel {
     editButton.setEnabled(false);
     editButton.setToolTip(Messages.getString("editTooltip"));
     bar.add(editButton);
-
-    // add open folder button
-    openOutputFolderButton.setEnabled(false);
-    openOutputFolderButton.setToolTip(Messages.getString("openScheduleOutputLocationTooltip"));
-    bar.add(openOutputFolderButton);
-    openOutputFolderButton.setCommand(new Command() {
-      public void execute() {
-      if (selectedJobs != null) {
-        // switch to browse perspective, open at the given path
-        final String outputLocation = selectedJobs.iterator().next().getOutputPath();
-        validateOutputLocation(outputLocation, new Command() {
-          @Override
-          public void execute() {
-            openOutputLocation(outputLocation);
-          }
-        });
-      }
-      }
-    });
 
     // Add remove button
     scheduleRemoveButton.setCommand(new Command() {
