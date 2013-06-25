@@ -229,27 +229,7 @@ pen.define([
             }
             this.set("clickedFolder",clickedFolder);
             folderButtons.canDownload(this.get("canDownload"));
-			folderButtons.canPublish(false);
-			
-			if (this.get("canPublish")) {
-				
-				var path = clickedFolder.obj.attr("path");
-				var urlParm = (path == null ? ":" : path.replace(/\//g, ":"));			
-				var url = "/pentaho/api/repo/files/" + urlParm + "/canAccess?permissions=1"
-
-				 $.ajax({
-					url: url,
-					type: "GET",
-					async: true,
-					success: function(response){
-						folderButtons.canPublish(response == "true");
-					},
-					error: function(response){
-						alert("ERROR:  " +  response);
-					}
-				});
-
-			}
+			folderButtons.canPublish(this.get("canPublish"));
 
 		},
 
