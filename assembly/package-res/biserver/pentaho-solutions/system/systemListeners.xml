@@ -34,6 +34,7 @@
         -->
         <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
         <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
+        <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
         
     <!-- Insert system-listeners -->
       </list>
