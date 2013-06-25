@@ -51,8 +51,8 @@ public class SchedulesPerspectivePanel extends SimplePanel {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-      requestBuilder.setHeader("accept", "text/plain");
-      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+      requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT"); //$NON-NLS-1$ //$NON-NLS-2$
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -61,12 +61,12 @@ public class SchedulesPerspectivePanel extends SimplePanel {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          isAdmin = "true".equalsIgnoreCase(response.getText());
+          isAdmin = "true".equalsIgnoreCase(response.getText()); //$NON-NLS-1$
 
           try {
             final String url2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
             RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, url2);
-            requestBuilder2.setHeader("accept", "text/plain");
+            requestBuilder2.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
             requestBuilder2.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, Throwable caught) {
@@ -76,7 +76,7 @@ public class SchedulesPerspectivePanel extends SimplePanel {
               }
 
               public void onResponseReceived(Request request, Response response) {
-                isScheduler = "true".equalsIgnoreCase(response.getText());
+                isScheduler = "true".equalsIgnoreCase(response.getText()); //$NON-NLS-1$
                 createUI();
               }
 
@@ -95,31 +95,32 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 
 	private void createUI() {
 
-    this.setStyleName("schedulerPerspective");
+    this.setStyleName("schedulerPerspective"); //$NON-NLS-1$
 
     wrapperPanel = new VerticalPanel();
 		
-    String schedulesLabelStr = Messages.getString("mySchedules");
+    String schedulesLabelStr = Messages.getString("mySchedules"); //$NON-NLS-1$
     if (isAdmin) {
-      schedulesLabelStr = Messages.getString("manageSchedules");
+      schedulesLabelStr = Messages.getString("manageSchedules"); //$NON-NLS-1$
     }
     
     Label schedulesLabel = new Label(schedulesLabelStr);
-    schedulesLabel.setStyleName("workspaceHeading");
+    schedulesLabel.setStyleName("workspaceHeading"); //$NON-NLS-1$
     wrapperPanel.add(schedulesLabel);
 		
 		schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
-		schedulesPanel.setStyleName("schedulesPanel");
+    schedulesPanel.setStyleName("schedulesPanel"); //$NON-NLS-1$
+    schedulesPanel.addStyleName("schedules-panel-wrapper"); //$NON-NLS-1$
     wrapperPanel.add(schedulesPanel);
 
 		blockoutPanel = new BlockoutPanel(isAdmin);
-		blockoutPanel.setStyleName("schedulesPanel");
+    blockoutPanel.setStyleName("schedulesPanel"); //$NON-NLS-1$
+    blockoutPanel.addStyleName("blockout-schedules-panel-wrapper"); //$NON-NLS-1$
 		wrapperPanel.add(blockoutPanel);
-
 
     SimplePanel sPanel = new SimplePanel();
     sPanel.add(wrapperPanel);
-    sPanel.setStylePrimaryName("schedulerPerspective-wrapper");
+    sPanel.setStylePrimaryName("schedulerPerspective-wrapper"); //$NON-NLS-1$
     add(sPanel);
 		
 	}
