@@ -29,7 +29,10 @@
 
 .schedule-dialog-content {
 }
-
+.schedulerPerspective-wrapper{
+	width: 1230px;
+  margin: 0 auto;
+}
 .admin-perspective {
   padding-top: 40px;
   padding-left: 40px;
@@ -52,7 +55,7 @@
   padding-top: 10px;
   padding-left: 10px;
   padding-bottom: 5px;
-  background-image: url('images/grey_triangle_right.png');
+  background: url('images/16x16_right.png');
   background-position: 95% center;
   background-repeat: no-repeat;
   font-family: OpenSansLight, Helvetica, Arial, Sans serif;
@@ -855,6 +858,7 @@ a:active, a:hover {
 #pucUserDropDown .custom-dropdown-arrow {
   width: 30px;
   background-image: url('images/arrow-dark-small.png');
+  background-position: 5px 8px;
 }
 
 #pucUserDropDown .custom-dropdown-label {
@@ -1074,33 +1078,33 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 }
 
 #mainToolbar #editContentButton .toolbar-toggle-button IMG {
-  background: url('../../../content/common-ui/resources/themes/images/editContent_32.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32.png');
   height: 32px;
   width: 32px;
 }
 #mainToolbar #editContentButton .toolbar-toggle-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/images/editContent_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32_disabled.png');
   height: 32px;
   width: 32px;
 }
 #mainToolbar #saveButton .toolbar-button IMG {
-  background: url('../../../content/common-ui/resources/themes/images/save_32.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/save_32.png');
   height: 32px;
   width: 32px;
 }
 #mainToolbar #saveButton .toolbar-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/images/save_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/save_32_disabled.png');
   height: 32px;
   width: 32px;
 }
 
 #mainToolbar #saveAsButton .toolbar-button IMG {
-  background: url('../../../content/common-ui/resources/themes/images/saveAs_32.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/saveAs_32.png');
   height: 32px;
   width: 32px;
 }
 #mainToolbar #saveAsButton .toolbar-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/images/saveAs_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/saveAs_32_disabled.png');
   height: 32px;
   width: 32px;
 }
@@ -1111,6 +1115,11 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 }
 #mainToolbar #showBrowserButton .toolbar-toggle-button-down IMG {
   background: url('../../images/browser_show_32.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #newAnalysisButton_img .gwt-Image {
+  background: url('../../../content/common-ui/resources/themes/crystal/images/dashbaord_32.png');
   height: 32px;
   width: 32px;
 }
@@ -1261,4 +1270,7 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 }
 #admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
   height: 26px;
+}
+.alignleft {
+left: 3px !important;
 }
