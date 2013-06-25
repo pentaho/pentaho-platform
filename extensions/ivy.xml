@@ -29,8 +29,8 @@
     <dependency org="commons-vfs" name="commons-vfs" rev="1.0" transitive="false"/>
     <dependency org="org.owasp.esapi" name="esapi" rev="2.0.1" transitive="false" />
 
-    <dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"/>
-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.3"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.3"/>
     <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.1"/>
 
     <!--  compile time batik -->
