@@ -106,10 +106,6 @@ public class MantleController extends AbstractXulEventHandler {
 
   private XulMenuitem saveAsMenuItem;
 
-  private XulMenuitem showBrowserMenuItem;
-
-  private XulMenuitem showWorkspaceMenuItem;
-
   private XulMenuitem useDescriptionsMenuItem;
 
   private XulMenuitem showHiddenFilesMenuItem;
@@ -178,8 +174,6 @@ public class MantleController extends AbstractXulEventHandler {
     propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem"); //$NON-NLS-1$
     saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem"); //$NON-NLS-1$
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem"); //$NON-NLS-1$
-    showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem"); //$NON-NLS-1$
-    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem"); //$NON-NLS-1$
     useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem"); //$NON-NLS-1$
     showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem"); //$NON-NLS-1$
     languageMenu = (XulMenubar) document.getElementById("languagemenu"); //$NON-NLS-1$
@@ -187,11 +181,6 @@ public class MantleController extends AbstractXulEventHandler {
     toolsMenu = (XulMenubar) document.getElementById("toolsmenu"); //$NON-NLS-1$
     recentMenu = (XulMenubar) document.getElementById("recentmenu"); //$NON-NLS-1$
     favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu"); //$NON-NLS-1$
-
-    // let the manager have access to these menu items to toggle checks off and on
-    PerspectiveManager.getInstance().setBrowserMenuItem((PentahoMenuItem) showBrowserMenuItem.getManagedObject());
-    PerspectiveManager.getInstance().setSchedulesMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
-    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(true);
 
     if (PerspectiveManager.getInstance().isLoaded()) {
       PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
@@ -654,24 +643,6 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   @Bindable
-  private void disableMenuItemChecks() {
-    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(false);
-    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(false);
-  }
-
-  @Bindable
-  public void showBrowserClicked() {
-    model.setShowBrowserSelected(true);
-    model.showBrowser();
-  }
-
-  @Bindable
-  public void showWorkspaceClicked() {
-    model.setShowBrowserSelected(false);
-    model.showSchedules();
-  }
-
-  @Bindable
   public void showNavigatorClicked() {
     boolean show = !model.isShowNavigatorSelected();
     model.setShowNavigatorSelected(show); // toggle first
@@ -746,7 +717,6 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void loadAdminContent(final String panelId, final String url) {
-    this.disableMenuItemChecks();
     passivateActiveSecurityPanels(panelId, url);
   }
 
