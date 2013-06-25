@@ -27,6 +27,7 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 
 public class OpenFileCommand extends AbstractCommand {
 
@@ -46,7 +47,7 @@ public class OpenFileCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
+    final IPluginPerspective activePerspective = PerspectiveManager.getInstance().getActivePerspective();
 
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
 
@@ -61,7 +62,8 @@ public class OpenFileCommand extends AbstractCommand {
         dialog.addFileChooserListener(new FileChooserListener() {
 
           public void dialogCanceled(){
-
+            // retain current active perspective
+            PerspectiveManager.getInstance().setPerspective(activePerspective.getId());
           }
 
           @Override
