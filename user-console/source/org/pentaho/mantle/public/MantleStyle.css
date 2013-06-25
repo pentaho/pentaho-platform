@@ -843,3 +843,15 @@ code {
 #blockout-table .gwt-ScrollTable .dataWrapper{
   height: auto !important; 
 }
+
+.IE .schedulerPerspective-wrapper>table {
+  width: 100%;
+}
+
+.IE .schedulerPerspective-wrapper .schedules-panel-wrapper {
+  width: 100%;
+}
+
+.IE .schedules-panel-wrapper>table {
+  width: 100%;
+}
