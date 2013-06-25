@@ -122,6 +122,9 @@
           else if(paramJson.eventSubType == "RefreshBrowsePerspectiveEvent"){
             FileBrowser.update(window.top.HOME_FOLDER); // refresh folder list
           }
+          else if(paramJson.eventSubType == "RefreshFolderEvent"){
+            FileBrowser.update(paramJson.stringParam); // refresh specified folder
+          }
           else if(paramJson.eventSubType == "RefreshCurrentFolderEvent"){
             FileBrowser.updateData();
           }
