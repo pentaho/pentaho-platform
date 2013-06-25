@@ -452,7 +452,7 @@ public class SchedulesPanel extends SimplePanel {
     if (isAdmin) {
       table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
     }
-    table.addColumnStyleName(7, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(isAdmin ? 7 : 6, "backgroundContentHeaderTableCell");
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 200, Unit.PX);
