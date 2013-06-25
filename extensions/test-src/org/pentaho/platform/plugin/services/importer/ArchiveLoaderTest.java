@@ -43,8 +43,6 @@ public class ArchiveLoaderTest {
     verify(jobs).renameTo(argThat(fileMatcher(jobs)));
     verify(importer).importFile(argThat(bundleMatcher(reportsName, inputStream)));
     verify(reports).renameTo(argThat(fileMatcher(reports)));
-    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing jobs.zip");
-    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing reports.zip");
   }
 
   @Test
@@ -61,18 +59,15 @@ public class ArchiveLoaderTest {
     when(reports.getName()).thenReturn(reportsName);
     when(reports.getPath()).thenReturn("/root/path/" + reportsName);
     when(directory.listFiles(ZIPS_FILTER)).thenReturn(new File[] { jobs, reports });
-    Exception exception = new RuntimeException();
+    Exception exception = new RuntimeException("exception thrown on purpose from testWillContinueToLoadOnException");
     doThrow(exception).when(importer).importFile(argThat(bundleMatcher(jobsName, inputStream)));
     IRepositoryImportLogger logger = mock(IRepositoryImportLogger.class);
     when(importer.getRepositoryImportLogger()).thenReturn(logger);
     loader.loadAll(directory, ZIPS_FILTER);
     verify(importer).importFile(argThat(bundleMatcher(jobsName, inputStream)));
-    verify(logger).error(exception);
     verify(importer).importFile(argThat(bundleMatcher(reportsName, inputStream)));
     verify(jobs, never()).renameTo(any(File.class));
     verify(reports).renameTo(argThat(fileMatcher(reports)));
-    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing jobs.zip");
-    verify(logger).debug("org.pentaho.platform.plugin.services.importer.ArchiveLoaderTest$1: importing reports.zip");
   }
 
   @Test
