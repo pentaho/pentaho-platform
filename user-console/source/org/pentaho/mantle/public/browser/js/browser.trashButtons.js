@@ -56,9 +56,10 @@ pen.define([
                 window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
         },
 
-        buildParameter: function(fileList){
+        buildParameter: function(fileList,mode){
             return {
-                fileList: fileList
+                fileList: fileList,
+                mode:mode
             };
         },
 
@@ -83,8 +84,8 @@ pen.define([
             console.log(event.action + " : " + event.message);
         },
 
-        purgeHandler: function(files){
-            window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(files));
+        purgeHandler: function(files, type, mode){
+            window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(files, mode));
         }
     };
 
