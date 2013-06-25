@@ -27,6 +27,8 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
@@ -37,6 +39,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 /**
  * File properties parent panel displayed when right clicking
@@ -57,6 +60,9 @@ public class FilePropertiesDialog extends PromptDialogBox {
   private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
   boolean canManageAcls = false;
   boolean dirty = false;
+
+  private boolean isFolder = false;
+  private String parentPath = null;
 
   /**
    *
@@ -87,6 +93,9 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
     okButton.getElement().setId("filePropertiesOKButton");
     cancelButton.getElement().setId("filePropertiesCancelButton");
+
+    isFolder = fileSummary.isFolder();
+    parentPath = fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"));
 
     super.setCallback(new IDialogCallback() {
 
@@ -150,6 +159,19 @@ public class FilePropertiesDialog extends PromptDialogBox {
           public void onResponseReceived(Request arg0, Response arg1) {
             if (arg1.getStatusCode() == Response.SC_OK) {
               dirty = false;
+
+              // Refresh current folder or parent folder
+              PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
+              GenericEvent ge = new GenericEvent();
+              if(isFolder){
+                ge.setEventSubType("RefreshFolderEvent");
+                ge.setStringParam(parentPath);
+              }
+              else{
+                ge.setEventSubType("RefreshCurrentFolderEvent");
+              }
+              EventBusUtil.EVENT_BUS.fireEvent(ge);
+
             } else {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
               dialogBox.center();
