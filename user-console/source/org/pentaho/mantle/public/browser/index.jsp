@@ -32,13 +32,15 @@
 
         var FileBrowser = null;
 
-        function initBrowser(showHiddenFiles, showDescriptions){
+        function initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish){
             pen.require(["js/browser"], function(pentahoFileBrowser) {
                 FileBrowser = pentahoFileBrowser;
                 FileBrowser.setOpenFileHandler(openRepositoryFile);
                 FileBrowser.setContainer($("#fileBrowser"));
                 FileBrowser.setShowHiddenFiles(showHiddenFiles);
                 FileBrowser.setShowDescriptions(showDescriptions);
+                FileBrowser.setCanDownload(canDownload);
+				FileBrowser.setCanPublish(canPublish);
                 FileBrowser.update(window.top.HOME_FOLDER);
 
                 if(window.top.mantle_addHandler == undefined) return;
@@ -134,37 +136,64 @@
         });
         }
 
-        function checkShowHiddenFiles(){
+        function checkDownload() {
+            $.ajax({
+                url: "/pentaho/api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
+                type: "GET",
+                async: true,
+                success: function(response){
+                    checkShowHiddenFiles(response == "true");
+                },
+                error: function(response){
+                	checkShowHiddenFiles(false);
+                }
+            });
+        }
+
+        function checkShowHiddenFiles(canDownload){
             $.ajax({
                 url: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
                 type: "GET",
                 async: true,
                 success: function(response){
-                    checkShowDescriptions(response == "true");
+                    checkShowDescriptions(canDownload, response == "true");
                 },
                 error: function(response){
-                    checkShowDescriptions(false);
+                    checkShowDescriptions(canDownload, false);
                 }
             });
         }
 
-        function checkShowDescriptions(showHiddenFiles){
+        function checkShowDescriptions(canDownload, showHiddenFiles){
             $.ajax({
                 url: "/pentaho/api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS",
                 type: "GET",
                 async: true,
                 success: function(response){
-                    initBrowser(showHiddenFiles, !(response == "true"));
+                    checkPublish(canDownload, showHiddenFiles, !(response == "true"));
                 },
                 error: function(response){
-                    initBrowser(showHiddenFiles, false);
+                    checkPublish(canDownload, showHiddenFiles, false);
                 }
             });
         }
 
+        function checkPublish(canDownload, showHiddenFiles, showDescriptions){
+            $.ajax({
+                url: "/pentaho/api/authorization/action/isauthorized?authAction=org.pentaho.security.publish",
+                type: "GET",
+                async: true,
+                success: function(response){
+                    initBrowser(canDownload, showHiddenFiles, showDescriptions, (response == "true"));
+                },
+                error: function(response){
+                    initBrowser(canDownload, showHiddenFiles, showDescriptions, false);
+                }
+            });
+        }
+		
         //init component
-
-        checkShowHiddenFiles();
+        checkDownload();
 
         function openFolder(path){
 

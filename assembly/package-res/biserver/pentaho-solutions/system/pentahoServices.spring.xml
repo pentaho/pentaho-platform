@@ -104,4 +104,5 @@
   <bean class="org.pentaho.platform.web.http.api.resources.UserConsoleResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.UserSettingsResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryPublishResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.AuthorizationActionResource" scope="request"/>
 </beans>
