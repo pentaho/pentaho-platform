@@ -826,6 +826,14 @@ code {
   text-align: left;
 }
 
+.pentaho-dialog-small{
+  width: 400px;
+}
+
+.pentaho-dialog-small .gwt-Label{
+  text-align: left;
+}
+
 /* BISERVER 9312 */
 #blockout-table {
   height: auto !important;

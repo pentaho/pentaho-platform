@@ -959,6 +959,7 @@ public class SchedulesPanel extends SimplePanel {
     String title = Messages.getString("outputLocationErrorTitle");
     String message = Messages.getString("outputLocationErrorMessage");
     MessageDialogBox dialogBox = new MessageDialogBox(title, message, false, false, true, Messages.getString("close"), null, null); //$NON-NLS-1$
+    dialogBox.addStyleName("pentaho-dialog-small");
     dialogBox.center();
   }
 
