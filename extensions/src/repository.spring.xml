@@ -780,4 +780,22 @@
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>
   <!-- end authorization policy -->
+  
+    <bean id="defaultRole" class="java.lang.String">
+    <constructor-arg value="Authenticated" />
+  </bean>
+
+  <bean id="anonymousRole" class="java.lang.String">
+    <constructor-arg value="Anonymous" />
+  </bean>
+
+  <!-- used by ExtraRolesUserRoleListServiceDecorator beans -->
+  <bean id="extraRoles" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <ref bean="defaultRole" />
+        <ref bean="anonymousRole" />
+      </list>
+    </property>
+  </bean>
 </beans>
