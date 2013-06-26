@@ -36,6 +36,7 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
@@ -64,6 +65,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -77,20 +79,16 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 public class SchedulesPanel extends SimplePanel {
 
+  private static final int READ_PERMISSION = 0;
+  
   private ToolbarButton controlScheduleButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-run"));
-
   private ToolbarButton editButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-editbutton"));
-
   private ToolbarButton triggerNowButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-execute"));
-
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-deletebutton"));
-
   private ToolbarButton filterButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-add"));
-
   private ToolbarButton filterRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-remove"));
 
   private JsArray<JsJob> allJobs;
-
   private Set<JsJob> selectedJobs = null;
 
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
@@ -149,13 +147,7 @@ public class SchedulesPanel extends SimplePanel {
           }
         });
       }
-      if (filters.size() > 0) {
-        filterButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-filter-active"));
-        filterRemoveButton.setEnabled(true);
-      } else {
-        filterButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-filter-add"));
-        filterRemoveButton.setEnabled(false);
-      }
+      filterRemoveButton.setEnabled(filters.size() > 0);
       filterAndShowData();
     }
 
@@ -289,18 +281,18 @@ public class SchedulesPanel extends SimplePanel {
     table.setStylePrimaryName("pentaho-table");
     table.setWidth("100%", true);
 
-    //BISERVER-9331 Column sort indicators should be to the right of header text in the Manage Schedules table.
+    // BISERVER-9331 Column sort indicators should be to the right of header text in the Manage Schedules table.
     if (table.getHeaderBuilder() instanceof AbstractHeaderOrFooterBuilder) {
-      ((AbstractHeaderOrFooterBuilder<JsJob>)table.getHeaderBuilder()).setSortIconStartOfLine(false);
+      ((AbstractHeaderOrFooterBuilder<JsJob>) table.getHeaderBuilder()).setSortIconStartOfLine(false);
     }
-    
+
     final MultiSelectionModel<JsJob> selectionModel = new MultiSelectionModel<JsJob>(new ProvidesKey<JsJob>() {
       public Object getKey(JsJob item) {
         return item.getJobId();
       }
     });
     table.setSelectionModel(selectionModel);
-    
+
     Label noDataLabel = new Label(Messages.getString("noSchedules"));
     noDataLabel.setStyleName("noDataForScheduleTable");
     table.setEmptyTableWidget(noDataLabel);
@@ -330,8 +322,7 @@ public class SchedulesPanel extends SimplePanel {
     };
     resourceColumn.setSortable(true);
 
-    Column<JsJob, SafeHtml> outputPathColumn = new Column<JsJob, SafeHtml>(
-       new ClickableSafeHtmlCell()) {
+    Column<JsJob, SafeHtml> outputPathColumn = new Column<JsJob, SafeHtml>(new ClickableSafeHtmlCell()) {
       @Override
       public SafeHtml getValue(JsJob jsJob) {
         try {
@@ -340,8 +331,8 @@ public class SchedulesPanel extends SimplePanel {
             return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
           } else {
             return new SafeHtmlBuilder().appendHtmlConstant(
-               "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(outputPath).toSafeHtml().asString() + "'>" + outputPath
-                  + "</span>").toSafeHtml();
+                "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(outputPath).toSafeHtml().asString() + "'>" + outputPath
+                    + "</span>").toSafeHtml();
           }
         } catch (Throwable t) {
           return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
@@ -754,60 +745,31 @@ public class SchedulesPanel extends SimplePanel {
       public void execute() {
         if (selectedJobs != null) {
           JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
-
-          final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + jobs[0].getJobId();
+          final JsJob editJob = jobs[0];
+          final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + SolutionBrowserPanel.pathToId(editJob.getFullResourceName()) + "/canAccess?cb=" + System.currentTimeMillis() + "&permissions=" + READ_PERMISSION;
           RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-          executableTypesRequestBuilder.setHeader("accept", "application/json");
           try {
             executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, Throwable exception) {
-                // showError(exception);
+                promptForScheduleResourceError(editJob);
               }
 
               public void onResponseReceived(Request request, Response response) {
-                if (response.getStatusCode() == Response.SC_OK) {
-                  final JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
-
-                  // check email is setup
-                  RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/emailconfig/isValid");
-                  emailValidRequest.setHeader("accept", "text/plain");
-                  try {
-                    emailValidRequest.sendRequest(null, new RequestCallback() {
-
-                      public void onError(Request request, Throwable exception) {
-                        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-                        dialogBox.center();
-                      }
-
-                      public void onResponseReceived(Request request, Response response) {
-                        if (response.getStatusCode() == Response.SC_OK) {
-                          final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
-                          final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, isEmailConfValid);
-                          schedDialog.center();
-                        }
-                      }
-                    });
-                  }
-                  catch (RequestException e) {
-                    // showError(e);
-                  }
-
-                }
-                else {
-                  MessageDialogBox dialogBox = new MessageDialogBox(
-                     Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                  dialogBox.center();
+                if ("true".equalsIgnoreCase(response.getText())) {
+                  editJob(editJob);
+                } else {
+                  promptForScheduleResourceError(editJob);
                 }
               }
             });
-          }
-          catch (RequestException e) {
+          } catch (RequestException e) {
             // showError(e);
           }
         }
       }
     });
+
     editButton.setEnabled(false);
     editButton.setToolTip(Messages.getString("editTooltip"));
     bar.add(editButton);
@@ -845,6 +807,73 @@ public class SchedulesPanel extends SimplePanel {
     setWidget(tableAndPager);
   }
 
+  private void editJob(JsJob editJob) {
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + editJob.getJobId();
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("accept", "application/json");
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            final JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
+
+            // check email is setup
+            RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/emailconfig/isValid");
+            emailValidRequest.setHeader("accept", "text/plain");
+            try {
+              emailValidRequest.sendRequest(null, new RequestCallback() {
+
+                public void onError(Request request, Throwable exception) {
+                  MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                  dialogBox.center();
+                }
+
+                public void onResponseReceived(Request request, Response response) {
+                  if (response.getStatusCode() == Response.SC_OK) {
+                    final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
+                    final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, isEmailConfValid);
+                    schedDialog.center();
+                  }
+                }
+              });
+            } catch (RequestException e) {
+              // showError(e);
+            }
+
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            dialogBox.center();
+          }
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+  }
+
+  private void promptForScheduleResourceError(JsJob job) {
+    final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("warning"), Messages.getString("yes"), Messages.getString("no"), false, true);
+    prompt.setContent(new HTML(Messages.getString("editScheduleResourceDoesNotExist", job.getFullResourceName())));
+
+    prompt.setCallback(new IDialogCallback() {
+      public void okPressed() {
+        controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+        prompt.hide();
+      }
+
+      public void cancelPressed() {
+        prompt.hide();
+      }
+    });
+    prompt.center();
+  }
+  
   private void controlJobs(final Set<JsJob> jobs, String function, final Method method, final boolean refreshData) {
     for (final JsJob job : jobs) {
       final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
@@ -918,7 +947,7 @@ public class SchedulesPanel extends SimplePanel {
 
   private void validateOutputLocation(final String outputLocation, final Command successCallback) {
 
-    if(StringUtils.isEmpty(outputLocation)){
+    if (StringUtils.isEmpty(outputLocation)) {
       return;
     }
 
@@ -933,11 +962,10 @@ public class SchedulesPanel extends SimplePanel {
 
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
-            if(successCallback != null){
+            if (successCallback != null) {
               successCallback.execute();
             }
-          }
-          else{
+          } else {
             showValidateOutputLocationError();
           }
         }
@@ -947,7 +975,7 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void openOutputLocation(final String outputLocation){
+  private void openOutputLocation(final String outputLocation) {
     PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
     GenericEvent event = new GenericEvent();
     event.setEventSubType("RefreshFolderEvent");
@@ -955,14 +983,13 @@ public class SchedulesPanel extends SimplePanel {
     EventBusUtil.EVENT_BUS.fireEvent(event);
   }
 
-  private void showValidateOutputLocationError(){
+  private void showValidateOutputLocationError() {
     String title = Messages.getString("outputLocationErrorTitle");
     String message = Messages.getString("outputLocationErrorMessage");
     MessageDialogBox dialogBox = new MessageDialogBox(title, message, false, false, true, Messages.getString("close"), null, null); //$NON-NLS-1$
     dialogBox.addStyleName("pentaho-dialog-small");
     dialogBox.center();
   }
-
 
   private native JsArray<JsJob> parseJson(String json)
   /*-{
