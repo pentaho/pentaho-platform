@@ -18,6 +18,7 @@
 package org.pentaho.mantle.client.dialogs.scheduling;
 
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.dom.client.Style.VerticalAlign;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -128,6 +129,7 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox
 
     setContent(content);
     content.getElement().getStyle().clearHeight();
+    content.getElement().getParentElement().getStyle().setVerticalAlign(VerticalAlign.TOP);
     content.getParent().setHeight("100%");
 
     okButton.getParent().getParent().setStyleName("schedule-dialog-button-panel");
