@@ -223,7 +223,7 @@
     <dependency org="com.jcraft" name="jsch" rev="0.1.46" conf="default->default" transitive="false"/>
     <dependency org="com.jcraft" name="jzlib" rev="1.0.7" conf="default->default" transitive="false"/>
     <dependency org="com.enterprisedt" name="edtftpj" rev="2.1.0" conf="default->default" transitive="false"/>
-    <dependency org="jdom" name="jdom" rev="1.0" conf="default->default" transitive="false"/>
+    <dependency org="org.jdom" name="jdom2" rev="2.0.5" conf="default->default" transitive="false"/>
     <dependency org="javadbf" name="javadbf" rev="20081125" conf="default->default" transitive="false"/>
     <dependency org="org.ini4j" name="ini4j" rev="0.5.1" conf="default->default" transitive="false"/>
     <dependency org="jexcelapi" name="jxl" rev="2.6.12" conf="default->default" transitive="false"/>
@@ -361,6 +361,9 @@
     <exclude org="org.glassfish" module="javax.servlet"/>
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>
+
+    <!-- Exclude jdom:jdom to keep org.jdom:jdom2 only. -->
+    <exclude org="jdom" module="jdom"/>
 
     <override org="junit" module="junit" rev="4.4"/>
     <override org="asm" module="asm" rev="3.1"/>
