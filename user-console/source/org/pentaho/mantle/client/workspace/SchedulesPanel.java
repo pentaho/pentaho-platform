@@ -950,7 +950,7 @@ public class SchedulesPanel extends SimplePanel {
   private void openOutputLocation(final String outputLocation){
     PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
     GenericEvent event = new GenericEvent();
-    event.setEventSubType("OpenFolderEvent");
+    event.setEventSubType("RefreshFolderEvent");
     event.setStringParam(outputLocation);
     EventBusUtil.EVENT_BUS.fireEvent(event);
   }
