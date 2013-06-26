@@ -61,7 +61,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
   boolean canManageAcls = false;
   boolean dirty = false;
 
-  private boolean isFolder = false;
   private String parentPath = null;
 
   /**
@@ -94,7 +93,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     okButton.getElement().setId("filePropertiesOKButton");
     cancelButton.getElement().setId("filePropertiesCancelButton");
 
-    isFolder = fileSummary.isFolder();
     parentPath = fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"));
 
     super.setCallback(new IDialogCallback() {
@@ -163,13 +161,8 @@ public class FilePropertiesDialog extends PromptDialogBox {
               // Refresh current folder or parent folder
               PerspectiveManager.getInstance().setPerspective(PerspectiveManager.BROWSER_PERSPECTIVE);
               GenericEvent ge = new GenericEvent();
-              if(isFolder){
-                ge.setEventSubType("RefreshFolderEvent");
-                ge.setStringParam(parentPath);
-              }
-              else{
-                ge.setEventSubType("RefreshCurrentFolderEvent");
-              }
+              ge.setEventSubType("RefreshFolderEvent");
+              ge.setStringParam(parentPath);
               EventBusUtil.EVENT_BUS.fireEvent(ge);
 
             } else {
