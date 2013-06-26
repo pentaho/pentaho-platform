@@ -55,6 +55,7 @@ public class ArchiveLoaderTest {
     String jobsName = "jobs.zip";
     when(jobs.getName()).thenReturn(jobsName);
     final File reports = mock(File.class);
+    when(jobs.getPath()).thenReturn("/root/path/" + jobsName);
     String reportsName = "reports.zip";
     when(reports.getName()).thenReturn(reportsName);
     when(reports.getPath()).thenReturn("/root/path/" + reportsName);
@@ -66,7 +67,7 @@ public class ArchiveLoaderTest {
     loader.loadAll(directory, ZIPS_FILTER);
     verify(importer).importFile(argThat(bundleMatcher(jobsName, inputStream)));
     verify(importer).importFile(argThat(bundleMatcher(reportsName, inputStream)));
-    verify(jobs, never()).renameTo(any(File.class));
+    verify(jobs).renameTo(argThat(fileMatcher(jobs)));
     verify(reports).renameTo(argThat(fileMatcher(reports)));
   }
 
@@ -105,10 +106,13 @@ public class ArchiveLoaderTest {
     return new ArgumentMatcher<IPlatformImportBundle>() {
       @Override
       public boolean matches(Object argument) {
-        IPlatformImportBundle bundle = (IPlatformImportBundle) argument;
+        RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) argument;
         try {
-          return bundle.getName().equals(filename) && bundle.getAcl() == null
-              && bundle.getInputStream().equals(inputStream);
+          return bundle.getName().equals(filename)
+            && bundle.getAcl() == null
+            && bundle.getInputStream().equals(inputStream)
+            && bundle.overwriteInRepository()
+            && bundle.isHidden();
         } catch (IOException e) {
           return false;
         }

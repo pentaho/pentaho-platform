@@ -44,11 +44,12 @@ public class ArchiveLoader {
     if (files != null) {
       for (File file : files) {
         try {
-          Logger.debug(this.getClass().getName(),this.getClass().getName() + ": importing " + file.getName());
+          Logger.debug(this.getClass().getName(), this.getClass().getName() + ": importing " + file.getName());
           importer.importFile(createBundle(file));
-          file.renameTo(new File(file.getPath() + DATE_FORMAT.format(loadStamp)));
         } catch (Exception e) {
           Logger.error(this.getClass().getName(),e.getMessage(),e);
+        } finally {
+          file.renameTo(new File(file.getPath() + DATE_FORMAT.format(loadStamp)));
         }
       }
     }
@@ -59,9 +60,9 @@ public class ArchiveLoader {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     bundleBuilder.input(createInputStream(file));
     bundleBuilder.charSet("UTF-8");
-    bundleBuilder.hidden(false);
+    bundleBuilder.hidden(true);
     bundleBuilder.path("/");
-    bundleBuilder.overwriteFile(false);
+    bundleBuilder.overwriteFile(true);
     bundleBuilder.name(file.getName());
     bundleBuilder.applyAclSettings(true);
     bundleBuilder.overwriteAclSettings(false);
