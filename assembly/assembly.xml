@@ -108,7 +108,15 @@
           depends="assemble-no-plugins,install-plugins,install-kettle-plugins"
           description="Assembles an archive-based BIServer community edition"/>
 
-
+		  
+  <!-- =================================
+          target: assemble-no-kettle-plugins                      
+         ================================= -->
+  <target name="assemble-no-kettle-plugins"
+          depends="assemble-no-plugins,install-plugins">
+    <chmod perm="a+x" dir="${stage.dir}" includes="**/*.sh" />
+  </target>  
+  
   <!-- =================================
           target: assemble-no-plugins                      
          ================================= -->
