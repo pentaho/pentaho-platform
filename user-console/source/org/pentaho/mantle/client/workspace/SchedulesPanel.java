@@ -21,6 +21,7 @@ import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -858,12 +859,13 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void promptForScheduleResourceError(JsJob job) {
-    final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("warning"), Messages.getString("yes"), Messages.getString("no"), false, true);
+    final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("fileUnavailable"), Messages.getString("yesDelete"), Messages.getString("no"), false, true);
     prompt.setContent(new HTML(Messages.getString("editScheduleResourceDoesNotExist", job.getFullResourceName())));
 
     prompt.setCallback(new IDialogCallback() {
       public void okPressed() {
-        controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+        HashSet<JsJob> jobSet = new HashSet<JsJob>();
+        controlJobs(jobSet, "removeJob", RequestBuilder.DELETE, true);
         prompt.hide();
       }
 
@@ -871,6 +873,7 @@ public class SchedulesPanel extends SimplePanel {
         prompt.hide();
       }
     });
+    prompt.setWidth("530px");
     prompt.center();
   }
   
