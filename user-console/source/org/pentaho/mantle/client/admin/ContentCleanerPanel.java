@@ -77,7 +77,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
-    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob");
+    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob?cb=" + System.currentTimeMillis());
     scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
     try {
       scheduleFileRequestBuilder.sendRequest("", new RequestCallback() {
@@ -201,6 +201,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               scheduleLabelPanel.add(scheduleTextBox);
               scheduleLabelPanel.add(new Label(Messages.getString("daysUsingTheFollowingRules"), false));
               ScheduleRecurrenceDialog editSchedule = new ScheduleRecurrenceDialog(null, jsJob, callback, false, false, AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
+              editSchedule.setShowSuccessDialog(false);
               editSchedule.addCustomPanel(scheduleLabelPanel, DockPanel.NORTH);
               editSchedule.center();
             }
