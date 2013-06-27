@@ -18,13 +18,30 @@ pen.define([
     "js/browser.templates"
 ], function(FileButtons, FolderButtons, TrashButtons, TrashItemButtons) {
 
-    var fileButtons = new FileButtons();
-    var folderButtons = new FolderButtons();
-    var trashButtons = new TrashButtons();
-    var trashItemButtons = new TrashItemButtons();
 
     this.FileBrowser = {};
 
+    FileBrowser.urlParam = function(paramName){
+        var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+        if(value){
+            return value[1];
+        }
+        else{
+            return null;
+        }
+    },
+
+    // retrieve i18n map
+    jQuery.i18n.properties({
+        name: 'messages',
+        mode: 'map',
+        language: FileBrowser.urlParam('locale')
+    });
+
+    var fileButtons = new FileButtons(jQuery.i18n);
+    var folderButtons = new FolderButtons(jQuery.i18n);
+    var trashButtons = new TrashButtons(jQuery.i18n);
+    var trashItemButtons = new TrashItemButtons(jQuery.i18n);
 
     FileBrowser.$container = null;
     FileBrowser.fileBrowserModel = null;
@@ -32,9 +49,8 @@ pen.define([
     FileBrowser.openFileHandler = undefined;
     FileBrowser.showHiddenFiles = false;
     FileBrowser.showDescriptions = false;
-	  FileBrowser.canDownload = false;
-	  FileBrowser.canPublish = false;
-
+	FileBrowser.canDownload = false;
+	FileBrowser.canPublish = false;
 
     FileBrowser.setShowHiddenFiles = function(value){
         this.showHiddenFiles = value;
@@ -62,10 +78,6 @@ pen.define([
 
     FileBrowser.setOpenFileHandler = function(handler){
         this.openFileHandler = handler;
-    };
-
-    FileBrowser.init = function(){
-
     };
 
     FileBrowser.update = function(initialPath){
@@ -113,9 +125,6 @@ pen.define([
 		}
     };
 
-
-
-
     var FileBrowserModel = Backbone.Model.extend({
         defaults: {
             showHiddenFilesURL: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
@@ -141,8 +150,8 @@ pen.define([
             showHiddenFiles: false,
             showDescriptions: false,
 
-			      canDownload: false,
-		        canPublish: false,
+			canDownload: false,
+		    canPublish: false,
 
             spinConfig: undefined,
 
@@ -229,7 +238,7 @@ pen.define([
             }
             this.set("clickedFolder",clickedFolder);
             folderButtons.canDownload(this.get("canDownload"));
-			      folderButtons.canPublish(this.get("canPublish"));
+			folderButtons.canPublish(this.get("canPublish"));
 
         },
 
@@ -331,13 +340,13 @@ pen.define([
                         "fileSize": "0",
                         "folder": "true",
                         "hidden": "false",
-                        "id:": "Trash",
+                        "id:": jQuery.i18n.prop('trash'),
                         "locale": "en",
                         "locked": "false",
-                        "name": "Trash",
+                        "name":  jQuery.i18n.prop('trash'),
                         "ownerType": "-1",
                         "path": ".trash",
-                        "title": "Trash",
+                        "title": jQuery.i18n.prop('trash'),
                         "versioned": "false"
                     }
                 };
@@ -427,7 +436,7 @@ pen.define([
 
                             obj.file=response.repositoryFileDto[i];
                             obj.file.trash="true";
-                            obj.file.pathText="Origin: "; //i18n
+                            obj.file.pathText= jQuery.i18n.prop('originText')+ " " //i18n
                             if(obj.file.id){
                                 if(myself.get("deletedFiles")==""){
                                     myself.set("deletedFiles",obj.file.id+",");
@@ -583,8 +592,10 @@ pen.define([
                 obj.fileName = undefined;
             }
             else if($(folderClicked).attr('path') == ".trash") {
-                obj.trashHeader = "Actions For Trash"; //i18n
+                obj.trashHeader = jQuery.i18n.prop('trash_actions'); //i18n
             }
+
+            obj.i18n=jQuery.i18n;
 
             //require buttons header template
             pen.require(["js/browser.templates"],function(templates){
@@ -602,11 +613,13 @@ pen.define([
             var folderClicked = this.model.getFolderClicked();
 
             var obj = {
-                folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined
+                folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
+                i18n:jQuery.i18n
             };
 
             if(this.model.getLastClick()=="trash"){
-                obj.trashHeader = "Browsing: Trash"; //i18n
+
+                obj.trashHeader = jQuery.i18n.prop('browsing_trash'); //i18n
             }
 
             //require folders header template
@@ -625,11 +638,12 @@ pen.define([
             var folderClicked = this.model.getFolderClicked();
 
             var obj = {
-                folderName : folderClicked != undefined? folderClicked.find("> .element .title").text() : undefined
+                folderName : folderClicked != undefined? folderClicked.find("> .element .title").text() : undefined,
+                i18n:jQuery.i18n
             }
 
             if(this.model.getLastClick()=="trash"){
-                obj.trashHeader = "Trash Contents"; //i18n
+                obj.trashHeader = jQuery.i18n.prop('trash_contents');
             }
 
             //require files header template

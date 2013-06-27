@@ -21,9 +21,9 @@ pen.define([
             "<div id='foldersHeader' class='header'>{{trashHeader}}</div>" +
             "{{else}}" +
             "{{#if folderBreadcrumb}}" +
-            "<div id='foldersHeader' class='header'>Browsing: {{folderBreadcrumb}}</div>" +
+            "<div id='foldersHeader' class='header'>{{i18n 'browsing'}} {{folderBreadcrumb}}</div>" +
             "{{else}}" +
-            "<div id='foldersHeader' class='header'>Browsing: Root</div>" +
+            "<div id='foldersHeader' class='header'>{{i18n 'browsing'}} Root</div>" +
             "{{/if}}"+
             "{{/if}}");
 
@@ -33,9 +33,9 @@ pen.define([
             "<div id='filesHeader' class='header'>{{trashHeader}}</div>" +
             "{{else}}" +
             "{{#if folderName}}"+
-            "<div id='filesHeader' class='header'>{{folderName}} Files</div>" +
+            "<div id='filesHeader' class='header'>{{folderName}} {{i18n 'files'}}</div>" +
             "{{else}}" +
-            "<div id='filesHeader' class='header'>Root Files</div>" +
+            "<div id='filesHeader' class='header'>Root {{i18n 'files'}}</div>" +
             "{{/if}}"+
             "{{/if}}");
 
@@ -45,12 +45,12 @@ pen.define([
                "<div id='buttonsHeader' class='header'>{{trashHeader}}</div>" +
             "{{else}}" +
                 "{{#if folderName}}" +
-                 "<div id='buttonsHeader' class='header'>Folder Actions for {{folderName}}</div>" +
+                 "<div id='buttonsHeader' class='header'>{{i18n 'folderActions'}} {{folderName}}</div>" +
                 "{{else}}" +
                 "{{#if fileName}}" +
-                 "<div id='buttonsHeader' class='header'>File Actions for {{fileName}}</div>" +
+                 "<div id='buttonsHeader' class='header'>{{i18n 'fileActions'}} {{fileName}}</div>" +
                 "{{else}}" +
-                 "<div id='buttonsHeader' class='header'>Folder Actions for Root</div>" +
+                 "<div id='buttonsHeader' class='header'>{{i18n 'folderActions'}} Root</div>" +
                 "{{/if}}" +
             "{{/if}}" +
          "{{/if}}");
@@ -141,6 +141,12 @@ pen.define([
 				optional: (this.id=="optional-separator")
         }));
     });
+
+    Handlebars.registerHelper('i18n',
+        function(str){
+            return (this.i18n != undefined ? this.i18n.prop(str) : str);
+        }
+    );
 
     //helper registration for file template
     Handlebars.registerHelper('file', function(){
