@@ -99,6 +99,7 @@ public class DeleteFileCommand extends AbstractCommand {
     names = names.substring(0, names.length() - 1);
     final String filesList = temp;
 
+    if(feedback){
     final Label messageTextBox = new Label(Messages.getString("moveToTrashQuestionFile",names));
     final PromptDialogBox fileMoveToTrashWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     fileMoveToTrashWarningDialogBox.setContent(messageTextBox);
@@ -112,49 +113,57 @@ public class DeleteFileCommand extends AbstractCommand {
 
       public void okPressed() {
 
-        String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
-        RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
-        deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
-        try {
-          deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true);
-              dialogBox.center();
-
-              event.setMessage(Messages.getString("couldNotDeleteFile"));
-              EventBusUtil.EVENT_BUS.fireEvent(event);
-            }
-
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              if (response.getStatusCode() == 200) {
-                event.setMessage("Success");
-                EventBusUtil.EVENT_BUS.fireEvent(event);
-                new RefreshRepositoryCommand().execute(false);
-              } else {
-                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
-                    false, false, true);
-                dialogBox.center();
-                event.setMessage(Messages.getString("couldNotDeleteFile"));
-                EventBusUtil.EVENT_BUS.fireEvent(event);
-              }
-            }
-
-          });
-        } catch (RequestException e) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
-              false, false, true);
-          dialogBox.center();
-          event.setMessage(Messages.getString("couldNotDeleteFile"));
-          EventBusUtil.EVENT_BUS.fireEvent(event);
-        }
-
+        doDelete(filesList,event);
       }
     };
     fileMoveToTrashWarningDialogBox.setCallback(callback);
     fileMoveToTrashWarningDialogBox.center();
+    }
+    else{
+      doDelete(filesList,event);
+    }
+  }
+
+  public void doDelete(String filesList, final SolutionFileActionEvent event) {
+    String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
+    RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
+    deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
+    try {
+      deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
+
+        @Override
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
+              false, false, true);
+          dialogBox.center();
+
+          event.setMessage(Messages.getString("couldNotDeleteFile"));
+          EventBusUtil.EVENT_BUS.fireEvent(event);
+        }
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == 200) {
+            event.setMessage("Success");
+            EventBusUtil.EVENT_BUS.fireEvent(event);
+            new RefreshRepositoryCommand().execute(false);
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true);
+            dialogBox.center();
+            event.setMessage(Messages.getString("couldNotDeleteFile"));
+            EventBusUtil.EVENT_BUS.fireEvent(event);
+          }
+        }
+
+      });
+    } catch (RequestException e) {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
+          false, false, true);
+      dialogBox.center();
+      event.setMessage(Messages.getString("couldNotDeleteFile"));
+      EventBusUtil.EVENT_BUS.fireEvent(event);
+    }
+
   }
 }

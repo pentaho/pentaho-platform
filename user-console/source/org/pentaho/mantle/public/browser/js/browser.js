@@ -606,7 +606,7 @@ pen.define([
             };
 
             if(this.model.getLastClick()=="trash"){
-                obj.trashHeader = "Browsing: Trash";
+                obj.trashHeader = "Browsing: Trash"; //i18n
             }
 
             //require folders header template
@@ -629,7 +629,7 @@ pen.define([
             }
 
             if(this.model.getLastClick()=="trash"){
-                obj.trashHeader = "Trash Contents";
+                obj.trashHeader = "Trash Contents"; //i18n
             }
 
             //require files header template
@@ -658,7 +658,6 @@ pen.define([
             else if (lastClick == "trash"){
                 buttonsType = this.model.defaults.trashButtons;
             }
-
 
             else if (lastClick == "trashItem"){
                 buttonsType = this.model.defaults.trashItemButtons;
@@ -693,9 +692,10 @@ pen.define([
                         else if(model.getLastClick() == "trashItem"){
                             fileList = $(model.getFileClicked()[0]).attr("id")+",";
                             type = $(model.getFileClicked()[0]).attr("type");
+
                         }
                         if((path != null) && event.data.handler){
-                            event.data.handler(path, title, type);
+                            event.data.handler(path, title);
                             event.stopPropagation();
                         }
                         else {
