@@ -22,62 +22,38 @@ pen.define([
 			that.buttons = [
 				{
 					id: "newFolderButton",	
-					text: "New Folder", 
-					i18n: "contextAction_newFolder",
+					text: this.i18n.prop('contextAction_newFolder'),
 					handler: $.proxy(that.newFolderHandler, that)
 				},
 				{
 					id: "deleteFolderButton",	
-					text: "Delete",	
-					i18n: "contextAction_delete", 							
+					text: this.i18n.prop('contextAction_delete'),
 					handler: $.proxy(that.deleteFolderHandler, that)
 				},
 				{id: "separator"},
 				{
 					id: "pasteButton",			
-					text: "Paste", 			
-					i18n: "contextAction_paste",
+					text: this.i18n.prop('contextAction_paste'),
 					handler: $.proxy(that.pasteHandler, that)
 				},
 				{id: "separator"},
 				{
 					id: "uploadButton",		
-					text: "Upload", 		
-					i18n: "contextAction_upload",
+					text: this.i18n.prop('contextAction_upload'),
 					handler: $.proxy(that.uploadHandler, that)
 				},
 				{
 					id: "downloadButton",	
-					text: "Download", 	
-					i18n: "contextAction_download",
+					text: this.i18n.prop('contextAction_download'),
 					handler: $.proxy(that.downloadHandler, that)
 				},
 				{id: "optional-separator"},
 				{
 					id: "propertiesButton",
-					text: "Properties", 
-					i18n: "contextAction_properties",
+					text: this.i18n.prop('contextAction_properties'),
 					handler: $.proxy(that.propertiesHandler, that)
 				}
 			];
-
-			// retrieve i18n map
-			jQuery.i18n.properties({
-	      name: 'messages',
-	      mode: 'map',
-	      language: that.urlParam('locale'),
-	      callback: function () {
-	      	// replace default text with locale properties
-					$(that.buttons).each(function(idx, fb){
-						if(fb.i18n){
-							var localeString = jQuery.i18n.prop(fb.i18n);
-							if(localeString && (localeString != '['+fb.i18n+']')){
-								fb.text = localeString;
-							}
-						}	
-					});
-	      }
-	    });
 
       that.initEventHandlers();
 			
@@ -177,8 +153,9 @@ pen.define([
 
 	};
 
-	var FolderButtons = function(){
-    this.init();
+	var FolderButtons = function(i18n){
+        this.i18n=i18n;
+        this.init();
   }
   FolderButtons.prototype = local;
   return FolderButtons;

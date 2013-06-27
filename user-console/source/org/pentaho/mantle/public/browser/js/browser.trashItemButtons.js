@@ -22,36 +22,17 @@ pen.define([
             that.buttons = [
                 {
                     id: "restore",
-                    text: "Restore",
-                    i18n: "contextAction_restore",
+                    text: this.i18n.prop('contextAction_restore'),
                     handler: $.proxy(that.restoreHandler, that)
                 },
 
                 {
                     id: "permDel",
-                    text: "Permanently Delete",
-                    i18n: "contextAction_permDelete",
+                    text: this.i18n.prop('contextAction_permDelete'),
                     handler: $.proxy(that.permDeleteHandler, that)
                 }
             ];
 
-            // retrieve i18n map
-            jQuery.i18n.properties({
-                name: 'messages',
-                mode: 'map',
-                language: that.urlParam('locale'),
-                callback: function () {
-                    // replace default text with locale properties
-                    $(that.buttons).each(function(idx, fb){
-                        if(fb.i18n){
-                            var localeString = jQuery.i18n.prop(fb.i18n);
-                            if(localeString && (localeString != '['+fb.i18n+']')){
-                                fb.text = localeString;
-                            }
-                        }
-                    });
-                }
-            });
             that.initEventHandlers();
         },
 
@@ -94,7 +75,8 @@ pen.define([
         }
     };
 
-    var TrashItemButtons = function(){
+    var TrashItemButtons = function(i18n){
+        this.i18n=i18n;
         this.init();
     }
     TrashItemButtons.prototype = local;
