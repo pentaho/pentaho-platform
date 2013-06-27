@@ -85,12 +85,12 @@ pen.define([
             console.log(event.action + " : " + event.message);
         },
 
-        restoreHandler: function(files, type, mode){
-            window.top.executeCommand("RestoreFileCommand", this.buildParameter(files, type, mode));
+        restoreHandler: function(fileList, type, mode){
+            window.top.executeCommand("RestoreFileCommand", this.buildParameter(fileList, type, null));
         },
 
-        permDeleteHandler: function(files, type, mode){
-            window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(files,type,mode));
+        permDeleteHandler: function(fileList, type, mode){
+            window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(fileList, type, mode));
         }
     };
 

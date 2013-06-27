@@ -45,6 +45,16 @@ public class RestoreFileCommand implements Command {
 
   String fileList;
 
+  String type;
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
   public String getFileList() {
     return fileList;
   }
@@ -57,7 +67,7 @@ public class RestoreFileCommand implements Command {
   }
   
   /**
-   * @param fileSummary
+   * @param selectedItemsClone
    */
   public RestoreFileCommand(List<RepositoryFile> selectedItemsClone) {
     repositoryFiles = selectedItemsClone;
@@ -71,10 +81,11 @@ public class RestoreFileCommand implements Command {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
     event.setAction(this.getClass().getName());
     String temp = "";
+
     if(repositoryFiles!=null){
        for (RepositoryFile repoFile : repositoryFiles) {
         temp += repoFile.getId() + ","; //$NON-NLS-1$
-      }
+       }
     }
 
     //Add file names from js
@@ -94,10 +105,10 @@ public class RestoreFileCommand implements Command {
 
         @Override
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRestoreItem"), //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("cannotRestore"), Messages.getString("couldNotRestoreItem", type), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
           dialogBox.center();
-          event.setMessage("couldNotRestoreItem");
+          event.setMessage("cannotRestore");
           EventBusUtil.EVENT_BUS.fireEvent(event);
         }
 
@@ -108,20 +119,19 @@ public class RestoreFileCommand implements Command {
             event.setMessage("Success");
             EventBusUtil.EVENT_BUS.fireEvent(event);
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRestoreItem"), //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("cannotRestore"), Messages.getString("couldNotRestoreItem",type), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
-            event.setMessage(Messages.getString("couldNotRestoreItem"));
+            event.setMessage("Success");
             EventBusUtil.EVENT_BUS.fireEvent(event);
           }                
         }
-        
       });
     } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRestoreItem"), //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("restoreError"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
       dialogBox.center();
-      event.setMessage(Messages.getString("couldNotRestoreItem"));
+      event.setMessage(Messages.getString("restoreError"));
       EventBusUtil.EVENT_BUS.fireEvent(event);
     }
   }
