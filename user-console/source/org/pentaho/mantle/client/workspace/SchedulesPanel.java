@@ -202,6 +202,13 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void filterAndShowData() {
+
+	filters.add(new IJobFilter() {
+        public boolean accept(JsJob job) {
+          return !job.getFullResourceName().equals("GeneratedContentCleaner");
+        }
+    });
+	  
     ArrayList<JsJob> filteredList = new ArrayList<JsJob>();
     for (int i = 0; i < allJobs.length(); i++) {
       filteredList.add(allJobs.get(i));
