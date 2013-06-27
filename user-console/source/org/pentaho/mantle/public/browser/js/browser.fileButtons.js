@@ -25,98 +25,68 @@ pen.define([
 			that.buttons = [
 				{
 					id: "openButton",	
-					text: "Open",	
-					i18n: "contextAction_open", 							
+					text: this.i18n.prop('contextAction_open'),
 					handler: $.proxy(that.openButtonHandler, that)
 				},
 				{
 					id: "openNewButton", 
-					text: "Open in a new window", 
-					i18n: "contextAction_openNewWindow", 			
+					text: this.i18n.prop('contextAction_openNewWindow'),
 					handler: $.proxy(that.openNewButtonHandler, that)
 				},
 				{
 					id: "runButton", 
-					text: "Run in background", 
-					i18n: "contextAction_runBackground",
+					text: this.i18n.prop('contextAction_runBackground'),
 					handler: $.proxy(that.runInBackgroundHandler, that)
 				},
 				{
 					id: "editButton", 
-					text: "Edit", 
-					i18n: "contextAction_edit",
+					text: this.i18n.prop('contextAction_edit'),
 					handler: $.proxy(that.editHandler, that)
 				},
 				{id: "separator"},
 				{
 					id: "deleteButton", 
-					text: "Delete",	
-					i18n: "contextAction_delete",
+					text: this.i18n.prop('contextAction_delete'),
 					handler: $.proxy(that.deleteHandler, that)
 				},
 				{
 					id: "cutbutton", 
-					text: "Cut", 
-					i18n: "contextAction_cut",
+					text: this.i18n.prop('contextAction_cut'),
 					handler: $.proxy(that.cutHandler, that)
 				},
 				{
 					id: "copyButton", 
-					text: "Copy", 
-					i18n: "contextAction_copy",
+					text: this.i18n.prop('contextAction_copy'),
 					handler: $.proxy(that.copyHandler, that)
 				},
 				{id: "separator"},
 				{
 					id: "downloadButton",	
-					text: "Download...", 
-					i18n: "contextAction_download",
+					text: this.i18n.prop('contextAction_download'),
 					handler: $.proxy(that.downloadHandler, that)
 				},
 				{id: "optional-separator"},
 				{
 					id: "shareButton", 
-					text: "Share...", 
-					i18n: "contextAction_share",
+					text: this.i18n.prop('contextAction_share'),
 					handler: $.proxy(that.shareHandler, that)
 				},
 				{
 					id: "scheduleButton",	
-					text: "Schedule...", 
-					i18n: "contextAction_schedule",
+					text: this.i18n.prop('contextAction_schedule'),
 					handler: $.proxy(that.scheduleHandler, that)
 				},
 				{
 					id: "favoritesButton", 
-					text: "Add to Favorites", 
-					i18n: "contextAction_addToFavorites",
+					text: this.i18n.prop('contextAction_addToFavorites'),
 					handler: $.proxy(that.favoritesHandler, that)
 				},
 				{
 					id: "propertiesButton", 
-					text: "Properties",	
-					i18n: "contextAction_properties",
+					text: this.i18n.prop('contextAction_properties'),
 					handler: $.proxy(that.propertiesHandler, that)
 				}
 			];
-
-			// retrieve i18n map
-			jQuery.i18n.properties({
-	      name: 'messages',
-	      mode: 'map',
-	      language: that.urlParam('locale'),
-	      callback: function () {
-	      	// replace default text with locale properties
-					$(that.buttons).each(function(idx, fb){
-						if(fb.i18n){
-							var localeString = jQuery.i18n.prop(fb.i18n);
-							if(localeString && (localeString != '['+fb.i18n+']')){
-								fb.text = localeString;
-							}
-						}	
-					});
-	      }
-	    });
 
       that.initEventHandlers();
       that.refreshFavoritesList();
@@ -311,7 +281,8 @@ pen.define([
 		}
 	};
 
-	var FileButtons = function(){
+	var FileButtons = function(i18n){
+    this.i18n=i18n;
     this.init();
   }
   FileButtons.prototype = local;
