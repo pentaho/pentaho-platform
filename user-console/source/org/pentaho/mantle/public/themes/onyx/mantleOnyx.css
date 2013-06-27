@@ -925,12 +925,8 @@ a:active, a:hover {
   color: #50798c;
 }
 
-.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem:hover {
-  background-color: #dce7ed;
-}
-
 .custom-dropdown-selected {
-  background-color: #d7e9cd;
+  background-color: #d7e9cd !important;
   color: #283a44;
 }
 
@@ -945,7 +941,7 @@ a:active, a:hover {
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-selected {
   color: #50798c;
-  background-color: #d7e9cd;
+  background-color: transparent;
 }
 
 .custom-dropdown-popup  .gwt-MenuBar-vertical {
