@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.commands;
 
 import java.util.List;
 
+import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -106,7 +107,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
       deleteMessage=Messages.getString("deleteQuestion", type);
       deleteConfirmDialog = new PromptDialogBox(Messages.getString("permDelete"), Messages.getString("yesPermDelete"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
-    vp.add(new Label(deleteMessage)); //$NON-NLS-1$
+    vp.add(new HTML(deleteMessage)); //$NON-NLS-1$
 
     final IDialogCallback callback = new IDialogCallback() {
 

@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -100,7 +101,7 @@ public class DeleteFileCommand extends AbstractCommand {
     final String filesList = temp;
 
     if(feedback){
-    final Label messageTextBox = new Label(Messages.getString("moveToTrashQuestionFile",names));
+    final HTML messageTextBox = new HTML(Messages.getString("moveToTrashQuestionFile",names));
     final PromptDialogBox fileMoveToTrashWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     fileMoveToTrashWarningDialogBox.setContent(messageTextBox);
 
