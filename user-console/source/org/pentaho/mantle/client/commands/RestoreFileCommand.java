@@ -120,7 +120,7 @@ public class RestoreFileCommand implements Command {
             EventBusUtil.EVENT_BUS.fireEvent(event);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("cannotRestore"), Messages.getString("couldNotRestoreItem",type), //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true);
+                false, false, true, Messages.getString("close"));
             dialogBox.center();
             event.setMessage("Success");
             EventBusUtil.EVENT_BUS.fireEvent(event);
