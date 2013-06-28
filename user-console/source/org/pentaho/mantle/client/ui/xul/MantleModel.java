@@ -193,6 +193,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     if (frame == null) {
       frame = new Frame(url);
       frame.getElement().setId(securityPanelId);
+      frame.getElement().setAttribute("frameBorder", "0");
       MantleXul.getInstance().getAdminContentDeck().add(frame);
     }
     MantleXul.getInstance().getAdminContentDeck().showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
