@@ -103,6 +103,9 @@
 .fileBrowserColumn .body .folder.selected > .element > .title{
 }
 
+.fileBrowserColumn .body .folder.secondarySelected > .element > .title{
+}
+
 .fileBrowserColumn .body div.folder > div.element > div.expandCollapse {
 	background: url("../resources/images/expandCollapse.png") no-repeat -1px 5px;
 }
