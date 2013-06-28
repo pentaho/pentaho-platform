@@ -696,6 +696,10 @@ code {
   width: 237px;
 }
 
+#adminCatTree .tree-scroll-panel {
+  overflow: visible;
+}
+
 .fill-absolute {
   position: absolute;
   top: 0;
