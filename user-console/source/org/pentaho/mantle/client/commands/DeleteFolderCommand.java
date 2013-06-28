@@ -16,6 +16,7 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -84,7 +85,7 @@ public class DeleteFolderCommand extends AbstractCommand {
 
     final String filesList = repositoryFile.getId();
     final String folderName = repositoryFile.getName();
-    final Label messageTextBox = new Label(Messages.getString("moveToTrashQuestionFolder",folderName));
+    final HTML messageTextBox = new HTML(Messages.getString("moveToTrashQuestionFolder",folderName));
     final PromptDialogBox folderDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     folderDeleteWarningDialogBox.setContent(messageTextBox);
 

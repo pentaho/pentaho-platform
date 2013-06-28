@@ -956,7 +956,9 @@ pen.define([
 
         doubleClickFile: function(event){
             var path = $(event.currentTarget).attr("path");
-            this.model.get("openFileHandler")(path, "run");
+            if(!path.contains(".trash")){
+                this.model.get("openFileHandler")(path, "run");
+            }
         },
 
         updateFileList: function(){
