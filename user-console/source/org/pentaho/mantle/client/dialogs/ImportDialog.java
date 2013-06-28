@@ -86,8 +86,6 @@ public class ImportDialog extends PromptDialogBox {
         String result = sce.getResults();
         if (result.length() > 5) {
           logWindow(result,Messages.getString("importLogWindowTitle"));
-        } else {
-          Window.alert (Messages.getString("importSuccessMessage"));
         }
 
         // BISERVER-9319 Refresh browse perspective after import

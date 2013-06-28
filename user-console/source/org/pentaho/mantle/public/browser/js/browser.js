@@ -838,7 +838,11 @@ pen.define([
             });
 
             $(".folder.selected").removeClass("selected");
+            $(".folder.secondarySelected").removeClass("secondarySelected");
             $target.addClass("selected");
+
+            //deselect any files
+            $(".file.selected").removeClass("selected");
 
             event.stopPropagation();
         },
@@ -952,11 +956,17 @@ pen.define([
 
             $(".file.selected").removeClass("selected");
             $target.addClass("selected");
+
+            //Add secondary selection to folder
+             $(".folder.selected").addClass("secondarySelected");
+             $(".folder.selected").removeClass("selected");
+
         },
 
         doubleClickFile: function(event){
             var path = $(event.currentTarget).attr("path");
-            if(!path.contains(".trash")){
+            //if not trash item, try to open the file.
+            if(FileBrowser.fileBrowserModel.getLastClick()!="trashItem"){
                 this.model.get("openFileHandler")(path, "run");
             }
         },
