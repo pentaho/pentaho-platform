@@ -69,17 +69,17 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         logImportFile(file);
         handler.importFile(file);
       } catch (DomainIdNullException e1) {
-        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED);
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED, e1);
       } catch (DomainAlreadyExistsException e1) {
-        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR);
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, e1);
       } catch (DomainStorageException e1) {
-        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_DATASOURCE_ERROR);
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_DATASOURCE_ERROR, e1);
       } catch (IOException e1) {
-        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR, e1);
       } catch (PlatformImportException pe){
         throw pe; // if already converted - just rethrow
       }catch (Exception e1) {
-        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR, e1);
       }
     } catch (Exception e) {
       //If we are doing a logged import then we do not want to fail on a single file
