@@ -30,7 +30,7 @@ public class PlatformImportException extends Exception {
   
   public static final int PUBLISH_CONTENT_EXISTS_ERROR = 9;
 
-  private int errorStatusCode = 1;
+  private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 
   public PlatformImportException(String s) {
     super(s);

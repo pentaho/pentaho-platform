@@ -19,6 +19,8 @@ package org.pentaho.platform.plugin.services.importer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -72,10 +74,13 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       log.debug("Importing as metadata - [domain=" + domainId + "]");
       metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, bundle.overwriteInRepository());
       return domainId;
+    } catch (DomainIdNullException dine) {
+      throw new PlatformImportException(dine.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dine);
+    } catch (DomainStorageException dse) {
+      throw new PlatformImportException(dse.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dse);
     } catch (DomainAlreadyExistsException daee) {
-        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR);
-    }
-    catch (Exception e) {
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, daee);
+    } catch (Exception e) {
       final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0001_IMPORTING_METADATA",
           domainId, e.getLocalizedMessage());
       log.error(errorMessage, e);

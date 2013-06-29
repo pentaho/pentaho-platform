@@ -70,11 +70,8 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       throw new PlatformImportException("Bundle missing required domain-id property");
     }
     try {
-      MondrianCatalog catalog =
-          this.createCatalogObject(domainId, xmla, bundle);
-
-      mondrianRepositoryImporter.addCatalog(bundle.getInputStream(), catalog, overwriteInRepossitory,
-          PentahoSessionHolder.getSession());
+      MondrianCatalog catalog = this.createCatalogObject(domainId, xmla, bundle);
+      mondrianRepositoryImporter.addCatalog(bundle.getInputStream(), catalog, overwriteInRepossitory, PentahoSessionHolder.getSession());
     } catch (MondrianCatalogServiceException mse) {
       int statusCode = convertExceptionToStatus(mse);
       throw new PlatformImportException(mse.getMessage(), statusCode);
