@@ -69,6 +69,7 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -541,7 +542,19 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$ 
           Reason.XMLA_SCHEMA_NAME_EXISTS);
     }
-
+    //check if the file is a valid schema
+    try {
+      StringWriter writer = new StringWriter();
+      IOUtils.copy(schemaInputStream, writer, "UTF8");
+      String catalogStr = writer.toString();
+      makeSchema(catalogStr);
+      schemaInputStream = new ByteArrayInputStream(catalogStr.getBytes());
+    }
+    catch (Exception ex) {
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
+          Reason.valueOf(ex.getMessage()));
+    }
     try {
       org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(
           PentahoSystem.get(IUnifiedRepository.class));
