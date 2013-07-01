@@ -199,8 +199,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       throw new DomainIdNullException(messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL"));
     }
 
-    // Check to see if the domain already exists
     synchronized (metadataMapping) {
+      // Check to see if the domain already exists
       final RepositoryFile domainFile = getMetadataRepositoryFile(domainId);
       if (!overwrite && domainFile != null) {
         final String errorString =
@@ -209,8 +209,20 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         throw new DomainAlreadyExistsException(errorString);
       }
 
+      XmiParser xmiParser = new XmiParser();
+      InputStream inputStream2 = null;
+      try {
+        Domain domain = xmiParser.parseXmi(inputStream);
+        String xmi = xmiParser.generateXmi(domain);
+        inputStream2 = new ByteArrayInputStream(xmi.getBytes("UTF8"));
+      }
+      catch (Exception ex){
+        logger.error(ex.getMessage());
+        throw new DomainStorageException(messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0010_ERROR_PARSING_XMI"), ex);
+      }
+      
       // Store the domain in the repository
-      final SimpleRepositoryFileData data = new SimpleRepositoryFileData(inputStream, DEFAULT_ENCODING, DOMAIN_MIME_TYPE);
+      final SimpleRepositoryFileData data = new SimpleRepositoryFileData(inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE);
       if (domainFile == null) {
         final RepositoryFile newDomainFile = createUniqueFile(domainId, null, data);
       } else {
