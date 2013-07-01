@@ -49,7 +49,7 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox
   }-*/;
 
   public ScheduleOutputLocationDialog(final String filePath){
-    super(Messages.getString("newSchedule"), Messages.getString("nextStep"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    super(Messages.getString("runInBackground"), Messages.getString("nextStep"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     this.filePath = filePath;
     createUI();
     setupCallbacks();
