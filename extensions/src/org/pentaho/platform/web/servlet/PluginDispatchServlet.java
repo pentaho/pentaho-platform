@@ -177,7 +177,11 @@ public class PluginDispatchServlet implements Servlet {
         if (logger.isDebugEnabled()) {
           logger.debug("calling init on servlet " + pluginServlet.getClass().getName() + " serving context " + context);  //$NON-NLS-1$//$NON-NLS-2$
         }
-        pluginServlet.init(servletConfig);
+        try {
+          pluginServlet.init(servletConfig);
+        } catch (Throwable t) {
+          logger.error("Could not load servlet '" + context + "'", t);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
       }
     }
 

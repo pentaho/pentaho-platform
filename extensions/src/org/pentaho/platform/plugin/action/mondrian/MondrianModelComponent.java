@@ -208,7 +208,7 @@ public class MondrianModelComponent extends ComponentBase {
       if (modelPath.indexOf("http") == 0) { //$NON-NLS-1$
         properties.put(RolapConnectionProperties.Catalog.name(), modelPath); //$NON-NLS-1$
       } else {
-        if (!modelPath.startsWith("solution:")) { //$NON-NLS-1$
+        if (!modelPath.startsWith("solution:") && !modelPath.startsWith("mondrian:")) { //$NON-NLS-1$
           modelPath = "solution:" + modelPath; //$NON-NLS-1$
         }
         properties.put(RolapConnectionProperties.Catalog.name(), modelPath); //$NON-NLS-1$
@@ -256,7 +256,7 @@ public class MondrianModelComponent extends ComponentBase {
     if (modelPath.indexOf("http") == 0) { //$NON-NLS-1$
       properties.put(RolapConnectionProperties.Catalog.name(), modelPath); //$NON-NLS-1$
     } else {
-      if (!modelPath.startsWith("solution:")) { //$NON-NLS-1$
+      if (!modelPath.startsWith("solution:") && !modelPath.startsWith("mondrian:")) { //$NON-NLS-1$
         modelPath = "solution:" + modelPath; //$NON-NLS-1$
       }
       properties.put(RolapConnectionProperties.Catalog.name(), modelPath); //$NON-NLS-1$
