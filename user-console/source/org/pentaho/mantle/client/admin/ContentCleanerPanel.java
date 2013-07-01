@@ -79,6 +79,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob?cb=" + System.currentTimeMillis());
     scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+    scheduleFileRequestBuilder.setHeader("accept", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+    
     try {
       scheduleFileRequestBuilder.sendRequest("", new RequestCallback() {
         public void onError(Request request, Throwable exception) {
@@ -94,6 +96,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           scheduleTextBox.setVisibleLength(4);
 
           JsJob tmpJsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
+          
           boolean fakeJob = false;
           if (tmpJsJob == null) {
             tmpJsJob = createJsJob();
@@ -261,6 +264,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   private final native JsJob parseJsonJob(String json)
   /*-{
+    window.top.jobjson = json;
     if (null == json || "" == json) {
       return null;
     }
