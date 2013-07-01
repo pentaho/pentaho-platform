@@ -14,8 +14,7 @@
 			<menubar id="favoritesmenu" label="${favorites}" layout="vertical" />	
 			<menubarseparator id="openSeparator"/>
 			<menuitem id="saveMenuItem" label="${save}" command="mantleXulHandler.saveClicked()" disabled="true" />		
-			<menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()" disabled="true" />		
-			<menuitem id="propertiesMenuItem" label="${propertiesEllipsis}" command="mantleXulHandler.propertiesClicked()" disabled="true"/>		
+			<menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()" disabled="true" />
 			<menubarseparator id="logoutSeparator"/>
 			<menuitem id="logoutMenuItem" label="${logout}" command="mantleXulHandler.executeMantleCommand('LogoutCommand')" />		
 		</menubar>
