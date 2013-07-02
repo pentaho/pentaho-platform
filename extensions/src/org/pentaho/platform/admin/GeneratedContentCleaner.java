@@ -58,7 +58,7 @@ public class GeneratedContentCleaner implements IAction {
     RepositoryFile parentFile = parent.getFile();
     if (!parentFile.isFolder()) {
       long createTime = parentFile.getCreatedDate().getTime();
-      if (createTime <= (System.currentTimeMillis() - age)) {
+      if (createTime <= (System.currentTimeMillis() - (age*1000))) {
         // now check metadata for RESERVEDMAPKEY_LINEAGE_ID (all generated content has)
         Map<String, Serializable> metadata = repository.getFileMetadata(parentFile.getId());
         if (metadata.containsKey(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID)) {

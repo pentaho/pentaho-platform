@@ -100,8 +100,6 @@ public class MantleController extends AbstractXulEventHandler {
 
   private XulToolbarbutton contentEditBtn;
 
-  private XulMenuitem propertiesMenuItem;
-
   private XulMenuitem saveMenuItem;
 
   private XulMenuitem saveAsMenuItem;
@@ -171,7 +169,6 @@ public class MantleController extends AbstractXulEventHandler {
     bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding(model, "contentEditSelected", this, "editContentSelected"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem"); //$NON-NLS-1$
     saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem"); //$NON-NLS-1$
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem"); //$NON-NLS-1$
     useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem"); //$NON-NLS-1$
@@ -282,7 +279,6 @@ public class MantleController extends AbstractXulEventHandler {
                   ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
                 }
 
-                bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
                 bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
                 bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -855,16 +851,6 @@ public class MantleController extends AbstractXulEventHandler {
     } catch (Throwable t) {
       return false;
     }
-  }
-
-  @Bindable
-  public void setPropertiesEnabled(boolean enable) {
-    propertiesMenuItem.setDisabled(!enable);
-  }
-
-  @Bindable
-  public boolean isPropertiesEnabled() {
-    return !propertiesMenuItem.isDisabled();
   }
 
   @Bindable
