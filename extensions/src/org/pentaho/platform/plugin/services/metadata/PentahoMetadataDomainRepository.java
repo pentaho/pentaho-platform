@@ -18,8 +18,10 @@ package org.pentaho.platform.plugin.services.metadata;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -162,11 +164,12 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       throw new DomainIdNullException(messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL"));
     }
 
+    String xmi = "";
     try {
       // NOTE - a ByteArrayInputStream doesn't need to be closed ...
       //  ... so this is safe AS LONG AS we use a ByteArrayInputStream
-      final String xmi = xmiParser.generateXmi(domain);
-      final InputStream inputStream = new ByteArrayInputStream(xmi.getBytes());
+      xmi = xmiParser.generateXmi(domain);
+      final InputStream inputStream = new ByteArrayInputStream(xmi.getBytes("UTF8"));
       storeDomain(inputStream, domain.getId(), overwrite);
     } catch (DomainStorageException dse) {
       throw dse;
@@ -177,7 +180,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
           messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0003_ERROR_STORING_DOMAIN",
               domain.getId(), e.getLocalizedMessage());
       logger.error(errorMessage, e);
-      throw new DomainStorageException(errorMessage, e);
+      throw new DomainStorageException(xmi + errorMessage, e);
     }
   }
 
@@ -208,20 +211,32 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         logger.error(errorString);
         throw new DomainAlreadyExistsException(errorString);
       }
-
-      XmiParser xmiParser = new XmiParser();
+      
+      //Check if this is valid xml
       InputStream inputStream2 = null;
+      String xmi = null;
       try {
-        Domain domain = xmiParser.parseXmi(inputStream);
-        String xmi = xmiParser.generateXmi(domain);
-        inputStream2 = new ByteArrayInputStream(xmi.getBytes("UTF8"));
+        //first, convert our input stream to a string
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((xmi = reader.readLine()) != null) {
+          stringBuilder.append(xmi);
+        }
+        inputStream.close();
+        xmi = stringBuilder.toString();
+        //now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
+        Domain domain = xmiParser.parseXmi(new java.io.ByteArrayInputStream(xmi.getBytes()));
+        //xmi is valid. Create a new inputstream for the actual import action.
+        inputStream2 = new java.io.ByteArrayInputStream(xmi.getBytes());
       }
       catch (Exception ex){
         logger.error(ex.getMessage());
-        throw new DomainStorageException(messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0010_ERROR_PARSING_XMI"), ex);
+        //throw new DomainStorageException(messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0010_ERROR_PARSING_XMI"), ex);
+        java.io.ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ex.printStackTrace(new java.io.PrintStream(byteArrayOutputStream));
+        throw new DomainStorageException(byteArrayOutputStream.toString(), ex);
       }
       
-      // Store the domain in the repository
       final SimpleRepositoryFileData data = new SimpleRepositoryFileData(inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE);
       if (domainFile == null) {
         final RepositoryFile newDomainFile = createUniqueFile(domainId, null, data);
