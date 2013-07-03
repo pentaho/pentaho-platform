@@ -66,6 +66,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -723,6 +724,21 @@ public class SchedulesPanel extends SimplePanel {
     triggerNowButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
+          MessageDialogBox messageDialog = new MessageDialogBox(Messages.getString("executeNow"), Messages.getString("executeNowStarted"), false, true, true);
+          messageDialog.setCallback(new IDialogCallback() {
+            public void okPressed() {
+              // wait a little to refresh to give schedule time to update the last run
+              Timer t = new Timer() {
+                public void run() {
+                  refresh();
+                }
+              };
+              t.schedule(2000);
+            }
+            public void cancelPressed() {
+            }
+          });
+          messageDialog.center();
           controlJobs(selectedJobs, "triggerNow", RequestBuilder.POST, false);
         }
       }
