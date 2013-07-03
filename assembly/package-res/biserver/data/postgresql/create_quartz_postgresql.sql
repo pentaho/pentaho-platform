@@ -19,20 +19,20 @@ GRANT ALL ON DATABASE quartz to pentaho_user;
 
 begin;
 
-drop table if exists qrtz_job_listeners;
-drop table if exists qrtz_trigger_listeners;
-drop table if exists qrtz_fired_triggers;
-drop table if exists qrtz_paused_trigger_grps;
-drop table if exists qrtz_scheduler_state;
-drop table if exists qrtz_locks;
-drop table if exists qrtz_simple_triggers;
-drop table if exists qrtz_cron_triggers;
-drop table if exists qrtz_blob_triggers;
-drop table if exists qrtz_triggers;
-drop table if exists qrtz_job_details;
-drop table if exists qrtz_calendars;
+drop table if exists qrtz5_job_listeners;
+drop table if exists qrtz5_trigger_listeners;
+drop table if exists qrtz5_fired_triggers;
+drop table if exists qrtz5_paused_trigger_grps;
+drop table if exists qrtz5_scheduler_state;
+drop table if exists qrtz5_locks;
+drop table if exists qrtz5_simple_triggers;
+drop table if exists qrtz5_cron_triggers;
+drop table if exists qrtz5_blob_triggers;
+drop table if exists qrtz5_triggers;
+drop table if exists qrtz5_job_details;
+drop table if exists qrtz5_calendars;
 
-CREATE TABLE qrtz_job_details
+CREATE TABLE qrtz5_job_details
   (
     JOB_NAME  VARCHAR(200) NOT NULL,
     JOB_GROUP VARCHAR(200) NOT NULL,
@@ -46,17 +46,17 @@ CREATE TABLE qrtz_job_details
     PRIMARY KEY (JOB_NAME,JOB_GROUP)
 );
 
-CREATE TABLE qrtz_job_listeners
+CREATE TABLE qrtz5_job_listeners
   (
     JOB_NAME  VARCHAR(200) NOT NULL, 
     JOB_GROUP VARCHAR(200) NOT NULL,
     JOB_LISTENER VARCHAR(200) NOT NULL,
     PRIMARY KEY (JOB_NAME,JOB_GROUP,JOB_LISTENER),
     FOREIGN KEY (JOB_NAME,JOB_GROUP) 
-	REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP) 
+	REFERENCES qrtz5_JOB_DETAILS(JOB_NAME,JOB_GROUP) 
 );
 
-CREATE TABLE qrtz_triggers
+CREATE TABLE qrtz5_triggers
   (
     TRIGGER_NAME VARCHAR(200) NOT NULL,
     TRIGGER_GROUP VARCHAR(200) NOT NULL,
@@ -76,10 +76,10 @@ CREATE TABLE qrtz_triggers
     JOB_DATA BYTEA NULL,
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
     FOREIGN KEY (JOB_NAME,JOB_GROUP) 
-	REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP) 
+	REFERENCES qrtz5_JOB_DETAILS(JOB_NAME,JOB_GROUP) 
 );
 
-CREATE TABLE qrtz_simple_triggers
+CREATE TABLE qrtz5_simple_triggers
   (
     TRIGGER_NAME VARCHAR(200) NOT NULL,
     TRIGGER_GROUP VARCHAR(200) NOT NULL,
@@ -88,10 +88,10 @@ CREATE TABLE qrtz_simple_triggers
     TIMES_TRIGGERED BIGINT NOT NULL,
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
     FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
-	REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
+	REFERENCES qrtz5_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
 );
 
-CREATE TABLE qrtz_cron_triggers
+CREATE TABLE qrtz5_cron_triggers
   (
     TRIGGER_NAME VARCHAR(200) NOT NULL,
     TRIGGER_GROUP VARCHAR(200) NOT NULL,
@@ -99,31 +99,31 @@ CREATE TABLE qrtz_cron_triggers
     TIME_ZONE_ID VARCHAR(80),
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
     FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
-	REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
+	REFERENCES qrtz5_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
 );
 
-CREATE TABLE qrtz_blob_triggers
+CREATE TABLE qrtz5_blob_triggers
   (
     TRIGGER_NAME VARCHAR(200) NOT NULL,
     TRIGGER_GROUP VARCHAR(200) NOT NULL,
     BLOB_DATA BYTEA NULL,
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
     FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
-        REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
+        REFERENCES qrtz5_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
 );
 
-CREATE TABLE qrtz_trigger_listeners
+CREATE TABLE qrtz5_trigger_listeners
   (
     TRIGGER_NAME  VARCHAR(200) NOT NULL, 
     TRIGGER_GROUP VARCHAR(200) NOT NULL,
     TRIGGER_LISTENER VARCHAR(200) NOT NULL,
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP,TRIGGER_LISTENER),
     FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
-	REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
+	REFERENCES qrtz5_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP)
 );
 
 
-CREATE TABLE qrtz_calendars
+CREATE TABLE qrtz5_calendars
   (
     CALENDAR_NAME  VARCHAR(200) NOT NULL, 
     CALENDAR BYTEA NOT NULL,
@@ -131,13 +131,13 @@ CREATE TABLE qrtz_calendars
 );
 
 
-CREATE TABLE qrtz_paused_trigger_grps
+CREATE TABLE qrtz5_paused_trigger_grps
   (
     TRIGGER_GROUP  VARCHAR(200) NOT NULL, 
     PRIMARY KEY (TRIGGER_GROUP)
 );
 
-CREATE TABLE qrtz_fired_triggers 
+CREATE TABLE qrtz5_fired_triggers 
   (
     ENTRY_ID VARCHAR(95) NOT NULL,
     TRIGGER_NAME VARCHAR(200) NOT NULL,
@@ -154,7 +154,7 @@ CREATE TABLE qrtz_fired_triggers
     PRIMARY KEY (ENTRY_ID)
 );
 
-CREATE TABLE qrtz_scheduler_state 
+CREATE TABLE qrtz5_scheduler_state 
   (
     INSTANCE_NAME VARCHAR(200) NOT NULL,
     LAST_CHECKIN_TIME BIGINT NOT NULL,
@@ -162,30 +162,30 @@ CREATE TABLE qrtz_scheduler_state
     PRIMARY KEY (INSTANCE_NAME)
 );
 
-CREATE TABLE qrtz_locks
+CREATE TABLE qrtz5_locks
   (
     LOCK_NAME  VARCHAR(40) NOT NULL, 
     PRIMARY KEY (LOCK_NAME)
 );
 
-INSERT INTO qrtz_locks values('TRIGGER_ACCESS');
-INSERT INTO qrtz_locks values('JOB_ACCESS');
-INSERT INTO qrtz_locks values('CALENDAR_ACCESS');
-INSERT INTO qrtz_locks values('STATE_ACCESS');
-INSERT INTO qrtz_locks values('MISFIRE_ACCESS');
+INSERT INTO qrtz5_locks values('TRIGGER_ACCESS');
+INSERT INTO qrtz5_locks values('JOB_ACCESS');
+INSERT INTO qrtz5_locks values('CALENDAR_ACCESS');
+INSERT INTO qrtz5_locks values('STATE_ACCESS');
+INSERT INTO qrtz5_locks values('MISFIRE_ACCESS');
 
-ALTER TABLE qrtz_job_listeners OWNER TO pentaho_user;
-ALTER TABLE qrtz_trigger_listeners OWNER TO pentaho_user;
-ALTER TABLE qrtz_fired_triggers OWNER TO pentaho_user;
-ALTER TABLE qrtz_paused_trigger_grps OWNER TO pentaho_user;
-ALTER TABLE qrtz_scheduler_state OWNER TO pentaho_user;
-ALTER TABLE qrtz_locks OWNER TO pentaho_user;
-ALTER TABLE qrtz_simple_triggers OWNER TO pentaho_user;
-ALTER TABLE qrtz_cron_triggers OWNER TO pentaho_user;
-ALTER TABLE qrtz_blob_triggers OWNER TO pentaho_user;
-ALTER TABLE qrtz_triggers OWNER TO pentaho_user;
-ALTER TABLE qrtz_job_details OWNER TO pentaho_user;
-ALTER TABLE qrtz_calendars OWNER TO pentaho_user;
+ALTER TABLE qrtz5_job_listeners OWNER TO pentaho_user;
+ALTER TABLE qrtz5_trigger_listeners OWNER TO pentaho_user;
+ALTER TABLE qrtz5_fired_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz5_paused_trigger_grps OWNER TO pentaho_user;
+ALTER TABLE qrtz5_scheduler_state OWNER TO pentaho_user;
+ALTER TABLE qrtz5_locks OWNER TO pentaho_user;
+ALTER TABLE qrtz5_simple_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz5_cron_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz5_blob_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz5_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz5_job_details OWNER TO pentaho_user;
+ALTER TABLE qrtz5_calendars OWNER TO pentaho_user;
 
 commit;
 --End Connect--
