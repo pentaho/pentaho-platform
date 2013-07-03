@@ -881,13 +881,14 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void promptForScheduleResourceError(JsJob job) {
+  private void promptForScheduleResourceError(final JsJob job) {
     final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("fileUnavailable"), Messages.getString("yesDelete"), Messages.getString("no"), false, true);
     prompt.setContent(new HTML(Messages.getString("editScheduleResourceDoesNotExist", job.getFullResourceName())));
 
     prompt.setCallback(new IDialogCallback() {
       public void okPressed() {
         HashSet<JsJob> jobSet = new HashSet<JsJob>();
+        jobSet.add(job);
         controlJobs(jobSet, "removeJob", RequestBuilder.DELETE, true);
         prompt.hide();
       }
