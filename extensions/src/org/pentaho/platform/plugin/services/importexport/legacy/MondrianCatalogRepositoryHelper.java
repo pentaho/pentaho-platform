@@ -89,7 +89,7 @@ public class MondrianCatalogRepositoryHelper {
     /*
        * This is the default implementation. Use Schema name as defined in the
        * mondrian.xml schema. Pending create alternate implementation. Use
-       * catalog name from datasources.xml
+       * catalog name.
        */
 
     RepositoryFile etcMondrian = repository.getFile(ETC_MONDRIAN_JCR_FOLDER);

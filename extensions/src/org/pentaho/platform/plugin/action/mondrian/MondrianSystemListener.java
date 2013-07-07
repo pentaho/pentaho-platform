@@ -36,15 +36,7 @@ import mondrian.olap.MondrianProperties;
 public class MondrianSystemListener implements IPentahoSystemListener {
 
   public boolean startup(final IPentahoSession session) {
-    try {
-      System.setProperty("pentaho.olap.xmladatasources", "system/olap/datasources.xml"); //$NON-NLS-1$ //$NON-NLS-2$
-    } catch (Exception ex) {
-      Logger.error(MondrianSystemListener.class.getName(), Messages.getInstance()
-          .getErrorString("MondrianSystemListener.ERROR_0001_PROPERTY_SET_FAILED"), ex); //$NON-NLS-1$
-    }
-
     loadMondrianProperties(session);
-
     return true;
   }
 

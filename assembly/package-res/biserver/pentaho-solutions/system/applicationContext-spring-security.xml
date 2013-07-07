@@ -237,7 +237,6 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 .*system.*pentahosystemconfig.xml.*=Nobody
 .*system.*adminplugins.xml.*=Nobody
 .*system.*plugin.properties.*=Nobody
-.*system.*publisher_config.xml.*=Nobody
 .*system.*sessionstartupactions.xml.*=Nobody
 .*system.*systemlisteners.xml.*=Nobody
 .*system.*hibernate.*=Nobody
@@ -245,17 +244,13 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 .*system.*dialects/.*=Nobody
 .*system.*google/.*=Nobody
 .*system.*jasperreports/.*=Nobody
-.*system.*jfree/.*=Nobody
 .*system.*kettle/.*=Nobody
 .*system.*logs/.*=Nobody
-.*system.*metadata/.*=Nobody
 .*system.*mondrian/.*=Nobody
-.*system.*olap/.*=Nobody
 .*system.*quartz/.*=Nobody
 .*system.*simple-jndi/.*=Nobody
 .*system.*smtp-email/.*=Nobody
 .*system.*ui/.*=Nobody
-.*system.*analysistemplate.tpl.*=Nobody
 .*system.*\.\./.*=Nobody
 \A/.*\Z=Authenticated
         ]]>
