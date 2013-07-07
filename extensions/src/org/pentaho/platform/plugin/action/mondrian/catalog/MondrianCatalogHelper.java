@@ -1006,8 +1006,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   }
 
   /**
-   * This method removes a catalog from the datasources.xml file and from the solution
-   * repository.
+   * This method removes a mondrian catalog from the JCR repository.
    */
   public void removeCatalog(final String catalogName, final IPentahoSession pentahoSession)
       throws MondrianCatalogServiceException {
