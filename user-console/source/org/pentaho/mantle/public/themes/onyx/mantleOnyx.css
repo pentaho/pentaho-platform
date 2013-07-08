@@ -1,9 +1,16 @@
-.pentaho-admin-panel {
-  background-color: #ffffff;
-}
-
 #adminContentPanel {
-  padding-left: 40px;
+  margin-left: 20px;
+  padding: 10px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 1px 5px 0px #333333, 0 0 1px 1px rgba(255, 255, 255, .6) inset;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
+}
+#ldapSecurityAdminPanel html{
+	background: transparent;
 }
 
 #adminContentPanel.vbox > tbody > tr > td {  
@@ -13,13 +20,26 @@
 .admin-perspective {
   padding-top: 40px;
   padding-left: 40px;
-  background-color: white;
+  background: transparent;
   height: 100%;
-  width: 100%;
+  width: 1230px;
+  margin: 0 auto;
 }
 
 .admin-perspective .pentaho-tab-deck-panel {
   background-color: #f1f1f1;
+}
+#adminCatTree{
+	background-color: #f5f5f5;
+  border: 1px solid #333;
+  padding: 10px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 1px 5px 0px #333333, 0 0 1px 1px rgba(255, 255, 255, .6) inset;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
 }
 
 #adminCatTree .gwt-Label {
@@ -262,7 +282,7 @@
 }
 
 .mantle-default-tab-background {
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, .3);
 }
 
 .mantle-white-tab-background {
@@ -811,10 +831,10 @@ a:active, a:hover {
 
 .custom-dropdown-pressed {
   background-color: white;
-  border-left: 1px solid #86a0aa;
-  border-right: 1px solid #86a0aa;
-  border-top: 1px solid #86a0aa;
-  border-bottom: 0px solid #86a0aa;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  border-bottom: 0px solid #ccc;
   box-shadow: 2px 0px 4px 0px #333333;
 }
 
@@ -914,20 +934,19 @@ a:active, a:hover {
 }
 
 .custom-dropdown-popup {
-  z-index: 100;	
-  box-shadow: 2px 2px 4px 0px #333333;
+  z-index: 100;
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem {
   padding: 10px 0px 10px 10px;
   width: 242px;
   font-size: 16px;
-  color: #50798c;
+  color: #000;
 }
 
 .custom-dropdown-selected {
   background-color: #d7e9cd !important;
-  color: #283a44;
+  color: #FFF;
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled {
@@ -938,17 +957,20 @@ a:active, a:hover {
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover{
   background-color: white;
 }
+.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem:hover{
+  background-color: #d7e9cd;
+}
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-selected {
-  color: #50798c;
+  color: #000;
   background-color: transparent;
 }
 
 .custom-dropdown-popup  .gwt-MenuBar-vertical {
   padding: 10px 0px 0px 0px;
-  border-left: 1px solid #86a0aa;
-  border-right: 1px solid #86a0aa;
-  border-bottom: 1px solid #86a0aa;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   border-top: 0px solid transparent;
 }
 
@@ -1028,7 +1050,17 @@ a:active, a:hover {
 }
 
 .schedulerPerspective {
-  background: white;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #333;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 1px 5px 0px #333333, 0 0 1px 1px rgba(255, 255, 255, .6) inset;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
 }
 
 #admin-users-panel,
