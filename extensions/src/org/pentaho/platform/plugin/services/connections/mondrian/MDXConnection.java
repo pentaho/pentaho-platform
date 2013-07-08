@@ -225,7 +225,7 @@ public class MDXConnection implements IPentahoLoggingConnection {
         close();
       }
 
-      // Set a locale for this connection if not hardcoded in datasources.xml
+      // Set a locale for this connection if specified in the platform's mondrian metadata
       // This is required if mondrian.i18n.LocalizingDynamicSchemaProcessor is being used 
       if (properties.get(RolapConnectionProperties.Locale.name()) == null) {
         properties.put(RolapConnectionProperties.Locale.name(), LocaleHelper.getLocale().toString());

@@ -512,7 +512,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
             }
             
             connectStr = "dataSource=" + jndiStr + "; Catalog=" + catalog; //$NON-NLS-1$ //$NON-NLS-2$
-            //Add extra definitions from datasources.xml
+            //Add extra definitions from platform mondrian metadata
             MondrianCatalog mc = org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper.getInstance().getCatalog(catalog, getSession());
             try {
               connectStr += ";" + mc.getDataSourceInfo();
