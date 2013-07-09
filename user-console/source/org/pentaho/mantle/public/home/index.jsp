@@ -72,7 +72,7 @@
   <div class="row-fluid">
     <div class="span3" id="buttonWrapper">
       <script type="text/x-handlebars-template">
-        <div class="well sidebar" data-spy="affix">
+        <div class="well sidebar">
           <button class="btn btn-large btn-block" onclick="window.top.mantle_setPerspective('browser.perspective')">
             {{i18n.browse}}
           </button>
