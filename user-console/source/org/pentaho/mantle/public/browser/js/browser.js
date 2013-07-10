@@ -372,7 +372,7 @@ pen.define([
                 success: function(response){
                     if(localSequenceNumber == myself.get("sequenceNumber") && callback != undefined){
                         myself.set("sequenceNumber", localSequenceNumber+1);
-                        callback(response);
+                        callback(customSort(response));
                     }
                 },
                 error: function(){
@@ -474,7 +474,7 @@ pen.define([
                 success: function(response){
                     if(localSequenceNumber == myself.get("sequenceNumber") && callback != undefined){
                         myself.set("sequenceNumber", localSequenceNumber+1);
-                        callback(response);
+                        callback(customSort(response));
                     }
                 },
                 error: function(){
@@ -1025,6 +1025,40 @@ pen.define([
 
     });
 
+
+    function customSort(response){
+
+      var sortFunction = function(a, b){
+        var aTitle = a.file.title.toLowerCase();
+        var bTitle = b.file.title.toLowerCase();
+
+        if(aTitle.localeCompare(bTitle) == 0){
+          // if values equalsIgnoreCase, use original values for comparison
+          aTitle = a.file.title;
+          bTitle = b.file.title;
+          return ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+        }
+        else{
+          return aTitle.localeCompare(bTitle);
+        }
+      };
+
+      var recursivePreorder = function (node) {
+        if (node.children == undefined || node.children == null || node.children.length <= 0) {
+          // do nothing if node is not a parent
+        }
+        else {
+          for(var i=0; i<node.children.length; i++)
+            // recursively sort children
+            recursivePreorder(node.children[i]);
+            node.children.sort(sortFunction);
+        }
+      };
+
+      recursivePreorder(response);
+
+      return response;
+    }
 
     return {
         setContainer: FileBrowser.setContainer,
