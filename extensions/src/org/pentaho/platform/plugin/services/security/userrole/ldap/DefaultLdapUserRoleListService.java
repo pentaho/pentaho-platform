@@ -35,188 +35,218 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
-public class DefaultLdapUserRoleListService implements IUserRoleListService, InitializingBean {
+public class DefaultLdapUserRoleListService implements IUserRoleListService,
+		InitializingBean {
 
-  // ~ Static fields/initializers ======================================================================================
+	// ~ Static fields/initializers
+	// ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+	// ~ Instance fields
+	// =================================================================================================
 
-  private LdapSearch allUsernamesSearch;
+	private LdapSearch allUsernamesSearch;
 
-  private LdapSearch allAuthoritiesSearch;
+	private LdapSearch allAuthoritiesSearch;
 
-  private LdapSearch usernamesInRoleSearch;
+	private LdapSearch usernamesInRoleSearch;
 
-  /**
-   * Case-sensitive by default.
-   */
-  private Comparator<String> roleComparator;
+	/**
+	 * Case-sensitive by default.
+	 */
+	private Comparator<String> roleComparator;
 
-  /**
-   * Case-sensitive by default.
-   */
-  private Comparator<String> usernameComparator;
+	/**
+	 * Case-sensitive by default.
+	 */
+	private Comparator<String> usernameComparator;
 
-  /**
-   * Used only for <code>getAuthoritiesForUser</code>. This is preferred
-   * over an <code>LdapSearch</code> in
-   * <code>authoritiesForUserSearch</code> as it keeps roles returned by
-   * <code>UserDetailsService</code> and roles returned by
-   * <code>DefaultLdapUserRoleListService</code> consistent.
-   */
-  private UserDetailsService userDetailsService;
+	/**
+	 * Used only for <code>getAuthoritiesForUser</code>. This is preferred over
+	 * an <code>LdapSearch</code> in <code>authoritiesForUserSearch</code> as it
+	 * keeps roles returned by <code>UserDetailsService</code> and roles
+	 * returned by <code>DefaultLdapUserRoleListService</code> consistent.
+	 */
+	private UserDetailsService userDetailsService;
 
-  private ITenantedPrincipleNameResolver userNameUtils;
+	private ITenantedPrincipleNameResolver userNameUtils;
 
-  private ITenantedPrincipleNameResolver roleNameUtils;
-  
-  private List<String> systemRoles;
-  
-  private IAuthenticationRoleMapper roleMapper;
-  // ~ Constructors ====================================================================================================
+	private ITenantedPrincipleNameResolver roleNameUtils;
 
-  public DefaultLdapUserRoleListService() {
-    super();
-  }
+	private List<String> systemRoles;
 
-  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator) {
-	    super();
-	    this.usernameComparator = usernameComparator;
-	    this.roleComparator = roleComparator;
-  }
-  
-  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator, final IAuthenticationRoleMapper roleMapper) {
-    this(usernameComparator, roleComparator);
-    this.roleMapper = roleMapper;
-  }
-  
-  // ~ Methods =========================================================================================================
+	private List<String> extraRoles;
 
-  @Override
-  public void afterPropertiesSet() throws Exception {
-  }
+	private IAuthenticationRoleMapper roleMapper;
 
-  @Override
-  public List<String> getAllRoles() {
-    List<GrantedAuthority> results = allAuthoritiesSearch.search(new Object[0]);
-    List<String> roles = new ArrayList<String>(results.size());
-    for (GrantedAuthority role : results) {
-      if(roleMapper != null) {
-    	  roles.add(roleMapper.toPentahoRole(role.getAuthority()));
-      } else {
-    	  roles.add(role.getAuthority());  
-      }      
-    }
-    if (null != roleComparator) {
-      Collections.sort(roles, roleComparator);
-    }
-    return roles;
-  }
+	// ~ Constructors
+	// ====================================================================================================
 
-  @Override
-  public List<String> getAllUsers() {
-    List<String> results = allUsernamesSearch.search(new Object[0]);
-    if (null != usernameComparator) {
-      Collections.sort(results, usernameComparator);
-    }
-    return results;
-  }
+	public DefaultLdapUserRoleListService() {
+		super();
+	}
 
-  @Override
-  public List<String> getUsersInRole(final ITenant tenant, final String role) {
-    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
-      throw new UnsupportedOperationException("only allowed to access to default tenant");
-    }
-    String updateRole = roleNameUtils.getPrincipleName(role);
-    // User Role mapper to get the equivalent ldap role
-    List<String> results = usernamesInRoleSearch.search(new Object[] { roleMapper.fromPentahoRole(updateRole)});
-    if (null != usernameComparator) {
-      Collections.sort(results, usernameComparator);
-    }
-    return results;
-  }
+	public DefaultLdapUserRoleListService(
+			final Comparator<String> usernameComparator,
+			final Comparator<String> roleComparator) {
+		super();
+		this.usernameComparator = usernameComparator;
+		this.roleComparator = roleComparator;
+	}
 
-  @Override
-  public List<String> getRolesForUser(final ITenant tenant, final String username) {
-    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
-      throw new UnsupportedOperationException("only allowed to access to default tenant");
-    }
-    UserDetails user = userDetailsService.loadUserByUsername(userNameUtils.getPrincipleName(username));
-    List<GrantedAuthority> results = Arrays.asList(user.getAuthorities());
-    List<String> roles = new ArrayList<String>(results.size());
-    for (GrantedAuthority role : results) {
-    	  roles.add(role.getAuthority());  
-    }
-    if (null != roleComparator) {
-      Collections.sort(roles, roleComparator);
-    }
-    return roles;
-  }
+	public DefaultLdapUserRoleListService(
+			final Comparator<String> usernameComparator,
+			final Comparator<String> roleComparator,
+			final IAuthenticationRoleMapper roleMapper) {
+		this(usernameComparator, roleComparator);
+		this.roleMapper = roleMapper;
+	}
 
-  public void setAllUsernamesSearch(final LdapSearch allUsernamesSearch) {
-    this.allUsernamesSearch = allUsernamesSearch;
-  }
+	// ~ Methods
+	// =========================================================================================================
 
-  public void setAllAuthoritiesSearch(final LdapSearch allAuthoritiesSearch) {
-    this.allAuthoritiesSearch = allAuthoritiesSearch;
-  }
+	@Override
+	public void afterPropertiesSet() throws Exception {
+	}
 
-  public void setUsernamesInRoleSearch(final LdapSearch usernamesInRoleSearch) {
-    this.usernamesInRoleSearch = usernamesInRoleSearch;
-  }
+	@Override
+	public List<String> getAllRoles() {
+		List<GrantedAuthority> results = allAuthoritiesSearch
+				.search(new Object[0]);
+		List<String> roles = new ArrayList<String>(results.size());
+		for (GrantedAuthority role : results) {
+			String roleString = (roleMapper != null) ? roleMapper.toPentahoRole(role.getAuthority()): role.getAuthority();
+			if(roleString != null && !extraRoles.contains(roleString)) {
+				roles.add(roleString);
+			}
+		}
+		if (null != roleComparator) {
+			Collections.sort(roles, roleComparator);
+		}
+		
+		return roles;
+	}
 
-  public void setUserDetailsService(final UserDetailsService userDetailsService) {
-    this.userDetailsService = userDetailsService;
-  }
+	@Override
+	public List<String> getAllUsers() {
+		List<String> results = allUsernamesSearch.search(new Object[0]);
+		if (null != usernameComparator) {
+			Collections.sort(results, usernameComparator);
+		}
+		return results;
+	}
 
-  public void setRoleComparator(final Comparator<String> roleComparator) {
-    Assert.notNull(roleComparator);
-    this.roleComparator = roleComparator;
-  }
+	@Override
+	public List<String> getUsersInRole(final ITenant tenant, final String role) {
+		if (tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
+			throw new UnsupportedOperationException(
+					"only allowed to access to default tenant");
+		}
+		String updateRole = roleNameUtils.getPrincipleName(role);
+		// User Role mapper to get the equivalent ldap role
+		List<String> results = usernamesInRoleSearch
+				.search(new Object[] { roleMapper.fromPentahoRole(updateRole) });
+		if (null != usernameComparator) {
+			Collections.sort(results, usernameComparator);
+		}
+		return results;
+	}
 
-  public void setUsernameComparator(final Comparator<String> usernameComparator) {
-    Assert.notNull(usernameComparator);
-    this.usernameComparator = usernameComparator;
-  }
+	@Override
+	public List<String> getRolesForUser(final ITenant tenant,
+			final String username) {
+		if (tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
+			throw new UnsupportedOperationException(
+					"only allowed to access to default tenant");
+		}
+		UserDetails user = userDetailsService.loadUserByUsername(userNameUtils
+				.getPrincipleName(username));
+		List<GrantedAuthority> results = Arrays.asList(user.getAuthorities());
+		List<String> roles = new ArrayList<String>(results.size());
+		for (GrantedAuthority role : results) {
+			roles.add(role.getAuthority());
+		}
+		if (null != roleComparator) {
+			Collections.sort(roles, roleComparator);
+		}
+		return roles;
+	}
 
-  public ITenantedPrincipleNameResolver getUserNameUtils() {
-    return userNameUtils;
-  }
+	public void setAllUsernamesSearch(final LdapSearch allUsernamesSearch) {
+		this.allUsernamesSearch = allUsernamesSearch;
+	}
 
-  public void setUserNameUtils(ITenantedPrincipleNameResolver userNameUtils) {
-    this.userNameUtils = userNameUtils;
-  }
+	public void setAllAuthoritiesSearch(final LdapSearch allAuthoritiesSearch) {
+		this.allAuthoritiesSearch = allAuthoritiesSearch;
+	}
 
-  public ITenantedPrincipleNameResolver getRoleNameUtils() {
-    return roleNameUtils;
-  }
+	public void setUsernamesInRoleSearch(final LdapSearch usernamesInRoleSearch) {
+		this.usernamesInRoleSearch = usernamesInRoleSearch;
+	}
 
-  public void setRoleNameUtils(ITenantedPrincipleNameResolver roleNameUtils) {
-    this.roleNameUtils = roleNameUtils;
-  }
-  
-  @Override
-  public List<String> getAllRoles(ITenant tenant) {
-    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
-      throw new UnsupportedOperationException("only allowed to access to default tenant");
-    }
-    return getAllRoles();
-  }
+	public void setUserDetailsService(
+			final UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
 
-  @Override
-  public List<String> getAllUsers(ITenant tenant) {
-    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
-      throw new UnsupportedOperationException("only allowed to access to default tenant");
-    }
-    return getAllUsers();
-  }
+	public void setRoleComparator(final Comparator<String> roleComparator) {
+		Assert.notNull(roleComparator);
+		this.roleComparator = roleComparator;
+	}
 
-  @Override
-  public List<String> getSystemRoles() {
-    return systemRoles;
-  }
-  
-  public void setSystemRoles(List<String> systemRoles) {
-    this.systemRoles = systemRoles;
-  }
+	public void setUsernameComparator(
+			final Comparator<String> usernameComparator) {
+		Assert.notNull(usernameComparator);
+		this.usernameComparator = usernameComparator;
+	}
+
+	public ITenantedPrincipleNameResolver getUserNameUtils() {
+		return userNameUtils;
+	}
+
+	public void setUserNameUtils(ITenantedPrincipleNameResolver userNameUtils) {
+		this.userNameUtils = userNameUtils;
+	}
+
+	public ITenantedPrincipleNameResolver getRoleNameUtils() {
+		return roleNameUtils;
+	}
+
+	public void setRoleNameUtils(ITenantedPrincipleNameResolver roleNameUtils) {
+		this.roleNameUtils = roleNameUtils;
+	}
+
+	@Override
+	public List<String> getAllRoles(ITenant tenant) {
+		if (tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
+			throw new UnsupportedOperationException(
+					"only allowed to access to default tenant");
+		}
+		return getAllRoles();
+	}
+
+	@Override
+	public List<String> getAllUsers(ITenant tenant) {
+		if (tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
+			throw new UnsupportedOperationException(
+					"only allowed to access to default tenant");
+		}
+		return getAllUsers();
+	}
+
+	@Override
+	public List<String> getSystemRoles() {
+		return systemRoles;
+	}
+
+	public void setSystemRoles(List<String> systemRoles) {
+		this.systemRoles = systemRoles;
+	}
+
+	public void setExtraRoles(List<String> extraRoles) {
+		this.extraRoles = extraRoles;
+	}
+
+	public List<String> getExtraRoles() {
+		return extraRoles;
+	}
 }

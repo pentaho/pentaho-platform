@@ -41,7 +41,7 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
 
   @Override
   public List<String> getAllRoles() {
-    return getNewRoles();
+    return userRoleListService.getAllRoles();
   }
 
   protected List<String> getNewRoles() {
