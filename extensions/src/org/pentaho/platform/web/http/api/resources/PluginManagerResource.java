@@ -24,8 +24,10 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import org.drools.util.StringUtils;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
@@ -81,6 +83,37 @@ public class PluginManagerResource {
     }
 
     return perspectives;
+  }
+
+  @GET
+  @Path("/ids")
+  @Produces({ APPLICATION_JSON })
+  public StringListWrapper getPluginIds() {
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+    return new StringListWrapper(pluginManager.getRegisteredPlugins());
+  }
+
+  @GET
+  @Path("/{pluginId}/setting/{settingName}")
+  @Produces({ APPLICATION_JSON })
+  public String getPluginSetting(@PathParam("pluginId") String pluginId, @PathParam("settingName") String settingName) {
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); //$NON-NLS-1$
+    return (String) pluginManager.getPluginSetting(pluginId, settingName, null);
+  }
+
+  @GET
+  @Path("/settings/{settingName}")
+  @Produces({ APPLICATION_JSON })
+  public List<Setting> getPluginSettings(@PathParam("settingName") String settingName) {
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); //$NON-NLS-1$
+    ArrayList<Setting> settings = new ArrayList<Setting>();
+    for (String id : pluginManager.getRegisteredPlugins()) {
+      Setting s = new Setting(id, (String) pluginManager.getPluginSetting(id, settingName, null));
+      if (!StringUtils.isEmpty(s.getValue())) {
+        settings.add(s);
+      }
+    }
+    return settings;
   }
 
 }
