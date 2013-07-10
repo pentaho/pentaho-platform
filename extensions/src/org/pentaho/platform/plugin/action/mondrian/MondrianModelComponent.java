@@ -26,6 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import mondrian.olap.*;
+import mondrian.rolap.RolapConnection;
+import mondrian.server.Locus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoConnection;
@@ -43,16 +46,6 @@ import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
 import org.pentaho.platform.util.logging.Logger;
 
-import mondrian.olap.AxisOrdinal;
-import mondrian.olap.Connection;
-import mondrian.olap.Cube;
-import mondrian.olap.Dimension;
-import mondrian.olap.Hierarchy;
-import mondrian.olap.Member;
-import mondrian.olap.MondrianException;
-import mondrian.olap.Query;
-import mondrian.olap.Schema;
-import mondrian.olap.Util;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.util.Pair;
 
@@ -381,7 +374,7 @@ public class MondrianModelComponent extends ComponentBase {
 
       for (Dimension element : dimensions) {
 
-        Hierarchy hierarchy = element.getHierarchy();
+        final Hierarchy hierarchy = element.getHierarchy();
         if (hierarchy == null) {
           Logger
               .error(
@@ -399,7 +392,14 @@ public class MondrianModelComponent extends ComponentBase {
           continue;
         }
 
-        Member member = connection.getSchemaReader().getHierarchyDefaultMember(hierarchy);
+        Member member = Locus.execute(
+                (RolapConnection)connection,
+                "Retrieving default members in plugin",
+                new Locus.Action<Member>() {
+                    public Member execute() {
+                        return connection.getSchemaReader().getHierarchyDefaultMember(hierarchy);
+                    }
+                });
 
         if (member == null) {
           Logger
