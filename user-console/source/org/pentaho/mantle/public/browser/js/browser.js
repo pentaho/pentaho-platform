@@ -928,12 +928,16 @@ pen.define([
             pen.require(["js/browser.templates"],function(templates){
                 myself.$el.empty().append(templates.files(data));
 
-                $(".file").each(function(){
-                    var $this = $(this);
-                    while($this.height() > 20){
-                        $this.width($this.width() + 20);
-                    }
-                });
+                if(myself.$el.children().length > 0){
+                    $(".file").each(function(){
+                        var $this = $(this);
+                        while($this.height() > 20){
+                            $this.width($this.width() + 20);
+                        }
+                    });  
+                } else {
+                    myself.$el.append(templates.emptyFolder({i18n:jQuery.i18n}));
+                }
             });
 
             setTimeout(function() {
