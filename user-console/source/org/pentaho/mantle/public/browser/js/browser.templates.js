@@ -132,6 +132,9 @@ pen.define([
     templates.folders = Handlebars.compile(templates.foldersText);
     templates.folder = Handlebars.compile(templates.folderText);
 
+    //template for empty folder
+    templates.emptyFolder = Handlebars.compile("<div class='emptyFolder'><span>{{i18n 'emptyFolder'}}</span></div>");
+
     //helper registration for button template
     Handlebars.registerHelper('button', function() {
         return new Handlebars.SafeString(templates.button({
@@ -195,6 +198,7 @@ pen.define([
         buttonsHeader: templates.buttonsHeader,
         buttons: templates.buttons,
         folders: templates.folders,
-        files: templates.files
+        files: templates.files,
+        emptyFolder: templates.emptyFolder
     }
 });

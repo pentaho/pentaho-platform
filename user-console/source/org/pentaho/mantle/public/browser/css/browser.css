@@ -200,3 +200,9 @@
   right: 0;
   bottom: 0;
 }
+
+.emptyFolder {
+	text-align: center;
+	padding: 20px;
+	color: #bbbbbb;
+}
