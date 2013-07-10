@@ -16,27 +16,27 @@ pen.define([
     "common-ui/jquery-i18n",
     "common-ui/jquery",
     "js/browser.templates"
-], function(FileButtons, FolderButtons, TrashButtons, TrashItemButtons) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons) {
 
 
     this.FileBrowser = {};
 
-    FileBrowser.urlParam = function(paramName){
+    FileBrowser.urlParam = function (paramName) {
         var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
-        if(value){
+        if (value) {
             return value[1];
         }
-        else{
+        else {
             return null;
         }
     },
 
-    // retrieve i18n map
-    jQuery.i18n.properties({
-        name: 'messages',
-        mode: 'map',
-        language: FileBrowser.urlParam('locale')
-    });
+        // retrieve i18n map
+        jQuery.i18n.properties({
+            name: 'messages',
+            mode: 'map',
+            language: FileBrowser.urlParam('locale')
+        });
 
     var fileButtons = new FileButtons(jQuery.i18n);
     var folderButtons = new FolderButtons(jQuery.i18n);
@@ -49,59 +49,59 @@ pen.define([
     FileBrowser.openFileHandler = undefined;
     FileBrowser.showHiddenFiles = false;
     FileBrowser.showDescriptions = false;
-	FileBrowser.canDownload = false;
-	FileBrowser.canPublish = false;
+    FileBrowser.canDownload = false;
+    FileBrowser.canPublish = false;
 
-    FileBrowser.setShowHiddenFiles = function(value){
+    FileBrowser.setShowHiddenFiles = function (value) {
         this.showHiddenFiles = value;
     };
 
-    FileBrowser.setShowDescriptions = function(value){
+    FileBrowser.setShowDescriptions = function (value) {
         this.showDescriptions = value;
     };
 
-	FileBrowser.setCanDownload = function(value){
-		this.canDownload = value;
-	}
+    FileBrowser.setCanDownload = function (value) {
+        this.canDownload = value;
+    }
 
-	FileBrowser.setCanPublish = function(value){
-		this.canPublish = value;
-	}
+    FileBrowser.setCanPublish = function (value) {
+        this.canPublish = value;
+    }
 
-    FileBrowser.updateShowDescriptions = function(value){
+    FileBrowser.updateShowDescriptions = function (value) {
         this.fileBrowserModel.set("showDescriptions", value);
     };
 
-    FileBrowser.setContainer =  function($container){
+    FileBrowser.setContainer = function ($container) {
         this.$container = $container;
     };
 
-    FileBrowser.setOpenFileHandler = function(handler){
+    FileBrowser.setOpenFileHandler = function (handler) {
         this.openFileHandler = handler;
     };
 
-    FileBrowser.update = function(initialPath){
+    FileBrowser.update = function (initialPath) {
 
         this.redraw(initialPath);
     };
 
-    FileBrowser.updateData = function(){
-        if(this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null){
+    FileBrowser.updateData = function () {
+        if (this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null) {
             this.fileBrowserModel.get('fileListModel').updateData();
         }
     };
 
-    FileBrowser.redraw = function(initialPath){
+    FileBrowser.redraw = function (initialPath) {
         var myself = this;
 
-        pen.require(["common-ui/util/PentahoSpinner"],function(spin){
+        pen.require(["common-ui/util/PentahoSpinner"], function (spin) {
             myself.fileBrowserModel = new FileBrowserModel({
                 spinConfig: spin,
                 openFileHandler: myself.openFileHandler,
                 showHiddenFiles: myself.showHiddenFiles,
                 showDescriptions: myself.showDescriptions,
-				        canDownload: myself.canDownload,
-			          canPublish: myself.canPublish,
+                canDownload: myself.canDownload,
+                canPublish: myself.canPublish,
                 startFolder: initialPath
             });
             myself.FileBrowserView = new FileBrowserView({
@@ -114,30 +114,30 @@ pen.define([
         //this.FileBrowserView.render();
     };
 
-    FileBrowser.openFolder = function(path){
+    FileBrowser.openFolder = function (path) {
         var myself = this;
 
-		if(myself.fileBrowserModel.get('startFolder') == path){
-			myself.fileBrowserModel.trigger('change:startFolder'); // force onchange
-		}
-		else{
-        myself.fileBrowserModel.set("startFolder", path);
-		}
+        if (myself.fileBrowserModel.get('startFolder') == path) {
+            myself.fileBrowserModel.trigger('change:startFolder'); // force onchange
+        }
+        else {
+            myself.fileBrowserModel.set("startFolder", path);
+        }
     };
 
     var FileBrowserModel = Backbone.Model.extend({
         defaults: {
             showHiddenFilesURL: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
 
-            fileButtons : fileButtons,
-            folderButtons : folderButtons,
-            trashButtons : trashButtons,
-            trashItemButtons : trashItemButtons,
+            fileButtons: fileButtons,
+            folderButtons: folderButtons,
+            trashButtons: trashButtons,
+            trashItemButtons: trashItemButtons,
 
             foldersTreeModel: undefined,
             fileListModel: undefined,
 
-            clickedFolder : undefined,
+            clickedFolder: undefined,
             clickedFile: undefined,
 
             lastClick: "folder",
@@ -150,15 +150,15 @@ pen.define([
             showHiddenFiles: false,
             showDescriptions: false,
 
-			canDownload: false,
-		    canPublish: false,
+            canDownload: false,
+            canPublish: false,
 
             spinConfig: undefined,
 
             startFolder: "/"
         },
 
-        initialize: function(){
+        initialize: function () {
             var myself = this,
                 foldersTreeModel = myself.get("foldersTreeModel"),
                 fileListModel = myself.get("fileListModel");
@@ -204,96 +204,134 @@ pen.define([
 
             window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
 
-            myself.on("change:startFolder" , myself.updateStartFolder, myself);
+            myself.on("change:startFolder", myself.updateStartFolder, myself);
         },
 
-        updateStartFolder: function(){
+        updateStartFolder: function () {
             var myself = this;
 
-			if(myself.get("fileListModel").get("path") == myself.get("startFolder")){
-				myself.get("fileListModel").trigger("change:path"); // if path is the same, trigger file list refresh
-			}
+            if (myself.get("fileListModel").get("path") == myself.get("startFolder")) {
+                myself.get("fileListModel").trigger("change:path"); // if path is the same, trigger file list refresh
+            }
 
             myself.get("foldersTreeModel").set("startFolder", myself.get("startFolder"));
         },
 
-        onFavoritesChanged: function(){
+        onFavoritesChanged: function () {
             // BISERVER-9127	- Reselect current file
             var that = this;
-            setTimeout(function(){
+            setTimeout(function () {
                 that.get('fileListModel').trigger("change:clickedFile");
             }, 100);
         },
 
-        updateClicked: function(){
+        updateClicked: function () {
             this.set("clicked", true);
         },
 
-        updateFolderClicked: function(){
+        updateFolderClicked: function () {
 
-			var myself = this;
-            var clickedFolder=this.get("foldersTreeModel").get("clickedFolder");
-            if(clickedFolder.obj.attr("path")==".trash"){
+            var myself = this;
+            var clickedFolder = this.get("foldersTreeModel").get("clickedFolder");
+            var folderPath = clickedFolder.obj.attr("path");
+
+            if (folderPath == ".trash") {
                 this.updateTrashLastClick();
             }
-            this.set("clickedFolder",clickedFolder);
+            this.set("clickedFolder", clickedFolder);
             folderButtons.canDownload(this.get("canDownload"));
-			folderButtons.canPublish(this.get("canPublish"));
+            folderButtons.canPublish(this.get("canPublish"));
+
+
+            //Ajax request to check write permissions for folder
+            $.ajax({
+                url: '/pentaho/api/repo/files/' + folderPath + '/canAccessMap',
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader('accept', 'application/json');
+                },
+                data: {"permissions": "1|2"}, //check write and delete permissions for the given file
+                async: true,
+                success: function (response) {
+                    folderButtons.updateFolderPermissionButtons(response);
+                },
+                error: function (response) {
+                    folderButtons.updateFolderPermissionButtons(false);
+                }
+            });
 
         },
 
-        updateFileClicked: function(){
+        updateFileClicked: function () {
 
-            var clickedFile=this.get("fileListModel").get("clickedFile");
-            if(this.get("clickedFolder").obj.attr("path")==".trash"){
+            var clickedFile = this.get("fileListModel").get("clickedFile");
+            if (this.get("clickedFolder").obj.attr("path") == ".trash") {
                 this.updateTrashItemLastClick();
             }
-            else{
+            else {
                 // BISERVER-9127 - Provide the selected path to the FileButtons object
                 fileButtons.onFileSelect(clickedFile.obj.attr("path"));
             }
-            this.set("clickedFile",clickedFile);
-			fileButtons.canDownload(this.get("canDownload"));
+            this.set("clickedFile", clickedFile);
+            fileButtons.canDownload(this.get("canDownload"));
 
+            var filePath = clickedFile.obj.attr("path");
+            filePath = filePath.replace(/\//g, ":");
+
+            //Ajax request to check write permissions for file
+            $.ajax({
+                url: '/pentaho/api/repo/files/' + filePath + '/canAccessMap',
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader('accept', 'application/json');
+                },
+                data: {"permissions": "1|2"}, //check write and delete permissions for the given file
+                async: true,
+                success: function (response) {
+                    fileButtons.updateFilePermissionButtons(response);
+                },
+                error: function (response) {
+                    fileButtons.updateFilePermissionButtons(false);
+                }
+            });
         },
 
-
-        updateFolderLastClick: function(){
+        updateFolderLastClick: function () {
             this.set("lastClick", "folder");
         },
 
-        updateFileLastClick: function(){
+        updateFileLastClick: function () {
             this.set("lastClick", "file");
         },
 
-        updateTrashLastClick: function(){
+        updateTrashLastClick: function () {
             this.set("lastClick", "trash");
         },
 
-        updateTrashItemLastClick: function(){
+        updateTrashItemLastClick: function () {
             this.set("lastClick", "trashItem");
         },
 
-        getLastClick: function(){
+        getLastClick: function () {
             return this.get("lastClick");
         },
 
-        getFolderClicked: function(){
+        getFolderClicked: function () {
             return this.get("clickedFolder") == null || this.get("clickedFolder") == undefined ? null : this.get("clickedFolder").obj;
         },
 
-        getFileClicked: function(){
-            return this.get("clickedFile") == null || this.get("clickedFile") == undefined ? null : this.get("clickedFile").obj ; // [BISERVER-9128] - wrap in jquery object
+        getFileClicked: function () {
+            return this.get("clickedFile") == null || this.get("clickedFile") == undefined ? null : this.get("clickedFile").obj; // [BISERVER-9128] - wrap in jquery object
         },
 
-        updateFileList: function(){
+        updateFileList: function () {
             var myself = this;
             //trigger file list update
             myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"));
 
         },
 
-        updateDescriptions: function(){
+        updateDescriptions: function () {
             var myself = this;
 
             myself.get("fileListModel").set("showDescriptions", myself.get("showDescriptions"));
@@ -321,19 +359,19 @@ pen.define([
             sequenceNumber: 0
         },
 
-        initialize: function(){
+        initialize: function () {
             var myself = this;
 
             myself.on("change:updateData", myself.updateData, myself);
         },
 
-        updateData: function(){
+        updateData: function () {
             var myself = this;
 
-            myself.set("runSpinner",true);
+            myself.set("runSpinner", true);
 
-            myself.fetchData("/", function(response){
-                var trash={
+            myself.fetchData("/", function (response) {
+                var trash = {
                     "file": {
                         "trash": "trash",
                         "createdDate": "1365427106132",
@@ -343,7 +381,7 @@ pen.define([
                         "id:": jQuery.i18n.prop('trash'),
                         "locale": "en",
                         "locked": "false",
-                        "name":  jQuery.i18n.prop('trash'),
+                        "name": jQuery.i18n.prop('trash'),
                         "ownerType": "-1",
                         "path": ".trash",
                         "title": jQuery.i18n.prop('trash'),
@@ -357,7 +395,7 @@ pen.define([
             });
         },
 
-        fetchData: function(path, callback){
+        fetchData: function (path, callback) {
             var myself = this,
                 tree = null,
                 localSequenceNumber = myself.get("sequenceNumber");
@@ -375,16 +413,16 @@ pen.define([
                         callback(customSort(response));
                     }
                 },
-                error: function(){
+                error: function () {
                 },
-                beforeSend: function() {
-                    myself.set("runSpinner",true);
+                beforeSend: function () {
+                    myself.set("runSpinner", true);
                 }
             });
         },
 
-        getFileTreeRequest: function(path){
-            return "/pentaho/api/repo/files/"+path+"/children?depth=-1&showHidden="+this.get("showHiddenFiles")+"&filter=*|FOLDERS";
+        getFileTreeRequest: function (path) {
+            return "/pentaho/api/repo/files/" + path + "/children?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
         }
 
     });
@@ -409,59 +447,59 @@ pen.define([
             sequenceNumber: 0
         },
 
-        initialize: function(){
+        initialize: function () {
             var myself = this;
 
             myself.on("change:path", myself.updateData, myself);
         },
 
-        updateData: function(){
+        updateData: function () {
             var myself = this;
 
-            myself.set("runSpinner",true);
+            myself.set("runSpinner", true);
 
-            myself.fetchData(myself.get("path"), function(response){
+            myself.fetchData(myself.get("path"), function (response) {
 
                 //If we have trash data we reformat it to match the handlebar templates
-                if(myself.get("path")==".trash"){
+                if (myself.get("path") == ".trash") {
                     var newResp = {
                         children: []
                     }
-                    if(response && response.repositoryFileDto){
-                        myself.set("deletedFiles","");
-                        for (var i=0;i<response.repositoryFileDto.length;i++){
+                    if (response && response.repositoryFileDto) {
+                        myself.set("deletedFiles", "");
+                        for (var i = 0; i < response.repositoryFileDto.length; i++) {
                             var obj = {
                                 file: Object
                             }
 
-                            obj.file=response.repositoryFileDto[i];
-                            obj.file.trash="true";
-                            obj.file.pathText= jQuery.i18n.prop('originText')+ " " //i18n
-                            if(obj.file.id){
-                                if(myself.get("deletedFiles")==""){
-                                    myself.set("deletedFiles",obj.file.id+",");
+                            obj.file = response.repositoryFileDto[i];
+                            obj.file.trash = "true";
+                            obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+                            if (obj.file.id) {
+                                if (myself.get("deletedFiles") == "") {
+                                    myself.set("deletedFiles", obj.file.id + ",");
                                 }
-                                else{
-                                    myself.set("deletedFiles",myself.get("deletedFiles")+obj.file.id+",");
+                                else {
+                                    myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
                                 }
                             }
                             newResp.children.push(obj);
                         }
                     }
                     myself.set("data", newResp);
-                    if(myself.get("deletedFiles")==""){
+                    if (myself.get("deletedFiles") == "") {
                         FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
                     }
 
                 }
-                else{
-        response.ts = new Date(); // force backbone to trigger onchange event even if response is the same
+                else {
+                    response.ts = new Date(); // force backbone to trigger onchange event even if response is the same
                     myself.set("data", response);
                 }
             });
         },
 
-        fetchData: function(path, callback){
+        fetchData: function (path, callback) {
             var myself = this,
                 url = this.getFileListRequest(path == null ? ":" : path.replace(/\//g, ":")),
                 localSequenceNumber = myself.get("sequenceNumber");
@@ -477,21 +515,21 @@ pen.define([
                         callback(customSort(response));
                     }
                 },
-                error: function(){
+                error: function () {
                 },
-                beforeSend: function() {
-                    myself.set("runSpinner",true);
+                beforeSend: function () {
+                    myself.set("runSpinner", true);
                 }
             });
         },
 
-        getFileListRequest: function(path){
+        getFileListRequest: function (path) {
             var request;
-            if(path == ".trash"){
-                request="/pentaho/api/repo/files/deleted";
+            if (path == ".trash") {
+                request = "/pentaho/api/repo/files/deleted";
             }
             else {
-                request="/pentaho/api/repo/files/"+path+"/children?depth=1&showHidden="+this.get("showHiddenFiles")+"&filter=*|FILES";
+                request = "/pentaho/api/repo/files/" + path + "/children?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
             }
             return request;
         }
@@ -502,14 +540,14 @@ pen.define([
             buttonsEnabled: false
         },
 
-        initialize: function() {
+        initialize: function () {
             this.initializeLayout();
             this.initializeOptions();
             this.configureListeners();
             this.render();
         },
 
-        configureListeners: function() {
+        configureListeners: function () {
             //update buttons when changed folder/file
             this.model.on("change:lastClick", this.updateButtons, this);
 
@@ -528,18 +566,18 @@ pen.define([
 
         },
 
-        initializeLayout: function(){
+        initializeLayout: function () {
             var myself = this;
 
             myself.$el.empty();
 
             //require structure template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 myself.$el.append($(templates.structure({})));
             });
         },
 
-        initializeOptions: function() {
+        initializeOptions: function () {
             var myself = this;
 
             foldersTreeView = undefined;
@@ -558,7 +596,7 @@ pen.define([
             });
         },
 
-        render: function(){
+        render: function () {
             var myself = this;
 
             myself.updateButtons();
@@ -567,12 +605,12 @@ pen.define([
             myself.updateFileBrowserHeader();
 
             //disable all buttons on start
-            $("button.btn.btn-block").each(function(){
+            $("button.btn.btn-block").each(function () {
                 $(this).attr("disabled", "disabled");
             });
         },
 
-        updateButtonsHeader: function(){
+        updateButtonsHeader: function () {
             var myself = this,
                 $buttonsContainer = myself.$el.find($("#fileBrowserButtons"));
 
@@ -584,27 +622,27 @@ pen.define([
 
             var obj = {};
 
-            if(lastClick == "file" && fileClicked != undefined){
+            if (lastClick == "file" && fileClicked != undefined) {
                 obj.folderName = undefined;
                 obj.fileName = $(fileClicked.find('.title')[0]).text();
-            } else if(lastClick == "folder" && folderClicked != undefined){
+            } else if (lastClick == "folder" && folderClicked != undefined) {
                 obj.folderName = $(folderClicked.find('.title')[0]).text();
                 obj.fileName = undefined;
             }
-            else if($(folderClicked).attr('path') == ".trash") {
+            else if ($(folderClicked).attr('path') == ".trash") {
                 obj.trashHeader = jQuery.i18n.prop('trash_actions'); //i18n
             }
 
-            obj.i18n=jQuery.i18n;
+            obj.i18n = jQuery.i18n;
 
             //require buttons header template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 $buttonsContainer.prepend($(templates.buttonsHeader(obj)));
             });
 
         },
 
-        updateFolderBrowserHeader: function(){
+        updateFolderBrowserHeader: function () {
             var $el = $(this.el),
                 $folderBrowserContainer = $el.find($("#fileBrowserFolders"));
 
@@ -614,22 +652,22 @@ pen.define([
 
             var obj = {
                 folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
-                i18n:jQuery.i18n
+                i18n: jQuery.i18n
             };
 
-            if(this.model.getLastClick()=="trash"){
+            if (this.model.getLastClick() == "trash") {
 
                 obj.trashHeader = jQuery.i18n.prop('browsing_trash'); //i18n
             }
 
             //require folders header template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
             });
 
         },
 
-        updateFileBrowserHeader: function(){
+        updateFileBrowserHeader: function () {
             var $el = $(this.el),
                 $folderBrowserContainer = $el.find($("#fileBrowserFiles"));
 
@@ -638,21 +676,21 @@ pen.define([
             var folderClicked = this.model.getFolderClicked();
 
             var obj = {
-                folderName : folderClicked != undefined? folderClicked.find("> .element .title").text() : undefined,
-                i18n:jQuery.i18n
+                folderName: folderClicked != undefined ? folderClicked.find("> .element .title").text() : undefined,
+                i18n: jQuery.i18n
             }
 
-            if(this.model.getLastClick()=="trash"){
+            if (this.model.getLastClick() == "trash") {
                 obj.trashHeader = jQuery.i18n.prop('trash_contents');
             }
 
             //require files header template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 $folderBrowserContainer.prepend($(templates.fileBrowserHeader(obj)));
             });
         },
 
-        updateButtons: function(){
+        updateButtons: function () {
             var $el = $(this.el),
                 $buttonsContainer = $el.find($("#fileBrowserButtons .body"));
 
@@ -663,57 +701,57 @@ pen.define([
 
             var buttonsType;
 
-            if(lastClick == "file"){
+            if (lastClick == "file") {
                 buttonsType = this.model.defaults.fileButtons;
-            } else if(lastClick == "folder"){
+            } else if (lastClick == "folder") {
                 buttonsType = this.model.defaults.folderButtons;
             }
 
-            else if (lastClick == "trash"){
+            else if (lastClick == "trash") {
                 buttonsType = this.model.defaults.trashButtons;
             }
 
-            else if (lastClick == "trashItem"){
+            else if (lastClick == "trashItem") {
                 buttonsType = this.model.defaults.trashItemButtons;
             }
 
             var model = this.model; // trap model
 
             //require buttons template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 $buttonsContainer.append($(templates.buttons(buttonsType)));
 
                 // add onClick handler to each button
-                $(buttonsType.buttons).each(function(idx, fb){
-                    $('#'+fb.id).on("click", { model:model, handler:fb.handler }, function(event){
+                $(buttonsType.buttons).each(function (idx, fb) {
+                    $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
                         var path = null;
                         var title = null;
                         var fileList = null;
                         var type = null;
                         var mode = null;
 
-                        if(model.getLastClick() == "file"){
+                        if (model.getLastClick() == "file") {
                             path = $(model.getFileClicked()[0]).attr("path");
                             title = $(model.getFileClicked()[0]).children('.title').text();
-                        } else if(model.getLastClick() == "folder"){
+                        } else if (model.getLastClick() == "folder") {
                             path = $(model.getFolderClicked()[0]).attr("path");
                             title = $(model.getFolderClicked()[0]).children('.title').text();
                         }
-                        else if(model.getLastClick() == "trash"){
+                        else if (model.getLastClick() == "trash") {
                             fileList = model.get("fileListModel").get("deletedFiles");
-                            mode="purge";
+                            mode = "purge";
                         }
-                        else if(model.getLastClick() == "trashItem"){
-                            fileList = $(model.getFileClicked()[0]).attr("id")+",";
+                        else if (model.getLastClick() == "trashItem") {
+                            fileList = $(model.getFileClicked()[0]).attr("id") + ",";
                             type = $(model.getFileClicked()[0]).attr("type");
 
                         }
-                        if((path != null) && event.data.handler){
+                        if ((path != null) && event.data.handler) {
                             event.data.handler(path, title);
                             event.stopPropagation();
                         }
                         else {
-                            event.data.handler(fileList,type,mode);
+                            event.data.handler(fileList, type, mode);
                             event.stopPropagation();
                         }
                     });
@@ -722,9 +760,9 @@ pen.define([
             });
         },
 
-        checkButtonsEnabled: function(){
+        checkButtonsEnabled: function () {
             //disable all buttons on start
-            $("button.btn.btn-block[disabled=disabled]").each(function(){
+            $("button.btn.btn-block[disabled=disabled]").each(function () {
                 $(this).removeAttr("disabled");
             });
         }
@@ -734,16 +772,16 @@ pen.define([
     var FileBrowserFolderTreeView = Backbone.View.extend({
 
         events: {
-            "click .folder .expandCollapse" : "expandFolder",
+            "click .folder .expandCollapse": "expandFolder",
 
-            "click .folder .icon" 			: "clickFolder",
-            "dblclick .folder .icon"		: "expandFolder",
+            "click .folder .icon": "clickFolder",
+            "dblclick .folder .icon": "expandFolder",
 
-            "click .folder .title" 			: "clickFolder",
-            "dblclick .folder .title"		: "expandFolder"
+            "click .folder .title": "clickFolder",
+            "dblclick .folder .title": "expandFolder"
         },
 
-        initialize: function(){
+        initialize: function () {
             var myself = this,
                 data = myself.model.get("data"),
                 spinner = myself.model.get("spinner");
@@ -755,20 +793,20 @@ pen.define([
 
             myself.model.on("change:startFolder", this.setFolder, this);
 
-            if(data == undefined){ //update data
+            if (data == undefined) { //update data
                 //start spinner
                 myself.$el.html(spinner.spin());
                 myself.model.set("updateData", true);
             }
         },
 
-        render: function(){
+        render: function () {
             var myself = this,
                 data = myself.model.get("data");
 
 
             //require folders template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 //stop spinner
                 myself.model.set("runSpinner", false);
 
@@ -777,18 +815,18 @@ pen.define([
 
 
                 //fix folder widths
-                $(".folder").each(function(){
+                $(".folder").each(function () {
                     $(this).addClass("selected");
                 });
 
-                $(".element").each(function(){
+                $(".element").each(function () {
                     var $this = $(this);
-                    while($this.height() > 20){
+                    while ($this.height() > 20) {
                         $this.width($this.width() + 20);
                     }
                 });
 
-                $(".folder").each(function(){
+                $(".folder").each(function () {
                     $(this).removeClass("selected");
                 });
 
@@ -797,14 +835,14 @@ pen.define([
 
 
                 //handle empty folders
-                $(".folders").each(function(){
-                    if($(this).children().length == 0){
+                $(".folders").each(function () {
+                    if ($(this).children().length == 0) {
                         $(this).parent().addClass("empty");
                     }
                 });
 
                 //remove padding of first folder
-                myself.$el.children().each(function(){
+                myself.$el.children().each(function () {
                     $(this).addClass("first");
                 });
 
@@ -815,9 +853,9 @@ pen.define([
 
         },
 
-        expandFolder: function(event){
+        expandFolder: function (event) {
             var $target = $(event.currentTarget).parent().parent();
-            if($target.hasClass("open")){
+            if ($target.hasClass("open")) {
                 $target.removeClass("open").find("> .folders").hide();
             } else {
                 $target.addClass("open").find("> .folders").show();
@@ -825,7 +863,7 @@ pen.define([
             event.stopPropagation();
         },
 
-        clickFolder: function(event){
+        clickFolder: function (event) {
             var $target = $(event.currentTarget).parent().parent();
             //BISERVER-9259 - added time parameter to force change event
             this.model.set("clicked", {
@@ -847,13 +885,13 @@ pen.define([
             event.stopPropagation();
         },
 
-        manageSpinner: function() {
+        manageSpinner: function () {
             var myself = this,
                 runSpinner = this.model.get("runSpinner"),
                 spinner = this.model.get("spinner");
 
-            if(runSpinner){
-                if(spinner != undefined){
+            if (runSpinner) {
+                if (spinner != undefined) {
                     myself.$el.html(spinner.spin().el);
                 } else {
 
@@ -863,13 +901,13 @@ pen.define([
             }
         },
 
-        updateDescriptions: function(){
+        updateDescriptions: function () {
             var $folders = $(".folder"),
                 showDescriptions = this.model.get("showDescriptions");
 
 
-            if(showDescriptions){
-                $folders.each(function(){
+            if (showDescriptions) {
+                $folders.each(function () {
                     var $this = $(this),
                         title = $this.attr("title"),
                         title2 = $this.attr("title2");
@@ -877,21 +915,21 @@ pen.define([
                     $this.attr("title", title2).attr("title2", title);
                 });
             } else {
-                $folders.each(function(){
+                $folders.each(function () {
                     var $this = $(this),
                         title = $this.attr("title"),
                         title2 = $this.attr("title2");
 
-                    $this.attr("title",title2).attr("title2", title);
+                    $this.attr("title", title2).attr("title2", title);
                 });
             }
         },
 
-        setFolder: function(){
-            var $folder = $("[path='"+this.model.get("startFolder")+"']"),
+        setFolder: function () {
+            var $folder = $("[path='" + this.model.get("startFolder") + "']"),
                 $parentFolder = $folder.parent(".folders");
 
-            while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
+            while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
                 $parentFolder.show();
                 $parentFolder.parent().addClass("open");
                 $parentFolder = $parentFolder.parent().parent();
@@ -907,11 +945,11 @@ pen.define([
 
     var FileBrowserFileListView = Backbone.View.extend({
         events: {
-            "click div.file" : "clickFile",
-            "dblclick div.file" : "doubleClickFile"
+            "click div.file": "clickFile",
+            "dblclick div.file": "doubleClickFile"
         },
 
-        initialize: function(){
+        initialize: function () {
             var myself = this,
                 data = myself.model.get("data");
             this.model.on("change:data", this.updateFileList, this);
@@ -920,12 +958,12 @@ pen.define([
             myself.model.on("change:showDescriptions", myself.updateDescriptions, this);
         },
 
-        render: function(){
+        render: function () {
             var myself = this,
                 data = myself.model.get("data");
 
             //require file list template
-            pen.require(["js/browser.templates"],function(templates){
+            pen.require(["js/browser.templates"], function (templates) {
                 myself.$el.empty().append(templates.files(data));
 
                 if(myself.$el.children().length > 0){
@@ -940,12 +978,12 @@ pen.define([
                 }
             });
 
-            setTimeout(function() {
+            setTimeout(function () {
                 myself.model.set("runSpinner", false);
             }, 100);
         },
 
-        clickFile: function(event){
+        clickFile: function (event) {
             var $target = $(event.currentTarget).eq(0);
             //BISERVER-9259 - added time parameter to force change event
             this.model.set("clicked", {
@@ -962,35 +1000,35 @@ pen.define([
             $target.addClass("selected");
 
             //Add secondary selection to folder
-             $(".folder.selected").addClass("secondarySelected");
-             $(".folder.selected").removeClass("selected");
+            $(".folder.selected").addClass("secondarySelected");
+            $(".folder.selected").removeClass("selected");
 
         },
 
-        doubleClickFile: function(event){
+        doubleClickFile: function (event) {
             var path = $(event.currentTarget).attr("path");
             //if not trash item, try to open the file.
-            if(FileBrowser.fileBrowserModel.getLastClick()!="trashItem"){
+            if (FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
                 this.model.get("openFileHandler")(path, "run");
             }
         },
 
-        updateFileList: function(){
+        updateFileList: function () {
             var myself = this;
             this.render();
 
-            setTimeout(function() {
+            setTimeout(function () {
                 myself.model.set("runSpinner", false);
             }, 100);
         },
 
-        manageSpinner: function() {
+        manageSpinner: function () {
             var myself = this,
                 runSpinner = this.model.get("runSpinner"),
                 spinner = this.model.get("spinner");
 
-            if(runSpinner){
-                if(spinner != undefined){
+            if (runSpinner) {
+                if (spinner != undefined) {
                     myself.$el.html(spinner.spin().el);
                 } else {
 
@@ -1000,12 +1038,12 @@ pen.define([
             }
         },
 
-        updateDescriptions: function(){
+        updateDescriptions: function () {
             var $files = $(".file"),
                 showDescriptions = this.model.get("showDescriptions");
 
-            if(showDescriptions){
-                $files.each(function(){
+            if (showDescriptions) {
+                $files.each(function () {
                     var $this = $(this),
                         title = $this.attr("title"),
                         title2 = $this.attr("title2");
@@ -1013,12 +1051,12 @@ pen.define([
                     $this.attr("title", title2).attr("title2", title);
                 });
             } else {
-                $files.each(function(){
+                $files.each(function () {
                     var $this = $(this),
                         title = $this.attr("title"),
                         title2 = $this.attr("title2");
 
-                    $this.attr("title",title2).attr("title2", title);
+                    $this.attr("title", title2).attr("title2", title);
                 });
             }
         }
@@ -1065,8 +1103,8 @@ pen.define([
         setOpenFileHandler: FileBrowser.setOpenFileHandler,
         setShowHiddenFiles: FileBrowser.setShowHiddenFiles,
         setShowDescriptions: FileBrowser.setShowDescriptions,
-		setCanDownload: FileBrowser.setCanDownload,
-		setCanPublish: FileBrowser.setCanPublish,
+        setCanDownload: FileBrowser.setCanDownload,
+        setCanPublish: FileBrowser.setCanPublish,
         updateShowDescriptions: FileBrowser.updateShowDescriptions,
         update: FileBrowser.update,
         updateData: FileBrowser.updateData,
