@@ -28,7 +28,7 @@ function addStylesheet(url) {
     var link = document.createElement('link');
     link.rel = 'stylesheet';
     link.type = 'text/css';
-    link.href = url;
+    link.href = url + (document.all ? ("?ts=" + (new Date().getTime())) : "");
     document.getElementsByTagName('head')[0].appendChild(link);
 }
 
