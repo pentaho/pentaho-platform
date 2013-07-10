@@ -47,8 +47,9 @@ public class ThemeServlet extends ServletBase {
       // look for a passed in theme context (content generator, other named area)
       String moduleName = req.getParameter("context");
       OutputStream out = resp.getOutputStream();
-      resp.setContentType("text/javascript");
-
+      resp.setContentType("text/javascript"); //$NON-NLS-1$ 
+      resp.setHeader("Cache-Control", "no-cache"); //$NON-NLS-1$
+      
       IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession(req));
 
       String activeTheme = (String) getPentahoSession(req).getAttribute("pentaho-user-theme");
