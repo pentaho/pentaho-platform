@@ -66,7 +66,7 @@
   </bean>
 
 
-  <bean id="ldapUserRoleListService0"
+  <bean id="ldapUserRoleListService"
         class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListService">
     <constructor-arg index="0" >
       <bean class="org.pentaho.platform.engine.security.DefaultUsernameComparator" />
@@ -98,17 +98,11 @@
     <property name="systemRoles" >
       <ref bean="singleTenantSystemAuthorities" />
     </property>
-  </bean>
-  <bean id="ldapUserRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
-    <property name="userRoleListService" >
-      <ref local="ldapUserRoleListService0" />
-    </property>
     <property name="extraRoles" ref="extraRoles" />
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="providerName" value="ldap"/>
       </pen:attributes>
-    </pen:publish>
+    </pen:publish>    
   </bean>
-
 </beans>

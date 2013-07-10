@@ -52,7 +52,6 @@ import com.google.gwt.xml.client.XMLParser;
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
-
   public static UserRolesAdminPanelController getInstance() {
     return instance;
   }
@@ -445,11 +444,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					boolean isVisible = !response.getText().contains("ldap");
-					usersLabelPanel.setVisible(isVisible);
-					usersPanel.setVisible(isVisible);
-					
-					if(!isVisible) {
+					boolean usingLDAP = !response.getText().contains("ldap");
+					usersLabelPanel.setVisible(usingLDAP);
+					usersPanel.setVisible(usingLDAP);
+					newRoleButton.setVisible(usingLDAP);
+					deleteRoleButton.setVisible(usingLDAP);
+
+					if(!usingLDAP) {
 						mainTabPanel.getTab(0).setVisible(false);
 						mainTabPanel.selectTab(1);
 					} else {
@@ -506,8 +507,29 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		processLDAPmode();
 		initializeActionBaseSecurityElements();
 		initializeAvailableUsers(null);
-		initializeRoles(null, "api/userroledao/roles", rolesListBox);		
-		initializeRoles(null, "api/userrolelist/extraRoles", systemRolesListBox);
+		
+		final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider"; 
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/json");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					boolean usingLDAP = response.getText().contains("ldap");
+					if(usingLDAP) {
+						initializeRoles(null, "api/userrolelist/roles", rolesListBox);
+					} else {
+						initializeRoles(null, "api/userroledao/roles", rolesListBox);
+					}
+					initializeRoles(null, "api/userrolelist/extraRoles", systemRolesListBox);
+
+				}
+			});
+		} catch (RequestException e) {
+		}
 	}
 
 	public String getId() {
