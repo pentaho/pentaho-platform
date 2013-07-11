@@ -60,7 +60,7 @@ public class PasteFilesCommand extends AbstractCommand {
   }
   
   /**
-   * @param repositoryFile
+   * @param RepositoryFile
    */
   public PasteFilesCommand(RepositoryFile destinationFolder) {
     this.destinationFolder = destinationFolder;
@@ -200,7 +200,13 @@ public class PasteFilesCommand extends AbstractCommand {
         public void onResponseReceived(Request pasteChildrenRequest, Response pasteChildrenResponse) {
           SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserClipboard.getInstance().getClipboardAction();
           if (action == SolutionBrowserClipboard.ClipboardAction.CUT) {
-            new DeleteFileCommand(clipboardFileItems).execute(false);
+
+            //Convert to a list of repository files for the delete permanent command to work properly
+            List<RepositoryFile>clipboardRepoFiles=new ArrayList<RepositoryFile>();
+              for (FileItem clipboardFileItem : clipboardFileItems) {
+                 clipboardRepoFiles.add(clipboardFileItem.getRepositoryFile());
+              }
+            new DeletePermanentFileCommand(clipboardRepoFiles).execute(false);
             clipBoard.clear();
           }
 
