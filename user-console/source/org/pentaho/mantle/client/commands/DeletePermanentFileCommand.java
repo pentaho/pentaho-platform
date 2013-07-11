@@ -187,5 +187,4 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   protected void performOperation() {
     performOperation(true);
   }
-
 }

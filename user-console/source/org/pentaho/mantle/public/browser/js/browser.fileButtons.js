@@ -59,7 +59,7 @@ pen.define([
 					text: this.i18n.prop('contextAction_copy'),
 					handler: $.proxy(that.copyHandler, that)
 				},
-				{id: "separator"},
+                {id: "separator"},
 				{
 					id: "downloadButton",	
 					text: this.i18n.prop('contextAction_download'),
@@ -140,6 +140,47 @@ pen.define([
 			$('#optional-separator').hide();
         }
     },
+
+    updateFilePermissionButtons: function(permissions){
+      if (permissions!=false) {
+
+       for (var i=0;i<permissions.setting.length;i++){
+        //Delete permission
+        if(permissions.setting[i].name=="2"){
+          if(permissions.setting[i].value=="true"){
+            $("#deleteButton").attr("enabled", "enabled");
+            $("#cutbutton").attr("enabled", "enabled");
+          }
+        else{
+            $("#deleteButton").attr("disabled", "disabled");
+            $("#cutbutton").attr("disabled", "disabled");
+         }
+        }
+
+        //Write Permission
+        if(permissions.setting[i].name=="1"){
+          if(permissions.setting[i].value=="true"){
+            $("#copyButton").attr("enabled", "enabled");
+          }
+          else{
+            $("#copyButton").attr("disabled", "disabled");
+          }
+        }
+      }
+    }
+  },
+
+
+    updateCopyButtonPanel: function(canCopy){
+        if (canCopy=="true") {
+            $('#copyButton').show();
+        }
+        else{
+            $('#copyButton').hide();
+        }
+    },
+
+
 
     eventLogger: function(event){
       console.log(event.action + " : " + event.message);

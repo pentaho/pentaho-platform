@@ -38,12 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -642,6 +637,22 @@ public class FileResource extends AbstractJaxRSResource {
   public RepositoryFileDto doGetRootProperties() {
     return repoWs.getFile(PATH_SEPARATOR);
   }
+
+
+
+    @GET
+    @Path("{pathId : .+}/canAccessMap")
+    @Produces({ APPLICATION_XML, APPLICATION_JSON})
+    public List<Setting> doGetCanAccessList(@PathParam("pathId") String pathId, @QueryParam("permissions") String permissions) {
+        StringTokenizer tokenizer = new StringTokenizer(permissions, "|");
+        ArrayList<Setting> permMap = new ArrayList();
+        while (tokenizer.hasMoreTokens()) {
+            Integer perm = Integer.valueOf(tokenizer.nextToken());
+                    EnumSet<RepositoryFilePermission> permission=EnumSet.of(RepositoryFilePermission.values()[perm]);
+                    permMap.add(new Setting(perm.toString(),new Boolean(repository.hasAccess(idToPath(pathId),permission)).toString()));
+        }
+        return permMap;
+    }
 
   @GET
   @Path("{pathId : .+}/canAccess")
