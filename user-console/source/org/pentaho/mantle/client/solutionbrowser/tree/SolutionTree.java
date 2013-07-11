@@ -33,7 +33,6 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
-import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileTreeListener;
@@ -44,6 +43,8 @@ import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -73,7 +74,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
   private FocusPanel focusable = new FocusPanel();
 
   public SolutionTree(boolean showTrash) {
-    super(MantleImages.images, false);
+    super();
     this.showTrash = showTrash;
     setAnimationEnabled(true);
     sinkEvents(Event.ONDBLCLICK);
@@ -151,8 +152,17 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     this.addOpenHandler(new OpenHandler<TreeItem>() {
       public void onOpen(OpenEvent<TreeItem> event) {
         SolutionTree.this.setSelectedItem(event.getTarget());
+        selectedItem.addStyleName("open");
       }
     });
+
+    this.addCloseHandler(new CloseHandler<TreeItem>() {
+      @Override
+      public void onClose(CloseEvent<TreeItem> event) {
+        event.getTarget().removeStyleName("open");
+      }
+    });
+
     getElement().setId("solutionTree"); //$NON-NLS-1$
     getElement().getStyle().setProperty("margin", "29px 0px 10px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -345,14 +355,18 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     for (FileTreeItem treeItem : allNodes) {
       RepositoryFileTree userObject = (RepositoryFileTree) treeItem.getUserObject();
       if (userObject != null && userObject.getChildren().size() == 0) { // This is a leaf node so change the widget
-        treeItem.setWidget(new LeafItemWidget(treeItem.getText(), "icon-tree-leaf", "icon-folder")); //$NON-NLS-1$
-        DOM.setStyleAttribute(treeItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+        treeItem.setWidget(new LeafItemWidget(treeItem.getText(), "icon-tree-node", "icon-tree-leaf", "icon-folder")); //$NON-NLS-1$
+      } else {
+        treeItem.setWidget(new LeafItemWidget(treeItem.getText(), "icon-tree-node", "icon-folder")); //$NON-NLS-1$
       }
+
+      DOM.setStyleAttribute(treeItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
     }
   }
 
   private void buildTrash() {
-    trashItem = new FileTreeItem(new LeafItemWidget("Recycle Bin", "icon-tree-leaf", "icon-recycle-bin")); //$NON-NLS-1$ //$NON-NLS-2$
+    trashItem = new FileTreeItem(new LeafItemWidget(
+        "Recycle Bin", "icon-tree-node", "icon-tree-leaf", "icon-recycle-bin")); //$NON-NLS-1$ //$NON-NLS-2$
     this.addItem(trashItem);
     DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
   }
@@ -525,6 +539,15 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         childTreeItem.setRepositoryFile(file);
         if (file.isHidden() && file.isFolder()) {
           childTreeItem.addStyleDependentName("hidden");
+        }
+
+        if (treeItem != null && treeItem.getChildren() != null) {
+        for (RepositoryFileTree childItem : treeItem.getChildren()) {
+          if (childItem.getFile().isFolder()) {
+            childTreeItem.addStyleName("parent-widget");
+            break;
+          }
+          }
         }
 
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
