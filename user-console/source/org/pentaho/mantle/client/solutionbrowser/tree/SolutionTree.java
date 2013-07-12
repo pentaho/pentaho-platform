@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
+import org.pentaho.gwt.widgets.client.filechooser.TreeItemComparator;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -316,11 +317,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         for (int i = 0; i < getItemCount(); i++) {
           roots.add(getItem(i));
         }
-        Collections.sort(roots, new Comparator<TreeItem>() {
-          public int compare(TreeItem o1, TreeItem o2) {
-            return o1.getText().compareTo(o2.getText());
-          }
-        });
+        Collections.sort(roots, new TreeItemComparator()); // BISERVER-9599 - Custom Sort
         clear();
         for (TreeItem myRootItem : roots) {
           addItem(myRootItem);
@@ -523,6 +520,15 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
   private void buildSolutionTree(FileTreeItem parentTreeItem, RepositoryFileTree repositoryFileTree) {
     List<RepositoryFileTree> children = repositoryFileTree.getChildren();
+
+    // BISERVER-9599 - Custom Sort
+    Collections.sort(children, new Comparator<RepositoryFileTree>() {
+      @Override
+      public int compare(RepositoryFileTree repositoryFileTree, RepositoryFileTree repositoryFileTree2) {
+        return (new TreeItemComparator()).compare(repositoryFileTree.getFile().getTitle(), repositoryFileTree2.getFile().getTitle());
+      }
+    });
+
     for (RepositoryFileTree treeItem : children) {
       RepositoryFile file = treeItem.getFile();
       boolean isDirectory = file.isFolder();
@@ -571,48 +577,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         if (parentTreeItem == null && isDirectory) {
           addItem(childTreeItem);
         } else {
-
-          try {
-            // find the spot in the parentTreeItem to insert the node (based on showLocalizedFileNames)
-            if (parentTreeItem.getChildCount() == 0) {
-              parentTreeItem.addItem(childTreeItem);
-            } else {
-              // this does sorting
-              boolean inserted = false;
-              for (int j = 0; j < parentTreeItem.getChildCount(); j++) {
-                FileTreeItem kid = (FileTreeItem) parentTreeItem.getChild(j);
-                if (showLocalizedFileNames) {
-                  if (childTreeItem.getText().compareTo(kid.getText()) <= 0) {
-                    // leave all items ahead of the insert point
-                    // remove all items between the insert point and the end
-                    // add the new item
-                    // add back all removed items
-                    ArrayList<FileTreeItem> removedItems = new ArrayList<FileTreeItem>();
-                    for (int x = j; x < parentTreeItem.getChildCount(); x++) {
-                      FileTreeItem removedItem = (FileTreeItem) parentTreeItem.getChild(x);
-                      removedItems.add(removedItem);
-                    }
-                    for (FileTreeItem removedItem : removedItems) {
-                      parentTreeItem.removeItem(removedItem);
-                    }
-                    parentTreeItem.addItem(childTreeItem);
-                    inserted = true;
-                    for (FileTreeItem removedItem : removedItems) {
-                      parentTreeItem.addItem(removedItem);
-                    }
-                    break;
-                  }
-                } else {
-                  parentTreeItem.addItem(childTreeItem);
-                  inserted = true;
-                }
-              }
-              if (!inserted) {
-                parentTreeItem.addItem(childTreeItem);
-              }
-            }
-          } catch (Exception e) { /* Error with FF */
-          }
+          parentTreeItem.addItem(childTreeItem);
         }
         FileTreeItem tmpParent = childTreeItem;
         String pathToChild = tmpParent.getFileName();
