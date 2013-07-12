@@ -123,22 +123,15 @@ pen.define([
         updateFolderPermissionButtons: function(permissions){
             if (permissions!=false) {
 
-                var deletePerm="false";
                 var writePerm="false";
                 for (var i=0;i<permissions.setting.length;i++){
-
-                    //Delete permission
-                    if(permissions.setting[i].name=="2"){
-                           deletePerm=permissions.setting[i].value;
-                    }
-
                     //Write Permission
                     if(permissions.setting[i].name=="1"){
                         writePerm=permissions.setting[i].value;
                     }
                 }
 
-                if(writePerm =="true" || deletePerm=="true"){
+                if(writePerm =="true"){
                     $("#pasteButton").attr("enabled", "enabled");
                 }
 
