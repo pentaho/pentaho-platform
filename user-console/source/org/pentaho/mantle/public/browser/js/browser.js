@@ -237,6 +237,8 @@ pen.define([
 
             if (folderPath == ".trash") {
                 this.updateTrashLastClick();
+            } else {
+            	folderPath = folderPath.replace(/\//g, ":");
             }
             this.set("clickedFolder", clickedFolder);
             folderButtons.canDownload(this.get("canDownload"));
