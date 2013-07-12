@@ -146,5 +146,6 @@
 				</restriction>
 			</simpleType>
 		</attribute>
+    <attribute name="runAfterImport" type="boolean" default="false" use="optional" />
 	</complexType>
 </schema>
