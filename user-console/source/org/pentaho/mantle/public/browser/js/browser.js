@@ -250,7 +250,7 @@ pen.define([
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
                 },
-                data: {"permissions": "1|2"}, //check write and delete permissions for the given file
+                data: {"permissions": "1"}, //check write permissions for the given folder
                 async: true,
                 success: function (response) {
                     folderButtons.updateFolderPermissionButtons(response);
@@ -285,7 +285,7 @@ pen.define([
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
                 },
-                data: {"permissions": "1|2"}, //check write and delete permissions for the given file
+                data: {"permissions": "2"}, //check delete permissions for the given file
                 async: true,
                 success: function (response) {
                     fileButtons.updateFilePermissionButtons(response);
