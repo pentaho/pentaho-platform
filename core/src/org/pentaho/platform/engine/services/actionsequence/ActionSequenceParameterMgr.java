@@ -28,7 +28,7 @@ import org.pentaho.platform.api.engine.IParameterResolver;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 public class ActionSequenceParameterMgr implements IActionParameterMgr {
@@ -96,7 +96,7 @@ public class ActionSequenceParameterMgr implements IActionParameterMgr {
     InputStream inputStream = null;
     IActionSequenceResource resource = runtimeContext.getResourceDefintion(actionResource.getName());
     if (resource != null) {
-      inputStream = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+      inputStream = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
     }
     return inputStream;
   }

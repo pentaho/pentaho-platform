@@ -50,7 +50,7 @@ import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
 import org.pentaho.platform.engine.services.runtime.MapParameterResolver;
@@ -209,7 +209,7 @@ public abstract class XQueryBaseComponent extends ComponentBase implements IPrep
         IActionSequenceResource resource = getResource(xmlResource.getName());
         resourceType = resource.getSourceType();
         if ((resourceType == IActionSequenceResource.SOLUTION_FILE_RESOURCE) || (resourceType == IActionSequenceResource.FILE_RESOURCE)) {  
-          inputStream = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE);
+          inputStream = resource.getInputStream(RepositoryFilePermission.READ);
         } else if (resourceType == IActionSequenceResource.XML) {
           inputStream = new FileInputStream(new File(createTempXMLFile(resource.getAddress())));
         } else {
@@ -254,7 +254,7 @@ public abstract class XQueryBaseComponent extends ComponentBase implements IPrep
           
           OutputStream out = new FileOutputStream(temp);
           IActionSequenceResource resource = getResource(xmlResource.getName());
-          inputStream = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE);
+          inputStream = resource.getInputStream(RepositoryFilePermission.READ);
           byte buf[] = new byte[1024];
           int len;
           while ((len = inputStream.read(buf)) > 0) {

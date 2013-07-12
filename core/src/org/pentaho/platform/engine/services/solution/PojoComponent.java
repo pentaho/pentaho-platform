@@ -45,7 +45,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -364,7 +364,7 @@ public class PojoComponent extends ComponentBase {
               Object value = null;
               
               if(paramTypes[0] == InputStream.class ) {
-                value = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+                value = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
               } else if(paramTypes[0] == IActionSequenceResource.class ) {
                 value = resource;
               } else if(paramTypes[0] == String.class){

@@ -17,13 +17,11 @@
  */
 package org.pentaho.platform.engine.security;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclHolder;
-import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
@@ -33,7 +31,6 @@ import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -275,73 +272,6 @@ public class SecurityHelper implements ISecurityHelper {
 
     }
     return voter.hasAccess(session, aHolder, aclMask);
-  }
-
-  /**
-   * Utility method for access negotiation. For performance, not all files will
-   * be checked against the supplied voter.
-   * @param aFile
-   * @param actionOperation
-   * @param session
-   * @return
-   */
-  @Override
-  public boolean hasAccess(final IAclSolutionFile aFile, final int actionOperation, final IPentahoSession session) {
-    if (aFile == null) {
-      return false;
-    }
-    if (!aFile.isDirectory()) {
-      List extensionList = PentahoSystem.getACLFileExtensionList();
-      String fName = aFile.getFileName();
-      int posn = fName.lastIndexOf('.');
-      if (posn >= 0) {
-        if (extensionList.indexOf(fName.substring(posn)) < 0) {
-          // Non-acl'd file. Return true.
-          return true;
-        }
-      } else {
-        // Untyped file. Allow access.
-        return true;
-      }
-    }
-    IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
-    int aclMask = -1;
-    switch (actionOperation) {
-      case ISolutionRepository.ACTION_EXECUTE: {
-        aclMask = IPentahoAclEntry.PERM_EXECUTE;
-        break;
-      }
-      case ISolutionRepository.ACTION_ADMIN: {
-        // aclMask = PentahoAclEntry.ADMINISTRATION;
-        // break;
-        return isPentahoAdministrator(session);
-      }
-      case ISolutionRepository.ACTION_SUBSCRIBE: {
-        aclMask = IPentahoAclEntry.PERM_SUBSCRIBE;
-        break;
-      }
-      case ISolutionRepository.ACTION_CREATE: {
-        aclMask = IPentahoAclEntry.PERM_CREATE;
-        break;
-      }
-      case ISolutionRepository.ACTION_UPDATE: {
-        aclMask = IPentahoAclEntry.PERM_UPDATE;
-        break;
-      }
-      case ISolutionRepository.ACTION_DELETE: {
-        aclMask = IPentahoAclEntry.PERM_DELETE;
-        break;
-      }
-      case ISolutionRepository.ACTION_SHARE: {
-        aclMask = IPentahoAclEntry.PERM_UPDATE_PERMS;
-        break;
-      }
-      default: {
-        aclMask = IPentahoAclEntry.PERM_EXECUTE;
-        break;
-      }
-    }
-    return voter.hasAccess(session, aFile, aclMask);
   }
 
   /**

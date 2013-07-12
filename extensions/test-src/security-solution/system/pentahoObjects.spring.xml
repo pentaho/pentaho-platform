@@ -12,12 +12,10 @@ PentahoSystem which is initialized after Spring
   default-lazy-init="true">
   
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
-  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository" scope="session" />
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
   <bean id="ICacheManager" class="org.pentaho.platform.plugin.services.cache.CacheManager" scope="singleton" />
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
-  <bean id="INavigationComponent" class="org.pentaho.platform.uifoundation.component.xml.NavigationComponent" scope="prototype" />
   <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution" scope="prototype" />
   <bean id="IScheduler" class="org.pentaho.platform.scheduler.QuartzScheduler" scope="session" />
   <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.SimpleRuntimeRepository" scope="session" />

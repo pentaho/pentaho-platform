@@ -24,6 +24,8 @@ package org.pentaho.platform.api.engine;
 import java.io.InputStream;
 import java.util.Locale;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+
 /**
  * The ActionResource interface represents one resource in an ActionSequence.
  * Resources are elements in a solution that exist outside of the action
@@ -98,7 +100,7 @@ public interface IActionSequenceResource {
   // public String getLocation();
   public String getAddress();
 
-  public InputStream getInputStream(int actionOperation, Locale locale);
+  public InputStream getInputStream(RepositoryFilePermission actionOperation, Locale locale);
 
-  public InputStream getInputStream(int actionOperation);
+  public InputStream getInputStream(RepositoryFilePermission actionOperation);
 }

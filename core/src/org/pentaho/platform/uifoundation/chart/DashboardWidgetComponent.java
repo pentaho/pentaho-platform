@@ -35,7 +35,7 @@ import org.dom4j.Element;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -199,7 +199,7 @@ public class DashboardWidgetComponent extends XmlComponent {
       try {
         org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
         reader.setEntityResolver(new SolutionURIResolver());
-        dialDefinition =  reader.read(resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale()));
+        dialDefinition =  reader.read(resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale()));
       } catch (Throwable t) {
         // XML document can't be read. We'll just return a null document.
       }

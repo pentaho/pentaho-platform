@@ -34,7 +34,6 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.ServiceInitializationException;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -46,7 +45,6 @@ import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceM
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.IServiceTypeManager;
 import org.pentaho.platform.plugin.services.webservices.content.StyledHtmlAxisServiceLister;
-import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.services.ContentGeneratorUtil;
@@ -71,7 +69,6 @@ public class AxisWebServiceManagerTest {
     assertNotNull(PentahoSystem.getObjectFactory());
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     assertNotNull(PentahoSystem.getObjectFactory());
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
     microPlatform.define(IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL);
     microPlatform.define(IPluginProvider.class, TstPluginProvider.class);

@@ -804,12 +804,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     String res = null;
     InputStream in = null;
     try {
-      //ISolutionRepository repo = PentahoSystem.get(ISolutionRepository.class, pentahoSession); 
-      //if (repo == null) {
-      //  throw new IllegalStateException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0014_SOLUTION_REPOSITORY_REQUIRED")); //$NON-NLS-1$
-      //}
-      //in = repo.getResourceInputStream(relPath, true, ISolutionRepository.ACTION_EXECUTE);
-
       LocalizingDynamicSchemaProcessor schemaProcessor = new LocalizingDynamicSchemaProcessor();
       PropertyList localeInfo = new PropertyList();
       localeInfo.put("Locale", getLocale().toString()); //$NON-NLS-1$

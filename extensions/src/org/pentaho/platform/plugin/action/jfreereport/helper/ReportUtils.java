@@ -33,7 +33,7 @@ import org.jfree.io.IOUtils;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.util.messages.LocaleHelper;
@@ -153,7 +153,7 @@ public class ReportUtils {
       // if that fails, we dont have to waste our time on copying the stuff ..
       final URL url = tempFile.toURI().toURL();
 
-      final InputStream in = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+      final InputStream in = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
       final OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile));
       try {
         IOUtils.getInstance().copyStreams(in, out);

@@ -33,8 +33,9 @@ import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IActionSequence;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.ISolutionActionDefinition;
-import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.engine.core.solution.ActionInfo;
+import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.XForm;
@@ -113,10 +114,9 @@ public class InputFormComponent extends XmlComponent {
   @Override
   public Document getXmlContent() {
 
-    ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getSession());
-
-    IActionSequence actionSequence = repository.getActionSequence(solution, path, actionName, getLoggingLevel(),
-        ISolutionRepository.ACTION_EXECUTE);
+    ActionSequenceJCRHelper actionHelper = new ActionSequenceJCRHelper(getSession());
+    IActionSequence actionSequence = actionHelper.getActionSequence(ActionInfo.buildSolutionPath(solution, path, actionName), getLoggingLevel(),
+        RepositoryFilePermission.READ);
 
     if (actionSequence == null) {
       // TODO log this

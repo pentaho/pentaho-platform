@@ -29,6 +29,7 @@ import org.dom4j.Document;
 import org.dom4j.Node;
 import org.jfree.data.general.Dataset;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -114,7 +115,7 @@ public abstract class AbstractJFreeChartComponent extends AbstractChartComponent
   @Override
   public boolean setDataAction(final String chartDefinition) {
     try {
-      Document dataActionDocument = jcrHelper.getSolutionDocument(chartDefinition, 1);
+      Document dataActionDocument = jcrHelper.getSolutionDocument(chartDefinition, RepositoryFilePermission.READ);
       if (dataActionDocument == null) {
         return false;
       }

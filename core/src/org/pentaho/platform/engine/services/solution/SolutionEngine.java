@@ -44,7 +44,7 @@ import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -427,7 +427,7 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
   }
 
   private IActionSequence createActionSequence(final String actionPath) {
-    return new ActionSequenceJCRHelper(session).getActionSequence(actionPath, loggingLevel, ISolutionRepository.ACTION_EXECUTE);
+    return new ActionSequenceJCRHelper(session).getActionSequence(actionPath, loggingLevel, RepositoryFilePermission.READ);
   }
 
   private IActionSequence createActionSequenceFromXml(final String actionDef) {

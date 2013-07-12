@@ -37,7 +37,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoBase;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -165,7 +165,7 @@ public class TestManager extends PentahoBase {
     // add some standard settings
     Element propertyNode = propertiesNode.addElement("property"); //$NON-NLS-1$
     propertyNode.addAttribute("name", Messages.getInstance().getString("UI.USER_TEST_SUITE_SOLUTION_REPOSITORY")); //$NON-NLS-1$ //$NON-NLS-2$
-    propertyNode.addAttribute("value", PentahoSystem.get(ISolutionRepository.class, userSession).getClass().toString()); //$NON-NLS-1$
+    propertyNode.addAttribute("value", PentahoSystem.get(IUnifiedRepository.class, userSession).getClass().toString()); //$NON-NLS-1$
 
     propertyNode = propertiesNode.addElement("property"); //$NON-NLS-1$
     propertyNode.addAttribute("name", "data.driver"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -54,8 +54,7 @@ import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.ui.INavigationComponent;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.ActionInfo;
@@ -63,6 +62,7 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
+import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.SoapHelper;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.uifoundation.chart.ChartDefinition;
@@ -205,8 +205,6 @@ public class HttpWebService extends ServletBase {
         doDial(solutionName, actionPath, actionName, parameterProvider, outputStream, userSession);
       } else if ("chart".equals(component)) { //$NON-NLS-1$
         doChart(actionPath,parameterProvider, outputStream, userSession);
-      } else if ("navigate".equals(component)) { //$NON-NLS-1$
-        doNavigate(solutionName, actionPath, actionName, parameterProvider, outputStream, userSession);
       } else if ("xaction-parameter".equals(component)) { //$NON-NLS-1$
         doParameter(solutionName, actionPath, actionName, parameterProvider, outputStream, userSession, response);
       }
@@ -233,9 +231,8 @@ public class HttpWebService extends ServletBase {
       throws IOException
   {
 
-    final ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, userSession);
-    final IActionSequence actionSequence = repository.getActionSequence
-        (solutionName, actionPath, actionName, PentahoSystem.loggingLevel, ISolutionRepository.ACTION_EXECUTE);
+    final IActionSequence actionSequence = new ActionSequenceJCRHelper().getActionSequence
+        (ActionInfo.buildSolutionPath(solutionName, actionPath, actionName), PentahoSystem.loggingLevel, RepositoryFilePermission.READ);
     if (actionSequence == null)
     {
       logger.debug(Messages.getInstance().getString("HttpWebService.ERROR_0002_NOTFOUND", solutionName, actionPath, actionName));
@@ -365,44 +362,6 @@ public class HttpWebService extends ServletBase {
       return Messages.getInstance().getString("HttpWebService.PARAMETER_GROUP_SYSTEM");
     }
     return Messages.getInstance().getString("HttpWebService.PARAMETER_GROUP_USER");
-  }
-  
-  private void doNavigate(String solutionName, final String actionPath, final String actionName,
-      final IParameterProvider parameterProvider, final OutputStream outputStream, final IPentahoSession userSession) {
-    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-    String contextPath = requestContext.getContextPath();
-    String hrefUrl = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL(); //$NON-NLS-1$
-    String onClick = ""; //$NON-NLS-1$
-    String thisUrl = contextPath + "Navigate?"; //$NON-NLS-1$
-
-    SimpleUrlFactory urlFactory = new SimpleUrlFactory(thisUrl);
-    ArrayList messages = new ArrayList();
-
-    if ("".equals(solutionName)) { //$NON-NLS-1$
-      solutionName = null;
-    }
-
-    INavigationComponent navigate = PentahoSystem.get(INavigationComponent.class, userSession);
-    navigate.setHrefUrl(hrefUrl);
-    navigate.setOnClick(onClick);
-    navigate.setSolutionParamName("solution"); //$NON-NLS-1$
-    navigate.setPathParamName("path"); //$NON-NLS-1$
-    navigate.setAllowNavigation(new Boolean(false));
-    navigate.setOptions(""); //$NON-NLS-1$
-    navigate.setUrlFactory(urlFactory);
-    navigate.setMessages(messages);
-    // This line will override the default setting of the navigate component
-    // to allow debugging of the generated HTML.
-    // navigate.setLoggingLevel( org.pentaho.util.logging.ILogger.DEBUG );
-    navigate.validate(userSession, null);
-    navigate.setParameterProvider(HttpRequestParameterProvider.SCOPE_REQUEST, parameterProvider);
-
-    try {
-      XmlDom4JHelper.saveDom(SoapHelper.createSoapResponseDocument(navigate.getXmlContent()), outputStream, PentahoSystem.getSystemSetting("web-service-encoding", "utf-8"), true);
-    } catch (IOException e) {
-      // not much we can do here...
-    }
-
   }
 
   @SuppressWarnings("deprecation")

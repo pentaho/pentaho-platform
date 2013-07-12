@@ -14,7 +14,6 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -22,7 +21,6 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator;
 import org.pentaho.platform.plugin.action.chartbeans.IChartBeansGenerator;
-import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.uifoundation.component.ActionComponent;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
@@ -57,7 +55,6 @@ public class ChartbeansTest {
   public void init0() {
     microPlatform = new MicroPlatform("test-src/solution/");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IChartBeansGenerator.class, DefaultChartBeansGenerator.class);
     microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
     FileSystemBackedUnifiedRepository repo = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);

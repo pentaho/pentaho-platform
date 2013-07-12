@@ -41,7 +41,7 @@ import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.solution.PluginOperation;
@@ -114,7 +114,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     }
     // we have found a plugin.xml file
     // get the file from the repository
-    String path = "system" + ISolutionRepository.SEPARATOR + folder.getName() + ISolutionRepository.SEPARATOR + "plugin.xml"; //$NON-NLS-1$ //$NON-NLS-2$
+    String path = "system" + RepositoryFile.SEPARATOR + folder.getName() + RepositoryFile.SEPARATOR + "plugin.xml"; //$NON-NLS-1$ //$NON-NLS-2$
     Document doc = null;
     try {
       try {

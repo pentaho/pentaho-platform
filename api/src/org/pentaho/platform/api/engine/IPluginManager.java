@@ -130,18 +130,6 @@ public interface IPluginManager {
   public void unloadAllPlugins();
 
   /**
-   * Retrieves meta information for the given solution file.
-   * @param extension used to identify the appropriate plugin that handles this type of content
-   * @param session the current session
-   * @param file the solution file we want to know something about
-   * @param in the content of the solution file as an {@link InputStream}
-   * @return meta information about the solution file
-   * 
-   * @deprecated Check usage of this method. Do we need to port this to RepositoryFile?
-   */
-  public IFileInfo getFileInfo(String extension, IPentahoSession session, ISolutionFile file, InputStream in);
-
-  /**
    * Returns the plugin (IPlatformPlugin) that handles requests for files of type <code>contentType</code>
    * @param contentType a user-defined file-extension like suffix denoting a type of content
    * @return the id of the plugin that handles requests to files of type <code>contentType</code>

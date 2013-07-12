@@ -45,6 +45,7 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
@@ -132,7 +133,7 @@ public class PieDatasetChartComponent extends AbstractJFreeChartComponent {
     setXslProperty("fullyQualifiedServerUrl",
         PentahoSystem.getApplicationContext().getFullyQualifiedServerURL()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     String mapName = "chart" + AbstractChartComponent.chartCount++; //$NON-NLS-1$
-    Document chartDefinition = jcrHelper.getSolutionDocument(definitionPath, 1);
+    Document chartDefinition = jcrHelper.getSolutionDocument(definitionPath, RepositoryFilePermission.READ);
     if (chartDefinition == null) {
       Element errorElement = result.addElement("error"); //$NON-NLS-1$
       errorElement

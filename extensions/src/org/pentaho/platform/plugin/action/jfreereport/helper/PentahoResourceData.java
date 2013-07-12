@@ -22,7 +22,7 @@ import java.io.InputStream;
 import org.pentaho.actionsequence.dom.IActionResource;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.ISolutionFile;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -73,7 +73,7 @@ public class PentahoResourceData extends AbstractResourceData {
     }
     final IActionSequenceResource resource = new ActionSequenceResource(
         "", resourceType, "application/binary", (String) key.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
-    return resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+    return resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
   }
 
   /**
@@ -98,15 +98,9 @@ public class PentahoResourceData extends AbstractResourceData {
    * @return version
    */
   public long getVersion(final ResourceManager caller) throws ResourceLoadingException {
-    final IActionSequenceResource resource = new ActionSequenceResource(
+    final ActionSequenceResource resource = new ActionSequenceResource(
         "", IActionResource.SOLUTION_FILE_RESOURCE, "application/binary", (String) key.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
-    ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class);
-    final ISolutionFile file = solutionRepository.getSolutionFile(resource, ISolutionRepository.ACTION_EXECUTE);
-    long version = -1L;
-    if (file != null) {
-      version = file.getLastModified();
-    }
-    return version;
+    return resource.getLastModifiedDate(null);
   }
 
   /**

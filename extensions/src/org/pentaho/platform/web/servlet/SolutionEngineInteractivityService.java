@@ -55,10 +55,12 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameterSource;
+import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
@@ -217,12 +219,11 @@ public class SolutionEngineInteractivityService extends ServletBase {
     try {
       IPentahoSession userSession = getPentahoSession(request);
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, userSession);
       String solutionName = request.getParameter("solution"); //$NON-NLS-1$
       String actionPath = request.getParameter("path"); //$NON-NLS-1$
       String actionName = request.getParameter("action"); //$NON-NLS-1$
-      IActionSequence actionSequence = repository.getActionSequence(solutionName, actionPath, actionName, PentahoSystem.loggingLevel,
-          ISolutionRepository.ACTION_EXECUTE);
+      IActionSequence actionSequence = new ActionSequenceJCRHelper().getActionSequence(ActionInfo.buildSolutionPath(solutionName, actionPath, actionName), PentahoSystem.loggingLevel,
+          RepositoryFilePermission.READ);
       String fileName = null;
       if (actionSequence != null) {
         String title = actionSequence.getTitle();

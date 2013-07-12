@@ -21,13 +21,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
-  <!-- Uncomment the following line to use a filesystem-based repository. Note: does not support ACLs.  -->
-  <!--  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository" scope="singleton" />-->
-  <!-- Uncomment the following line to use a filesystem/db-based repository with meta information stored in a db  -->
-  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository"
-        scope="singleton"/>
-  <!-- runtime repositories are not used in the current implmentation of the BI platform -->
-  <!-- <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" /> -->
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton"/>
   <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton"/>
   <!-- Concrete implementation of IMetadataDomainRepository -->
@@ -63,8 +56,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution"
         scope="prototype"/>
   <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton"/>
-  <bean id="INavigationComponent" class="org.pentaho.platform.uifoundation.component.xml.NavigationComponent"
-        scope="prototype"/>
   <!--
     IDBDatasourceService - options are:
     org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService

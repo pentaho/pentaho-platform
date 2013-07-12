@@ -32,7 +32,6 @@ import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.repository.ISearchable;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
 import org.springframework.security.acl.basic.AclObjectIdentity;
@@ -119,7 +118,7 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
     if (parent != null) {
       buffer.append(parent.getFullPath());
     }
-    buffer.append(ISolutionRepository.SEPARATOR);
+    buffer.append(org.pentaho.platform.api.repository2.unified.RepositoryFile.SEPARATOR);
     buffer.append(fileName);
 
     setFullPath(buffer.toString());
@@ -172,7 +171,7 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
     }
     StringBuffer buffer = new StringBuffer(RepositoryFile.EMPTY_STRING);
     for (int i = pathList.size() - 1; i >= 0; i--) {
-      buffer.append(ISolutionRepository.SEPARATOR);
+      buffer.append(org.pentaho.platform.api.repository2.unified.RepositoryFile.SEPARATOR);
       buffer.append(pathList.get(i).toString());
     }
     return buffer.toString();
