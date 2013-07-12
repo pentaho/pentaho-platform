@@ -130,8 +130,11 @@
 }
 
 #mainMenubar {
-  padding-left: 14px;
-  padding-top: 0px;
+  padding: 0  0 0px  0;
+  position:absolute;
+  top: 0;
+  left: 12px;
+  -webkit-transition:all .500ms ease-in-out;
 }
 
 .mantle-perspective-switcher {
@@ -767,6 +770,9 @@ a:active, a:hover {
 .gwt-MenuItem-checkbox-checked,
 .disabledMenuItem {
 }
+.disabledMenuItem {
+  color: #ccc;
+}
 
 
 /*
@@ -1208,18 +1214,26 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 
 .pentaho-table .cellTableHoveredRow {
   background: #dce7ed;
+  -moz-transition: all 600ms;
+  -webkit-transition: all 600ms;
 }
 
 .pentaho-table .cellTableHoveredRowCell {
   border: 2px solid #dce7ed;
+  -moz-transition: all 600ms;
+  -webkit-transition: all 600ms;
 }
 
 .pentaho-table .cellTableKeyboardSelectedRow {
   background: #d7e9cd;
+  -moz-transition: all 600ms;
+  -webkit-transition: all 600ms;
 }
 
 .pentaho-table .cellTableKeyboardSelectedRowCell {
   border: 2px solid #d7e9cd;
+  -moz-transition: all 600ms;
+  -webkit-transition: all 600ms;
 }
 
 .pentaho-table .cellTableSelectedRow {
@@ -1227,10 +1241,14 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
   color: #26363d;
   height: auto;
   overflow: auto;
+  -moz-transition: all 600ms;
+  -webkit-transition: all 600ms;
 }
 
 .pentaho-table .cellTableSelectedRowCell {
   border: 2px solid #d7e9cd;
+  -moz-transition: all 600ms;
+  -webkit-transition: all 600ms;
 }
 
 /**
