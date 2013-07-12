@@ -7,11 +7,13 @@
  */
 
 pen.define([
+	  "js/browser.dialogs.js",
     "common-ui/jquery-i18n",
     "common-ui/jquery"
-], function () {
+], function (Dialogs) {
 
     var local = {
+    	dialogs: new Dialogs(),
 
         init: function () {
 
@@ -30,6 +32,11 @@ pen.define([
                     text: this.i18n.prop('contextAction_delete'),
                     handler: $.proxy(that.deleteFolderHandler, that)
                 },
+                {
+          			id: "renameButton", 
+          			text: this.i18n.prop('contextAction_rename'),
+          			handler: $.proxy(that.renameHandler, that)
+        		},
                 {id: "separator"},
                 {
                     id: "pasteButton",
@@ -172,7 +179,10 @@ pen.define([
 
         postPropertiesHandler: function () {
             $(window.parent.document).find(".pentaho-dialog").attr("id", "browse-properties-dialog");
-        }
+        },
+        renameHandler: function(path){
+      		this.dialogs.showDialogRename(path);
+    	}
 
     };
 

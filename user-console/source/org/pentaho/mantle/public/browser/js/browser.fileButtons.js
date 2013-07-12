@@ -8,9 +8,10 @@
 
 pen.define([
   "js/browser.utils.js",
+  "js/browser.dialogs.js",
   "common-ui/jquery-i18n",
   "common-ui/jquery"
-], function(BrowserUtils) {
+], function(BrowserUtils, Dialogs) {
 
 	var local = {
 
@@ -45,11 +46,6 @@ pen.define([
 				},
 				{id: "separator"},
 				{
-					id: "deleteButton", 
-					text: this.i18n.prop('contextAction_delete'),
-					handler: $.proxy(that.deleteHandler, that)
-				},
-				{
 					id: "cutbutton", 
 					text: this.i18n.prop('contextAction_cut'),
 					handler: $.proxy(that.cutHandler, that)
@@ -59,7 +55,17 @@ pen.define([
 					text: this.i18n.prop('contextAction_copy'),
 					handler: $.proxy(that.copyHandler, that)
 				},
-                {id: "separator"},
+		        {
+		          id: "deleteButton", 
+		          text: this.i18n.prop('contextAction_delete'),
+		          handler: $.proxy(that.deleteHandler, that)
+		        },
+		        {
+		          id: "renameButton", 
+		          text: this.i18n.prop('contextAction_rename'),
+		          handler: $.proxy(that.renameHandler, that)
+		        },
+				{id: "separator"},
 				{
 					id: "downloadButton",	
 					text: this.i18n.prop('contextAction_download'),
@@ -102,6 +108,8 @@ pen.define([
 
 		isFavorite: false,
 
+    dialogs: new Dialogs(),
+
     initEventHandlers: function(){
     	var that = this; // trap this
 
@@ -141,27 +149,53 @@ pen.define([
         }
     },
 
+    eventLogger: function(event){
+      console.log(event.action + " : " + event.message);
+    },
+
     updateFilePermissionButtons: function(permissions){
       if (permissions!=false) {
 
-       for (var i=0;i<permissions.setting.length;i++){
-        //Delete permission
-        if(permissions.setting[i].name=="2"){
-          if(permissions.setting[i].value=="true"){
-            $("#deleteButton").attr("enabled", "enabled");
-            $("#cutbutton").attr("enabled", "enabled");
+        for (var i=0;i<permissions.setting.length;i++){
+          //Delete permission
+          if(permissions.setting[i].name=="2"){
+            if(permissions.setting[i].value=="true"){
+              $("#deleteButton").attr("enabled", "enabled");
+              $("#cutbutton").attr("enabled", "enabled");
+            }
+          else{
+              $("#deleteButton").attr("disabled", "disabled");
+              $("#cutbutton").attr("disabled", "disabled");
+           }
           }
         else{
             $("#deleteButton").attr("disabled", "disabled");
             $("#cutbutton").attr("disabled", "disabled");
          }
+          //Write Permission
+          if(permissions.setting[i].name=="1"){
+            if(permissions.setting[i].value=="true"){
+              $("#copyButton").attr("enabled", "enabled");
+            }
+            else{
+              $("#copyButton").attr("disabled", "disabled");
+            }
+          }
         }
       }
-    }
-  },
+    },
 
     eventLogger: function(event){
       console.log(event.action + " : " + event.message);
+    },
+
+    updateCopyButtonPanel: function(canCopy){
+        if (canCopy=="true") {
+            $('#copyButton').show();
+        }
+        else{
+            $('#copyButton').hide();
+        }
     },
 
     // Listen for changes in favorites. Do not update list immediately.
@@ -297,7 +331,11 @@ pen.define([
 
 		propertiesHandler: function(path){
       window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
-		}
+		},
+
+    renameHandler: function(path){
+      this.dialogs.showDialogRename(path);
+    }
 	};
 
 	var FileButtons = function(i18n){
