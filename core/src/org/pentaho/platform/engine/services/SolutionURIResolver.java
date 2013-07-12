@@ -33,7 +33,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IDocumentResourceLoader;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.util.logging.Logger;
@@ -50,7 +50,7 @@ public class SolutionURIResolver implements URIResolver, IDocumentResourceLoader
       }
       IActionSequenceResource resource = new ActionSequenceResource("", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "text/xml", //$NON-NLS-1$ //$NON-NLS-2$
           systemId);
-      xslIS =  resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+      xslIS =  resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
       return new InputSource(xslIS);
     } catch (IOException e) {
       Logger.error(this, e.getLocalizedMessage());
@@ -90,7 +90,7 @@ public class SolutionURIResolver implements URIResolver, IDocumentResourceLoader
     InputStream xslIS = null;
     IActionSequenceResource resource = new ActionSequenceResource("", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "text/xml", //$NON-NLS-1$ //$NON-NLS-2$
         href);
-    xslIS =  resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+    xslIS =  resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
     xslSrc = new StreamSource(xslIS);
 
     return xslSrc;
@@ -100,7 +100,7 @@ public class SolutionURIResolver implements URIResolver, IDocumentResourceLoader
     InputStream xslIS = null;
     IActionSequenceResource resource = new ActionSequenceResource("", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "text/xml", //$NON-NLS-1$ //$NON-NLS-2$
         name);
-    xslIS =  resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+    xslIS =  resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
 
     return xslIS;
   }

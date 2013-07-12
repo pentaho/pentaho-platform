@@ -52,7 +52,7 @@ import org.pentaho.commons.util.repository.type.PropertyDateTime;
 import org.pentaho.commons.util.repository.type.PropertyId;
 import org.pentaho.commons.util.repository.type.PropertyString;
 import org.pentaho.commons.util.repository.type.TypesOfFileableObjects;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.util.StringUtil;
 
 public class BiPlatformRepositoryClientNavigationService implements INavigationService {
@@ -167,7 +167,7 @@ public class BiPlatformRepositoryClientNavigationService implements INavigationS
     int idx = 0;
     for( Element pathElement : pathElements ) {
       if( idx > 1 ) {
-        sb.append(ISolutionRepository.SEPARATOR);
+        sb.append(RepositoryFile.SEPARATOR);
       }
       if( idx > 0 ) {
         // ignore the first element
@@ -236,7 +236,7 @@ public class BiPlatformRepositoryClientNavigationService implements INavigationS
   
   private Element getObjectElement( String path ) throws ObjectNotFoundException {
     // parse out the path
-    StringTokenizer tokenizer = new StringTokenizer(path, ""+ISolutionRepository.SEPARATOR ); //$NON-NLS-1$
+    StringTokenizer tokenizer = new StringTokenizer(path, RepositoryFile.SEPARATOR ); //$NON-NLS-1$
     
     StringBuilder sb = new StringBuilder();
     sb.append( "/repository" ); //$NON-NLS-1$
@@ -266,7 +266,7 @@ public class BiPlatformRepositoryClientNavigationService implements INavigationS
   private Element getFolderElement( String path )  throws FolderNotValidException {
 
     // parse out the path
-    StringTokenizer tokenizer = new StringTokenizer(path, ""+ISolutionRepository.SEPARATOR ); //$NON-NLS-1$
+    StringTokenizer tokenizer = new StringTokenizer(path, ""+RepositoryFile.SEPARATOR ); //$NON-NLS-1$
     
     StringBuilder sb = new StringBuilder();
     sb.append( "/repository" ); //$NON-NLS-1$
@@ -499,7 +499,7 @@ public class BiPlatformRepositoryClientNavigationService implements INavigationS
       if( CmisObject.OBJECT_TYPE_FOLDER.equals( typeId ) ) {
         return id;
       } else {
-        int idx = id.lastIndexOf( ISolutionRepository.SEPARATOR );
+        int idx = id.lastIndexOf( RepositoryFile.SEPARATOR );
         if( idx != -1 ) {
           return id.substring(0, idx);
         } else {

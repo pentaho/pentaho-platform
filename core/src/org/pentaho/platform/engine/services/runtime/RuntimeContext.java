@@ -23,6 +23,8 @@
  */
 package org.pentaho.platform.engine.services.runtime;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,19 +89,17 @@ import org.pentaho.platform.api.engine.UnresolvedParameterException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.output.MultiContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.PentahoMessenger;
 import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameter;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameterSource;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceParameterMgr;
-import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourceWrapper;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.engine.services.solution.ActionDelegate;
@@ -116,6 +116,7 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
+@SuppressWarnings("deprecation")
 public class RuntimeContext extends PentahoMessenger implements IRuntimeContext {
 
   /**
@@ -637,16 +638,11 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     // Note - If the override wants to remove an existing "known" plugin, 
     // simply adding an empty value will cause the "known" plugin to be removed.
     //
-    if( !PentahoSystem.getObjectFactory().objectDefined( ISolutionRepository.class.getSimpleName() ) ) {
-      // this is ok
-      return knownComponents;
-    }
-    ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class, new StandaloneSession("system")); //$NON-NLS-1$
+    InputStream is = null;
     try {
-      if( solutionRepository.resourceExists( "system/plugin.properties", ISolutionRepository.ACTION_EXECUTE ) ) { //$NON-NLS-1$
-        IActionSequenceResource resource = new ActionSequenceResource("", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "", //$NON-NLS-1$ //$NON-NLS-2$
-            "system/plugin.properties");
-        InputStream is =  resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, null);
+      File f = new File(PentahoSystem.getApplicationContext().getSolutionPath("system/plugin.properties"));
+      if (f.exists()) {
+        is = new FileInputStream(f);
         Properties overrideComponents = new Properties();
         overrideComponents.load(is);
         knownComponents.putAll(overrideComponents); // load over the top of the known properties
@@ -655,8 +651,9 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       RuntimeContext.logger.warn(Messages.getInstance().getString("RuntimeContext.WARN_NO_PLUGIN_PROPERTIES")); //$NON-NLS-1$
     } catch (IOException ignored) {
       RuntimeContext.logger.warn(Messages.getInstance().getString("RuntimeContext.WARN_BAD_PLUGIN_PROPERTIES"), ignored); //$NON-NLS-1$
+    } finally {
+      try { if (is != null) is.close(); } catch (IOException e) {}
     }
-
     return knownComponents;
   }
 
@@ -1591,14 +1588,14 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   }
 
   public InputStream getResourceInputStream(final IActionSequenceResource actionResource) throws FileNotFoundException {
-    return actionResource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+    return actionResource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
   }
 
   public String getResourceAsString(final IActionSequenceResource actionResource) throws IOException {
     if (isEmbeddedResource(actionResource)) {
       return (getEmbeddedResource(actionResource));
     }
-    byte[] bytes = IOUtils.toByteArray(actionResource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale()));
+    byte[] bytes = IOUtils.toByteArray(actionResource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale()));
     return new String(bytes, LocaleHelper.getSystemEncoding());
   }
 
@@ -1615,7 +1612,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     try {
       org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
       reader.setEntityResolver(new SolutionURIResolver());
-      document =  reader.read(actionResource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale()));
+      document =  reader.read(actionResource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale()));
     } catch (Throwable t) {
       // XML document can't be read. We'll just return a null document.
     }
@@ -1624,7 +1621,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
 
   public IPentahoStreamSource getResourceDataSource(final IActionSequenceResource actionResource)
       throws FileNotFoundException {
-    return new ActionSequenceResourceWrapper(actionResource, actionResource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale()));
+    return new ActionSequenceResourceWrapper(actionResource, actionResource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale()));
   }
 
   private boolean isEmbeddedResource(final IActionSequenceResource actionResource) {

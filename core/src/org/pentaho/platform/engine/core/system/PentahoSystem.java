@@ -70,7 +70,7 @@ public class PentahoSystem {
 
   protected static final String RUNTIME_REPOSITORY = "IRuntimeRepository"; //$NON-NLS-1$
 
-  private static final String SOLUTION_REPOSITORY = "ISolutionRepository"; //$NON-NLS-1$
+  private static final String SOLUTION_REPOSITORY = "IUnifiedRepository"; //$NON-NLS-1$
 
   protected static final String SOLUTION_ENGINE = "ISolutionEngine"; //$NON-NLS-1$
 
@@ -80,15 +80,11 @@ public class PentahoSystem {
   public static final String CONDITIONAL_EXECUTION = "IConditionalExecution"; //$NON-NLS-1$
   public static String DEFAULT_CONDITIONAL_EXECUTION_PROVIDER;
   public static String DEFAULT_MESSAGE_FORMATTER;
-  public static String DEFAULT_NAVIGATION_COMPONENT;
-
 
   // TODO: Read the Scheduler Class from Pentaho XML.
   public static final String SCHEDULER = "IScheduler"; //$NON-NLS-1$
 
   public static final String MESSAGE_FORMATTER = "IMessageFormatter"; //$NON-NLS-1$
-
-  public static final String NAVIGATION_COMPONENT = "INavigationComponent"; //$NON-NLS-1$
 
   public static final String SCOPE_GLOBAL = "global"; //$NON-NLS-1$
 
@@ -172,7 +168,6 @@ public class PentahoSystem {
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.BACKGROUND_EXECUTION);
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.SCHEDULER);
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.MESSAGE_FORMATTER);
-    PentahoSystem.KnownOptionalObjects.add(PentahoSystem.NAVIGATION_COMPONENT);
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.USERSETTING_SERVICE);
 
     PentahoSystem.IgnoredObjects.add("IAuditEntry"); //$NON-NLS-1$

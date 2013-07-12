@@ -16,6 +16,8 @@
  */
 package org.pentaho.platform.plugin.action.openflashchart.factory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.PentahoDataTransmuter;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
@@ -119,23 +120,26 @@ public class PentahoOFC4JChartHelper {
     // Note - If the override wants to remove an existing "known" plugin, 
     // simply adding an empty value will cause the "known" plugin to be removed.
     //
-    if( PentahoSystem.getObjectFactory() == null || 
-        !PentahoSystem.getObjectFactory().objectDefined( ISolutionRepository.class.getSimpleName() ) ) {
+    if (PentahoSystem.getApplicationContext() == null) {
+      return chartFactories;
+    }
+    File f = new File(PentahoSystem.getApplicationContext().getSolutionPath(SOLUTION_PROPS));
+    if (!f.exists()) {
       // this is ok
       return chartFactories;
     }
-    ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class, new StandaloneSession("system")); //$NON-NLS-1$
+    InputStream is = null;
     try {
-      if( solutionRepository.resourceExists( SOLUTION_PROPS, ISolutionRepository.ACTION_EXECUTE) ) {
-        InputStream is = ActionSequenceResource.getInputStream(SOLUTION_PROPS, null);
-        Properties overrideChartFactories = new Properties();
-        overrideChartFactories.load(is);
-        chartFactories.putAll(overrideChartFactories); // load over the top of the known properties
-      }
+      is = new FileInputStream(f);
+      Properties overrideChartFactories = new Properties();
+      overrideChartFactories.load(is);
+      chartFactories.putAll(overrideChartFactories); // load over the top of the known properties
     } catch (FileNotFoundException ignored) {
       logger.warn(Messages.getInstance().getString("PentahoOFC4JChartHelper.WARN_NO_CHART_FACTORY_PROPERTIES")); //$NON-NLS-1$
     } catch (IOException ignored) {
       logger.warn(Messages.getInstance().getString("PentahoOFC4JChartHelper.WARN_BAD_CHART_FACTORY_PROPERTIES"), ignored); //$NON-NLS-1$
+    } finally {
+      try { if (is != null) is.close(); } catch (Exception e) {}
     }
 
     return chartFactories;

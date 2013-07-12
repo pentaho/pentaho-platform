@@ -748,39 +748,7 @@ public class DefaultPluginManager implements IPluginManager {
       this.unloadPlugins();
     }
   }
-
-  @Override
-  public IFileInfo getFileInfo(String extension, IPentahoSession session, ISolutionFile solutionFile, InputStream in) {
-    IFileInfo fileInfo = null;
-    String objectKey = METAPROVIDER_KEY_PREFIX + extension;
-    try {
-      Object metaProvider = null;
-      if (isBeanRegistered(objectKey)) {
-        metaProvider = getBean(objectKey);
-      }
-      if (metaProvider instanceof ISolutionFileMetaProvider) {
-        // new good stuff
-        ISolutionFileMetaProvider provider = (ISolutionFileMetaProvider) metaProvider;
-        fileInfo = provider.getFileInfo(solutionFile, in);
-      }
-    } catch (Throwable t) {
-      // we cannot allow a plugin to break our application, so we *MUST* catch
-      // throwable here (think about AbstractMethodError for example)
-      // fileInfo will remain null if we hit an exception here, but just to make
-      // sure, we'll make sure to set it
-      logger.warn(getClass().toString(), t);
-      fileInfo = null;
-    }
-    if (fileInfo == null) {
-      /* create a fallback file info based on the information from the solution file */
-      fileInfo = new FileInfo();
-      fileInfo.setTitle(solutionFile.getFileName());
-      fileInfo.setDescription("failsafe: " + solutionFile.getFullPath()); //$NON-NLS-1$
-      fileInfo.setDisplayType(solutionFile.getExtension());
-    }
-    return fileInfo;
-  }
-
+  
   public Object getPluginSetting(IPlatformPlugin plugin, String key, String defaultValue) {
     return getPluginSetting(plugin.getId(), key, defaultValue);
   }

@@ -31,7 +31,7 @@ import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;
 import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoDataFactory;
@@ -146,7 +146,7 @@ public class JFreeReportDataComponent extends AbstractJFreeReportComponent {
       final IActionSequenceResource resource = getResource(AbstractJFreeReportComponent.DATACOMPONENT_JARINPUT);
       final InputStream in;
       try {
-        in = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+        in = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
         try {
           // not being able to read a single char is definitly a big boo ..
           if (in.read() == -1) {

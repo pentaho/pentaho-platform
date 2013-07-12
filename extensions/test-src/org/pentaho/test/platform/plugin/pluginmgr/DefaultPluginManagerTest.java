@@ -48,7 +48,6 @@ import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.SolutionFileMetaAdapter;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
@@ -66,7 +65,6 @@ import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvide
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.GwtRpcServiceManager;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.IServiceTypeManager;
-import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -95,7 +93,6 @@ public class DefaultPluginManagerTest {
   public void init0() {
     microPlatform = new MicroPlatform("test-res/PluginManagerTest");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IPluginProvider.class, SystemPathXmlPluginProvider.class);
     microPlatform.define(IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL);
     microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
@@ -278,7 +275,6 @@ public class DefaultPluginManagerTest {
     //when accessing plugin classes.
     MicroPlatform mp = new MicroPlatform("test-res/PluginManagerTest/");
     mp.define(ISolutionEngine.class, SolutionEngine.class);
-    mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     mp.define(IServiceManager.class, DefaultServiceManager.class);
     mp.define(IPluginProvider.class, Tst8PluginProvider.class).start();
 
@@ -401,25 +397,6 @@ public class DefaultPluginManagerTest {
 
     assertEquals("Operation name is wrong", "test10type1-oper2-id", ops.get(1).getId());
     assertEquals("Operation command is wrong", "test10type1-oper2-perspective", ops.get(1).getPerspective());
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void test10b_getFileInfo() throws FileNotFoundException, PlatformInitializationException {
-    microPlatform.define(IPluginProvider.class, Tst10PluginProvider.class).start();
-
-    pluginManager.reload();
-
-    FileBasedSolutionRepository repo = new FileBasedSolutionRepository();
-    ISolutionFile solutionFile = repo.getSolutionFile("test-solution/test.test10type1-ext",
-        ISolutionRepository.ACTION_CREATE);
-    InputStream solutionFileInputStream = ActionSequenceResource.getInputStream("test-solution/test.test10type1-ext", null);
-
-    IFileInfo fileInfo = pluginManager.getFileInfo("test10type1-ext", session, solutionFile, solutionFileInputStream);
-
-    assertNotNull(fileInfo);
-    assertEquals("test10b-author", fileInfo.getAuthor());
-
   }
 
   @SuppressWarnings("deprecation")

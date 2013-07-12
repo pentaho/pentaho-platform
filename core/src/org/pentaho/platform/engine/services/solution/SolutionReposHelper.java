@@ -26,7 +26,6 @@ import org.dom4j.Element;
 import org.pentaho.platform.api.engine.ISolutionAttributeContributor;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ISolutionFilter;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 
 public class SolutionReposHelper {
 
@@ -177,12 +176,12 @@ public class SolutionReposHelper {
   //Only analyzer uses this.. is this necessary?
   private static final ThreadLocal threadSolutionRepositories = new ThreadLocal();
 
-  public static void setSolutionRepositoryThreadVariable(ISolutionRepository repository) {
+  public static void setSolutionRepositoryThreadVariable(Object repository) {
     SolutionReposHelper.threadSolutionRepositories.set(repository);
   }
 
-  public static ISolutionRepository getSolutionRepositoryThreadVariable() {
-    return (ISolutionRepository) SolutionReposHelper.threadSolutionRepositories.get();
+  public static Object getSolutionRepositoryThreadVariable() {
+    return SolutionReposHelper.threadSolutionRepositories.get();
   }
   //
   ////

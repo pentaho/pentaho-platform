@@ -54,6 +54,7 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -75,7 +76,7 @@ public class XactionUtil {
   public static void createOutputFileName(RepositoryFile file, IOutputHandler outputHandler) {
     IPentahoSession userSession = PentahoSessionHolder.getSession();
     ActionSequenceJCRHelper actionHelper = new ActionSequenceJCRHelper(userSession);
-    IActionSequence actionSequence = actionHelper.getActionSequence(file.getPath(), PentahoSystem.loggingLevel, 1);
+    IActionSequence actionSequence = actionHelper.getActionSequence(file.getPath(), PentahoSystem.loggingLevel, RepositoryFilePermission.READ);
 
     String fileName = "content"; //$NON-NLS-1$
     if (actionSequence != null) {
@@ -338,7 +339,7 @@ public class XactionUtil {
   public static String doParameter(final RepositoryFile file, IParameterProvider parameterProvider, 
       final IPentahoSession userSession) throws IOException {
     ActionSequenceJCRHelper helper = new ActionSequenceJCRHelper();
-    final IActionSequence actionSequence = helper.getActionSequence(file.getPath(), PentahoSystem.loggingLevel, 1);
+    final IActionSequence actionSequence = helper.getActionSequence(file.getPath(), PentahoSystem.loggingLevel, RepositoryFilePermission.READ);
     final Document document = DocumentHelper.createDocument();
     try {
       final Element parametersElement = document.addElement("parameters");

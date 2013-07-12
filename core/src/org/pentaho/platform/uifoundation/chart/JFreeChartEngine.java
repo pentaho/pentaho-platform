@@ -107,7 +107,7 @@ import org.jfree.util.TableOrder;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.uifoundation.messages.Messages;
@@ -1714,7 +1714,7 @@ public class JFreeChartEngine {
       IActionSequenceResource resource = new ActionSequenceResource(
           "", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "", //$NON-NLS-1$ //$NON-NLS-2$
           imageName);
-      InputStream is = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+      InputStream is = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
       image = ImageIO.read(is);
     } catch (IOException e) {
       JFreeChartEngine.log.error(null, e);

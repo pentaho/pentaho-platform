@@ -95,16 +95,6 @@ public interface ISecurityHelper {
   boolean hasAccess(IAclHolder aHolder, int actionOperation, IPentahoSession session);
 
   /**
-   * Utility method for access negotiation. For performance, not all files will
-   * be checked against the supplied voter.
-   * @param aFile
-   * @param actionOperation
-   * @param session
-   * @return
-   */
-  boolean hasAccess(IAclSolutionFile aFile, int actionOperation, IPentahoSession session);
-
-  /**
    * Utility method for hydrating a Spring Authentication object (Principal) given just a user name.
    * Note: The {@link org.pentaho.platform.api.engine.IUserRoleListService} will be consulted for the roles associated with this
    * user.

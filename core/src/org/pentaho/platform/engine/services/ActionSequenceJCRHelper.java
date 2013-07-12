@@ -43,6 +43,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IFileFilter;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -79,7 +80,17 @@ public class ActionSequenceJCRHelper {
     }
   }
 
+  /**
+   * This legacy method ignores the requested actionOperation and defines read as the permission.
+   * 
+   * @deprecated use getActionSequence(String actionPath, int loggingLevel, RepositoryFilePermission actionOperation) instead.  
+   */
+  @Deprecated 
   public IActionSequence getActionSequence(String actionPath, int loggingLevel, int actionOperation) {
+    return getActionSequence(actionPath, loggingLevel, RepositoryFilePermission.READ);
+  }
+  
+  public IActionSequence getActionSequence(String actionPath, int loggingLevel, RepositoryFilePermission actionOperation) {
     Document actionSequenceDocument = getSolutionDocument(actionPath, actionOperation);
     if (actionSequenceDocument == null) {
       return null;
@@ -93,7 +104,7 @@ public class ActionSequenceJCRHelper {
     return actionSequence;
   }
   
-  public Document getSolutionDocument(final String documentPath, final int actionOperation) {
+  public Document getSolutionDocument(final String documentPath, final RepositoryFilePermission actionOperation) {
     
     RepositoryFile file = repository.getFile(documentPath);
     

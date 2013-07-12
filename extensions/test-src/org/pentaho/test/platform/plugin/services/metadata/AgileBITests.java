@@ -4,9 +4,7 @@ import java.io.File;
 
 import org.junit.Before;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 /**
@@ -88,7 +86,6 @@ public class AgileBITests {
 
     MicroPlatform mp = new MicroPlatform(SOLUTION_PATH);
     try {
-      mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class, Scope.GLOBAL);
       mp.start();
     } catch (PlatformInitializationException pie) {
       pie.printStackTrace();

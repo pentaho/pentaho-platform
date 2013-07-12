@@ -15,7 +15,6 @@ PentahoSystem which is initialized after Spring
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
 
-  <bean id="ISolutionRepository" class="org.pentaho.platform.engine.services.MockSolutionRepository" scope="singleton" />
   <bean id="IPluginManager" class="org.pentaho.platform.engine.services.MockPluginManager" scope="singleton" />
 
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
