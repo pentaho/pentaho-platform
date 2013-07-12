@@ -156,31 +156,9 @@ pen.define([
             $("#cutbutton").attr("disabled", "disabled");
          }
         }
-
-        //Write Permission
-        if(permissions.setting[i].name=="1"){
-          if(permissions.setting[i].value=="true"){
-            $("#copyButton").attr("enabled", "enabled");
-          }
-          else{
-            $("#copyButton").attr("disabled", "disabled");
-          }
-        }
       }
     }
   },
-
-
-    updateCopyButtonPanel: function(canCopy){
-        if (canCopy=="true") {
-            $('#copyButton').show();
-        }
-        else{
-            $('#copyButton').hide();
-        }
-    },
-
-
 
     eventLogger: function(event){
       console.log(event.action + " : " + event.message);
