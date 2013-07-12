@@ -24,7 +24,6 @@ package org.pentaho.platform.web.http;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUITemplater;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -59,7 +58,6 @@ public String processTemplate(String template, final String title, final String 
    */
   public String processTemplate(String template, final String title, final IPentahoSession session) {
 
-    ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, session);
     if (WebTemplateHelper.footerTemplate == null) {
       WebTemplateHelper.footerTemplate = getTemplate(WebTemplateHelper.FOOTER_TEMPLATE_FILENAME, session);
     }
@@ -100,7 +98,6 @@ public String processTemplate(String template, final String title, final String 
     template = template.replaceAll("\\{body-tag\\}", ""); //$NON-NLS-1$ //$NON-NLS-2$
     template = template.replaceAll("\\{isAdmin\\}", SecurityHelper.getInstance().isPentahoAdministrator(session) ?
         "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    template = template.replaceAll("\\{repository-name\\}", repository.getRepositoryName() ); //$NON-NLS-1$
     template = template.replaceAll("\\{copyright\\}", Messages.getInstance().getString("UI.USER_COPYRIGHT")); //$NON-NLS-1$ //$NON-NLS-2$
 
     return template;

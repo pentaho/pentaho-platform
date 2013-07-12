@@ -40,7 +40,6 @@ import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
@@ -421,9 +420,6 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
     if (catalog == null) {
       return getConnectionOrig();
     }
-
-    // this inits the solution: VFS file provider.
-    SolutionReposHelper.setSolutionRepositoryThreadVariable(PentahoSystem.get(ISolutionRepository.class, PentahoSessionHolder.getSession()));
 
     Util.PropertyList connectProperties = Util.parseConnectString(catalog.getDataSourceInfo());
 

@@ -34,13 +34,12 @@ import org.dom4j.DocumentHelper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
 /**
- * A plugin provider that does not rely on an ISolutionRepository being configured
+ * A plugin provider that does not rely on an the repository being configured
  * @author jamesdixon
  *
  */

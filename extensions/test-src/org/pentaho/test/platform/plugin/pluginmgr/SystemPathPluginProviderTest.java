@@ -33,13 +33,11 @@ import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginMessageLogger;
 import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager;
-import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +63,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testLoad_Good() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
 
     PluginMessageLogger.clear();
 
@@ -90,7 +88,6 @@ public class SystemPathPluginProviderTest {
   public void testLoad_BadSolutionPath() throws PlatformPluginRegistrationException {
     MicroPlatform mp = new MicroPlatform("test-res/SystemPathPluginProviderTest/system");
     mp.define(ISolutionEngine.class, SolutionEngine.class);
-    mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     mp.init();
 
     provider.getPlugins(new StandaloneSession());
@@ -112,7 +109,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void tesLoadtLifecycleListener() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
 
     PluginMessageLogger.clear();
 
@@ -136,7 +133,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testLoadBeanDefinition() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
 
     List<IPlatformPlugin> plugins = provider.getPlugins(new StandaloneSession());
 
@@ -164,7 +161,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testLoadLifeCycleListener() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
     List<IPlatformPlugin> plugins = provider.getPlugins(new StandaloneSession());
 
     IPlatformPlugin plugin = (IPlatformPlugin) CollectionUtils
@@ -177,7 +174,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testLoadWebservices() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
     List<IPlatformPlugin> plugins = provider.getPlugins(new StandaloneSession());
     
     System.out.println(PluginMessageLogger.getAll());
@@ -211,7 +208,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testLoadContentGenerators() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
     List<IPlatformPlugin> plugins = provider.getPlugins(new StandaloneSession());
     
     IPlatformPlugin plugin = (IPlatformPlugin) CollectionUtils.find(plugins, new PluginNameMatcherPredicate("content-generator-plugin"));
@@ -250,7 +247,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testLoadPerspectives() throws PlatformPluginRegistrationException {
-    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    microPlatform.init();
     List<IPlatformPlugin> plugins = provider.getPlugins(new StandaloneSession());
 
     IPlatformPlugin plugin = (IPlatformPlugin) CollectionUtils

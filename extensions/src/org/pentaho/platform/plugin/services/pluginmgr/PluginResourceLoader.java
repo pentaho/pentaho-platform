@@ -41,7 +41,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.ISystemSettings;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
@@ -82,7 +82,7 @@ public class PluginResourceLoader implements IPluginResourceLoader {
 
   private PluginClassLoader overrideClassloader;
 
-  private String settingsPath = ISolutionRepository.SEPARATOR + "settings.xml"; //$NON-NLS-1$
+  private String settingsPath = RepositoryFile.SEPARATOR + "settings.xml"; //$NON-NLS-1$
 
   public void setSettingsPath(String settingsPath) {
     this.settingsPath = settingsPath;
@@ -146,8 +146,8 @@ public class PluginResourceLoader implements IPluginResourceLoader {
       return null;
     }
     // get the full path with \ converted to /
-    String path = dir.getAbsolutePath().replace('\\', ISolutionRepository.SEPARATOR);
-    int pos = path.lastIndexOf(ISolutionRepository.SEPARATOR + "system" + ISolutionRepository.SEPARATOR); //$NON-NLS-1$
+    String path = dir.getAbsolutePath().replace("\\", RepositoryFile.SEPARATOR);
+    int pos = path.lastIndexOf(RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR); //$NON-NLS-1$
     if (pos != -1) {
       path = path.substring(pos + 8);
     }

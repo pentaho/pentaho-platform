@@ -62,10 +62,9 @@ public class GenericServlet extends ServletBase {
   private static final long serialVersionUID = 6713118348911206464L;
 
   private static final Log logger = LogFactory.getLog(GenericServlet.class);
-
-//  private String settingsPath = ISolutionRepository.SEPARATOR + "settings.xml"; //$NON-NLS-1$
   private static final String CACHE_FILE = "file"; //$NON-NLS-1$
   private static ICacheManager cache = PentahoSystem.getCacheManager(null);
+
   private boolean showDeprecationMessage;
 
   static {

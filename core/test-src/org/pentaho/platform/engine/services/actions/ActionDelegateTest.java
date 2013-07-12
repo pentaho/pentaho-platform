@@ -61,7 +61,7 @@ import static org.junit.Assert.assertTrue;
  * test with respect to this set of JUnit tests.  A test IAction, TestAction, is used to 
  * verify that ActionDelegate is working properly.
  * <p>
- * NOTE: the only way to get around having to define a ISolutionRepository here (which
+ * NOTE: the only way to get around having to define a repository here (which
  * is out of scope of this project) and still be able to test action sequence resources
  * is to use only embedded resources in your test xactions.
  * It is also very important that ActionDelegate use the getInputStream

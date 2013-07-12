@@ -21,12 +21,14 @@
 package org.pentaho.platform.plugin.action.jfreereport.helper;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
@@ -48,9 +50,21 @@ public class PentahoResourceBundleFactory implements ResourceBundleFactory {
   public PentahoResourceBundleFactory(final String inPath, final String inBaseName, final IPentahoSession inSession) {
     path = inPath;
     baseName = inBaseName;
-    loader = PentahoSystem.get(ISolutionRepository.class, inSession).getClassLoader(path);
+    loader = getClassLoader(path);
   }
 
+  private ClassLoader getClassLoader(final String path) {
+    File localeDir = new File(PentahoSystem.getApplicationContext().getSolutionPath(path));
+    try {
+      URLClassLoader loader = new URLClassLoader(new URL[] { localeDir.toURL() }, null);
+      return loader;
+    } catch (Exception e) {
+      Logger.error(getClass().getName(), Messages.getInstance().getErrorString("PentahoResourceBundleFactory.ERROR_0024_CREATING_CLASSLOADER"), e); //$NON-NLS-1$
+    }
+    return null;
+  }
+
+  
   public Locale getLocale() {
     return LocaleHelper.getLocale();
   }

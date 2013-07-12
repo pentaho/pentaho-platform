@@ -44,7 +44,6 @@ public class PentahoObjectsConfig {
   private static final String SCOPE_ATTRIBUTE = "scope"; //$NON-NLS-1$
   private static final String BEAN_ID_XPATH = ROOT_ELEMENT + "/" + BEAN_ELEMENT + "[@" + ID_ATTRIBUTE + "=\"{0}\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   public static final String SOLUTION_ENGINE_ID = "ISolutionEngine"; //$NON-NLS-1$
-  public static final String SOLUTION_REPOSITORY_ID = "ISolutionRepository"; //$NON-NLS-1$
   public static final String CONTENT_REPOSITORY_ID = "IContentRepository"; //$NON-NLS-1$ 
   public static final String RUNTIME_REPOSITORY_ID = "IRuntimeRepository"; //$NON-NLS-1$
   public static final String AUDIT_FILE_ENTRY_ID = "IAuditEntry"; //$NON-NLS-1$
@@ -53,7 +52,6 @@ public class PentahoObjectsConfig {
   public static final String BACKGROUND_EXECUTION_HELPER_ID = "IBackgroundExecution"; //$NON-NLS-1$
   public static final String SUBSCRIPTION_REPOSITORY_ID = "ISubscriptionRepository"; //$NON-NLS-1$ 
   public static final String SUBSCRIPTION_SCHEDULER_ID = "ISubscriptionScheduler"; //$NON-NLS-1$
-  public static final String CWM_SCHEMA_FACTORY_ID = "ICwmSchemaFactory"; //$NON-NLS-1$
   public static final String USER_SETTINGS_SERVICE_ID = "IUserSettingService"; //$NON-NLS-1$
   public static final String FILE_OUTPUT_HANDLER_ID = "file"; //$NON-NLS-1$
   public static final String CONTENT_REPOSITORY_OUTPUT_HANDLER_ID = "contentrepo"; //$NON-NLS-1$
@@ -64,7 +62,6 @@ public class PentahoObjectsConfig {
   public static final String SCHEDULER_ID = "IScheduler"; //$NON-NLS-1$
   public static final String CONDITONAL_EXECUTION_ID = "IConditionalExecution"; //$NON-NLS-1$
   public static final String MSG_FORMATTER_ID = "IMessageFormatter"; //$NON-NLS-1$
-  public static final String NAVIGATION_COMPONENT_ID = "INavigationComponent"; //$NON-NLS-1$
   public static final String DATA_SOURCE_SERVICE_ID = "IDatasourceService"; //$NON-NLS-1$
   public static final String PASSWORD_SERVICE_ID = "IPasswordService"; //$NON-NLS-1$
   public static final String DATA_SOURCE_ID = "IDatasource"; //$NON-NLS-1$
@@ -108,14 +105,6 @@ public class PentahoObjectsConfig {
 
   public void setSolutionEngine(String solutionEngine, ScopeType scope) {
     updateObject(SOLUTION_ENGINE_ID, new ObjectDescriptor(solutionEngine, scope));
-  }
-
-  public String getSolutionRepository() {
-    return getObjectClassName(SOLUTION_REPOSITORY_ID);
-  }
-
-  public void setSolutionRepository(String solutionRepository, ScopeType scope) {
-    updateObject(SOLUTION_REPOSITORY_ID, new ObjectDescriptor(solutionRepository, scope));
   }
 
   public String getContentRepository() {
@@ -180,14 +169,6 @@ public class PentahoObjectsConfig {
 
   public void setSubscriptionScheduler(String subscriptionScheduler, ScopeType scope) {
     updateObject(SUBSCRIPTION_SCHEDULER_ID, new ObjectDescriptor(subscriptionScheduler, scope));
-  }
-
-  public String getCwmSchemaFactory() {
-    return getObjectClassName(CWM_SCHEMA_FACTORY_ID);
-  }
-
-  public void setCwmSchemaFactory(String cwmSchemaFactory, ScopeType scope) {
-    updateObject(CWM_SCHEMA_FACTORY_ID, new ObjectDescriptor(cwmSchemaFactory, scope));    
   }
 
   public String getUserSettingsService() {
@@ -268,14 +249,6 @@ public class PentahoObjectsConfig {
 
   public void setMessageFormatter(String messageFormatter, ScopeType scope) {
     updateObject(MSG_FORMATTER_ID, new ObjectDescriptor(messageFormatter, scope));    
-  }
-
-  public String getNavigationComponent() {
-    return getObjectClassName(NAVIGATION_COMPONENT_ID);
-  }
-
-  public void setNavigationComponent(String navigationComponent, ScopeType scope) {
-    updateObject(NAVIGATION_COMPONENT_ID, new ObjectDescriptor(navigationComponent, scope));    
   }
 
   public String getDataSourceService() {

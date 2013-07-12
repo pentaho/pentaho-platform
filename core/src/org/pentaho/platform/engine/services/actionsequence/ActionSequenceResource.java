@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -117,7 +118,71 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
     }
   }
 
-  @SuppressWarnings("resource")
+  public static long getLastModifiedDate(String filePath, Locale locale) {
+    if (filePath.startsWith("system")) {
+      File file = null;
+      filePath = PentahoSystem.getApplicationContext().getSolutionPath(filePath);
+      if (locale == null) {
+        file = new File(filePath);
+      } else {
+        String extension = FilenameUtils.getExtension(filePath);
+        String baseName = FilenameUtils.removeExtension(filePath);
+        if (extension.length() > 0) {
+          extension = "." + extension; //$NON-NLS-1$
+        }
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+        String variant = locale.getVariant();
+        if (!variant.equals("")) { //$NON-NLS-1$
+          file = new File(baseName + "_" + language + "_" + country + "_" + variant + extension); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        if ((file == null) || !file.exists()) {
+          file = new File(baseName + "_" + language + "_" + country + extension); //$NON-NLS-1$//$NON-NLS-2$
+        }
+        if ((file == null) || !file.exists()) {
+          file = new File(baseName + "_" + language + extension); //$NON-NLS-1$
+        }
+        if ((file == null) || !file.exists()) {
+          file = new File(filePath);
+        }
+      }
+      if (file != null) {
+        return file.lastModified();
+      }
+    } else {
+      RepositoryFile repositoryFile = null;
+      if (locale == null) {
+        repositoryFile = getRepository().getFile(filePath);
+      } else {
+        String extension = FilenameUtils.getExtension(filePath);
+        String baseName = FilenameUtils.removeExtension(filePath);
+        if (extension.length() > 0) {
+          extension = "." + extension; //$NON-NLS-1$
+        }
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+        String variant = locale.getVariant();
+        if (!variant.equals("")) { //$NON-NLS-1$
+          repositoryFile = getRepository().getFile(baseName + "_" + language + "_" + country + "_" + variant + extension); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        if (repositoryFile == null) {
+          repositoryFile = getRepository().getFile(baseName + "_" + language + "_" + country + extension); //$NON-NLS-1$//$NON-NLS-2$
+        }
+        if (repositoryFile == null) {
+          repositoryFile = getRepository().getFile(baseName + "_" + language + extension); //$NON-NLS-1$
+        }
+        if (repositoryFile == null) {
+          repositoryFile = getRepository().getFile(filePath);
+        }
+      }
+      if (repositoryFile != null) {
+        return repositoryFile.getLastModifiedDate().getTime();
+      }
+    }
+    return -1L;
+  }
+  
+  @SuppressWarnings({ "resource", "deprecation" })
   public static InputStream getInputStream(String filePath, Locale locale) {
     InputStream inputStream = null;
     if (filePath.startsWith("system")) {
@@ -212,7 +277,19 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
     return inputStream;
   }
   
-  public InputStream getInputStream(int actionoperation, Locale locale) {
+  public long getLastModifiedDate(Locale locale) {
+    int resourceSource = getSourceType();
+    if (resourceSource == IActionSequenceResource.URL_RESOURCE) {
+      return -1L;
+    } else if ((resourceSource == IActionSequenceResource.SOLUTION_FILE_RESOURCE) || (resourceSource == IActionSequenceResource.FILE_RESOURCE)) {
+      return getLastModifiedDate(getAddress(), locale);
+    } else if ((resourceSource == IActionSequenceResource.STRING) || (resourceSource == IActionSequenceResource.XML)) {
+      return -1L;
+    }
+    return -1L;
+  }
+  
+  public InputStream getInputStream(RepositoryFilePermission actionoperation, Locale locale) {
     int resourceSource = getSourceType();
     InputStream inputStream = null;
     if (resourceSource == IActionSequenceResource.URL_RESOURCE) {
@@ -229,7 +306,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
     return inputStream;
   }
   
-  public InputStream getInputStream(int actionOperation) {
+  public InputStream getInputStream(RepositoryFilePermission actionOperation) {
     return getInputStream(actionOperation, null);
   }
   

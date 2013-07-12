@@ -15,7 +15,7 @@
 package org.pentaho.platform.engine.core.solution;
 
 import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.util.PentahoCheckedChainedException;
 
 public class ActionInfo {
@@ -72,18 +72,18 @@ public class ActionInfo {
     }
 
     // first normalize the path separators
-    actionString = actionString.replace('\\', ISolutionRepository.SEPARATOR);
+    actionString = actionString.replace('\\', RepositoryFile.SEPARATOR.charAt(0));
 
     // remove a leading '/'
-    if (actionString.charAt(0) == ISolutionRepository.SEPARATOR) {
+    if (actionString.charAt(0) == RepositoryFile.SEPARATOR.charAt(0)) {
       actionString = actionString.substring(1);
     }
 
     String solution;
     String path = ""; //$NON-NLS-1$
     String name;
-    int idx1 = actionString.indexOf(ISolutionRepository.SEPARATOR);
-    int idx2 = actionString.lastIndexOf(ISolutionRepository.SEPARATOR);
+    int idx1 = actionString.indexOf(RepositoryFile.SEPARATOR.charAt(0));
+    int idx2 = actionString.lastIndexOf(RepositoryFile.SEPARATOR.charAt(0));
     if (idx1 == -1) {
       if (mustBeComplete) {
         // this is not a valid action String
@@ -103,7 +103,7 @@ public class ActionInfo {
       if (StringUtils.isEmpty(path)) {
         path = name;
       } else {
-        path = path + ISolutionRepository.SEPARATOR + name;
+        path = path + RepositoryFile.SEPARATOR + name;
       }
       name = null;
     }
@@ -114,9 +114,8 @@ public class ActionInfo {
     return ActionInfo.buildSolutionPath(this.solutionName, this.path, this.actionName);
   }
 
-  @SuppressWarnings("null")
   public static String buildSolutionPath(final String solution, String path, String filename) {
-    StringBuffer buf = new StringBuffer(ISolutionRepository.SEPARATOR);
+    StringBuffer buf = new StringBuffer();
     
     // if the solutionName is the same as the fileName and the path is empty, then we are
     // probably trying to load the solution root itself
@@ -127,22 +126,22 @@ public class ActionInfo {
       path = ""; //$NON-NLS-1$
     }
     if (StringUtils.isEmpty(path)) {
-      if (!StringUtils.isEmpty(filename) && filename.charAt(0) == ISolutionRepository.SEPARATOR) {
+      if (!StringUtils.isEmpty(filename) && filename.charAt(0) == RepositoryFile.SEPARATOR.charAt(0)) {
         return buf.append(solution).append(filename).toString();
       } else {
-        return buf.append(solution).append(ISolutionRepository.SEPARATOR).append(filename).toString();
+        return buf.append(solution).append(RepositoryFile.SEPARATOR.charAt(0)).append(filename).toString();
       }
-    } else if (path.charAt(0) == ISolutionRepository.SEPARATOR) {
-      if (!StringUtils.isEmpty(filename) && filename.charAt(0) == ISolutionRepository.SEPARATOR) {
+    } else if (path.charAt(0) == RepositoryFile.SEPARATOR.charAt(0)) {
+      if (!StringUtils.isEmpty(filename) && filename.charAt(0) == RepositoryFile.SEPARATOR.charAt(0)) {
         return buf.append(solution).append(path).append(filename).toString();
       } else {
-        return buf.append(solution).append(path).append(ISolutionRepository.SEPARATOR).append(filename).toString();
+        return buf.append(solution).append(path).append(RepositoryFile.SEPARATOR.charAt(0)).append(filename).toString();
       }
     } else {
-      if (!StringUtils.isEmpty(filename) && filename.charAt(0) == ISolutionRepository.SEPARATOR) {
-        return buf.append(solution).append(ISolutionRepository.SEPARATOR).append(path).append(filename).toString();
+      if (!StringUtils.isEmpty(filename) && filename.charAt(0) == RepositoryFile.SEPARATOR.charAt(0)) {
+        return buf.append(solution).append(RepositoryFile.SEPARATOR.charAt(0)).append(path).append(filename).toString();
       } else {
-        return buf.append(solution).append(ISolutionRepository.SEPARATOR).append(path).append(ISolutionRepository.SEPARATOR).append(filename).toString();
+        return buf.append(solution).append(RepositoryFile.SEPARATOR.charAt(0)).append(path).append(RepositoryFile.SEPARATOR.charAt(0)).append(filename).toString();
       }
     }
   }

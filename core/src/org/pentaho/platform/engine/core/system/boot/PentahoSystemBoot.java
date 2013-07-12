@@ -54,7 +54,7 @@ import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
  * public void init() {
  *   PentahoSystemBoot booter = new PentahoSystemBoot();
  *   //setup your required object definitions
- *   booter.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
+ *   booter.define(IUnifiedRepository.class, DefaultUnifiedRepository.class);
  *   
  *   //initialize the minimal platform
  *   booter.init();

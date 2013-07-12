@@ -38,7 +38,7 @@ import org.pentaho.jfreereport.wizard.utility.report.ReportParameterUtility;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;
@@ -98,7 +98,7 @@ public class JFreeReportGenerateDefinitionComponent extends AbstractJFreeReportC
   private ReportSpec loadFromZip(final IActionSequenceResource resource) {
 
     try {
-      InputStream reportSpecInputStream = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+      InputStream reportSpecInputStream = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
       ZipInputStream zis = new ZipInputStream(reportSpecInputStream);
 
       ZipEntry reportSpecEntry = findReportSpec(zis);
@@ -121,7 +121,7 @@ public class JFreeReportGenerateDefinitionComponent extends AbstractJFreeReportC
       IActionSequenceResource resource = getResource(AbstractJFreeReportComponent.REPORTGENERATEDEFN_REPORTSPECINPUT);
       reportSpec = loadFromZip(resource);
       if (reportSpec == null) {
-        InputStream reportSpecInputStream = resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+        InputStream reportSpecInputStream = resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
         reportSpec = (ReportSpec) CastorUtility.getInstance().readCastorObject(reportSpecInputStream, ReportSpec.class);
       }
     }

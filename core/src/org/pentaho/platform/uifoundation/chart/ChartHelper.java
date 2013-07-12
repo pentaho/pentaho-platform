@@ -35,6 +35,7 @@ import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
@@ -109,7 +110,7 @@ public class ChartHelper {
       try {
         // attempt to get the chart type and possibly data type from the xml doc
     	ActionSequenceJCRHelper  jcrHelper = new ActionSequenceJCRHelper(userSession);
-     	Document chartDefinition = jcrHelper.getSolutionDocument(actionPath, 1);
+     	Document chartDefinition = jcrHelper.getSolutionDocument(actionPath, RepositoryFilePermission.READ);
         Node chartAttributes = chartDefinition.selectSingleNode("//" + AbstractChartComponent.CHART_NODE_NAME); //$NON-NLS-1$
         chartTypeStr = chartAttributes.selectSingleNode(ChartDefinition.TYPE_NODE_NAME).getText();
         Node datasetTypeNode = chartAttributes.selectSingleNode(ChartDefinition.DATASET_TYPE_NODE_NAME);

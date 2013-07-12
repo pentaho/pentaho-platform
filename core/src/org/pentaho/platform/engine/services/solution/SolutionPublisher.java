@@ -24,9 +24,7 @@ package org.pentaho.platform.engine.services.solution;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.BasePublisher;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
 public class SolutionPublisher extends BasePublisher {
@@ -47,12 +45,6 @@ public class SolutionPublisher extends BasePublisher {
   public String publish(final IPentahoSession session) {
 
     // TODO put any code in here to validate the solution
-    try {
-      PentahoSystem.get(ISolutionRepository.class,session).reloadSolutionRepository(session, getLoggingLevel());
-    } catch (Throwable t) {
-      error(Messages.getInstance().getErrorString("SolutionPublisher.ERROR_0001_PUBLISH_FAILED"), t); //$NON-NLS-1$
-      return Messages.getInstance().getString("SolutionPublisher.USER_ERROR_PUBLISH_FAILED") + t.getLocalizedMessage(); //$NON-NLS-1$
-    }
     return Messages.getInstance().getString("SolutionPublisher.USER_SOLUTION_REPOSITORY_UPDATED"); //$NON-NLS-1$
   }
 

@@ -27,10 +27,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
 /**
- * An Axis Configurator that uses PentahoSystem but not an ISolutionRepository
- * to get the axis configuration file
+ * An Axis Configurator that uses PentahoSystem to get the axis configuration file
  * @author jamesdixon
- *
  */
 public class FileSystemAxisConfigurator extends SystemSolutionAxisConfigurator {
 

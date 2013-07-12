@@ -28,7 +28,6 @@ import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -67,17 +66,6 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     if (SecurityHelper.getInstance().isPentahoAdministrator(pentahoSession)) {
       PentahoSystem.publish(pentahoSession, org.pentaho.platform.engine.core.system.SettingsPublisher.class.getName());
-    }
-    return Response.ok().type(MediaType.TEXT_PLAIN).build();
-  }
-
-  @GET
-  @Path("/repository")
-  @Produces(TEXT_PLAIN)
-  public Response refreshRepository() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    if (SecurityHelper.getInstance().isPentahoAdministrator(pentahoSession)) {
-      PentahoSystem.get(ISolutionRepository.class, pentahoSession).reloadSolutionRepository(pentahoSession, pentahoSession.getLoggingLevel());
     }
     return Response.ok().type(MediaType.TEXT_PLAIN).build();
   }

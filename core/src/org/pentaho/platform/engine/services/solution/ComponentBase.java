@@ -42,7 +42,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISelectionMapper;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.PentahoMessenger;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameter;
@@ -280,7 +280,7 @@ public abstract class ComponentBase extends PentahoMessenger implements ICompone
   }
 
   protected InputStream getResourceInputStream(final IActionSequenceResource resource) throws FileNotFoundException {
-    return resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale());
+    return resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale());
   }
 
   protected InputStream getInputStream(final String inputName) {

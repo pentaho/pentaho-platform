@@ -40,7 +40,6 @@ import org.pentaho.di.www.CarteSingleton;
 import org.pentaho.di.www.SlaveServerConfig;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.plugin.action.messages.Messages;
@@ -136,12 +135,11 @@ public class KettleSystemListener implements IPentahoSystemListener {
 
     InputStream is = null;
     try {
-      ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class,session);
-
-      if (!repository.resourceExists(kettlePropsFilename, ISolutionRepository.ACTION_EXECUTE)) {
+      File f = new File(PentahoSystem.getApplicationContext().getSolutionPath(kettlePropsFilename));
+      if (!f.exists()) {
         return props;
       }
-      is = ActionSequenceResource.getInputStream(kettlePropsFilename, null);
+      is = new FileInputStream(f);
       props.load(is);
     } catch (IOException ioe) {
       Logger.error(KettleSystemListener.class.getName(), Messages.getInstance()

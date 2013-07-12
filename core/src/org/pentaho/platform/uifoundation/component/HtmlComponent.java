@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -89,7 +89,7 @@ public class HtmlComponent extends BaseUIComponent {
     IActionSequenceResource resource = new ActionSequenceResource(
         "", IActionSequenceResource.SOLUTION_FILE_RESOURCE, "text/html", solutionPath); //$NON-NLS-1$ //$NON-NLS-2$
     try {
-      byte[] bytes = IOUtils.toByteArray(resource.getInputStream(ISolutionRepository.ACTION_EXECUTE, LocaleHelper.getLocale()));
+      byte[] bytes = IOUtils.toByteArray(resource.getInputStream(RepositoryFilePermission.READ, LocaleHelper.getLocale()));
       return new String(bytes, LocaleHelper.getSystemEncoding());
     } catch (Exception e) {
       if (errorMessage != null) {

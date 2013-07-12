@@ -43,6 +43,7 @@ import org.pentaho.platform.engine.services.solution.SolutionHelper;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
+@SuppressWarnings("rawtypes")
 public class PMDUIComponent extends XmlComponent {
 
   private static final long serialVersionUID = -911457505257919399L;
@@ -241,6 +242,7 @@ public class PMDUIComponent extends XmlComponent {
     return doc;
   }
   
+  @SuppressWarnings("deprecation")
   public void addColumn(final LogicalColumn column, final Element tableNode, final String locale) {
     Element columnNode = tableNode.addElement("column"); //$NON-NLS-1$
 
@@ -268,7 +270,6 @@ public class PMDUIComponent extends XmlComponent {
     }
   }
 
-  @SuppressWarnings("null")
   public Document getLookup() {
     // Create a document that describes the result
     Document doc = DocumentHelper.createDocument();

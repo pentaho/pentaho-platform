@@ -12,7 +12,6 @@ PentahoSystem which is initialized after Spring
   default-lazy-init="true">
   
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
-  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.ExtensionFileBasedSolutionRepository" scope="session" />
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider" scope="singleton" />
   <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" scope="singleton" />
   <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader" scope="singleton" />

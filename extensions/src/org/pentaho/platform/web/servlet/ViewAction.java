@@ -47,7 +47,7 @@ import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.IUITemplater;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.scheduler.BackgroundExecutionException;
 import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
@@ -260,7 +260,7 @@ public class ViewAction extends ServletBase {
         OutputStream outputStream = getOutputStream(response, doMessages(request));
         ActionSequenceJCRHelper actionHelper = new ActionSequenceJCRHelper(userSession);
         String actionPath = request.getParameter("path"); //$NON-NLS-1$
-        IActionSequence actionSequence = actionHelper.getActionSequence(actionPath, PentahoSystem.loggingLevel, ISolutionRepository.ACTION_EXECUTE);
+        IActionSequence actionSequence = actionHelper.getActionSequence(actionPath, PentahoSystem.loggingLevel, RepositoryFilePermission.READ);
         String fileName = null;
         if (actionSequence != null) {
           String title = actionSequence.getTitle();
@@ -347,18 +347,4 @@ public class ViewAction extends ServletBase {
       requestHandler.setParameterProvider("PRO_EDIT_SUBSCRIPTION", requestParameters); //$NON-NLS-1$ 
     }
   }
-
-  /*
-  // TODO: Test Code Only!!! DM - returns an actionsequence as a string
-  private String getActionSequence(IPentahoSession session) {
-    try {
-      return (PentahoSystem.get(ISolutionRepository.class, session).getResourceAsString("test/metadata/EmbeddedReport.xaction")); //$NON-NLS-1$
-    } catch (Throwable t) {
-    }
-    return (""); //$NON-NLS-1$
-    // File f = new File( "test/metadata/EmbeddedReport.xaction" );
-    // return( FileHelper.getStringFromFile(f) );
-  }
-  */
-
 }
