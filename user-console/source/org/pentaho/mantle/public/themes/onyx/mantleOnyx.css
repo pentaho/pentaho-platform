@@ -761,6 +761,9 @@ a:active, a:hover {
 .disabledMenuItem {
 }
 
+.disabledMenuItem {
+  color: #ccc;
+}
 
 /*
  fix for toolbar buttons not supporting transparency in IE,
