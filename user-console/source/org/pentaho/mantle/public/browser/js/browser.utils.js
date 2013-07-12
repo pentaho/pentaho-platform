@@ -16,7 +16,7 @@ pen.define([
 
     scheduleBlackList: ['xdash'],
 
-    editBlackList: ['prpt'],
+    editBlackList: ['prpt','xaction','xanalyzer'],
 
     _init: function() {
 
