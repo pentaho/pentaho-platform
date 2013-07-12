@@ -1082,14 +1082,16 @@ pen.define([
       };
 
       var recursivePreorder = function (node) {
-        if (node.children == undefined || node.children == null || node.children.length <= 0) {
-          // do nothing if node is not a parent
-        }
-        else {
-          for(var i=0; i<node.children.length; i++)
-            // recursively sort children
-            recursivePreorder(node.children[i]);
-            node.children.sort(sortFunction);
+        if(node!=undefined){
+            if (node.children == undefined || node.children == null || node.children.length <= 0) {
+              // do nothing if node is not a parent
+            }
+            else {
+              for(var i=0; i<node.children.length; i++)
+                // recursively sort children
+                recursivePreorder(node.children[i]);
+                node.children.sort(sortFunction);
+            }
         }
       };
 
