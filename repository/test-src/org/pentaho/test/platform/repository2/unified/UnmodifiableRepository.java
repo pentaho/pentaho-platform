@@ -630,11 +630,6 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   @Override
-  public String getProductID() {
-    return repository.getProductID();
-  }
-
-  @Override
   public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     Assert.notNull(fileId);
     return repository.getAvailableLocalesForFileById(fileId);

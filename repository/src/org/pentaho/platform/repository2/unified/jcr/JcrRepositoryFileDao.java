@@ -1006,11 +1006,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
-  public String getProductID() {
-    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
-  }
-
-  @Override
   public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     RepositoryFile repositoryFile = getFileById(fileId, true);
     return getAvailableLocalesForFile(repositoryFile);
