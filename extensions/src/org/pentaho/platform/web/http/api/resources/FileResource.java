@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -62,11 +63,7 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.*;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -846,6 +843,12 @@ public class FileResource extends AbstractJaxRSResource {
 
     List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
     RepositoryFileTreeDto tree = repoWs.getTree(path, depth, filter, showHidden.booleanValue());
+
+    // BISERVER-9599 - Use special sort order
+    Collator collator = Collator.getInstance(PentahoSessionHolder.getSession().getLocale());
+    collator.setStrength(Collator.PRIMARY); // ignore case
+    sortByLocaleTitle(collator, tree);
+
     for (RepositoryFileTreeDto child : tree.getChildren()) {
       RepositoryFileDto file = child.getFile();
       Map<String, Serializable> fileMeta = repository.getFileMetadata(file.getId());
@@ -1003,5 +1006,29 @@ public class FileResource extends AbstractJaxRSResource {
       return false;
     }
     return true;
+  }
+
+  private void sortByLocaleTitle(final Collator collator, final RepositoryFileTreeDto tree){
+
+    if(tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0){
+      return;
+    }
+
+    for(RepositoryFileTreeDto rft : tree.getChildren()){
+      sortByLocaleTitle(collator, rft);
+      Collections.sort(tree.getChildren(), new Comparator<RepositoryFileTreeDto>() {
+        @Override
+        public int compare(RepositoryFileTreeDto repositoryFileTree, RepositoryFileTreeDto repositoryFileTree2) {
+          String title1 = repositoryFileTree.getFile().getTitle();
+          String title2 = repositoryFileTree2.getFile().getTitle();
+
+          if(collator.compare(title1, title2) == 0){
+            return title1.compareTo(title2); // use lexical order if equals ignore case
+          }
+
+          return collator.compare(title1, title2);
+        }
+      });
+    }
   }
 }
