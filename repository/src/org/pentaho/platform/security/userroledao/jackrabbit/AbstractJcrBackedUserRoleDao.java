@@ -658,7 +658,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid,
             EnumSet.of(RepositoryFilePermission.ALL));
         tenantHomeFolder = internalCreateFolder(session, tenantRootFolder.getId(), new RepositoryFile.Builder(
-            ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclsForTenantHomeFolder.build(),
+            ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).title(Messages.getInstance().getString("AbstractJcrBackedUserRoleDao.usersFolderDisplayName")).build(), aclsForTenantHomeFolder.build(),
             "tenant home folder"); //$NON-NLS-1$
       } else {
         String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
