@@ -1069,18 +1069,7 @@ pen.define([
     function customSort(response){
 
       var sortFunction = function(a, b){
-        var aTitle = a.file.title.toLowerCase();
-        var bTitle = b.file.title.toLowerCase();
-
-        if(aTitle.localeCompare(bTitle) == 0){
-          // if values equalsIgnoreCase, use original values for comparison
-          aTitle = a.file.title;
-          bTitle = b.file.title;
-          return ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
-        }
-        else{
-          return aTitle.localeCompare(bTitle);
-        }
+        return window.top.localeCompare(a.file.title, b.file.title);
       };
 
       var recursivePreorder = function (node) {
