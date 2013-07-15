@@ -3,6 +3,10 @@ pen.define([
 ], function(){
     var templates = {};
 
+    Handlebars.registerHelper('stringifyFunc', function(fn) {
+     return "(" + fn.toString().replace(/\"/g,"'") + ")()";
+    });
+
     //main component structure
     templates.structure = Handlebars.compile(
         "<div id='fileBrowserFolders' class='span4 well fileBrowserColumn'>" +
@@ -16,6 +20,7 @@ pen.define([
             "</div>");
 
     //header for folder browser
+    /*
     templates.folderBrowserHeader = Handlebars.compile(
         "{{#if trashHeader}}" +
             "<div id='foldersHeader' class='header'>{{trashHeader}}</div>" +
@@ -26,6 +31,18 @@ pen.define([
             "<div id='foldersHeader' class='header'>{{i18n 'browsing'}} Root</div>" +
             "{{/if}}"+
             "{{/if}}");
+    */
+
+    templates.folderBrowserHeader = Handlebars.compile(
+        "{{#if trashHeader}}" +
+            "<div id='foldersHeader' class='header'>{{trashHeader}}</div>" +
+        "{{else}}" +
+            "<div id='foldersHeader' class='header'>" +
+              "<span>Available Folders</span>" +
+              "<div id='refreshBrowserIcon' class='refresh-browse-perspective pull-right' onclick='{{stringifyFunc refreshHandler}}'>" + 
+              "</div>" +
+            "</div>" +
+        "{{/if}}");
 
     //header for file browser
     templates.fileBrowserHeader = Handlebars.compile(
