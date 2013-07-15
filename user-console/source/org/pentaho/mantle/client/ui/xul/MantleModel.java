@@ -24,6 +24,7 @@ import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
+import org.pentaho.mantle.client.commands.PrintCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
@@ -77,6 +78,8 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   private boolean propertiesEnabled;
 
+  private boolean printVisible;
+
   private FileItem selectedFileItem;
 
   private JavaScriptObject callback;
@@ -127,6 +130,18 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
+  public void setPrintVisible(Boolean visible) {
+    boolean prevVal = printVisible;
+    printVisible = visible;
+    this.firePropertyChange("printVisible", prevVal, printVisible);
+  }
+
+  @Bindable
+  public boolean isPrintVisible() {
+    return this.printVisible;
+  }
+
+  @Bindable
   public void executePropertiesCommand() {
     FilePropertiesCommand propertiesCommand = new FilePropertiesCommand(selectedFileItem.getRepositoryFile());
     propertiesCommand.execute();
@@ -160,6 +175,12 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void executeScheduleContent() {
     OpenFileCommand cmd = new OpenFileCommand(COMMAND.SCHEDULE_NEW);
     cmd.execute();
+  }
+
+  @Bindable
+  public void executePrintCommand() {
+    PrintCommand printCommand = new PrintCommand();
+    printCommand.execute();
   }
 
   @Bindable
@@ -329,6 +350,8 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     boolean saveEnabled = false;
     boolean editIsEnabled = false;
     boolean editSelected = false;
+    boolean printVisible = false;
+
     JavaScriptObject callback = null;
 
     if (panel != null && panel instanceof IFrameTabPanel) {
@@ -336,12 +359,14 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       saveEnabled = tbp.isSaveEnabled();
       editIsEnabled = tbp.isEditEnabled();
       editSelected = tbp.isEditSelected();
+      printVisible = tbp.isPrintVisible();
     }
 
     setSaveEnabled(saveEnabled);
     setSaveAsEnabled(saveEnabled);
     setContentEditEnabled(editIsEnabled);
     setContentEditSelected(editSelected);
+    setPrintVisible(printVisible);
     setCallback(callback);
     this.showNavigatorSelected = SolutionBrowserPanel.getInstance().isNavigatorShowing();
     setShowBrowserSelected(this.showNavigatorSelected);

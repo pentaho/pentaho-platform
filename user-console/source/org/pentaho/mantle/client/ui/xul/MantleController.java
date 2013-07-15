@@ -100,6 +100,8 @@ public class MantleController extends AbstractXulEventHandler {
 
   private XulToolbarbutton contentEditBtn;
 
+  private XulToolbarbutton printBtn;
+
   private XulMenuitem saveMenuItem;
 
   private XulMenuitem saveAsMenuItem;
@@ -160,6 +162,7 @@ public class MantleController extends AbstractXulEventHandler {
     openBtn = (XulToolbarbutton) document.getElementById("openButton"); //$NON-NLS-1$
     saveBtn = (XulToolbarbutton) document.getElementById("saveButton"); //$NON-NLS-1$
     saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton"); //$NON-NLS-1$
+    printBtn = (XulToolbarbutton) document.getElementById("printButton");
 
     contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton"); //$NON-NLS-1$
 
@@ -168,6 +171,7 @@ public class MantleController extends AbstractXulEventHandler {
     bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding(model, "contentEditSelected", this, "editContentSelected"); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding(model, "printVisible", printBtn, "visible");
 
     saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem"); //$NON-NLS-1$
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem"); //$NON-NLS-1$
@@ -815,6 +819,11 @@ public class MantleController extends AbstractXulEventHandler {
     model.setContentEditToggled();
 
     executeEditContentCallback(SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame().getElement(), model.isContentEditSelected());
+  }
+
+  @Bindable
+  public void printClicked() {
+    model.executePrintCommand();
   }
 
   private native void executeEditContentCallback(Element obj, boolean selected)

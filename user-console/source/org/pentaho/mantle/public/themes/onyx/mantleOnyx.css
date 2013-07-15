@@ -1055,6 +1055,16 @@ a:active, a:hover {
   height: 32px;
   width: 32px;
 }
+#mainToolbar #printButton .toolbar-button IMG {
+  background: url('../../../content/common-ui/resources/themes/images/print_32.png');
+  height: 32px;
+  width: 32px;
+}
+#mainToolbar #printButton .toolbar-button-disabled IMG {
+  background: url('../../../content/common-ui/resources/themes/images/print_32_disabled.png');
+  height: 32px;
+  width: 32px;
+}
 
 .schedulerPerspective {
  padding: 8px;

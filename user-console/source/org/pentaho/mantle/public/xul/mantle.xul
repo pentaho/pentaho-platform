@@ -65,6 +65,10 @@
     	<toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
     	<toolbarbutton id="saveButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
     	<toolbarbutton id="saveAsButton" image="images/spacer.gif" disabledimage="images/spacer.gif"  onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
+
+      <toolbarspacer width="20"/>
+      <toolbarbutton id="printButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.printClicked()" tooltiptext="${print}" pen:visible="false"/>
+
   	</toolbar>
   </window>
   
