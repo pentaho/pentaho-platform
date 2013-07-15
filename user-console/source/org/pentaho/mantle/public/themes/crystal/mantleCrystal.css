@@ -1077,7 +1077,11 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
   height: 32px;
   width: 32px;
 }
-
+#mainToolbar #newButton .toolbar-button IMG {
+  background: url('../../../content/common-ui/resources/themes/crystal/images/new_32.png');
+  height: 32px;
+  width: 32px;
+}
 #mainToolbar #editContentButton .toolbar-toggle-button IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32.png');
   height: 32px;

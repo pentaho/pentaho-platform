@@ -56,6 +56,8 @@
       <!-- use spacers as images, the real images are loaded via css background images to support themeing -->
     	<toolbarspacer width="10"/>
     	<toolbarbutton id="openButton" image="images/spacer.gif" onclick="mantleXulHandler.openClicked()" tooltiptext="${openEllipsis}"/>
+    	<toolbarspacer width="10"/>
+    	<toolbarbutton id="newButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.newClicked()" tooltiptext="${new}"/>
     	<toolbarspacer width="20"/>
     	<toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
     	<toolbarspacer width="20"/>
