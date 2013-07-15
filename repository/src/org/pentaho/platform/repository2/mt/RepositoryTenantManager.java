@@ -32,7 +32,6 @@ import javax.jcr.Session;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
@@ -450,10 +449,9 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
     
     RepositoryFile publicFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
-        ServerRepositoryPaths.getTenantPublicFolderName()).folder(true).build(), new RepositoryFileAcl.Builder(
+        ServerRepositoryPaths.getTenantPublicFolderName()).folder(true).title(Messages.getInstance().getString("RepositoryTenantManager.publicFolderDisplayName")).build(), new RepositoryFileAcl.Builder(
         fileOwnerSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid,
             EnumSet.of(RepositoryFilePermission.READ)).build(), null);
-    
     return publicFolder;
   }
   

@@ -424,6 +424,17 @@ public class JcrRepositoryFileUtils {
 
     Node folderNode = parentFolderNode.addNode(folder.getName(), pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER());
     folderNode.setProperty(pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden());
+    //folderNode.setProperty(pentahoJcrConstants.getPHO_TITLE(), folder.getTitle());
+    Node localeNodes = null;
+    if (folder.getTitle() != folder.getName()) { // Title is different from the name
+      localeNodes = folderNode.addNode(pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE());
+      Map<String, Properties> localPropertiesMap = new HashMap<String, Properties>();
+      String defaultLocale = LocaleHelper.getLocale().toString();
+      Properties titleProps = new Properties();
+      titleProps.put("file.title", folder.getTitle());
+      localPropertiesMap.put(defaultLocale, titleProps);
+      setLocalePropertiesMap(session, pentahoJcrConstants, localeNodes, localPropertiesMap);
+    }    
     if (folder.isVersioned()) {
       //      folderNode.setProperty(addPentahoPrefix(session, PentahoJcrConstants.PENTAHO_VERSIONED), true);
       folderNode.addMixin(pentahoJcrConstants.getPHO_MIX_VERSIONABLE());
