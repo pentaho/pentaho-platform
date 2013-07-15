@@ -21,7 +21,6 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
@@ -191,13 +190,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       }
     }
     // let's sort this list based on localized name
-    Collections.sort(files, new Comparator<RepositoryFile>() {
-      public int compare(RepositoryFile o1, RepositoryFile o2) {
-        String name1 = o1.getName();
-        String name2 = o2.getName();
-        return name1.compareTo(name2);
-      }
-    });
+    Collections.sort(files, new RepositoryFileComparator()); // BISERVER-9599 - Custom Sort
     
     if (files != null) {
       int rowCounter = 0;
