@@ -424,11 +424,6 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
-  public String getProductID() {
-    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
-  }
-
-  @Override
   public RepositoryFile updateFolder(RepositoryFile file, String versionMessage) {
     throw new UnsupportedOperationException("This operation is not support by this repository");
   }

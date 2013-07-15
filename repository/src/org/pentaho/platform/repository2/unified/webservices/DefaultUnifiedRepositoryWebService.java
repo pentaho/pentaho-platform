@@ -345,10 +345,6 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     }
   }
 
-  public String getProductID() {
-    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
-  }
-
   @Override
   public List<PentahoLocale> getAvailableLocalesForFileById(String fileId) {
     List<PentahoLocale> pentahoLocales = new ArrayList<PentahoLocale>();

@@ -19,8 +19,6 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IUnifiedRepositoryWebServiceAsync {
-
-  void getProductID(AsyncCallback<String> productId);
   
   void canUnlockFile(String fileId, AsyncCallback<Boolean> arg2);
 

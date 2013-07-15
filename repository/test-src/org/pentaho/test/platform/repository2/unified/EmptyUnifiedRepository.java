@@ -259,11 +259,6 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public String getProductID() {
-    return null;
-  }
-
-  @Override
   public RepositoryFile getFile(String path, IPentahoLocale locale) {
     return null;
   }

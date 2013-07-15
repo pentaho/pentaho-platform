@@ -531,11 +531,6 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   @Override
-  public String getProductID() {
-    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
-  }
-
-  @Override
   public List<Locale> getAvailableLocalesForFileById(final Serializable fileId) {
     return callLogThrow(new Callable<List<Locale>>() {
       public List<Locale> call() throws Exception {
