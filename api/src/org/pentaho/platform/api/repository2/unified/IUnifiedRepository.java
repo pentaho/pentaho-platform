@@ -515,11 +515,6 @@ public interface IUnifiedRepository {
    */
   List<Character> getReservedChars();
 
-  /**
-   * Returns the product ID that was set in the pentaho-platform jar manifests.
-   */
-  String getProductID();
-
   List<Locale> getAvailableLocalesForFileById(final Serializable fileId);
 
   List<Locale> getAvailableLocalesForFileByPath(final String relPath);

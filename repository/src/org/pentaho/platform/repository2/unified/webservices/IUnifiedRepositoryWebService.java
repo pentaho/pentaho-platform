@@ -40,8 +40,6 @@ import com.google.gwt.user.client.rpc.RemoteService;
 @WebService
 public interface IUnifiedRepositoryWebService extends RemoteService {
 
-  String getProductID();
-
   RepositoryFileDto getFile(final String path, final boolean loadLocaleMaps, final PentahoLocale locale);
 
   RepositoryFileDto getFileById(final String fileId, final boolean loadLocaleMaps, final PentahoLocale locale);

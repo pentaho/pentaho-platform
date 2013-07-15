@@ -1310,11 +1310,6 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public String getProductID() {
-    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
-  }
-
-  @Override
   public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     return Collections.emptyList();
   }

@@ -500,11 +500,6 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public String getProductID() {
-    return repositoryFileDao.getProductID();
-  }
-
-  @Override
   public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     Assert.notNull(fileId);
     return repositoryFileDao.getAvailableLocalesForFileById(fileId);

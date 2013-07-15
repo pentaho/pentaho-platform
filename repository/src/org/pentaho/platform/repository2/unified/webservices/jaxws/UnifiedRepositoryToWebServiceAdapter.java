@@ -456,10 +456,6 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return cachedReservedChars;
   }
 
-  public String getProductID() {
-    return repoWebService.getProductID();
-  }
-
   @Override
   public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     throw new UnsupportedOperationException();

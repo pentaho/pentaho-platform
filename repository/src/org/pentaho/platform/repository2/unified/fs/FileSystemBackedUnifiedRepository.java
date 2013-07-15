@@ -254,11 +254,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public String getProductID() {
-    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
-  }
-
-  @Override
   public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
    throw new UnsupportedOperationException();
   }
