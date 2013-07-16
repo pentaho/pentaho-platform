@@ -27,8 +27,6 @@
 			</menubar>
 			<menubar id="themesmenu" label="${themes}" layout="vertical">
 			</menubar>
-			<menubarseparator id="refreshSeparator"/>
-			<menuitem id="refreshMenuItem" label="${refresh}" command="mantleXulHandler.refreshContent()" />		
 		</menubar>		
 
 		<menubar id="toolsmenu" label="${tools}" layout="vertical" visible="false">
