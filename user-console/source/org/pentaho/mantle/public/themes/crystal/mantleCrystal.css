@@ -1301,3 +1301,30 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 .alignleft {
 left: 3px !important;
 }
+
+.newToolbarDropdown {
+  border: 1px solid #8bb5c5;
+  border: 1px solid rgba(139, 181, 197, 0.2);
+  background-color: #dce7ed;
+  
+  /* Standard form */
+  border-radius: 6px;
+  /* Firefox */
+  -moz-border-radius: 6px;
+  /* Safari/Chrome */
+  -webkit-border-radius: 6px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.newToolbarDropdownButton {
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
