@@ -17,11 +17,13 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
+import org.pentaho.mantle.client.commands.NewDropdownCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.PrintCommand;
@@ -47,6 +49,7 @@ import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
+import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
 import com.google.gwt.core.client.GWT;
@@ -310,6 +313,12 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     openFileCommand.execute();
   }
 
+  @Bindable
+  public void launchNewDropdownCommand(XulToolbarbutton button) {
+    NewDropdownCommand launchNewDropdownCommand = new NewDropdownCommand(((ToolbarButton)button.getManagedObject()).getPushButton());
+    launchNewDropdownCommand.execute();
+  }
+  
   public void onUndefinedEvent(SolutionBrowserUndefinedEvent event) {
     onSolutionBrowserEvent(event);
   }

@@ -92,6 +92,8 @@ public class MantleController extends AbstractXulEventHandler {
 
   private XulToolbarbutton openBtn;
 
+  private XulToolbarbutton newBtn;
+  
   private XulToolbarbutton saveBtn;
 
   private XulToolbarbutton saveAsBtn;
@@ -160,6 +162,7 @@ public class MantleController extends AbstractXulEventHandler {
   public void init() {
 
     openBtn = (XulToolbarbutton) document.getElementById("openButton"); //$NON-NLS-1$
+    newBtn = (XulToolbarbutton) document.getElementById("newButton"); //$NON-NLS-1$
     saveBtn = (XulToolbarbutton) document.getElementById("saveButton"); //$NON-NLS-1$
     saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton"); //$NON-NLS-1$
     printBtn = (XulToolbarbutton) document.getElementById("printButton");
@@ -632,6 +635,11 @@ public class MantleController extends AbstractXulEventHandler {
     model.executeOpenFileCommand();
   }
 
+  @Bindable
+  public void newClicked() {
+    model.launchNewDropdownCommand(newBtn);
+  }
+  
   @Bindable
   public void saveClicked() {
     model.executeSaveCommand();
