@@ -17,6 +17,7 @@
  */
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import com.google.gwt.user.client.Command;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -177,6 +178,8 @@ public class NewScheduleDialog extends PromptDialogBox {
     
     updateButtonState();
     setSize("650px", "450px");
+
+    validateScheduleLocationTextBox();
   }
 
   protected void onOk() {
@@ -250,6 +253,16 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   public void setScheduleName(String scheduleName) {
     scheduleNameTextBox.setText(scheduleName);
+  }
+
+  private void validateScheduleLocationTextBox(){
+    final Command errorCallback = new Command() {
+      @Override
+      public void execute() {
+        scheduleLocationTextBox.setText(getDefaultSaveLocation()); // restore default location
+      }
+    };
+    OutputLocationUtils.validateOutputLocation(scheduleLocationTextBox.getText(), null, errorCallback);
   }
 
 }
