@@ -558,7 +558,7 @@ pen.define([
             this.model.on("change:clickedFile", this.updateButtonsHeader, this);
 
             //update folder and file browser headers on folder selection change
-            this.model.on("change:clickedFolder", this.updateFolderBrowserHeader, this);
+            //this.model.on("change:clickedFolder", this.updateFolderBrowserHeader, this);
             this.model.on("change:clickedFolder", this.updateFileBrowserHeader, this);
 
             //check buttons enabled
@@ -654,7 +654,12 @@ pen.define([
 
             var obj = {
                 folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
-                i18n: jQuery.i18n
+                i18n: jQuery.i18n,
+                refreshHandler: function(){
+                  if(window.top.mantle_fireEvent){
+                    window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent"});  
+                  }  
+                }
             };
 
             if (this.model.getLastClick() == "trash") {
