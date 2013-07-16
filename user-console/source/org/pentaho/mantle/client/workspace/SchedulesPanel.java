@@ -33,6 +33,7 @@ import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.OutputLocationUtils;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.images.ImageUtil;
@@ -353,12 +354,22 @@ public class SchedulesPanel extends SimplePanel {
       @Override
       public void update(final int index, final JsJob jsJob, final SafeHtml value) {
         if (!value.equals("-")) {
-          validateOutputLocation(jsJob.getOutputPath(), new Command() {
+
+          final Command errorCallback = new Command() {
+            @Override
+            public void execute() {
+              showValidateOutputLocationError();
+            }
+          };
+
+          final Command successCallback = new Command() {
             @Override
             public void execute() {
               openOutputLocation(jsJob.getOutputPath());
             }
-          });
+          };
+
+          OutputLocationUtils.validateOutputLocation(jsJob.getOutputPath(), successCallback, errorCallback);
         }
       }
     });
@@ -969,36 +980,6 @@ public class SchedulesPanel extends SimplePanel {
       });
     } catch (RequestException e) {
       // showError(e);
-    }
-  }
-
-  private void validateOutputLocation(final String outputLocation, final Command successCallback) {
-
-    if (StringUtils.isEmpty(outputLocation)) {
-      return;
-    }
-
-    final String outputLocationPath = outputLocation.replaceAll("/", ":");
-    final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + outputLocationPath + "/children?depth=1"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-    try {
-      builder.sendRequest(null, new RequestCallback() {
-        public void onError(Request request, Throwable exception) {
-          showValidateOutputLocationError();
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == Response.SC_OK) {
-            if (successCallback != null) {
-              successCallback.execute();
-            }
-          } else {
-            showValidateOutputLocationError();
-          }
-        }
-      });
-    } catch (RequestException e) {
-      showValidateOutputLocationError();
     }
   }
 

@@ -20,6 +20,7 @@ package org.pentaho.mantle.client.dialogs.scheduling;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.dom.client.Style.VerticalAlign;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
@@ -136,6 +137,8 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox
 
     updateButtonState();
     setSize("650px", "450px");
+
+    validateScheduleLocationTextBox();
   }
 
   private void setupCallbacks(){
@@ -170,6 +173,16 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox
     boolean hasLocation = !StringUtils.isEmpty(scheduleLocationTextBox.getText());
     boolean hasName = !StringUtils.isEmpty(scheduleNameTextBox.getText());
     okButton.setEnabled(hasLocation && hasName);
+  }
+
+  private void validateScheduleLocationTextBox(){
+    final Command errorCallback = new Command() {
+      @Override
+      public void execute() {
+        scheduleLocationTextBox.setText(getDefaultSaveLocation()); // restore default location
+      }
+    };
+    OutputLocationUtils.validateOutputLocation(scheduleLocationTextBox.getText(), null, errorCallback);
   }
 
   protected abstract void onSelect(String name, String outputLocationPath);
