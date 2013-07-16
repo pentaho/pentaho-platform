@@ -51,9 +51,9 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
   List<RepositoryFile> repositoryFiles;
 
-  private String fileList = null;
-  private String type=null;
-  private String mode=null;
+  private String fileList = "";
+  private String type="";
+  private String mode="";
 
   public String getFileList() {
     return fileList;
