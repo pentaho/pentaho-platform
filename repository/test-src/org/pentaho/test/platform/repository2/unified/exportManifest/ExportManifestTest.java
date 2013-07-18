@@ -2,10 +2,7 @@ package org.pentaho.test.platform.repository2.unified.exportManifest;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 import javax.xml.bind.JAXBException;
 
@@ -20,7 +17,10 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
+import org.pentaho.platform.repository2.unified.exportManifest.Parameters;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
 
 public class ExportManifestTest extends TestCase {
 	ExportManifest exportManifest;
@@ -32,8 +32,9 @@ public class ExportManifestTest extends TestCase {
 	ExportManifestEntity entity1;
 	ExportManifestEntity entity2;
 	ExportManifestEntity entity3;
+  private ExportManifest importManifest;
 
-	public ExportManifestTest() {
+  public ExportManifestTest() {
 	  String rootFolder = "/dir1/";
 	  exportManifest = new ExportManifest();
 	  ExportManifestDto.ExportManifestInformation exportManifestInformation = exportManifest
@@ -51,6 +52,7 @@ public class ExportManifestTest extends TestCase {
 		repoDir2Acl = createMockRepositoryAcl("acl2", "admin", false, aces1);
 		repoFile3 = createMockRepositoryFile("/dir1/dir2/file1", false);
 		RepositoryFile badRepoFile = createMockRepositoryFile("/baddir/dir2/file1", false);
+
 		
 		try {
   		exportManifest.add(repoDir2, repoDir2Acl);
@@ -74,6 +76,19 @@ public class ExportManifestTest extends TestCase {
 		entity3 = exportManifest.getExportManifestEntity("dir2/file1");
 		assertNotNull(entity3);
 
+    // Mondrian
+    ExportManifestMondrian mondrian = new ExportManifestMondrian();
+    mondrian.setCatalogName("cat1");
+    mondrian.setParameters(new Parameters() {{
+      put("testKey", "testValue");
+    }});
+    mondrian.setFile("testMondrian.xml");
+    exportManifest.addMondrian(mondrian);
+
+    ExportManifestMetadata metadata = new ExportManifestMetadata();
+    metadata.setDomainId("testDomain");
+    metadata.setFile("testMetadata.xml");
+    exportManifest.addMetadata(metadata);
 	}
 
 	@Test
@@ -96,25 +111,25 @@ public class ExportManifestTest extends TestCase {
 	@Test
 	public void testUnMarshal() {
 		String xml = XmlToString();
-		ExportManifest importManifest;
+		ExportManifest importManifest = null;
 		ByteArrayInputStream input = new ByteArrayInputStream (xml.getBytes());
 		try {
-		importManifest = ExportManifest.fromXml(input);
+		  importManifest = ExportManifest.fromXml(input);
 		} catch (JAXBException e) {
 			fail("Could not un-marshal to object " + e);
 		}
-		ExportManifestEntity fileEntity = exportManifest
+		ExportManifestEntity fileEntity = importManifest
 				.getExportManifestEntity("dir2/file1");
 		assertNotNull(fileEntity);
 		assertEquals("dir2/file1", fileEntity.getPath());
 		assertNotNull(fileEntity.getEntityMetaData());
-		assertFalse(fileEntity.getEntityMetaData().getIsFolder());
+		assertFalse(fileEntity.getEntityMetaData().isIsFolder());
 		
-		fileEntity = exportManifest
+		fileEntity = importManifest
 				.getExportManifestEntity("dir2");
 		assertNotNull(fileEntity);
 		assertNotNull(fileEntity.getEntityMetaData());
-		assertTrue(fileEntity.getEntityMetaData().getIsFolder());
+		assertTrue(fileEntity.getEntityMetaData().isIsFolder());
 		
 		RepositoryFile r = fileEntity.getRepositoryFile();
 		try {
@@ -124,6 +139,19 @@ public class ExportManifestTest extends TestCase {
 			e.printStackTrace();
 			fail("Could not un-marshal to RepositoryFileAcl");
 		}
+
+    assertEquals(1, importManifest.getMetadataList().size());
+    assertEquals(1, importManifest.getMondrianList().size());
+
+    ExportManifestMondrian mondrian1 = importManifest.getMondrianList().get(0);
+    assertEquals("cat1", mondrian1.getCatalogName());
+    assertTrue(mondrian1.getParameters().containsKey("testKey"));
+    assertEquals("testValue", mondrian1.getParameters().get("testKey"));
+    assertEquals("testMondrian.xml", mondrian1.getFile());
+
+    ExportManifestMetadata metadata1 = importManifest.getMetadataList().get(0);
+    assertEquals("testDomain", metadata1.getDomainId());
+    assertEquals("testMetadata.xml", metadata1.getFile());
 		
 	}
 	
@@ -138,6 +166,7 @@ public class ExportManifestTest extends TestCase {
 		try {
 			s = exportManifest.toXmlString();
 		} catch (JAXBException e) {
+      e.printStackTrace();
 			fail("Could not marshal to XML to string " + e);
 		}
 		return s;

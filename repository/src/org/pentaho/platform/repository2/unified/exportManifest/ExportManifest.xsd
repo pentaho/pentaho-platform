@@ -14,10 +14,68 @@
 					<attribute name="rootFolder" type="string" use="required"></attribute>
 				</complexType>
 			</element>
+      <element name="ExportManifestDatasource" type="tns:ExportManifestDatasource"
+               minOccurs="0" maxOccurs="unbounded" />
+
+      <element name="ExportManifestMondrian" type="tns:ExportManifestMondrian"
+               minOccurs="0" maxOccurs="unbounded" />
+
+      <element name="ExportManifestMetadata" type="tns:ExportManifestMetadata"
+               minOccurs="0" maxOccurs="unbounded" />
 			<element name="ExportManifestEntity" type="tns:ExportManifestEntityDto"
-				minOccurs="1" maxOccurs="unbounded" />
+				minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
+
+
+
+  <complexType name="ExportManifestMetadata">
+    <attribute name="domainId" type="string"/>
+    <attribute name="file" type="string"/>
+
+  </complexType>
+
+  <complexType name="ExportManifestMondrian">
+    <sequence>
+      <element name="catalogName" type="string"
+               minOccurs="1" maxOccurs="1" />
+      <element name="xmlaEnabled" type="boolean"
+               minOccurs="1" maxOccurs="1" />
+      <element name="parameters" minOccurs="0" maxOccurs="1" type="tns:Parameters"/>
+
+    </sequence>
+    <attribute name="file" type="string"/>
+  </complexType>
+
+
+  <complexType name="Parameters">
+      <sequence>
+        <element name="entries">
+          <complexType>
+            <sequence>
+              <element name="entry" minOccurs="0" maxOccurs="unbounded">
+                <complexType>
+                  <attribute name="key" type="string" />
+                  <attribute name="value" type="string" />
+                </complexType>
+              </element>
+            </sequence>
+          </complexType>
+        </element>
+      </sequence>
+  </complexType>
+
+
+
+
+  <complexType name="ExportManifestDatasource">
+    <sequence>
+      <element name="name" type="string"
+               minOccurs="1" maxOccurs="1" />
+      <element name="databaseType" type="string"
+               minOccurs="1" maxOccurs="1" />
+    </sequence>
+  </complexType>
 
 	<complexType name="ExportManifestEntityDto">
 		<sequence>
@@ -41,6 +99,7 @@
 			<element name="EntityAcl" type="tns:EntityAcl" maxOccurs="1" />
 			<element name="CustomProperty" type="tns:CustomProperty"
 				maxOccurs="unbounded" />
+
 		</choice>
 	</complexType>
 
