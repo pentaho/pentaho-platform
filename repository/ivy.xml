@@ -112,10 +112,10 @@
 		<dependency org="pentaho" 			   	name="pentaho-platform-core-test" rev="${project.revision}" changing="true" conf="test->default" transitive="false" />
 		<dependency org="commons-logging"     	name="commons-logging"     rev="1.1.1" conf="test->default" transitive="false"/>
 		<dependency org="log4j"                 name="log4j"              rev="1.2.16" conf="test->default" transitive="false"/>
-		<dependency org="junit"                	name="junit"         rev="4.4"     conf="test->default"/>
+		<dependency org="junit"                	name="junit"         rev="4.11"     conf="test->default"/>
 		<dependency org="org.slf4j"            	name="slf4j-log4j12" rev="1.6.1"   conf="test->default"/>
 		<dependency org="hsqldb"               	name="hsqldb"        rev="1.8.0.7" conf="test->default"/>
-		<dependency org="org.springframework"  	name="spring-test"   rev="2.5.6"   conf="test->default"/>
+		<dependency org="org.springframework"  	name="spring-test"   rev="3.2.3.RELEASE"   conf="test->default"/>
 		<dependency org="simple-jndi"          	name="simple-jndi"   rev="0.11.3"  conf="test->default"/>
 	    <dependency org="org.quartz-scheduler" 	name="quartz"        rev="1.7.2"   conf="test->default"/>
 	    <dependency org="org.hamcrest"          name="hamcrest-core"  rev="1.1"   conf="test->default"/>
