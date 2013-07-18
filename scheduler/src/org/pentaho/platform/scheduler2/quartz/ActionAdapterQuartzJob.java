@@ -181,7 +181,7 @@ public class ActionAdapterQuartzJob implements Job {
           SchedulerOutputPathResolver resolver = new SchedulerOutputPathResolver(streamProvider.getOutputPath(), actionUser);
           String outputPath = resolver.resolveOutputFilePath();
           actionParams.put("useJcr", Boolean.TRUE);
-          actionParams.put("jcrOutputPath", outputPath);
+          actionParams.put("jcrOutputPath", outputPath.substring(0, outputPath.lastIndexOf("/")));
           
           if(!outputPath.equals(streamProvider.getOutputPath())){
             streamProvider.setOutputFilePath(outputPath); // set fallback path
