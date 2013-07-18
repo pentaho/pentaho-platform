@@ -8,14 +8,15 @@
 
 pen.define([
   "js/browser.utils.js",
-  "js/browser.dialogs.js",
+  "js/dialogs/browser.dialog.rename.js",
   "common-ui/jquery-i18n",
   "common-ui/jquery"
-], function(BrowserUtils, Dialogs) {
+], function(BrowserUtils, RenameDialog) {
 
 	var local = {
 
 		init: function() {
+      this.renameDialog = new RenameDialog(this.i18n);
 
 			// retrieve i18n map
 			var that = this; // trap this
@@ -108,7 +109,7 @@ pen.define([
 
 		isFavorite: false,
 
-    dialogs: new Dialogs(),
+    renameDialog: null,
 
     initEventHandlers: function(){
     	var that = this; // trap this
@@ -334,7 +335,7 @@ pen.define([
 		},
 
     renameHandler: function(path){
-      this.dialogs.showDialogRename(path);
+      this.renameDialog.init(path);
     }
 	};
 

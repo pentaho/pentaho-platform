@@ -7,15 +7,16 @@
  */
 
 pen.define([
-	  "js/browser.dialogs.js",
+	"js/dialogs/browser.dialog.rename.js",
     "common-ui/jquery-i18n",
     "common-ui/jquery"
-], function (Dialogs) {
+], function (RenameDialog) {
 
     var local = {
-    	dialogs: new Dialogs(),
+    	renameDialog: null,
 
         init: function () {
+            this.renameDialog = new RenameDialog(this.i18n)
 
             // retrieve i18n map
             var that = this; // trap this
@@ -181,7 +182,7 @@ pen.define([
             $(window.parent.document).find(".pentaho-dialog").attr("id", "browse-properties-dialog");
         },
         renameHandler: function(path){
-      		this.dialogs.showDialogRename(path);
+      		this.renameDialog.init(path);
     	}
 
     };
