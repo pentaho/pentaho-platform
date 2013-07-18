@@ -17,6 +17,7 @@ package org.pentaho.platform.repository2.unified.exportManifest;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -32,6 +33,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
 
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name 
@@ -43,6 +46,8 @@ public class ExportManifest {
   private HashMap<String, ExportManifestEntity> exportManifestEntities;
 
   private ExportManifestDto.ExportManifestInformation manifestInformation;
+  private List<ExportManifestMetadata> metadataList = new ArrayList<ExportManifestMetadata>();
+  private List<ExportManifestMondrian> mondrianList = new ArrayList<ExportManifestMondrian>();
 
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
@@ -56,6 +61,8 @@ public class ExportManifest {
     for (ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList) {
       exportManifestEntities.put(exportManifestEntityDto.getPath(), new ExportManifestEntity(exportManifestEntityDto));
     }
+    this.mondrianList = exportManifestDto.getExportManifestMondrian();
+    this.metadataList = exportManifestDto.getExportManifestMetadata();
   }
 
   /**
@@ -141,6 +148,10 @@ public class ExportManifest {
     for (String path : ts) {
       rawEntityList.add(exportManifestEntities.get(path).getExportManifestEntityDto());
     }
+
+    rawExportManifest.getExportManifestMetadata().addAll(this.metadataList);
+    rawExportManifest.getExportManifestMondrian().addAll(this.mondrianList);
+
     return rawExportManifest;
   }
 
@@ -188,4 +199,19 @@ public class ExportManifest {
     return new ExportManifestDto.ExportManifestInformation();
   }
 
+  public void addMetadata(ExportManifestMetadata metadata){
+    this.metadataList.add(metadata);
+  }
+
+  public void addMondrian(ExportManifestMondrian mondrian){
+    this.mondrianList.add(mondrian);
+  }
+
+  public List<ExportManifestMetadata> getMetadataList() {
+    return metadataList;
+  }
+
+  public List<ExportManifestMondrian> getMondrianList() {
+    return mondrianList;
+  }
 }

@@ -130,8 +130,8 @@ public class ExportManifestEntity {
 		EntityMetaData emd = getEntityMetaData();
 		if (entityMetaData == null)
 			return null;
-		return new RepositoryFile(null, emd.getName(), emd.getIsFolder(),
-				emd.getIsHidden(), false, null, emd.getPath(),
+		return new RepositoryFile(null, emd.getName(), emd.isIsFolder(),
+				emd.isIsHidden(), false, null, emd.getPath(),
 				XmlGregorianCalendarConverter.asDate(emd.getCreatedDate()), null,
 				false, null, null, null, "en-US", emd.getTitle(),
 				emd.getDescription(), null, null, 0, emd.getOwner(), null);
