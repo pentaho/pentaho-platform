@@ -39,7 +39,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -63,7 +71,11 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.repository2.unified.*;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -530,7 +542,61 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
   }
+  
+  @GET
+  @Path("{pathId : .+}/inline")
+  @Produces(WILDCARD)
+  // have to accept anything for browsers to work
+  public Response doGetFileAsInline(@PathParam("pathId") String pathId) throws FileNotFoundException {
+    String quotedFileName = null;
 
+    // change file id to path
+    String path = idToPath(pathId);
+
+    // if no path is sent, return bad request
+    if (StringUtils.isEmpty(pathId)) {
+      return Response.status(BAD_REQUEST).build();
+    }
+
+    // check if path is valid
+    if (!isPathValid(path)) {
+      return Response.status(FORBIDDEN).build();
+    }
+
+    // check if entity exists in repo
+    RepositoryFile repositoryFile = repository.getFile(path);
+
+    if (repositoryFile == null) {
+      // file does not exist or is not readable but we can't tell at this point
+      return Response.status(NOT_FOUND).build();
+    }
+
+    try {
+      SimpleRepositoryFileData fileData = repository.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class);
+      final InputStream is = fileData.getInputStream();
+
+      StreamingOutput streamingOutput;
+      Response response;
+
+      // copy streaming output
+      streamingOutput = new StreamingOutput() {
+        public void write(OutputStream output) throws IOException {
+          IOUtils.copy(is, output);
+        }
+      };
+
+      // create response
+
+      response = Response.ok(streamingOutput).header("Content-Disposition", "inline; filename=" + quotedFileName).build();
+
+      return response;
+    } catch (Exception e) {
+      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
+      return Response.status(INTERNAL_SERVER_ERROR).build();
+    }
+
+  }
+  
   @PUT
   @Path("{pathId : .+}/acl")
   @Consumes({ APPLICATION_XML, APPLICATION_JSON })

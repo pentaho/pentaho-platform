@@ -106,6 +106,7 @@
 		-->
 		
   <report-config>
+    <entry name="org.pentaho.web.JcrContentHandler" value="api/repo/files/{0}/inline"/>
     <entry name="org.pentaho.web.ContentHandler" value="getImage?image={0}"/>
     <entry name="org.jfree.base.LogLevel" value="Warn"/>
     <entry name="org.jfree.base.LogTarget" value="org.jfree.logger.log4j.Log4JLogTarget"/>
