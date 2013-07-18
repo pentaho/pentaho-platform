@@ -438,14 +438,13 @@ public class FileResource extends AbstractJaxRSResource {
           parameterContentGenerator.createContent();
           if (outputStream.size() > 0) {
             Document document = DocumentHelper.parseText(outputStream.toString());
-  
+
             // exclude all parameters that are of type "system", xactions set system params that have to be ignored.
             @SuppressWarnings("rawtypes")
             List nodes = document.selectNodes("parameters/parameter");
             for (int i = 0; i < nodes.size() && !hasParameters; i++) {
               Element elem = (Element) nodes.get(i);
-              if (elem.attributeValue("name").equalsIgnoreCase("output-target") && 
-                  elem.attributeValue("is-mandatory").equalsIgnoreCase("true")) {
+              if (elem.attributeValue("name").equalsIgnoreCase("output-target") && elem.attributeValue("is-mandatory").equalsIgnoreCase("true")) {
                 hasParameters = true;
                 continue;
               }
@@ -542,7 +541,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
   }
-  
+
   @GET
   @Path("{pathId : .+}/inline")
   @Produces(WILDCARD)
@@ -550,21 +549,25 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doGetFileAsInline(@PathParam("pathId") String pathId) throws FileNotFoundException {
     String quotedFileName = null;
 
-    // change file id to path
-    String path = idToPath(pathId);
+    RepositoryFile repositoryFile = repository.getFileById(pathId);
+    if (repositoryFile == null) {
 
-    // if no path is sent, return bad request
-    if (StringUtils.isEmpty(pathId)) {
-      return Response.status(BAD_REQUEST).build();
+      // change file id to path
+      String path = idToPath(pathId);
+
+      // if no path is sent, return bad request
+      if (StringUtils.isEmpty(pathId)) {
+        return Response.status(BAD_REQUEST).build();
+      }
+
+      // check if path is valid
+      if (!isPathValid(path)) {
+        return Response.status(FORBIDDEN).build();
+      }
+
+      // check if entity exists in repo
+      repositoryFile = repository.getFile(path);
     }
-
-    // check if path is valid
-    if (!isPathValid(path)) {
-      return Response.status(FORBIDDEN).build();
-    }
-
-    // check if entity exists in repo
-    RepositoryFile repositoryFile = repository.getFile(path);
 
     if (repositoryFile == null) {
       // file does not exist or is not readable but we can't tell at this point
@@ -596,7 +599,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
   }
-  
+
   @PUT
   @Path("{pathId : .+}/acl")
   @Consumes({ APPLICATION_XML, APPLICATION_JSON })
@@ -701,21 +704,19 @@ public class FileResource extends AbstractJaxRSResource {
     return repoWs.getFile(PATH_SEPARATOR);
   }
 
-
-
-    @GET
-    @Path("{pathId : .+}/canAccessMap")
-    @Produces({ APPLICATION_XML, APPLICATION_JSON})
-    public List<Setting> doGetCanAccessList(@PathParam("pathId") String pathId, @QueryParam("permissions") String permissions) {
-        StringTokenizer tokenizer = new StringTokenizer(permissions, "|");
-        ArrayList<Setting> permMap = new ArrayList();
-        while (tokenizer.hasMoreTokens()) {
-            Integer perm = Integer.valueOf(tokenizer.nextToken());
-                    EnumSet<RepositoryFilePermission> permission=EnumSet.of(RepositoryFilePermission.values()[perm]);
-                    permMap.add(new Setting(perm.toString(),new Boolean(repository.hasAccess(idToPath(pathId),permission)).toString()));
-        }
-        return permMap;
+  @GET
+  @Path("{pathId : .+}/canAccessMap")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public List<Setting> doGetCanAccessList(@PathParam("pathId") String pathId, @QueryParam("permissions") String permissions) {
+    StringTokenizer tokenizer = new StringTokenizer(permissions, "|");
+    ArrayList<Setting> permMap = new ArrayList();
+    while (tokenizer.hasMoreTokens()) {
+      Integer perm = Integer.valueOf(tokenizer.nextToken());
+      EnumSet<RepositoryFilePermission> permission = EnumSet.of(RepositoryFilePermission.values()[perm]);
+      permMap.add(new Setting(perm.toString(), new Boolean(repository.hasAccess(idToPath(pathId), permission)).toString()));
     }
+    return permMap;
+  }
 
   @GET
   @Path("{pathId : .+}/canAccess")
@@ -1074,13 +1075,13 @@ public class FileResource extends AbstractJaxRSResource {
     return true;
   }
 
-  private void sortByLocaleTitle(final Collator collator, final RepositoryFileTreeDto tree){
+  private void sortByLocaleTitle(final Collator collator, final RepositoryFileTreeDto tree) {
 
-    if(tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0){
+    if (tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0) {
       return;
     }
 
-    for(RepositoryFileTreeDto rft : tree.getChildren()){
+    for (RepositoryFileTreeDto rft : tree.getChildren()) {
       sortByLocaleTitle(collator, rft);
       Collections.sort(tree.getChildren(), new Comparator<RepositoryFileTreeDto>() {
         @Override
@@ -1088,7 +1089,7 @@ public class FileResource extends AbstractJaxRSResource {
           String title1 = repositoryFileTree.getFile().getTitle();
           String title2 = repositoryFileTree2.getFile().getTitle();
 
-          if(collator.compare(title1, title2) == 0){
+          if (collator.compare(title1, title2) == 0) {
             return title1.compareTo(title2); // use lexical order if equals ignore case
           }
 
