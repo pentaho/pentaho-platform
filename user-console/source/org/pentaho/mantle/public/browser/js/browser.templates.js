@@ -39,7 +39,8 @@ pen.define([
         "{{else}}" +
             "<div id='foldersHeader' class='header'>" +
               "<span>Available Folders</span>" +
-              "<div id='refreshBrowserIcon' class='refresh-browse-perspective pull-right' onclick='{{stringifyFunc refreshHandler}}'>" + 
+              "<div id='refreshBrowserIcon' class='refresh-browse-perspective pull-right'" +
+              "title={{i18n 'refresh'}} onclick='{{stringifyFunc refreshHandler}}'>" +
               "</div>" +
             "</div>" +
         "{{/if}}");
