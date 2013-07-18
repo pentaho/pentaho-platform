@@ -80,45 +80,47 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     // Process Metadata
     ExportManifest manifest = getImportSession().getManifest();
-    List<ExportManifestMetadata> metadataList = manifest.getMetadataList();
-    for (ExportManifestMetadata exportManifestMetadata : metadataList) {
+    if(manifest != null){
+      List<ExportManifestMetadata> metadataList = manifest.getMetadataList();
+      for (ExportManifestMetadata exportManifestMetadata : metadataList) {
 
-      String domainId = exportManifestMetadata.getDomainId();
-      boolean overWriteInRepository = true;
-      RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
-          .charSet("UTF-8")
-          .hidden(false)
-          .overwriteFile(overWriteInRepository)
-          .mime("text/xmi+xml")
-          .withParam("domain-id", domainId);
+        String domainId = exportManifestMetadata.getDomainId();
+        boolean overWriteInRepository = true;
+        RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
+            .charSet("UTF-8")
+            .hidden(false)
+            .overwriteFile(overWriteInRepository)
+            .mime("text/xmi+xml")
+            .withParam("domain-id", domainId);
 
-      cachedImports.put(exportManifestMetadata.getFile(), bundleBuilder);
+        cachedImports.put(exportManifestMetadata.getFile(), bundleBuilder);
 
-    }
-
-    // Process Mondrian
-    List<ExportManifestMondrian> mondrianList = manifest.getMondrianList();
-    for (ExportManifestMondrian exportManifestMondrian : mondrianList) {
-
-      String catName = exportManifestMondrian.getCatalogName();
-      Parameters parametersMap = exportManifestMondrian.getParameters();
-      StringBuilder parametersStr = new StringBuilder();
-      for (String s : parametersMap.keySet()) {
-        parametersStr.append(s).append("=").append(parametersMap.get(s)).append(sep);
       }
 
-      RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
-          .charSet("UTF_8").hidden(false)
-          .name(catName)
-          .overwriteFile(true)
-          .mime("application/vnd.pentaho.mondrian+xml")
-          .withParam("parameters", parametersStr.toString())
-          .withParam("domain-id", catName); // TODO: this is definitely named wrong at the very least.
-      //pass as param if not in parameters string
-      String xmlaEnabled = ""+ exportManifestMondrian.isXmlaEnabled();
-      bundleBuilder.withParam("EnableXmla", xmlaEnabled);
+      // Process Mondrian
+      List<ExportManifestMondrian> mondrianList = manifest.getMondrianList();
+      for (ExportManifestMondrian exportManifestMondrian : mondrianList) {
 
-      cachedImports.put(exportManifestMondrian.getFile(), bundleBuilder);
+        String catName = exportManifestMondrian.getCatalogName();
+        Parameters parametersMap = exportManifestMondrian.getParameters();
+        StringBuilder parametersStr = new StringBuilder();
+        for (String s : parametersMap.keySet()) {
+          parametersStr.append(s).append("=").append(parametersMap.get(s)).append(sep);
+        }
+
+        RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
+            .charSet("UTF_8").hidden(false)
+            .name(catName)
+            .overwriteFile(true)
+            .mime("application/vnd.pentaho.mondrian+xml")
+            .withParam("parameters", parametersStr.toString())
+            .withParam("domain-id", catName); // TODO: this is definitely named wrong at the very least.
+        //pass as param if not in parameters string
+        String xmlaEnabled = ""+ exportManifestMondrian.isXmlaEnabled();
+        bundleBuilder.withParam("EnableXmla", xmlaEnabled);
+
+        cachedImports.put(exportManifestMondrian.getFile(), bundleBuilder);
+      }
     }
 
     for (IRepositoryFileBundle file : importSource.getFiles()) {
