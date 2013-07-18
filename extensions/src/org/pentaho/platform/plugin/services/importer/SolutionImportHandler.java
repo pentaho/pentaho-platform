@@ -19,13 +19,11 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -46,6 +44,9 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
+import org.pentaho.platform.repository2.unified.exportManifest.Parameters;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -53,8 +54,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	private IPlatformImportMimeResolver mimeResolver;
 	private List<String> blackList;
 	private List<String> whiteList;
-	
-	public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver) {
+  private static final String sep = ";";
+  private Map<String,RepositoryFileImportBundle.Builder> cachedImports;
+
+  public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver) {
 		this.mimeResolver = mimeResolver;
 	}
 	
@@ -72,16 +75,70 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     //importSession.set(ImportSession.getSession());
 		
 		IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
-		for (IRepositoryFileBundle file : importSource.getFiles()) {
+
+    cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
+
+    // Process Metadata
+    ExportManifest manifest = getImportSession().getManifest();
+    List<ExportManifestMetadata> metadataList = manifest.getMetadataList();
+    for (ExportManifestMetadata exportManifestMetadata : metadataList) {
+
+      String domainId = exportManifestMetadata.getDomainId();
+      boolean overWriteInRepository = true;
+      RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
+          .charSet("UTF-8")
+          .hidden(false)
+          .overwriteFile(overWriteInRepository)
+          .mime("text/xmi+xml")
+          .withParam("domain-id", domainId);
+
+      cachedImports.put(exportManifestMetadata.getFile(), bundleBuilder);
+
+    }
+
+    // Process Mondrian
+    List<ExportManifestMondrian> mondrianList = manifest.getMondrianList();
+    for (ExportManifestMondrian exportManifestMondrian : mondrianList) {
+
+      String catName = exportManifestMondrian.getCatalogName();
+      Parameters parametersMap = exportManifestMondrian.getParameters();
+      StringBuilder parametersStr = new StringBuilder();
+      for (String s : parametersMap.keySet()) {
+        parametersStr.append(s).append("=").append(parametersMap.get(s)).append(sep);
+      }
+
+      RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
+          .charSet("UTF_8").hidden(false)
+          .name(catName)
+          .overwriteFile(true)
+          .mime("application/vnd.pentaho.mondrian+xml")
+          .withParam("parameters", parametersStr.toString())
+          .withParam("domain-id", catName); // TODO: this is definitely named wrong at the very least.
+      //pass as param if not in parameters string
+      String xmlaEnabled = ""+ exportManifestMondrian.isXmlaEnabled();
+      bundleBuilder.withParam("EnableXmla", xmlaEnabled);
+
+      cachedImports.put(exportManifestMondrian.getFile(), bundleBuilder);
+    }
+
+    for (IRepositoryFileBundle file : importSource.getFiles()) {
 			String fileName = file.getFile().getName();
-			RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 			String repositoryFilePath = RepositoryFilenameUtils.concat(PentahoPlatformImporter.computeBundlePath(file.getPath()), fileName);
 
 			// Validate against importing system related artifacts.
 			if (isSystemPath(repositoryFilePath)) {
 				log.trace("Skipping [" + repositoryFilePath + "], it is in admin / system folders");
 				continue;
-			}
+			} else if(this.cachedImports.containsKey(repositoryFilePath)){
+
+        byte[] bytes = IOUtils.toByteArray(file.getInputStream());
+        RepositoryFileImportBundle.Builder builder = cachedImports.get(repositoryFilePath);
+        builder.input(new ByteArrayInputStream(bytes));
+
+        importer.importFile(builder.build());
+        continue;
+      }
+			RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 
 			InputStream bundleInputStream = null;
 			if (file.getFile().isFolder()) {
