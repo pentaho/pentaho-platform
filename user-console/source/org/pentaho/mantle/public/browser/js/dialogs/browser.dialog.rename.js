@@ -18,7 +18,8 @@
 	var DialogModel =  Backbone.Model.extend({
 		defaults: {
 			path: "",
-			showInitialDialog: true
+			showInitialDialog: true,
+			showInitialDialogChecked: false
 		},
 
 		initialize: function(){
@@ -35,59 +36,59 @@
 		DialogBuilder : new Dialogs(),
 
 		events: {
-			"click p.checkbox"	: "setShowInitialDialog",
-			"click .yes"		: "showRenameDialog",
-			"click .ok"			: "doRename"
+			"click p.checkbox" : "setShowInitialDialog"
 		},
 
         initialize: function(){
-        	
         },
 
         render: function(){
-        	var myself = this;
+        	var me = this;
 
         	pen.require(["js/dialogs/browser.dialog.rename.templates"], function(templates){
 				
-        		if(myself.model.get("showInitialDialog")){
+        		if(me.model.get("showInitialDialog")) {
         			
-					var i18n = myself.options.i18n;
+					var i18n = me.options.i18n;
+
+					var body = templates.dialogOverride({ 
+						i18n: i18n 
+					});
 
         			var footer = DialogTemplates.buttons({ 
         				ok: i18n.prop("overrideYesButton"), 
         				cancel: i18n.prop("overrideNoButton") 
         			});
 
-        			var cfg = myself.DialogBuilder.buildCfg(
-        				"dialogOverride",							// id
-        				i18n.prop("overrideTitle"),					// header
-        				templates.dialogOverride({ i18n: i18n }),	// body
-        				footer); 									// footer	        				        			
+        			var cfg = me.DialogBuilder.buildCfg(
+        				"dialogOverride",			// id
+        				i18n.prop("overrideTitle"),	// header
+        				body,						// body
+        				footer, 					// footer	        				        			
+        				false);						// close_btn
 
-        			myself.DialogBuilder.show(cfg);
+        			me.setElement(me.DialogBuilder.show(cfg));
+
+        			me.$el.find(".ok").bind("click", function() {
+        				me.model.set("showInitialDialog", !me.$el.find("#do-not-show").prop("checked"));
+        				me.showRenameDialog.apply(me);
+        			});
         		} else {
-        			showRenameDialog();
+        			me.showRenameDialog();
         		}					
         	});
         },
 
-        setShowInitialDialog: function(event){
-        	var $target = $(event.target),
-        		$inputChecked = $target.find("input:checked");
-
-        	this.model.set("showInitialDialog", $inputChecked.length > 0 ? true : false);
-        },
-
         showRenameDialog: function(){
-        	var myself = this;
+        	var me = this;
 
         	pen.require(["js/dialogs/browser.dialog.rename.templates"], function(templates){
 
-				var i18n = myself.options.i18n;
+				var i18n = me.options.i18n;
 
         		var body = templates.dialogDoRename({
     				i18n: i18n,
-    				name: myself.model.get("path")
+    				name: me.model.get("path")
     			});
 
     			var footer = DialogTemplates.buttons({
@@ -95,14 +96,16 @@
     				cancel: i18n.prop("cancel")
     			});
 
-				var cfg = myself.DialogBuilder.buildCfg(
+				var cfg = me.DialogBuilder.buildCfg(
 					"dialogRename",
 					i18n.prop("renameTitle"),
 					body, 
 					footer);
-        		
 
-				myself.DialogBuilder.show(cfg);
+				me.setElement(me.DialogBuilder.show(cfg));
+				me.$el.find(".ok").bind("click", function(){
+					me.doRename.apply(me);
+				});
         	});
         },
 

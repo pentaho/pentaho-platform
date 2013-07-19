@@ -3,8 +3,8 @@ pen.define(["common-ui/handlebars"],
   	var templates = {};
 
     templates.dialogOverride = Handlebars.compile(      
-      "<div> {{i18n 'overrideDescription'}}</div>" +
-      "<p class='checkbox'> <input type='checkbox'>{{i18n 'overrideCheckbox'}}</input></p>");
+      "<div id='override-description'> {{i18n 'overrideDescription'}}</div>" +
+      "<p class='checkbox'> <input id='do-not-show' type='checkbox'>{{i18n 'overrideCheckbox'}}</input></p>");
 
   	//rename dialog
   	templates.dialogDoRename = Handlebars.compile(  		

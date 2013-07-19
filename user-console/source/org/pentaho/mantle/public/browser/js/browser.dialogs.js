@@ -53,6 +53,9 @@
 			
 			// Create dialog from content
 			this.$dialog = $(DialogTemplates.dialog(config));
+			this.$dialog.find(".footer .cancel").bind("click", function(){
+				that.hide.apply(that);
+			});
 
 			// Toggle close button
 			var closeBtn = this.$dialog.find(".dialog-close-button").bind("click", this.hide);
@@ -61,6 +64,13 @@
 			}
 
 			showDialog();
+
+			this.$dialog.bind("keydown", function(event) {
+				if (event.keyCode == 27) {
+					that.hide.apply(that);	
+				}				
+			});
+
 			return this.$dialog;
 
 			/*
@@ -68,8 +78,9 @@
 			 */
 			function showDialog() {				
 				that.hide();	
-				that.$dialog.modal();
+				that.$dialog.modal();				
         		that.$dialog.appendTo($container);
+        		that.$dialog.focus();
         		$(".modal-backdrop").appendTo($container);
 			};			
 		},
