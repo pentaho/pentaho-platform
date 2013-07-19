@@ -16,24 +16,12 @@
  */
 package org.pentaho.mantle.client.dialogs;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
-import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
-import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.GenericEvent;
-import org.pentaho.mantle.client.messages.Messages;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -51,6 +39,16 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
+import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
+import org.pentaho.mantle.client.messages.Messages;
 
 /**
  * @author wseyler/modifed for Import parameters by tband
@@ -85,7 +83,16 @@ public class ImportDialog extends PromptDialogBox {
         ImportDialog.this.hide();
         String result = sce.getResults();
         if (result.length() > 5) {
-          logWindow(result,Messages.getString("importLogWindowTitle"));
+          final HTML messageTextBox;
+          if (result.contains("INVALID_MIME_TYPE") == true) {
+            messageTextBox = new HTML(Messages.getString("uploadInvalidFileTypeQuestion", result));
+          } else {
+            messageTextBox = new HTML(Messages.getString("uploadUnsuccessful", result));
+          }
+
+          PromptDialogBox dialogBox = new PromptDialogBox(Messages.getString("uploadUnsuccessful"), Messages.getString("close"), null, true, true);
+          dialogBox.setContent(messageTextBox);
+          dialogBox.center();
         }
 
         // BISERVER-9319 Refresh browse perspective after import
@@ -333,14 +340,6 @@ public class ImportDialog extends PromptDialogBox {
   
   native void jsClickUpload(Element uploadElement) /*-{
     uploadElement.click();
-  }-*/;
-  
-  private static native void logWindow(String innerText, String windowTitle) /*-{
-  	var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
-  	var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
-  	  <html><head><title>' + windowTitle + '</title></head><body bgcolor="#FFFFFF" topmargin="6" leftmargin="6">'
-  	  + innerText + "</body></html>";
-    logWindow.document.write(htmlText);
   }-*/;
 
   private void setFormAction() {
