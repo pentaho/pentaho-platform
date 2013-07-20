@@ -2,6 +2,9 @@
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.pentaho.com/schema/"
 	targetNamespace="http://www.pentaho.com/schema/">
+	
+<include id="scheduleSchema" schemaLocation="Schedule.xsd"/>
+	
 	<element name="ExportManifest" type="tns:ExportManifestDto">
 	</element>
 
@@ -22,11 +25,14 @@
 
       <element name="ExportManifestMetadata" type="tns:ExportManifestMetadata"
                minOccurs="0" maxOccurs="unbounded" />
-			<element name="ExportManifestEntity" type="tns:ExportManifestEntityDto"
-				minOccurs="0" maxOccurs="unbounded" />
+      
+      <element name="ExportManifestSchedule" type="tns:schedule"
+               minOccurs="0" maxOccurs="unbounded" />
+               
+	  <element name="ExportManifestEntity" type="tns:ExportManifestEntityDto"
+               minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
-
 
 
   <complexType name="ExportManifestMetadata">
@@ -46,8 +52,8 @@
     </sequence>
     <attribute name="file" type="string"/>
   </complexType>
-
-
+  
+  
   <complexType name="Parameters">
       <sequence>
         <element name="entries">
@@ -64,8 +70,6 @@
         </element>
       </sequence>
   </complexType>
-
-
 
 
   <complexType name="ExportManifestDatasource">

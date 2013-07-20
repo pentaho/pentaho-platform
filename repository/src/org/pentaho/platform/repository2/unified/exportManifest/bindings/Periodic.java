@@ -8,23 +8,25 @@
 
 package org.pentaho.platform.repository2.unified.exportManifest.bindings;
 
+import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ExportManifestMetadata complex type.
+ * <p>Java class for periodic complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ExportManifestMetadata">
+ * &lt;complexType name="periodic">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="domainId" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="file" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="every" type="{http://www.w3.org/2001/XMLSchema}positiveInteger" />
+ *       &lt;attribute name="unit" type="{http://www.pentaho.com/schema/}periodUnit" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -33,60 +35,61 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExportManifestMetadata")
-public class ExportManifestMetadata {
+@XmlType(name = "periodic")
+public class Periodic {
 
-    @XmlAttribute(name = "domainId")
-    protected String domainId;
-    @XmlAttribute(name = "file")
-    protected String file;
+    @XmlAttribute(name = "every")
+    @XmlSchemaType(name = "positiveInteger")
+    protected BigInteger every;
+    @XmlAttribute(name = "unit")
+    protected PeriodUnit unit;
 
     /**
-     * Gets the value of the domainId property.
+     * Gets the value of the every property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link BigInteger }
      *     
      */
-    public String getDomainId() {
-        return domainId;
+    public BigInteger getEvery() {
+        return every;
     }
 
     /**
-     * Sets the value of the domainId property.
+     * Sets the value of the every property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link BigInteger }
      *     
      */
-    public void setDomainId(String value) {
-        this.domainId = value;
+    public void setEvery(BigInteger value) {
+        this.every = value;
     }
 
     /**
-     * Gets the value of the file property.
+     * Gets the value of the unit property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link PeriodUnit }
      *     
      */
-    public String getFile() {
-        return file;
+    public PeriodUnit getUnit() {
+        return unit;
     }
 
     /**
-     * Sets the value of the file property.
+     * Sets the value of the unit property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link PeriodUnit }
      *     
      */
-    public void setFile(String value) {
-        this.file = value;
+    public void setUnit(PeriodUnit value) {
+        this.unit = value;
     }
 
 }
