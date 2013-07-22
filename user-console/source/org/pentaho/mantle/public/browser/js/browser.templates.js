@@ -20,25 +20,12 @@ pen.define([
             "</div>");
 
     //header for folder browser
-    /*
-    templates.folderBrowserHeader = Handlebars.compile(
-        "{{#if trashHeader}}" +
-            "<div id='foldersHeader' class='header'>{{trashHeader}}</div>" +
-            "{{else}}" +
-            "{{#if folderBreadcrumb}}" +
-            "<div id='foldersHeader' class='header'>{{i18n 'browsing'}} {{folderBreadcrumb}}</div>" +
-            "{{else}}" +
-            "<div id='foldersHeader' class='header'>{{i18n 'browsing'}} Root</div>" +
-            "{{/if}}"+
-            "{{/if}}");
-    */
-
     templates.folderBrowserHeader = Handlebars.compile(
         "{{#if trashHeader}}" +
             "<div id='foldersHeader' class='header'>{{trashHeader}}</div>" +
         "{{else}}" +
             "<div id='foldersHeader' class='header'>" +
-              "<span>Available Folders</span>" +
+              "<span>{{i18n 'folders'}}</span>" +
               "<div id='refreshBrowserIcon' class='refresh-browse-perspective pull-right'" +
               "title={{i18n 'refresh'}} onclick='{{stringifyFunc refreshHandler}}'>" +
               "</div>" +
@@ -49,27 +36,19 @@ pen.define([
     templates.fileBrowserHeader = Handlebars.compile(
         "{{#if trashHeader}}" +
             "<div id='filesHeader' class='header'>{{trashHeader}}</div>" +
-            "{{else}}" +
-            "{{#if folderName}}"+
-            "<div id='filesHeader' class='header'>{{folderName}} {{i18n 'files'}}</div>" +
-            "{{else}}" +
-            "<div id='filesHeader' class='header'>Root {{i18n 'files'}}</div>" +
-            "{{/if}}"+
-            "{{/if}}");
+        "{{else}}" +
+            "<div id='filesHeader' class='header'>{{i18n 'files'}}</div>" +
+        "{{/if}}");
 
     //header for buttons
     templates.buttonsHeader = Handlebars.compile(
         "{{#if trashHeader}}"+
-               "<div id='buttonsHeader' class='header'>{{trashHeader}}</div>" +
+           "<div id='buttonsHeader' class='header'>{{trashHeader}}</div>" +
+        "{{else}}" +
+            "{{#if fileName}}" +
+              "<div id='buttonsHeader' class='header'>{{i18n 'fileActions'}}</div>" +
             "{{else}}" +
-                "{{#if folderName}}" +
-                 "<div id='buttonsHeader' class='header'>{{i18n 'folderActions'}} {{folderName}}</div>" +
-                "{{else}}" +
-                "{{#if fileName}}" +
-                 "<div id='buttonsHeader' class='header'>{{i18n 'fileActions'}} {{fileName}}</div>" +
-                "{{else}}" +
-                 "<div id='buttonsHeader' class='header'>{{i18n 'folderActions'}} Root</div>" +
-                "{{/if}}" +
+              "<div id='buttonsHeader' class='header'>{{i18n 'folderActions'}}</div>" +
             "{{/if}}" +
          "{{/if}}");
 
