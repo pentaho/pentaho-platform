@@ -547,33 +547,25 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces(WILDCARD)
   // have to accept anything for browsers to work
   public Response doGetFileAsInline(@PathParam("pathId") String pathId) throws FileNotFoundException {
-    String quotedFileName = null;
+	String path = null;
+	RepositoryFile repositoryFile = null;
+	// Check if the path is actually and ID
+	if(isPath(pathId)) {
+		path = idToPath(pathId);
+	    if (!isPathValid(path)) {
+	        return Response.status(FORBIDDEN).build();
+	    }
 
-    RepositoryFile repositoryFile = repository.getFileById(pathId);
-    if (repositoryFile == null) {
-
-      // change file id to path
-      String path = idToPath(pathId);
-
-      // if no path is sent, return bad request
-      if (StringUtils.isEmpty(pathId)) {
-        return Response.status(BAD_REQUEST).build();
-      }
-
-      // check if path is valid
-      if (!isPathValid(path)) {
-        return Response.status(FORBIDDEN).build();
-      }
-
-      // check if entity exists in repo
-      repositoryFile = repository.getFile(path);
-    }
+	    repositoryFile = repository.getFile(path);
+	} else {
+		// Yes path provided is an ID
+		repositoryFile = repository.getFileById(pathId);
+	}
 
     if (repositoryFile == null) {
-      // file does not exist or is not readable but we can't tell at this point
-      return Response.status(NOT_FOUND).build();
+        // file does not exist or is not readable but we can't tell at this point
+        return Response.status(NOT_FOUND).build();
     }
-
     try {
       SimpleRepositoryFileData fileData = repository.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class);
       final InputStream is = fileData.getInputStream();
@@ -590,11 +582,11 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create response
 
-      response = Response.ok(streamingOutput).header("Content-Disposition", "inline; filename=" + quotedFileName).build();
+      response = Response.ok(streamingOutput).header("Content-Disposition", "inline; filename=" + repositoryFile.getName()).build();
 
       return response;
     } catch (Exception e) {
-      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
+      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage()), e); //$NON-NLS-1$
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
 
@@ -1075,6 +1067,9 @@ public class FileResource extends AbstractJaxRSResource {
     return true;
   }
 
+  private boolean isPath(String pathId) {
+	   return pathId != null && pathId.contains(":");
+  }
   private void sortByLocaleTitle(final Collator collator, final RepositoryFileTreeDto tree) {
 
     if (tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0) {

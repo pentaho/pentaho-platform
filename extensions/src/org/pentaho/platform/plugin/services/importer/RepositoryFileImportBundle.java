@@ -19,6 +19,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private InputStream inputStream;
   private String path = "/";
   private String name;
+  private String title;
   private String charSet;
   private String mimeType;
   private String comment;
@@ -80,6 +81,14 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+	this.title = title;
   }
 
   @Override
@@ -237,6 +246,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     public Builder name(String name){
       bundle.setName(name);
       return this;
+    }
+
+    public Builder title(String title){
+        bundle.setTitle(title);
+        return this;
     }
     
     public Builder path(String path){
