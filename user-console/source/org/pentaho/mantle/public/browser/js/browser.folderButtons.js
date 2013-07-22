@@ -12,10 +12,9 @@ pen.define([
 ], function () {
 
     var local = {
+    	renameDialog: null,
 
         init: function () {
-
-            // retrieve i18n map
             var that = this; // trap this
 
             // initialize buttons definitions
@@ -30,6 +29,11 @@ pen.define([
                     text: this.i18n.prop('contextAction_delete'),
                     handler: $.proxy(that.deleteFolderHandler, that)
                 },
+                {
+          			id: "renameButton", 
+          			text: this.i18n.prop('contextAction_rename'),
+          			handler: $.proxy(that.renameHandler, that)
+        		},
                 {id: "separator"},
                 {
                     id: "pasteButton",
@@ -172,7 +176,10 @@ pen.define([
 
         postPropertiesHandler: function () {
             $(window.parent.document).find(".pentaho-dialog").attr("id", "browse-properties-dialog");
-        }
+        },
+        renameHandler: function(path){
+      		this.renameDialog.init(path);
+    	}
 
     };
 
