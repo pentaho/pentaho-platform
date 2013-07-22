@@ -7,10 +7,9 @@
  */
 
 pen.define([
-	"js/dialogs/browser.dialog.rename.js",
     "common-ui/jquery-i18n",
     "common-ui/jquery"
-], function (RenameDialog) {
+], function () {
 
     var local = {
     	renameDialog: null,

@@ -8,7 +8,6 @@
 
 pen.define([
   "js/browser.utils.js",
-  
   "common-ui/jquery-i18n",
   "common-ui/jquery"
 ], function(BrowserUtils) {
