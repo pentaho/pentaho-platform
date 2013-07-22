@@ -9,7 +9,7 @@ pen.define(["common-ui/handlebars"],
   	//rename dialog
   	templates.dialogDoRename = Handlebars.compile(  		
       "<p>{{i18n 'renameName'}}</p>" +
-			"<input type='text' value='{{name}}'>");
+			"<input id='rename-field' type='text'>");
 
   	return templates;
   }

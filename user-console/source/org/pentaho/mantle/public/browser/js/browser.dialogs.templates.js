@@ -3,7 +3,7 @@ pen.define(["common-ui/handlebars"],
   	var templates = {};
 
     templates.dialog = Handlebars.compile(
-      "<div id='{{dialog.id}}' class='pentaho-dialog modal hide' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>" +
+      "<div id='{{dialog.id}}' class='pentaho-dialog modal hide' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true' data-keyboard='true'>" +
           "<div class='header Caption'>" +
             "<div class='header-content'>" +
               "{{{dialog.content.header}}}" +

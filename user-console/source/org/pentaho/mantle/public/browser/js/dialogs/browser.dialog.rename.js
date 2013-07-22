@@ -9,11 +9,12 @@
  pen.define([
  	"js/browser.dialogs.js",
  	"js/browser.dialogs.templates.js",
+ 	"js/dialogs/browser.dialog.rename.templates",
 	"js/browser.utils.js",
 	"common-ui/bootstrap",
 	"common-ui/jquery-i18n",
   	"common-ui/jquery"
-], function(Dialogs, DialogTemplates) {
+], function(Dialog, DialogTemplates, RenameTemplates) {
 	
 	var DialogModel =  Backbone.Model.extend({
 		defaults: {
@@ -33,80 +34,89 @@
 	});
 
 	var DialogView =  Backbone.View.extend({
-		DialogBuilder : new Dialogs(),
+		OverrideDialog : null,
+		RenameDialog : null,
 
 		events: {
 			"click p.checkbox" : "setShowInitialDialog"
 		},
 
-        initialize: function(){
-        },
-
-        render: function(){
+        initialize: function(){        	
+        	var i18n = this.options.i18n;
         	var me = this;
 
-        	pen.require(["js/dialogs/browser.dialog.rename.templates"], function(templates){
-				
-        		if(me.model.get("showInitialDialog")) {
-        			
-					var i18n = me.options.i18n;
+        	/*
+        	 * Override Dialog
+        	 */
+			var body = RenameTemplates.dialogOverride({ 
+				i18n: i18n 
+			});
 
-					var body = templates.dialogOverride({ 
-						i18n: i18n 
-					});
+			var footer = DialogTemplates.buttons({ 
+				ok: i18n.prop("overrideYesButton"), 
+				cancel: i18n.prop("overrideNoButton") 
+			});
 
-        			var footer = DialogTemplates.buttons({ 
-        				ok: i18n.prop("overrideYesButton"), 
-        				cancel: i18n.prop("overrideNoButton") 
-        			});
+			var cfg = Dialog.buildCfg(
+				"dialogOverride",			// id
+				i18n.prop("overrideTitle"),	// header
+				body,						// body
+				footer, 					// footer	        				        			
+				false);						// close_btn
 
-        			var cfg = me.DialogBuilder.buildCfg(
-        				"dialogOverride",			// id
-        				i18n.prop("overrideTitle"),	// header
-        				body,						// body
-        				footer, 					// footer	        				        			
-        				false);						// close_btn
+			var onShow = function() {
+        		this.$dialog.find("#do-not-show").prop("checked", false);
+        	};
 
-        			me.setElement(me.DialogBuilder.show(cfg));
+        	this.OverrideDialog = new Dialog(cfg, onShow);
 
-        			me.$el.find(".ok").bind("click", function() {
-        				me.model.set("showInitialDialog", !me.$el.find("#do-not-show").prop("checked"));
-        				me.showRenameDialog.apply(me);
-        			});
-        		} else {
-        			me.showRenameDialog();
-        		}					
-        	});
+        	this.OverrideDialog.$dialog.find(".ok").bind("click", function() {
+				me.model.set("showInitialDialog", !me.OverrideDialog.$dialog.find("#do-not-show").prop("checked"));
+				me.showRenameDialog.apply(me);
+			});
+
+        	/*
+        	 * Rename Dialog
+        	 */
+    		body = RenameTemplates.dialogDoRename({
+				i18n: i18n
+			});
+
+			footer = DialogTemplates.buttons({
+				ok: i18n.prop("ok"),
+				cancel: i18n.prop("cancel")
+			});
+
+			cfg = Dialog.buildCfg(
+				"dialogRename",				// id
+				i18n.prop("renameTitle"),	// header
+				body, 						// body
+				footer, 					// footer
+				false);						// close_btn
+
+			onShow = function() {
+				this.$dialog.find("#rename-field").attr("value", me.model.get("path"));
+			};
+
+			this.RenameDialog = new Dialog(cfg, onShow);
+
+			this.RenameDialog.$dialog.find(".ok").bind("click", function(){
+				me.RenameDialog.hide();
+				me.doRename.apply(me);				
+			});
         },
 
-        showRenameDialog: function(){
-        	var me = this;
+        render: function(){        	
+    		if(!this.model.get("showInitialDialog")) {
+    			this.showRenameDialog();
+    			return;
+    		}
 
-        	pen.require(["js/dialogs/browser.dialog.rename.templates"], function(templates){
+			this.setElement(this.OverrideDialog.show());
+        },
 
-				var i18n = me.options.i18n;
-
-        		var body = templates.dialogDoRename({
-    				i18n: i18n,
-    				name: me.model.get("path")
-    			});
-
-    			var footer = DialogTemplates.buttons({
-    				ok: i18n.prop("ok"),
-    				cancel: i18n.prop("cancel")
-    			});
-
-				var cfg = me.DialogBuilder.buildCfg(
-					"dialogRename",
-					i18n.prop("renameTitle"),
-					body, 
-					footer);
-
-				me.setElement(me.DialogBuilder.show(cfg));
-				me.$el.find(".ok").bind("click", function(){
-					me.doRename.apply(me);
-				});
-        	});
+        showRenameDialog: function(){        	
+        	this.setElement(this.RenameDialog.show());
         },
 
         doRename: function(){

@@ -8,17 +8,15 @@
 
 pen.define([
   "js/browser.utils.js",
-  "js/dialogs/browser.dialog.rename.js",
+  
   "common-ui/jquery-i18n",
   "common-ui/jquery"
-], function(BrowserUtils, RenameDialog) {
+], function(BrowserUtils) {
 
 	var local = {
+    renameDialog: null,
 
 		init: function() {
-      this.renameDialog = new RenameDialog(this.i18n);
-
-			// retrieve i18n map
 			var that = this; // trap this
 
       that.browserUtils = new BrowserUtils();

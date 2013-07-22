@@ -16,9 +16,6 @@ pen.define([
     	renameDialog: null,
 
         init: function () {
-            this.renameDialog = new RenameDialog(this.i18n)
-
-            // retrieve i18n map
             var that = this; // trap this
 
             // initialize buttons definitions

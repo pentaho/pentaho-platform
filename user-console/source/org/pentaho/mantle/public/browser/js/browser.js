@@ -11,12 +11,13 @@ pen.define([
     "js/browser.folderButtons",
     "js/browser.trashButtons",
     "js/browser.trashItemButtons",
+    "js/dialogs/browser.dialog.rename.js",
     "common-ui/bootstrap",
     "common-ui/handlebars",
     "common-ui/jquery-i18n",
     "common-ui/jquery",
     "js/browser.templates"
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog) {
 
 
     this.FileBrowser = {};
@@ -31,17 +32,20 @@ pen.define([
         }
     },
 
-        // retrieve i18n map
-        jQuery.i18n.properties({
-            name: 'messages',
-            mode: 'map',
-            language: FileBrowser.urlParam('locale')
-        });
-
+    // retrieve i18n map
+    jQuery.i18n.properties({
+        name: 'messages',
+        mode: 'map',
+        language: FileBrowser.urlParam('locale')
+    });
+    var renameDialog = new RenameDialog(jQuery.i18n);
     var fileButtons = new FileButtons(jQuery.i18n);
     var folderButtons = new FolderButtons(jQuery.i18n);
     var trashButtons = new TrashButtons(jQuery.i18n);
     var trashItemButtons = new TrashItemButtons(jQuery.i18n);
+
+    fileButtons.renameDialog = renameDialog;
+    folderButtons.renameDialog = renameDialog;
 
     FileBrowser.$container = null;
     FileBrowser.fileBrowserModel = null;
