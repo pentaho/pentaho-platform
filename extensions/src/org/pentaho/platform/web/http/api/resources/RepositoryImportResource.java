@@ -84,6 +84,7 @@ public class RepositoryImportResource {
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
 	      IRepositoryImportLogger importLogger = null;
 		    ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
+        boolean logJobStarted = false;
 			try {
 				validateAccess();
 				
@@ -112,21 +113,29 @@ public class RepositoryImportResource {
 	
 				IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 				importLogger = importer.getRepositoryImportLogger();
-				
-				importLogger.startJob(importLoggerStream, uploadDir, level); 
+
+        final String mimeType = bundle.getMimeType() != null ? bundle.getMimeType() : mimeResolver.resolveMimeForBundle(bundle);
+        if (mimeType == null) {
+          return Response.ok("INVALID_MIME_TYPE", MediaType.TEXT_HTML).build();
+        }
+
+        logJobStarted = true;
+        importLogger.startJob(importLoggerStream, uploadDir, level);
 				importer.importFile(bundle);
 	
-				// Flush the Mondrian cache to show imported datasources.
+				// Flush the Mondrian cache to show imported data-sources.
 				IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(
-				IMondrianCatalogService.class, "IMondrianCatalogService",
-				PentahoSessionHolder.getSession());
+                                                            IMondrianCatalogService.class, "IMondrianCatalogService",
+                                                            PentahoSessionHolder.getSession());
 				mondrianCatalogService.reInit(PentahoSessionHolder.getSession());
 			} catch (PentahoAccessControlException e) {
 				return Response.serverError().entity(e.toString()).build();
 			} catch (Exception e) {
 				return Response.serverError().entity(e.toString()).build();
 			} finally {
-				importLogger.endJob();
+        if (logJobStarted == true) {
+				  importLogger.endJob();
+        }
 			}
 			return Response.ok(importLoggerStream.toString(), MediaType.TEXT_HTML).build();
 	}
