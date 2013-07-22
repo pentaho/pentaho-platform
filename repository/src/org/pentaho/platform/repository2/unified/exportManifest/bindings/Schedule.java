@@ -10,21 +10,24 @@ package org.pentaho.platform.repository2.unified.exportManifest.bindings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ExportManifestMetadata complex type.
+ * <p>Java class for schedule complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ExportManifestMetadata">
+ * &lt;complexType name="schedule">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="domainId" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="file" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;sequence>
+ *         &lt;element name="when" type="{http://www.pentaho.com/schema/}scheduleLifetime"/>
+ *         &lt;element name="howOften" type="{http://www.pentaho.com/schema/}howOften"/>
+ *         &lt;element name="file" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -33,36 +36,66 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExportManifestMetadata")
-public class ExportManifestMetadata {
+@XmlType(name = "schedule", propOrder = {
+    "when",
+    "howOften",
+    "file"
+})
+public class Schedule {
 
-    @XmlAttribute(name = "domainId")
-    protected String domainId;
-    @XmlAttribute(name = "file")
+    @XmlElement(required = true)
+    protected ScheduleLifetime when;
+    @XmlElement(required = true)
+    protected HowOften howOften;
+    @XmlElement(required = true)
     protected String file;
 
     /**
-     * Gets the value of the domainId property.
+     * Gets the value of the when property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link ScheduleLifetime }
      *     
      */
-    public String getDomainId() {
-        return domainId;
+    public ScheduleLifetime getWhen() {
+        return when;
     }
 
     /**
-     * Sets the value of the domainId property.
+     * Sets the value of the when property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link ScheduleLifetime }
      *     
      */
-    public void setDomainId(String value) {
-        this.domainId = value;
+    public void setWhen(ScheduleLifetime value) {
+        this.when = value;
+    }
+
+    /**
+     * Gets the value of the howOften property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link HowOften }
+     *     
+     */
+    public HowOften getHowOften() {
+        return howOften;
+    }
+
+    /**
+     * Sets the value of the howOften property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link HowOften }
+     *     
+     */
+    public void setHowOften(HowOften value) {
+        this.howOften = value;
     }
 
     /**
