@@ -19,18 +19,10 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
-import org.pentaho.platform.repository2.unified.exportManifest.Parameters;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.HowOften;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.PeriodUnit;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.Periodic;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.Schedule;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ScheduleLifetime;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 
 public class ExportManifestTest extends TestCase {
 	ExportManifest exportManifest;
@@ -100,32 +92,7 @@ public class ExportManifestTest extends TestCase {
     metadata.setDomainId("testDomain");
     metadata.setFile("testMetadata.xml");
     exportManifest.addMetadata(metadata);
-    
-    // Schedule to run now for an hour
-    ScheduleLifetime when = new ScheduleLifetime();
-    when.setStart("now");
-    
-    GregorianCalendar stopDate = new GregorianCalendar();
-    stopDate.add(Calendar.HOUR, 1);
-    try {
-      XMLGregorianCalendar stop;
-      stop = DatatypeFactory.newInstance().newXMLGregorianCalendar(stopDate);
-      when.setStop(stop);
-    } catch (DatatypeConfigurationException e) {
-      fail("Error creating schedule stop date");
-    }
-    
-    Periodic period = new Periodic();
-    period.setEvery(BigInteger.TEN);
-    period.setUnit(PeriodUnit.MINUTES);
-    HowOften howOften = new HowOften();
-    howOften.setPeriod(period);
-    
-    Schedule schedule = new Schedule();
-    schedule.setWhen(when);
-    schedule.setHowOften(howOften);
-    schedule.setFile("testJob.kjb");
-    exportManifest.addSchedule(schedule);
+    exportManifest.addSchedule(new JobScheduleRequest());
 	}
 
 	@Test
@@ -190,14 +157,6 @@ public class ExportManifestTest extends TestCase {
     ExportManifestMetadata metadata1 = importManifest.getMetadataList().get(0);
     assertEquals("testDomain", metadata1.getDomainId());
     assertEquals("testMetadata.xml", metadata1.getFile());
-    
-    Schedule schedule1 = importManifest.getScheduleList().get(0);
-    assertEquals("testJob.kjb", schedule1.getFile());
-    assertEquals("now", schedule1.getWhen().getStart());
-    assertEquals(new GregorianCalendar().get(Calendar.YEAR), schedule1.getWhen().getStop().getYear());
-    assertEquals(BigInteger.TEN, schedule1.getHowOften().getPeriod().getEvery());
-    assertEquals(PeriodUnit.MINUTES, schedule1.getHowOften().getPeriod().getUnit());
-		
 	}
 	
 	@Test

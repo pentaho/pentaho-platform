@@ -8,6 +8,8 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -71,7 +73,7 @@ public class ExportManifestDto {
     @XmlElement(name = "ExportManifestMetadata")
     protected List<ExportManifestMetadata> exportManifestMetadata;
     @XmlElement(name = "ExportManifestSchedule")
-    protected List<Schedule> exportManifestSchedule;
+    protected List<JobScheduleRequest> exportManifestSchedule;
     @XmlElement(name = "ExportManifestEntity")
     protected List<ExportManifestEntityDto> exportManifestEntity;
 
@@ -204,13 +206,13 @@ public class ExportManifestDto {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Schedule }
+     * {@link JobScheduleRequest }
      * 
      * 
      */
-    public List<Schedule> getExportManifestSchedule() {
+    public List<JobScheduleRequest> getExportManifestSchedule() {
         if (exportManifestSchedule == null) {
-            exportManifestSchedule = new ArrayList<Schedule>();
+            exportManifestSchedule = new ArrayList<JobScheduleRequest>();
         }
         return this.exportManifestSchedule;
     }

@@ -81,43 +81,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ScheduleLifetime }
-     * 
-     */
-    public ScheduleLifetime createScheduleLifetime() {
-        return new ScheduleLifetime();
-    }
-
-    /**
-     * Create an instance of {@link Periodic }
-     * 
-     */
-    public Periodic createPeriodic() {
-        return new Periodic();
-    }
-
-    /**
-     * Create an instance of {@link HowOften }
-     * 
-     */
-    public HowOften createHowOften() {
-        return new HowOften();
-    }
-
-    /**
      * Create an instance of {@link EntityMetaData }
      * 
      */
     public EntityMetaData createEntityMetaData() {
         return new EntityMetaData();
-    }
-
-    /**
-     * Create an instance of {@link Schedule }
-     * 
-     */
-    public Schedule createSchedule() {
-        return new Schedule();
     }
 
     /**
