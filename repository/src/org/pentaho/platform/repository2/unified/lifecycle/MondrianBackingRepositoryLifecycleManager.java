@@ -27,6 +27,7 @@ import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -112,8 +113,8 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
 
   @Override
   public void startup() {
-    // TODO Auto-generated method stub
-    
+      // Create the /etc/mondrian folder for  a default tenant
+	  createEtcMondrianFolder(JcrTenantUtils.getDefaultTenant());
   }
 
   @Override
@@ -124,7 +125,10 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
 
   @Override
   public void newTenant(final ITenant tenant) {
-    createEtcMondrianFolder(tenant);
+	// Create the /etc/mondrian folder if the tenant is not a default tenant
+	if(!tenant.equals(JcrTenantUtils.getDefaultTenant())) {
+		createEtcMondrianFolder(tenant);	
+	}
   }
 
   @Override
