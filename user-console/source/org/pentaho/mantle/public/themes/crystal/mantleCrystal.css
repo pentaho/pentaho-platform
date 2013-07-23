@@ -746,8 +746,8 @@ a:active, a:hover {
 }
 
 .leaf-widget .gwt-TreeItem-selected > table {
-  background-color: #dbdbdb;
-}
+   background-color: #d7e9cd;
+ }
 
 .leaf-widget .leaf-widget-hidden .gwt-TreeItem > table {
   width: 100%;
