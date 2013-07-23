@@ -83,7 +83,7 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 public class SchedulesPanel extends SimplePanel {
 
   private static final int READ_PERMISSION = 0;
-  
+
   private ToolbarButton controlScheduleButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-run"));
   private ToolbarButton editButton = new ToolbarButton(ImageUtil.getThemeableImage("pentaho-editbutton"));
   private ToolbarButton triggerNowButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-execute"));
@@ -92,7 +92,6 @@ public class SchedulesPanel extends SimplePanel {
   private ToolbarButton filterRemoveButton = new ToolbarButton(ImageUtil.getThemeableImage("icon-small", "icon-filter-remove"));
 
   private JsArray<JsJob> allJobs;
-  private Set<JsJob> selectedJobs = null;
 
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
@@ -158,10 +157,16 @@ public class SchedulesPanel extends SimplePanel {
     }
   };
 
+  @SuppressWarnings("unchecked")
+  private Set<JsJob> getSelectedJobs() {
+    Set<JsJob> selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
+    return selectedJobs;
+  }
+  
   private IDialogCallback scheduleDialogCallback = new IDialogCallback() {
     public void okPressed() {
       // Remove Next Line to disable deletion of old job
-      controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+      controlJobs(getSelectedJobs(), "removeJob", RequestBuilder.DELETE, true);
       refresh();
     }
 
@@ -205,12 +210,12 @@ public class SchedulesPanel extends SimplePanel {
 
   private void filterAndShowData() {
 
-	filters.add(new IJobFilter() {
-        public boolean accept(JsJob job) {
-          return !job.getFullResourceName().equals("GeneratedContentCleaner");
-        }
+    filters.add(new IJobFilter() {
+      public boolean accept(JsJob job) {
+        return !job.getFullResourceName().equals("GeneratedContentCleaner");
+      }
     });
-	  
+
     ArrayList<JsJob> filteredList = new ArrayList<JsJob>();
     for (int i = 0; i < allJobs.length(); i++) {
       filteredList.add(allJobs.get(i));
@@ -225,6 +230,13 @@ public class SchedulesPanel extends SimplePanel {
     list.clear();
     list.addAll(filteredList);
     pager.setVisible(filteredList.size() > PAGE_SIZE);
+    for (JsJob job : filteredList) {
+      table.getSelectionModel().setSelected(job, false);
+    }
+    editButton.setEnabled(false);
+    controlScheduleButton.setEnabled(false);
+    scheduleRemoveButton.setEnabled(false);
+    triggerNowButton.setEnabled(false);
     table.redraw();
   }
 
@@ -620,22 +632,28 @@ public class SchedulesPanel extends SimplePanel {
     table.getColumnSortList().push(nameColumn);
 
     table.getSelectionModel().addSelectionChangeHandler(new Handler() {
-      @SuppressWarnings("unchecked")
       public void onSelectionChange(SelectionChangeEvent event) {
-        selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
-        JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
-        editButton.setEnabled(isScheduler);
-        if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
-          controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop"));
-        } else {
-          controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-run"));
-        }
-        controlScheduleButton.setEnabled(isScheduler);
+        Set<JsJob> selectedJobs = getSelectedJobs();
+        if (selectedJobs != null && selectedJobs.size() > 0) {
+          JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
+          editButton.setEnabled(isScheduler);
+          if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
+            controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-stop"));
+          } else {
+            controlScheduleButton.setImage(ImageUtil.getThemeableImage("icon-small", "icon-run"));
+          }
+          controlScheduleButton.setEnabled(isScheduler);
 
-        boolean isRunning = "NORMAL".equalsIgnoreCase(jobs[0].getState());
-        controlScheduleButton.setToolTip(isRunning ? Messages.getString("stop") : Messages.getString("start"));
-        scheduleRemoveButton.setEnabled(isScheduler);
-        triggerNowButton.setEnabled(isScheduler);
+          boolean isRunning = "NORMAL".equalsIgnoreCase(jobs[0].getState());
+          controlScheduleButton.setToolTip(isRunning ? Messages.getString("stop") : Messages.getString("start"));
+          scheduleRemoveButton.setEnabled(isScheduler);
+          triggerNowButton.setEnabled(isScheduler);
+        } else {
+          editButton.setEnabled(false);
+          controlScheduleButton.setEnabled(false);
+          scheduleRemoveButton.setEnabled(false);
+          triggerNowButton.setEnabled(false);
+        }
       }
     });
 
@@ -734,7 +752,8 @@ public class SchedulesPanel extends SimplePanel {
     triggerNowButton.setToolTip(Messages.getString("executeNow"));
     triggerNowButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJobs != null) {
+        Set<JsJob> selectedJobs = getSelectedJobs();
+        if (selectedJobs != null && selectedJobs.size() > 0) {
           MessageDialogBox messageDialog = new MessageDialogBox(Messages.getString("executeNow"), Messages.getString("executeNowStarted"), false, true, true);
           messageDialog.setCallback(new IDialogCallback() {
             public void okPressed() {
@@ -746,6 +765,7 @@ public class SchedulesPanel extends SimplePanel {
               };
               t.schedule(2000);
             }
+
             public void cancelPressed() {
             }
           });
@@ -760,7 +780,8 @@ public class SchedulesPanel extends SimplePanel {
     // Add control schedule button
     controlScheduleButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJobs != null) {
+        Set<JsJob> selectedJobs = getSelectedJobs();
+        if (selectedJobs != null && selectedJobs.size() > 0) {
           JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
           if ("NORMAL".equals(jobs[0].getState())) {
             controlJobs(selectedJobs, "pauseJob", RequestBuilder.POST, false);
@@ -778,10 +799,12 @@ public class SchedulesPanel extends SimplePanel {
     // Add edit button
     editButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJobs != null) {
+        Set<JsJob> selectedJobs = getSelectedJobs();
+        if (selectedJobs != null && selectedJobs.size() > 0) {
           JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
           final JsJob editJob = jobs[0];
-          final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + SolutionBrowserPanel.pathToId(editJob.getFullResourceName()) + "/canAccess?cb=" + System.currentTimeMillis() + "&permissions=" + READ_PERMISSION;
+          final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + SolutionBrowserPanel.pathToId(editJob.getFullResourceName()) + "/canAccess?cb="
+              + System.currentTimeMillis() + "&permissions=" + READ_PERMISSION;
           RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
           try {
             executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -812,13 +835,14 @@ public class SchedulesPanel extends SimplePanel {
     // Add remove button
     scheduleRemoveButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJobs != null) {
+        Set<JsJob> selectedJobs = getSelectedJobs();
+        if (selectedJobs != null && selectedJobs.size() > 0) {
           final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("warning"), Messages.getString("yes"), Messages.getString("no"), false, true);
           prompt.setContent(new Label(Messages.getString("deleteConfirmSchedles", "" + selectedJobs.size())));
 
           prompt.setCallback(new IDialogCallback() {
             public void okPressed() {
-              controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+              controlJobs(getSelectedJobs(), "removeJob", RequestBuilder.DELETE, true);
               prompt.hide();
             }
 
@@ -893,7 +917,8 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void promptForScheduleResourceError(final JsJob job) {
-    final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("fileUnavailable"), Messages.getString("yesDelete"), Messages.getString("no"), false, true);
+    final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("fileUnavailable"), Messages.getString("yesDelete"), Messages.getString("no"), false,
+        true);
     prompt.setContent(new HTML(Messages.getString("editScheduleResourceDoesNotExist", job.getFullResourceName())));
 
     prompt.setCallback(new IDialogCallback() {
@@ -911,7 +936,7 @@ public class SchedulesPanel extends SimplePanel {
     prompt.setWidth("530px");
     prompt.center();
   }
-  
+
   private void controlJobs(final Set<JsJob> jobs, String function, final Method method, final boolean refreshData) {
     for (final JsJob job : jobs) {
       final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
