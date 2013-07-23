@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.platform.repository2.unified.exportManifest;
+package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
@@ -31,11 +31,7 @@ import javax.xml.namespace.QName;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.Schedule;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.*;
 
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name 

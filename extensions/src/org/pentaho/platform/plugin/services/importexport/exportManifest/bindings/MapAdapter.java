@@ -1,14 +1,6 @@
-package org.pentaho.platform.repository2.unified.exportManifest.bindings;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,7 +13,7 @@ public class MapAdapter extends XmlAdapter<Parameters,Map<String,String>> {
   @Override
   public Map<String, String> unmarshal(Parameters params) {
 
-    Map<String, String> map = new org.pentaho.platform.repository2.unified.exportManifest.Parameters();
+    Map<String, String> map = new org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters();
     for(Parameters.Entries.Entry entry : params.getEntries().getEntry()){
       map.put(entry.getKey(), entry.getValue());
     }

@@ -6,28 +6,26 @@
 //
 
 
-package org.pentaho.platform.repository2.unified.exportManifest.bindings;
+package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for scheduleLifetime complex type.
+ * <p>Java class for ExportManifestDatasource complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="scheduleLifetime">
+ * &lt;complexType name="ExportManifestDatasource">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="start" type="{http://www.pentaho.com/schema/}scheduleTime"/>
- *         &lt;element name="stop" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
+ *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="databaseType" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -37,63 +35,63 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "scheduleLifetime", propOrder = {
-    "start",
-    "stop"
+@XmlType(name = "ExportManifestDatasource", propOrder = {
+    "name",
+    "databaseType"
 })
-public class ScheduleLifetime {
+public class ExportManifestDatasource {
 
     @XmlElement(required = true)
-    protected String start;
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar stop;
+    protected String name;
+    @XmlElement(required = true)
+    protected String databaseType;
 
     /**
-     * Gets the value of the start property.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getStart() {
-        return start;
+    public String getName() {
+        return name;
     }
 
     /**
-     * Sets the value of the start property.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setStart(String value) {
-        this.start = value;
+    public void setName(String value) {
+        this.name = value;
     }
 
     /**
-     * Gets the value of the stop property.
+     * Gets the value of the databaseType property.
      * 
      * @return
      *     possible object is
-     *     {@link XMLGregorianCalendar }
+     *     {@link String }
      *     
      */
-    public XMLGregorianCalendar getStop() {
-        return stop;
+    public String getDatabaseType() {
+        return databaseType;
     }
 
     /**
-     * Sets the value of the stop property.
+     * Sets the value of the databaseType property.
      * 
      * @param value
      *     allowed object is
-     *     {@link XMLGregorianCalendar }
+     *     {@link String }
      *     
      */
-    public void setStop(XMLGregorianCalendar value) {
-        this.stop = value;
+    public void setDatabaseType(String value) {
+        this.databaseType = value;
     }
 
 }

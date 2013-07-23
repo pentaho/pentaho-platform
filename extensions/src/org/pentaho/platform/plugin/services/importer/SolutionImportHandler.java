@@ -42,11 +42,10 @@ import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositor
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
-import org.pentaho.platform.repository2.unified.exportManifest.Parameters;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 

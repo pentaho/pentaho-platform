@@ -6,7 +6,7 @@
 //
 
 
-package org.pentaho.platform.repository2.unified.exportManifest.bindings;
+package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
 import java.util.HashMap;
 import java.util.Map;

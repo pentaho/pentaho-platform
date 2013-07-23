@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.repository2.unified.exportManifest;
+package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
