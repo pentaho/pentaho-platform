@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
+import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.DOM;
@@ -55,12 +56,9 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
     layout();
     ScheduleParamsWizardPanel thisInstance = this;
     registerSchedulingCallbacks(thisInstance);
+    scheduleDescription.setText(Messages.getString("scheduleWillRun"));
   }
 
-  public void setScheduleDescription(String description) {
-    scheduleDescription.setText(description);
-  }
-  
   public JsArray<JsSchedulingParameter> getParams() {
     return getParams(false);
   }

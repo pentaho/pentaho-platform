@@ -927,10 +927,6 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
           } else {
             scheduleParamsDialog.setJobSchedule(schedule);
           }
-          if (trigger.getDescription() != null) {
-            String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase()); //$NON-NLS-1$
-            scheduleParamsDialog.setScheduleDescription(description);
-          }
           scheduleParamsDialog.center();
           hide();
         }
