@@ -175,6 +175,29 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     });
   }-*/;
 
+
+    public static native void showBusyIndicatorById(String title, String message, String id)
+  /*-{
+      $wnd.pen.require([
+          "common-ui/util/BusyIndicator"
+      ],
+
+          function(busy) {
+              busy.show(title, message, id);
+          });
+  }-*/;
+
+    public static native void hideBusyIndicatorById(String id)
+  /*-{
+      $wnd.pen.require([
+          "common-ui/util/BusyIndicator"
+      ],
+
+          function(busy) {
+              busy.hide(id);
+          });
+  }-*/;
+
   public void notifyGlasspaneListeners(boolean isShown) {
     if (isShown) {
       GlassPane.getInstance().show();
