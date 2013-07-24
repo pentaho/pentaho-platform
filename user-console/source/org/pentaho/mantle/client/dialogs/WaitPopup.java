@@ -40,4 +40,13 @@ public class WaitPopup extends SimplePanel {
     }
   }
 
+
+  public void setVisibleById(boolean visible, String id) {
+        if(visible) {
+            MantleApplication.showBusyIndicatorById(Messages.getString("pleaseWait"), Messages.getString("waitMessage"), id);
+        } else {
+            MantleApplication.hideBusyIndicatorById(id);
+        }
+    }
+
 }
