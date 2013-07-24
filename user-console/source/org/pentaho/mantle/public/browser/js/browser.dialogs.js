@@ -63,7 +63,7 @@
 			dialogs.push(this);
 
 			return this.$dialog;
-		},		
+		},			
 
 		show: function() {			
 			
@@ -76,6 +76,9 @@
 			this.$dialog.appendTo($container);    		
     		this.$dialog.focus();
     		$(".modal-backdrop").detach().appendTo($container);
+
+    		// Center modal within container
+    		this._center();
 
     		if (this.postShow) {
     			this.postShow();
@@ -90,6 +93,15 @@
 			if (this.postHide) {
 				this.postHide();
 			}
+		},
+
+		_center: function() {
+			var backdrop = $container.find(".modal-backdrop");
+
+			this.$dialog.css({
+				"left": backdrop.width() / 2 - this.$dialog.width() / 2,
+				"top": backdrop.height() / 2 - this.$dialog.height() / 2
+			});
 		}
 	};
 

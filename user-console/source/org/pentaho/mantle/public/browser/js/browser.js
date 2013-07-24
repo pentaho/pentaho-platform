@@ -291,7 +291,7 @@ pen.define([
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
                 },
-                data: {"permissions": "2"}, //check delete permissions for the given file
+                data: {"permissions": "1|2"}, //check write and delete permissions for the given file
                 async: true,
                 success: function (response) {
                     fileButtons.updateFilePermissionButtons(response);
