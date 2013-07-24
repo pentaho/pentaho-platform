@@ -315,3 +315,13 @@ button.btn-large.btn-block {
 .tutorial-details-img#tutorial-img5 {
   background-image: url("../images/dasboard_lg.png");  
 }
+
+.welcome-container {
+    height:700px;
+}
+
+.welcome-frame {
+    height:99%;
+    width:110%;
+    border:0;
+}
