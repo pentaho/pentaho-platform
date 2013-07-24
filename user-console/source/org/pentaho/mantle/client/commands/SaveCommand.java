@@ -24,6 +24,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
@@ -45,6 +46,7 @@ public class SaveCommand extends AbstractCommand {
   private SolutionFileInfo.Type type;
   private String tabName;
   private String solution;
+  private final String spinnerId="SaveCommand";
 
   public SaveCommand() {
   }
@@ -61,14 +63,34 @@ public class SaveCommand extends AbstractCommand {
     final SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
 
     retrieveCachedValues(navigatorPerspective.getContentTabPanel().getCurrentFrame());
-
+    boolean forceReload=false;
+    if(FileChooserDialog.getIsDirty()){
+        forceReload=true;
+        WaitPopup.getInstance().setVisibleById(true, spinnerId);
+        FileChooserDialog.setIsDirty(Boolean.FALSE);
+    }
     RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(new AsyncCallback<RepositoryFileTree>() {
       public void onFailure(Throwable caught) {
       }
 
       public void onSuccess(RepositoryFileTree tree) {
+
+        retrieveCachedValues(navigatorPerspective.getContentTabPanel().getCurrentFrame());
+
         if (isSaveAs || name == null) {
-          final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.SAVE, "", tree, false, true, Messages.getString("save"), Messages.getString("save")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          String fileDir="";
+          if(path!=null && !StringUtils.isEmpty(path)){
+          //If has extension
+          if(path.endsWith(name)){
+            fileDir=path.substring(0, path.lastIndexOf("/"));
+          }
+          else {
+            fileDir=path;
+          }
+
+          }
+          WaitPopup.getInstance().setVisibleById(false, spinnerId);
+          final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.SAVE,fileDir, tree, false, true, Messages.getString("save"), Messages.getString("save")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
           dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
           if (isSaveAs) {
             dialog.setTitle(Messages.getString("saveAs")); //$NON-NLS-1$
@@ -89,7 +111,6 @@ public class SaveCommand extends AbstractCommand {
               SaveCommand.this.type = SolutionFileInfo.Type.XACTION; 
               SaveCommand.this.name = fileName;
               SaveCommand.this.path = filePath;
-              // final String fullPathWithName = filePath + "/" + fileName;
               tabName = name;
               if (tabName.indexOf("analysisview.xaction") != -1) {
                 // trim off the analysisview.xaction from the localized-name
@@ -111,7 +132,7 @@ public class SaveCommand extends AbstractCommand {
                   public void okPressed() {
                     doSaveAs(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true);
                     Window.setTitle(Messages.getString("productName") + " - " + name); //$NON-NLS-1$ //$NON-NLS-2$
-                    //navigatorPerspective.addRecent(fullPathWithName, name);
+                    FileChooserDialog.setIsDirty(Boolean.TRUE);
                   }
 
                   public void cancelPressed() {
@@ -122,24 +143,13 @@ public class SaveCommand extends AbstractCommand {
               } else {
                 
                 //[Fix for PIR-833]
-                //1) create a new interactive report. Save it in directory home as report1 
-                //2) click "save as" button and wait for the file chooser to pop up. 
-                //3) browse to directory home, and select report1. 
-                //4) change the value in the filechooser's filename field to be report2. 
-                //5) Ok the dialog. Observe the error message: "Unable to save your file."
-                
-                //filePath: /home/admin/report1.prpt
-                //fileName: report2
-                //title: report1
-                //file.getName(): report1.prpt
-                
                 if(file != null 
                     && !file.isFolder()
                     && !fileName.equals(title)
                     && filePath.endsWith(file.getName())){
                   SaveCommand.this.path = filePath.substring(0, filePath.lastIndexOf("/"+file.getName()));
-                }                
-                
+                  }
+
                 doSaveAs(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true);
                 Window.setTitle(Messages.getString("productName") + " - " + name); //$NON-NLS-1$ //$NON-NLS-2$
                 persistFileInfoInFrame();
@@ -160,7 +170,7 @@ public class SaveCommand extends AbstractCommand {
           clearValues();
         }
       }
-    }, false, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
+    }, forceReload, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 
   /**
@@ -208,6 +218,7 @@ public class SaveCommand extends AbstractCommand {
     WaitPopup.getInstance().setVisible(true);
     this.doSaveAs(elementId, filename, path, type, overwrite);
     WaitPopup.getInstance().setVisible(false);
+    FileChooserDialog.setIsDirty(Boolean.TRUE);
   }
 
   private void doSaveAs(String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite) {
@@ -216,7 +227,7 @@ public class SaveCommand extends AbstractCommand {
     String save = Messages.getString("save");
 
     doSaveAsNativeWrapper(elementId, filename, path, type, overwrite, save, unableToSaveMessage);
-
+    FileChooserDialog.setIsDirty(Boolean.TRUE);
   }
   /**
    * This method will call saveReportSpecAs(string filename, string solution, string path, bool overwrite)
@@ -259,6 +270,7 @@ public class SaveCommand extends AbstractCommand {
     } else {
     	$wnd.mantle_showMessage("Error","The plugin has not defined a handle_puc_save function to handle the save of the content");    
     }
+    $wnd.mantle_setIsDirty(true);
   }-*/;
 
   // used via JSNI

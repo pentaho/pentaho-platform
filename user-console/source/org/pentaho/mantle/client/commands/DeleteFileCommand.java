@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.Label;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.filechooser.*;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -148,6 +148,7 @@ public class DeleteFileCommand extends AbstractCommand {
             event.setMessage("Success");
             EventBusUtil.EVENT_BUS.fireEvent(event);
             new RefreshRepositoryCommand().execute(false);
+            FileChooserDialog.setIsDirty(Boolean.TRUE);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);

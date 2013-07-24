@@ -20,7 +20,7 @@ package org.pentaho.mantle.client.commands;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.filechooser.*;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
@@ -123,6 +123,7 @@ public class RestoreFileCommand implements Command {
                 false, false, true, Messages.getString("close"));
             dialogBox.center();
             event.setMessage("Success");
+            new RefreshRepositoryCommand().execute(false);
             EventBusUtil.EVENT_BUS.fireEvent(event);
           }                
         }

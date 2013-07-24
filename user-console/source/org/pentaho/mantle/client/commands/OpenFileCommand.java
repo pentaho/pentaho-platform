@@ -22,6 +22,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.dialogs.*;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
@@ -32,6 +33,7 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 public class OpenFileCommand extends AbstractCommand {
 
   private static String lastPath = "/"; //$NON-NLS-1$
+  private static final String spinnerId="OpenCommand";
 
   private FileCommand.COMMAND openMethod = FileCommand.COMMAND.RUN;
 
@@ -50,6 +52,12 @@ public class OpenFileCommand extends AbstractCommand {
     final IPluginPerspective activePerspective = PerspectiveManager.getInstance().getActivePerspective();
 
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
+    boolean forceReload=false;
+    if(FileChooserDialog.getIsDirty()){
+      forceReload=true;
+      WaitPopup.getInstance().setVisibleById(true,spinnerId);
+      FileChooserDialog.setIsDirty(Boolean.FALSE);
+    }
 
     RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(new AsyncCallback<RepositoryFileTree>() {
       public void onFailure(Throwable caught) {
@@ -57,6 +65,7 @@ public class OpenFileCommand extends AbstractCommand {
 
       public void onSuccess(RepositoryFileTree tree) {
         // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
+        WaitPopup.getInstance().setVisibleById(false, spinnerId);
         final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.OPEN, lastPath, tree, false, true);
         dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
         dialog.addFileChooserListener(new FileChooserListener() {
@@ -80,6 +89,6 @@ public class OpenFileCommand extends AbstractCommand {
         });
         dialog.center();
       }
-    }, false, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
+    }, forceReload, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 }

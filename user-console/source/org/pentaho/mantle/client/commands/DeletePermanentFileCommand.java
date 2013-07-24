@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.filechooser.*;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
@@ -152,6 +152,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
               if (response.getStatusCode() == 200) {
                 new RefreshRepositoryCommand().execute(false);
                 event.setMessage("Success");
+                FileChooserDialog.setIsDirty(Boolean.TRUE);
                 EventBusUtil.EVENT_BUS.fireEvent(event);
               } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$

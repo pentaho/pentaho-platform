@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.filechooser.*;
 import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -212,6 +212,7 @@ public class PasteFilesCommand extends AbstractCommand {
 
           event.setMessage("Success");
           EventBusUtil.EVENT_BUS.fireEvent(event);
+          FileChooserDialog.setIsDirty(Boolean.TRUE);
         }
         
       });
