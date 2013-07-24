@@ -36,10 +36,21 @@ pen.define([
     },
 
     getContent: function(serviceUrl, successCallback, errorCallback, beforeSendCallback) {
+      this._makeAjaxCall("GET", "json", serviceUrl, successCallback, errorCallback, beforeSendCallback);
+    },
+
+    putContent: function(serviceUrl, successCallback, errorCallback, beforeSendCallback) {
+      this._makeAjaxCall("POST", "json", serviceUrl, successCallback, errorCallback, beforeSendCallback);
+    },
+
+    _makeAjaxCall: function(type, dataType, serviceUrl, successCallback, errorCallback, beforeSendCallback) {
       var now = new Date();
+      var url = serviceUrl + (serviceUrl.indexOf("?") > -1 ? "&" : "?") + "ts=" + now.getTime();
+      
       $.ajax({
-        dataType: 'json',
-        url: serviceUrl + "?ts=" + now.getTime(),
+        type: type,        
+        dataType: dataType,
+        url: url,
         success: function(result) {
           if(successCallback){
             successCallback(result);

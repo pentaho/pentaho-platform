@@ -14,41 +14,100 @@
 	"common-ui/bootstrap",
 	"common-ui/jquery-i18n",
   	"common-ui/jquery"
-], function(Dialog, DialogTemplates, RenameTemplates) {
+], function(Dialog, DialogTemplates, RenameTemplates, Utils) {
+
+	var BrowserUtils = new Utils();
 	
 	var DialogModel =  Backbone.Model.extend({
-		defaults: {
-			path: "",
-			showInitialDialog: true,
-			showInitialDialogChecked: false
+
+		buildsessionVariableUrl: function(key, value) {
+			return BrowserUtils.getUrlBase() + "api/mantle/session-variable?key=" + key + (value == undefined ? "" : "&value=" + value);
 		},
 
-		initialize: function(){
-			this.on("change:path", this.renamePath);
+		defaults: {
+			name: "",
+			path: "",
+			showOverrideDialog: true
+		},
+
+		initialize: function() {
+			var me = this;
+
+			this.on("change:name", this.renamePath);		
+			
+			// Set default for showOverrideDialog			
+			BrowserUtils._makeAjaxCall("GET", "text", this.buildsessionVariableUrl("showOverrideDialog"), function(result) {				
+				me.set("showOverrideDialog", result.length == 0 || result === "true");
+			});
 		},
 
 		renamePath: function(){
-			console.log("Renaming path " + this.get("path"));
+			console.log("Renaming path " + this.get("name"));
 			//add here the call to perform the rename on the jcr
 		}
 	});
 
 	var DialogView =  Backbone.View.extend({
-		OverrideDialog : null,
+		
+		FileOverrideDialog : null,
+
+		FolderOverrideDialog : null,
+
 		RenameDialog : null,
 
+		CannotRenameDialog: null,
+
+		overrideType: "file",
+
 		events: {
-			"click p.checkbox" : "setShowInitialDialog"
 		},
 
-        initialize: function(){        	
+        initialize: function(){
+        	var me = this;
+
+        	var onOverrideOk = function() {
+        		var showOverrideDialog = !$(this).parents(".pentaho-dialog").find("#do-not-show").prop("checked");
+        		
+        		BrowserUtils._makeAjaxCall("POST", "text", me.model.buildsessionVariableUrl("showOverrideDialog", showOverrideDialog));
+				me.model.set("showOverrideDialog", showOverrideDialog);
+				
+				me.showRenameDialog.apply(me);
+			}
+
+        	this.initFolderOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFolder", RenameTemplates.dialogFolderOverride), onOverrideOk);
+        	this.initFileOverrideDialog(this.makeOverrideDialogCfg("dialogeOverrideFile", RenameTemplates.dialogFileOverride), onOverrideOk);
+        	this.initRenameDialog();
+        	this.initCannotRenameDialog();
+        },
+
+        initCannotRenameDialog: function() {
         	var i18n = this.options.i18n;
         	var me = this;
 
-        	/*
-        	 * Override Dialog
-        	 */
-			var body = RenameTemplates.dialogOverride({ 
+        	var header = i18n.prop("cannotRenameDialogTitle");
+
+        	var body = i18n.prop("cannotRenameDialogDescription");
+
+        	var footer = DialogTemplates.centered_button({
+        		ok: i18n.prop("close")
+        	});
+
+        	var cfg = Dialog.buildCfg("cannot-rename-dialog", header, body, footer, false);
+
+        	this.CannotRenameDialog = new Dialog(cfg);
+
+        	this.CannotRenameDialog.$dialog.find(".ok").bind("click", function(){
+        		me.CannotRenameDialog.hide();
+        	});
+        },
+
+        makeOverrideDialogCfg: function(id, bodyTemplate) {
+			var i18n = this.options.i18n;
+        	var me = this;
+
+        	var header = i18n.prop("overrideTitle");
+
+			var body = bodyTemplate({ 
 				i18n: i18n 
 			});
 
@@ -57,45 +116,60 @@
 				cancel: i18n.prop("overrideNoButton") 
 			});
 
-			var cfg = Dialog.buildCfg(
-				"dialogOverride",			// id
-				i18n.prop("overrideTitle"),	// header
-				body,						// body
-				footer, 					// footer	        				        			
-				false);						// close_btn
+			return Dialog.buildCfg(id, header, body, footer, false);
+        },
+
+		initFolderOverrideDialog: function(cfg, onOk) {
+			var me = this;
 
 			var onShow = function() {
         		this.$dialog.find("#do-not-show").prop("checked", false);
         	};
 
-        	this.OverrideDialog = new Dialog(cfg, onShow);
+        	this.FolderOverrideDialog = new Dialog(cfg, onShow);
+        	this.FolderOverrideDialog.$dialog.find(".ok").bind("click", onOk);
+		},        
 
-        	this.OverrideDialog.$dialog.find(".ok").bind("click", function() {
-				me.model.set("showInitialDialog", !me.OverrideDialog.$dialog.find("#do-not-show").prop("checked"));
-				me.showRenameDialog.apply(me);
-			});
+        initFileOverrideDialog: function(cfg, onOk) {        	
+        	var me = this;
 
-        	/*
-        	 * Rename Dialog
-        	 */
-    		body = RenameTemplates.dialogDoRename({
+			var onShow = function() {
+        		this.$dialog.find("#do-not-show").prop("checked", false);
+        	};
+
+        	this.FileOverrideDialog = new Dialog(cfg, onShow);
+        	this.FileOverrideDialog.$dialog.find(".ok").bind("click", onOk);
+        },
+
+        initRenameDialog: function() {
+        	var i18n = this.options.i18n;
+        	var me = this;
+
+    		var body = RenameTemplates.dialogDoRename({
 				i18n: i18n
 			});
 
-			footer = DialogTemplates.buttons({
+			var footer = DialogTemplates.buttons({
 				ok: i18n.prop("ok"),
 				cancel: i18n.prop("cancel")
 			});
 
-			cfg = Dialog.buildCfg(
+			var cfg = Dialog.buildCfg(
 				"dialogRename",				// id
 				i18n.prop("renameTitle"),	// header
 				body, 						// body
 				footer, 					// footer
 				false);						// close_btn
 
-			onShow = function() {
-				this.$dialog.find("#rename-field").attr("value", me.model.get("path"));
+			var onShow = function() {
+				var okButton = this.$dialog.find(".ok").prop("disabled", true);
+
+				var renameField = this.$dialog.find("#rename-field")
+					.val(me.model.get("name"))
+					.bind("keyup", function() {
+						var val = renameField.val();
+						okButton.prop("disabled", val == me.model.get("name") || val.length == 0);
+					});
 			};
 
 			this.RenameDialog = new Dialog(cfg, onShow);
@@ -107,12 +181,18 @@
         },
 
         render: function(){        	
-    		if(!this.model.get("showInitialDialog")) {
+    		if(!this.model.get("showOverrideDialog")) {
     			this.showRenameDialog();
     			return;
     		}
 
-			this.setElement(this.OverrideDialog.show());
+    		if (this.overrideType === "file") {
+    			this.setElement(this.FileOverrideDialog.show());
+    			return;
+    		}
+
+    		 this.setElement(this.FolderOverrideDialog.show());
+			
         },
 
         showRenameDialog: function(){        	
@@ -120,7 +200,15 @@
         },
 
         doRename: function(){
-        	this.model.set("path", this.$el.find("input").val());
+        	var me = this;
+        	
+        	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
+        	BrowserUtils._makeAjaxCall("POST", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + 
+        		this.model.get("path") + "/rename?newName=" + this.model.get("name"), function(){
+        			me.model.set("name", this.$el.find("input").val());
+        		}, function(){
+        			me.setElement(me.CannotRenameDialog.show());
+        		});
         }
 	});
 
@@ -130,9 +218,21 @@
 
 		view: null,
 				
-		init: function(path){
+		init: function(path, overrideType){
+			var repoPath = path;
+			while (repoPath.search("/") > -1) {
+				repoPath = repoPath.replace("/", ":");
+			}
+
 			var name = path.split("/")[path.split("/").length-1];
-			this.model.set("path", name);			
+			var dotIndex = name.search("\\.");
+			if (dotIndex > -1) {
+				name = name.substr(0, dotIndex);
+			}
+
+			this.model.set("path", repoPath);
+			this.model.set("name", name);			
+			this.view.overrideType = overrideType;
 			this.view.render();
 		}
 	}
