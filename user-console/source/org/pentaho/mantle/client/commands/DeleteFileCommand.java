@@ -16,27 +16,27 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.*;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileActionEvent;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.HTML;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DeleteFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();

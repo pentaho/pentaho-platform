@@ -17,18 +17,6 @@
 
 package org.pentaho.mantle.client.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.filechooser.*;
-import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
-import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -40,6 +28,19 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wseyler

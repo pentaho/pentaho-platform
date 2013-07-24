@@ -16,17 +16,17 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.dialogs.*;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 
@@ -55,7 +55,7 @@ public class OpenFileCommand extends AbstractCommand {
     boolean forceReload=false;
     if(FileChooserDialog.getIsDirty()){
       forceReload=true;
-      WaitPopup.getInstance().setVisibleById(true,spinnerId);
+      WaitPopup.getInstance().setVisibleById(true, spinnerId);
       FileChooserDialog.setIsDirty(Boolean.FALSE);
     }
 
