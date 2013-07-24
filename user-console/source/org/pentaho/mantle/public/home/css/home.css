@@ -233,3 +233,12 @@ button.btn-large.btn-block {
 .file-unknown {
   background: url("../images/generic.png");
 }
+.welcome-container {
+    height:700px;
+}
+
+.welcome-frame {
+    height:99%;
+    width:110%;
+    border:0;
+}
