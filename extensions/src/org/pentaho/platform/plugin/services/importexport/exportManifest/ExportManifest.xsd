@@ -26,7 +26,7 @@
       <element name="ExportManifestMetadata" type="tns:ExportManifestMetadata"
                minOccurs="0" maxOccurs="unbounded" />
       
-      <element name="ExportManifestSchedule" type="tns:schedule"
+      <element name="ExportManifestSchedule" type="tns:jobScheduleRequest"
                minOccurs="0" maxOccurs="unbounded" />
                
 	  <element name="ExportManifestEntity" type="tns:ExportManifestEntityDto"

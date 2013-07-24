@@ -6,7 +6,9 @@
 //
 
 
-package org.pentaho.platform.repository2.unified.exportManifest.bindings;
+package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
+
+import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -48,8 +50,8 @@ public class ExportManifestMondrian {
     @XmlElement(required = true)
     protected String catalogName;
     protected boolean xmlaEnabled;
-    @XmlElement(type = org.pentaho.platform.repository2.unified.exportManifest.bindings.Parameters.class)
-    protected org.pentaho.platform.repository2.unified.exportManifest.Parameters parameters;
+    @XmlElement(type = org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.Parameters.class)
+    protected org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters parameters;
     @XmlAttribute(name = "file")
     protected String file;
 
@@ -98,10 +100,10 @@ public class ExportManifestMondrian {
      * 
      * @return
      *     possible object is
-     *     {@link org.pentaho.platform.repository2.unified.exportManifest.bindings.Parameters }
+     *     {@link org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.Parameters }
      *     
      */
-    public org.pentaho.platform.repository2.unified.exportManifest.Parameters getParameters() {
+    public Parameters getParameters() {
         return parameters;
     }
 
@@ -110,10 +112,10 @@ public class ExportManifestMondrian {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.pentaho.platform.repository2.unified.exportManifest.bindings.Parameters }
+     *     {@link org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.Parameters }
      *     
      */
-    public void setParameters(org.pentaho.platform.repository2.unified.exportManifest.Parameters value) {
+    public void setParameters(Parameters value) {
         this.parameters = value;
     }
 

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.platform.repository2.unified.exportManifest;
+package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
@@ -31,11 +31,8 @@ import javax.xml.namespace.QName;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.Schedule;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.*;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name 
@@ -49,7 +46,7 @@ public class ExportManifest {
   private ExportManifestDto.ExportManifestInformation manifestInformation;
   private List<ExportManifestMetadata> metadataList = new ArrayList<ExportManifestMetadata>();
   private List<ExportManifestMondrian> mondrianList = new ArrayList<ExportManifestMondrian>();
-  private List<Schedule> scheduleList = new ArrayList<Schedule>();
+  private List<JobScheduleRequest> scheduleList = new ArrayList<JobScheduleRequest>();
 
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
@@ -129,7 +126,7 @@ public class ExportManifest {
   }
 
   public static ExportManifest fromXml(ByteArrayInputStream input) throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance("org.pentaho.platform.repository2.unified.exportManifest.bindings");
+    JAXBContext jc = JAXBContext.newInstance("org.pentaho.platform.plugin.services.importexport.exportManifest.bindings");
     Unmarshaller u = jc.createUnmarshaller();
 
     try {
@@ -211,7 +208,7 @@ public class ExportManifest {
     this.mondrianList.add(mondrian);
   }
   
-  public void addSchedule(Schedule schedule){
+  public void addSchedule(JobScheduleRequest schedule){
     this.scheduleList.add(schedule);
   }
 
@@ -223,7 +220,7 @@ public class ExportManifest {
     return mondrianList;
   }
   
-  public List<Schedule> getScheduleList() {
+  public List<JobScheduleRequest> getScheduleList() {
     return scheduleList;
   }
 }

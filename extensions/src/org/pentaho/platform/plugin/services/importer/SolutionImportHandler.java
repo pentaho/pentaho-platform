@@ -42,11 +42,12 @@ import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositor
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
-import org.pentaho.platform.repository2.unified.exportManifest.Parameters;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -192,7 +193,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				bundleInputStream = null;
 			}
 		}
-		// Process locale files.
+    if (manifest != null) {
+      List<JobScheduleRequest> scheduleList = manifest.getScheduleList();
+      if (scheduleList != null) {
+        SchedulerResource schedulerResource = new SchedulerResource();
+        for (JobScheduleRequest jobScheduleRequest : scheduleList) {
+          schedulerResource.createJob(jobScheduleRequest);
+        }
+      }
+    }
+    // Process locale files.
 		localeFilesProcessor.processLocaleFiles(importer);
 	}
 
