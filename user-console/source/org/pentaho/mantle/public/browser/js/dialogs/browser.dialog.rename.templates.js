@@ -2,8 +2,12 @@ pen.define(["common-ui/handlebars"],
   function(){
   	var templates = {};
 
-    templates.dialogOverride = Handlebars.compile(      
-      "<div id='override-description'> {{i18n 'overrideDescription'}}</div>" +
+    templates.dialogFileOverride = Handlebars.compile(      
+      "<div id='override-description'> {{i18n 'overrideDescription_file'}}</div>" +
+      "<p class='checkbox'> <input id='do-not-show' type='checkbox'>{{i18n 'overrideCheckbox'}}</input></p>");
+
+    templates.dialogFolderOverride = Handlebars.compile(      
+      "<div id='override-description'> {{i18n 'overrideDescription_folder'}}</div>" +
       "<p class='checkbox'> <input id='do-not-show' type='checkbox'>{{i18n 'overrideCheckbox'}}</input></p>");
 
   	//rename dialog

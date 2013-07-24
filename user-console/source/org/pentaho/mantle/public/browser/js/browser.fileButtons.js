@@ -158,25 +158,25 @@ pen.define([
           //Delete permission
           if(permissions.setting[i].name=="2"){
             if(permissions.setting[i].value=="true"){
-              $("#deleteButton").attr("enabled", "enabled");
-              $("#cutbutton").attr("enabled", "enabled");
+              $("#deleteButton").prop("disabled", false);
+              $("#cutbutton").prop("disabled", false);
             }
           else{
-              $("#deleteButton").attr("disabled", "disabled");
-              $("#cutbutton").attr("disabled", "disabled");
+              $("#deleteButton").prop("disabled", true);
+              $("#cutbutton").prop("disabled", true);
            }
           }
         else{
-            $("#deleteButton").attr("disabled", "disabled");
-            $("#cutbutton").attr("disabled", "disabled");
+            $("#deleteButton").prop("disabled", true);
+            $("#cutbutton").prop("disabled", true);
          }
           //Write Permission
           if(permissions.setting[i].name=="1"){
             if(permissions.setting[i].value=="true"){
-              $("#copyButton").attr("enabled", "enabled");
+              $("#renameButton").prop("disabled", false);
             }
             else{
-              $("#copyButton").attr("disabled", "disabled");
+              $("#renameButton").prop("disabled", true);
             }
           }
         }
@@ -332,7 +332,7 @@ pen.define([
 		},
 
     renameHandler: function(path){
-      this.renameDialog.init(path);
+      this.renameDialog.init(path, "file");
     }
 	};
 
