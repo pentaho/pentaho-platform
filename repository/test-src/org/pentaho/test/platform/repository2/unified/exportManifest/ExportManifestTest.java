@@ -2,11 +2,16 @@ package org.pentaho.test.platform.repository2.unified.exportManifest;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.*;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -21,6 +26,11 @@ import org.pentaho.platform.repository2.unified.exportManifest.Parameters;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.HowOften;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.PeriodUnit;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.Periodic;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.Schedule;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ScheduleLifetime;
 
 public class ExportManifestTest extends TestCase {
 	ExportManifest exportManifest;
@@ -85,10 +95,37 @@ public class ExportManifestTest extends TestCase {
     mondrian.setFile("testMondrian.xml");
     exportManifest.addMondrian(mondrian);
 
+    // Metadata
     ExportManifestMetadata metadata = new ExportManifestMetadata();
     metadata.setDomainId("testDomain");
     metadata.setFile("testMetadata.xml");
     exportManifest.addMetadata(metadata);
+    
+    // Schedule to run now for an hour
+    ScheduleLifetime when = new ScheduleLifetime();
+    when.setStart("now");
+    
+    GregorianCalendar stopDate = new GregorianCalendar();
+    stopDate.add(Calendar.HOUR, 1);
+    try {
+      XMLGregorianCalendar stop;
+      stop = DatatypeFactory.newInstance().newXMLGregorianCalendar(stopDate);
+      when.setStop(stop);
+    } catch (DatatypeConfigurationException e) {
+      fail("Error creating schedule stop date");
+    }
+    
+    Periodic period = new Periodic();
+    period.setEvery(BigInteger.TEN);
+    period.setUnit(PeriodUnit.MINUTES);
+    HowOften howOften = new HowOften();
+    howOften.setPeriod(period);
+    
+    Schedule schedule = new Schedule();
+    schedule.setWhen(when);
+    schedule.setHowOften(howOften);
+    schedule.setFile("testJob.kjb");
+    exportManifest.addSchedule(schedule);
 	}
 
 	@Test
@@ -142,6 +179,7 @@ public class ExportManifestTest extends TestCase {
 
     assertEquals(1, importManifest.getMetadataList().size());
     assertEquals(1, importManifest.getMondrianList().size());
+    assertEquals(1, importManifest.getScheduleList().size());
 
     ExportManifestMondrian mondrian1 = importManifest.getMondrianList().get(0);
     assertEquals("cat1", mondrian1.getCatalogName());
@@ -152,6 +190,13 @@ public class ExportManifestTest extends TestCase {
     ExportManifestMetadata metadata1 = importManifest.getMetadataList().get(0);
     assertEquals("testDomain", metadata1.getDomainId());
     assertEquals("testMetadata.xml", metadata1.getFile());
+    
+    Schedule schedule1 = importManifest.getScheduleList().get(0);
+    assertEquals("testJob.kjb", schedule1.getFile());
+    assertEquals("now", schedule1.getWhen().getStart());
+    assertEquals(new GregorianCalendar().get(Calendar.YEAR), schedule1.getWhen().getStop().getYear());
+    assertEquals(BigInteger.TEN, schedule1.getHowOften().getPeriod().getEvery());
+    assertEquals(PeriodUnit.MINUTES, schedule1.getHowOften().getPeriod().getUnit());
 		
 	}
 	

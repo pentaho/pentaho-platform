@@ -158,10 +158,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     setSize("650px", "450px");
   }
 
-  void setScheduleDescription(String description) {
-    scheduleParamsWizardPanel.setScheduleDescription(description);
-  }
-
   JSONArray getScheduleParams(boolean suppressAlerts) {
     JsArray<JsSchedulingParameter> schedulingParams = scheduleParamsWizardPanel.getParams(suppressAlerts);
     JSONArray params = new JSONArray();

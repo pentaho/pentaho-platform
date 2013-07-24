@@ -35,6 +35,7 @@ import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportMa
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.Schedule;
 
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name 
@@ -48,6 +49,7 @@ public class ExportManifest {
   private ExportManifestDto.ExportManifestInformation manifestInformation;
   private List<ExportManifestMetadata> metadataList = new ArrayList<ExportManifestMetadata>();
   private List<ExportManifestMondrian> mondrianList = new ArrayList<ExportManifestMondrian>();
+  private List<Schedule> scheduleList = new ArrayList<Schedule>();
 
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
@@ -63,6 +65,7 @@ public class ExportManifest {
     }
     this.mondrianList = exportManifestDto.getExportManifestMondrian();
     this.metadataList = exportManifestDto.getExportManifestMetadata();
+    this.scheduleList = exportManifestDto.getExportManifestSchedule();
   }
 
   /**
@@ -151,6 +154,7 @@ public class ExportManifest {
 
     rawExportManifest.getExportManifestMetadata().addAll(this.metadataList);
     rawExportManifest.getExportManifestMondrian().addAll(this.mondrianList);
+    rawExportManifest.getExportManifestSchedule().addAll(this.scheduleList);
 
     return rawExportManifest;
   }
@@ -206,6 +210,10 @@ public class ExportManifest {
   public void addMondrian(ExportManifestMondrian mondrian){
     this.mondrianList.add(mondrian);
   }
+  
+  public void addSchedule(Schedule schedule){
+    this.scheduleList.add(schedule);
+  }
 
   public List<ExportManifestMetadata> getMetadataList() {
     return metadataList;
@@ -213,5 +221,9 @@ public class ExportManifest {
 
   public List<ExportManifestMondrian> getMondrianList() {
     return mondrianList;
+  }
+  
+  public List<Schedule> getScheduleList() {
+    return scheduleList;
   }
 }

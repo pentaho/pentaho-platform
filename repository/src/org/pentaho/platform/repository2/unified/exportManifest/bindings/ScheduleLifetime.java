@@ -10,21 +10,25 @@ package org.pentaho.platform.repository2.unified.exportManifest.bindings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for ExportManifestMetadata complex type.
+ * <p>Java class for scheduleLifetime complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ExportManifestMetadata">
+ * &lt;complexType name="scheduleLifetime">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="domainId" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="file" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;sequence>
+ *         &lt;element name="start" type="{http://www.pentaho.com/schema/}scheduleTime"/>
+ *         &lt;element name="stop" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
+ *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -33,60 +37,63 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExportManifestMetadata")
-public class ExportManifestMetadata {
+@XmlType(name = "scheduleLifetime", propOrder = {
+    "start",
+    "stop"
+})
+public class ScheduleLifetime {
 
-    @XmlAttribute(name = "domainId")
-    protected String domainId;
-    @XmlAttribute(name = "file")
-    protected String file;
+    @XmlElement(required = true)
+    protected String start;
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar stop;
 
     /**
-     * Gets the value of the domainId property.
+     * Gets the value of the start property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getDomainId() {
-        return domainId;
+    public String getStart() {
+        return start;
     }
 
     /**
-     * Sets the value of the domainId property.
+     * Sets the value of the start property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setDomainId(String value) {
-        this.domainId = value;
+    public void setStart(String value) {
+        this.start = value;
     }
 
     /**
-     * Gets the value of the file property.
+     * Gets the value of the stop property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public String getFile() {
-        return file;
+    public XMLGregorianCalendar getStop() {
+        return stop;
     }
 
     /**
-     * Sets the value of the file property.
+     * Sets the value of the stop property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public void setFile(String value) {
-        this.file = value;
+    public void setStop(XMLGregorianCalendar value) {
+        this.stop = value;
     }
 
 }

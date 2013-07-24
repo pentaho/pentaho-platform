@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.pentaho.com/schema/"
+    targetNamespace="http://www.pentaho.com/schema/">
+
+<!-- Types and elements related to scheduling -->
+
+  <complexType name="schedule">
+    <sequence>
+      <element name="when" type="tns:scheduleLifetime"
+               minOccurs="1" maxOccurs="1" />
+      
+      <element name="howOften" type="tns:howOften" />  
+    
+      <element name="file" type="string"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="scheduleLifetime">
+    <sequence>
+      <element name="start" type="tns:scheduleTime" 
+               minOccurs="1" maxOccurs="1" />
+      <element name="stop" type="dateTime" 
+               minOccurs="0" maxOccurs="1" />
+    </sequence>
+  </complexType>
+  
+  <simpleType name="timeNow">
+    <restriction base="string">
+        <enumeration value="now"/>
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="periodOnce">
+    <restriction base="string">
+        <enumeration value="once"/>
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="scheduleTime">
+    <union memberTypes="tns:timeNow dateTime"/>    
+  </simpleType>
+  
+  <simpleType name="periodUnit">
+    <restriction base="string">
+        <enumeration value="seconds"/>
+        <enumeration value="minutes"/>
+        <enumeration value="hours"  />
+        <enumeration value="days"   />
+        <enumeration value="weeks"  />
+        <enumeration value="months" />
+        <enumeration value="years"  />
+    </restriction>
+  </simpleType>
+  
+  <complexType name="periodic">
+    <attribute name="every" type="positiveInteger"/>
+    <attribute name="unit" type="tns:periodUnit"/>
+  </complexType>
+  
+  <complexType name="howOften">
+    <choice>
+        <element name="once" type="tns:periodOnce" />
+        <element name="period" type="tns:periodic"/>
+        <element name="cron" type="string"/>
+    </choice>
+  </complexType>
+    
+</schema>

@@ -143,7 +143,6 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
   @Override
   public void newTenant() {
     newTenant(JcrTenantUtils.getTenant());
-    createCustomPrivilege();
   }
 
   @Override
@@ -158,6 +157,7 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
   public synchronized void startup() {
     ITenant defaultTenant = null;
     loginAsRepositoryAdmin();
+    createCustomPrivilege();
     ITenantManager tenantMgr = getTenantManager();
     ITenant systemTenant = tenantMgr.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(),
         tenantAdminRoleName, tenantAuthenticatedRoleName, tenantAnonymousRoleName);

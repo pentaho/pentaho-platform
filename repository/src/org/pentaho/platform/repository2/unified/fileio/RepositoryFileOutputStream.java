@@ -36,6 +36,7 @@ import org.pentaho.platform.util.web.MimeHelper;
 
 public class RepositoryFileOutputStream extends ByteArrayOutputStream implements ISourcesStreamEvents {
 
+  protected boolean hidden = false;
   protected String path = null;
   protected IUnifiedRepository repository;
   protected String charsetName = null;
@@ -48,9 +49,10 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   public RepositoryFileOutputStream(final String path,
                                     final boolean autoCreateUniqueFileName,
                                     final boolean autoCreateDirStructure,
-                                    final IUnifiedRepository repository) {
+                                    final IUnifiedRepository repository, final boolean hidden) {
     setRepository(repository);
     this.path = path;
+    this.hidden = hidden;
     this.autoCreateDirStructure = autoCreateDirStructure;
     this.autoCreateUniqueFileName = autoCreateUniqueFileName;
   }
@@ -58,7 +60,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   public RepositoryFileOutputStream(final Serializable id,
                                     final boolean autoCreateUniqueFileName,
                                     final boolean autoCreateDirStructure,
-                                    final IUnifiedRepository repository)
+                                    final IUnifiedRepository repository, final boolean hidden)
       throws FileNotFoundException {
     setRepository(repository);
     RepositoryFile file = this.repository.getFileById(id);
@@ -66,6 +68,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       throw new FileNotFoundException(MessageFormat.format(
           "Repository file with id {0} not readable or does not exist", id));
     }
+    this.hidden = hidden;
     this.path = file.getPath();
     this.autoCreateDirStructure = autoCreateDirStructure;
     this.autoCreateUniqueFileName = autoCreateUniqueFileName;
@@ -75,20 +78,20 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
                                     final boolean autoCreateUniqueFileName,
                                     final boolean autoCreateDirStructure,
                                     final IUnifiedRepository repository) {
-    this(file.getPath(), autoCreateUniqueFileName, autoCreateDirStructure, repository);
+    this(file.getPath(), autoCreateUniqueFileName, autoCreateDirStructure, repository, false);
   }
 
   public RepositoryFileOutputStream(final String path,
                                     final boolean autoCreateUniqueFileName,
                                     final boolean autoCreateDirStructure) {
-    this(path, autoCreateUniqueFileName, autoCreateDirStructure, null);
+    this(path, autoCreateUniqueFileName, autoCreateDirStructure, null, false);
   }
 
   public RepositoryFileOutputStream(final Serializable id,
                                     final boolean autoCreateUniqueFileName,
                                     final boolean autoCreateDirStructure)
       throws FileNotFoundException {
-    this(id, autoCreateUniqueFileName, autoCreateDirStructure, null);
+    this(id, autoCreateUniqueFileName, autoCreateDirStructure, null, false);
   }
 
   public RepositoryFileOutputStream(final RepositoryFile file,
@@ -98,15 +101,19 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   }
 
   public RepositoryFileOutputStream(final String path) {
-    this(path, false, false, null);
+    this(path, false, false, null, false);
+  }
+
+  public RepositoryFileOutputStream(final String path, final boolean hidden) {
+	    this(path, false, false, null, hidden);
   }
 
   public RepositoryFileOutputStream(final RepositoryFile file) {
-    this(file.getPath(), false, false, null);
+    this(file.getPath(), false, false, null, file.isHidden());
   }
 
   public RepositoryFileOutputStream(final Serializable id) throws FileNotFoundException {
-    this(id, false, false, null);
+    this(id, false, false, null, false);
   }
 
   ////
@@ -204,7 +211,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
             throw new FileNotFoundException();
           }
         }
-        file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).versioned(true).build(); // Default
+        file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).hidden(hidden).versioned(true).build(); // Default
         // versioned to true so that we're keeping history
         file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
         for (IStreamListener listener : listeners) {

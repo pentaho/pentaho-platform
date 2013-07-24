@@ -35,13 +35,12 @@ import org.pentaho.di.repository.RepositorySecurityProvider;
 import org.pentaho.di.repository.StringObjectId;
 import org.pentaho.di.repository.UserInfo;
 import org.pentaho.di.shared.SharedObjects;
-import org.pentaho.di.trans.DataServiceMeta;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 
 /**
  * A {@link Repository} that stands in for the real repository, collecting entry and step attributes and loading or

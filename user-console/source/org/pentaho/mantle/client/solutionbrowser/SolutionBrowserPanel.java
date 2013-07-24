@@ -543,7 +543,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     fileInfo.setName(repositoryFile.getName());
     fileInfo.setPath(repositoryFile.getPath());
     fileInfo.setType(SolutionFileInfo.Type.XACTION);
-    contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
+    if (contentTabPanel != null && contentTabPanel.getCurrentFrame() != null) {
+      contentTabPanel.getCurrentFrame().setFileInfo(fileInfo);        
+    }
   }
 
   public void addRecent(String fileNameWithPath, String title) {
