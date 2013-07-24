@@ -24,7 +24,15 @@ public class SchedulerOutputPathResolver {
 
   private IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   private IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-  private IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, pentahoSession);
+
+  private IUserSettingService getSettingsService() {
+    if(settingsService == null) {
+      settingsService = PentahoSystem.get(IUserSettingService.class, pentahoSession);
+    }
+    return settingsService;
+  }
+
+  private IUserSettingService settingsService;
   private JobScheduleRequest scheduleRequest;
 
   public SchedulerOutputPathResolver(JobScheduleRequest scheduleRequest){
@@ -75,7 +83,7 @@ public class SchedulerOutputPathResolver {
 
   private String getUserSettingOutputPath(){
     try {
-      IUserSetting userSetting = settingsService.getUserSetting(DEFAULT_SETTING_KEY, null);
+      IUserSetting userSetting = getSettingsService().getUserSetting(DEFAULT_SETTING_KEY, null);
       if(userSetting != null && StringUtils.isNotBlank(userSetting.getSettingValue())){
         return userSetting.getSettingValue();
       }
