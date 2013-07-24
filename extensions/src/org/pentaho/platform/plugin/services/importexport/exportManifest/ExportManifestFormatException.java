@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.platform.repository2.unified.exportManifest;
+package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 /**
  * Exceptions handled explicitly by this package dealing with errors in

@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://www.pentaho.com/schema/")
-package org.pentaho.platform.repository2.unified.exportManifest.bindings;
+package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;

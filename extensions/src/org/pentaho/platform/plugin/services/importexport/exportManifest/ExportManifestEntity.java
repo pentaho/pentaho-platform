@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.platform.repository2.unified.exportManifest;
+package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -25,12 +25,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.*;
 import org.pentaho.platform.repository2.messages.Messages;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.CustomProperty;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityAcl;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityMetaData;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestProperty;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
