@@ -227,7 +227,6 @@ public class SaveCommand extends AbstractCommand {
     String save = Messages.getString("save");
 
     doSaveAsNativeWrapper(elementId, filename, path, type, overwrite, save, unableToSaveMessage);
-    FileChooserDialog.setIsDirty(Boolean.TRUE);
   }
   /**
    * This method will call saveReportSpecAs(string filename, string solution, string path, bool overwrite)
