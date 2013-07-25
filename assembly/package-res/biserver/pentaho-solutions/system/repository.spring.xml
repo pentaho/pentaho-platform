@@ -540,6 +540,7 @@
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
   </bean>
   <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
     <constructor-arg ref="IDatasourceMgmtService"/>
