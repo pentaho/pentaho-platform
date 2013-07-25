@@ -34,12 +34,15 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.repository.datasource.DuplicateDatasourceException;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
@@ -48,6 +51,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
+
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -201,6 +205,21 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           schedulerResource.createJob(jobScheduleRequest);
         }
       }
+
+
+      // Add Pentaho Connections
+      List<org.pentaho.database.model.DatabaseConnection> datasourceList = manifest.getDatasourceList();
+      if(datasourceList != null){
+        IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get(IDatasourceMgmtService.class);
+        for (org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList) {
+          try {
+            datasourceMgmtSvc.createDatasource(databaseConnection);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+
     }
     // Process locale files.
 		localeFilesProcessor.processLocaleFiles(importer);

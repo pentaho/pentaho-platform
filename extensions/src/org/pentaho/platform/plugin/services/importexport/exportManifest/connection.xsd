@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="databaseConnection" type="databaseConnection"/>
+
+  <xs:element name="databaseType" type="databaseType"/>
+
+  <xs:element name="partitionDatabaseMeta" type="partitionDatabaseMeta"/>
+
+  <xs:complexType name="databaseConnection">
+    <xs:sequence>
+      <xs:element name="accessType" type="databaseAccessType" minOccurs="0"/>
+      <xs:element name="accessTypeValue" type="xs:string" minOccurs="0"/>
+      <xs:element name="attributes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="changed" type="xs:boolean"/>
+      <xs:element name="connectSql" type="xs:string" minOccurs="0"/>
+      <xs:element name="connectionPoolingProperties">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="dataTablespace" type="xs:string" minOccurs="0"/>
+      <xs:element name="databaseName" type="xs:string" minOccurs="0"/>
+      <xs:element name="databasePort" type="xs:string" minOccurs="0"/>
+      <xs:element ref="databaseType" minOccurs="0"/>
+      <xs:element name="extraOptions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="forcingIdentifiersToLowerCase" type="xs:boolean"/>
+      <xs:element name="forcingIdentifiersToUpperCase" type="xs:boolean"/>
+      <xs:element name="hostname" type="xs:string" minOccurs="0"/>
+      <xs:element name="id" type="xs:string" minOccurs="0"/>
+      <xs:element name="indexTablespace" type="xs:string" minOccurs="0"/>
+      <xs:element name="informixServername" type="xs:string" minOccurs="0"/>
+      <xs:element name="initialPoolSize" type="xs:int"/>
+      <xs:element name="maximumPoolSize" type="xs:int"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="partitioned" type="xs:boolean"/>
+      <xs:element name="partitioningInformation" type="partitionDatabaseMeta" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="password" type="xs:string" minOccurs="0"/>
+      <xs:element name="quoteAllFields" type="xs:boolean"/>
+      <xs:element name="SQLServerInstance" type="xs:string" minOccurs="0"/>
+      <xs:element name="streamingResults" type="xs:boolean"/>
+      <xs:element name="username" type="xs:string" minOccurs="0"/>
+      <xs:element name="usingConnectionPool" type="xs:boolean"/>
+      <xs:element name="usingDoubleDecimalAsSchemaTableSeparator" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="databaseType">
+    <xs:sequence>
+      <xs:element name="defaultDatabasePort" type="xs:int"/>
+      <xs:element name="extraOptionsHelpUrl" type="xs:string" minOccurs="0"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="shortName" type="xs:string" minOccurs="0"/>
+      <xs:element name="supportedAccessTypes" type="databaseAccessType" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="partitionDatabaseMeta">
+    <xs:sequence>
+      <xs:element name="databaseName" type="xs:string" minOccurs="0"/>
+      <xs:element name="hostname" type="xs:string" minOccurs="0"/>
+      <xs:element name="partitionId" type="xs:string" minOccurs="0"/>
+      <xs:element name="password" type="xs:string" minOccurs="0"/>
+      <xs:element name="port" type="xs:string" minOccurs="0"/>
+      <xs:element name="username" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="databaseAccessType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NATIVE"/>
+      <xs:enumeration value="ODBC"/>
+      <xs:enumeration value="OCI"/>
+      <xs:enumeration value="PLUGIN"/>
+      <xs:enumeration value="JNDI"/>
+      <xs:enumeration value="CUSTOM"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

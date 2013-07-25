@@ -10,21 +10,22 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest.binding
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ExportManifestMetadata complex type.
+ * <p>Java class for sequentialRecurrence complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ExportManifestMetadata">
+ * &lt;complexType name="sequentialRecurrence">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="domainId" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="file" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;sequence>
+ *         &lt;element name="firstValue" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
+ *         &lt;element name="lastValue" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
+ *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -33,60 +34,61 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExportManifestMetadata")
-public class ExportManifestMetadata {
+@XmlType(name = "sequentialRecurrence", propOrder = {
+    "firstValue",
+    "lastValue"
+})
+public class SequentialRecurrence {
 
-    @XmlAttribute(name = "domainId")
-    protected String domainId;
-    @XmlAttribute(name = "file")
-    protected String file;
+    protected Integer firstValue;
+    protected Integer lastValue;
 
     /**
-     * Gets the value of the domainId property.
+     * Gets the value of the firstValue property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Integer }
      *     
      */
-    public String getDomainId() {
-        return domainId;
+    public Integer getFirstValue() {
+        return firstValue;
     }
 
     /**
-     * Sets the value of the domainId property.
+     * Sets the value of the firstValue property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Integer }
      *     
      */
-    public void setDomainId(String value) {
-        this.domainId = value;
+    public void setFirstValue(Integer value) {
+        this.firstValue = value;
     }
 
     /**
-     * Gets the value of the file property.
+     * Gets the value of the lastValue property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Integer }
      *     
      */
-    public String getFile() {
-        return file;
+    public Integer getLastValue() {
+        return lastValue;
     }
 
     /**
-     * Sets the value of the file property.
+     * Sets the value of the lastValue property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Integer }
      *     
      */
-    public void setFile(String value) {
-        this.file = value;
+    public void setLastValue(Integer value) {
+        this.lastValue = value;
     }
 
 }

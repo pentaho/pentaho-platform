@@ -33,7 +33,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.*;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-
+import org.pentaho.database.model.DatabaseConnection;
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name 
  * stored in the Repository Export zip file during a repository export.
@@ -47,6 +47,7 @@ public class ExportManifest {
   private List<ExportManifestMetadata> metadataList = new ArrayList<ExportManifestMetadata>();
   private List<ExportManifestMondrian> mondrianList = new ArrayList<ExportManifestMondrian>();
   private List<JobScheduleRequest> scheduleList = new ArrayList<JobScheduleRequest>();
+  private List<DatabaseConnection> datasourceList = new ArrayList<DatabaseConnection>();
 
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
@@ -63,6 +64,7 @@ public class ExportManifest {
     this.mondrianList = exportManifestDto.getExportManifestMondrian();
     this.metadataList = exportManifestDto.getExportManifestMetadata();
     this.scheduleList = exportManifestDto.getExportManifestSchedule();
+    this.datasourceList = exportManifestDto.getExportManifestDatasource();
   }
 
   /**
@@ -152,6 +154,7 @@ public class ExportManifest {
     rawExportManifest.getExportManifestMetadata().addAll(this.metadataList);
     rawExportManifest.getExportManifestMondrian().addAll(this.mondrianList);
     rawExportManifest.getExportManifestSchedule().addAll(this.scheduleList);
+    rawExportManifest.getExportManifestDatasource().addAll(this.datasourceList);
 
     return rawExportManifest;
   }
@@ -212,6 +215,10 @@ public class ExportManifest {
     this.scheduleList.add(schedule);
   }
 
+  public void addDatasource(DatabaseConnection connection){
+    this.datasourceList.add(connection);
+  }
+
   public List<ExportManifestMetadata> getMetadataList() {
     return metadataList;
   }
@@ -222,5 +229,9 @@ public class ExportManifest {
   
   public List<JobScheduleRequest> getScheduleList() {
     return scheduleList;
+  }
+
+  public List<DatabaseConnection> getDatasourceList() {
+    return datasourceList;
   }
 }

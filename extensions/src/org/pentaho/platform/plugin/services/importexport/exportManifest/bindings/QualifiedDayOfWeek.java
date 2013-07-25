@@ -10,21 +10,22 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest.binding
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ExportManifestMetadata complex type.
+ * <p>Java class for qualifiedDayOfWeek complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ExportManifestMetadata">
+ * &lt;complexType name="qualifiedDayOfWeek">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="domainId" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="file" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;sequence>
+ *         &lt;element name="dayOfWeek" type="{http://www.pentaho.com/schema/}dayOfWeek" minOccurs="0"/>
+ *         &lt;element name="qualifier" type="{http://www.pentaho.com/schema/}dayOfWeekQualifier" minOccurs="0"/>
+ *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -33,60 +34,61 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExportManifestMetadata")
-public class ExportManifestMetadata {
+@XmlType(name = "qualifiedDayOfWeek", propOrder = {
+    "dayOfWeek",
+    "qualifier"
+})
+public class QualifiedDayOfWeek {
 
-    @XmlAttribute(name = "domainId")
-    protected String domainId;
-    @XmlAttribute(name = "file")
-    protected String file;
+    protected DayOfWeek dayOfWeek;
+    protected DayOfWeekQualifier qualifier;
 
     /**
-     * Gets the value of the domainId property.
+     * Gets the value of the dayOfWeek property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link DayOfWeek }
      *     
      */
-    public String getDomainId() {
-        return domainId;
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
     }
 
     /**
-     * Sets the value of the domainId property.
+     * Sets the value of the dayOfWeek property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link DayOfWeek }
      *     
      */
-    public void setDomainId(String value) {
-        this.domainId = value;
+    public void setDayOfWeek(DayOfWeek value) {
+        this.dayOfWeek = value;
     }
 
     /**
-     * Gets the value of the file property.
+     * Gets the value of the qualifier property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link DayOfWeekQualifier }
      *     
      */
-    public String getFile() {
-        return file;
+    public DayOfWeekQualifier getQualifier() {
+        return qualifier;
     }
 
     /**
-     * Sets the value of the file property.
+     * Sets the value of the qualifier property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link DayOfWeekQualifier }
      *     
      */
-    public void setFile(String value) {
-        this.file = value;
+    public void setQualifier(DayOfWeekQualifier value) {
+        this.qualifier = value;
     }
 
 }

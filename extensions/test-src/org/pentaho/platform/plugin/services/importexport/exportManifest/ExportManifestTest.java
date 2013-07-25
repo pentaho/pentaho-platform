@@ -2,16 +2,10 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.*;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import junit.framework.TestCase;
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -19,10 +13,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.*;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.DatabaseAccessType;
+import org.pentaho.database.model.DatabaseType;
 
 public class ExportManifestTest extends TestCase {
 	ExportManifest exportManifest;
@@ -93,6 +88,22 @@ public class ExportManifestTest extends TestCase {
     metadata.setFile("testMetadata.xml");
     exportManifest.addMetadata(metadata);
     exportManifest.addSchedule(new JobScheduleRequest());
+
+    DatabaseConnection connection = new DatabaseConnection();
+    connection.setAccessType(DatabaseAccessType.NATIVE);
+    connection.setDatabaseName("SampleData");
+    connection.setDatabasePort("9001");
+    DatabaseType type = new DatabaseType();
+    type.setName("Hypersonic");
+    type.setShortName("HYPERSONIC");
+    connection.setDatabaseType(type);
+    connection.setHostname("localhost");
+    connection.setUsername("pentaho_user");
+    connection.setPassword("password");
+    connection.setMaximumPoolSize(20);
+
+    exportManifest.addDatasource(connection);
+
 	}
 
 	@Test
@@ -147,6 +158,7 @@ public class ExportManifestTest extends TestCase {
     assertEquals(1, importManifest.getMetadataList().size());
     assertEquals(1, importManifest.getMondrianList().size());
     assertEquals(1, importManifest.getScheduleList().size());
+    assertEquals(1, importManifest.getDatasourceList().size());
 
     ExportManifestMondrian mondrian1 = importManifest.getMondrianList().get(0);
     assertEquals("cat1", mondrian1.getCatalogName());
@@ -157,6 +169,17 @@ public class ExportManifestTest extends TestCase {
     ExportManifestMetadata metadata1 = importManifest.getMetadataList().get(0);
     assertEquals("testDomain", metadata1.getDomainId());
     assertEquals("testMetadata.xml", metadata1.getFile());
+
+    DatabaseConnection connection = importManifest.getDatasourceList().get(0);
+    assertEquals("SampleData", connection.getDatabaseName());
+    assertEquals("9001", connection.getDatabasePort());
+    assertEquals("Hypersonic", connection.getDatabaseType().getName());
+    assertEquals("HYPERSONIC", connection.getDatabaseType().getShortName());
+    assertEquals("localhost", connection.getHostname());
+    assertEquals("pentaho_user", connection.getUsername());
+    assertEquals("password", connection.getPassword());
+    assertEquals(20, connection.getMaximumPoolSize());
+
 	}
 	
 	@Test
