@@ -14,10 +14,6 @@ pen.define([
     executableTypesUrl : 'api/repos/executableTypes',
     executableTypes: [],
 
-    scheduleBlackList: ['xdash'],
-
-    editBlackList: ['prpt','xaction','xanalyzer', 'xcdf'],
-
     _init: function() {
 
       var that = this; // trap this
@@ -83,26 +79,26 @@ pen.define([
 
     isScheduleAllowed: function(fileExtension){
       var isExecutable = this.isFileExecutable(fileExtension);
-      var isInScheduleBlackList = false;
-      $.each(this.scheduleBlackList, function(idx, ext) {
-        if(fileExtension == ext) {
-          isInScheduleBlackList = true;
+      var canSchedule = false;
+      $.each(this.executableTypes, function(idx, type) {
+        if(fileExtension == type.extension) {
+          canSchedule = type.canSchedule == 'true';
           return false; // break the $.each loop
         }
       });
-      return isExecutable && !isInScheduleBlackList;
+      return isExecutable && canSchedule;
     },
 
     isEditAllowed: function(fileExtension){
       var isExecutable = this.isFileExecutable(fileExtension);
-      var isInEditBlackList = false;
-      $.each(this.editBlackList, function(idx, ext) {
-        if(fileExtension == ext) {
-          isInEditBlackList = true;
+      var canEdit = false;
+      $.each(this.executableTypes, function(idx, type) {
+        if(fileExtension == type.extension) {
+          canEdit = type.canEdit == 'true';
           return false; // break the $.each loop
         }
       });
-      return isExecutable && !isInEditBlackList;
+      return isExecutable && canEdit;
     }
   };
 

@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -218,6 +219,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
       executableFileType.setDescription(contentInfo.getDescription());
       executableFileType.setExtension(contentInfo.getExtension());
       executableFileType.setTitle(contentInfo.getTitle());
+      executableFileType.setCanSchedule(hasOperationId(contentInfo.getOperations(), "SCHEDULE_NEW"));
+      executableFileType.setCanEdit(hasOperationId(contentInfo.getOperations(), "EDIT"));
       executableTypes.add(executableFileType);
     }
 
@@ -225,6 +228,19 @@ public class RepositoryResource extends AbstractJaxRSResource {
         executableTypes) {
     };
     return Response.ok(entity).build();
+  }
+
+  private boolean hasOperationId(final List<IPluginOperation> operations, final String operationId){
+    if(operations != null && StringUtils.isNotBlank(operationId)){
+      for(IPluginOperation operation : operations){
+        if(operation != null && StringUtils.isNotBlank(operation.getId())){
+          if(operation.getId().equals(operationId) && StringUtils.isNotBlank(operation.getPerspective())){
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   protected Response doService(String contextId, String resourceId)
