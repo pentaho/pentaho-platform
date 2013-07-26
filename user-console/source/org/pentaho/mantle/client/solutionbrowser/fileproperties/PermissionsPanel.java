@@ -251,6 +251,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
                   public void onResponseReceived(Request request, Response response) {
                     if (response.getStatusCode() == Response.SC_OK) {
                       initializePermissionPanel(XMLParser.parse(response.getText()));
+                      inheritsCheckBox.setValue(true);
                       refreshPermission();
                     } else {
                       inheritsCheckBox.setValue(false);
