@@ -23,11 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
@@ -43,9 +45,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
@@ -761,7 +765,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String destAbsPath = pathConversionHelper.relToAbs(destRelPath);
-        String cleanDestAbsPath = destAbsPath;
+        String cleanDestAbsPath = destAbsPath; 
         if (cleanDestAbsPath.endsWith(RepositoryFile.SEPARATOR)) {
           cleanDestAbsPath.substring(0, cleanDestAbsPath.length() - 1);
         }
@@ -818,13 +822,36 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,
             destParentFolderNode);
         String finalSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath = appendFileName ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
+        String finalDestAbsPath = appendFileName && !file.isFolder()? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
             : cleanDestAbsPath;
-        if (copy) {
-          session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
-        } else {
-          session.getWorkspace().move(finalSrcAbsPath, finalDestAbsPath);
+        try {
+	        if (copy) {
+	          session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
+	        } else {
+	          session.getWorkspace().move(finalSrcAbsPath, finalDestAbsPath);
+	        }
+        } catch(ItemExistsException iae) {
+        	throw new UnifiedRepositoryException((file.isFolder() ? "Folder " : "File ") + "with path ["+ cleanDestAbsPath + "] already exists in the repository");
         }
+        // Now we need to update the title
+        RepositoryFile destFile = internalGetFile(session, finalDestAbsPath, true, null);
+        // Check if the file to be updated is a folder or not
+        if(!destFile.isFolder()) {
+            String title = extractNameFromPath(finalDestAbsPath);
+            Map<String, Properties> localePropertiesMap = destFile.getLocalePropertiesMap();
+            for(Entry<String,Properties> entry :destFile.getLocalePropertiesMap().entrySet()) {
+            	Properties properties = entry.getValue();
+            	if(properties.containsKey("file.title")) {
+            		properties.setProperty("file.title", title);
+            	}
+            	if(properties.containsKey("title")) {
+            		properties.setProperty("title", title);
+            	}        	
+            }
+            RepositoryFile updatedFile = new RepositoryFile.Builder(destFile).localePropertiesMap(localePropertiesMap).title(title).build();
+        	internalUpdateFile(session, pentahoJcrConstants, updatedFile,getData(destFile.getId(), null, SimpleRepositoryFileData.class), "Updating the Title");	
+        } 
+        
         JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,
             destParentFolderNode, versionMessage);
         // if it's a move within the same folder, then the next checkin is unnecessary
@@ -1130,4 +1157,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
+  private String extractNameFromPath(String path) {
+	  int startIndex = path.lastIndexOf(RepositoryFile.SEPARATOR);
+	  if(startIndex >= 0 ) {
+		  int endIndex = path.indexOf('.', startIndex);
+		  if(endIndex > startIndex) {
+			  return path.substring(startIndex + 1, endIndex);  
+		  }
+	  }
+	  return null;
+  }
 }
