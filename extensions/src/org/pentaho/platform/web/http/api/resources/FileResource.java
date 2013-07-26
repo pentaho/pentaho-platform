@@ -52,6 +52,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -67,6 +68,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -85,7 +87,9 @@ import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -964,6 +968,56 @@ public class FileResource extends AbstractJaxRSResource {
     return list;
   }
 
+  
+  @PUT
+  @Path("{pathId : .+}/rename")
+  @Consumes({ WILDCARD })
+  @Produces({ WILDCARD })
+  public Response doRename(@PathParam("pathId") String pathId, @QueryParam("newName") String newName) {
+    try {
+      RepositoryFileDto fileToBeRenamed = repoWs.getFile(idToPath(pathId));
+      StringBuilder buf = new StringBuilder(fileToBeRenamed.getPath().length());
+      buf.append(getParentPath(fileToBeRenamed.getPath()));
+      buf.append(RepositoryFile.SEPARATOR);
+      buf.append(newName);
+      String extension = getExtension(fileToBeRenamed.getName());
+      if(extension != null) {
+    	  buf.append(extension);  
+      }
+      repoWs.moveFile(fileToBeRenamed.getId(), buf.toString(), "Renaming the file");
+      return Response.ok().build();
+    } catch (Throwable t) {
+    	 return processErrorResponse(t.getLocalizedMessage());
+    }
+  }
+  
+  private Response processErrorResponse(String errMessage) {
+	    return Response.ok(errMessage).build();
+  }
+  
+  private  String getParentPath(final String path) {
+	    if (path == null) {
+	      throw new IllegalArgumentException();
+	    } else if (RepositoryFile.SEPARATOR.equals(path)) {
+	      return null;
+	    }
+	    int lastSlashIndex = path.lastIndexOf(RepositoryFile.SEPARATOR);
+	    if (lastSlashIndex == 0) {
+	      return RepositoryFile.SEPARATOR;
+	    } else if (lastSlashIndex > 0) {
+	      return path.substring(0, lastSlashIndex);
+	    } else {
+	      throw new IllegalArgumentException();
+	    }
+  }
+  
+  private String getExtension(final String name) {
+	  int startIndex = name.lastIndexOf('.');
+	  if(startIndex >= 0) {
+		  return name.substring(startIndex, name.length());  
+	  }
+	  return null;
+  }
   /**
    * Even though the hidden flag is a property of the file node itself, and not the metadata child, it is considered metadata from PUC and is included in the
    * setMetadata call
