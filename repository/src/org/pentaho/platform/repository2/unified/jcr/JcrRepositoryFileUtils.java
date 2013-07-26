@@ -321,7 +321,12 @@ public class JcrRepositoryFileUtils {
             localeNode = localeRootNode.getNode(locale);
           }
           for(String propertyName : properties.stringPropertyNames()){
-            localeNode.setProperty(propertyName, properties.getProperty(propertyName));
+        	try {
+        		localeNode.setProperty(propertyName, properties.getProperty(propertyName));
+        	} catch(Throwable th) {
+        		// Continue setting other properties
+        		continue;
+        	}
           }
         }
       }
