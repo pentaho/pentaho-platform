@@ -203,7 +203,7 @@
         	var me = this;
         	
         	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
-        	BrowserUtils._makeAjaxCall("POST", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + 
+        	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + 
         		this.model.get("path") + "/rename?newName=" + this.model.get("name"), function(){
         			me.model.set("name", this.$el.find("input").val());
         		}, function(){
