@@ -31,22 +31,39 @@
 						context.config.getting_started_video_message_template, 
 						context.config.getting_started_video_link_template );				
 		 		});
+
+		 		// Remove embedded youtube since it shows through the other tabs
+		 		$("a[href=#tab2], a[href=#tab3]").bind("click", function(){
+					$("#welcome-video").remove();
+					$(".welcome-img").show();
+				});
 			},
 			postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");
 
+				
+
 				if (tabId == "tab1") {									
 					ContextProvider.get(function(context) {
 
-						checkInternet(jHtml, function() {
-							injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
-	  						appendNavParams(jHtml, "tab1");	
-						}, function() {
-							jHtml.find("#welcome-video-text").remove();
-						});						
+						checkInternet(jHtml, 
+							function() {
+								// injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
+		  						// appendNavParams(jHtml, "tab1");	
+
+		  						// Swap the welcome image for the embedded youtube link
+		  						$(".welcome-img").bind("click", function(){
+
+		  							var youtubeWelcomeVideo = HandlebarsCompiler.compile("<iframe id='welcome-video' "+
+		  								"src='{{config.youtube_embed_base}}{{config.welcome_link_id}}?autoplay=1' "+
+		  								"width='587px' height='372px' frameborder='0' allowfullscreen></iframe>", context);
+
+		  							$(this).hide().after(youtubeWelcomeVideo);
+		  						});
+							});						
 		  			});
 
-				} else if (tabId == "tab2") {
+				} else if (tabId == "tab2") {								
 					bindCardInteractions(jHtml, ".sample-card", "#sample-details-content", true);
 
 				} else if (tabId == "tab3") {
