@@ -125,8 +125,6 @@
                                 <value>.js</value>
                                 <value>.cfg.xml</value>
                                 <value>.jrxml</value>
-                                <value>.kjb</value>
-                                <value>.ktr</value>
                                 <value>.png</value>
                                 <value>.properties</value>
                                 <value>.locale</value>
@@ -156,6 +154,8 @@
                                 <value>.svg</value>
                                 <value>.html</value>
                                 <value>.htm</value>
+                                <value>.kjb</value>
+                                <value>.ktr</value>
                             </list>
                         </property>
                     </bean>
