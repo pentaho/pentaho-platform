@@ -73,9 +73,9 @@
                 <entry key="zip" value="application/vnd.pentaho.solution-repository"/>
                 <entry key="xmi" value="text/xmi+xml"/>
                 <entry key="xanalyzer" value="text/xml"/>
-                <entry key="prpti" value="application/zip"/>
+                <entry key="prpti" value="application/vnd.pentaho.interactive.reporting.classic"/>
                 <entry key="gif" value="image/gif"/>
-                <entry key="prpt" value="application/prpt"/>
+                <entry key="prpt" value="application/vnd.pentaho.reporting.classic"/>
                 <entry key="css" value="text/css"/>
                 <entry key="html" value="text/html"/>
                 <entry key="htm" value="text/html"/>
@@ -93,10 +93,10 @@
                 <entry key="svg" value="image/svg+xml"/>
                 <entry key="url" value="application/internet-shortcut"/>
                 <entry key="sql" value="text/plain"/>
-                <entry key="xaction" value="text/xml"/>
+                <entry key="xaction" value="application/vnd.pentaho.xaction"/>
                 <entry key="xanalyzer" value="text/xml"/>
                 <entry key="xcdf" value="text/xml"/>
-                <entry key="xdash" value="text/xml"/>
+                <entry key="xdash" value="application/vnd.pentaho.dashboard"/>
                 <entry key="xmi" value="text/xml"/>
                 <entry key="xml" value="text/xml"/>
                 <entry key="xreportspec" value="text/xml"/>
@@ -170,13 +170,13 @@
                         <constructor-arg ref="IMondrianCatalogService"/>
                     </bean>                    
                 </entry>
-                <entry key="application/prpt">
-			<bean class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
-				<property name="repository" ref="unifiedRepository"/>
-				<property name="converters" ref="convertersMap"/>
-			</bean>
-		</entry>
-		<entry key="text/locale">
+                <entry key="application/vnd.pentaho.reporting.classic">
+					<bean class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
+						<property name="repository" ref="unifiedRepository"/>
+						<property name="converters" ref="convertersMap"/>
+					</bean>
+				</entry>
+				<entry key="text/locale">
                     <bean class="org.pentaho.platform.plugin.services.importer.LocaleImportHandler">
 						<constructor-arg>
 		            		<list>
