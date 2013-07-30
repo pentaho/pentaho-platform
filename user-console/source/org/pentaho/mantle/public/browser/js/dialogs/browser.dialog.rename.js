@@ -19,14 +19,15 @@
 	var BrowserUtils = new Utils();
 	
 	var DialogModel =  Backbone.Model.extend({
+		view: null,
 
 		buildsessionVariableUrl: function(key, value) {
 			return BrowserUtils.getUrlBase() + "api/mantle/session-variable?key=" + key + (value == undefined ? "" : "&value=" + value);
 		},
 
 		defaults: {
-			name: "",
-			path: "",
+			name: null,
+			path: null,
 			showOverrideDialog: true
 		},
 
@@ -41,9 +42,68 @@
 			});
 		},
 
-		renamePath: function(){
-			console.log("Renaming path " + this.get("name"));
-			//add here the call to perform the rename on the jcr
+		renamePath: function(event, name){
+			var prevName = event._previousAttributes.name;
+
+			// if the value was previously null or being set to null, nothing should happen
+			if (prevName === null || name === null) {
+				return;
+			}
+
+			// Update the path
+			var prevPath = this.get("path");
+        	this.set("path", prevPath.replace(prevName, name));
+
+        	var me = this;
+
+        	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
+        	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + prevPath + "/rename?newName=" + name, 
+    			function(success) {
+
+    				// An exception occured
+    				if (success != "") {
+    					setPrevVals.apply(me);
+    					me.view.showError.apply(me.view);
+    					return;
+    				}   				
+
+    				// Create path with '/'' instead of ':'
+        			var slashPath  = me.get("path");
+        			while(slashPath.search(":") > -1) {
+        				slashPath = slashPath.replace(":", "/");
+        			}
+        			
+        			var isFile = slashPath.search("\\.") > -1;
+        			
+        			// Refresh file or folder list
+        			if (isFile) {
+        				window.top.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});  
+        			} else {
+						window.top.mantle_fireEvent('GenericEvent', {
+							'eventSubType': 'RefreshFolderEvent',
+							'stringParam': slashPath
+						});  
+        			}
+
+        			// Reset model variables since the action completed successfully
+        			me.reset();
+        		}, 
+        		function(error){
+        			setPrevVals.apply(me);
+        			me.view.showError.apply(me.view);
+        		});
+
+        	// Resets the values 
+        	var setPrevVals = function() {
+        		this.reset();
+        		this.set("name", prevName);
+        		this.set("path", prevPath);
+        	};
+		},
+
+		reset: function() {
+			this.set("name", null);
+        	this.set("path", null);
 		}
 	});
 
@@ -74,8 +134,12 @@
 				me.showRenameDialog.apply(me);
 			}
 
-        	this.initFolderOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFolder", RenameTemplates.dialogFolderOverride), onOverrideOk);
-        	this.initFileOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFile", RenameTemplates.dialogFileOverride), onOverrideOk);
+			var onOverrideShow = function() {
+        		this.$dialog.find("#do-not-show").prop("checked", false);
+        	};
+
+        	this.initFolderOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFolder", RenameTemplates.dialogFolderOverride), onOverrideOk, onOverrideShow);
+        	this.initFileOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFile", RenameTemplates.dialogFileOverride), onOverrideOk, onOverrideShow);
         	this.initRenameDialog();
         	this.initCannotRenameDialog();
         },
@@ -97,7 +161,7 @@
         	this.CannotRenameDialog = new Dialog(cfg);
 
         	this.CannotRenameDialog.$dialog.find(".ok").bind("click", function(){
-        		me.CannotRenameDialog.hide();
+        		me.showRenameDialog.apply(me);
         	});
         },
 
@@ -119,26 +183,25 @@
 			return Dialog.buildCfg(id, header, body, footer, false);
         },
 
-		initFolderOverrideDialog: function(cfg, onOk) {
+		initFolderOverrideDialog: function(cfg, onOk, onShow) {
 			var me = this;
-
-			var onShow = function() {
-        		this.$dialog.find("#do-not-show").prop("checked", false);
-        	};
 
         	this.FolderOverrideDialog = new Dialog(cfg, onShow);
         	this.FolderOverrideDialog.$dialog.find(".ok").bind("click", onOk);
+        	this.FolderOverrideDialog.$dialog.find(".cancel").bind("click", function() {
+        		me.cancelRename.apply(me);
+        	});
+
 		},        
 
-        initFileOverrideDialog: function(cfg, onOk) {        	
+        initFileOverrideDialog: function(cfg, onOk, onShow) {        	
         	var me = this;
-
-			var onShow = function() {
-        		this.$dialog.find("#do-not-show").prop("checked", false);
-        	};
 
         	this.FileOverrideDialog = new Dialog(cfg, onShow);
         	this.FileOverrideDialog.$dialog.find(".ok").bind("click", onOk);
+        	this.FileOverrideDialog.$dialog.find(".cancel").bind("click", function() {
+        		me.cancelRename.apply(me);
+        	});
         },
 
         initRenameDialog: function() {
@@ -176,8 +239,11 @@
 
 			this.RenameDialog.$dialog.find(".ok").bind("click", function(){
 				me.RenameDialog.hide();
-				me.doRename.apply(me);				
+				me.model.set("name", me.$el.find("#rename-field").val());				
 			});
+			this.RenameDialog.$dialog.find(".cancel").bind("click", function() {
+        		me.cancelRename.apply(me);
+        	});
         },
 
         render: function(){
@@ -203,43 +269,8 @@
 			this.setElement(this.CannotRenameDialog.show());
         },
 
-        doRename: function(){
-        	var me = this;
-        	var newName = this.$el.find("#rename-field").val();
-
-        	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
-        	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + 
-        		this.model.get("path") + "/rename?newName=" + newName, 
-    			function(success) {
-
-    				// An exception occured
-    				if (success.search("exception") > -1) {
-    					me.showError.apply(me);
-    					return;
-    				}
-
-    				me.model.set("path", me.model.get("path").replace(me.model.get("name"), newName));
-        			me.model.set("name", newName);
-
-        			var slashPath  = me.model.get("path");
-        			while(slashPath.search(":") > -1) {
-        				slashPath = slashPath.replace(":", "/");
-        			}
-        			
-        			var isFile = me.model.get("path").search("\\.") > -1;
-        			// Refresh file or folder list
-        			if (isFile) {
-        				window.top.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});  
-        			} else {
-						window.top.mantle_fireEvent('GenericEvent', {
-							'eventSubType': 'RefreshFolderEvent',
-							'stringParam': slashPath
-						});  
-        			}
-        		}, 
-        		function(error){
-        			me.showError.apply(me);
-        		});
+        cancelRename: function() {
+        	this.model.reset.apply(this.model);
         }
 	});
 
@@ -291,6 +322,8 @@
 			model: this.model,
 			i18n: this.i18n
 		});
+
+		this.model.view = this.view;		
 	}
 
 	DialogRename.prototype = local;
