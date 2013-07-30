@@ -305,11 +305,15 @@ public class PentahoEntryCollector extends EntryCollector {
     if (ancestorAcl == null) {
       return Collections.emptyList();
     }
+    NodeImpl ancestorNode = (NodeImpl) systemSession.getNode(ancestorAcl.getPath());
+    Entries fullEntriesIncludingMagicACEs = this.getEntries(ancestorNode);
+
     Privilege addChildNodesPrivilege = systemSession.getAccessControlManager().privilegeFromName(
         Privilege.JCR_ADD_CHILD_NODES);
     Privilege removeChildNodesPrivilege = systemSession.getAccessControlManager().privilegeFromName(
         Privilege.JCR_REMOVE_CHILD_NODES);
-    for (AccessControlEntry entry : ancestorAcl.getAccessControlEntries()) {
+
+    for (AccessControlEntry entry : fullEntriesIncludingMagicACEs.getACEs()) {
       List<Privilege> privs = new ArrayList<Privilege>(2);
       Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges(entry.getPrivileges(), false);
       if (ArrayUtils.contains(expandedPrivileges, addChildNodesPrivilege)) {
@@ -318,9 +322,13 @@ public class PentahoEntryCollector extends EntryCollector {
       if (ArrayUtils.contains(expandedPrivileges, removeChildNodesPrivilege)) {
         privs.add(removeChildNodesPrivilege);
       }
-      // remove existing ACE since (1) it doesn't have the privs we're looking for and (2) the following 
+      // remove all physical entries from the ACL. MagicAces will not be present in the ACL Entries, so we check before
+      // trying to remove
+      if(ancestorAcl.getEntries().contains(entry)){
+        ancestorAcl.removeAccessControlEntry(entry);
+      }
+      // remove existing ACE since (1) it doesn't have the privs we're looking for and (2) the following
       // addAccessControlEntry will silently fail to add a new ACE if perms already exist
-      ancestorAcl.removeAccessControlEntry(entry);
       if (!privs.isEmpty()) {
         // create new ACE with same principal but only privs relevant to child operations
         if (!ancestorAcl.addAccessControlEntry(
