@@ -45,25 +45,23 @@
 		renamePath: function(event, name){
 			var prevName = event._previousAttributes.name;
 
-			// if the value was previously null or being, nothing should happen
+			// if the value was previously null or being set to null, nothing should happen
 			if (prevName === null || name === null) {
 				return;
 			}
 
-			console.log("Renaming path " + prevName + " to " + name);
-						
 			// Update the path
 			var prevPath = this.get("path");
         	this.set("path", prevPath.replace(prevName, name));
 
-        	var me = this;       	
+        	var me = this;
 
         	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
         	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + prevPath + "/rename?newName=" + name, 
     			function(success) {
 
     				// An exception occured
-    				if (success.search("exception") > -1) {
+    				if (success != "") {
     					setPrevVals.apply(me);
     					me.view.showError.apply(me.view);
     					return;
