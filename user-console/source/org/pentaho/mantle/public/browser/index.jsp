@@ -117,7 +117,7 @@
 
             window.top.mantle_addHandler("GenericEvent", function(paramJson){
           if(paramJson.eventSubType == "OpenFolderEvent"){
-                    FileBrowser.openFolder(paramJson.stringParam);
+            FileBrowser.openFolder(paramJson.stringParam);
           }
           else if(paramJson.eventSubType == "RefreshBrowsePerspectiveEvent"){
             FileBrowser.update(window.top.HOME_FOLDER); // refresh folder list

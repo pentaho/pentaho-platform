@@ -75,7 +75,7 @@
 			}
 
         	this.initFolderOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFolder", RenameTemplates.dialogFolderOverride), onOverrideOk);
-        	this.initFileOverrideDialog(this.makeOverrideDialogCfg("dialogeOverrideFile", RenameTemplates.dialogFileOverride), onOverrideOk);
+        	this.initFileOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFile", RenameTemplates.dialogFileOverride), onOverrideOk);
         	this.initRenameDialog();
         	this.initCannotRenameDialog();
         },
@@ -180,7 +180,7 @@
 			});
         },
 
-        render: function(){        	
+        render: function(){
     		if(!this.model.get("showOverrideDialog")) {
     			this.showRenameDialog();
     			return;
@@ -199,15 +199,46 @@
         	this.setElement(this.RenameDialog.show());
         },
 
+        showError: function() {
+			this.setElement(this.CannotRenameDialog.show());
+        },
+
         doRename: function(){
         	var me = this;
-        	
+        	var newName = this.$el.find("#rename-field").val();
+
         	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
         	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + 
-        		this.model.get("path") + "/rename?newName=" + this.model.get("name"), function(){
-        			me.model.set("name", this.$el.find("input").val());
-        		}, function(){
-        			me.setElement(me.CannotRenameDialog.show());
+        		this.model.get("path") + "/rename?newName=" + newName, 
+    			function(success) {
+
+    				// An exception occured
+    				if (success.search("exception") > -1) {
+    					me.showError.apply(me);
+    					return;
+    				}
+
+    				me.model.set("path", me.model.get("path").replace(me.model.get("name"), newName));
+        			me.model.set("name", newName);
+
+        			var slashPath  = me.model.get("path");
+        			while(slashPath.search(":") > -1) {
+        				slashPath = slashPath.replace(":", "/");
+        			}
+        			
+        			var isFile = me.model.get("path").search("\\.") > -1;
+        			// Refresh file or folder list
+        			if (isFile) {
+        				window.top.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});  
+        			} else {
+						window.top.mantle_fireEvent('GenericEvent', {
+							'eventSubType': 'RefreshFolderEvent',
+							'stringParam': slashPath
+						});  
+        			}
+        		}, 
+        		function(error){
+        			me.showError.apply(me);
         		});
         }
 	});
@@ -218,11 +249,27 @@
 
 		view: null,
 				
-		init: function(path, overrideType){
+		init: function(path, overrideType) {
+
 			var repoPath = path;
 			while (repoPath.search("/") > -1) {
 				repoPath = repoPath.replace("/", ":");
 			}
+
+			var me = this;
+			BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + repoPath + "/localeProperties", 
+				function(success){
+					if (success) {
+						var arr = success.stringKeyStringValueDto;
+						for (i in arr) {
+							var obj = arr[i];
+							if (obj.key === "file.title") {
+								me.model.set("name", obj.value);
+								return;
+							}
+						}					
+					}
+				});
 
 			var name = path.split("/")[path.split("/").length-1];
 			var dotIndex = name.search("\\.");
