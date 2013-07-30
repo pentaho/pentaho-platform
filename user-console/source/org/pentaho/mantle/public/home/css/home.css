@@ -72,6 +72,16 @@ button.btn-large.btn-block {
   vertical-align: middle;
 }
 
+.right {
+  text-align: right;
+  vertical-align: middle;
+}
+
+.left {
+  text-align: left;
+  vertical-align: middle; 
+}
+
 .empty-panel .pentaho-button {
   font-size: .9em;
 }
@@ -157,10 +167,15 @@ button.btn-large.btn-block {
 }
 
 .welcome-img {
-  width:100%;
-  height:220px;
-  /* background-size: 100%; */
-  background-image: url("../images/welcome_play.jpg");
+  width:587px;
+  height:372px;
+  background-image: url("../images/gettingStarted_welcome_graphic.png");
+}
+
+.welcome-img:hover {
+  width:587px;
+  height:372px;
+  background-image: url("../images/gettingStarted_welcome_graphic_over.png");
 }
 
 .selected {
@@ -232,4 +247,9 @@ button.btn-large.btn-block {
 }
 .file-unknown {
   background: url("../images/generic.png");
+}
+
+#getting-started-message-content #sub-messages {
+  position: relative;
+  left: 30px;
 }
