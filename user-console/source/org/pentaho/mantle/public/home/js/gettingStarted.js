@@ -39,15 +39,14 @@
 				});
 			},
 			postLoad: function(jHtml, tabSelector) {
-				var tabId = $(tabSelector).attr("id");
-
-				
+				var tabId = $(tabSelector).attr("id");				
 
 				if (tabId == "tab1") {									
 					ContextProvider.get(function(context) {
 
 						checkInternet(jHtml, 
 							function() {
+								// LEAVE HERE, MAY BE USED AGAIN SHORTLY (7/31/13)
 								// injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
 		  						// appendNavParams(jHtml, "tab1");	
 
