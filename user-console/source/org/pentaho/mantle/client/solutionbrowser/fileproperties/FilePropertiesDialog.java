@@ -215,6 +215,8 @@ public class FilePropertiesDialog extends PromptDialogBox {
   protected void getAcls(RepositoryFile fileSummary) {
     String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    // This header is required to force Internet Explorer to not cache values from the GET response.
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       builder.sendRequest(null, new RequestCallback() {
 

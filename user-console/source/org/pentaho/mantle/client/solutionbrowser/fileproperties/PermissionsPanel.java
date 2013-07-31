@@ -246,6 +246,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
               String path = fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"));
               String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
               RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+              // This header is required to force Internet Explorer to not cache values from the GET response.
+              builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
               try {
                 builder.sendRequest(null, new RequestCallback() {
                   public void onResponseReceived(Request request, Response response) {
