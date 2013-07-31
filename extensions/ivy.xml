@@ -158,8 +158,6 @@
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions"
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
-    <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-hibernate"
-                rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-kettle"
                 rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-mondrian"
