@@ -19,7 +19,11 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,21 +38,18 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
-import org.pentaho.platform.api.repository.datasource.DuplicateDatasourceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
@@ -57,13 +58,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 	private static final Log log = LogFactory.getLog(SolutionImportHandler.class);
 	private IPlatformImportMimeResolver mimeResolver;
-	private List<String> blackList;
-	private List<String> whiteList;
   private static final String sep = ";";
   private Map<String,RepositoryFileImportBundle.Builder> cachedImports;
+  private SolutionFileImportHelper solutionHelper;
 
-  public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver) {
+  public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver, List<String> visibleList, List<String> hiddenList) {
 		this.mimeResolver = mimeResolver;
+		this.solutionHelper = new SolutionFileImportHelper(hiddenList, visibleList);
 	}
 	
 	public ImportSession getImportSession() {
@@ -236,7 +237,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	 */
 	private boolean isFileHidden(IPlatformImportBundle bundle, String filePath) {
 	  Boolean result = getImportSession().isFileHidden(filePath);
-    return (result != null) ? result : isBlackListed(filePath);
+    return (result != null) ? result : solutionHelper.isInHiddenList(filePath);
 	}
 	
 	private boolean isSystemPath(final String bundlePath) {
@@ -248,24 +249,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		return (split != null && index < split.length && (StringUtils.equals(split[index], "system") || StringUtils.equals(split[index], "admin")));
 	}
 
-	private boolean isBlackListed(String fileName) {
-		boolean isBlackListed = false;
-		for (String extension : blackList) {
-			if (fileName.endsWith(extension)) {
-				isBlackListed = true;
-				break;
-			}
-		}
-		return isBlackListed;
-	}
-
-	public void setBlackList(List blackList) {
-		this.blackList = blackList;
-	}
-
-	public void setWhiteList(List whiteList) {
-		this.whiteList = whiteList;
-	}
 
 	class SolutionRepositoryImportSource {
 		private ZipInputStream zipInputStream;
@@ -285,7 +268,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 					File tempFile = null;
 					boolean isDir = entry.isDirectory();
 					if (!isDir) {
-						if (!isWhiteListed(entryName)) {
+						if (!solutionHelper.isInApprovedExtensionList(entryName)) {
 							zipInputStream.closeEntry();
 							entry = zipInputStream.getNextEntry();
 							continue;
@@ -324,17 +307,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			} catch (Exception e) {
 				log.trace(e);
 			}
-		}
-
-		private boolean isWhiteListed(String fileName) {
-			boolean isWhiteListed = false;
-			for (String extension : whiteList) {
-				if (fileName.endsWith(extension)) {
-					isWhiteListed = true;
-					break;
-				}
-			}
-			return isWhiteListed;
 		}
 
 		public List<IRepositoryFileBundle> getFiles() {
