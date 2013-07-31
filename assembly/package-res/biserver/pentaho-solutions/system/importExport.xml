@@ -62,9 +62,11 @@
     </bean>
 
     <bean id="defaultImportHandler" class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
+        <constructor-arg ref="approvedExtensionList"/>
+        <constructor-arg ref="hiddenExtensionList"/>
         <property name="repository" ref="unifiedRepository"/>
         <property name="converters" ref="convertersMap"/>
-	<property name="defaultAclHandler" ref="defaultAclHandler"/>
+	    <property name="defaultAclHandler" ref="defaultAclHandler"/>
     </bean>
 
     <bean id="NameBaseMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
@@ -106,58 +108,60 @@
         </constructor-arg>
     </bean>
 
+	<util:list id="approvedExtensionList">
+       <value>.xanalyzer</value>
+       <value>.prpti</value>
+       <value>.gif</value>
+       <value>.prpt</value>
+       <value>.css</value>
+       <value>.html</value>
+       <value>.htm</value>
+       <value>.jpg</value>
+       <value>.js</value>
+       <value>.cfg.xml</value>
+       <value>.jrxml</value>
+       <value>.png</value>
+       <value>.properties</value>
+       <value>.locale</value>
+       <value>.report</value>
+       <value>.rptdesign</value>
+       <value>.svg</value>
+       <value>.url</value>
+       <value>.sql</value>
+       <value>.xaction</value>
+       <value>.xanalyzer</value>
+       <value>.xcdf</value>
+       <value>.xdash</value>
+       <value>.xml</value>
+       <value>.xmi</value>
+       <value>.xreportspec</value>
+       <value>.cda</value>
+       <value>.xls</value>
+       <value>.kjb</value>
+       <value>.ktr</value>
+	</util:list>
+
+	<util:list id="hiddenExtensionList">
+       <value>.xml</value>
+       <value>.properties</value>
+       <value>.png</value>
+       <value>.jpg</value>
+       <value>.gif</value>
+       <value>.svg</value>
+       <value>.html</value>
+       <value>.htm</value>
+       <value>.kjb</value>
+       <value>.ktr</value>
+	</util:list>
+		
     <bean id="IPlatformImporter" class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter" scope="singleton">
         <constructor-arg>
             <map>
                 <entry key="application/vnd.pentaho.solution-repository">
                     <bean class="org.pentaho.platform.plugin.services.importer.SolutionImportHandler">
                         <constructor-arg ref="NameBaseMimeResolver"/>
-                        <property name="whiteList">
-                            <list>
-                                <value>.xanalyzer</value>
-                                <value>.prpti</value>
-                                <value>.gif</value>
-                                <value>.prpt</value>
-                                <value>.css</value>
-                                <value>.html</value>
-                                <value>.htm</value>
-                                <value>.jpg</value>
-                                <value>.js</value>
-                                <value>.cfg.xml</value>
-                                <value>.jrxml</value>
-                                <value>.png</value>
-                                <value>.properties</value>
-                                <value>.locale</value>
-                                <value>.report</value>
-                                <value>.rptdesign</value>
-                                <value>.svg</value>
-                                <value>.url</value>
-                                <value>.sql</value>
-                                <value>.xaction</value>
-                                <value>.xanalyzer</value>
-                                <value>.xcdf</value>
-                                <value>.xdash</value>
-                                <value>.xml</value>
-                                <value>.xmi</value>
-                                <value>.xreportspec</value>
-                                <value>.cda</value>
-                                <value>.xls</value>
-                            </list>
-                        </property>
-                        <property name="blackList">
-                            <list>
-                                <value>.xml</value>
-                                <value>.properties</value>
-                                <value>.png</value>
-                                <value>.jpg</value>
-                                <value>.gif</value>
-                                <value>.svg</value>
-                                <value>.html</value>
-                                <value>.htm</value>
-                                <value>.kjb</value>
-                                <value>.ktr</value>
-                            </list>
-                        </property>
+				        <constructor-arg ref="approvedExtensionList"/>
+        				<constructor-arg ref="hiddenExtensionList"/>
                     </bean>
                 </entry>
                 <entry key="text/xmi+xml">

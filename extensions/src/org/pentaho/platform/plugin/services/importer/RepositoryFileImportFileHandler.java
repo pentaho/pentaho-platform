@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,9 +34,20 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private ThreadLocal<ImportSession> importSession = new ThreadLocal<ImportSession>();
  
   private static final Messages messages = Messages.getInstance();
-
+  private SolutionFileImportHelper solutionHelper;
+  public RepositoryFileImportFileHandler() {
+	  
+  }
+  
+  public RepositoryFileImportFileHandler(List<String> approvedExtensionList, List<String> hiddenExtensionList) {
+	  if(approvedExtensionList != null && approvedExtensionList.size() > 0 && hiddenExtensionList != null && hiddenExtensionList.size() > 0) {
+		  this.solutionHelper = new SolutionFileImportHelper(hiddenExtensionList, approvedExtensionList);  
+	  }
+  }
+  
   private Map<String, Converter> converters;
   IRepositoryDefaultAclHandler defaultAclHandler;
+  
   
   public Log getLogger() {
     return getImportSession().getLogger();
@@ -161,7 +173,10 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       IRepositoryFileData data = converter.convert(bundle.getInputStream(), bundle.getCharset(), mimeType);
       if (null == file) {
         RepositoryFile repositoryFile = createFile(bundle, repositoryPath, data);
-        updateAclFromBundle(true, bundle, repositoryFile);
+        if(repositoryFile != null) {
+        	updateAclFromBundle(true, bundle, repositoryFile);	
+        }
+        
       } else {
         RepositoryFile repositoryFile = repository.updateFile(file, data, bundle.getComment());
         updateAclFromBundle(false, bundle, repositoryFile);
@@ -251,16 +266,21 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   protected RepositoryFile createFile(final RepositoryFileImportBundle bundle, final String repositoryPath,
       final IRepositoryFileData data) throws PlatformImportException {
-    final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(bundle.isHidden())
-        .title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getTitle() != null ? bundle.getTitle(): bundle.getName())).versioned(true).build();
-    final Serializable parentId = checkAndCreatePath(repositoryPath, getImportSession().getCurrentManifestKey());
-    
-    final RepositoryFileAcl acl = bundle.getAcl();
-    if (null == acl) {
-      return repository.createFile(parentId, file, data, bundle.getComment());
-    } else {
-      return repository.createFile(parentId, file, data, acl, bundle.getComment());
-    }
+	if(solutionHelper.isInApprovedExtensionList(repositoryPath)) {
+	    final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(solutionHelper.isInHiddenList(bundle.getName()))
+	        .title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getTitle() != null ? bundle.getTitle(): bundle.getName())).versioned(true).build();
+	    final Serializable parentId = checkAndCreatePath(repositoryPath, getImportSession().getCurrentManifestKey());
+	    
+	    final RepositoryFileAcl acl = bundle.getAcl();
+	    if (null == acl) {
+	      return repository.createFile(parentId, file, data, bundle.getComment());
+	    } else {
+	      return repository.createFile(parentId, file, data, acl, bundle.getComment());
+	    }
+	} else {
+		getLogger().trace("The file [" + repositoryPath + "] is not in the list of approved file extension that can be stored in the repository.");
+		return null;
+	}
   }
   
   /**
