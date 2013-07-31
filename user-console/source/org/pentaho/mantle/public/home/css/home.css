@@ -253,3 +253,7 @@ button.btn-large.btn-block {
   position: relative;
   left: 30px;
 }
+
+.preload-getting-started-over-icon {
+  background: url("../images/gettingStarted_welcome_graphic_over.png");
+}
