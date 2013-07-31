@@ -201,9 +201,7 @@ public class PentahoSystem {
     if (debug) {
       Logger.debug(PentahoSystem.class, "Setting property path"); //$NON-NLS-1$
     }
-    String propertyPath = PentahoSystem.applicationContext.getSolutionPath(""); //$NON-NLS-1$
-    propertyPath = propertyPath.replaceAll("\\\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
-    System.setProperty("pentaho.solutionpath", propertyPath); //$NON-NLS-1$
+    System.setProperty("pentaho.solutionpath", "solution:"); //$NON-NLS-1$
 
     if (LocaleHelper.getLocale() == null) {
       LocaleHelper.setLocale(Locale.getDefault());
