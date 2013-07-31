@@ -129,7 +129,7 @@
       <div class="row-fluid">
 
         <!-- Pre-load  getting started over graphic for smooth inital transition for mouse over css -->
-        <img src="images/gettingStarted_welcome_graphic_over.png" style="display:none"/>
+        <div class="preload-getting-started-over-icon" style="display:none"></div>
         
         <script type="text/x-handlebars-template">
           <div id="getting-started" class="well getting-started widget-panel">
