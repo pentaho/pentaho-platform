@@ -528,7 +528,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         url = getPath()
             + "api/repos/" + pathToId(fileNameWithPath) + "/" + (plugin != null && (plugin.getCommandPerspective(mode) != null) ? plugin.getCommandPerspective(mode) : "generatedContent"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
-      if (mode == FileCommand.COMMAND.NEWWINDOW) {
+      boolean isIE = RootPanel.getBodyElement().getClassName().contains("IE");
+      if (mode == FileCommand.COMMAND.NEWWINDOW || (extension.equals("pdf") && isIE)) {
         Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
