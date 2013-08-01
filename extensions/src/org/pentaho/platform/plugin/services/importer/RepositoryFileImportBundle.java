@@ -35,7 +35,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private Map<String, Object> properties = new HashMap<String, Object>();
   private List<IPlatformImportBundle> children = new ArrayList<IPlatformImportBundle>();
 
-  private RepositoryFileImportBundle(){
+  protected RepositoryFileImportBundle(){
   }
 
   /**
