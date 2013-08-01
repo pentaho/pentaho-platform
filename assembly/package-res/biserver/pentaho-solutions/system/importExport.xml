@@ -43,6 +43,10 @@
         <entry key="xmi" value-ref="streamConverter"/>
         <entry key="xml" value-ref="streamConverter"/>
         <entry key="cda" value-ref="streamConverter"/>
+		<entry key="kcs" value-ref="streamConverter"/>
+        <entry key="kdb" value-ref="streamConverter"/>
+        <entry key="kps" value-ref="streamConverter"/>
+		<entry key="ksl" value-ref="streamConverter"/>        
     </util:map>
 
     <bean id="DefaultExportHandler" class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
@@ -104,6 +108,11 @@
                 <entry key="xreportspec" value="text/xml"/>
                 <entry key="cda" value="text/xml"/>
                 <entry key="xls" value="application/vnd.ms-excel"/>
+				<entry key="kcs" value="text/xml"/>
+                <entry key="kdb" value="text/xml"/>
+                <entry key="kps" value="text/xml"/>
+				<entry key="ksl" value="text/xml"/>
+				<entry key="ktr" value="text/xml"/>                
             </map>
         </constructor-arg>
     </bean>
@@ -139,6 +148,10 @@
        <value>.xls</value>
        <value>.kjb</value>
        <value>.ktr</value>
+		<value>.kcs</value>
+		<value>.kbs</value>
+		<value>.kdb</value>
+		<value>.ksl</value>       
 	</util:list>
 
 	<util:list id="hiddenExtensionList">
