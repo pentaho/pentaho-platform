@@ -195,7 +195,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   }
 
   public static class Builder {
-    RepositoryFileImportBundle bundle;
+    protected RepositoryFileImportBundle bundle;
 
     public Builder(){
       bundle = new RepositoryFileImportBundle();
