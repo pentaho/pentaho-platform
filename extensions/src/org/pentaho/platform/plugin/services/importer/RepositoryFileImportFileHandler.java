@@ -35,13 +35,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
  
   private static final Messages messages = Messages.getInstance();
   private SolutionFileImportHelper solutionHelper;
-  public RepositoryFileImportFileHandler() {
-	  
-  }
   
   public RepositoryFileImportFileHandler(List<String> approvedExtensionList, List<String> hiddenExtensionList) {
 	  if(approvedExtensionList != null && approvedExtensionList.size() > 0 && hiddenExtensionList != null && hiddenExtensionList.size() > 0) {
 		  this.solutionHelper = new SolutionFileImportHelper(hiddenExtensionList, approvedExtensionList);  
+	  } else {
+		  throw new IllegalStateException("ApprovedExtensionList and HiddenExtensionList can not be null");
 	  }
   }
   
