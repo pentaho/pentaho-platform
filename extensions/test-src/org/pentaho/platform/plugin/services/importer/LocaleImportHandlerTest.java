@@ -52,7 +52,16 @@ public class LocaleImportHandlerTest {
 		List<String> allowedArtifacts = new ArrayList<String>();
 		allowedArtifacts.add("xaction");
 		allowedArtifacts.add("url");
-		LocaleImportHandler localeImportHandler = new LocaleImportHandler(allowedArtifacts);
+		
+		List<String> approvedExtensionsList = new ArrayList<String>();
+		allowedArtifacts.add(".prpt");
+		allowedArtifacts.add(".xaction");
+
+		List<String> hiddenExtensionsList = new ArrayList<String>();
+		allowedArtifacts.add(".xml");
+		allowedArtifacts.add(".png");
+
+		LocaleImportHandler localeImportHandler = new LocaleImportHandler(allowedArtifacts, approvedExtensionsList, hiddenExtensionsList);
 
 		Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
 		handlers.put("text/locale", localeImportHandler);
