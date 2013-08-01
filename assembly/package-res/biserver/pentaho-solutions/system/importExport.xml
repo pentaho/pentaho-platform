@@ -189,6 +189,8 @@
                 </entry>
                 <entry key="application/vnd.pentaho.reporting.classic">
 					<bean class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
+						<constructor-arg ref="approvedExtensionList"/>
+						<constructor-arg ref="hiddenExtensionList"/>					
 						<property name="repository" ref="unifiedRepository"/>
 						<property name="converters" ref="convertersMap"/>
 					</bean>
@@ -203,6 +205,8 @@
                 				<value>prpt</value>
 		            		</list>
 	        			</constructor-arg>
+						<constructor-arg ref="approvedExtensionList"/>
+						<constructor-arg ref="hiddenExtensionList"/>	        			
 		    		</bean>	
                 </entry>
             </map>

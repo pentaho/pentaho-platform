@@ -47,7 +47,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private IUnifiedRepository unifiedRepository;
 
-  public LocaleImportHandler(List<String> artifacts) {
+  public LocaleImportHandler(List<String> artifacts, List<String> approvedExtensionList, List<String> hiddenExtensionList) {
+	super(approvedExtensionList, hiddenExtensionList);
     this.unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
     this.artifacts = artifacts;
   }
