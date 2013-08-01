@@ -3,6 +3,7 @@ package org.pentaho.platform.plugin.services.importer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -26,7 +27,12 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
  */
 public class PRPTImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
-  private static final Log log = LogFactory.getLog(PRPTImportHandler.class);
+  public PRPTImportHandler(List<String> approvedExtensionList,
+			List<String> hiddenExtensionList) {
+		super(approvedExtensionList, hiddenExtensionList);
+  }
+
+private static final Log log = LogFactory.getLog(PRPTImportHandler.class);
   private   final String rootElement = "/office:document-meta/office:meta";
   
   @Override
