@@ -136,16 +136,43 @@ not directly from the PentahoObjectFactory. -->
     </pen:publish>
   </pen:bean>
 
+
+
   <pen:bean id="UserDetailsService" class="org.springframework.security.userdetails.UserDetailsService">
     <pen:attributes>
       <pen:attr key="providerName" value="${security.provider}"/>
     </pen:attributes>
+  </pen:bean>
+
+  <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+    <property name="cacheManager" ref="cacheManager"/>
+    <property name="cacheName" value="userCache"/>
+  </bean>
+
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+
+  <bean id="cachingUserDetailsService" class="org.springframework.security.config.CachingUserDetailsService">
+    <constructor-arg>
+      <ref bean="UserDetailsService"/>
+    </constructor-arg>
+    <property name="userCache">
+      <bean class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
+        <property name="cache" ref="ehcache"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean class="org.pentaho.platform.plugin.services.security.userrole.TenantAwareUserDetailsServiceDecorator">
+    <constructor-arg ref="cachingUserDetailsService"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="50"/>
       </pen:attributes>
     </pen:publish>
-  </pen:bean>
+  </bean>
 
 
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
