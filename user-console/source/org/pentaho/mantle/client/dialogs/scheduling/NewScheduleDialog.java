@@ -180,6 +180,7 @@ public class NewScheduleDialog extends PromptDialogBox {
     setSize("650px", "450px");
 
     validateScheduleLocationTextBox();
+    addStyleName("new-schedule-dialog");
   }
 
   protected void onOk() {
