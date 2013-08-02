@@ -87,7 +87,7 @@ pen.define([
     // show the opened perspective
     var extension = path.split(".").pop();
 
-    if(!($.browser.msie && extension == "pdf")){
+    if(!($("body").hasClass("IE") && extension == "pdf")){
     	parent.mantle_setPerspective('opened.perspective');
     }
     window.parent.mantle_openRepositoryFile(path, mode);
