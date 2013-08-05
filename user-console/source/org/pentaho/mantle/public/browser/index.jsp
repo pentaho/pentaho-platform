@@ -15,6 +15,21 @@
     <!-- We need web context for requirejs and css -->
     <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
+    <!-- Avoid 'console' errors in browsers that lack a console. -->
+    <script type="text/javascript">
+      if (!(window.console && console.log)) {
+        (function() {
+          var noop = function() {};
+          var methods = ['assert', 'debug', 'error', 'info', 'log', 'trace', 'warn'];
+          var length = methods.length;
+          var console = window.console = {};
+          while (length--) {
+            console[methods[length]] = noop;
+          }
+        }());
+      }
+    </script>
+
     <!-- Require File Browser -->
     <script type="text/javascript">
         function openRepositoryFile(path, mode) {
