@@ -11,8 +11,26 @@
  	"common-ui/util/HandlebarsCompiler"
  ], function(ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
 
+	var disableWelcomeVideo = function() {
+		$("#welcome-video").remove();
+		$(".welcome-img").show();
+	}
+
  	function init() {
+ 	
 		$.support.cors = true;
+
+		if (window.perspectiveDeactivated) {
+			var perspectiveDeactivated = window.perspectiveDeactivated;
+
+			window.perspectiveDeactivated = function() {
+				perspectiveDeactivated();
+				disableWelcomeVideo();
+			}
+		} else {
+			window.perspectiveDeactivated = disableWelcomeVideo;
+		}
+		
 
  		BootstrappedTabLoader.init({
 			parentSelector: "#getting-started",
@@ -33,10 +51,7 @@
 		 		});
 
 		 		// Remove embedded youtube since it shows through the other tabs
-		 		$("a[href=#tab2], a[href=#tab3]").bind("click", function(){
-					$("#welcome-video").remove();
-					$(".welcome-img").show();
-				});
+		 		$("a[href=#tab2], a[href=#tab3]").bind("click", disableWelcomeVideo);
 			},
 			postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");				
