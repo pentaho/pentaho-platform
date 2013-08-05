@@ -75,6 +75,11 @@
         			
         			var isFile = slashPath.search("\\.") > -1;
         			
+					// if possible refresh the solution browser panel
+					if (typeof window.top.mantle_setIsRepoDirty !== "undefined") {
+						window.top.mantle_setIsRepoDirty(true);
+					}	
+					
         			// Refresh file or folder list
         			if (isFile) {
         				window.top.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});  

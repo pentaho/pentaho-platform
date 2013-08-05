@@ -24,6 +24,7 @@ import java.util.HashMap;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPaneNativeListener;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
@@ -94,7 +95,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   public void loadApplication() {
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
-
+    FileChooserDialog.setupNativeHooks();
+    
     UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
       public void onSuccess(JsArray<JsSetting> settings) {
         onUserSettingsLoaded(new UserSettingsLoadedEvent(settings));
