@@ -143,6 +143,8 @@ public class FilePropertiesDialog extends PromptDialogBox {
       RequestBuilder requestBuilder = requestBuilders.get(i);
       if(i < requestBuilders.size() - 1){
         final RequestBuilder nextRequest = requestBuilders.get(i + 1);
+        // This header is required to force Internet Explorer to not cache values from the GET response.
+        nextRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         requestCallback = new ChainedRequestCallback(nextRequest);
       }
       else{
@@ -249,6 +251,8 @@ public class FilePropertiesDialog extends PromptDialogBox {
   protected void getMetadata(RepositoryFile fileSummary){
     String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata?cb=" + System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
+    // This header is required to force Internet Explorer to not cache values from the GET response.
+    metadataBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     metadataBuilder.setHeader("accept", "application/json");
     try {
       metadataBuilder.sendRequest(null, new RequestCallback() {
