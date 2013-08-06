@@ -91,9 +91,16 @@ public class DeleteFileCommand extends AbstractCommand {
 
     String temp = "";
     String names="";
+    RepositoryFile rf = null;
     for (FileItem fileItem : repositoryFiles) {
-      temp += fileItem.getRepositoryFile().getId() + ","; //$NON-NLS-1$
-      names += fileItem.getRepositoryFile().getName() + ","; //$NON-NLS-1$
+      rf = fileItem.getRepositoryFile();
+      temp += rf.getId() + ","; //$NON-NLS-1$
+      if(rf.getTitle() != null) {
+        names += rf.getTitle() + ","; //$NON-NLS-1$
+      } else {
+        names += rf.getName() + ","; //$NON-NLS-1$
+      }
+
     }
     // remove trailing ","
     temp = temp.substring(0, temp.length() - 1);
