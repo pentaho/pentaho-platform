@@ -156,7 +156,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         String outputFile = outputPathResolver.resolveOutputFilePath();
         String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
         job = scheduler.createJob(scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
-            new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile));
+            new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile, getAutoCreateUniqueFilename(scheduleRequest)));
       } else {
         // need to locate actions from plugins if done this way too (but for now, we're just on main)
         String actionClass = scheduleRequest.getActionClass();
@@ -172,6 +172,16 @@ public class SchedulerResource extends AbstractJaxRSResource {
       return Response.serverError().entity(e.getCause().getMessage()).build();
     }
     return Response.ok(job.getJobId()).type(MediaType.TEXT_PLAIN).build();
+  }
+
+  private boolean getAutoCreateUniqueFilename(final JobScheduleRequest scheduleRequest) {
+    ArrayList<JobScheduleParam> jobParameters = scheduleRequest.getJobParameters();
+    for (JobScheduleParam jobParameter : jobParameters) {
+      if("autoCreateUniqueFilename".equals(jobParameter.getName()) && "boolean".equals(jobParameter.getType())) {
+        return (Boolean) jobParameter.getValue();
+      }
+    }
+    return true;
   }
 
   @POST
