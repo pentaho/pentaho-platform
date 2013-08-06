@@ -28,12 +28,14 @@ pen.define([
 					GettingStartedWidget.injectMessagesArray(
 						"getting_started_samples", 
 						context.config.getting_started_sample_message_template, 
-						context.config.getting_started_sample_link_template );
+						context.config.getting_started_sample_link_template,
+						"sample-card" );
 					
 					GettingStartedWidget.injectMessagesArray(
 						"getting_started_tutorials", 
 						context.config.getting_started_video_message_template, 
-						context.config.getting_started_video_link_template );	
+						context.config.getting_started_video_link_template,
+						"tutorial-card" );	
 		 		});
 			}, postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");
@@ -110,14 +112,7 @@ pen.define([
 						});	
 					}
 
-					GettingStartedWidget.checkInternet(jHtml, function() {
-						ContextProvider.get(function(context) {
-							jHtml.find(".tutorial-card").each(function(index) {
-								var youtubeLinkId = context.config["tutorial_link"+(index+1)+"_id"];
-								GettingStartedWidget.injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time");
-							});					
-						});
-
+					GettingStartedWidget.checkInternet(jHtml, function() {						
 						bindInteractions(true);
 						
 					}, function() {
