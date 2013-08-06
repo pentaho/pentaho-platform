@@ -284,7 +284,10 @@ public class SaveCommand extends AbstractCommand {
   //used via JSNI
   private void addToRecentList(String fullPathWithName){
 	  if(fullPathWithName != null && fullPathWithName.contains(name)){
-		SolutionBrowserPanel.getInstance().addRecent(fullPathWithName, name);
+      int index = name.lastIndexOf(".");
+      String nameWithoutExtension = name.substring(0,index);
+
+		  SolutionBrowserPanel.getInstance().addRecent(fullPathWithName, nameWithoutExtension);
 	  }
   }
   //used via JSNI
