@@ -284,6 +284,26 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
               }
 
               MantleXul.this.addOverlays(overlays);
+
+              final String url = GWT.getHostPageBaseURL() + "plugin/data-access/api/permissions/hasDataAccess"; //$NON-NLS-1$
+              RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+              builder.setHeader("accept", "application/json");
+
+              try {
+                  builder.sendRequest(null, new RequestCallback() {
+
+                      public void onError(Request request, Throwable exception) {
+                          Window.alert(exception.getMessage());
+                      }
+                      public void onResponseReceived(Request request, Response response) {
+                          if(response.getText().equals("true")){
+                              controller.loadOverlay("dataaccess");
+                          }
+                      }
+                  });
+              } catch (RequestException e) {
+                  // showError(e);
+              }
             }
           });
         } catch (RequestException e) {
