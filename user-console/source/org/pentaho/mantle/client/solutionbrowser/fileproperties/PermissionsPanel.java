@@ -685,7 +685,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     int childCount = perms.getLength();
     for (int i = 0; i < childCount; i++) {
       Node perm = perms.item(i);
-      ace.removeChild(perm);
+      if(perm != null){
+        ace.removeChild(perm);
+      }
     }
     Element newPerm = fileInfo.createElement(PERMISSIONS_ELEMENT_NAME);
     Text textNode = fileInfo.createTextNode(Integer.toString(PERM_ALL));
