@@ -153,27 +153,24 @@ not directly from the PentahoObjectFactory. -->
     <property name="shared" value="true"/>
   </bean>
 
-  <bean id="cachingUserDetailsService" class="org.springframework.security.config.CachingUserDetailsService">
+  <bean id="cachingUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.PentahoCachingUserDetailsService">
     <constructor-arg>
       <ref bean="UserDetailsService"/>
     </constructor-arg>
+    <constructor-arg ref="tenantedUserNameUtils"/>
     <property name="userCache">
       <bean class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
         <property name="cache" ref="ehcache"/>
       </bean>
     </property>
-  </bean>
 
-  <bean class="org.pentaho.platform.plugin.services.security.userrole.TenantAwareUserDetailsServiceDecorator">
-    <constructor-arg ref="cachingUserDetailsService"/>
-    <constructor-arg ref="tenantedUserNameUtils"/>
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="50"/>
       </pen:attributes>
     </pen:publish>
-  </bean>
 
+  </bean>
 
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
