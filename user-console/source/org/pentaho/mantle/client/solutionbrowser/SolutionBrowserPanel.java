@@ -274,8 +274,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     Element pucHeader = DOM.getElementById("pucHeader");
     if (pucHeader != null) {
       final int offset = pucHeader.getOffsetHeight();
-      setElementHeightOffset(navigatorAndContentSplit.getElement(), 0);
-      setElementHeightOffset(contentTabPanel.getElement(), 0);
+      setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
+      setElementHeightOffset(contentTabPanel.getElement(), -1 * offset);
       Timer t = new Timer() {
         public void run() {
           setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
