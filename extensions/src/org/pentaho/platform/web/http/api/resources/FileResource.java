@@ -109,7 +109,7 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 /**
- * Represents a file node in the repository. This api provides methods for discovering information about repository files as well as CRUD operations
+ * Represents a file node in the getRepository(). This api provides methods for discovering information about repository files as well as CRUD operations
  * 
  * @author aaron
  */
@@ -127,16 +127,13 @@ public class FileResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog(FileResource.class);
 
-  protected IUnifiedRepository repository;
+  protected static IUnifiedRepository repository;
 
-  protected DefaultUnifiedRepositoryWebService repoWs;
+  protected static DefaultUnifiedRepositoryWebService repoWs;
 
-  protected IAuthorizationPolicy policy;
+  protected static IAuthorizationPolicy policy;
 
   public FileResource() {
-    repository = PentahoSystem.get(IUnifiedRepository.class);
-    repoWs = new DefaultUnifiedRepositoryWebService();
-    policy = PentahoSystem.get(IAuthorizationPolicy.class);
   }
 
   public FileResource(HttpServletResponse httpServletResponse) {
@@ -168,7 +165,7 @@ public class FileResource extends AbstractJaxRSResource {
     String[] sourceFileIds = params.split("[,]"); //$NON-NLS-1$
     try {
       for (int i = 0; i < sourceFileIds.length; i++) {
-        repoWs.deleteFile(sourceFileIds[i], null);
+        getRepoWs().deleteFile(sourceFileIds[i], null);
       }
       return Response.ok().build();
     } catch (Throwable t) {
@@ -184,7 +181,7 @@ public class FileResource extends AbstractJaxRSResource {
     String[] sourceFileIds = params.split("[,]"); //$NON-NLS-1$
     try {
       for (int i = 0; i < sourceFileIds.length; i++) {
-        repoWs.deleteFileWithPermanentFlag(sourceFileIds[i], true, null);
+        getRepoWs().deleteFileWithPermanentFlag(sourceFileIds[i], true, null);
       }
       return Response.ok().build();
     } catch (Throwable t) {
@@ -200,7 +197,7 @@ public class FileResource extends AbstractJaxRSResource {
     String[] sourceFileIds = params.split("[,]"); //$NON-NLS-1$
     try {
       for (int i = 0; i < sourceFileIds.length; i++) {
-        repoWs.undeleteFile(sourceFileIds[i], null);
+        getRepoWs().undeleteFile(sourceFileIds[i], null);
       }
       return Response.ok().build();
     } catch (Throwable t) {
@@ -233,31 +230,31 @@ public class FileResource extends AbstractJaxRSResource {
     }
     try {
       String path = idToPath(pathId);
-      RepositoryFile destDir = repository.getFile(path);
+      RepositoryFile destDir = getRepository().getFile(path);
       String[] sourceFileIds = params.split("[,]"); //$NON-NLS-1$
       if (mode == MODE_OVERWRITE || mode == MODE_NO_OVERWRITE) {
         for (String sourceFileId : sourceFileIds) {
-          RepositoryFile sourceFile = repository.getFileById(sourceFileId);
+          RepositoryFile sourceFile = getRepository().getFileById(sourceFileId);
           if (destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder()) {
             String fileName = sourceFile.getName();
             String sourcePath = sourceFile.getPath().substring(0, sourceFile.getPath().lastIndexOf(PATH_SEPARATOR));
             if (!sourcePath.equals(destDir.getPath())) { // We're saving to a different folder than we're copying from
-              IRepositoryFileData data = repository.getDataForRead(sourceFileId, SimpleRepositoryFileData.class);
-              RepositoryFileAcl acl = repository.getAcl(sourceFileId);
-              RepositoryFile destFile = repository.getFile(destDir.getPath() + PATH_SEPARATOR + fileName);
+              IRepositoryFileData data = getRepository().getDataForRead(sourceFileId, SimpleRepositoryFileData.class);
+              RepositoryFileAcl acl = getRepository().getAcl(sourceFileId);
+              RepositoryFile destFile = getRepository().getFile(destDir.getPath() + PATH_SEPARATOR + fileName);
               if (destFile == null) { // destFile doesn't exist so we'll create it.
                 RepositoryFile duplicateFile = new RepositoryFile.Builder(fileName).build();
-                repository.createFile(destDir.getId(), duplicateFile, data, acl, null);
+                getRepository().createFile(destDir.getId(), duplicateFile, data, acl, null);
               } else if (mode == MODE_OVERWRITE) { // destFile exists so check to see if we want to overwrite it.
-                repository.updateFile(destFile, data, null);
-                repository.updateAcl(acl);
+                getRepository().updateFile(destFile, data, null);
+                getRepository().updateAcl(acl);
               }
             }
           }
         }
       } else {
         for (String sourceFileId : sourceFileIds) {
-          RepositoryFile sourceFile = repository.getFileById(sourceFileId);
+          RepositoryFile sourceFile = getRepository().getFileById(sourceFileId);
           if (destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder()) {
 
             // First try to see if regular name is available
@@ -267,13 +264,13 @@ public class FileResource extends AbstractJaxRSResource {
             String nameNoExtension = fileName.substring(0, fileName.lastIndexOf('.'));
             String extension = fileName.substring(fileName.lastIndexOf('.'));
 
-            RepositoryFileDto testFile = repoWs.getFile(path + PATH_SEPARATOR + nameNoExtension + extension); //$NON-NLS-1$
+            RepositoryFileDto testFile = getRepoWs().getFile(path + PATH_SEPARATOR + nameNoExtension + extension); //$NON-NLS-1$
             if (testFile != null) {
               // Second try COPY_PREFIX, If the name already ends with a COPY_PREFIX don't append twice
               if (!nameNoExtension.endsWith(Messages.getInstance().getString("FileResource.COPY_PREFIX"))) { //$NON-NLS-1$
                 copyText = rootCopyText = Messages.getInstance().getString("FileResource.COPY_PREFIX");
                 fileName = nameNoExtension + copyText + extension;
-                testFile = repoWs.getFile(path + PATH_SEPARATOR + fileName);
+                testFile = getRepoWs().getFile(path + PATH_SEPARATOR + fileName);
               }
             }
 
@@ -283,10 +280,10 @@ public class FileResource extends AbstractJaxRSResource {
               nameCount++;
               copyText = rootCopyText + Messages.getInstance().getString("FileResource.DUPLICATE_INDICATOR", nameCount);
               fileName = nameNoExtension + copyText + extension;
-              testFile = repoWs.getFile(path + PATH_SEPARATOR + fileName);
+              testFile = getRepoWs().getFile(path + PATH_SEPARATOR + fileName);
             }
-            IRepositoryFileData data = repository.getDataForRead(sourceFileId, SimpleRepositoryFileData.class);
-            RepositoryFileAcl acl = repository.getAcl(sourceFileId);
+            IRepositoryFileData data = getRepository().getDataForRead(sourceFileId, SimpleRepositoryFileData.class);
+            RepositoryFileAcl acl = getRepository().getAcl(sourceFileId);
             RepositoryFile duplicateFile = null;
 
             // If the title is different than the source file, copy it separately
@@ -296,7 +293,7 @@ public class FileResource extends AbstractJaxRSResource {
               duplicateFile = new RepositoryFile.Builder(fileName).build();
             }
 
-            repository.createFile(destDir.getId(), duplicateFile, data, acl, null);
+            getRepository().createFile(destDir.getId(), duplicateFile, data, acl, null);
           }
         }
       }
@@ -327,7 +324,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(FORBIDDEN).build();
     }
 
-    RepositoryFile repoFile = repository.getFile(path);
+    RepositoryFile repoFile = getRepository().getFile(path);
 
     if (repoFile == null) {
       // file does not exist or is not readable but we can't tell at this point
@@ -366,7 +363,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(FORBIDDEN).build();
     }
 
-    RepositoryFile repoFile = repository.getFile(path);
+    RepositoryFile repoFile = getRepository().getFile(path);
 
     if (repoFile == null) {
       // file does not exist or is not readable but we can't tell at this point
@@ -415,7 +412,7 @@ public class FileResource extends AbstractJaxRSResource {
   // have to accept anything for browsers to work
   public String doIsParameterizable(@PathParam("pathId") String pathId) throws FileNotFoundException {
     boolean hasParameterUi = false;
-    RepositoryFile repositoryFile = repository.getFile(FileResource.idToPath(pathId));
+    RepositoryFile repositoryFile = getRepository().getFile(FileResource.idToPath(pathId));
     if (repositoryFile != null) {
       try {
         hasParameterUi = (PentahoSystem.get(IPluginManager.class).getContentGenerator(
@@ -499,7 +496,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
     // check if entity exists in repo
-    RepositoryFile repositoryFile = repository.getFile(path);
+    RepositoryFile repositoryFile = getRepository().getFile(path);
 
     if (repositoryFile == null) {
       // file does not exist or is not readable but we can't tell at this point
@@ -560,10 +557,10 @@ public class FileResource extends AbstractJaxRSResource {
 	        return Response.status(FORBIDDEN).build();
 	    }
 
-	    repositoryFile = repository.getFile(path);
+	    repositoryFile = getRepository().getFile(path);
 	} else {
 		// Yes path provided is an ID
-		repositoryFile = repository.getFileById(pathId);
+		repositoryFile = getRepository().getFileById(pathId);
 	}
 
     if (repositoryFile == null) {
@@ -571,7 +568,7 @@ public class FileResource extends AbstractJaxRSResource {
         return Response.status(NOT_FOUND).build();
     }
     try {
-      SimpleRepositoryFileData fileData = repository.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class);
+      SimpleRepositoryFileData fileData = getRepository().getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class);
       final InputStream is = fileData.getInputStream();
 
       StreamingOutput streamingOutput;
@@ -600,9 +597,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/acl")
   @Consumes({ APPLICATION_XML, APPLICATION_JSON })
   public Response setFileAcls(@PathParam("pathId") String pathId, RepositoryFileAclDto acl) {
-    RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+    RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
     acl.setId(file.getId());
-    repoWs.updateAcl(acl);
+    getRepoWs().updateAcl(acl);
     return Response.ok().build();
   }
 
@@ -611,10 +608,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Consumes({ APPLICATION_XML, APPLICATION_JSON })
   public Response setContentCreator(@PathParam("pathId") String pathId, RepositoryFileDto contentCreator) {
     try {
-      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
-      Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
+      RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
+      Map<String, Serializable> fileMetadata = getRepository().getFileMetadata(file.getId());
       fileMetadata.put(PentahoJcrConstants.PHO_CONTENTCREATOR, contentCreator.getId());
-      repository.setFileMetadata(file.getId(), fileMetadata);
+      getRepository().setFileMetadata(file.getId(), fileMetadata);
       return Response.ok().build();
     } catch (Throwable t) {
       return Response.serverError().build();
@@ -629,8 +626,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<LocaleMapDto> doGetFileLocales(@PathParam("pathId") String pathId) {
     List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
-    RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
-    List<PentahoLocale> locales = repoWs.getAvailableLocalesForFileById(file.getId());
+    RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
+    List<PentahoLocale> locales = getRepoWs().getAvailableLocalesForFileById(file.getId());
     if (locales != null && !locales.isEmpty()) {
       for (PentahoLocale locale : locales) {
         availableLocales.add(new LocaleMapDto(locale.toString(), null));
@@ -643,10 +640,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/localeProperties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<StringKeyStringValueDto> doGetLocaleProperties(@PathParam("pathId") String pathId, @QueryParam("locale") String locale) {
-    RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+    RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
     List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
     if (file != null) {
-      Properties properties = repoWs.getLocalePropertiesForFileById(file.getId(), locale);
+      Properties properties = getRepoWs().getLocalePropertiesForFileById(file.getId(), locale);
       if (properties != null && !properties.isEmpty()) {
         for (String key : properties.stringPropertyNames()) {
           keyValueList.add(new StringKeyStringValueDto(key, properties.getProperty(key)));
@@ -661,14 +658,14 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response doSetLocaleProperties(@PathParam("pathId") String pathId, @QueryParam("locale") String locale, List<StringKeyStringValueDto> properties) {
     try {
-      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+      RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
       Properties fileProperties = new Properties();
       if (properties != null && !properties.isEmpty()) {
         for (StringKeyStringValueDto dto : properties) {
           fileProperties.put(dto.getKey(), dto.getValue());
         }
       }
-      repoWs.setLocalePropertiesForFileByFileId(file.getId(), locale, fileProperties);
+      getRepoWs().setLocalePropertiesForFileByFileId(file.getId(), locale, fileProperties);
 
       return Response.ok().build();
     } catch (Throwable t) {
@@ -681,8 +678,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response doDeleteLocale(@PathParam("pathId") String pathId, @QueryParam("locale") String locale) {
     try {
-      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
-      repoWs.deleteLocalePropertiesForFile(file.getId(), locale);
+      RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
+      getRepoWs().deleteLocalePropertiesForFile(file.getId(), locale);
 
       return Response.ok().build();
     } catch (Throwable t) {
@@ -697,7 +694,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/properties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileDto doGetRootProperties() {
-    return repoWs.getFile(PATH_SEPARATOR);
+    return getRepoWs().getFile(PATH_SEPARATOR);
   }
 
   @GET
@@ -709,7 +706,7 @@ public class FileResource extends AbstractJaxRSResource {
     while (tokenizer.hasMoreTokens()) {
       Integer perm = Integer.valueOf(tokenizer.nextToken());
       EnumSet<RepositoryFilePermission> permission = EnumSet.of(RepositoryFilePermission.values()[perm]);
-      permMap.add(new Setting(perm.toString(), new Boolean(repository.hasAccess(idToPath(pathId), permission)).toString()));
+      permMap.add(new Setting(perm.toString(), new Boolean(getRepository().hasAccess(idToPath(pathId), permission)).toString()));
     }
     return permMap;
   }
@@ -745,24 +742,24 @@ public class FileResource extends AbstractJaxRSResource {
       }
       }
     }
-    return repoWs.hasAccess(idToPath(pathId), permissionList) ? "true" : "false";
+    return getRepoWs().hasAccess(idToPath(pathId), permissionList) ? "true" : "false";
   }
 
   @GET
   @Path("/canAdminister")
   @Produces(TEXT_PLAIN)
   public String doGetCanAdminister() {
-    return policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME) && policy.isAllowed(AdministerSecurityAction.NAME) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return getPolicy().isAllowed(RepositoryReadAction.NAME) && getPolicy().isAllowed(RepositoryCreateAction.NAME) && getPolicy().isAllowed(AdministerSecurityAction.NAME) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
   @GET
   @Path("{pathId : .+}/acl")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileAclDto doGetFileAcl(@PathParam("pathId") String pathId) {
-    RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
-    RepositoryFileAclDto fileAcl = repoWs.getAcl(file.getId());
+    RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
+    RepositoryFileAclDto fileAcl = getRepoWs().getAcl(file.getId());
     if (fileAcl.isEntriesInheriting()) {
-      List<RepositoryFileAclAceDto> aces = repoWs.getEffectiveAces(file.getId());
+      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces(file.getId());
       fileAcl.setAces(aces, fileAcl.isEntriesInheriting());
     }
     return fileAcl;
@@ -772,7 +769,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/properties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileDto doGetProperties(@PathParam("pathId") String pathId) {
-    return repoWs.getFile(idToPath(pathId));
+    return getRepoWs().getFile(idToPath(pathId));
   }
 
   @GET
@@ -780,11 +777,11 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileDto doGetContentCreator(@PathParam("pathId") String pathId) {
     try {
-      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
-      Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
+      RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
+      Map<String, Serializable> fileMetadata = getRepository().getFileMetadata(file.getId());
       String creatorId = (String) fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
       if (creatorId != null && creatorId.length() > 0) {
-        return repoWs.getFileById(creatorId);
+        return getRepoWs().getFileById(creatorId);
       } else {
         return null;
       }
@@ -803,12 +800,12 @@ public class FileResource extends AbstractJaxRSResource {
       String targetFileId = targetFile.getId();
       SessionResource sessionResource = new SessionResource();
 
-      RepositoryFile workspaceFolder = repository.getFile(sessionResource.doGetCurrentUserDir());
+      RepositoryFile workspaceFolder = getRepository().getFile(sessionResource.doGetCurrentUserDir());
       if (workspaceFolder != null) {
-        List<RepositoryFile> children = repository.getChildren(workspaceFolder.getId());
+        List<RepositoryFile> children = getRepository().getChildren(workspaceFolder.getId());
         for (RepositoryFile child : children) {
           if (!child.isFolder()) {
-            Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+            Map<String, Serializable> fileMetadata = getRepository().getFileMetadata(child.getId());
             String creatorId = (String) fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
             if (creatorId != null && creatorId.equals(targetFileId)) {
               content.add(RepositoryFileAdapter.toFileDto(child));
@@ -830,12 +827,12 @@ public class FileResource extends AbstractJaxRSResource {
       String targetFileId = targetFile.getId();
       SessionResource sessionResource = new SessionResource();
 
-      RepositoryFile workspaceFolder = repository.getFile(sessionResource.doGetUserDir(user));
+      RepositoryFile workspaceFolder = getRepository().getFile(sessionResource.doGetUserDir(user));
       if (workspaceFolder != null) {
-        List<RepositoryFile> children = repository.getChildren(workspaceFolder.getId());
+        List<RepositoryFile> children = getRepository().getChildren(workspaceFolder.getId());
         for (RepositoryFile child : children) {
           if (!child.isFolder()) {
-            Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+            Map<String, Serializable> fileMetadata = getRepository().getFileMetadata(child.getId());
             String creatorId = (String) fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
             if (creatorId != null && creatorId.equals(targetFileId)) {
               content.add(RepositoryFileAdapter.toFileDto(child));
@@ -853,12 +850,12 @@ public class FileResource extends AbstractJaxRSResource {
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule(@QueryParam("lineageId") String lineageId) {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
     SessionResource sessionResource = new SessionResource();
-    RepositoryFile workspaceFolder = repository.getFile(sessionResource.doGetCurrentUserDir());
+    RepositoryFile workspaceFolder = getRepository().getFile(sessionResource.doGetCurrentUserDir());
     if (workspaceFolder != null) {
-      List<RepositoryFile> children = repository.getChildren(workspaceFolder.getId());
+      List<RepositoryFile> children = getRepository().getChildren(workspaceFolder.getId());
       for (RepositoryFile child : children) {
         if (!child.isFolder()) {
-          Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+          Map<String, Serializable> fileMetadata = getRepository().getFileMetadata(child.getId());
           String lineageIdMeta = (String) fileMetadata.get(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
           if (lineageIdMeta != null && lineageIdMeta.equals(lineageId)) {
             content.add(RepositoryFileAdapter.toFileDto(child));
@@ -905,7 +902,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
     List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
-    RepositoryFileTreeDto tree = repoWs.getTree(path, depth, filter, showHidden.booleanValue());
+    RepositoryFileTreeDto tree = getRepoWs().getTree(path, depth, filter, showHidden.booleanValue());
 
     // BISERVER-9599 - Use special sort order
     Collator collator = Collator.getInstance(PentahoSessionHolder.getSession().getLocale());
@@ -914,7 +911,7 @@ public class FileResource extends AbstractJaxRSResource {
 
     for (RepositoryFileTreeDto child : tree.getChildren()) {
       RepositoryFileDto file = child.getFile();
-      Map<String, Serializable> fileMeta = repository.getFileMetadata(file.getId());
+      Map<String, Serializable> fileMeta = getRepository().getFileMetadata(file.getId());
       boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
       if (!isSystemFolder) {
         filteredChildren.add(child);
@@ -928,7 +925,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/deleted")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<RepositoryFileDto> doGetDeletedFiles() {
-    return repoWs.getDeletedFiles();
+    return getRepoWs().getDeletedFiles();
   }
 
   @GET
@@ -944,9 +941,9 @@ public class FileResource extends AbstractJaxRSResource {
         path = idToPath(pathId);
       }
     }
-    final RepositoryFileDto file = repoWs.getFile(path);
+    final RepositoryFileDto file = getRepoWs().getFile(path);
     if (file != null) {
-      list = repoWs.getFileMetadata(file.getId());
+      list = getRepoWs().getFileMetadata(file.getId());
     }
     if (list != null) {
       boolean hasSchedulable = false;
@@ -975,7 +972,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ WILDCARD })
   public Response doRename(@PathParam("pathId") String pathId, @QueryParam("newName") String newName) {
     try {
-      RepositoryFileDto fileToBeRenamed = repoWs.getFile(idToPath(pathId));
+      RepositoryFileDto fileToBeRenamed = getRepoWs().getFile(idToPath(pathId));
       StringBuilder buf = new StringBuilder(fileToBeRenamed.getPath().length());
       buf.append(getParentPath(fileToBeRenamed.getPath()));
       buf.append(RepositoryFile.SEPARATOR);
@@ -984,7 +981,7 @@ public class FileResource extends AbstractJaxRSResource {
       if(extension != null) {
     	  buf.append(extension);  
       }
-      repoWs.moveFile(fileToBeRenamed.getId(), buf.toString(), "Renaming the file");
+      getRepoWs().moveFile(fileToBeRenamed.getId(), buf.toString(), "Renaming the file");
       return Response.ok().build();
     } catch (Throwable t) {
     	 return processErrorResponse(t.getLocalizedMessage());
@@ -1032,16 +1029,16 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doSetMetadata(@PathParam("pathId") String pathId, List<StringKeyStringValueDto> metadata) {
     try {
 
-      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
-      RepositoryFileAclDto fileAcl = repoWs.getAcl(file.getId());
+      RepositoryFileDto file = getRepoWs().getFile(idToPath(pathId));
+      RepositoryFileAclDto fileAcl = getRepoWs().getAcl(file.getId());
 
       boolean canManage = PentahoSessionHolder.getSession().getName().equals(fileAcl.getOwner())
-          || (policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME) && policy.isAllowed(AdministerSecurityAction.NAME));
+          || (getPolicy().isAllowed(RepositoryReadAction.NAME) && getPolicy().isAllowed(RepositoryCreateAction.NAME) && getPolicy().isAllowed(AdministerSecurityAction.NAME));
 
       if (!canManage) {
 
         if (fileAcl.isEntriesInheriting()) {
-          List<RepositoryFileAclAceDto> aces = repoWs.getEffectiveAces(file.getId());
+          List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces(file.getId());
           fileAcl.setAces(aces, fileAcl.isEntriesInheriting());
         }
 
@@ -1058,7 +1055,7 @@ public class FileResource extends AbstractJaxRSResource {
       }
 
       if (canManage) {
-        Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
+        Map<String, Serializable> fileMetadata = getRepository().getFileMetadata(file.getId());
         boolean isHidden = false;
 
         for (StringKeyStringValueDto nv : metadata) {
@@ -1072,7 +1069,7 @@ public class FileResource extends AbstractJaxRSResource {
 
         // now update the rest of the metadata
         if (!file.isFolder()) {
-          repository.setFileMetadata(file.getId(), fileMetadata);
+          getRepository().setFileMetadata(file.getId(), fileMetadata);
         }
 
         // handle hidden flag if it is different
@@ -1082,7 +1079,7 @@ public class FileResource extends AbstractJaxRSResource {
           /*
            * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then update the original.
            */
-          RepositoryFile sourceFile = repository.getFileById(file.getId());
+          RepositoryFile sourceFile = getRepository().getFileById(file.getId());
           RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto(sourceFile);
 
           destFileDto.setHidden(isHidden);
@@ -1090,13 +1087,13 @@ public class FileResource extends AbstractJaxRSResource {
           RepositoryFile destFile = RepositoryFileAdapter.toFile(destFileDto);
 
           // add the existing acls and file data
-          RepositoryFileAcl acl = repository.getAcl(sourceFile.getId());
+          RepositoryFileAcl acl = getRepository().getAcl(sourceFile.getId());
           if (!file.isFolder()) {
-            IRepositoryFileData data = repository.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
-            repository.updateFile(destFile, data, null);
-            repository.updateAcl(acl);
+            IRepositoryFileData data = getRepository().getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
+            getRepository().updateFile(destFile, data, null);
+            getRepository().updateAcl(acl);
           } else {
-            repository.updateFolder(destFile, null);
+            getRepository().updateFolder(destFile, null);
           }
         }
         return Response.ok().build();
@@ -1146,5 +1143,26 @@ public class FileResource extends AbstractJaxRSResource {
         }
       });
     }
+  }
+
+  public static IAuthorizationPolicy getPolicy() {
+    if(policy == null){
+      policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    }
+    return policy;
+  }
+
+  public static IUnifiedRepository getRepository() {
+    if(repository == null){
+      repository = PentahoSystem.get(IUnifiedRepository.class);
+    }
+    return repository;
+  }
+
+  public static DefaultUnifiedRepositoryWebService getRepoWs() {
+    if(repoWs == null){
+      repoWs = new DefaultUnifiedRepositoryWebService();
+    }
+    return repoWs;
   }
 }

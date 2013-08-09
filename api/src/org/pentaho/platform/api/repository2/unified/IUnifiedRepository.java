@@ -46,7 +46,9 @@ public interface IUnifiedRepository {
    * @param depth      0 fetches just file at path; positive integer n fetches node at path plus n levels of children;
    *                   negative integer fetches all children
    * @param filter     filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
-   *                   disjunction (using the "|" character to represent logical OR) of these; filter does not apply to root node
+   *                   disjunction (using the "|" character to represent logical OR) of these; filter does not apply to root node.
+   *                   Filter segments can also filter the results to just Files or Folders by passing in one of the following:
+   *                   ( FILES | FOLDERS | [default] FILES_FOLDERS )
    * @param showHidden is a boolean which identify whether to include the hidden files/folders in the list or not
    * @return file or {@code null} if the file does not exist or access is denied
    */

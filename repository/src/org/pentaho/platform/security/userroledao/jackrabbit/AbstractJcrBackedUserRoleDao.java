@@ -18,6 +18,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
 import org.apache.jackrabbit.api.security.user.Group;
@@ -92,6 +93,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   List<String> extraRoles;
   
   HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
+
+  private LRUMap userCache = new LRUMap(4096);
 
   public AbstractJcrBackedUserRoleDao(ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
@@ -347,6 +350,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
   private IPentahoUser convertToPentahoUser(User jackrabbitUser) throws RepositoryException {
+    if(userCache.containsKey(jackrabbitUser.getID())){
+      return (IPentahoUser) userCache.get(jackrabbitUser.getID());
+    }
     IPentahoUser pentahoUser = null;
     Value[] propertyValues = null;
 
@@ -367,6 +373,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         tenantedUserNameUtils.getPrincipleName(jackrabbitUser.getID()), password, description,
         !jackrabbitUser.isDisabled());
 
+    userCache.put(jackrabbitUser.getID(), pentahoUser);
     return pentahoUser;
   }
 

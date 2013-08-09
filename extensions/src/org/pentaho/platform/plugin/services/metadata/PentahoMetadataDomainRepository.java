@@ -202,7 +202,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       throw new DomainIdNullException(messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL"));
     }
 
-    synchronized (metadataMapping) {
+
       // Check to see if the domain already exists
       final RepositoryFile domainFile = getMetadataRepositoryFile(domainId);
       if (!overwrite && domainFile != null) {
@@ -246,7 +246,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
       // This invalidates any caching
       flushDomains();
-    }
+
   }
 
   /*
@@ -255,7 +255,10 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    */
   public Map<String, InputStream> getDomainFilesData(final String domainId) {
     Map<String, InputStream> values = new HashMap<String, InputStream>();
-    Set<RepositoryFile> metadataFiles = metadataMapping.getFiles(domainId);
+    Set<RepositoryFile> metadataFiles;
+    synchronized (metadataMapping){
+      metadataFiles = metadataMapping.getFiles(domainId);
+    }
     for(RepositoryFile repoFile : metadataFiles) {
       RepositoryFileInputStream is;
       try {
@@ -323,9 +326,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   @Override
   public Set<String> getDomainIds() {
     logger.debug("getDomainIds()");
+    internalReloadDomains();
+    final Set<String> domainIds = new HashSet<String>();
     synchronized (metadataMapping) {
-      internalReloadDomains();
-      final Set<String> domainIds = new HashSet<String>();
       domainIds.addAll(metadataMapping.getDomainIds());
       return domainIds;
     }
@@ -349,19 +352,20 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     synchronized (metadataMapping) {
       domainFiles = metadataMapping.getFiles(domainId);
       metadataMapping.deleteDomain(domainId);
-
-      for (final RepositoryFile file : domainFiles) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Deleting repository file " + toString(file));
-        }
-        repository.deleteFile(file.getId(), null);
-      }
-
-      // This invalidates any caching
-      if (!domainFiles.isEmpty()) {
-        flushDomains();
-      }
     }
+
+    for (final RepositoryFile file : domainFiles) {
+      if (logger.isTraceEnabled()) {
+        logger.trace("Deleting repository file " + toString(file));
+      }
+      repository.deleteFile(file.getId(), null);
+    }
+
+    // This invalidates any caching
+    if (!domainFiles.isEmpty()) {
+      flushDomains();
+    }
+
   }
 
   /**
