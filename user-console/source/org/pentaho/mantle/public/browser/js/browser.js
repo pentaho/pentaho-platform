@@ -56,6 +56,29 @@ pen.define([
     FileBrowser.canDownload = false;
     FileBrowser.canPublish = false;
 
+    /**
+     * Encode parts of the path between the colons
+     **/
+    FileBrowser.encodePathComponents = function (path) {
+        var result = path;
+
+        // only parse paths greater than 1 ":"
+        if(path.length > 1){
+            var encodedParts = [];
+
+            var parts = path.split(":");
+
+            for(var x = 0; x <= parts.length - 1; x++){
+                if(parts[x] != ""){
+                    encodedParts[x] = encodeURIComponent(parts[x]);
+                }
+            }
+            result = encodedParts.join(":");
+        }
+
+        return result;
+    };
+
     FileBrowser.setShowHiddenFiles = function (value) {
         this.showHiddenFiles = value;
     };
@@ -251,7 +274,7 @@ pen.define([
 
             //Ajax request to check write permissions for folder
             $.ajax({
-                url: '/pentaho/api/repo/files/' + folderPath + '/canAccessMap',
+                url: '/pentaho/api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
                 type: "GET",
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
@@ -286,7 +309,7 @@ pen.define([
 
             //Ajax request to check write permissions for file
             $.ajax({
-                url: '/pentaho/api/repo/files/' + filePath + '/canAccessMap',
+                url: '/pentaho/api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
                 type: "GET",
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
@@ -406,7 +429,7 @@ pen.define([
                 tree = null,
                 localSequenceNumber = myself.get("sequenceNumber");
 
-            var url = this.getFileTreeRequest(path == null ? ":" : path.replace(/\//g, ":"));
+            var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : path.replace(/\//g, ":")));
 
             $.ajax({
                 async: true,
@@ -507,7 +530,7 @@ pen.define([
 
         fetchData: function (path, callback) {
             var myself = this,
-                url = this.getFileListRequest(path == null ? ":" : path.replace(/\//g, ":")),
+                url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : path.replace(/\//g, ":"))),
                 localSequenceNumber = myself.get("sequenceNumber");
 
             $.ajax({
@@ -661,8 +684,8 @@ pen.define([
                 i18n: jQuery.i18n,
                 refreshHandler: function(){
                   if(window.top.mantle_fireEvent){
-                    window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent"});  
-                  }  
+                    window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent"});
+                  }
                 }
             };
 
@@ -983,7 +1006,7 @@ pen.define([
                         while($this.height() > 20){
                             $this.width($this.width() + 20);
                         }
-                    });  
+                    });
                 } else {
                     myself.$el.append(templates.emptyFolder({i18n:jQuery.i18n}));
                 }
@@ -1106,6 +1129,7 @@ pen.define([
     }
 
     return {
+        encodePathComponents: FileBrowser.encodePathComponents,
         setContainer: FileBrowser.setContainer,
         setOpenFileHandler: FileBrowser.setOpenFileHandler,
         setShowHiddenFiles: FileBrowser.setShowHiddenFiles,
