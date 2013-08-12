@@ -383,7 +383,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     RepositoryFile file;
 
     public RepositoryFileCGFactory(String contentGeneratorPath, RepositoryFile file) {
-      super(contentGeneratorPath, file.getName().substring(file.getName().indexOf('.') + 1));
+      super(contentGeneratorPath, file.getName().substring(file.getName().lastIndexOf('.') + 1));
       this.file = file;
     }
 
