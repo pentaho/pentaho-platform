@@ -21,6 +21,20 @@
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
+  <!-- Avoid 'console' errors in browsers that lack a console. -->
+  <script type="text/javascript">
+    if (!(window.console && console.log)) {
+      (function() {
+        var noop = function() {};
+        var methods = ['assert', 'debug', 'error', 'info', 'log', 'trace', 'warn'];
+        var length = methods.length;
+        var console = window.console = {};
+        while (length--) {
+          console[methods[length]] = noop;
+        }
+      }());
+    }
+  </script>
 
   <!-- Require Home -->
   <script type="text/javascript">
@@ -127,6 +141,10 @@
     <div class="span9" style="overflow:auto">
 
       <div class="row-fluid">
+
+        <!-- Pre-load  getting started over graphic for smooth inital transition for mouse over css -->
+        <div class="preload-getting-started-over-icon" style="display:none"></div>
+        
         <script type="text/x-handlebars-template">
           <div id="getting-started" class="well getting-started widget-panel">
             <h3>{{i18n.getting_started_heading}}</h3>

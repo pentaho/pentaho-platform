@@ -1104,3 +1104,30 @@ a:active, a:hover {
 #admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
   height: 19px;
 }
+
+.newToolbarDropdown {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(139, 181, 197, 0.2);
+  background-color: #d4d6db;
+  
+  /* Standard form */
+  border-radius: 6px;
+  /* Firefox */
+  -moz-border-radius: 6px;
+  /* Safari/Chrome */
+  -webkit-border-radius: 6px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.newToolbarDropdownButton {
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

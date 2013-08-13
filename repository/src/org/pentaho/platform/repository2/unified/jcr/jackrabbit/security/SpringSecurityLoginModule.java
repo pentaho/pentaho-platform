@@ -100,12 +100,14 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
     authenticationManager = getAuthenticationManager(callbackHandler, session, options);
   }
 
+  // Static caching as this class is instanced over and over
+  protected static AuthenticationManager authManager = null;
   protected AuthenticationManager getAuthenticationManager(final CallbackHandler callbackHandler,
       final Session session, final Map options) {
-    if(PentahoSystem.getInitializedOK()) {
-    AuthenticationManager am = PentahoSystem.get(AuthenticationManager.class);
-    return am;
-    } else return null;
+    if(authManager == null && PentahoSystem.getInitializedOK()) {
+      authManager = PentahoSystem.get(AuthenticationManager.class);
+    }
+    return authManager;
   }
 
   /**

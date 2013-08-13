@@ -330,7 +330,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
   /**
    * Hook for adding listeners to the newly returned session. We have to treat exceptions manually and can't
-   * reply on the template.
+   * rely on the template.
    * @param session JCR session
    * @return the listened session
    */

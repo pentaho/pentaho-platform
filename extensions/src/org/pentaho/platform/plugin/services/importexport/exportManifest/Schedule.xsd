@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--This XSD was automatically generated from the JobScheduleRequest class-->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="complexJobTrigger" type="complexJobTrigger"/>
+
+  <xs:element name="complexJobTriggerProxy" type="complexJobTriggerProxy"/>
+
+  <xs:element name="cronJobTrigger" type="cronJobTrigger"/>
+
+  <xs:element name="incrementalRecurrence" type="incrementalRecurrence"/>
+
+  <xs:element name="jobScheduleRequest" type="jobScheduleRequest"/>
+
+  <xs:element name="qualifiedDayOfMonth" type="qualifiedDayOfMonth"/>
+
+  <xs:element name="qualifiedDayOfWeek" type="qualifiedDayOfWeek"/>
+
+  <xs:element name="recurrenceList" type="recurrenceList"/>
+
+  <xs:element name="sequentialRecurrence" type="sequentialRecurrence"/>
+
+  <xs:element name="simpleJobTrigger" type="simpleJobTrigger"/>
+
+  <xs:complexType name="jobScheduleRequest">
+    <xs:sequence>
+      <xs:element name="actionClass" type="xs:string" minOccurs="0"/>
+      <xs:element name="complexJobTrigger" type="complexJobTriggerProxy" minOccurs="0"/>
+      <xs:element ref="cronJobTrigger" minOccurs="0"/>
+      <xs:element name="duration" type="xs:long"/>
+      <xs:element name="inputFile" type="xs:string" minOccurs="0"/>
+      <xs:element name="jobName" type="xs:string" minOccurs="0"/>
+      <xs:element name="jobParameters" type="jobScheduleParam" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="outputFile" type="xs:string" minOccurs="0"/>
+      <xs:element ref="simpleJobTrigger" minOccurs="0"/>
+      <xs:element name="timeZone" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="complexJobTriggerProxy">
+    <xs:sequence>
+      <xs:element name="cronString" type="xs:string" minOccurs="0"/>
+      <xs:element name="daysOfMonth" type="xs:int" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="daysOfWeek" type="xs:int" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="endTime" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="monthsOfYear" type="xs:int" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="startTime" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="uiPassParam" type="xs:string" minOccurs="0"/>
+      <xs:element name="weeksOfMonth" type="xs:int" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="years" type="xs:int" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cronJobTrigger">
+    <xs:complexContent>
+      <xs:extension base="jobTrigger">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="jobTrigger" abstract="true">
+    <xs:sequence>
+      <xs:element name="cronString" type="xs:string" minOccurs="0"/>
+      <xs:element name="duration" type="xs:long"/>
+      <xs:element name="endTime" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="startTime" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="uiPassParam" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="simpleJobTrigger">
+    <xs:complexContent>
+      <xs:extension base="jobTrigger">
+        <xs:sequence>
+          <xs:element name="repeatCount" type="xs:int"/>
+          <xs:element name="repeatInterval" type="xs:long"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="complexJobTrigger">
+    <xs:complexContent>
+      <xs:extension base="jobTrigger">
+        <xs:sequence>
+          <xs:element name="dayOfMonthRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="qualifiedDayOfMonth"/>
+                  <xs:element ref="recurrenceList"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="dayOfWeekRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="recurrenceList"/>
+                  <xs:element ref="qualifiedDayOfWeek"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="hourlyRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="recurrenceList"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="minuteRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="recurrenceList"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="monthlyRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="recurrenceList"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="secondRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="recurrenceList"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="yearlyRecurrences" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element ref="sequentialRecurrence"/>
+                  <xs:element ref="incrementalRecurrence"/>
+                  <xs:element ref="recurrenceList"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="sequentialRecurrence">
+    <xs:sequence>
+      <xs:element name="firstValue" type="xs:int" minOccurs="0"/>
+      <xs:element name="lastValue" type="xs:int" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="incrementalRecurrence">
+    <xs:sequence>
+      <xs:element name="increment" type="xs:int" minOccurs="0"/>
+      <xs:element name="startingValue" type="xs:int" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="qualifiedDayOfMonth">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="recurrenceList">
+    <xs:sequence>
+      <xs:element name="values" type="xs:int" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="qualifiedDayOfWeek">
+    <xs:sequence>
+      <xs:element name="dayOfWeek" type="dayOfWeek" minOccurs="0"/>
+      <xs:element name="qualifier" type="dayOfWeekQualifier" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="jobScheduleParam">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="stringValue" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="type" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="dayOfWeek">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SUN"/>
+      <xs:enumeration value="MON"/>
+      <xs:enumeration value="TUE"/>
+      <xs:enumeration value="WED"/>
+      <xs:enumeration value="THU"/>
+      <xs:enumeration value="FRI"/>
+      <xs:enumeration value="SAT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="dayOfWeekQualifier">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FIRST"/>
+      <xs:enumeration value="SECOND"/>
+      <xs:enumeration value="THIRD"/>
+      <xs:enumeration value="FOURTH"/>
+      <xs:enumeration value="FIFTH"/>
+      <xs:enumeration value="LAST"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

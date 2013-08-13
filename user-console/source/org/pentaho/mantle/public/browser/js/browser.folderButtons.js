@@ -136,11 +136,13 @@ pen.define([
                 }
 
                 if(writePerm =="true"){
-                    $("#pasteButton").attr("enabled", "enabled");
+                    $("#pasteButton").prop("disabled", false);
+                    $("#renameButton").prop("disabled", false);
                 }
 
                 else {
-                    $("#pasteButton").attr("disabled", "disabled");
+                    $("#pasteButton").prop("disabled", true);
+                    $("#renameButton").prop("disabled", true);
                 }
             }
         },
@@ -175,10 +177,10 @@ pen.define([
         },
 
         postPropertiesHandler: function () {
-            $(window.parent.document).find(".pentaho-dialog").attr("id", "browse-properties-dialog");
+            $(window.parent.document).find(".pentaho-dialog:not(.modal)").attr("id", "browse-properties-dialog");
         },
         renameHandler: function(path){
-      		this.renameDialog.init(path);
+      		this.renameDialog.init(path, "folder");
     	}
 
     };

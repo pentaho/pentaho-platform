@@ -23,7 +23,7 @@
 	if ($container.length == 0) {		
 		$container = $("<div class='bootstrap dialogs'></div>");
 		$container.appendTo($body);	
-	}
+	}	
 
 	var local = {
 
@@ -32,6 +32,8 @@
 		postShow: null,
 
 		postHide: null,
+
+		isDragging: false,
 
 		// 	config = { 					
 		// 		dialog.id: 				"id",				
@@ -42,7 +44,7 @@
 		// 	}
 
 		init: function ( config, postShow, postHide ) {
-			var that = this;
+			var me = this;
 			
 			this.postShow = postShow;
 			this.postHide = postHide;
@@ -50,7 +52,7 @@
 			// Create dialog from content
 			this.$dialog = $(DialogTemplates.dialog(config));
 			this.$dialog.find(".footer .cancel").bind("click", function(){
-				that.hide.apply(that);
+				me.hide.apply(me);
 			});
 
 			// Toggle close button
@@ -62,8 +64,41 @@
 			// Register this dialog and store in global dialogs			
 			dialogs.push(this);
 
+			// Re-center dialog
+			$(window).bind("resize", function(){
+				me._center();
+			})
+
+			this.$dialog.find(".Caption")
+				.bind("mousedown", function(event) {
+					var mouseX = event.clientX;
+					var mouseY = event.clientY;
+
+					var dialogX = me.$dialog.position().left;
+					var dialogY = me.$dialog.position().top;
+
+					me.isDragging = true;
+					me.$dialog.unbind("mousemove");
+
+				    me.$dialog.bind("mousemove", function(event) {
+				        var newMouseX = event.clientX;
+						var newMouseY = event.clientY;
+
+				        if (me.isDragging) {
+				        	me.$dialog.css({
+				        		left: dialogX + (newMouseX - mouseX),
+				        		top: dialogY + (newMouseY - mouseY)
+				        	});
+				        }
+				    });
+				})
+				.mouseup(function() {
+				    this.isDragging = false;
+				    me.$dialog.unbind("mousemove");				    
+				});
+
 			return this.$dialog;
-		},		
+		},			
 
 		show: function() {			
 			
@@ -77,6 +112,9 @@
     		this.$dialog.focus();
     		$(".modal-backdrop").detach().appendTo($container);
 
+    		// Center modal within container
+    		this._center();
+
     		if (this.postShow) {
     			this.postShow();
     		}
@@ -87,9 +125,20 @@
 		hide: function() {
 			this.$dialog.modal('hide');							
 
+			this.isDragging = false;
+
 			if (this.postHide) {
 				this.postHide();
 			}
+		},
+
+		_center: function() {
+			var backdrop = $container.find(".modal-backdrop");
+
+			this.$dialog.css({
+				"left": backdrop.width() / 2 - this.$dialog.width() / 2,
+				"top": backdrop.height() / 2 - this.$dialog.height() / 2
+			});
 		}
 	};
 

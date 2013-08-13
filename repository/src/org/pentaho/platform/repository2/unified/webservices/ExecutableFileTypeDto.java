@@ -12,6 +12,10 @@ public class ExecutableFileTypeDto implements Serializable {
   
   private String title;
 
+  private boolean canEdit;
+
+  private boolean canSchedule;
+
   public String getDescription() {
     return description;
   }
@@ -34,6 +38,22 @@ public class ExecutableFileTypeDto implements Serializable {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  public boolean isCanEdit() {
+    return canEdit;
+  }
+
+  public void setCanEdit(boolean canEdit) {
+    this.canEdit = canEdit;
+  }
+
+  public boolean isCanSchedule() {
+    return canSchedule;
+  }
+
+  public void setCanSchedule(boolean canSchedule) {
+    this.canSchedule = canSchedule;
   }
   
 }

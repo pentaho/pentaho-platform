@@ -72,6 +72,16 @@ button.btn-large.btn-block {
   vertical-align: middle;
 }
 
+.right {
+  text-align: right;
+  vertical-align: middle;
+}
+
+.left {
+  text-align: left;
+  vertical-align: middle; 
+}
+
 .empty-panel .pentaho-button {
   font-size: .9em;
 }
@@ -94,22 +104,6 @@ button.btn-large.btn-block {
   width: 150px;
 }
 
-.selector-row {
-  position: absolute;
-  left:0px;
-  bottom:0px;
-}
-
-#getting-started .horizontal-selector {
-  display: block;
-  background-color: #F1F1F1;
-  padding: 2px;
-  overflow-x:scroll;  
-  font-size: 12px;
-  border-top: 1px solid #c1d7e1;
-  height: 130px;
-}
-
 #launch-widget .horizontal-selector, #tutorial-selector.horizontal-selector {
   overflow-x:inherit;
 }
@@ -126,19 +120,16 @@ button.btn-large.btn-block {
 .sample-card-img {
   width: 49px;
   height: 49px;
-  background-image: url("../images/sample.png");  
 }
 
 .sample-details-img {
   width: 200px;
   height: 200px;
-  background-image: url("../images/sample_large.png");
 }
 
 .tutorial-card-img {  
   width: 89px;
-  height: 68px;
-  background-image: url("../images/video_small.png");  
+  height: 68px;  
 }
 
 .tutorial-details-img {
@@ -147,20 +138,16 @@ button.btn-large.btn-block {
   background-size: 100%;  
 }
 
-.tutorial-card-time {
-  position: relative;
-  text-align: center;
-  width: 100%;  
-  color: #FFF;
-  top:20px;
-  height:20px;
+.welcome-img {
+  width:540px;
+  height:372px;
+  background-image: url("../images/gettingStarted_welcome_graphic.png");
 }
 
-.welcome-img {
-  width:100%;
-  height:220px;
-  /* background-size: 100%; */
-  background-image: url("../images/welcome_play.jpg");
+.welcome-img:hover {
+  width:540px;
+  height:372px;
+  background-image: url("../images/gettingStarted_welcome_graphic_over.png");
 }
 
 .selected {
@@ -232,4 +219,99 @@ button.btn-large.btn-block {
 }
 .file-unknown {
   background: url("../images/generic.png");
+}
+
+#getting-started-message-content #sub-messages {
+  position: relative;
+  left: 30px;
+}
+
+.preload-getting-started-over-icon {
+  background: url("../images/gettingStarted_welcome_graphic_over.png");
+}
+
+/* Sample Images Small */
+#sample-card1 .card-img {
+  background-image: url("../images/product_pivot_table_sm.png");  
+}
+#sample-card2 .card-img {
+  background-image: url("../images/european_map_sm.png");  
+}
+#sample-card3 .card-img {
+  background-image: url("../images/country_perf_heat_grid_sm.png");  
+}
+#sample-card4 .card-img {
+  background-image: url("../images/vendor_interactive_sm.png");  
+}
+#sample-card5 .card-img {
+  background-image: url("../images/inventory_list_sm.png");  
+}
+#sample-card6 .card-img {
+  background-image: url("../images/top_customers_sm.png");  
+}
+#sample-card7 .card-img {
+  background-image: url("../images/product_perf_dasb_sm.png");  
+}
+#sample-card8 .card-img {
+  background-image: url("../images/reg_sales_dashbaord_sm.png");  
+}
+
+/* Sample Images Large */
+.sample-details-img#sample-img1 {
+  background-image: url("../images/product_pivot_table_lg.png");  
+}
+.sample-details-img#sample-img2 {
+  background-image: url("../images/european_map_lg.png");  
+}
+.sample-details-img#sample-img3 {
+  background-image: url("../images/country_perf_heat_grid_lg.png");  
+}
+.sample-details-img#sample-img4 {
+  background-image: url("../images/vendor_interactive_lg.png");  
+}
+.sample-details-img#sample-img5 {
+  background-image: url("../images/inventory_list_lg.png");  
+}
+.sample-details-img#sample-img6 {
+  background-image: url("../images/top_customers_lg.png");  
+}
+.sample-details-img#sample-img7 {
+  background-image: url("../images/product_perf_dasb_lg.png");  
+}
+.sample-details-img#sample-img8 {
+  background-image: url("../images/reg_sales_dashbaord_lg.png");  
+}
+
+/* Tutorial Images Small */
+#tutorial-card1 .card-img {
+  background-image: url("../images/puc_sm.png");  
+}
+#tutorial-card2 .card-img {
+  background-image: url("../images/datasource_sm.png");  
+}
+#tutorial-card3 .card-img {
+  background-image: url("../images/analysis_sm.png");  
+}
+#tutorial-card4 .card-img {
+  background-image: url("../images/pir_sm.png");  
+}
+#tutorial-card5 .card-img {
+  background-image: url("../images/dasboard_sm.png");  
+}
+
+/* Tutorial Images Large */
+.tutorial-details-img#tutorial-img1 {
+  background-image: url("../images/puc_lg.png");  
+}
+.tutorial-details-img#tutorial-img2 {
+  background-image: url("../images/datasource_lg.png");  
+}
+.tutorial-details-img#tutorial-img3 {
+  background-image: url("../images/analysis_lg.png");  
+}
+.tutorial-details-img#tutorial-img4 {
+  background-image: url("../images/pir_lg.png");  
+}
+.tutorial-details-img#tutorial-img5 {
+  background-image: url("../images/dasboard_lg.png");  
 }

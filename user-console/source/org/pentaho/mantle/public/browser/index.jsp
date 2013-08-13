@@ -15,6 +15,21 @@
     <!-- We need web context for requirejs and css -->
     <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
+    <!-- Avoid 'console' errors in browsers that lack a console. -->
+    <script type="text/javascript">
+      if (!(window.console && console.log)) {
+        (function() {
+          var noop = function() {};
+          var methods = ['assert', 'debug', 'error', 'info', 'log', 'trace', 'warn'];
+          var length = methods.length;
+          var console = window.console = {};
+          while (length--) {
+            console[methods[length]] = noop;
+          }
+        }());
+      }
+    </script>
+
     <!-- Require File Browser -->
     <script type="text/javascript">
         function openRepositoryFile(path, mode) {
@@ -26,7 +41,11 @@
             }
 
             // show the opened perspective
-            parent.mantle_setPerspective('opened.perspective');
+            var extension = path.split(".").pop();
+
+            if(!($("body").hasClass("IE") && extension == "pdf")){
+                parent.mantle_setPerspective('opened.perspective');
+            }
             window.parent.mantle_openRepositoryFile(path, mode);
         }
 
@@ -117,7 +136,7 @@
 
             window.top.mantle_addHandler("GenericEvent", function(paramJson){
           if(paramJson.eventSubType == "OpenFolderEvent"){
-                    FileBrowser.openFolder(paramJson.stringParam);
+            FileBrowser.openFolder(paramJson.stringParam);
           }
           else if(paramJson.eventSubType == "RefreshBrowsePerspectiveEvent"){
             FileBrowser.update(window.top.HOME_FOLDER); // refresh folder list

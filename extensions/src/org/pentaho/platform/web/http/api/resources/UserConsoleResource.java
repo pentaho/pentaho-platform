@@ -29,6 +29,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
@@ -201,6 +202,20 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path("/locale")
   public Response getLocale() {
     return Response.ok(LocaleHelper.getLocale().toString()).build();
+  }
+
+  @POST
+  @Path("/session-variable")
+  public Response setSessionVariable(@QueryParam("key") String key, @QueryParam("value") String value) {
+    IPentahoSession session = getPentahoSession();
+    session.setAttribute(key, value);
+    return Response.ok(session.getAttribute(key)).build();
+  }
+
+  @GET
+  @Path("/session-variable")
+  public Response getSessionVariable(@QueryParam("key") String key) {
+    return Response.ok(getPentahoSession().getAttribute(key)).build();
   }
 
 }

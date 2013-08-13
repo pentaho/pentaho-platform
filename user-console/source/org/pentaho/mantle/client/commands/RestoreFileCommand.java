@@ -17,13 +17,6 @@
 
 package org.pentaho.mantle.client.commands;
 
-import java.util.List;
-
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileActionEvent;
-import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -31,6 +24,14 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.messages.Messages;
+
+import java.util.List;
 
 /**
  * @author wseyler
@@ -123,6 +124,7 @@ public class RestoreFileCommand implements Command {
                 false, false, true, Messages.getString("close"));
             dialogBox.center();
             event.setMessage("Success");
+            FileChooserDialog.setIsDirty(Boolean.TRUE);
             EventBusUtil.EVENT_BUS.fireEvent(event);
           }                
         }

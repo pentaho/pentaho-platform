@@ -45,8 +45,8 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 
 /**

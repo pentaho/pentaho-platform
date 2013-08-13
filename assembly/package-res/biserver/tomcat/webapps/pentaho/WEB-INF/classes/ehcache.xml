@@ -263,4 +263,14 @@
         <pinning store="inCache" />
       </cache>
     -->
+
+    <!-- Cache for the Spring CachingUserDetailsService -->
+    <cache
+            name="userCache"
+            maxEntriesLocalHeap="2000"
+            eternal="false"
+            overflowToDisk="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            diskPersistent="false"/>
 </ehcache>

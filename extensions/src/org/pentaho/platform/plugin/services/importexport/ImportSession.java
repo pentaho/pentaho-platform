@@ -6,11 +6,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
 
 /**
  * General purpose objects whose lifecycle is that of an formal import session
