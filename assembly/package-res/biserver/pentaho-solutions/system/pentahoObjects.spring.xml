@@ -144,13 +144,18 @@ not directly from the PentahoObjectFactory. -->
     </pen:attributes>
   </pen:bean>
 
-  <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-    <property name="cacheManager" ref="cacheManager"/>
-    <property name="cacheName" value="userCache"/>
-  </bean>
 
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="shared" value="true"/>
+  <bean id="ehCacheUserCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
+    <property name="cache">
+      <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+          <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+            <property name="shared" value="true"/>
+          </bean>
+        </property>
+        <property name="cacheName" value="userCache"/>
+      </bean>
+    </property>
   </bean>
 
   <bean id="cachingUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.PentahoCachingUserDetailsService">
@@ -158,11 +163,7 @@ not directly from the PentahoObjectFactory. -->
       <ref bean="UserDetailsService"/>
     </constructor-arg>
     <constructor-arg ref="tenantedUserNameUtils"/>
-    <property name="userCache">
-      <bean class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
-        <property name="cache" ref="ehcache"/>
-      </bean>
-    </property>
+    <property name="userCache" ref="ehCacheUserCache"/>
 
     <pen:publish as-type="INTERFACES">
       <pen:attributes>

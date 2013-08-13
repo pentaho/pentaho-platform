@@ -772,6 +772,9 @@
     <constructor-arg ref="defaultAclHandler" />
     <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="extraRoles"/>
+    <constructor-arg>
+      <bean class="org.springframework.security.providers.dao.cache.NullUserCache"/>
+    </constructor-arg>
   </bean>
 
   <!-- IUserRoleDao implementation -->
