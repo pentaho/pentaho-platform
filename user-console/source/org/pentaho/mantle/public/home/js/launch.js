@@ -18,8 +18,20 @@ pen.define([
 		//selectedContentIndex
 
 		var prevTab;
-		var videoTemplate = GettingStartedWidget.brightCoveVideoTemplate;
 		
+		function insertVideo($container, videoId, resolution) {
+			var videoTemplate = GettingStartedWidget.brightCoveVideoTemplate;
+			var resolutionArr = resolution.split("x");
+
+			$container
+				.empty()
+				.append(HandlebarsCompiler.compile(videoTemplate, {
+					width: resolutionArr[0],
+					height: resolutionArr[1],
+					videoId: videoId
+				}));
+		}
+
 		BootstrappedTabLoader.init({
 			parentSelector: "#launch-widget",
 			tabContentPattern : "launch_tab{{contentNumber}}_content.html",
@@ -44,16 +56,8 @@ pen.define([
 				if (tabId == "tab1") {
 					GettingStartedWidget.checkInternet(jHtml, function(){
 
-						ContextProvider.get(function(context){
-							var resolution = context.config.bc_welcome_resolution.split("x");
-							
-							$("#welcome-video")
-								.empty()
-								.append(HandlebarsCompiler.compile(videoTemplate, {
-									width: resolution[0],
-									height: resolution[1],
-									videoId: context.config.bc_welcome_link_id
-								}));	
+						ContextProvider.get(function(context){							
+							insertVideo($("#welcome-video"), context.config.bc_welcome_link_id, context.config.bc_welcome_resolution);
 						})
 						
 					}, function() {
@@ -116,16 +120,10 @@ pen.define([
 								// Update video
 								var cardIndex = jHtml.find(".tutorial-card").index(card);
 								
-								if (internet) {																		
-									var videoId = context.config["bc_tutorial_link" + (cardIndex+1) + "_id"];
-									var resolution = context.config.bc_tutorial_resolution.split("x");
-									$("#tutorial-video")
-										.empty()
-										.append(HandlebarsCompiler.compile(videoTemplate, {
-											width: resolution[0],
-											height: resolution[1],
-											videoId: videoId
-										}));											
+								if (internet) {
+									insertVideo( $("#tutorial-video"), 
+										context.config["bc_tutorial_link" + (cardIndex+1) + "_id"],
+										context.config.bc_tutorial_resolution);									
 								}								
 								
 								// Copy title and description
@@ -152,15 +150,7 @@ pen.define([
 				// Re-populate welcome video src link
 				if (tabId == "tab1") {
 					ContextProvider.get(function(context) {
-
-						var resolution = context.config.bc_welcome_resolution.split("x");							
-						$("#welcome-video")
-							.empty()
-							.append(HandlebarsCompiler.compile(videoTemplate, {
-								width: resolution[0],
-								height: resolution[1],
-								videoId: context.config.bc_welcome_link_id
-							}));	
+						insertVideo($("#welcome-video"), context.config.bc_welcome_link_id, context.config.bc_welcome_resolution);						
 					});
 				}
 
@@ -170,18 +160,10 @@ pen.define([
 						var selectedCard = $(".tutorial-card.selected");
 						var cardIndex = $(".tutorial-card").index(selectedCard);						
 
-						var videoId = context.config["bc_tutorial_link" + (cardIndex+1) + "_id"];
-						var resolution = context.config.bc_tutorial_resolution.split("x");
-						$("#tutorial-video")
-							.empty()
-							.append(HandlebarsCompiler.compile(videoTemplate, {
-								width: resolution[0],
-								height: resolution[1],
-								videoId: videoId
-							}));	
+						insertVideo($("#tutorial-video"), 
+							context.config["bc_tutorial_link" + (cardIndex+1) + "_id"], 
+							context.config.bc_tutorial_resolution);						
 					});
-
-					
 				}
 				
 				// Clear source of welcome video to comply with tab switching
