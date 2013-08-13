@@ -152,7 +152,6 @@ pen.define([
 				// Re-populate welcome video src link
 				if (tabId == "tab1") {
 					ContextProvider.get(function(context) {
-						// $("#welcome-video").attr("src", context.config.youtube_embed_base + context.config.welcome_link_id + "?autoplay=1");
 
 						var resolution = context.config.bc_welcome_resolution.split("x");							
 						$("#welcome-video")
