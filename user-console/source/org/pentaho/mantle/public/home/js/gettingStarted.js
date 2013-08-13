@@ -11,6 +11,19 @@
  	"common-ui/util/HandlebarsCompiler"
  ], function(ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
  	
+ 	var brightCoveVideoTemplate = "<object id='myExperience781579620001' class='BrightcoveExperience'>" +
+		  "<param name='bgcolor' value='#FFFFFF' />" +
+		  "<param name='width' value='{{width}}' />" +
+		  "<param name='height' value='{{height}}' />" +
+		  "<param name='playerKey' value='AQ~~,AAABioIZaRE~,HcMeumQTXEC1zURldbO8kIySLyfrRiBn' />" +
+		  "<param name='isVid' value='true' />" +
+		  "<param name='isUI' value='true' />" +
+		  "<param name='dynamicStreaming' value='true' />" +
+		  "<param name='@videoPlayer' value='{{videoId}}' />" +
+		  "<param name='autoStart' value='true' />" +
+		"</object>" +
+		"<script type='text/javascript'>brightcove.createExperiences();</script>";
+
  	var disableWelcomeVideo = function() {
 		$("#welcome-video").remove();
 		$(".welcome-img").show();
@@ -63,11 +76,17 @@
 		  						// Swap the welcome image for the embedded youtube link
 		  						$(".welcome-img").bind("click", function(){
 
-		  							var youtubeWelcomeVideo = HandlebarsCompiler.compile("<iframe id='welcome-video' "+
-		  								"src='{{config.youtube_embed_base}}{{config.welcome_link_id}}?autoplay=1' "+
-		  								"width='550px' height='372px' frameborder='0' allowfullscreen></iframe>", context);
+		  							// var youtubeWelcomeVideo = HandlebarsCompiler.compile("<iframe id='welcome-video' "+
+		  							// 	"src='{{config.youtube_embed_base}}{{config.welcome_link_id}}?autoplay=1' "+
+		  							// 	"width='550px' height='372px' frameborder='0' allowfullscreen></iframe>", context);
 
-		  							$(this).hide().after(youtubeWelcomeVideo);
+		  							var video = HandlebarsCompiler.compile(brightCoveVideoTemplate, {
+			  							width: "550",
+			  							height: "372",
+			  							videoId: context.config.bc_welcome_link_id
+			  						});		  						 
+
+		  							$(this).hide().after(video);
 		  						});
 							});						
 		  			});
@@ -210,6 +229,7 @@
  	return {
  		init:init, 		
  		injectMessagesArray:injectMessagesArray,
- 		checkInternet:checkInternet
+ 		checkInternet:checkInternet,
+ 		brightCoveVideoTemplate:brightCoveVideoTemplate
  	};
  });
