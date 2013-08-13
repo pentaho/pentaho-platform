@@ -65,13 +65,13 @@
 		 		// Remove embedded youtube since it shows through the other tabs
 		 		$("a[href=#tab2], a[href=#tab3]").bind("click", disableWelcomeVideo);
 			},
-			postLoad: function(jHtml, tabSelector) {
+			postLoad: function($html, tabSelector) {
 				var tabId = $(tabSelector).attr("id");				
 
 				if (tabId == "tab1") {									
 					ContextProvider.get(function(context) {
 
-						checkInternet(jHtml, 
+						checkInternet($html, 
 							function() {
 		  						// Swap the welcome image for the embedded youtube link
 		  						$(".welcome-img").bind("click", function(){
@@ -87,16 +87,16 @@
 							});						
 		  			});
 
-				} else if (tabId == "tab2") {								
-					bindCardInteractions(jHtml, ".sample-card", "#sample-details-content", "sample-img", true);
+				} else if (tabId == "tab2") {
+					bindCardInteractions($html, ".sample-card", "#sample-details-content", "sample-img", true);
 
-				} else if (tabId == "tab3") {						
-			 		checkInternet( jHtml, 
+				} else if (tabId == "tab3") {
+			 		checkInternet( $html, 
 			 			function() {
-				 			bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", "tutorial-img", true);
+				 			bindCardInteractions($html, ".tutorial-card", "#tutorial-details-content", "tutorial-img", true);
 			 			}, 
 			 			function() {
-			 				bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", "tutorial-img", false);
+			 				bindCardInteractions($html, ".tutorial-card", "#tutorial-details-content", "tutorial-img", false);
 			 			});
 				}
 			}
@@ -123,10 +123,17 @@
  			detailsContentContainer.find(".detail-title").text(card.find(".card-title").text());
  			detailsContentContainer.find(".detail-description").text(card.find(".card-description").text());
  			
- 			detailsContentContainer.find(".details-img")
- 				.hide()
- 				.attr("id", detailsImgBaseId + (index+1))
- 				.fadeIn(500);
+ 			var detailsImg = detailsContentContainer.find(".details-img");
+ 			var buttonContainer = detailsContentContainer.find(".button-container");
+
+ 			detailsImg.hide();
+ 			buttonContainer.hide();
+
+ 			detailsImg.attr("id", detailsImgBaseId + (index+1))
+
+ 			buttonContainer.fadeIn(500);
+ 			detailsImg.fadeIn(500);
+
  			
  			if (bindNavParams) {
  				appendNavParams(jParent, jParent.parent().attr("id"), index);	

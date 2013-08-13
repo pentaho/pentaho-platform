@@ -126,9 +126,7 @@ pen.define([
 										context.config.bc_tutorial_resolution);									
 								}								
 								
-								// Copy title and description
-								jHtml.find(".detail-title").text(card.find(".card-title").text());
-								jHtml.find(".detail-description").text(card.find(".card-description").text());
+								
 							})						
 						});	
 					}
@@ -194,6 +192,10 @@ pen.define([
 			// Clear selected cards
 			jParent.find(".selected").removeClass("selected");
 			card.addClass("selected");
+
+			// Copy title and description
+			jParent.find(".detail-title").text(card.find(".card-title").text());
+			jParent.find(".detail-description").text(card.find(".card-description").text());
 
 			if (post) {
 				post(card);
