@@ -290,10 +290,10 @@ button.btn-large.btn-block {
   background-image: url("../images/datasource_sm.png");  
 }
 #tutorial-card3 .card-img {
-  background-image: url("../images/analysis_sm.png");  
+  background-image: url("../images/pir_sm.png");  
 }
 #tutorial-card4 .card-img {
-  background-image: url("../images/pir_sm.png");  
+  background-image: url("../images/analysis_sm.png");  
 }
 #tutorial-card5 .card-img {
   background-image: url("../images/dasboard_sm.png");  
@@ -307,10 +307,10 @@ button.btn-large.btn-block {
   background-image: url("../images/datasource_lg.png");  
 }
 .tutorial-details-img#tutorial-img3 {
-  background-image: url("../images/analysis_lg.png");  
+  background-image: url("../images/pir_lg.png");  
 }
 .tutorial-details-img#tutorial-img4 {
-  background-image: url("../images/pir_lg.png");  
+  background-image: url("../images/analysis_lg.png");  
 }
 .tutorial-details-img#tutorial-img5 {
   background-image: url("../images/dasboard_lg.png");  

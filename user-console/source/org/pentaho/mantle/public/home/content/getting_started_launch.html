@@ -12,7 +12,9 @@
 		<script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
 		<script type="text/javascript">
-			pen.require(["common-ui/util/HandlebarsCompiler", "common-ui/util/ContextProvider"], function(HandlebarsCompiler, ContextProvider) {
+			pen.require(["common-ui/util/HandlebarsCompiler", 
+				"common-ui/util/ContextProvider",
+				"../js/BrightcoveExperiences"], function(HandlebarsCompiler, ContextProvider) {
 
 				// Define properties for loading context
 				var contextConfig = [{
