@@ -76,10 +76,6 @@
 		  						// Swap the welcome image for the embedded youtube link
 		  						$(".welcome-img").bind("click", function(){
 
-		  							// var youtubeWelcomeVideo = HandlebarsCompiler.compile("<iframe id='welcome-video' "+
-		  							// 	"src='{{config.youtube_embed_base}}{{config.welcome_link_id}}?autoplay=1' "+
-		  							// 	"width='550px' height='372px' frameborder='0' allowfullscreen></iframe>", context);
-
 		  							var video = HandlebarsCompiler.compile(brightCoveVideoTemplate, {
 			  							width: "550",
 			  							height: "372",
