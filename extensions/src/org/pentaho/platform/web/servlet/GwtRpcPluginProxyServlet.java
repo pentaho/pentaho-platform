@@ -25,9 +25,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -40,6 +42,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginUtil;
 import org.pentaho.platform.web.servlet.messages.Messages;
+
 import com.google.gwt.user.server.rpc.SerializationPolicy;
 import com.google.gwt.user.server.rpc.SerializationPolicyLoader;
 
@@ -128,8 +131,8 @@ public class GwtRpcPluginProxyServlet extends AbstractGwtRpcProxyServlet {
      *  * servletContextPath = '/content/data-access/resources/gwt/{strongName}'
      *  * pluginContextPath = '/data-access/resources/gwt/{strongName}'
      */
+    
     SerializationPolicy serializationPolicy = null;
-
     String appContextPath = request.getContextPath();
 
     String modulePath = null;
@@ -147,8 +150,15 @@ public class GwtRpcPluginProxyServlet extends AbstractGwtRpcProxyServlet {
     if(modulePath.contains("WEBAPP_ROOT")) {
       modulePath = scrubWebAppRoot(modulePath);
     }
-
+    
     String servletContextPath = modulePath.substring(appContextPath.length());
+    
+    //Special logic to use a spring defined SerializationPolicy for a plugin.
+    String pluginId = PluginUtil.getPluginIdFromPath(servletContextPath);
+    serializationPolicy = PentahoSystem.get(SerializationPolicy.class, PentahoSessionHolder.getSession(), Collections.singletonMap("plugin", pluginId));
+    if (serializationPolicy != null) {
+      return serializationPolicy;
+    }
 
     String serializationPolicyFilename = SerializationPolicyLoader.getSerializationPolicyFileName(strongName);
     URL serializationPolicyUrl = getSerializationPolicyUrl(serializationPolicyFilename, appContextPath,
