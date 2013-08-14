@@ -27,7 +27,10 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.lifecycle.AbstractBackingRepositoryLifecycleManager;
+import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -39,7 +42,7 @@ import org.springframework.util.Assert;
  *
  * @author dkincade
  */
-public class PentahoMetadataRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
+public class PentahoMetadataRepositoryLifecycleManager  extends AbstractBackingRepositoryLifecycleManager {
 
   private static final String FOLDER_METADATA = "metadata"; //$NON-NLS-1$
 
@@ -51,8 +54,6 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
 
   protected String singleTenantAuthenticatedAuthorityName;
 
-  protected TransactionTemplate txnTemplate;
-
   protected IRepositoryFileDao repositoryFileDao;
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
@@ -60,25 +61,17 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
   public PentahoMetadataRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
       final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
       final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-      final ITenantedPrincipleNameResolver userNameUtils) {
-
+      final ITenantedPrincipleNameResolver userNameUtils, final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper) {
+    super(txnTemplate, adminJcrTemplate, pathConversionHelper);
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
-    Assert.notNull(txnTemplate);
     Assert.hasText(repositoryAdminUsername);
     Assert.hasText(tenantAuthenticatedAuthorityNamePattern);
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
-    this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.userNameUtils = userNameUtils;
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
-    initTransactionTemplate();
-  }
-
-  protected void initTransactionTemplate() {
-    // a new transaction must be created (in order to run with the correct user privileges)
-    txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
   }
 
   public synchronized void doNewTenant(final String tenantPath) {

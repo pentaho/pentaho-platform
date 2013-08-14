@@ -14,48 +14,35 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.repository2.messages.Messages;
-import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
-import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.springframework.extensions.jcr.JcrCallback;
+import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 /**
  * Contains some common functionality.
- * <p/>
- * <ul>
- * <li>Runs as the repository admin.</li>
- * <li>Uses {@code repositoryFileDao} and {@code repositoryFileAclDao} directly for the following reasons:
- * <ul>
- * <li>ability to call repositoryFileDao.getFileByAbsolutePath</li>
- * <li>ability to bypass Spring Security method interceptor</li>
- * </ul></li>
- * <li>As a consequence of above, uses programmatic transactions (because Spring's transaction proxy is also bypassed.
- * In addition, this keeps the amount of declarative transaction XML to a minimum.</li>
- * </ul>
- *
- * @author mlowery
- * @deprecated Implement IBackingRepositoryLifecycleManager instead
  */
-@Deprecated
 public abstract class AbstractBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
   // ~ Static fields/initializers ======================================================================================
@@ -64,151 +51,84 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   // ~ Instance fields =================================================================================================
 
-  /**
-   * Repository super user.
-   */
-  protected String repositoryAdminUsername;
-
-  /**
-   * The role name pattern of role belonging to all authenticated users of a given tenant. {0} replaced with tenant ID.
-   */
-  protected String tenantAuthenticatedAuthorityNamePattern;
-
-  /**
-   * When not using multi-tenancy, this value is used as opposed to {@link tenantAuthenticatedAuthorityPattern}.
-   */
-  protected String singleTenantAuthenticatedAuthorityName;
-
   protected TransactionTemplate txnTemplate;
 
-  protected IRepositoryFileDao repositoryFileDao;
-
-  protected IRepositoryFileAclDao repositoryFileAclDao;
-
-  private AtomicBoolean startedUp = new AtomicBoolean(true);
+  protected JcrTemplate adminJcrTemplate;
+  
+  protected IPathConversionHelper pathConversionHelper;
 
   // ~ Constructors ====================================================================================================
 
-  public AbstractBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
-                                                   final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
-    Assert.notNull(contentDao);
-    Assert.notNull(repositoryFileAclDao);
+  public AbstractBackingRepositoryLifecycleManager(final TransactionTemplate txnTemplate,final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper) {
     Assert.notNull(txnTemplate);
-    Assert.hasText(repositoryAdminUsername);
-    Assert.hasText(tenantAuthenticatedAuthorityNamePattern);
-    this.repositoryFileDao = contentDao;
-    this.repositoryFileAclDao = repositoryFileAclDao;
     this.txnTemplate = txnTemplate;
-    this.repositoryAdminUsername = repositoryAdminUsername;
-    this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
+    this.adminJcrTemplate = adminJcrTemplate;
+    this.pathConversionHelper = pathConversionHelper;
     initTransactionTemplate();
   }
-
-  public void newTenant() {
-    
-    newTenant(JcrTenantUtils.getTenant().getId());
-  }
-
-  public void newUser() {
-    newUser(JcrTenantUtils.getTenant(), internalGetUsername());
-  }
-
-  public void newTenant(final String tenantId) {
-    assertStartedUp();
-    doNewTenant(tenantId);
-  }
-
-  protected abstract void doNewTenant(final String tenantId);
-
-  public void newUser(final ITenant tenant, final String username) {
-    assertStartedUp();
-    doNewUser(tenant, username);
-  }
-
-  protected abstract void doNewUser(final ITenant tenant, final String username);
-
-  public void shutdown() {
-    assertStartedUp();
-    doShutdown();
-  }
-
-  protected abstract void doShutdown();
-
-  public void startup() {
-    doStartup();
-    startedUp.set(true);
-  }
-
-  protected abstract void doStartup();
-
-  /**
-   * Throws an {@code IllegalStateException} if not started up.  Should be called from all public methods (except
-   * {@link #startup()}).
-   */
-  private void assertStartedUp() {
-    Assert.state(startedUp.get(), Messages.getInstance().getString(
-        "AbstractRepositoryLifecycleManager.ERROR_0001_STARTUP_NOT_CALLED")); //$NON-NLS-1$
-  }
-
+  
   protected void initTransactionTemplate() {
     // a new transaction must be created (in order to run with the correct user privileges)
     txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
   }
-
-  protected RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
-                                                final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) {
-    Assert.notNull(file);
-
-    return repositoryFileDao.createFolder(parentFolderId, file, makeAcl(inheritAces, ownerSid), versionMessage);
+  
+  public void addMetadataToRepository(final String metadataProperty) {
+    txnTemplate.execute(new TransactionCallbackWithoutResult() {
+      public void doInTransactionWithoutResult(final TransactionStatus status) {
+        adminJcrTemplate.execute(new JcrCallback() {
+          @Override
+          public Object doInJcr(Session session) throws IOException, RepositoryException {
+              PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+              String absPath = ServerRepositoryPaths.getPentahoRootFolderPath();
+              RepositoryFile rootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, absPath, pathConversionHelper, null, false, null);
+              if(rootFolder != null) {
+                Map<String, Serializable> metadataMap = JcrRepositoryFileUtils.getFileMetadata(session, rootFolder.getId());
+                if(metadataMap == null) {
+                  metadataMap = new HashMap<String, Serializable>();
+                }
+                metadataMap.put(metadataProperty, Boolean.TRUE);
+                JcrRepositoryFileUtils.setFileMetadata(session, rootFolder.getId(), metadataMap);
+              } else {
+                throw new IllegalStateException("Repository has not been initialized properly");
+              }
+              session.save();
+              return null;
+          }
+        });
+      }
+    });
   }
 
-  protected RepositoryFileAcl makeAcl(final boolean inheritAces, final RepositoryFileSid ownerSid) {
-    return new RepositoryFileAcl.Builder(ownerSid).entriesInheriting(inheritAces).build();
-  }
-
-  protected void internalSetFullControl(final Serializable fileId, final RepositoryFileSid sid) {
-    Assert.notNull(fileId);
-    Assert.notNull(sid);
-    repositoryFileAclDao.setFullControl(fileId, sid, RepositoryFilePermission.ALL);
-  }
-
-  protected void internalAddPermission(final Serializable fileId, final RepositoryFileSid recipient,
-                                       final EnumSet<RepositoryFilePermission> permissions) {
-    Assert.notNull(fileId);
-    Assert.notNull(recipient);
-    Assert.notNull(permissions);
-    Assert.notEmpty(permissions);
-
-    repositoryFileAclDao.addAce(fileId, recipient, permissions);
-  }
-
-  protected IPentahoSession createRepositoryAdminPentahoSession() {
-    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
-    pentahoSession.setAuthenticated(repositoryAdminUsername);
-    return pentahoSession;
-  }
-
-  protected String internalGetTenantAuthenticatedAuthorityName(final String tenantId) {
-    return tenantAuthenticatedAuthorityNamePattern;
-  }
-
-  protected void internalSetOwner(final RepositoryFile file, final RepositoryFileSid owner) {
-    Assert.notNull(file);
-    Assert.notNull(owner);
-
-    RepositoryFileAcl acl = repositoryFileAclDao.getAcl(file.getId());
-    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).owner(owner).build();
-    repositoryFileAclDao.updateAcl(newAcl);
-  }
-
-  /**
-   * Returns the username of the current user.
-   */
-  protected String internalGetUsername() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    Assert.state(pentahoSession != null);
-    return pentahoSession.getName();
+  public Boolean doesMetadataExists(final String metadataProperty) {
+    try {
+      return (Boolean) txnTemplate.execute(new TransactionCallback() {
+        @Override
+        public Object doInTransaction(TransactionStatus status) {
+          return adminJcrTemplate.execute(new JcrCallback() {
+            @Override
+            public Object doInJcr(Session session) throws IOException, RepositoryException {
+              PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+              String absPath = ServerRepositoryPaths.getPentahoRootFolderPath();
+              RepositoryFile rootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, absPath,
+                  pathConversionHelper, null, false, null);
+              if (rootFolder != null) {
+                Map<String, Serializable> metadataMap = JcrRepositoryFileUtils.getFileMetadata(session,
+                    rootFolder.getId());
+                for (Entry<String, Serializable> metadataEntry : metadataMap.entrySet()) {
+                  if (metadataEntry.getKey().equals(metadataProperty)) {
+                    return (Boolean) metadataEntry.getValue();
+                  }
+                }
+              }
+              return false;
+            }
+          });
+        }
+      });
+    } catch (Throwable th) {
+      th.printStackTrace();
+      return false;
+    }
   }
 
 }

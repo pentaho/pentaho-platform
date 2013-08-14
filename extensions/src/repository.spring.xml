@@ -275,18 +275,11 @@
     <constructor-arg ref="singleTenantAnonymousAuthorityName" />
     <constructor-arg ref="IPasswordService" />
 	<constructor-arg ref="adminJcrTemplate"/>	
+    <constructor-arg ref="pathConversionHelper"/>
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
   
-  <bean id="pdiBackingRepositoryLifecycleManager"
-        class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager">
-    <constructor-arg ref="repositoryFileDao"/>
-    <constructor-arg ref="repositoryFileAclDao"/>
-    <constructor-arg ref="jcrTransactionTemplate"/>
-    <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-  </bean>        
   <bean id="metadataRepositoryLifecycleManager"
         class="org.pentaho.platform.plugin.services.metadata.PentahoMetadataRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>
@@ -295,13 +288,8 @@
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
     <constructor-arg ref="tenantedUserNameUtils"/>
-  </bean>        
-  <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
-    <constructor-arg ref="IDatasourceMgmtService"/>
-    <constructor-arg ref="IDatabaseDialectService"/>
-	<constructor-arg ref="repositoryAdminUsername"/>
-	<property name="tenantManager" ref="tenantMgrTxn"/>
-	<property name="userRoleDao" ref="userRoleDaoTxn"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/> 
   </bean>
   
   <bean id="defaultUserRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
@@ -310,11 +298,15 @@
 	<constructor-arg ref="userRoleDaoTxn" />
 	<constructor-arg ref="singleTenantAdminUserName"/>
 	<constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>    
 	<property name="roleMappings" ref="role-mappings" />
 	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
 	<property name="singleTenantAdminPassword" ref="defaultAdminUserPassword" />
 	<property name="nonAdminPassword" ref="defaultNonAdminUserPassword" />
   </bean>
+  
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>
@@ -323,6 +315,8 @@
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   <constructor-arg ref="tenantedUserNameUtils"/>                
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>
   </bean>
 
   <bean id="backingRepositoryLifecycleManager"
@@ -330,8 +324,6 @@
     <constructor-arg>
       <list>
         <ref bean="defaultBackingRepositoryLifecycleManager"/>
-        <ref bean="pdiBackingRepositoryLifecycleManager"/>
-        <ref bean="sampleDataRepositoryLifecycleManager"/>
         <ref bean="defaultUserRepositoryLifecycleManager"/>
         <ref bean="metadataRepositoryLifecycleManager"/>
         <ref bean="mondrianBackingRepositoryLifecycleManager"/>
