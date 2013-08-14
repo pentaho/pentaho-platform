@@ -389,7 +389,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         }
        
         if(principalTenant == null || principalTenant.getId() == null) {
-          principalTenant = JcrTenantUtils.getCurrentTenant();
+          principalTenant = JcrTenantUtils.getTenant();
         }
 
         List<RepositoryFilePermission> permissionList = new ArrayList<RepositoryFilePermission>();
