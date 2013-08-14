@@ -38,6 +38,7 @@ import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.extensions.jcr.JcrCallback;
@@ -66,7 +67,7 @@ import org.springframework.util.Assert;
  *
  * @author mlowery
  */
-public class DefaultBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
+public class DefaultBackingRepositoryLifecycleManager  extends AbstractBackingRepositoryLifecycleManager {
 
   // ~ Static fields/initializers ======================================================================================
 
@@ -87,29 +88,25 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
   
   protected String tenantAnonymousRoleName;
 
-  protected TransactionTemplate txnTemplate;
-
   protected IRepositoryFileDao repositoryFileDao;
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
   
   private IPasswordService passwordService;
   
-  private JcrTemplate adminJcrTemplate;
 
   // ~ Constructors ====================================================================================================
 
   public DefaultBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
       final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String systemTenantAdminPassword, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName, final String tenantAnonymousRoleName, final IPasswordService passwordService, final JcrTemplate adminJcrTemplate) {
+      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String systemTenantAdminPassword, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName, final String tenantAnonymousRoleName, final IPasswordService passwordService, final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper) {
+    super(txnTemplate, adminJcrTemplate, pathConversionHelper);
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
-    Assert.notNull(txnTemplate);
     Assert.hasText(repositoryAdminUsername);
     Assert.hasText(tenantAuthenticatedRoleName);
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
-    this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.tenantAuthenticatedRoleName = tenantAuthenticatedRoleName;
     this.tenantAdminRoleName = tenantAdminRoleName;
@@ -117,8 +114,7 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
     this.tenantAnonymousRoleName = tenantAnonymousRoleName;
     this.systemTenantAdminPassword = systemTenantAdminPassword;
     this.passwordService = passwordService;
-    this.adminJcrTemplate = adminJcrTemplate;
-    initTransactionTemplate();
+    
 
   }
 
