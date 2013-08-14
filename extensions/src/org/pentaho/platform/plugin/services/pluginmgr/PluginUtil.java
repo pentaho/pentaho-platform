@@ -39,24 +39,31 @@ public class PluginUtil {
    */
   public static ClassLoader getClassLoaderForService(String path) {
     IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+    return pluginManager.getClassLoader(getPluginIdFromPath(path));
+  }
+  
+  /**
+   * If the service specified by <code>serviceId</code> is supplied by a plugin,
+   * plugin id is returned.
+   * 
+   * @param path a path to a plugin resource
+   * @return the Id of the plugin
+   */
+  public static String getPluginIdFromPath(String path) {
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
     if(path.startsWith("content") || path.startsWith("/content")) { //$NON-NLS-1$
-    	path = path.substring(path.indexOf('/', 1)); 
+      path = path.substring(path.indexOf('/', 1)); 
     }
     //The plugin manager can tell us which plugin handles requests like the one for the serialization file
     //
     String servicePluginId = pluginManager.getServicePlugin(path);
     
-
     if (servicePluginId == null) {
-      return pluginManager.getClassLoader(getPluginIdFromPath(path));
-    }
-
-    return pluginManager.getClassLoader(servicePluginId);
-  }
-  
-  private static String getPluginIdFromPath(String path) {
-	  int start = path.indexOf("repos/") + "repos/".length(); //$NON-NLS-1$ //$NON-NLS-2$
-	  return path.substring(start, path.indexOf('/', start)); 
+      int start = path.indexOf("repos/") + "repos/".length(); //$NON-NLS-1$ //$NON-NLS-2$
+      servicePluginId = path.substring(start, path.indexOf('/', start)); 
+    }  
+      
+    return servicePluginId;
   }
 
 }
