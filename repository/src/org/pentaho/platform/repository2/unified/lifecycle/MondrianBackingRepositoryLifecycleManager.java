@@ -18,17 +18,16 @@ import java.io.Serializable;
 
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
-import org.springframework.transaction.TransactionDefinition;
+import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -39,7 +38,7 @@ import org.springframework.util.Assert;
  *
  * @author Ezequiel Cuellar
  */
-public class MondrianBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
+public class MondrianBackingRepositoryLifecycleManager   extends AbstractBackingRepositoryLifecycleManager {
 
   // ~ Static fields/initializers ======================================================================================
 
@@ -49,8 +48,6 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
   protected String tenantAuthenticatedAuthorityNamePattern;
 
   protected String singleTenantAuthenticatedAuthorityName;
-
-  protected TransactionTemplate txnTemplate;
 
   protected IRepositoryFileDao repositoryFileDao;
 
@@ -64,28 +61,21 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
   public MondrianBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                                    final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
                                                    final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-                                                   final ITenantedPrincipleNameResolver userNameUtils) {
-
+                                                   final ITenantedPrincipleNameResolver userNameUtils, final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper) {
+    super(txnTemplate, adminJcrTemplate, pathConversionHelper);
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
-    Assert.notNull(txnTemplate);
     Assert.hasText(repositoryAdminUsername);
     Assert.hasText(tenantAuthenticatedAuthorityNamePattern);
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
-    this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
     this.userNameUtils = userNameUtils;
-    initTransactionTemplate();
   }
 
   // ~ Methods =========================================================================================================
 
-  protected void initTransactionTemplate() {
-    // a new transaction must be created (in order to run with the correct user privileges)
-    txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-  }
 
   protected void createEtcMondrianFolder(final ITenant tenant) {
     try {

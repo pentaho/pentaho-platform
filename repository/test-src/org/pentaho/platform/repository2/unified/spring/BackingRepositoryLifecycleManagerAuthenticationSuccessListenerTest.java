@@ -149,6 +149,18 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
     public ArrayList<MethodTrackingData> getMethodTrackerHistory() {
       return (ArrayList<MethodTrackingData>) methodTrackerHistory.clone();
     }
+
+    @Override
+    public void addMetadataToRepository(String arg0) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public Boolean doesMetadataExists(String arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
   }
 
   /**
