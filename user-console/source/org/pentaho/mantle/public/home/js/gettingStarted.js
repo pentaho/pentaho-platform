@@ -25,7 +25,7 @@
 		"<script type='text/javascript'>brightcove.createExperiences();</script>";
 
  	var disableWelcomeVideo = function() {
-		$("#welcome-video").remove();
+		$("#welcome-video").empty();
 		$(".welcome-img").show();
 	}
 
@@ -82,7 +82,8 @@
 			  							videoId: context.config.bc_welcome_link_id
 			  						});		  						 
 
-		  							$(this).hide().after(video);
+		  							$(this).hide();
+		  							$("#welcome-video").append(video);
 		  						});
 							});						
 		  			});
