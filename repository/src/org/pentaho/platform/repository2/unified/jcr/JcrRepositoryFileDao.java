@@ -237,7 +237,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         findTransformerForWrite(content.getClass()));
     session.save();
     JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, file.getId(),
-        versionMessage);
+        versionMessage, file.getCreatedDate(), true);
     lockHelper.removeLockTokenFromSessionIfNecessary(session, pentahoJcrConstants, file.getId());
     return JcrRepositoryFileUtils.nodeIdToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper,
         file.getId());

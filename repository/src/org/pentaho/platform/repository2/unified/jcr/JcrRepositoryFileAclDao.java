@@ -338,7 +338,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, acl.getId());
         RepositoryFileAcl updatedAcl = internalUpdateAcl(session, pentahoJcrConstants, acl.getId(), acl);
         JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, acl.getId(),
-            null,
+            null, null,
             true);
         return updatedAcl;
       }
@@ -389,7 +389,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         }
        
         if(principalTenant == null || principalTenant.getId() == null) {
-          principalTenant = JcrTenantUtils.getCurrentTenant();
+          principalTenant = JcrTenantUtils.getTenant();
         }
 
         List<RepositoryFilePermission> permissionList = new ArrayList<RepositoryFilePermission>();

@@ -17,6 +17,7 @@ package org.pentaho.platform.repository2.unified.jcr;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.core.VersionManagerImpl;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.*;
@@ -727,27 +728,27 @@ public class JcrRepositoryFileUtils {
   public static void checkinNearestVersionableFileIfNecessary(final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final String versionMessage)
       throws RepositoryException {
-    checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, fileId, versionMessage, false);
+    checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, fileId, versionMessage, null, false);
   }
 
   /**
    * Conditionally checks in node representing file if node is versionable.
    */
   public static void checkinNearestVersionableFileIfNecessary(final Session session,
-      final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final String versionMessage,
+      final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final String versionMessage, final Date versionDate,
       final boolean aclOnlyChange) throws RepositoryException {
     // file could be null meaning the caller is using null as the parent folder; that's OK; in this case the node in
     // question would be the repository root node and that is never versioned
     if (fileId != null) {
       Node node = session.getNodeByIdentifier(fileId.toString());
-      checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, node, versionMessage, aclOnlyChange);
+      checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, node, versionMessage, versionDate, aclOnlyChange);
     }
   }
 
   public static void checkinNearestVersionableNodeIfNecessary(final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final Node node, final String versionMessage)
       throws RepositoryException {
-    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, node, versionMessage, false);
+    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, node, versionMessage, null, false);
   }
 
   /**
@@ -756,8 +757,8 @@ public class JcrRepositoryFileUtils {
    * TODO mlowery move commented out version labeling to its own method
    */
   public static void checkinNearestVersionableNodeIfNecessary(final Session session,
-      final PentahoJcrConstants pentahoJcrConstants, final Node node, final String versionMessage,
-      final boolean aclOnlyChange) throws RepositoryException {
+                                                              final PentahoJcrConstants pentahoJcrConstants, final Node node, final String versionMessage,
+                                                              Date versionDate, final boolean aclOnlyChange) throws RepositoryException {
     Assert.notNull(node);
     session.save();
     /*
@@ -785,7 +786,11 @@ public class JcrRepositoryFileUtils {
         }
       }
       session.save(); // required before checkin since we set some properties above
-      session.getWorkspace().getVersionManager().checkin(versionableNode.getPath());
+      Calendar cal = Calendar.getInstance();
+      if(versionDate != null){
+        cal.setTime(versionDate);
+      }
+      ((VersionManagerImpl) session.getWorkspace().getVersionManager()).checkin(versionableNode.getPath(), cal);
       // Version newVersion = versionableNode.checkin();
       // if (versionMessageAndLabel.length > 1 && StringUtils.hasText(versionMessageAndLabel[1])) {
       //   newVersion.getContainingHistory().addVersionLabel(newVersion.getName(), versionMessageAndLabel[1], true);
