@@ -195,7 +195,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     if (httpSession != null) {
       String localeOverride = (String) httpSession.getAttribute("locale_override"); //$NON-NLS-1$
       if (!StringUtils.isEmpty(localeOverride)) {
-        LocaleHelper.setLocaleOverride(new Locale(localeOverride));
+        LocaleHelper.parseAndSetLocaleOverride(localeOverride);
       } else {
         LocaleHelper.setLocaleOverride(null);
       }
@@ -436,7 +436,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Takes the parameters required to call <code>storePentahoSessionInHttpSession()</code> in
      * addition to the response object we are wrapping.
-     * @see #storePentahoSessionInHttpSession(IPentahoSession, HttpServletRequest, boolean, int)
+     * @see #storePentahoSessionInHttpSession(IPentahoSession, HttpServletRequest, boolean)
      */
     public OnRedirectUpdateSessionResponseWrapper(HttpServletResponse response, HttpServletRequest request,
         boolean httpSessionExistedAtStartOfRequest) {
