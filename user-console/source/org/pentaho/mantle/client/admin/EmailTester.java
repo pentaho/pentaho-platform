@@ -46,6 +46,7 @@ public class EmailTester {
   public void test(JsEmailConfiguration emailConfig) {
     this.emailConfig = emailConfig;
     executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       executableTypesRequestBuilder.sendRequest(this.emailConfig.getJSONString(), new RequestCallbackHandler());
     } catch (RequestException e) {

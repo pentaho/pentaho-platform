@@ -184,6 +184,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   public void configureAdminCatTree() {
     String serviceUrl = GWT.getHostPageBaseURL() + "api/ldap/config/getAttributeValues";
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
         public void onError(Request request, Throwable exception) {
@@ -262,6 +263,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
       protected void performOperation() {
         final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/overlays"; //$NON-NLS-1$
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         builder.setHeader("accept", "application/json");
 
         try {
@@ -287,6 +289,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
               final String url = GWT.getHostPageBaseURL() + "plugin/data-access/api/permissions/hasDataAccess"; //$NON-NLS-1$
               RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+              builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
               builder.setHeader("accept", "application/json");
 
               try {

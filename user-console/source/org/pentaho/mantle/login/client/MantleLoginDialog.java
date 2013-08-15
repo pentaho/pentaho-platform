@@ -82,6 +82,7 @@ public class MantleLoginDialog extends PromptDialogBox {
       }
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, path + "j_spring_security_check"); //$NON-NLS-1$
       builder.setHeader("Content-Type", "application/x-www-form-urlencoded"); //$NON-NLS-1$ //$NON-NLS-2$
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       RequestCallback callback = new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {
@@ -94,6 +95,7 @@ public class MantleLoginDialog extends PromptDialogBox {
             final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
             requestBuilder.setHeader("accept", "text/plain");
+            requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             requestBuilder.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, final Throwable caught) {
@@ -159,6 +161,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     showUsersList = showUsersListDefault;
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "loginsettings.properties"); //$NON-NLS-1$
     try {
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
         public void onError(Request request, Throwable exception) {
           setContent(buildLoginPanel(false));
@@ -215,6 +218,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.setHeader("accept", "text/plain");
       requestBuilder.sendRequest(null, new RequestCallback() {
 

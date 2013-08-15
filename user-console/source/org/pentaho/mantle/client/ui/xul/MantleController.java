@@ -240,6 +240,7 @@ public class MantleController extends AbstractXulEventHandler {
     // install themes
     RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active"); //$NON-NLS-1$
     try {
+      getActiveThemeRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {
@@ -249,6 +250,7 @@ public class MantleController extends AbstractXulEventHandler {
         public void onResponseReceived(Request request, Response response) {
           final String activeTheme = response.getText();
           RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list"); //$NON-NLS-1$
+          getThemesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
           getThemesRequestBuilder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
           try {
@@ -260,6 +262,7 @@ public class MantleController extends AbstractXulEventHandler {
                 try {
                   final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
                   RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+                  requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
                   requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
                   requestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -506,6 +509,7 @@ public class MantleController extends AbstractXulEventHandler {
       };
 
       RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/getAdminContent"); //$NON-NLS-1$
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       builder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
       builder.sendRequest(null, internalCallback);
       // TO DO Reset the menuItem click for browser and workspace here?

@@ -305,6 +305,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     try {
       String restUrl = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, restUrl);
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         @Override
@@ -322,6 +323,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           try {
             String restUrl2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
             RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, restUrl2);
+            requestBuilder2.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             requestBuilder2.sendRequest(null, new RequestCallback() {
               @Override
               public void onError(Request arg0, Throwable arg1) {

@@ -199,6 +199,7 @@ public class NewScheduleDialog extends PromptDialogBox {
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repo/files/" + urlPath
         + "/parameterizable");
     scheduleFileRequestBuilder.setHeader("accept", "text/plain");
+    scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
 

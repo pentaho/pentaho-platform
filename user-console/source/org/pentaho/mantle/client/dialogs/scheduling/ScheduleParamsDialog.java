@@ -194,6 +194,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+      scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
       try {
@@ -256,6 +257,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {

@@ -83,6 +83,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createUser?userName=" + name + "&password=" + password;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+		  executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -102,6 +103,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createRole?roleName=" + name;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -129,6 +131,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteRoles?roleNames=" + selectedRoles;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -181,6 +184,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?userNames=" + selectedUsers;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -207,6 +211,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword?userName=" + userName + "&newPassword=" + newPassword;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -236,6 +241,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void initializeRoles(final String defaultValue, String serviceUrl, final ListBox listBox) {
 		final String url = GWT.getHostPageBaseURL() + serviceUrl;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -275,6 +281,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void initializeAvailableUsers(final String defaultValue) {
 		final String url = GWT.getHostPageBaseURL() + "api/userroledao/users";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -314,6 +321,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void getRolesForUser(String user) {
 		final String url = GWT.getHostPageBaseURL() + "api/userroledao/userRoles?userName=" + user;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -365,6 +373,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void getUsersInRole(String role) {
 		final String url = GWT.getHostPageBaseURL() + "api/userroledao/roleMembers?roleName=" + role;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -416,6 +425,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void initializeActionBaseSecurityElements() {
 		final String url = GWT.getHostPageBaseURL() + "api/userroledao/logicalRoleMap"; 
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -436,6 +446,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void processLDAPmode() {
 		final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider"; 
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -466,6 +477,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void modifyUserRoles(final String userName, String serviceUrl) {
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -485,6 +497,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void modifyRoleUsers(final String roleName, String serviceUrl) {
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -510,6 +523,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		
 		final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider"; 
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
