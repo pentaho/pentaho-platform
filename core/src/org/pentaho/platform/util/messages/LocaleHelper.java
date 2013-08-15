@@ -61,6 +61,25 @@ public class LocaleHelper {
     return LocaleHelper.defaultLocale;
   }
 
+  /**
+   * BISERVER-9863
+   * Check if override locale string contains language and country. If so,
+   * instantiate Locale with two parameters for language and country,
+   * instead of just language
+   * @param localeOverride
+   */
+  public static void parseAndSetLocaleOverride(final String localeOverride){
+    if(localeOverride.contains("_")){
+      String[] parts = localeOverride.split("_");
+      if(parts.length >= 2){
+        setLocaleOverride(new Locale(parts[0], parts[1]));
+      }
+    }
+    else{
+      setLocaleOverride(new Locale(localeOverride));
+    }
+  }
+
   public static void setLocaleOverride(final Locale localeOverride) {
     LocaleHelper.threadLocaleOverride.set(localeOverride);
   }
