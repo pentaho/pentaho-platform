@@ -321,6 +321,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     session.save();
     createUserHomeFolder(tenant, user, session);
     session.save();
+    this.userDetailsCache.removeUserFromCache(userName);
     return getUser(session, tenant, userName);
   }
 
