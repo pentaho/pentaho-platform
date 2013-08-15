@@ -266,7 +266,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   protected RepositoryFile createFile(final RepositoryFileImportBundle bundle, final String repositoryPath,
       final IRepositoryFileData data) throws PlatformImportException {
 	if(solutionHelper.isInApprovedExtensionList(repositoryPath)) {
-	    final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(solutionHelper.isInHiddenList(bundle.getName()))
+	    final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(solutionHelper.isInHiddenList(bundle.getName()) || bundle.isHidden())
 	        .title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getTitle() != null ? bundle.getTitle(): bundle.getName())).versioned(true).build();
 	    final Serializable parentId = checkAndCreatePath(repositoryPath, getImportSession().getCurrentManifestKey());
 	    
