@@ -136,12 +136,15 @@ public class LocaleHelperTest extends TestCase {
     LocaleHelper.setSystemEncoding("Shift_JIS");
   }
 
-  public void testparseAndSetLocaleOverride(){
+  public void testParseAndSetLocaleOverride(){
     final String TEST_LOCALE_LANG = "en";
     final String TEST_LOCALE_COUNTRY = "US";
     LocaleHelper.parseAndSetLocaleOverride(TEST_LOCALE_LANG + "_" + TEST_LOCALE_COUNTRY);
 
     assertTrue(LocaleHelper.getLocale().equals(new Locale(TEST_LOCALE_LANG, TEST_LOCALE_COUNTRY)));
+
+    // reset override to not break other tests
+    LocaleHelper.setLocaleOverride(null);
   }
   
   public static void main(final String[] args) {

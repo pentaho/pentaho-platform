@@ -458,6 +458,12 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
           "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND"));
     }
     jackrabbitUser.changePassword(password);
+
+    /**
+     * BISERVER-9906 Clear cache after changing password
+     */
+    purgeUserFromCache(userName);
+    userCache.remove(jackrabbitUser.getID());
   }
 
   public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
