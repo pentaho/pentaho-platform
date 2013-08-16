@@ -72,7 +72,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
-
   private JcrTemplate jcrTemplate;
 
   private List<ITransformer<IRepositoryFileData>> transformers;
@@ -825,31 +824,32 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         String finalDestAbsPath = appendFileName && !file.isFolder()? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
             : cleanDestAbsPath;
         try {
-	        if (copy) {
-	          session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
-	        } else {
-	          session.getWorkspace().move(finalSrcAbsPath, finalDestAbsPath);
-	        }
+          if (copy) {
+            session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
+          } else {
+            session.getWorkspace().move(finalSrcAbsPath, finalDestAbsPath);
+          }
         } catch(ItemExistsException iae) {
-        	throw new UnifiedRepositoryException((file.isFolder() ? "Folder " : "File ") + "with path ["+ cleanDestAbsPath + "] already exists in the repository");
+          throw new UnifiedRepositoryException((file.isFolder() ? "Folder " : "File ") + "with path ["+ cleanDestAbsPath + "] already exists in the repository");
         }
         // Now we need to update the title
         RepositoryFile destFile = internalGetFile(session, finalDestAbsPath, true, null);
         // Check if the file to be updated is a folder or not
-        if(!destFile.isFolder()) {
+        String contentType = JcrRepositoryFileUtils.getFileContentType(session, pentahoJcrConstants, destFile.getId(),destFile.getVersionId());
+        if(!destFile.isFolder() && (contentType != null && contentType.equals(IRepositoryFileData.SIMPLE_CONTENT_TYPE))) {
             String title = extractNameFromPath(finalDestAbsPath);
             Map<String, Properties> localePropertiesMap = destFile.getLocalePropertiesMap();
             for(Entry<String,Properties> entry :destFile.getLocalePropertiesMap().entrySet()) {
-            	Properties properties = entry.getValue();
-            	if(properties.containsKey("file.title")) {
-            		properties.setProperty("file.title", title);
-            	}
-            	if(properties.containsKey("title")) {
-            		properties.setProperty("title", title);
-            	}        	
+              Properties properties = entry.getValue();
+              if(properties.containsKey("file.title")) {
+                properties.setProperty("file.title", title);
+              }
+              if(properties.containsKey("title")) {
+                properties.setProperty("title", title);
+              }         
             }
             RepositoryFile updatedFile = new RepositoryFile.Builder(destFile).localePropertiesMap(localePropertiesMap).title(title).build();
-        	internalUpdateFile(session, pentahoJcrConstants, updatedFile,getData(destFile.getId(), null, SimpleRepositoryFileData.class), "Updating the Title");	
+          internalUpdateFile(session, pentahoJcrConstants, updatedFile,getData(destFile.getId(), null, SimpleRepositoryFileData.class), "Updating the Title");  
         } 
         
         JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,
@@ -1158,13 +1158,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   private String extractNameFromPath(String path) {
-	  int startIndex = path.lastIndexOf(RepositoryFile.SEPARATOR);
-	  if(startIndex >= 0 ) {
-		  int endIndex = path.indexOf('.', startIndex);
-		  if(endIndex > startIndex) {
-			  return path.substring(startIndex + 1, endIndex);  
-		  }
-	  }
-	  return null;
+    int startIndex = path.lastIndexOf(RepositoryFile.SEPARATOR);
+    if(startIndex >= 0 ) {
+      int endIndex = path.indexOf('.', startIndex);
+      if(endIndex > startIndex) {
+        return path.substring(startIndex + 1, endIndex);  
+      }
+    }
+    return null;
   }
 }
