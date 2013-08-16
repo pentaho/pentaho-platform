@@ -16,6 +16,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
@@ -51,6 +52,8 @@ import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
  * @author wseyler
  *
  */
+
+@org.codehaus.enunciate.XmlTransient
 @Path("/scheduler/blockout")
 public class BlockoutResource extends AbstractJaxRSResource {
   private static final Log logger = LogFactory.getLog(BlockoutResource.class);
