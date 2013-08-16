@@ -41,8 +41,6 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
 
   // ~ Instance fields =================================================================================================
 
-  private static final String CONTENT_TYPE = "node"; //$NON-NLS-1$
-
   // ~ Constructors ====================================================================================================
 
   public NodeRepositoryFileDataTransformer() {
@@ -213,7 +211,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
    * {@inheritDoc}
    */
   public boolean canRead(final String contentType, final Class<? extends IRepositoryFileData> clazz) {
-    return CONTENT_TYPE.equals(contentType) && clazz.isAssignableFrom(NodeRepositoryFileData.class);
+    return IRepositoryFileData.NODE_CONTENT_TYPE.equals(contentType) && clazz.isAssignableFrom(NodeRepositoryFileData.class);
   }
 
   /**
@@ -227,7 +225,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
    * {@inheritDoc}
    */
   public String getContentType() {
-    return CONTENT_TYPE;
+    return IRepositoryFileData.NODE_CONTENT_TYPE;
   }
 
   public void updateContentNode(Session session, PentahoJcrConstants pentahoJcrConstants,
