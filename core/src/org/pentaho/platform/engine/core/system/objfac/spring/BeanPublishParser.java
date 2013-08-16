@@ -1,6 +1,8 @@
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
 import org.apache.commons.lang.ClassUtils;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -35,6 +37,7 @@ import java.util.UUID;
  */
 public class BeanPublishParser implements BeanDefinitionDecorator {
   private static String ATTR = "as-type";
+  private IPluginManager pluginManager;
   private static enum specialPublishTypes{
     INTERFACES,
     CLASSES,
@@ -85,7 +88,7 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
     try {
       List<Class<?>> classesToPublish = new ArrayList<Class<?>>();
 
-      Class<?> clazz = getClass().getClassLoader().loadClass(beanClassName);
+      Class<?> clazz = findClass(beanClassName);
 
       if(specialPublishTypes.INTERFACES.name().equals(publishType)) {
         if(clazz.isInterface()){ // publish as self if interface already (re-publish flow)
@@ -124,6 +127,37 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
       throw new RuntimeException("Cannot find class for publish type: "+publishType+" specified on publish of bean id: "+beanDefinitionHolder.getBeanName(), e);
     }
     return beanDefinitionHolder;
+  }
+
+  private Class<?> findClass(String beanClassName) throws ClassNotFoundException {
+    // try main classloader
+    // getClass().getClassLoader()
+    Class<?> clazz = loadClassFromClassloader(getClass().getClassLoader(), beanClassName);
+    if(clazz != null){
+      return clazz;
+    }
+    for(String s : getPluginManager().getRegisteredPlugins()){
+      clazz = loadClassFromClassloader(getPluginManager().getClassLoader(s), beanClassName);
+      if(clazz != null){
+        return clazz;
+      }
+    }
+
+    throw new ClassNotFoundException(beanClassName);
+  }
+
+  private IPluginManager getPluginManager(){
+    if(pluginManager == null){
+      pluginManager = PentahoSystem.get(IPluginManager.class);
+    }
+    return pluginManager;
+  }
+
+  private Class<?> loadClassFromClassloader(ClassLoader loader, String beanClassName){
+    try{
+      return loader.loadClass(beanClassName);
+    } catch(ClassNotFoundException e){}
+    return null;
   }
 
   private static String stripNamespace(String s){
