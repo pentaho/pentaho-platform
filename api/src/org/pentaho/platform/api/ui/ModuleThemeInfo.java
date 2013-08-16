@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.api.ui;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,13 @@ import java.util.List;
  * User: nbaker
  * Date: 5/15/11
  */
-public class ModuleThemeInfo{
+public class ModuleThemeInfo implements Serializable {
+  
+  /**
+   * for Serializable
+   */
+  private static final long serialVersionUID = 7878856976816551482L;
+  
   private List<Theme> moduleThemes = new ArrayList<Theme>();
   private List<Theme> systemThemes = new ArrayList<Theme>();
   private String module;
