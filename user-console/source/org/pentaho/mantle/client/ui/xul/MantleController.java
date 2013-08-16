@@ -208,31 +208,18 @@ public class MantleController extends AbstractXulEventHandler {
     }
     buildFavoritesAndRecent(false);
 
+    UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
+      public void onSuccess(JsArray<JsSetting> settings) {
+        processSettings(settings);
+      }
+
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
+    
     EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
       public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {
-        JsArray<JsSetting> settings = event.getSettings();
-        if (settings == null) {
-          return;
-        }
-
-        for (int i = 0; i < settings.length(); i++) {
-          JsSetting setting = settings.get(i);
-          try {
-            if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
-              boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
-              model.setShowNavigatorSelected(showNavigator);
-            } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
-              boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
-              ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
-            } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
-              boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
-              ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
-            }
-          } catch (Exception e) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-            dialogBox.center();
-          }
-        }
+        processSettings(event.getSettings());
       }
 
     });
@@ -319,6 +306,32 @@ public class MantleController extends AbstractXulEventHandler {
     }
   }
 
+  public void processSettings(JsArray<JsSetting> settings) {
+    if (settings == null) {
+      return;
+    }
+
+    for (int i = 0; i < settings.length(); i++) {
+      JsSetting setting = settings.get(i);
+      try {
+        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
+          boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
+          model.setShowNavigatorSelected(showNavigator);
+        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
+          boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+          ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
+        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
+          boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+          ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
+        }
+      } catch (Exception e) {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+        dialogBox.center();
+      }
+    }
+
+  }
+  
   /**
    * 
    * @param force
