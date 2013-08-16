@@ -18,6 +18,7 @@
       <value>
         <![CDATA[CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
+        /js/deny.js=basicAuthPostFilter
         /webservices/**=securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS
         /api/**=securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS
         /plugin/**=securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS
@@ -44,7 +45,7 @@
   <bean id="loggerListener"
         class="org.springframework.security.event.authentication.LoggerListener" />
   <bean id="basicProcessingFilter"
-        class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
+        class="org.pentaho.platform.web.http.security.PentahoBasicProcessingFilter">
     <property name="authenticationManager">
       <ref local="authenticationManager" />
     </property>
@@ -52,6 +53,11 @@
       <ref local="basicProcessingFilterEntryPoint" />
     </property>
   </bean>
+  <bean id="basicAuthPostFilter"
+        class="org.pentaho.platform.web.http.security.PentahoBasicPostProcessingFilter">
+  </bean>
+
+
   <bean id="basicProcessingFilterEntryPoint"
         class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
     <property name="realmName" value="Pentaho Realm" />
