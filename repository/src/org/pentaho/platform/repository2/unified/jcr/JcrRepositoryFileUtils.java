@@ -789,6 +789,8 @@ public class JcrRepositoryFileUtils {
       Calendar cal = Calendar.getInstance();
       if(versionDate != null){
         cal.setTime(versionDate);
+      } else {
+        cal.setTime(new Date());
       }
       ((VersionManagerImpl) session.getWorkspace().getVersionManager()).checkin(versionableNode.getPath(), cal);
       // Version newVersion = versionableNode.checkin();

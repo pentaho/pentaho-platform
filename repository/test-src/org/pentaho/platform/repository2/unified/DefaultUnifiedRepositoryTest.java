@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.jcr.Repository;
@@ -965,8 +966,17 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         expectedMimeType);
     Date beginTime = Calendar.getInstance().getTime();
     Thread.sleep(1000); // when the test runs too fast, begin and lastModifiedDate are the same; manual pause
+
+    Calendar cal = Calendar.getInstance(Locale.US);
+    SimpleDateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+    cal.setTime(df.parse("Wed, 4 Jul 2000 12:08:56 -0700"));
+
     RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(expectedName)
-        .hidden(true).build(), content, null);
+        .hidden(true).versioned(true).createdDate(cal.getTime()).build(), content, null);
+
+
+    assertEquals(cal.getTime(), repo.getVersionSummaries(newFile.getId()).get(0).getDate());
+
     Date endTime = Calendar.getInstance().getTime();
     assertTrue(beginTime.before(newFile.getLastModifiedDate()));
     assertTrue(endTime.after(newFile.getLastModifiedDate()));
