@@ -39,6 +39,7 @@ import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 
+@org.codehaus.enunciate.XmlTransient
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
   /**
