@@ -201,7 +201,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         session.save();
         if (file.isVersioned()) {
           JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, fileNode,
-              versionMessage);
+              versionMessage, file.getCreatedDate(), false);
+
         }
         JcrRepositoryFileUtils
             .checkinNearestVersionableFileIfNecessary(
