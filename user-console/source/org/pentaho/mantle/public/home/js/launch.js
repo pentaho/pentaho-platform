@@ -38,6 +38,8 @@ pen.define([
 			defaultTabSelector : "#"+urlVars.selectedTab,
 			before: function() { 
 				ContextProvider.get(function(context) {
+					$("#launch-widget-title").text(context.i18n.getting_started_heading);
+
 					GettingStartedWidget.injectMessagesArray(
 						"getting_started_samples", 
 						context.config.getting_started_sample_message_template, 
