@@ -435,7 +435,7 @@ public class JcrRepositoryFileUtils {
     if (folder.getTitle() != folder.getName()) { // Title is different from the name
       localeNodes = folderNode.addNode(pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE());
       Map<String, Properties> localPropertiesMap = new HashMap<String, Properties>();
-      String defaultLocale = LocaleHelper.getLocale().toString();
+      String defaultLocale = LocalizationUtil.DEFAULT;
       Properties titleProps = new Properties();
       titleProps.put("file.title", folder.getTitle());
       localPropertiesMap.put(defaultLocale, titleProps);
