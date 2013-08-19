@@ -42,6 +42,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
@@ -77,6 +78,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
   private IPathConversionHelper pathConversionHelper;
   
   private String tenantAdminAuthorityName;
+  
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper, String tenantAdminAuthorityName) {
@@ -251,6 +253,10 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   public void addAce(final Serializable id, final RepositoryFileSid recipient,
       final EnumSet<RepositoryFilePermission> permission) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(id);
     Assert.notNull(recipient);
     Assert.notNull(permission);
@@ -273,6 +279,10 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
   }
 
   public RepositoryFileAcl createAcl(final Serializable fileId, final RepositoryFileAcl acl) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     return (RepositoryFileAcl) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
@@ -347,6 +357,10 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   protected RepositoryFileAcl internalUpdateAcl(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final RepositoryFileAcl acl) throws RepositoryException {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     DefaultPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper(session); 
     Node node = session.getNodeByIdentifier(fileId.toString());
     if (node == null) {
@@ -406,4 +420,10 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   }
   
+  private boolean isKioskEnabled() {
+    if(PentahoSystem.getInitializedOK()) {
+      return "true".equals(PentahoSystem.getSystemSetting("kiosk-mode", "false"));
+    } else 
+       return false;
+  }
 }
