@@ -52,6 +52,7 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Tree;
@@ -96,27 +97,10 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
       public void onSelection(SelectionEvent<TreeItem> event) {
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
-          if (selectedItem instanceof FileTreeItem) {
-            RepositoryFile repositoryFile = ((FileTreeItem) selectedItem).getRepositoryFile();
-            if (repositoryFile != null && repositoryFile.isHidden()) {
-              if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-                ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
-              } else {
-                selectedItem.removeStyleName("selected"); //$NON-NLS-1$
-              }
-            } else {
-              if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-                ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
-              } else {
-                selectedItem.removeStyleName("selected"); //$NON-NLS-1$
-              }
-            }
+          if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+            ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
           } else {
-            if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-              ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
-            } else {
-              selectedItem.removeStyleName("selected"); //$NON-NLS-1$
-            }
+            selectedItem.removeStyleName("selected"); //$NON-NLS-1$
           }
         }
         selectedItem = event.getSelectedItem();
@@ -124,7 +108,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
           Widget treeItemWidget = selectedItem.getWidget();
           if (selectedItem instanceof FileTreeItem) {
             RepositoryFile repositoryFile = ((FileTreeItem) selectedItem).getRepositoryFile();
-            if (repositoryFile != null && repositoryFile.isHidden()) {
+            if (repositoryFile != null && repositoryFile.isHidden() && !isShowHiddenFiles()) {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
                 ((LeafItemWidget) treeItemWidget).getParent().addStyleName("hidden"); //$NON-NLS-1$
                 ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
@@ -298,7 +282,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
     clear();
     // get document root item
     RepositoryFile rootRepositoryFile = repositoryFileTree.getFile();
-    if (!rootRepositoryFile.isHidden() || (rootRepositoryFile.isHidden() && isShowHiddenFiles())) {
+    if (!rootRepositoryFile.isHidden() || isShowHiddenFiles()) {
       FileTreeItem rootItem = null;
       if (createRootNode) {
         rootItem = new FileTreeItem();
@@ -533,7 +517,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
       RepositoryFile file = treeItem.getFile();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
-      if ((!file.isHidden() || (file.isHidden() && isShowHiddenFiles())) && !StringUtils.isEmpty(fileName)) {
+      if ((!file.isHidden() || isShowHiddenFiles()) && !StringUtils.isEmpty(fileName)) {
 
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
