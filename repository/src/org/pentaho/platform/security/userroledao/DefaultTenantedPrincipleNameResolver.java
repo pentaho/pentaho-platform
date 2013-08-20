@@ -3,6 +3,7 @@ package org.pentaho.platform.security.userroledao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 
 public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleNameResolver {
 
@@ -22,21 +23,27 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
 
   public ITenant getTenant(String principalId) {
     String tenantName = null;
-    int delimiterIndex = principalId.indexOf(getDelimeter());
+    int delimiterIndex = principalId.lastIndexOf(getDelimeter());
     if ( delimiterIndex >= 0) {
       tenantName = (getUserNameFollowsTenantName() ? principalId.substring(0, delimiterIndex - 1) : principalId.substring(delimiterIndex + 1));
+      if(!isTenantValid(tenantName)) {
+        tenantName = null;
+      }
     }
     return new Tenant(tenantName, true);
   }
 
   public String getPrincipleName(String principalId) {
     String userName = principalId;
-    int delimiterIndex = principalId.indexOf(getDelimeter());
+    int delimiterIndex = principalId.lastIndexOf(getDelimeter());
     if ( delimiterIndex >= 0) {
       if (getUserNameNaturallyContainsEmbeddedTenantName()) {
         userName = principalId;
       } else {
         userName = (getUserNameFollowsTenantName() ?  principalId.substring(delimiterIndex + 1) : principalId.substring(0, delimiterIndex));
+        if(getTenant(principalId).getId() == null) {
+          userName = principalId;
+        }
       }
     }
     return userName;
@@ -80,7 +87,7 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
   @Override
   public boolean isValid(String principleId) {
 
-    int delimiterIndex = principleId.indexOf(getDelimeter());
+    int delimiterIndex = principleId.lastIndexOf(getDelimeter());
     if ( delimiterIndex >= 0) {
       return true;
     }
@@ -90,4 +97,7 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
 
   }
 
+  private boolean isTenantValid(String tenantName) {
+    return tenantName != null && tenantName.contains(ServerRepositoryPaths.getPentahoRootFolderName());
+  }
 }
