@@ -54,19 +54,19 @@ public class ThemeServlet extends ServletBase {
       IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession(req));
 
       String activeTheme = (String) getPentahoSession(req).getAttribute("pentaho-user-theme");
+      
+      String ua = req.getHeader("User-Agent");
+      // check if we're coming from a mobile device, if so, lock to system default (crystal)
+      if (!StringUtils.isEmpty(ua) && ua.matches(".*(?i)(iPad|iPod|iPhone|Android).*")) {
+        activeTheme = PentahoSystem.getSystemSetting("default-theme", "crystal");
+      } 
       if (activeTheme == null) {
-        // check if we're coming from a mobile device, if so, lock to crystal
-        String ua = req.getHeader("User-Agent");
-        if (!StringUtils.isEmpty(ua) && ua.matches("/(iPad|iPod|iPhone|Android)/")) {
+        try {
+          activeTheme = settingsService.getUserSetting("pentaho-user-theme", null).getSettingValue();
+        } catch (Exception ignored) { // the user settings service is not valid in the agile-bi deployment of the server
+        }
+        if (activeTheme == null) {
           activeTheme = PentahoSystem.getSystemSetting("default-theme", "crystal");
-        } else {
-          try {
-            activeTheme = settingsService.getUserSetting("pentaho-user-theme", null).getSettingValue();
-          } catch (Exception ignored) { // the user settings service is not valid in the agile-bi deployment of the server
-          }
-          if (activeTheme == null) {
-            activeTheme = PentahoSystem.getSystemSetting("default-theme", "crystal");
-          }
         }
       }
 
