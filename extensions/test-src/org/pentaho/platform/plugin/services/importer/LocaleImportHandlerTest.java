@@ -54,12 +54,12 @@ public class LocaleImportHandlerTest {
 		allowedArtifacts.add("url");
 		
 		List<String> approvedExtensionsList = new ArrayList<String>();
-		allowedArtifacts.add(".prpt");
-		allowedArtifacts.add(".xaction");
+    approvedExtensionsList.add(".prpt");
+    approvedExtensionsList.add(".xaction");
 
 		List<String> hiddenExtensionsList = new ArrayList<String>();
-		allowedArtifacts.add(".xml");
-		allowedArtifacts.add(".png");
+    hiddenExtensionsList.add(".xml");
+    hiddenExtensionsList.add(".png");
 
 		LocaleImportHandler localeImportHandler = new LocaleImportHandler(allowedArtifacts, approvedExtensionsList, hiddenExtensionsList);
 

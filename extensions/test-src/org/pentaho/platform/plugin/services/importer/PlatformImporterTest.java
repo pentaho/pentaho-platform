@@ -41,7 +41,7 @@ public class PlatformImporterTest {
       importer.setRepositoryImportLogger(importLogger);
       importer.importFile(bundle1);
       String result = new String(outputStream.toByteArray());
-      Assert.assertTrue(result.contains("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE"));
+      Assert.assertTrue(result.contains("Error computing or retrieving mime-type"));
     } catch(PlatformImportException e){
       e.printStackTrace();
       return;
