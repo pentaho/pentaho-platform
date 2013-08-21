@@ -6,4 +6,6 @@
   	<obj-c disabled="true"/>
   	<csharp disabled="true"/> 
   </modules>
+  
+  <webapp disabled="true" />
 </enunciate> 
