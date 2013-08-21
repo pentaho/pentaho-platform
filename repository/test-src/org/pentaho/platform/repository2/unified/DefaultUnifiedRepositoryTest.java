@@ -740,7 +740,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String tiffanyFolderPath = homeFolderPath + "/tiffany";
     JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
         repositoryAdminUsername, "c:/build/testrepo_7", Mode.CUSTOM);
-    dumpToFile.execute();
+//    dumpToFile.execute();
     // read access for suzy on home
     assertNotNull(repo.getFile(homeFolderPath));
     // no read access for suzy on tiffany's folder
@@ -3936,6 +3936,47 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         fail();
       }
     }
+  }
+
+  @Test
+  public void testInheritingNodeRemoval() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+
+
+    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    RepositoryFile parentFolder = repo.getFile(parentFolderPath);
+
+
+    DataNode node = new DataNode("kdjd");
+    node.setProperty("ddf", "ljsdfkjsdkf");
+    DataNode newChild1 = node.addNode("herfkmdx");
+
+    NodeRepositoryFileData data = new NodeRepositoryFileData(node);
+    RepositoryFile repoFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("test").build(), data, null);
+    RepositoryFileAcl acl = repo.getAcl(repoFile.getId());
+
+    RepositoryFileSid suzySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme,
+        USERNAME_SUZY));
+    RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(acl).ace(suzySid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.WRITE));
+
+    repo.updateAcl(newAclBuilder.build());
+
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    repoFile = repo.getFile(repoFile.getPath());
+
+
+    node = new DataNode("kdjd");
+    node.setProperty("foo", "bar");
+    newChild1 = node.addNode("sdfsdf");
+
+    data = new NodeRepositoryFileData(node);
+    repo.updateFile( repoFile, data, "testUpdate");
+
   }
 
 }
