@@ -32,12 +32,12 @@ pen.define([
         }
     },
 
-    // retrieve i18n map
-    jQuery.i18n.properties({
-        name: 'messages',
-        mode: 'map',
-        language: FileBrowser.urlParam('locale')
-    });
+        // retrieve i18n map
+        jQuery.i18n.properties({
+            name: 'messages',
+            mode: 'map',
+            language: FileBrowser.urlParam('locale')
+        });
     var renameDialog = new RenameDialog(jQuery.i18n);
     var fileButtons = new FileButtons(jQuery.i18n);
     var folderButtons = new FolderButtons(jQuery.i18n);
@@ -63,13 +63,13 @@ pen.define([
         var result = path;
 
         // only parse paths greater than 1 ":"
-        if(path.length > 1){
+        if (path.length > 1) {
             var encodedParts = [];
 
             var parts = path.split(":");
 
-            for(var x = 0; x <= parts.length - 1; x++){
-                if(parts[x] != ""){
+            for (var x = 0; x <= parts.length - 1; x++) {
+                if (parts[x] != "") {
                     encodedParts[x] = encodeURIComponent(parts[x]);
                 }
             }
@@ -137,8 +137,6 @@ pen.define([
 
             });
         });
-
-        //this.FileBrowserView.render();
     };
 
     FileBrowser.openFolder = function (path) {
@@ -265,7 +263,7 @@ pen.define([
             if (folderPath == ".trash") {
                 this.updateTrashLastClick();
             } else {
-            	folderPath = folderPath.replace(/\//g, ":");
+                folderPath = folderPath.replace(/\//g, ":");
             }
             this.set("clickedFolder", clickedFolder);
             folderButtons.canDownload(this.get("canDownload"));
@@ -436,9 +434,9 @@ pen.define([
                 cache: false, // prevent IE from caching the request
                 dataType: "json",
                 url: url,
-                success: function(response){
-                    if(localSequenceNumber == myself.get("sequenceNumber") && callback != undefined){
-                        myself.set("sequenceNumber", localSequenceNumber+1);
+                success: function (response) {
+                    if (localSequenceNumber == myself.get("sequenceNumber") && callback != undefined) {
+                        myself.set("sequenceNumber", localSequenceNumber + 1);
                         callback(customSort(response));
                     }
                 },
@@ -538,9 +536,9 @@ pen.define([
                 cache: false, // prevent IE from caching the request
                 dataType: "json",
                 url: url,
-                success: function(response){
-                    if(localSequenceNumber == myself.get("sequenceNumber") && callback != undefined){
-                        myself.set("sequenceNumber", localSequenceNumber+1);
+                success: function (response) {
+                    if (localSequenceNumber == myself.get("sequenceNumber") && callback != undefined) {
+                        myself.set("sequenceNumber", localSequenceNumber + 1);
                         callback(customSort(response));
                     }
                 },
@@ -682,10 +680,10 @@ pen.define([
             var obj = {
                 folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
                 i18n: jQuery.i18n,
-                refreshHandler: function(){
-                  if(window.top.mantle_fireEvent){
-                    window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent"});
-                  }
+                refreshHandler: function () {
+                    if (window.top.mantle_fireEvent) {
+                        window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent"});
+                    }
                 }
             };
 
@@ -832,6 +830,7 @@ pen.define([
                 myself.$el.html(spinner.spin());
                 myself.model.set("updateData", true);
             }
+
         },
 
         render: function () {
@@ -882,6 +881,8 @@ pen.define([
 
                 //set initial folder start
                 myself.setFolder();
+
+                myself.updateDescriptions();
             });
 
 
@@ -939,24 +940,17 @@ pen.define([
             var $folders = $(".folder"),
                 showDescriptions = this.model.get("showDescriptions");
 
+            $folders.each(function () {
+                var $this = $(this);
+                var desc = $this.attr("desc");
+                if (showDescriptions && desc != "") {
+                    $this.attr("title", desc);
+                }
+                else {
+                    $this.attr("title", $this.attr("ext"));
+                }
+            });
 
-            if (showDescriptions) {
-                $folders.each(function () {
-                    var $this = $(this),
-                        title = $this.attr("title"),
-                        title2 = $this.attr("title2");
-
-                    $this.attr("title", title2).attr("title2", title);
-                });
-            } else {
-                $folders.each(function () {
-                    var $this = $(this),
-                        title = $this.attr("title"),
-                        title2 = $this.attr("title2");
-
-                    $this.attr("title", title2).attr("title2", title);
-                });
-            }
         },
 
         setFolder: function () {
@@ -989,7 +983,7 @@ pen.define([
             this.model.on("change:data", this.updateFileList, this);
             myself.model.on("change:runSpinner", myself.manageSpinner, myself);
 
-            myself.model.on("change:showDescriptions", myself.updateDescriptions, this);
+            myself.model.on("change:showDescriptions", this.updateDescriptions, this);
         },
 
         render: function () {
@@ -1000,16 +994,18 @@ pen.define([
             pen.require(["js/browser.templates"], function (templates) {
                 myself.$el.empty().append(templates.files(data));
 
-                if(myself.$el.children().length > 0){
-                    $(".file").each(function(){
+                if (myself.$el.children().length > 0) {
+                    $(".file").each(function () {
                         var $this = $(this);
-                        while($this.height() > 20){
+                        while ($this.height() > 20) {
                             $this.width($this.width() + 20);
                         }
                     });
                 } else {
-                    myself.$el.append(templates.emptyFolder({i18n:jQuery.i18n}));
+                    myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
                 }
+
+                myself.updateDescriptions();
             });
 
             setTimeout(function () {
@@ -1076,56 +1072,49 @@ pen.define([
             var $files = $(".file"),
                 showDescriptions = this.model.get("showDescriptions");
 
-            if (showDescriptions) {
-                $files.each(function () {
-                    var $this = $(this),
-                        title = $this.attr("title"),
-                        title2 = $this.attr("title2");
+            $files.each(function () {
+                var $this = $(this);
+                var desc = $this.attr("desc");
+                if (showDescriptions && desc != "") {
+                    $this.attr("title", desc);
+                }
+                else {
+                    $this.attr("title", $this.attr("ext"));
+                }
+            });
 
-                    $this.attr("title", title2).attr("title2", title);
-                });
-            } else {
-                $files.each(function () {
-                    var $this = $(this),
-                        title = $this.attr("title"),
-                        title2 = $this.attr("title2");
-
-                    $this.attr("title", title2).attr("title2", title);
-                });
-            }
         }
 
     });
 
+    function customSort(response) {
 
-    function customSort(response){
+        var sortFunction = function (a, b) {
+            return window.top.localeCompare(a.file.title, b.file.title);
+        };
 
-      var sortFunction = function(a, b){
-        return window.top.localeCompare(a.file.title, b.file.title);
-      };
+        var recursivePreorder = function (node) {
+            if (node != undefined) {
+                if (node.children == undefined || node.children == null || node.children.length <= 0) {
+                    // do nothing if node is not a parent
+                }
+                else {
+                    for (var i = 0; i < node.children.length; i++)
+                        // recursively sort children
+                        recursivePreorder(node.children[i]);
+                    node.children.sort(sortFunction);
+                }
+            }
+        };
 
-      var recursivePreorder = function (node) {
-        if(node!=undefined){
-          if (node.children == undefined || node.children == null || node.children.length <= 0) {
-            // do nothing if node is not a parent
-          }
-          else {
-            for(var i=0; i<node.children.length; i++)
-              // recursively sort children
-              recursivePreorder(node.children[i]);
-              node.children.sort(sortFunction);
-          }
+        if (!window.top.localeCompare) {
+            console.log('window.top.localeCompare function has not been loaded');
+            return response; // the server should still return a sorted tree list
         }
-      };
 
-      if(!window.top.localeCompare){
-        console.log('window.top.localeCompare function has not been loaded');
-        return response; // the server should still return a sorted tree list
-      }
+        recursivePreorder(response);
 
-      recursivePreorder(response);
-
-      return response;
+        return response;
     }
 
     return {
