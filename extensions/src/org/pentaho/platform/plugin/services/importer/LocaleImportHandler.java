@@ -20,10 +20,13 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
 
 import org.drools.util.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -71,23 +74,33 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     }
   }
 
+  /**
+   * return locale specific properties from resource bundle
+   * @param locale
+   * @return
+   */
   private Properties buildLocaleProperties(RepositoryFileImportBundle locale) {
     Properties localeProperties = new Properties();
-    try {
-      localeProperties.load(locale.getInputStream());
-    } catch (IOException ex) {
-      getLogger().error(ex.getMessage());
-    }
+    PropertyResourceBundle rb = null;  
     String comment = locale.getComment();
     String fileTitle = locale.getName();
-    if (!StringUtils.isEmpty((String) localeProperties.get("description"))) {
-      comment = (String) localeProperties.get("description");
-      localeProperties.remove("description");
+    try {      
+      rb = new PropertyResourceBundle(locale.getInputStream());
+     } catch (IOException returnEmptyIfError) {      
+       return localeProperties;
     }
-    if (!StringUtils.isEmpty(localeProperties.getProperty("name"))) {
-      fileTitle = (String) localeProperties.getProperty("name");
-      localeProperties.remove("name");
+    if(rb != null){
+      //this is the 4.8 style - name and description
+      String desc = rb.containsKey("description")?rb.getString("description"):comment;
+      String name = rb.containsKey("name")?rb.getString("name"):fileTitle;
+      if (desc == null && rb.containsKey(FILE_DESCRIPTION)) {
+        comment = rb.getString(FILE_DESCRIPTION);     
+      }
+      if(name == null && rb.containsKey(FILE_TITLE)){
+        fileTitle = rb.getString(FILE_TITLE);
+      }
     }
+    //this is the new .locale Jcr property names 
     localeProperties.setProperty(FILE_DESCRIPTION, comment != null ? comment : "");
     localeProperties.setProperty(FILE_TITLE, fileTitle != null ? fileTitle : "");
 
