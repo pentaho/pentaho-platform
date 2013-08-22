@@ -182,6 +182,30 @@ public class PentahoEntryCollector extends EntryCollector {
     currentNode = findNonInheritingNode(currentNode);
     acl = new ACLTemplate(currentNode.getNode(N_POLICY));
 
+    // If we're inheriting from another node, check to see if that node has removeChildNodes or addChildNodes
+    // permissions. This needs to transform to become addChild removeChild
+    if( ! currentNode.isSame(node) ){
+      Privilege removeNodePrivilege = systemSession.getAccessControlManager().privilegeFromName(
+          Privilege.JCR_REMOVE_NODE);
+
+      Privilege removeChildNodesPrivilege = systemSession.getAccessControlManager().privilegeFromName(
+          Privilege.JCR_REMOVE_CHILD_NODES);
+
+      for (AccessControlEntry entry : acl.getEntries()){
+
+        Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges(entry.getPrivileges(), false);
+        if (ArrayUtils.contains(expandedPrivileges, removeChildNodesPrivilege) &&
+            ! ArrayUtils.contains(expandedPrivileges, removeNodePrivilege)) {
+          if (!acl.addAccessControlEntry(entry.getPrincipal(), new Privilege[]{removeNodePrivilege})) {
+            // we can never fail to add this entry because it means we may be giving more permission than the above two
+            throw new RuntimeException();
+          }
+          break;
+        }
+      }
+    }
+
+
     // find first ancestor that is not inheriting; its ACEs will be used if the ACL is not inheriting
     ACLTemplate ancestorAcl = null;
     if (firstAccessControlledNode.isSame(currentNode) && !rootID.equals(currentNode.getNodeId())) {
