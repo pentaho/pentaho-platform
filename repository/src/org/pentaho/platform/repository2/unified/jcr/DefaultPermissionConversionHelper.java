@@ -136,6 +136,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     //WRITE
 
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_ADD_CHILD_NODES);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_REMOVE_CHILD_NODES);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_VERSION_MANAGEMENT);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_LOCK_MANAGEMENT);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_MODIFY_PROPERTIES);
