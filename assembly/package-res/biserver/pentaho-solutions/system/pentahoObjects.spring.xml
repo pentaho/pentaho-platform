@@ -191,11 +191,12 @@ not directly from the PentahoObjectFactory. -->
 
   <!--
   Disabled by default in 3.5.2. In trunk, this should be enabled.
+    -->
   <bean id="Mondrian-UserRoleMapper"
         name="Mondrian-One-To-One-UserRoleMapper"
         class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianOneToOneUserRoleListMapper"
         scope="singleton" />
-  -->
+
 
   <!--
 
