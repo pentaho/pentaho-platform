@@ -107,8 +107,10 @@ public class ActionHarness extends BeanUtil {
     @Override
     public void propertyNotWritable(Object bean, String propertyName) throws Exception {
       String beanType = (bean != null) ? bean.getClass().getName() : "[ClassNameNotAvailable]"; //$NON-NLS-1$
-      logger.warn(Messages.getInstance().getString("ActionHarness.WARN_NO_METHOD_FOR_PROPERTY", //$NON-NLS-1$
-          propertyName, beanType));
+      if(logger.isDebugEnabled()){
+        logger.debug(Messages.getInstance().getString("ActionHarness.WARN_NO_METHOD_FOR_PROPERTY", //$NON-NLS-1$
+            propertyName, beanType));
+      }
     }
   }
 }
