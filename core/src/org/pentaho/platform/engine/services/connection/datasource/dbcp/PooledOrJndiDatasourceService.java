@@ -22,6 +22,7 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -42,12 +43,14 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
       IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,PentahoSessionHolder.getSession());
 			IDatabaseConnection databaseConnection = datasourceMgmtSvc.getDatasourceByName(datasource);
 			// Look in the database for the datasource
-			if(databaseConnection != null) {
+			if(databaseConnection != null && !databaseConnection.getAccessType().equals(DatabaseAccessType.JNDI)) {
 			  ds = PooledDatasourceHelper.setupPooledDataSource(databaseConnection);
 			// Database does not have the datasource, look in jndi now
-			} else {
+			} else if (databaseConnection == null) {
 			  ds = getJndiDataSource(datasource);
-			}
+			} else {
+			  ds = getJndiDataSource(databaseConnection.getDatabaseName());
+			} 
 			// if the resulting datasource is not null then store it in the cache
 			if(ds != null) {
 			  cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource, ds);  
@@ -109,5 +112,4 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 		}
 		return dataSource;
 	}
-
 }
