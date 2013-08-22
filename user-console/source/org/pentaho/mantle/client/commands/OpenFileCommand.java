@@ -66,7 +66,7 @@ public class OpenFileCommand extends AbstractCommand {
       public void onSuccess(RepositoryFileTree tree) {
         // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
         WaitPopup.getInstance().setVisibleById(false, spinnerId);
-        final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.OPEN, lastPath, tree, false, true);
+        final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.OPEN, lastPath, tree, false, true, solutionBrowserPerspective.getSolutionTree().isShowHiddenFiles());
         dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
         dialog.addFileChooserListener(new FileChooserListener() {
 

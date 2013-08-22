@@ -90,7 +90,7 @@ public class SaveCommand extends AbstractCommand {
 
           }
           WaitPopup.getInstance().setVisibleById(false, spinnerId);
-          final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.SAVE,fileDir, tree, false, true, Messages.getString("save"), Messages.getString("save")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.SAVE,fileDir, tree, false, true, Messages.getString("save"), Messages.getString("save"), navigatorPerspective.getSolutionTree().isShowHiddenFiles()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
           dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
           if (isSaveAs) {
             dialog.setTitle(Messages.getString("saveAs")); //$NON-NLS-1$
