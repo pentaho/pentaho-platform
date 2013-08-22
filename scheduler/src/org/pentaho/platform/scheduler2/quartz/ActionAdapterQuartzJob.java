@@ -40,6 +40,7 @@ import org.pentaho.platform.api.scheduler2.*;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.email.Emailer;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.beans.ActionHarness;
@@ -144,7 +145,10 @@ public class ActionAdapterQuartzJob implements Job {
     final IBackgroundExecutionStreamProvider streamProvider = (IBackgroundExecutionStreamProvider) params.get(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_UIPASSPARAM);
-    params.put(IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime());
+    // The scheduled_fire_time is useful only to the blockoutAction see PDI-10171
+    if (actionBean instanceof BlockoutAction) {
+    	params.put(IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime());
+    }
 
     if (log.isDebugEnabled()) {
       log.debug(MessageFormat.format("Scheduling system invoking action {0} as user {1} with params [ {2} ]", actionBean //$NON-NLS-1$
@@ -210,6 +214,8 @@ public class ActionAdapterQuartzJob implements Job {
             });
           }
           actionParams.put("outputStream", stream);
+          // The lineage_id is only useful for the metadata and not needed at this level see PDI-10171
+          actionParams.remove(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
           actionHarness.setValues(actionParams);
         }
 
