@@ -193,7 +193,9 @@ public class TemplateUtil {
         // TODO support type conversion
         value = inputs.getProperty(parameter);
         if (value == null) {
-          TemplateUtil.logger.warn(Messages.getInstance().getString("TemplateUtil.NOT_FOUND", parameter)); //$NON-NLS-1$
+          if( TemplateUtil.logger.isDebugEnabled()){
+            TemplateUtil.logger.debug(Messages.getInstance().getString("TemplateUtil.NOT_FOUND", parameter)); //$NON-NLS-1$
+          }
         }        
       }
 
@@ -249,7 +251,9 @@ public class TemplateUtil {
           obj = ((InputProperties) inputs).getInput(inputName);
         }
         if (obj == null) {
-          TemplateUtil.logger.warn(Messages.getInstance().getString("TemplateUtil.NOT_FOUND", inputName)); //$NON-NLS-1$
+          if(TemplateUtil.logger.isDebugEnabled()){
+            TemplateUtil.logger.debug(Messages.getInstance().getString("TemplateUtil.NOT_FOUND", inputName)); //$NON-NLS-1$
+          }
         } else {
           if (obj instanceof IPentahoResultSet) {
             data = (IPentahoResultSet) obj;
