@@ -60,6 +60,8 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
   protected String tenantAuthenticatedRoleName;
 
+  protected List<String> singleTenantAuthenticatedAuthorityRoleBindingList;
+  
   protected IPathConversionHelper pathConversionHelper = new IPathConversionHelper() {
 
     /* (non-Javadoc)
@@ -84,7 +86,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
       final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
       final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
       final ITenantedPrincipleNameResolver tenantedUserNameResolver,
-      final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName) {
+      final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName, final List<String> singleTenantAuthenticatedAuthorityRoleBindingList) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(roleBindingDao);
@@ -99,6 +101,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
     this.tenantAuthenticatedRoleName = tenantAuthenticatedAuthorityNamePattern;
     this.tenantedRoleNameResolver = tenantedRoleNameResolver;
     this.tenantedUserNameResolver = tenantedUserNameResolver;
+    this.singleTenantAuthenticatedAuthorityRoleBindingList = singleTenantAuthenticatedAuthorityRoleBindingList;
   }
 
   public void deleteTenants(Session session, final List<ITenant> tenants) throws RepositoryException {
