@@ -192,7 +192,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   static String idToPath(String relPath) {
     relPath = relPath.replace(':', '/');
-    return relPath.replaceFirst("^([A-z])//(.*)","$1:/$2");
+    return relPath.replaceFirst("^/?([A-z])//(.*)","$1:/$2");
   }
 
   public RepositoryFile getFile(Serializable fileId, Serializable versionId) {
