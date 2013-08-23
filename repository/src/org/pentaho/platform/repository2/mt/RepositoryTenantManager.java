@@ -19,7 +19,6 @@ package org.pentaho.platform.repository2.mt;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +51,6 @@ import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
@@ -96,8 +92,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
   
   protected JcrTemplate jcrTemplate;
 
-  public RepositoryTenantManager(final IRepositoryFileDao contentDao, final IUserRoleDao userRoleDao, final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, final JcrTemplate jcrTemplate, final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern, final ITenantedPrincipleNameResolver tenantedUserNameResolver, final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName) {
-    super(contentDao, userRoleDao, repositoryFileAclDao, roleBindingDao, repositoryAdminUsername, tenantAuthenticatedAuthorityNamePattern, tenantedUserNameResolver, tenantedRoleNameResolver, tenantAdminRoleName);
+  public RepositoryTenantManager(final IRepositoryFileDao contentDao, final IUserRoleDao userRoleDao, final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, final JcrTemplate jcrTemplate, final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern, final ITenantedPrincipleNameResolver tenantedUserNameResolver, final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName, final List<String> singleTenantAuthenticatedAuthorityRoleBindingList) {
+    super(contentDao, userRoleDao, repositoryFileAclDao, roleBindingDao, repositoryAdminUsername, tenantAuthenticatedAuthorityNamePattern, tenantedUserNameResolver, tenantedRoleNameResolver, tenantAdminRoleName,singleTenantAuthenticatedAuthorityRoleBindingList);
     this.jcrTemplate = jcrTemplate;
   }
 
@@ -193,7 +189,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     userRoleDao.createRole(newTenant, tenantAdminRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, authenticatedRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, anonymousRoleName, "", new String[0]);
-    roleBindingDao.setRoleBindings(newTenant, authenticatedRoleName, Arrays.asList(new String[]{ RepositoryReadAction.NAME, RepositoryCreateAction.NAME, SchedulerAction.NAME }));
+    roleBindingDao.setRoleBindings(newTenant, authenticatedRoleName, singleTenantAuthenticatedAuthorityRoleBindingList);
     
     String tenantAdminRoleId = tenantedRoleNameResolver.getPrincipleId(newTenant, tenantAdminRoleName);
     RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);
