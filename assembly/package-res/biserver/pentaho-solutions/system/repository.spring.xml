@@ -244,6 +244,7 @@
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>
   </bean>
 
 
@@ -724,6 +725,9 @@
     <!-- for single tenant mode -->
   </util:map>
 
+  <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
+       <value>org.pentaho.repository.read</value>
+  </util:list>
   <!--
    The actual implementation of the binding between runtime and logical roles. The biserver does not use this bean directly
    instead a proxy bean is defined that provides transaction, and method level security support using spring aop. If you wish
