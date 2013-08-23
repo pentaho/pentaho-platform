@@ -89,7 +89,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     Assert.notNull(session);
     Assert.notNull(privileges);
 
-    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session); 
+    new PentahoJcrConstants(session); 
     EnumSet<RepositoryFilePermission> permissions = EnumSet.noneOf(RepositoryFilePermission.class);
 
     Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges(privileges, true);
@@ -122,7 +122,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
   }
 
   protected void initMaps(final Session session) {
-    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session); 
+    new PentahoJcrConstants(session); 
     permissionEnumToPrivilegeNamesMap = HashMultimap.create();
 
     // READ
@@ -131,7 +131,6 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     
     // DELETE
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.DELETE, Privilege.JCR_REMOVE_NODE);
-    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.DELETE, Privilege.JCR_REMOVE_CHILD_NODES);
     
     //WRITE
 
@@ -145,7 +144,6 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     
     //ACL_MANAGEMENT
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ACL_MANAGEMENT, IPentahoJCRPrivilege.PHO_ACLMANAGEMENT);
-    
 
     // ALL
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ALL, Privilege.JCR_ALL);
@@ -156,16 +154,15 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ, RepositoryFilePermission.READ);
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ_ACCESS_CONTROL, RepositoryFilePermission.READ);
     
-    // JCR_REMOVE_NODE + JCR_REMOVE_CHILD_NODES
+    // JCR_REMOVE_NODE
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_NODE, RepositoryFilePermission.DELETE);
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_CHILD_NODES, RepositoryFilePermission.DELETE);
-    
 
     // Custom Pentaho Permission
     privilegeNameToPermissionEnumsMap.put(IPentahoJCRPrivilege.PHO_ACLMANAGEMENT, RepositoryFilePermission.ACL_MANAGEMENT);
     
     // JCR_WRITE
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_ADD_CHILD_NODES, RepositoryFilePermission.WRITE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_CHILD_NODES, RepositoryFilePermission.WRITE);
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_VERSION_MANAGEMENT, RepositoryFilePermission.WRITE);
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_LOCK_MANAGEMENT, RepositoryFilePermission.WRITE);
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_PROPERTIES, RepositoryFilePermission.WRITE);
