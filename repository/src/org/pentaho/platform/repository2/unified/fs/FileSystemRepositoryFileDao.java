@@ -184,9 +184,15 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFile getFile(String relPath) {
+    relPath = idToPath(relPath);
     String physicalFileLocation = relPath.equals("/") ? rootDir.getAbsolutePath() : RepositoryFilenameUtils.concat(
         rootDir.getAbsolutePath(), relPath.substring(RepositoryFilenameUtils.getPrefixLength(relPath)));
     return internalGetFile(new File(physicalFileLocation));
+  }
+
+  static String idToPath(String relPath) {
+    relPath = relPath.replace(':', '/');
+    return relPath.replaceFirst("^([A-z])//(.*)","$1:/$2");
   }
 
   public RepositoryFile getFile(Serializable fileId, Serializable versionId) {
