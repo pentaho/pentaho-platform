@@ -147,6 +147,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
 
     // ALL
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ALL, Privilege.JCR_ALL);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ALL, IPentahoJCRPrivilege.PHO_ACLMANAGEMENT);
 
     privilegeNameToPermissionEnumsMap = HashMultimap.create();
     
@@ -171,6 +172,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
 
     // JCR_ALL
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_ALL, RepositoryFilePermission.ALL);
+    privilegeNameToPermissionEnumsMap.put(IPentahoJCRPrivilege.PHO_ACLMANAGEMENT, RepositoryFilePermission.ALL);
 
     // None of the following translate into a RepositoryFilePermission:
     // JCR_RETENTION_MANAGEMENT
