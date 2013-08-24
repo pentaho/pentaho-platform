@@ -355,9 +355,15 @@ public class PentahoEntryCollector extends EntryCollector {
       // addAccessControlEntry will silently fail to add a new ACE if perms already exist
       if (!privs.isEmpty()) {
         // create new ACE with same principal but only privs relevant to child operations
+        List<AccessControlEntry> entries = ancestorAcl.getEntries();
+        for (AccessControlEntry accessControlEntry : entries) {
+          if (accessControlEntry.getPrincipal().getName().equals(entry.getPrincipal().getName())) {
+            ancestorAcl.removeAccessControlEntry(accessControlEntry);
+          }
+        }
         if (!ancestorAcl.addAccessControlEntry(
             entry.getPrincipal() instanceof Group ? new MagicGroup(entry.getPrincipal().getName())
-                : new MagicPrincipal(entry.getPrincipal().getName()), privs.toArray(new Privilege[0]))) {
+                : new MagicPrincipal(entry.getPrincipal().getName()), privs.toArray(new Privilege[privs.size()]))) {
           // we can never fail to add this entry because it means we may be giving more permission than the above two
           throw new RuntimeException();
         }
