@@ -100,8 +100,9 @@ pen.define([
 										error();
 										return;
 									}
-									jHtml.find("#sample-frame").attr("src", url);
-
+									
+									var iframe = "<iframe id='sample-frame' frameborder='0' style='width: 100%; height: 100%;' src='"+url+"'></iframe>";
+									$("#sample-frame").replaceWith(iframe);
 								}, 
 								error: function(err) {
 									error();
