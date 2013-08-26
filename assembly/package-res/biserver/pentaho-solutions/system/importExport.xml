@@ -207,6 +207,7 @@
                 				<value>url</value>
                 				<value>xdash</value>
                 				<value>prpt</value>
+								<value>xanalyzer</value>								
 		            		</list>
 	        			</constructor-arg>
 						<constructor-arg ref="approvedExtensionList"/>
