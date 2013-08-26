@@ -65,14 +65,19 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
       if(header != null && header.indexOf("Basic") == 0){
         // Session is valid, but Basic-auth is supplied. Check to see if the session end cookie we created is present,
         // if so, force reauthentication.
-        for(Cookie c : request.getCookies()){
-          if("session-flushed".equals(c.getName())){
-            c.setMaxAge(0);
-            c.setPath(request.getContextPath() != null ? request.getContextPath() : "/");
-            response.addCookie(c);
 
-            getAuthenticationEntryPoint().commence(request, response, new BadCredentialsException("Clearing Basic-Auth"));
-            return;
+        Cookie[] cookies;
+        cookies = request.getCookies();
+        if(cookies != null){
+          for(Cookie c : cookies){
+            if("session-flushed".equals(c.getName())){
+              c.setMaxAge(0);
+              c.setPath(request.getContextPath() != null ? request.getContextPath() : "/");
+              response.addCookie(c);
+
+              getAuthenticationEntryPoint().commence(request, response, new BadCredentialsException("Clearing Basic-Auth"));
+              return;
+            }
           }
         }
       }
