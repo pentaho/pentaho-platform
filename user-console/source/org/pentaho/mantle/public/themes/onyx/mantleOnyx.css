@@ -7,6 +7,7 @@
   -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 1px 1px 5px 0px #333333, 0 0 1px 1px rgba(255, 255, 255, .6) inset;
+  background: rgba(255, 255, 255, 0.5);
   background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
 }
 #ldapSecurityAdminPanel html{
@@ -39,6 +40,7 @@
   -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 1px 1px 5px 0px #333333, 0 0 1px 1px rgba(255, 255, 255, .6) inset;
+  background: rgba(255, 255, 255, 0.5);
   background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
 }
 
@@ -1081,6 +1083,7 @@ a:active, a:hover {
   -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 1px 1px 5px 0px #333333, 0 0 1px 1px rgba(255, 255, 255, .6) inset;
+  background: rgba(255, 255, 255, 0.5);
   background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
 }
 
