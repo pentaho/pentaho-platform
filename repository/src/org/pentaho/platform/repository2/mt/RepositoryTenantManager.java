@@ -450,7 +450,21 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
             EnumSet.of(RepositoryFilePermission.READ)).build(), null);
     return publicFolder;
   }
-  
+
+  private RepositoryFile createHomeFolder(ITenant tenant, RepositoryFile tenantRootFolder, RepositoryFileSid fileOwnerSid) {
+    String tenantAdminRoleId = tenantedRoleNameResolver.getPrincipleId(tenant, tenantAdminRoleName);
+    RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);
+
+    String tenantAuthenticatedRoleId = tenantedRoleNameResolver.getPrincipleId(tenant, tenantAuthenticatedRoleName);
+    RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
+
+    RepositoryFile homeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
+        ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).title(Messages.getInstance().getString("RepositoryTenantManager.usersFolderDisplayName")).build(), new RepositoryFileAcl.Builder(
+        fileOwnerSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid,
+        EnumSet.of(RepositoryFilePermission.READ)).build(), null);
+    return homeFolder;
+  }
+
   private RepositoryFile createEtcFolder(ITenant tenant, RepositoryFile tenantRootFolder, RepositoryFileSid fileOwnerSid) {
     
     String tenantAuthenticatedRoleId = tenantedRoleNameResolver.getPrincipleId(tenant, tenantAuthenticatedRoleName);
@@ -480,6 +494,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
 
     createPublicFolder(tenant, tenantRootFolder, fileOwnerSid);
     RepositoryFile etcFolder = createEtcFolder(tenant, tenantRootFolder, fileOwnerSid);
+    createHomeFolder(tenant, tenantRootFolder, fileOwnerSid);
     setAsSystemFolder(etcFolder.getId());
   }
 }
