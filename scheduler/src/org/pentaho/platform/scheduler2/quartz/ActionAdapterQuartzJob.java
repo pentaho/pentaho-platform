@@ -19,6 +19,7 @@ package org.pentaho.platform.scheduler2.quartz;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -36,7 +37,11 @@ import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.api.scheduler2.*;
+import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
@@ -231,7 +236,23 @@ public class ActionAdapterQuartzJob implements Job {
       // that created the job is a system user. See PPP-2350
       requiresUpdate = SecurityHelper.getInstance().runAsAnonymous(actionBeanRunner);
     } else {
-      requiresUpdate = SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
+      try {
+        requiresUpdate = SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
+      } catch (Throwable t) {
+        final SimpleJobTrigger trigger = new SimpleJobTrigger(new Date(), null, 0, 0);
+        final Class<IAction> iaction = (Class<IAction>) actionBean.getClass();
+        // recreate the job in the context of the original creator
+        SecurityHelper.getInstance().runAsUser(actionUser, new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            streamProvider.setStreamingAction(null); // remove generated content
+            String jobName = StringUtils.substringBetween(context.getJobDetail().getName(), ":", ":");
+            org.pentaho.platform.api.scheduler2.Job j = scheduler.createJob(jobName, iaction, jobParams, trigger, streamProvider);
+            log.warn("New RunOnce job created for " + jobName + " -> possible startup synchronization error");
+            return null;
+          }
+        });
+      }
     }
 
     scheduler.fireJobCompleted(actionBean, actionUser, params, streamProvider);
