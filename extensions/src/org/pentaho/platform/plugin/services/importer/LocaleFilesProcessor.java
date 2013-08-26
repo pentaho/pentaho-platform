@@ -124,16 +124,15 @@ public class LocaleFilesProcessor {
   }
 
   public Properties loadProperties(InputStream inputStream) throws IOException {
-    Properties properties = new Properties();  
-     try {      
-      PropertyResourceBundle rb = new PropertyResourceBundle(inputStream);
-      Enumeration keyEnum = rb.getKeys();
-      while(keyEnum.hasMoreElements()){
-        String key = (String) keyEnum.nextElement();
-        properties.put(key,rb.getObject(key));
-      }   
-     } catch (IOException returnEmptyIfError) {      
-       
+    assert inputStream != null;
+    final Properties properties = new Properties();
+    final PropertyResourceBundle rb = new PropertyResourceBundle(inputStream);
+    final Enumeration<?> keyEnum = rb.getKeys();
+    while(keyEnum.hasMoreElements()){
+      final Object key = keyEnum.nextElement();
+      assert key != null;
+      final String sKey = String.valueOf(key);
+      properties.put(sKey,rb.getObject(sKey));
     }
     return properties;
   }
