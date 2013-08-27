@@ -41,6 +41,9 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private static final String FILE_TITLE = "file.title";
 
+  private static final String DIRECTORY_NAME = "directory_name";
+  private static final String DIRECTORY_DESCRIPTION = "directory_description";
+
   private static final String LOCALE_FOLDER = "index";
 
   private static final String LOCALE_EXT = ".locale";
@@ -84,22 +87,30 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     PropertyResourceBundle rb = null;  
     String comment = locale.getComment();
     String fileTitle = locale.getName();
+
     try {      
       rb = new PropertyResourceBundle(locale.getInputStream());
      } catch (IOException returnEmptyIfError) {      
        return localeProperties;
     }
+
     if(rb != null){
       //this is the 4.8 style - name and description
-      String desc = rb.containsKey("description")?rb.getString("description"):comment;
-      String name = rb.containsKey("name")?rb.getString("name"):fileTitle;
-      if (desc == null && rb.containsKey(FILE_DESCRIPTION)) {
-        comment = rb.getString(FILE_DESCRIPTION);     
-      }
-      if(name == null && rb.containsKey(FILE_TITLE)){
-        fileTitle = rb.getString(FILE_TITLE);
-      }
+      // First try file desc. If no file desc, try for a directory desc, else try fallback
+      comment = rb.containsKey("description") ? rb.getString("description"):
+          rb.containsKey(FILE_DESCRIPTION)? rb.getString(FILE_DESCRIPTION):
+              rb.containsKey(DIRECTORY_DESCRIPTION) ? rb.getString(DIRECTORY_DESCRIPTION):
+                  comment;
+
+      // First try name. If no name, try title. If no title, try for a directory name, else use filename.
+      fileTitle = rb.containsKey("name") ? rb.getString("name"):
+          rb.containsKey("title") ? rb.getString("title"):
+              rb.containsKey(FILE_TITLE) ? rb.getString(FILE_TITLE) :
+                  rb.containsKey(DIRECTORY_NAME) ? rb.getString(DIRECTORY_NAME) :
+                      fileTitle;
+
     }
+
     //this is the new .locale Jcr property names 
     localeProperties.setProperty(FILE_DESCRIPTION, comment != null ? comment : "");
     localeProperties.setProperty(FILE_TITLE, fileTitle != null ? fileTitle : "");
