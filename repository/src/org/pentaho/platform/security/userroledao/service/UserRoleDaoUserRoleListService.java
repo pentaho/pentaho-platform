@@ -26,6 +26,8 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
@@ -48,16 +50,18 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   private List<String> systemRoles;
   private List<String> extraRoles;
   private String adminRole;
+  private ITenantedPrincipleNameResolver usernamePrincipalResolver;
   
   // ~ Constructors ====================================================================================================
   public UserRoleDaoUserRoleListService() {
     super();
   }
 
-  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService, List<String> systemRoles, List<String> extraRoles, final String adminRole) {
+  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService, ITenantedPrincipleNameResolver usernamePrincipalResolver, List<String> systemRoles, List<String> extraRoles, final String adminRole) {
     super();
     this.userRoleDao = userRoleDao;
     this.userDetailsService = userDetailsService;
+    this.usernamePrincipalResolver = usernamePrincipalResolver;;
     this.systemRoles = systemRoles;
     this.extraRoles = extraRoles;
     this.adminRole = adminRole;
@@ -118,7 +122,13 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   @Override
   public List<String> getRolesForUser(ITenant tenant, String username) throws UsernameNotFoundException,
       DataAccessException {
-    UserDetails user = userDetailsService.loadUserByUsername(username);
+    String userToSearch = username;
+    // If no tenant provided then we assume default tenant
+    if(tenant == null || tenant.getId() == null) {
+      tenant = JcrTenantUtils.getDefaultTenant();
+      userToSearch = usernamePrincipalResolver.getPrincipleId(tenant, username);
+    }
+    UserDetails user = userDetailsService.loadUserByUsername(userToSearch);
     List<String> roles = new ArrayList<String>(user.getAuthorities().length);
     for (GrantedAuthority role : user.getAuthorities()) {
       String principalName = role.getAuthority(); 

@@ -383,7 +383,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     String adminRole = "Admin";
 
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, tenantedUserNameUtils, systemRoles, extraRoles, adminRole);
     userDetailsService.setUserRoleDao(userRoleDao);
     logout();
     login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
@@ -452,7 +452,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
     String adminRole = "Admin";
 
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, tenantedUserNameUtils, systemRoles, extraRoles, adminRole);
     service.setUserRoleDao(userRoleDao);
     service.setUserDetailsService(userDetailsService);
 
@@ -550,7 +550,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
     String adminRole = "Admin";
     
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, tenantedUserNameUtils, systemRoles, extraRoles, adminRole);
     service.setUserDetailsService(userDetailsService);
 
     logout();
@@ -620,7 +620,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
     String adminRole = "Admin";
     
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, tenantedUserNameUtils, systemRoles, extraRoles, adminRole);
     
     List<String> usersInRole_1 = service.getUsersInRole(mainTenant_1, ROLE_1);
     List<String> usersInRole_2 = service.getUsersInRole(null, ROLE_2);

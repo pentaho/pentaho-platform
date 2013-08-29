@@ -19,6 +19,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,12 +27,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 @Path("/system/refresh")
 public class SystemRefreshResource extends AbstractJaxRSResource {
@@ -72,24 +77,40 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
 
   @GET
   @Path("/mondrianSchemaCache")
-  @Produces(TEXT_PLAIN)
+  @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
   public Response flushMondrianSchemaCache() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    if (SecurityHelper.getInstance().isPentahoAdministrator(pentahoSession)) {
-      IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", pentahoSession); //$NON-NLS-1$
-      mondrianCatalogService.reInit(pentahoSession);
+    if(canAdminister()){
+      IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+      if (SecurityHelper.getInstance().isPentahoAdministrator(pentahoSession)) {
+        IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", pentahoSession); //$NON-NLS-1$
+        mondrianCatalogService.reInit(pentahoSession);
+      }
+      return Response.ok().type(MediaType.TEXT_PLAIN).build();
+    } else {
+      return Response.status(UNAUTHORIZED).build();
     }
-    return Response.ok().type(MediaType.TEXT_PLAIN).build();
+    
   }
 
   @GET
   @Path("/reportingDataCache")
-  @Produces(TEXT_PLAIN)
+  @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON })
   public Response purgeReportingDataCache() {
-    ICacheManager cacheManager = PentahoSystem.get(ICacheManager.class);
-    cacheManager.clearRegionCache("report-dataset-cache");
-    cacheManager.clearRegionCache("report-output-handlers");
-    return Response.ok().type(MediaType.TEXT_PLAIN).build();
+    if(canAdminister()){
+      ICacheManager cacheManager = PentahoSystem.get(ICacheManager.class);
+      cacheManager.clearRegionCache("report-dataset-cache");
+      cacheManager.clearRegionCache("report-output-handlers");
+      return Response.ok().type(MediaType.TEXT_PLAIN).build();
+    } else {
+      return Response.status(UNAUTHORIZED).build();
+    }
   }
 
+  private boolean canAdminister() {
+    IAuthorizationPolicy policy = PentahoSystem
+        .get(IAuthorizationPolicy.class);
+    return policy
+        .isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME)
+        && (policy.isAllowed(AdministerSecurityAction.NAME));
+  }
 }
