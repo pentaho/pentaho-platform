@@ -2,6 +2,7 @@ package org.pentaho.platform.web.http.security;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.context.SecurityContextHolder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -62,7 +63,8 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
       }
     } else {
       String header = request.getHeader("Authorization");
-      if(header != null && header.indexOf("Basic") == 0){
+      if(header != null && header.indexOf("Basic") == 0 &&
+              SecurityContextHolder.getContext().getAuthentication() == null){
         // Session is valid, but Basic-auth is supplied. Check to see if the session end cookie we created is present,
         // if so, force reauthentication.
 
@@ -74,8 +76,8 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
               c.setMaxAge(0);
               c.setPath(request.getContextPath() != null ? request.getContextPath() : "/");
               response.addCookie(c);
-
-              getAuthenticationEntryPoint().commence(request, response, new BadCredentialsException("Clearing Basic-Auth"));
+              getAuthenticationEntryPoint().commence(request, response,
+                  new BadCredentialsException("Clearing Basic-Auth"));
               return;
             }
           }
