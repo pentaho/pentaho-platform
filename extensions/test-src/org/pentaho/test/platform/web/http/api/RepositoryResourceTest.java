@@ -223,7 +223,7 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
       List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
       String adminRole = "Admin";
       
-      userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
+      userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, tenantedUserNameUtils, systemRoles, extraRoles, adminRole);
       ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
       ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 
