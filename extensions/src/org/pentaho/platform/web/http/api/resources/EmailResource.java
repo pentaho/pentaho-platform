@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -38,6 +40,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 @org.codehaus.enunciate.XmlTransient
 @Path("/emailconfig/")
@@ -90,37 +94,44 @@ public class EmailResource extends AbstractJaxRSResource {
 
   @GET
   @Path("/resetEmailConfig")
-  @Produces({ MediaType.TEXT_PLAIN })
+  @Produces({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON })
   public Response deleteEmailConfig(EmailConfiguration emailConfiguration) {
-    if (policy == null || policy.isAllowed(AdministerSecurityAction.NAME)) {
+    if(canAdminister()) {
       try {
         emailService.setEmailConfig(new EmailConfiguration());
+        return Response.ok().build();
       } catch (Exception e) {
         return Response.serverError().build();
       }
+    } else {
+      return Response.status(UNAUTHORIZED).build();
     }
-    return Response.ok().build();
+    
   }  
   
   @PUT
   @Path("/setEmailConfig")
   @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
   public Response setEmailConfig(EmailConfiguration emailConfiguration) {
-    if (policy == null || policy.isAllowed(AdministerSecurityAction.NAME)) {
+    if(canAdminister()) {
       try {
         emailService.setEmailConfig(emailConfiguration);
+        return Response.ok().build();
       } catch (Exception e) {
         return Response.serverError().build();
       }
+    } else {
+      return Response.status(UNAUTHORIZED).build();
     }
-    return Response.ok().build();
+    
   }
 
   @GET
   @Path("/getEmailConfig")
   @Produces({ MediaType.APPLICATION_JSON })
   public IEmailConfiguration getEmailConfig() {
-    if (policy == null || policy.isAllowed(AdministerSecurityAction.NAME)) {
+    if(canAdminister()) {
       try {
         return emailService.getEmailConfig();
       } catch (Exception e) {
@@ -134,9 +145,13 @@ public class EmailResource extends AbstractJaxRSResource {
   @PUT
   @Path("/sendEmailTest")
   @Consumes({ MediaType.APPLICATION_JSON })
-  @Produces({ MediaType.TEXT_PLAIN })
-  public String sendEmailTest(EmailConfiguration emailConfiguration) throws Exception {
-    return emailService.sendEmailTest(emailConfiguration);
+  @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
+  public Response sendEmailTest(EmailConfiguration emailConfiguration) throws Exception {
+    if(canAdminister()) {
+      return Response.ok(emailService.sendEmailTest(emailConfiguration)).build();      
+    } else {
+      return Response.status(UNAUTHORIZED).build();
+    }
   }
 
   @GET
@@ -152,4 +167,14 @@ public class EmailResource extends AbstractJaxRSResource {
     return Response.ok("false").build();
   }
 
+  /**
+   * Check if user has the rights to administrator
+   * 
+   */
+  private boolean canAdminister()  {
+    return policy.isAllowed(RepositoryReadAction.NAME)
+        && policy.isAllowed(RepositoryCreateAction.NAME)
+        && (policy.isAllowed(AdministerSecurityAction.NAME));
+
+  }
 }
