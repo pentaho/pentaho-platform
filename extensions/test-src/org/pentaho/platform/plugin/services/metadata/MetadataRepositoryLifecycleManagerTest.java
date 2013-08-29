@@ -182,7 +182,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     systemRoles.add("Administrator");
     List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
     String adminRole = "Admin";
-    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService, tenantedUserNameUtils
+    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService, tenantedUserNameUtils, 
         systemRoles, extraRoles, adminRole);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserDetailsService(userDetailsService);
