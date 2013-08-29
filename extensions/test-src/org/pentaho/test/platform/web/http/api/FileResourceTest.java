@@ -191,7 +191,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     List<String> extraRoles = Arrays.asList(new String[] {"Authenticated", "Anonymous"});
     String adminRole = "Admin";
     
-    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles, extraRoles, adminRole);
+    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, tenantedUserNameUtils, systemRoles, extraRoles, adminRole);
     ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 
