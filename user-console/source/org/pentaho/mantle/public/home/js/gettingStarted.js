@@ -11,7 +11,8 @@
  	"common-ui/util/HandlebarsCompiler"
  ], function(ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
  	
- 	var brightCoveVideoTemplate = "<object id='myExperience781579620001' class='BrightcoveExperience'>" +
+ 	var brightCoveVideoTemplate = "<script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>" +
+ 		"<object id='myExperience781579620001' class='BrightcoveExperience'>" +
 		  "<param name='bgcolor' value='#FFFFFF' />" +
 		  "<param name='width' value='{{width}}' />" +
 		  "<param name='height' value='{{height}}' />" +
