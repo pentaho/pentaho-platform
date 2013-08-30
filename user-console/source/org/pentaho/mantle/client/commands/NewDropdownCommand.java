@@ -199,7 +199,7 @@ public class NewDropdownCommand extends AbstractCommand {
   private native JsArray<JsCreateNewConfig> parseJson(String json)
   /*-{
     var obj = eval('(' + json + ')');
-    return obj.setting;
+    return obj.Item;
   }-*/;
 
   public Widget getAnchorWidget() {
