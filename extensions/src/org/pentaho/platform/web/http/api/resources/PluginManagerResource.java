@@ -45,6 +45,8 @@ import org.pentaho.ui.xul.XulOverlay;
 @Path("/plugin-manager/")
 public class PluginManagerResource {
 
+  private static final String NEW_TOOLBAR_BUTTON_SETTING = "new-toolbar-button"; //$NON-NLS-1$
+
   public PluginManagerResource() {
   }
 
@@ -116,19 +118,21 @@ public class PluginManagerResource {
   @Path("/settings/{settingName}")
   @Produces({ APPLICATION_JSON })
   public Response getPluginSettings(@PathParam("settingName") String settingName) {
-    if(canAdminister()) {
-      IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); //$NON-NLS-1$
-      ArrayList<Setting> settings = new ArrayList<Setting>();
-      for (String id : pluginManager.getRegisteredPlugins()) {
-        Setting s = new Setting(id, (String) pluginManager.getPluginSetting(id, settingName, null));
-        if (!StringUtils.isEmpty(s.getValue())) {
-          settings.add(s);
-        }
+    // A non-admin still require this setting. All other settings should be admin only
+    if(!NEW_TOOLBAR_BUTTON_SETTING.equals(settingName)) {
+      if(!canAdminister()) {
+        return Response.status(UNAUTHORIZED).build();  
       }
-      return Response.ok(new JaxbList<Setting>(settings), MediaType.APPLICATION_JSON).build();
-    } else {
-      return Response.status(UNAUTHORIZED).build();
     }
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); //$NON-NLS-1$
+    ArrayList<Setting> settings = new ArrayList<Setting>();
+    for (String id : pluginManager.getRegisteredPlugins()) {
+      Setting s = new Setting(id, (String) pluginManager.getPluginSetting(id, settingName, null));
+      if (!StringUtils.isEmpty(s.getValue())) {
+        settings.add(s);
+      }
+    }
+    return Response.ok(new JaxbList<Setting>(settings), MediaType.APPLICATION_JSON).build();
   }
 
   private boolean canAdminister() {
