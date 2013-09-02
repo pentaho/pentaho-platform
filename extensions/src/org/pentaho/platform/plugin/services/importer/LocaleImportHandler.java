@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 
+import org.apache.commons.io.IOUtils;
 import org.drools.util.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -89,10 +91,13 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     String fileTitle = locale.getName();
 
     try {      
-      rb = new PropertyResourceBundle(locale.getInputStream());
-     } catch (IOException returnEmptyIfError) {      
-       return localeProperties;
-    }
+        byte[] bytes = IOUtils.toByteArray(locale.getInputStream());
+        java.io.InputStream bundleInputStream = new ByteArrayInputStream(bytes);
+        rb = new PropertyResourceBundle(bundleInputStream);
+      } catch (Exception returnEmptyIfError) {     
+          getLogger().error(returnEmptyIfError.getMessage());
+          return localeProperties;
+      }
 
     if(rb != null){
       //this is the 4.8 style - name and description
