@@ -20,6 +20,7 @@
 
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
+  <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
 
   <!-- Avoid 'console' errors in browsers that lack a console. -->
   <script type="text/javascript">
