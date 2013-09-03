@@ -124,6 +124,7 @@ public class RepositoryFileTreeManager {
     url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden + "&ts=" + System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("Accept", "application/json");
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     RequestCallback innerCallback = new RequestCallback() {
 
@@ -143,6 +144,7 @@ public class RepositoryFileTreeManager {
           String deletedFilesUrl = GWT.getHostPageBaseURL() + "api/repo/files/deleted?ts=" + System.currentTimeMillis();;
           RequestBuilder deletedFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, deletedFilesUrl);
           deletedFilesRequestBuilder.setHeader("Accept", "application/json");
+          deletedFilesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
           try {
             deletedFilesRequestBuilder.sendRequest(null, new RequestCallback() {
 

@@ -92,6 +92,9 @@ public class PentahoWebContextFilter implements Filter {
     if(requestStr != null && requestStr.endsWith(WEB_CONTEXT_JS)
         && httpRequest.getAttribute(FILTER_APPLIED) == null) {
       httpRequest.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+      // split out a fully qualified url, guaranteed to have a trailing slash
+      IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
+      String contextPath = requestContext.getContextPath();
       try {
         response.setContentType("text/javascript"); //$NON-NLS-1$
         OutputStream out = response.getOutputStream();
@@ -99,9 +102,6 @@ public class PentahoWebContextFilter implements Filter {
         byte[] contextPathBytes = THREAD_LOCAL_CONTEXT_PATH.get();
         byte[] requireScriptBytes = THREAD_LOCAL_REQUIRE_SCRIPT.get();
         if (contextPathBytes == null) {
-          // split out a fully qualified url, guaranteed to have a trailing slash
-          IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-          String contextPath = requestContext.getContextPath();
           String webContext = "var CONTEXT_PATH = '" + contextPath + "';\n\n";//$NON-NLS-1$ //$NON-NLS-2$
           contextPathBytes = webContext.getBytes();
           THREAD_LOCAL_CONTEXT_PATH.set(contextPathBytes);
@@ -111,6 +111,11 @@ public class PentahoWebContextFilter implements Filter {
             requireScriptBytes = requireScript.getBytes();
             THREAD_LOCAL_REQUIRE_SCRIPT.set(requireScriptBytes);
           }
+        }
+
+        String basicAuthFlag = (String) httpRequest.getSession().getAttribute("BasicAuth");
+        if(basicAuthFlag != null && basicAuthFlag.equals("true")){
+          out.write(("document.write(\"<script type='text/javascript' src='"+contextPath+"js/postAuth.js'></scr\"+\"ipt>\");\n").getBytes("UTF-8"));
         }
 
         out.write(contextPathBytes);

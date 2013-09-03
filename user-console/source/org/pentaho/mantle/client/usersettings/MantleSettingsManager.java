@@ -94,11 +94,13 @@ public class MantleSettingsManager {
     };
 
     final RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/settings");
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     builder.setHeader("accept", "application/json");
 
     try {
       final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.setHeader("accept", "text/plain");
       requestBuilder.sendRequest(null, new RequestCallback() {
 

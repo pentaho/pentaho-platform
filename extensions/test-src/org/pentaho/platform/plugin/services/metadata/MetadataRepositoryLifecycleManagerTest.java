@@ -215,7 +215,11 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
   private void cleanupUserAndRoles(final ITenant tenant) {
     loginAsRepositoryAdmin();
     for (IPentahoRole role : userRoleDao.getRoles(tenant)) {
-      userRoleDao.deleteRole(role);
+      try{
+        userRoleDao.deleteRole(role);
+      } catch(Exception e) {
+        // System role deletion will throw Exception
+      }
     }
     for (IPentahoUser user : userRoleDao.getUsers(tenant)) {
       userRoleDao.deleteUser(user);
@@ -271,6 +275,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
   @Test
   public void testDoStartup() throws Exception {
     // Nothing to test
+    loginAsRepositoryAdmin();
     metadataRepositoryLifecycleManager.startup();
   }
 

@@ -35,7 +35,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
 
   // ~ Static fields/initializers ======================================================================================
 
-  private static final String CONTENT_TYPE = "simple"; //$NON-NLS-1$
+  
 
   // ~ Instance fields =================================================================================================
 
@@ -51,7 +51,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
    * {@inheritDoc}
    */
   public boolean canRead(final String contentType, final Class<? extends IRepositoryFileData> clazz) {
-    return CONTENT_TYPE.equals(contentType) && clazz.isAssignableFrom(SimpleRepositoryFileData.class);
+    return IRepositoryFileData.SIMPLE_CONTENT_TYPE.equals(contentType) && clazz.isAssignableFrom(SimpleRepositoryFileData.class);
   }
 
   /**
@@ -65,7 +65,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
    * {@inheritDoc}
    */
   public String getContentType() {
-    return CONTENT_TYPE;
+    return IRepositoryFileData.SIMPLE_CONTENT_TYPE;
   }
 
   /**

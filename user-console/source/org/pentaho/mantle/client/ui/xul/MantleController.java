@@ -208,31 +208,18 @@ public class MantleController extends AbstractXulEventHandler {
     }
     buildFavoritesAndRecent(false);
 
+    UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
+      public void onSuccess(JsArray<JsSetting> settings) {
+        processSettings(settings);
+      }
+
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
+    
     EventBusUtil.EVENT_BUS.addHandler(UserSettingsLoadedEvent.TYPE, new UserSettingsLoadedEventHandler() {
       public void onUserSettingsLoaded(UserSettingsLoadedEvent event) {
-        JsArray<JsSetting> settings = event.getSettings();
-        if (settings == null) {
-          return;
-        }
-
-        for (int i = 0; i < settings.length(); i++) {
-          JsSetting setting = settings.get(i);
-          try {
-            if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
-              boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
-              model.setShowNavigatorSelected(showNavigator);
-            } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
-              boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
-              ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
-            } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
-              boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
-              ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
-            }
-          } catch (Exception e) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-            dialogBox.center();
-          }
-        }
+        processSettings(event.getSettings());
       }
 
     });
@@ -240,6 +227,7 @@ public class MantleController extends AbstractXulEventHandler {
     // install themes
     RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active"); //$NON-NLS-1$
     try {
+      getActiveThemeRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {
@@ -249,6 +237,7 @@ public class MantleController extends AbstractXulEventHandler {
         public void onResponseReceived(Request request, Response response) {
           final String activeTheme = response.getText();
           RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list"); //$NON-NLS-1$
+          getThemesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
           getThemesRequestBuilder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
           try {
@@ -260,6 +249,7 @@ public class MantleController extends AbstractXulEventHandler {
                 try {
                   final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
                   RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+                  requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
                   requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
                   requestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -316,6 +306,32 @@ public class MantleController extends AbstractXulEventHandler {
     }
   }
 
+  public void processSettings(JsArray<JsSetting> settings) {
+    if (settings == null) {
+      return;
+    }
+
+    for (int i = 0; i < settings.length(); i++) {
+      JsSetting setting = settings.get(i);
+      try {
+        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
+          boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
+          model.setShowNavigatorSelected(showNavigator);
+        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
+          boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+          ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
+        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
+          boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+          ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
+        }
+      } catch (Exception e) {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+        dialogBox.center();
+      }
+    }
+
+  }
+  
   /**
    * 
    * @param force
@@ -506,6 +522,7 @@ public class MantleController extends AbstractXulEventHandler {
       };
 
       RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/getAdminContent"); //$NON-NLS-1$
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       builder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
       builder.sendRequest(null, internalCallback);
       // TO DO Reset the menuItem click for browser and workspace here?

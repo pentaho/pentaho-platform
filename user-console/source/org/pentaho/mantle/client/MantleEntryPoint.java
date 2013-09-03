@@ -49,6 +49,7 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
       String locale = Window.Location.getParameter("locale");
       final String url = GWT.getHostPageBaseURL() + "api/mantle/locale"; //$NON-NLS-1$
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       try {
         builder.sendRequest(locale, new RequestCallback() {
 

@@ -15,7 +15,7 @@ public class LocalizationUtil {
   private Map<String, Properties> localePropertiesMap;
   private Locale locale;
 
-  private final String DEFAULT = "default";
+  public static final String DEFAULT = "default";
 
   public LocalizationUtil(Map<String, Properties> localePropertiesMap, Locale locale){
     Assert.notNull(localePropertiesMap);

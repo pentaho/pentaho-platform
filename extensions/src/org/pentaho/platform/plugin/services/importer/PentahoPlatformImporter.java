@@ -11,7 +11,7 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.plugin.services.messages.Messages;
 
 /**
  * Default implementation of IPlatformImporter. This class serves to route import requests to the appropriate
@@ -82,6 +82,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR, e1);
       }
     } catch (Exception e) {
+      e.printStackTrace();
       //If we are doing a logged import then we do not want to fail on a single file
       //so log the error and keep going.
       RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;

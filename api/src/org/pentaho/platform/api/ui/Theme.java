@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.api.ui;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -26,7 +27,12 @@ import java.util.Set;
  * User: nbaker
  * Date: 5/15/11
  */
-public class Theme {
+public class Theme implements Serializable {
+
+  /**
+   * for Serializable
+   */
+  private static final long serialVersionUID = 1941655513749815162L;
 
   private Set<ThemeResource> resources = new LinkedHashSet<ThemeResource>();
 

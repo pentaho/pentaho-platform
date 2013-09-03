@@ -38,6 +38,8 @@ pen.define([
 			defaultTabSelector : "#"+urlVars.selectedTab,
 			before: function() { 
 				ContextProvider.get(function(context) {
+					$("#launch-widget-title").text(context.i18n.getting_started_heading);
+
 					GettingStartedWidget.injectMessagesArray(
 						"getting_started_samples", 
 						context.config.getting_started_sample_message_template, 
@@ -126,9 +128,7 @@ pen.define([
 										context.config.bc_tutorial_resolution);									
 								}								
 								
-								// Copy title and description
-								jHtml.find(".detail-title").text(card.find(".card-title").text());
-								jHtml.find(".detail-description").text(card.find(".card-description").text());
+								
 							})						
 						});	
 					}
@@ -194,6 +194,10 @@ pen.define([
 			// Clear selected cards
 			jParent.find(".selected").removeClass("selected");
 			card.addClass("selected");
+
+			// Copy title and description
+			jParent.find(".detail-title").text(card.find(".card-title").text());
+			jParent.find(".detail-description").text(card.find(".card-description").text());
 
 			if (post) {
 				post(card);

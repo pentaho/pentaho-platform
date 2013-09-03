@@ -151,7 +151,7 @@
             <div class="input-container">
               <label>&nbsp;</label>
               <button type="submit" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-              <input type="hidden" name="locale" value="en">
+              <input type="hidden" name="locale" value="en_US">
             </div>
           </div>
           <div id="eval-users-toggle-container">

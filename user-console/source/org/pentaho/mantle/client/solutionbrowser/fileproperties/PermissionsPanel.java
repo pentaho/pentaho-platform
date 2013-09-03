@@ -430,6 +430,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
     String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl"; //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, url);
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     builder.setHeader("Content-Type", "application/xml");
 
     // At this point if we're inheriting we need to remove all the acls so that the inheriting flag isn't set by default

@@ -24,6 +24,14 @@ import java.io.Serializable;
  * 
  * @author mlowery
  */
+
 public interface IRepositoryFileData extends Serializable {
+  
+  public static final String NODE_CONTENT_TYPE = "node"; //$NON-NLS-1$
+  
+  public static final String SAMPLE_CONTENT_TYPE = "sample"; //$NON-NLS-1$
+  
+  public static final String SIMPLE_CONTENT_TYPE = "simple"; //$NON-NLS-1$
+  
   public long getDataSize();
 }

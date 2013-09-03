@@ -178,6 +178,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
         + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata?cb=" + System.currentTimeMillis(); //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
     setMetadataBuilder.setHeader("Content-Type", "application/json");
+    setMetadataBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     // prepare request data
     JSONArray arr = new JSONArray();

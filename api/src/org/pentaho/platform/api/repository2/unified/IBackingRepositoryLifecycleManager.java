@@ -75,4 +75,8 @@ public interface IBackingRepositoryLifecycleManager {
    * To be called before current user interacts with the backing repository.
    */
   void newUser();
+  
+  void addMetadataToRepository(final String metadataProperty);
+  
+  Boolean doesMetadataExists(final String metadataProperty);
 }

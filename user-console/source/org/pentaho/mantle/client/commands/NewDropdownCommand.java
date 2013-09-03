@@ -138,6 +138,7 @@ public class NewDropdownCommand extends AbstractCommand {
     RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
     rb.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
     rb.setHeader("accept", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+    rb.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       rb.sendRequest(null, new RequestCallback() {
 

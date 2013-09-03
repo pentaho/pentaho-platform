@@ -46,6 +46,7 @@ public class CollapseBrowserCommand extends AbstractCommand {
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     try {
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       builder.sendRequest("false", EmptyRequestCallback.getInstance());
     } catch (RequestException e) {
       // showError(e);

@@ -209,6 +209,14 @@
 						<constructor-arg ref="hiddenExtensionList"/>	        			
 		    		</bean>	
                 </entry>
+		        <entry key="application/vnd.pentaho.xaction">
+					<bean class="org.pentaho.platform.plugin.services.importer.XActionImportHandler">
+						<constructor-arg ref="approvedExtensionList"/>
+						<constructor-arg ref="hiddenExtensionList"/>					
+						<property name="repository" ref="unifiedRepository"/>
+						<property name="converters" ref="convertersMap"/>
+					</bean>
+        		</entry>
             </map>
         </constructor-arg>
         <constructor-arg ref="NameBaseMimeResolver"/>

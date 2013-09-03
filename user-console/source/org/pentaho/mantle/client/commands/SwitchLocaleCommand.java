@@ -46,6 +46,7 @@ public class SwitchLocaleCommand extends AbstractCommand {
     final String url = GWT.getHostPageBaseURL() + "api/mantle/locale"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     try {
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       builder.sendRequest(locale, new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {

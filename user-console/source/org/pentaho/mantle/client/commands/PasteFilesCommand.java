@@ -113,6 +113,7 @@ public class PasteFilesCommand extends AbstractCommand {
       String getChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder childrenRequestBuilder = new RequestBuilder(RequestBuilder.GET, getChildrenUrl);
       try {
+        childrenRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         childrenRequestBuilder.sendRequest(null, new RequestCallback() {
   
           @Override
@@ -187,6 +188,7 @@ public class PasteFilesCommand extends AbstractCommand {
     String pasteChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?mode=" + overwriteMode;  //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder(RequestBuilder.PUT, pasteChildrenUrl);
     pasteChildrenRequestBuilder.setHeader("Content-Type", "text/plain");  //$NON-NLS-1$//$NON-NLS-2$
+    pasteChildrenRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       pasteChildrenRequestBuilder.sendRequest(filesList, new RequestCallback() {
 

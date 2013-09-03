@@ -157,6 +157,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" //$NON-NLS-1$
         + urlPath + "/parameterizable"); //$NON-NLS-1$
     scheduleFileRequestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+    scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -195,6 +196,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
             RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, contextURL
                 + "api/emailconfig/isValid"); //$NON-NLS-1$
             emailValidRequest.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+            emailValidRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             try {
               emailValidRequest.sendRequest(null, new RequestCallback() {
 
@@ -222,6 +224,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
                       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL
                           + "api/scheduler/job"); //$NON-NLS-1$
                       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+                      scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
                       try {
                         scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {

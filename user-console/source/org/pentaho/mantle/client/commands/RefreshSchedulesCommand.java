@@ -41,6 +41,7 @@ public class RefreshSchedulesCommand extends AbstractCommand {
       final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {

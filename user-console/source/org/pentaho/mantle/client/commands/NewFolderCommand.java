@@ -124,6 +124,7 @@ public class NewFolderCommand extends AbstractCommand {
         RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
 
         try {
+          createDirRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
           createDirRequestBuilder.sendRequest("", new RequestCallback() {
 
             @Override

@@ -186,6 +186,7 @@ public class DefaultPluginManager implements IPluginManager {
 
       for (IPlatformPlugin plugin : providedPlugins) {
         try {
+          registeredPlugins.put(plugin.getId(), plugin);
           ClassLoader loader = setPluginClassLoader(plugin);
           initializeBeanFactory(plugin, loader);
         } catch (Throwable t) {
@@ -198,7 +199,7 @@ public class DefaultPluginManager implements IPluginManager {
         }
       }
 
-
+      registeredPlugins.clear();
       for (IPlatformPlugin plugin : providedPlugins) {
         try {
           GenericApplicationContext beanFactory = beanFactoryMap.get(plugin.getId());

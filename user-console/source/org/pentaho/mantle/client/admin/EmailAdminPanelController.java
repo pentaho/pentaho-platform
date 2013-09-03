@@ -173,6 +173,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+	    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
 			executableTypesRequestBuilder.sendRequest(emailConfig.getJSONString(), new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
@@ -197,6 +198,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	private void getEmailConfig() {
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/getEmailConfig?cb=" + System.currentTimeMillis();
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {

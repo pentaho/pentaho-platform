@@ -101,6 +101,7 @@ public class RestoreFileCommand implements Command {
     String deleteFilesURL = contextURL + "api/repo/files/restore"; //$NON-NLS-1$
     RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
     deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain");  //$NON-NLS-1$//$NON-NLS-2$
+    deleteFilesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
 

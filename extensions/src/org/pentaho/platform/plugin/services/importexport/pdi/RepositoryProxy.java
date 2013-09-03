@@ -5,6 +5,7 @@
  */
 package org.pentaho.platform.plugin.services.importexport.pdi;
 
+import java.util.Calendar;
 import java.util.List;
 
 import org.pentaho.di.cluster.ClusterSchema;
@@ -478,6 +479,11 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
 
   public void save(RepositoryElementInterface repositoryElement, String versionComment,
       ProgressMonitorListener monitor, boolean overwrite) throws KettleException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void save(RepositoryElementInterface repositoryElementInterface, String s, Calendar calendar, ProgressMonitorListener progressMonitorListener, boolean b) throws KettleException {
     throw new UnsupportedOperationException();
   }
 

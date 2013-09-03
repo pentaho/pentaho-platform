@@ -59,7 +59,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
     Properties localeProperties = buildLocaleProperties(localeBundle);
   
-    if (localeParent != null && unifiedRepository != null) {
+    if (localeParent != null && unifiedRepository != null && localeBundle.getFile() != null) {
       //If the parent file (content) got skipped because it existed then we will not import the locale information
       String fullPath = RepositoryFilenameUtils.concat(localeBundle.getPath(), localeBundle.getFile().getName());
       if (ImportSession.getSession().getSkippedFiles().contains(fullPath)) {

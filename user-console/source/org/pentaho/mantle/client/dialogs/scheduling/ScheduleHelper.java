@@ -60,6 +60,7 @@ public class ScheduleHelper {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -81,6 +82,7 @@ public class ScheduleHelper {
           final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
           RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, contextURL + "api/emailconfig/isValid");
+          emailValidRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
           emailValidRequest.setHeader("accept", "text/plain");
           try {
             emailValidRequest.sendRequest(null, new RequestCallback() {
@@ -156,6 +158,7 @@ public class ScheduleHelper {
         final String url = GWT.getHostPageBaseURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getId(); //$NON-NLS-1$
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("accept", "text/plain");
+        requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         final MessageDialogBox errorDialog = new MessageDialogBox(Messages.getString("error"), Messages.getString("noSchedulePermission"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
         try {
           requestBuilder.sendRequest(null, new RequestCallback() {
@@ -198,6 +201,7 @@ public class ScheduleHelper {
 
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     try {
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       builder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {

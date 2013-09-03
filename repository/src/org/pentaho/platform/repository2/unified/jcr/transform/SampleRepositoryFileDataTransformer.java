@@ -35,7 +35,7 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
 
   // ~ Instance fields =================================================================================================
 
-  private static final String CONTENT_TYPE = "sample"; //$NON-NLS-1$
+  
 
   // ~ Constructors ====================================================================================================
 
@@ -49,7 +49,7 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
    * {@inheritDoc}
    */
   public boolean canRead(final String contentType, final Class<? extends IRepositoryFileData> clazz) {
-    return CONTENT_TYPE.equals(contentType) && clazz.isAssignableFrom(SampleRepositoryFileData.class);
+    return IRepositoryFileData.SAMPLE_CONTENT_TYPE.equals(contentType) && clazz.isAssignableFrom(SampleRepositoryFileData.class);
   }
 
   /**
@@ -63,7 +63,7 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
    * {@inheritDoc}
    */
   public String getContentType() {
-    return CONTENT_TYPE;
+    return IRepositoryFileData.SAMPLE_CONTENT_TYPE;
   }
 
   /**
