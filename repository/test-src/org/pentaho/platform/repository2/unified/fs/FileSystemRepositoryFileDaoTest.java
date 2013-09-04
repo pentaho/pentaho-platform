@@ -1,8 +1,8 @@
 package org.pentaho.platform.repository2.unified.fs;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * User: kwalker
@@ -14,6 +14,10 @@ public class FileSystemRepositoryFileDaoTest {
   public void testIdToPath() throws Exception {
     assertEquals("C:/Program Files/pentaho/design-tools/data-integration/Unsaved Report.xanalyzer",
       FileSystemRepositoryFileDao.idToPath("C::Program Files:pentaho:design-tools:data-integration/Unsaved Report.xanalyzer"));
+    assertEquals("C:/Program Files\\pentaho\\design-tools\\data-integration\\Unsaved Report.xanalyzer",
+        FileSystemRepositoryFileDao.idToPath("C:/Program Files\\pentaho\\design-tools\\data-integration\\Unsaved Report.xanalyzer"));
+    assertEquals("C:/Program Files\\pentaho\\design-tools\\data-integration\\Unsaved Report.xanalyzer",
+        FileSystemRepositoryFileDao.idToPath("C:\\Program Files\\pentaho\\design-tools\\data-integration\\Unsaved Report.xanalyzer"));
     assertEquals("/home/pentaho/design-tools/data-integration/Unsaved Report.xanalyzer",
       FileSystemRepositoryFileDao.idToPath(":home:pentaho:design-tools:data-integration/Unsaved Report.xanalyzer"));
   }
