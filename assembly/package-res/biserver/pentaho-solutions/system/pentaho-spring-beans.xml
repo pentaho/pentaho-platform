@@ -29,6 +29,11 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
     </constructor-arg>
   </bean>
 
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="system"/>
+    <constructor-arg value="system.properties"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
 
   <import resource="pentahoSystemConfig.xml" />
   <import resource="adminPlugins.xml" />

@@ -20,11 +20,16 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
 
+import org.apache.commons.io.IOUtils;
 import org.drools.util.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -37,6 +42,9 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   private static final String FILE_DESCRIPTION = "file.description";
 
   private static final String FILE_TITLE = "file.title";
+
+  private static final String DIRECTORY_NAME = "directory_name";
+  private static final String DIRECTORY_DESCRIPTION = "directory_description";
 
   private static final String LOCALE_FOLDER = "index";
 
@@ -71,23 +79,44 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     }
   }
 
+  /**
+   * return locale specific properties from resource bundle
+   * @param locale
+   * @return
+   */
   private Properties buildLocaleProperties(RepositoryFileImportBundle locale) {
     Properties localeProperties = new Properties();
-    try {
-      localeProperties.load(locale.getInputStream());
-    } catch (IOException ex) {
-      getLogger().error(ex.getMessage());
-    }
+    PropertyResourceBundle rb = null;  
     String comment = locale.getComment();
     String fileTitle = locale.getName();
-    if (!StringUtils.isEmpty((String) localeProperties.get("description"))) {
-      comment = (String) localeProperties.get("description");
-      localeProperties.remove("description");
+
+    try {      
+        byte[] bytes = IOUtils.toByteArray(locale.getInputStream());
+        java.io.InputStream bundleInputStream = new ByteArrayInputStream(bytes);
+        rb = new PropertyResourceBundle(bundleInputStream);
+      } catch (Exception returnEmptyIfError) {     
+          getLogger().error(returnEmptyIfError.getMessage());
+          return localeProperties;
+      }
+
+    if(rb != null){
+      //this is the 4.8 style - name and description
+      // First try file desc. If no file desc, try for a directory desc, else try fallback
+      comment = rb.containsKey("description") ? rb.getString("description"):
+          rb.containsKey(FILE_DESCRIPTION)? rb.getString(FILE_DESCRIPTION):
+              rb.containsKey(DIRECTORY_DESCRIPTION) ? rb.getString(DIRECTORY_DESCRIPTION):
+                  comment;
+
+      // First try name. If no name, try title. If no title, try for a directory name, else use filename.
+      fileTitle = rb.containsKey("name") ? rb.getString("name"):
+          rb.containsKey("title") ? rb.getString("title"):
+              rb.containsKey(FILE_TITLE) ? rb.getString(FILE_TITLE) :
+                  rb.containsKey(DIRECTORY_NAME) ? rb.getString(DIRECTORY_NAME) :
+                      fileTitle;
+
     }
-    if (!StringUtils.isEmpty(localeProperties.getProperty("name"))) {
-      fileTitle = (String) localeProperties.getProperty("name");
-      localeProperties.remove("name");
-    }
+
+    //this is the new .locale Jcr property names 
     localeProperties.setProperty(FILE_DESCRIPTION, comment != null ? comment : "");
     localeProperties.setProperty(FILE_TITLE, fileTitle != null ? fileTitle : "");
 

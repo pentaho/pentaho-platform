@@ -27,6 +27,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileFilter;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 /*
  * Convenience class for showing FileChooserDialog while maintaining a last browsed location.
@@ -56,7 +57,9 @@ public class FileDialog {
   public void show() {
     String pathToShow = (path != null) ? path : FileDialog.lastPath;
 
-    final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.OPEN, pathToShow, repositoryFileTree, false, true, title, okText) {
+    final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
+
+    final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.OPEN, pathToShow, repositoryFileTree, false, true, title, okText, solutionBrowserPerspective.getSolutionTree().isShowHiddenFiles()) {
 
       @Override
       public void hide() {

@@ -168,7 +168,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
               EventBusUtil.EVENT_BUS.fireEvent(ge);
 
             } else {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("operationPermissionDenied"), false, false, true); //$NON-NLS-1$
               dialogBox.center();
             }
           }
@@ -314,7 +314,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         }
         dirty = false;
       } else {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("operationPermissionDenied"), false, false, true); //$NON-NLS-1$
         dialogBox.center();
       }
     }

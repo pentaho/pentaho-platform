@@ -20,6 +20,7 @@
 
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
+  <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
 
   <!-- Avoid 'console' errors in browsers that lack a console. -->
   <script type="text/javascript">
@@ -40,8 +41,7 @@
   <script type="text/javascript">
     var Home = null;
     pen.require(["home/home", 
-      "common-ui/util/ContextProvider",
-      "js/BrightcoveExperiences"], function(pentahoHome, ContextProvider) {
+      "common-ui/util/ContextProvider"], function(pentahoHome, ContextProvider) {
       Home = pentahoHome;      
 
       // Define properties for loading context

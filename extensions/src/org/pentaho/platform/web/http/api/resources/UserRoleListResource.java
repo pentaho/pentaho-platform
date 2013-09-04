@@ -2,6 +2,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +15,13 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 @Path("/userrolelist/")
 public class UserRoleListResource extends AbstractJaxRSResource  {
@@ -110,10 +115,14 @@ public class UserRoleListResource extends AbstractJaxRSResource  {
   @Path("/getRolesForUser")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response getRolesForUser(@QueryParam("user") String user) throws Exception {
-    try {
-      return Response.ok(SystemResourceUtil.getRolesForUser(user).asXML()).type(MediaType.APPLICATION_XML).build();
-    } catch (Throwable t) {
-      throw new WebApplicationException(t);
+    if(canAdminister()) {
+      try {
+        return Response.ok(SystemResourceUtil.getRolesForUser(user).asXML()).type(MediaType.APPLICATION_XML).build();
+      } catch (Throwable t) {
+        throw new WebApplicationException(t);
+      }
+    } else {
+      return Response.status(UNAUTHORIZED).build();
     }
   }
   
@@ -123,10 +132,22 @@ public class UserRoleListResource extends AbstractJaxRSResource  {
   @Path("/getUsersInRole")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response getUsersInRole(@QueryParam("role") String role) throws Exception {
-    try {
-      return Response.ok(SystemResourceUtil.getUsersInRole(role).asXML()).type(MediaType.APPLICATION_XML).build();
-    } catch (Throwable t) {
-      throw new WebApplicationException(t);
+    if(canAdminister()) {
+      try {
+        return Response.ok(SystemResourceUtil.getUsersInRole(role).asXML()).type(MediaType.APPLICATION_XML).build();
+      } catch (Throwable t) {
+        throw new WebApplicationException(t);
+      }
+    } else {
+      return Response.status(UNAUTHORIZED).build();
     }
+  }
+  
+  private boolean canAdminister() {
+    IAuthorizationPolicy policy = PentahoSystem
+        .get(IAuthorizationPolicy.class);
+    return policy
+        .isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME)
+        && (policy.isAllowed(AdministerSecurityAction.NAME));
   }
 }

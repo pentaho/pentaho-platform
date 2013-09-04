@@ -77,8 +77,8 @@
 		  						$(".welcome-img").bind("click", function(){
 
 		  							var video = HandlebarsCompiler.compile(brightCoveVideoTemplate, {
-			  							width: "550",
-			  							height: "372",
+		  								width: "551",
+			  							height: "310",
 			  							videoId: context.config.bc_welcome_link_id
 			  						});		  						 
 

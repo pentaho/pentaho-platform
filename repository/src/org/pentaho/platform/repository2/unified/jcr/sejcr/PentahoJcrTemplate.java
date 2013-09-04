@@ -57,7 +57,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
     Session session = getSession();
     boolean existingTransaction = SessionFactoryUtils.isSessionThreadBound(session, getSessionFactory());
     if (existingTransaction) {
-      logger.debug("Found thread-bound Session for JcrTemplate"); //$NON-NLS-1$
+      // logger.debug("Found thread-bound Session for JcrTemplate"); //$NON-NLS-1$
     }
 
     try {
@@ -77,7 +77,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
       throw pentahoConvertJcrAccessException(ex);
     } finally {
       if (existingTransaction) {
-        logger.debug("Not closing pre-bound Jcr Session after JcrTemplate"); //$NON-NLS-1$
+        // logger.debug("Not closing pre-bound Jcr Session after JcrTemplate"); //$NON-NLS-1$
       } else {
         SessionFactoryUtils.releaseSession(session, getSessionFactory());
       }

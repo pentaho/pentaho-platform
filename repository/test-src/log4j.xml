@@ -33,20 +33,20 @@
   </category>
 
   <category name="org.pentaho.platform.repository">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
   </category>
 
   <category name="org.pentaho.platform.repository2">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
   </category>
 
   <category name="org.pentaho.platform.security.policy.rolebased">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
   </category>
 
   <root>
     <!-- out of mem errors can result in Eclipse when this is set to debug  -->
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
     <appender-ref ref="PENTAHOCONSOLE"/>
   </root>
 

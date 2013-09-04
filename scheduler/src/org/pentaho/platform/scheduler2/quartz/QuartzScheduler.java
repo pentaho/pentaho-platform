@@ -88,6 +88,8 @@ public class QuartzScheduler implements IScheduler {
 
   public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
 
+  public static final String RESERVEDMAPKEY_RESTART_FLAG = "ActionAdapterQuartzJob-Restart";
+  
   private static final Log logger = LogFactory.getLog(QuartzScheduler.class);
 
   private SchedulerFactory quartzSchedulerFactory;

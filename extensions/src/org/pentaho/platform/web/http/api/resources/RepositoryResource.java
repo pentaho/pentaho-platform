@@ -247,7 +247,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
       throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
     ctxt("Is [{0}] a repository file id?", contextId); //$NON-NLS-1$
-    if (contextId.startsWith(":")) { //$NON-NLS-1$
+    if (contextId.startsWith(":") || contextId.matches("^[A-z]::.*")) { //$NON-NLS-1$
       //
       // The context is a repository file (A)
       //

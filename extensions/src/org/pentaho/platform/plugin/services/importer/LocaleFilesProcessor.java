@@ -23,8 +23,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -122,8 +124,16 @@ public class LocaleFilesProcessor {
   }
 
   public Properties loadProperties(InputStream inputStream) throws IOException {
-    Properties properties = new Properties();
-    properties.load(inputStream);
+    assert inputStream != null;
+    final Properties properties = new Properties();
+    final PropertyResourceBundle rb = new PropertyResourceBundle(inputStream);
+    final Enumeration<?> keyEnum = rb.getKeys();
+    while(keyEnum.hasMoreElements()){
+      final Object key = keyEnum.nextElement();
+      assert key != null;
+      final String sKey = String.valueOf(key);
+      properties.put(sKey,rb.getObject(sKey));
+    }
     return properties;
   }
 

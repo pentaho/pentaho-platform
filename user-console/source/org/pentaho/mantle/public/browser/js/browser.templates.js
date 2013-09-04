@@ -71,13 +71,9 @@ pen.define([
     templates.folderText =
         "{{#ifCond file.folder 'true'}}" +
             "{{#ifCond file.path '.trash'}}" +
-            "<div id='{{file.id}}' class='trash folder' path='{{file.path}}' title2='{{file.description}}' title='{{file.name}}'>" +
+            "<div id='{{file.id}}' class='trash folder' path='{{file.path}}' ext='{{file.name}}' desc='{{file.name}}'>" +
             "{{else}}" +
-            "{{#if file.description}}" +
-            "<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.description}}' title='{{file.name}}'>" +
-            "{{else}}" +
-            "<div id='{{file.id}}' class='folder' path='{{file.path}}' title2='{{file.name}}' title='{{file.name}}'>" +
-            "{{/if}}" +
+            "<div id='{{file.id}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}'>" +
             "{{/ifCond}}" +
             "<div class='element'>" +
             "<div class='expandCollapse'> </div>" +
@@ -101,9 +97,9 @@ pen.define([
     templates.file = Handlebars.compile(
         "{{#ifCond folder 'false' }}" +
             "{{#if trash}}" +
-            "<div id='{{id}}' class='file' origPath='{{origPath}}' path='{{path}}' type='file' title2='{{fileWithExtension}}' title='{{trashPath}}'>" +
+                "<div id='{{id}}' class='file' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}'>" +
             "{{else}}" +
-            "<div id='{{id}}' class='file' path='{{path}}' type='file' title2='{{fileWithExtension}}' title='{{fileWithExtension}}'>" +
+                "<div id='{{id}}' class='file' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}'>" +
             "{{/if}}" +
             "<div class='icon {{classes}}'> </div>" +
             "<div class='title'>{{title}}</div>" +
@@ -111,11 +107,7 @@ pen.define([
             "{{/ifCond}}" +
             "{{#ifCond trash 'true'}}" +
             "{{#ifCond folder 'true'}}" +
-            "{{#if file.description}}" +
-            "<div id='{{id}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' title2='{{file.description}}' title='{{trashPath}}'>" +
-            "{{else}}" +
-            "<div id='{{id}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' title2='{{fileWithExtension}}' title='{{trashPath}}'>" +
-            "{{/if}}" +
+            "<div id='{{id}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}'>" +
             "<div class='icon trashFolder'> </div>" +
             "<div class='title'>{{title}}</div>" +
             "</div>" +
@@ -170,6 +162,7 @@ pen.define([
             title: title,
             id: this.file.id,
             classes: extension,
+            description: this.file.description,
             folder: this.file.folder,
             fileWithExtension: this.file.name
         }));

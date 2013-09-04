@@ -454,8 +454,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     } catch (Exception e) {
       // generate reference #
       String refNum = UUID.randomUUID().toString();
-      if (logger.isErrorEnabled()) {
-        logger.error(Messages.getInstance().getString("ExceptionLoggingDecorator.referenceNumber", refNum), e); //$NON-NLS-1$
+      if (logger.isDebugEnabled()) {
+        logger.debug(Messages.getInstance().getString("ExceptionLoggingDecorator.referenceNumber", refNum), e); //$NON-NLS-1$
       }
 
       // list all exceptions in stack

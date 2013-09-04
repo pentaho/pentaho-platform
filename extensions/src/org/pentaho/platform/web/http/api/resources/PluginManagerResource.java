@@ -18,6 +18,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +27,25 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.drools.util.StringUtils;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.ui.xul.XulOverlay;
 
 @Path("/plugin-manager/")
 public class PluginManagerResource {
+
+  private static final String NEW_TOOLBAR_BUTTON_SETTING = "new-toolbar-button"; //$NON-NLS-1$
 
   public PluginManagerResource() {
   }
@@ -88,9 +97,13 @@ public class PluginManagerResource {
   @GET
   @Path("/ids")
   @Produces({ APPLICATION_JSON })
-  public StringListWrapper getPluginIds() {
-    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
-    return new StringListWrapper(pluginManager.getRegisteredPlugins());
+  public Response getPluginIds() {
+    if(canAdminister()) {
+      IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+      return Response.ok(new StringListWrapper(pluginManager.getRegisteredPlugins()), MediaType.APPLICATION_JSON).build();
+    } else {
+      return Response.status(UNAUTHORIZED).build();
+    }
   }
 
   @GET
@@ -104,7 +117,13 @@ public class PluginManagerResource {
   @GET
   @Path("/settings/{settingName}")
   @Produces({ APPLICATION_JSON })
-  public List<Setting> getPluginSettings(@PathParam("settingName") String settingName) {
+  public Response getPluginSettings(@PathParam("settingName") String settingName) {
+    // A non-admin still require this setting. All other settings should be admin only
+    if(!NEW_TOOLBAR_BUTTON_SETTING.equals(settingName)) {
+      if(!canAdminister()) {
+        return Response.status(UNAUTHORIZED).build();  
+      }
+    }
     IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); //$NON-NLS-1$
     ArrayList<Setting> settings = new ArrayList<Setting>();
     for (String id : pluginManager.getRegisteredPlugins()) {
@@ -113,7 +132,12 @@ public class PluginManagerResource {
         settings.add(s);
       }
     }
-    return settings;
+    return Response.ok(new JaxbList<Setting>(settings), MediaType.APPLICATION_JSON).build();
   }
 
+  private boolean canAdminister() {
+    IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    return policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME)
+        && (policy.isAllowed(AdministerSecurityAction.NAME));
+  }
 }

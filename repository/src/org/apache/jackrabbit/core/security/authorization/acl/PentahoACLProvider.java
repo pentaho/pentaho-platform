@@ -18,6 +18,11 @@ import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Customization of {@link ACLProvider}.
@@ -32,6 +37,8 @@ public class PentahoACLProvider extends ACLProvider {
   // because this is private in ACLProvider
   private EntryCollector entryCollector;
   private Map<Integer, PentahoCompiledPermissionsImpl> compiledPermissionsCache = new HashMap<Integer, PentahoCompiledPermissionsImpl>();
+  private boolean useCachingEntryCollector;
+  private Logger logger = LoggerFactory.getLogger(getClass().getName());
 
   /**
    * Overridden to:
@@ -43,6 +50,10 @@ public class PentahoACLProvider extends ACLProvider {
   @Override
   public void init(final Session systemSession, final Map conf) throws RepositoryException {
     this.configuration = conf;
+    ISystemConfig settings = PentahoSystem.get(ISystemConfig.class);
+    if(settings != null){
+      useCachingEntryCollector = "true".equals(settings.getProperty("system.cachingEntryCollector"));
+    }
     super.init(systemSession, conf);
     // original initRootACL should run during super.init call above
     updateRootAcl((SessionImpl) systemSession, new ACLEditor(session, this));
@@ -84,7 +95,13 @@ public class PentahoACLProvider extends ACLProvider {
   @Override
   protected EntryCollector createEntryCollector(SessionImpl systemSession) throws RepositoryException {
     // keep our own private reference; the one in ACLProvider is private
-    entryCollector = new PentahoEntryCollector(systemSession, getRootNodeId(), configuration);
+    if(useCachingEntryCollector) {
+      entryCollector = new CachingPentahoEntryCollector(systemSession, getRootNodeId(), configuration);
+      logger.debug("Using Caching EntryCollector");
+    } else {
+      entryCollector = new PentahoEntryCollector(systemSession, getRootNodeId(), configuration);
+      logger.debug("Using Non-Caching EntryCollector");
+    }
     return entryCollector;
   }
 
