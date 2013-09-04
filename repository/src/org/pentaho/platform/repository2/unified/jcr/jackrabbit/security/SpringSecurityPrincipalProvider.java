@@ -19,6 +19,7 @@ import java.security.acl.Group;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jcr.Session;
 
@@ -97,7 +98,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   // ~ Static fields/initializers
   // ======================================================================================
 
-  private static final Log logger = LogFactory.getLog(SpringSecurityPrincipalProvider.class);
+  private Log logger = LogFactory.getLog(SpringSecurityPrincipalProvider.class);
 
   // ~ Instance fields
   // =================================================================================================
@@ -121,11 +122,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   final boolean ACCOUNT_NON_LOCKED = true;
 
   /** flag indicating if the instance has not been {@link #close() closed} */
-  private boolean initialized;
+  private final AtomicBoolean initialized = new AtomicBoolean(false);
 
-  private LRUMap userCache = new LRUMap(4096);
+  private final LRUMap userCache = new LRUMap(4096);
 
-  private LRUMap roleCache = new LRUMap(512);
+  private final LRUMap roleCache = new LRUMap(512);
 
   // ~ Constructors
   // ====================================================================================================
@@ -140,11 +141,14 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   /**
    * {@inheritDoc}
    */
-  public synchronized void init(final Properties options) {
-    if (initialized) {
-      throw new IllegalStateException(Messages.getInstance().getString(
-          "SpringSecurityPrincipalProvider.ERROR_0001_ALREADY_INITIALIZED")); //$NON-NLS-1$
+  public void init(final Properties options) {
+    synchronized(initialized){
+      if (initialized.get()) {
+        throw new IllegalStateException(Messages.getInstance().getString(
+            "SpringSecurityPrincipalProvider.ERROR_0001_ALREADY_INITIALIZED")); //$NON-NLS-1$
+      }
     }
+
 
     adminId = options.getProperty(LoginModuleConfig.PARAM_ADMIN_ID, SecurityConstants.ADMIN_ID);
     adminPrincipal = new AdminPrincipal(adminId);
@@ -159,19 +163,22 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       userDetailsService = PentahoSystem.get(UserDetailsService.class);
     }
 
-    initialized = true;
+    initialized.set(true);
   }
 
-  public synchronized void close() {
+  public void close() {
     checkInitialized();
-    userCache.clear(); // the LRUMap
-    roleCache.clear();
-    initialized = false;
+    clearCaches();
+    initialized.set(false);
   }
 
   public synchronized void clearCaches() {
-    userCache.clear();
-    roleCache.clear();
+    synchronized (userCache){
+      userCache.clear();
+    }
+    synchronized(roleCache){
+      roleCache.clear();
+    }
   }
 
   /**
@@ -192,7 +199,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * </p>
    */
   public synchronized Principal getPrincipal(final String principalName) {
-    
+
+
+
     if (logger.isDebugEnabled()) {
       logger.debug ("principalName: [" + principalName + "]");
     }
@@ -213,7 +222,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
       if (JcrTenantUtils.isTenantedUser(principalName)) {
         // 1. then try the user cache
-        final Principal userFromUserCache = (Principal) userCache.get(JcrTenantUtils.getTenantedUser(principalName));
+        Principal userFromUserCache;
+        synchronized(userCache){
+          userFromUserCache = (Principal) userCache.get(JcrTenantUtils.getTenantedUser(principalName));
+        }
         if (userFromUserCache != null) {
           if (logger.isTraceEnabled()) {
             logger.trace("user " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -230,7 +242,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         final UserDetails userDetails = internalGetUserDetails(principalName);
         if (userDetails != null) {
           final Principal user = new UserPrincipal(principalName);
-          userCache.put(principalName, user);
+          synchronized (userCache){
+            userCache.put(principalName, user);
+          }
           return user;
         }
 
@@ -276,7 +290,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * Called from {@code AbstractLoginModule.getPrincipals()}
    * </p>
    */
-  public synchronized PrincipalIterator getGroupMembership(final Principal principal) {
+  public PrincipalIterator getGroupMembership(final Principal principal) {
     checkInitialized();
     Assert.notNull(principal);
     // first handle anonymous and everyone specially
@@ -299,8 +313,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       for (final GrantedAuthority role : user.getAuthorities()) {
 
         final String roleAuthority = role.getAuthority();
-        final Principal fromCache = (Principal) roleCache.get(roleAuthority);
-
+        Principal fromCache;
+        synchronized(roleCache){
+          fromCache = (Principal) roleCache.get(roleAuthority);
+        }
         if (fromCache != null) {
           groups.add(fromCache);
         } else {
@@ -350,9 +366,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
           final String grantedAuthString = grantedAuth.getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole(grantedAuthString);
 
-          if (!roleCache.containsKey(grantedAuthString)) {
-            final SpringSecurityRolePrincipal ssRolePrincipal = new SpringSecurityRolePrincipal(tenatedRoleString);
-            roleCache.put(grantedAuthString, ssRolePrincipal);
+          synchronized(roleCache){
+            if (!roleCache.containsKey(grantedAuthString)) {
+              final SpringSecurityRolePrincipal ssRolePrincipal = new SpringSecurityRolePrincipal(tenatedRoleString);
+              roleCache.put(grantedAuthString, ssRolePrincipal);
+            }
           }
 
           auths[index++] = new GrantedAuthorityImpl(tenatedRoleString);
@@ -377,9 +395,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   protected void checkInitialized() {
-    if (!initialized) {
-      throw new IllegalStateException(Messages.getInstance().getString(
-          "SpringSecurityPrincipalProvider.ERROR_0003_NOT_INITIALIZED")); //$NON-NLS-1$
+    synchronized(initialized){
+      if (!initialized.get()) {
+        throw new IllegalStateException(Messages.getInstance().getString(
+            "SpringSecurityPrincipalProvider.ERROR_0003_NOT_INITIALIZED")); //$NON-NLS-1$
+      }
     }
   }
 

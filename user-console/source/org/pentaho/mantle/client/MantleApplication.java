@@ -24,6 +24,7 @@ import java.util.HashMap;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPaneNativeListener;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
@@ -94,7 +95,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   public void loadApplication() {
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
-
+    FileChooserDialog.setupNativeHooks();
+    
     UserSettingsManager.getInstance().getUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
       public void onSuccess(JsArray<JsSetting> settings) {
         onUserSettingsLoaded(new UserSettingsLoadedEvent(settings));
@@ -173,6 +175,29 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     function(busy) {
       busy.hide();
     });
+  }-*/;
+
+
+    public static native void showBusyIndicatorById(String title, String message, String id)
+  /*-{
+      $wnd.pen.require([
+          "common-ui/util/BusyIndicator"
+      ],
+
+          function(busy) {
+              busy.show(title, message, id);
+          });
+  }-*/;
+
+    public static native void hideBusyIndicatorById(String id)
+  /*-{
+      $wnd.pen.require([
+          "common-ui/util/BusyIndicator"
+      ],
+
+          function(busy) {
+              busy.hide(id);
+          });
   }-*/;
 
   public void notifyGlasspaneListeners(boolean isShown) {
@@ -280,6 +305,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     try {
       String restUrl = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, restUrl);
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         @Override
@@ -297,6 +323,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           try {
             String restUrl2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
             RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, restUrl2);
+            requestBuilder2.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             requestBuilder2.sendRequest(null, new RequestCallback() {
               @Override
               public void onError(Request arg0, Throwable arg1) {

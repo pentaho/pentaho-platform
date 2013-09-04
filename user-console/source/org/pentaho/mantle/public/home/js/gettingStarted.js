@@ -10,9 +10,37 @@
  	"common-ui/util/BootstrappedTabLoader",
  	"common-ui/util/HandlebarsCompiler"
  ], function(ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
+ 	
+ 	var brightCoveVideoTemplate = "<object id='myExperience781579620001' class='BrightcoveExperience'>" +
+		  "<param name='bgcolor' value='#FFFFFF' />" +
+		  "<param name='width' value='{{width}}' />" +
+		  "<param name='height' value='{{height}}' />" +
+		  "<param name='playerKey' value='AQ~~,AAABioIZaRE~,HcMeumQTXEC1zURldbO8kIySLyfrRiBn' />" +
+		  "<param name='isVid' value='true' />" +
+		  "<param name='isUI' value='true' />" +
+		  "<param name='dynamicStreaming' value='true' />" +
+		  "<param name='@videoPlayer' value='{{videoId}}' />" +
+		  "<param name='autoStart' value='true' />" +
+		"</object>" +
+		"<script type='text/javascript'>brightcove.createExperiences();</script>";
+
+ 	var disableWelcomeVideo = function() {
+		$("#welcome-video").empty();
+		$(".welcome-img").show();
+	}
 
  	function init() {
-		$.support.cors = true;
+
+		if (window.perspectiveDeactivated) {
+			var perspectiveDeactivated = window.perspectiveDeactivated;
+
+			window.perspectiveDeactivated = function() {
+				perspectiveDeactivated();
+				disableWelcomeVideo();
+			}
+		} else {
+			window.perspectiveDeactivated = disableWelcomeVideo;
+		}
 
  		BootstrappedTabLoader.init({
 			parentSelector: "#getting-started",
@@ -24,84 +52,53 @@
 					injectMessagesArray(
 						"getting_started_samples", 
 						context.config.getting_started_sample_message_template, 
-						context.config.getting_started_sample_link_template );
+						context.config.getting_started_sample_link_template, 
+						"sample-card" );
 					
 					injectMessagesArray(
 						"getting_started_tutorials", 
 						context.config.getting_started_video_message_template, 
-						context.config.getting_started_video_link_template );				
+						context.config.getting_started_video_link_template,
+						"tutorial-card" );				
 		 		});
+
+		 		// Remove embedded youtube since it shows through the other tabs
+		 		$("a[href=#tab2], a[href=#tab3]").bind("click", disableWelcomeVideo);
 			},
-			postLoad: function(jHtml, tabSelector) {
-				var tabId = $(tabSelector).attr("id");
+			postLoad: function($html, tabSelector) {
+				var tabId = $(tabSelector).attr("id");				
 
 				if (tabId == "tab1") {									
 					ContextProvider.get(function(context) {
 
-						checkInternet(jHtml, function() {
-							injectYoutubeVideoDuration(context.config.welcome_link_id, jHtml, "#video-length");  
-	  						appendNavParams(jHtml, "tab1");	
-						}, function() {
-							jHtml.find("#welcome-video-text").remove();
-						});						
+						checkInternet($html, 
+							function() {
+		  						// Swap the welcome image for the embedded youtube link
+		  						$(".welcome-img").bind("click", function(){
+
+		  							var video = HandlebarsCompiler.compile(brightCoveVideoTemplate, {
+			  							width: "550",
+			  							height: "372",
+			  							videoId: context.config.bc_welcome_link_id
+			  						});		  						 
+
+		  							$(this).hide();
+		  							$("#welcome-video").append(video);
+		  						});
+							});						
 		  			});
 
 				} else if (tabId == "tab2") {
-					bindCardInteractions(jHtml, ".sample-card", "#sample-details-content", true);
+					bindCardInteractions($html, ".sample-card", "#sample-details-content", "sample-img", true);
 
 				} else if (tabId == "tab3") {
-							
-			 		function bindInteractions(bindNavParams) {
-				 		bindCardInteractions(jHtml, ".tutorial-card", "#tutorial-details-content", bindNavParams, function(card) {
-				 			$(".video-length").text(card.find(".tutorial-card-time").text());
-
-				 			var cardIndex = $(".tutorial-card").index(card) + 1;
-
-				 			ContextProvider.get(function(context){
-
-				 				var videoIdProp = HandlebarsCompiler.compile( context.config.getting_started_video_link_template, {contentNumber: cardIndex} );
-				 				var videoId = context.config[videoIdProp];
-				 				var imgUrl = HandlebarsCompiler.compile( context.config.youtube_image_template, {videoId: videoId} );
-
-				 				if (!navigator.onLine) {
-				 					imgUrl = "images/video.png";
-				 				}
-				 				
-				 				if ($(".IE").length > 0) {
-				 					$(".tutorial-details-img").css( {
-				 						"filter": "progid:DXImageTransform.Microsoft.AlphaImageLoader( src='" + imgUrl + "', sizingMethod='scale')",
-				 						"-ms-filter": "progid:DXImageTransform.Microsoft.AlphaImageLoader( src='" + imgUrl + "', sizingMethod='scale')"
-				 					});
-
-				 				} else {
-				 					$(".tutorial-details-img").css("background-image", "url('"+ imgUrl + "')");
-				 				}
-				 				
-				 			});				 			
-				 			
-				 		}); 			
-			 		}
-
-			 		checkInternet( jHtml, function() {
-			 			// Get context to retrieve tutorial links from config
-				 		ContextProvider.get(function(context) {
-							
-							jHtml.find(".tutorial-card").each(function(index) {
-					 			var youtubeLinkId = context.config["tutorial_link" + (index+1) + "_id"];
-
-					 			injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time", function(time) {
-					 				if (index == 0) {
-					 					$(".video-length").text(formatSeconds(time));	
-					 				} 				
-					 			});
-					 		});
-				 		}); 
-
-			 			bindInteractions(true);			 
-
-			 		}, function() {
-						bindInteractions(false);
-			 		});
+			 		checkInternet( $html, 
+			 			function() {
+				 			bindCardInteractions($html, ".tutorial-card", "#tutorial-details-content", "tutorial-img", true);
+			 			}, 
+			 			function() {
+			 				bindCardInteractions($html, ".tutorial-card", "#tutorial-details-content", "tutorial-img", false);
+			 			});
 				}
 			}
 		});
@@ -110,61 +107,44 @@
  	/**
  	 * Binds the interactions for the card selection and detail population
  	 */
- 	function bindCardInteractions(jParent, cardSelector, detailsContentSelector, bindNavParams, postClick) {
+ 	function bindCardInteractions(jParent, cardSelector, detailsContentSelector, detailsImgBaseId, bindNavParams, postClick) {
  		var cards = jParent.find(cardSelector);
- 		cards.bind("click", function() {
- 			$(cardSelector + ".selected").removeClass("selected");
+ 		cards.bind("click", function() { 			
+ 			var card = $(this);
+ 			if (card.hasClass("selected")) {
+ 				return;
+ 			}
 
- 			var card = $(this); 			
+ 			$(cardSelector + ".selected").removeClass("selected");
  			card.addClass("selected");
+
+ 			var index = cards.index(card);
 
  			var detailsContentContainer = $(detailsContentSelector);
  			detailsContentContainer.find(".detail-title").text(card.find(".card-title").text());
  			detailsContentContainer.find(".detail-description").text(card.find(".card-description").text());
+ 			
+ 			var detailsImg = detailsContentContainer.find(".details-img");
+ 			var buttonContainer = detailsContentContainer.find(".button-container");
+
+ 			detailsImg.hide();
+ 			buttonContainer.hide();
+
+ 			detailsImg.attr("id", detailsImgBaseId + (index+1))
+
+ 			buttonContainer.fadeIn(500);
+ 			detailsImg.fadeIn(500);
 
  			
  			if (bindNavParams) {
- 				appendNavParams(jParent, jParent.parent().attr("id"), cards.index(card));	
+ 				appendNavParams(jParent, jParent.parent().attr("id"), index);	
  			}
- 			
 
  			// Execute specific on click functions
  			if (postClick) {
  				postClick(card);
  			} 			
  		}).first().click();
- 	}
-
- 	/*
- 	 * Injects the duration of the youtube video into an element
- 	 */
- 	function injectYoutubeVideoDuration(youtubeLinkId, injectContent, injectSelector, post) {
- 		var url ="http://gdata.youtube.com/feeds/api/videos/" + youtubeLinkId + "?v=2&alt=jsonc&prettyprint=true";
-
-		$.ajax(url, {
-			dataType: "jsonp",
-			success: function postSuccess(data) {
-	 			if (typeof data=="string"){
-	 				data = eval("(" + data + ")");
-	 			}
-	 			var videoLength = data.data.duration;
-				injectContent.find(injectSelector).text(formatSeconds(videoLength));
-
-				if (post) {
-					post(videoLength);
-				}
-	 		}
-	 	}); 		
- 	}
-
- 	/**
- 	 * Takes seconds and formats it into minutes and seconds
- 	 */
- 	function formatSeconds(seconds) {
- 		var min = parseInt(seconds / 60);
- 		var sec = seconds % 60;
-
- 		return " " + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
  	}
 
  	/**
@@ -175,8 +155,6 @@
  		href += "selectedTab=" + selectedTab;
  		href += "&selectedContentIndex=" + selectedContentIndex	
  		
- 		
-
  		if (typeof jTab=="string") {
  			jTab = $(jTab);
  		}
@@ -193,7 +171,7 @@
  	 * Injects titles and descriptions to be used by tab content later. Takes a context property to store the
  	 * final array and the templates for the templates and link.
  	 */
- 	function injectMessagesArray(contextProperty, messagesTemplate, linkTemplate) {
+ 	function injectMessagesArray(contextProperty, messagesTemplate, linkTemplate, idBase) {
  		ContextProvider.get(function(context) {
 	 		var i = 1;
 			var str;
@@ -210,7 +188,7 @@
 	 			}			 			
 	 			
 	 			var infoArr = str.split("|");
-	 			array.push({ title: infoArr[0], description : infoArr[1] });			 			
+	 			array.push({ title: infoArr[0], description : infoArr[1], id: idBase + (i-1) });			 			
 	 		}
 	 		ContextProvider.addProperty(contextProperty, array);
  		});
@@ -253,9 +231,9 @@
  	}
 
  	return {
- 		init:init,
- 		injectYoutubeVideoDuration:injectYoutubeVideoDuration,
+ 		init:init, 		
  		injectMessagesArray:injectMessagesArray,
- 		checkInternet:checkInternet
+ 		checkInternet:checkInternet,
+ 		brightCoveVideoTemplate:brightCoveVideoTemplate
  	};
  });

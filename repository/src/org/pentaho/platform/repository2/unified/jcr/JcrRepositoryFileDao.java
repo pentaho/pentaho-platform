@@ -23,11 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
@@ -43,10 +45,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
@@ -68,7 +73,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
-
   private JcrTemplate jcrTemplate;
 
   private List<ITransformer<IRepositoryFileData>> transformers;
@@ -117,6 +121,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private RepositoryFile internalCreateFolder(final Session session, final Serializable parentFolderId,
       final RepositoryFile folder, final RepositoryFileAcl acl, final String versionMessage) throws RepositoryException {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+    
     // Get repository file info and acl info of parent
     if(parentFolderId != null) {
       RepositoryFile parentRepositoryFile = getFileById(parentFolderId);
@@ -157,6 +165,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
 
     /*
      * PPP-3049: Changed the Assert.notNull(content) to code that creates a file with a single blank when
@@ -198,7 +209,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         session.save();
         if (file.isVersioned()) {
           JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, fileNode,
-              versionMessage);
+              versionMessage, file.getCreatedDate(), false);
+
         }
         JcrRepositoryFileUtils
             .checkinNearestVersionableFileIfNecessary(
@@ -218,6 +230,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   private RepositoryFile internalUpdateFile(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final RepositoryFile file, final IRepositoryFileData content, final String versionMessage)
       throws RepositoryException {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     Assert.notNull(content);
@@ -233,7 +249,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         findTransformerForWrite(content.getClass()));
     session.save();
     JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, file.getId(),
-        versionMessage);
+        versionMessage, file.getCreatedDate(), true);
     lockHelper.removeLockTokenFromSessionIfNecessary(session, pentahoJcrConstants, file.getId());
     return JcrRepositoryFileUtils.nodeIdToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper,
         file.getId());
@@ -242,6 +258,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   private RepositoryFile internalUpdateFolder(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final RepositoryFile folder, final String versionMessage)
       throws RepositoryException {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(folder);
     Assert.isTrue(folder.isFolder());
     lockHelper.addLockTokenToSessionIfNecessary(session, pentahoJcrConstants, folder.getId());
@@ -495,6 +515,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData content,
       final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
@@ -511,6 +535,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void lockFile(final Serializable fileId, final String message) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -527,6 +555,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void unlockFile(final Serializable fileId) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -576,6 +608,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void deleteFile(final Serializable fileId, final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -611,6 +647,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void deleteFileAtVersion(final Serializable fileId, final Serializable versionId) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     Assert.notNull(versionId);
     jcrTemplate.execute(new JcrCallback() {
@@ -674,6 +714,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void permanentlyDeleteFile(final Serializable fileId, final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -700,6 +744,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void undeleteFile(final Serializable fileId, final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -749,6 +797,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private void internalCopyOrMove(final Serializable fileId, final String destRelPath, final String versionMessage,
       final boolean copy) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -761,7 +813,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String destAbsPath = pathConversionHelper.relToAbs(destRelPath);
-        String cleanDestAbsPath = destAbsPath;
+        String cleanDestAbsPath = destAbsPath; 
         if (cleanDestAbsPath.endsWith(RepositoryFile.SEPARATOR)) {
           cleanDestAbsPath.substring(0, cleanDestAbsPath.length() - 1);
         }
@@ -818,13 +870,37 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,
             destParentFolderNode);
         String finalSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath = appendFileName ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
+        String finalDestAbsPath = appendFileName && !file.isFolder()? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
             : cleanDestAbsPath;
-        if (copy) {
-          session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
-        } else {
-          session.getWorkspace().move(finalSrcAbsPath, finalDestAbsPath);
+        try {
+          if (copy) {
+            session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
+          } else {
+            session.getWorkspace().move(finalSrcAbsPath, finalDestAbsPath);
+          }
+        } catch(ItemExistsException iae) {
+          throw new UnifiedRepositoryException((file.isFolder() ? "Folder " : "File ") + "with path ["+ cleanDestAbsPath + "] already exists in the repository");
         }
+        // Now we need to update the title
+        RepositoryFile destFile = internalGetFile(session, finalDestAbsPath, true, null);
+        // Check if the file to be updated is a folder or not
+            String contentType = JcrRepositoryFileUtils.getFileContentType(session, pentahoJcrConstants, destFile.getId(),destFile.getVersionId());
+        if(!destFile.isFolder() && (contentType != null && contentType.equals(IRepositoryFileData.SIMPLE_CONTENT_TYPE))) {
+              String title = extractNameFromPath(finalDestAbsPath);
+              Map<String, Properties> localePropertiesMap = destFile.getLocalePropertiesMap();
+              for(Entry<String,Properties> entry :destFile.getLocalePropertiesMap().entrySet()) {
+                Properties properties = entry.getValue();
+                if(properties.containsKey("file.title")) {
+                  properties.setProperty("file.title", title);
+                }
+                if(properties.containsKey("title")) {
+                  properties.setProperty("title", title);
+                }         
+              }
+                RepositoryFile updatedFile = new RepositoryFile.Builder(destFile).localePropertiesMap(localePropertiesMap).title(title).build();
+          internalUpdateFile(session, pentahoJcrConstants, updatedFile,getData(destFile.getId(), null, SimpleRepositoryFileData.class), "Updating the Title");  
+        } 
+        
         JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,
             destParentFolderNode, versionMessage);
         // if it's a move within the same folder, then the next checkin is unnecessary
@@ -873,6 +949,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   public void restoreFileAtVersion(final Serializable fileId, final Serializable versionId, final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
     Assert.notNull(fileId);
     Assert.notNull(versionId);
     jcrTemplate.execute(new JcrCallback() {
@@ -970,6 +1049,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public void setFileMetadata(final Serializable fileId, final Map<String, Serializable> metadataMap) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
       @Override
@@ -1062,18 +1144,30 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public void setLocalePropertiesForFileById(Serializable fileId, String locale, Properties properties) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     RepositoryFile repositoryFile = getFileById(fileId, true);
     setLocalePropertiesForFile(repositoryFile, locale, properties);
   }
 
   @Override
   public void setLocalePropertiesForFileByPath(String relPath, String locale, Properties properties) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     RepositoryFile repositoryFile = getFileById(relPath, true);
     setLocalePropertiesForFile(repositoryFile, locale, properties);
   }
 
   @Override
   public void setLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale, final Properties properties) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(repositoryFile);
     Assert.notNull(locale);
     Assert.notNull(properties);
@@ -1097,6 +1191,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public void deleteLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(repositoryFile);
     Assert.notNull(locale);
     jcrTemplate.execute(new JcrCallback() {
@@ -1119,6 +1217,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public RepositoryFile updateFolder(final RepositoryFile file, final String versionMessage) {
+    if (isKioskEnabled()) {
+      throw new RuntimeException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED")); //$NON-NLS-1$
+    }
+
     Assert.notNull(file);
     Assert.isTrue(file.isFolder());
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
@@ -1130,4 +1232,21 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
+  private String extractNameFromPath(String path) {
+    int startIndex = path.lastIndexOf(RepositoryFile.SEPARATOR);
+    if(startIndex >= 0 ) {
+      int endIndex = path.indexOf('.', startIndex);
+      if(endIndex > startIndex) {
+        return path.substring(startIndex + 1, endIndex);  
+      }
+    }
+    return null;
+  }
+  
+  private boolean isKioskEnabled() {
+    if(PentahoSystem.getInitializedOK()) {
+      return "true".equals(PentahoSystem.getSystemSetting("kiosk-mode", "false"));
+    } else 
+       return false;
+  }
 }

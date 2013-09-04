@@ -393,9 +393,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
       error(ke.getMessage(), ke);
     }
 
-    String solutionPath = PentahoSystem.getApplicationContext().getFileOutputPath(""); //$NON-NLS-1$
-    solutionPath = solutionPath.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-    solutionPath = solutionPath.replaceAll("\\$", "\\\\\\$"); //$NON-NLS-1$ //$NON-NLS-2$
+    String solutionPath = "solution:";
 
     Repository repository = connectToRepository();
     boolean result = false;

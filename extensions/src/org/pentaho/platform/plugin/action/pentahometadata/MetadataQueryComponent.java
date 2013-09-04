@@ -148,7 +148,9 @@ public class MetadataQueryComponent {
     if (inputs != null) {
       Properties properties = new Properties();
       for (String name : inputs.keySet()) {
-        properties.put(name, inputs.get(name).toString());
+        if(!(inputs.get(name)==null)){
+            properties.put(name, inputs.get(name).toString());
+        }
       }
       templatedQuery = TemplateUtil.applyTemplate(query, properties, null);
     } else {

@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.engine.IAuditEntry;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
@@ -37,6 +38,7 @@ import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.engine.core.TestAuditEntry;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
@@ -72,6 +74,7 @@ public class QuartzSchedulerTest {
     mp.define("IScheduler2", TestQuartzScheduler.class); //$NON-NLS-1$
     mp.define(IUserRoleListService.class, StubUserRoleListService.class);
     mp.define(UserDetailsService.class, StubUserDetailsService.class);
+    mp.define(IAuditEntry.class, TestAuditEntry.class);
     mp.start();
 
     SecurityHelper.getInstance().becomeUser(TEST_USER);

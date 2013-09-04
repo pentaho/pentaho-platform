@@ -104,6 +104,8 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/userrolelist/permission-roles"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      // This header is required to force Internet Explorer to not cache values from the GET response.
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.setHeader("accept", "application/json");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -147,6 +149,8 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/userrolelist/permission-users"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      // This header is required to force Internet Explorer to not cache values from the GET response.
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.setHeader("accept", "application/json");
       requestBuilder.sendRequest(null, new RequestCallback() {
 

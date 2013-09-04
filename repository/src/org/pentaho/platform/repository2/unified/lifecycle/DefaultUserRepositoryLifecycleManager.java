@@ -10,13 +10,15 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.api.util.PasswordServiceException;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
 
-public class DefaultUserRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
+public class DefaultUserRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager{
 	
 	private static final Log logger = LogFactory.getLog(DefaultUserRepositoryLifecycleManager.class);
 	private static final ITenant DEFAULT_TENANT = JcrTenantUtils.getDefaultTenant();
@@ -32,18 +34,19 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
   private String nonAdminPassword;
   private String singleTenantAdminUserName;
   private List<String> systemRoles;
+  public static final String DEFAULT_USERS_LOADED_METADATA = "defaultUsersLoaded";
 
   public DefaultUserRepositoryLifecycleManager(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
 			final IPasswordService passwordService,
-			final IUserRoleDao userRoleDao, final String singleTenantAdminUserName, final List<String> systemRoles) {
+			final IUserRoleDao userRoleDao, final String singleTenantAdminUserName, final List<String> systemRoles, final TransactionTemplate txnTemplate, final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper) {
+    super(txnTemplate, adminJcrTemplate, pathConversionHelper);
 		this.roleBindingDao = roleBindingDao;
 		this.passwordService = passwordService;
 		this.userRoleDao = userRoleDao;
 		this.singleTenantAdminUserName = singleTenantAdminUserName;
 		this.systemRoles = systemRoles;
-		
 	}
-
+  
 	@Override
 	public void newTenant() {
 	}
@@ -66,13 +69,15 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
 
 	@Override
 	public void startup() {
-
-		configureRoles();
-		try {
-			configureUsers();
-		} catch (PasswordServiceException e) {
-			logger.error("Failed configuring users.", e);
-		}
+	  if(!doesMetadataExists(DEFAULT_USERS_LOADED_METADATA)) {
+	    configureRoles();
+	    try {
+	      configureUsers();
+	    } catch (PasswordServiceException e) {
+	      logger.error("Failed configuring users.", e);
+	    }
+	    addMetadataToRepository(DEFAULT_USERS_LOADED_METADATA);
+	  }
 	}
 	
 	private void configureRoles() {
@@ -188,5 +193,4 @@ public class DefaultUserRepositoryLifecycleManager implements IBackingRepository
   public void setSingleTenantAdminPassword(String singleTenantAdminPassword) {
     this.singleTenantAdminPassword = singleTenantAdminPassword;
   }
-
 }

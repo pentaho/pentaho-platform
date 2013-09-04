@@ -17,26 +17,24 @@
 
 package org.pentaho.mantle.client.commands;
 
-import java.util.List;
-
-import com.google.gwt.user.client.ui.HTML;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileActionEvent;
-import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
-import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileActionEvent;
+import org.pentaho.mantle.client.messages.Messages;
+
+import java.util.List;
 
 /**
  * @author wseyler
@@ -135,6 +133,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
         String deleteFilesURL = contextURL + "api/repo/files/deletepermanent"; //$NON-NLS-1$
         RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
         deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
+        deleteFilesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         try {
           deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
 
@@ -152,6 +151,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
               if (response.getStatusCode() == 200) {
                 new RefreshRepositoryCommand().execute(false);
                 event.setMessage("Success");
+                FileChooserDialog.setIsDirty(Boolean.TRUE);
                 EventBusUtil.EVENT_BUS.fireEvent(event);
               } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$

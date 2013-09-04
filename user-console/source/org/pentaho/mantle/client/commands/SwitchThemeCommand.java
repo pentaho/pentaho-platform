@@ -48,6 +48,7 @@ public class SwitchThemeCommand extends AbstractCommand {
     final String url = GWT.getHostPageBaseURL() + "api/theme/set"; //$NON-NLS-1$
     RequestBuilder setThemeRequestBuilder = new RequestBuilder(RequestBuilder.POST, url);
     setThemeRequestBuilder.setHeader("accept", "text/plain");
+    setThemeRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       setThemeRequestBuilder.sendRequest(theme, new RequestCallback() {
 

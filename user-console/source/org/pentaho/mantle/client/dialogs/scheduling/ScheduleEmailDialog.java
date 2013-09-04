@@ -119,6 +119,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
 
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
     scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+    scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     try {
       scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {

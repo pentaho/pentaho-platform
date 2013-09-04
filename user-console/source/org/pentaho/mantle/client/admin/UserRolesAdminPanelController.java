@@ -80,9 +80,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	public void saveUser(final String name, final String password) {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createUser?userName=" + name + "&password=" + password;
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createUser?userName=" + encodeUri(name) + "&password=" + encodeUri(password);
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+		  executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -99,9 +100,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	public void saveRole(final String name) {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createRole?roleName=" + name;
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createRole?roleName=" +  encodeUri(name);
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -122,13 +124,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String selectedRoles = "";
 		for (int i = 0; i < rolesListBox.getItemCount(); i++) {
 			if (rolesListBox.isItemSelected(i)) {
-				selectedRoles = selectedRoles + rolesListBox.getValue(i) + "|";
+				selectedRoles = selectedRoles + encodeUri(rolesListBox.getValue(i)) + "|";
 			}
 		}
 
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteRoles?roleNames=" + selectedRoles;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -174,13 +177,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		String selectedUsers = "";
 		for (int i = 0; i < usersListBox.getItemCount(); i++) {
 			if (usersListBox.isItemSelected(i)) {
-				selectedUsers = selectedUsers + usersListBox.getValue(i) + "|";
+				selectedUsers = selectedUsers + encodeUri(usersListBox.getValue(i)) + "|";
 			}
 		}
 
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?userNames=" + selectedUsers;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -204,9 +208,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	public void updatePassword(String newPassword) {
 
 		String userName = usersListBox.getValue(usersListBox.getSelectedIndex());
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword?userName=" + userName + "&newPassword=" + newPassword;
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword?userName=" + encodeUri(userName) + "&newPassword=" + encodeUri(newPassword);
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -236,6 +241,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void initializeRoles(final String defaultValue, String serviceUrl, final ListBox listBox) {
 		final String url = GWT.getHostPageBaseURL() + serviceUrl;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -275,6 +281,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void initializeAvailableUsers(final String defaultValue) {
 		final String url = GWT.getHostPageBaseURL() + "api/userroledao/users";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -312,8 +319,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	private void getRolesForUser(String user) {
-		final String url = GWT.getHostPageBaseURL() + "api/userroledao/userRoles?userName=" + user;
+		final String url = GWT.getHostPageBaseURL() + "api/userroledao/userRoles?userName=" + encodeUri(user);
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -363,8 +371,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	private void getUsersInRole(String role) {
-		final String url = GWT.getHostPageBaseURL() + "api/userroledao/roleMembers?roleName=" + role;
+		final String url = GWT.getHostPageBaseURL() + "api/userroledao/roleMembers?roleName=" + encodeUri(role);
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -416,6 +425,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void initializeActionBaseSecurityElements() {
 		final String url = GWT.getHostPageBaseURL() + "api/userroledao/logicalRoleMap"; 
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -436,6 +446,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void processLDAPmode() {
 		final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider"; 
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -466,6 +477,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void modifyUserRoles(final String userName, String serviceUrl) {
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -485,6 +497,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	private void modifyRoleUsers(final String roleName, String serviceUrl) {
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
@@ -510,6 +523,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		
 		final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider"; 
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 		executableTypesRequestBuilder.setHeader("accept", "application/json");
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -596,11 +610,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			String roleNames = "";
 			for (int i = 0; i < availableRolesListBox.getItemCount(); i++) {
 				if (availableRolesListBox.isItemSelected(i)) {
-					roleNames = roleNames + availableRolesListBox.getValue(i) + "|";
+					roleNames = roleNames + encodeUri(availableRolesListBox.getValue(i)) + "|";
 				}
 			}
 
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignRoleToUser?userName=" + userName + "&roleNames=" + roleNames;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignRoleToUser?userName=" + encodeUri(userName) + "&roleNames=" + roleNames;
 			modifyUserRoles(userName, serviceUrl);
 		}
 	}
@@ -612,11 +626,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			String roleNames = "";
 			for (int i = 0; i < selectedRolesListBox.getItemCount(); i++) {
 				if (selectedRolesListBox.isItemSelected(i)) {
-					roleNames = roleNames + selectedRolesListBox.getValue(i) + "|";
+					roleNames = roleNames + encodeUri(selectedRolesListBox.getValue(i)) + "|";
 				}
 			}
 
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeRoleFromUser?userName=" + userName + "&roleNames=" + roleNames;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeRoleFromUser?userName=" + encodeUri(userName) + "&roleNames=" + roleNames;
 			modifyUserRoles(userName, serviceUrl);
 		}
 	}
@@ -624,7 +638,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class AddAllRolesListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String userName = usersListBox.getValue(usersListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignAllRolesToUser?userName=" + userName;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignAllRolesToUser?userName=" + encodeUri(userName);
 			modifyUserRoles(userName, serviceUrl);
 		}
 	}
@@ -632,7 +646,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class RemoveAllRolesListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String userName = usersListBox.getValue(usersListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeAllRolesFromUser?userName=" + userName;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeAllRolesFromUser?userName=" + encodeUri(userName);
 			modifyUserRoles(userName, serviceUrl);
 		}
 	}
@@ -644,11 +658,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			String userNames = "";
 			for (int i = 0; i < availableMembersListBox.getItemCount(); i++) {
 				if (availableMembersListBox.isItemSelected(i)) {
-					userNames = userNames + availableMembersListBox.getValue(i) + "|";
+					userNames = userNames + encodeUri(availableMembersListBox.getValue(i)) + "|";
 				}
 			}
 
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames + "&roleName=" + roleName;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames + "&roleName=" + encodeUri(roleName);
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}
@@ -660,11 +674,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			String userNames = "";
 			for (int i = 0; i < selectedMembersListBox.getItemCount(); i++) {
 				if (selectedMembersListBox.isItemSelected(i)) {
-					userNames = userNames + selectedMembersListBox.getValue(i) + "|";
+					userNames = userNames + encodeUri(selectedMembersListBox.getValue(i)) + "|";
 				}
 			}
 
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames + "&roleName=" + roleName;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames + "&roleName=" + encodeUri(roleName);
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}
@@ -672,7 +686,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class AddAllUsersListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String roleName = rolesListBox.getValue(rolesListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignAllUsersToRole?roleName=" + roleName;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/assignAllUsersToRole?roleName=" + encodeUri(roleName);
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}
@@ -680,7 +694,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class RemoveAllUsersListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String roleName = rolesListBox.getValue(rolesListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeAllUsersFromRole?roleName=" + roleName;
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/removeAllUsersFromRole?roleName=" + encodeUri(roleName);
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}
@@ -750,4 +764,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			changePasswordDialog.show();
 		}
 	}
+	
+  private final native String encodeUri(String URI)
+  /*-{
+    return encodeURIComponent(URI);
+  }-*/;
 }

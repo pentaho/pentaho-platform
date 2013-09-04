@@ -43,6 +43,40 @@ $('document').ready(function(){
 
 </script>
 <style type="text/css">
+@font-face {
+  font-family: 'OpenSansRegular';
+  src: url('opensans-regular.eot');
+  src: url('opensans-regular.eot') format('embedded-opentype'),
+  url('opensans-regular.woff') format('woff'),
+  url('opensans-regular.ttf') format('truetype'),
+  url('opensans-regular.svg#OpenSansRegular') format('svg');
+}
+@font-face {
+  font-family: 'OpenSansLight';
+  src: url('opensans-light.eot');
+  src: url('opensans-light.eot') format('embedded-opentype'),
+  url('opensans-light.woff') format('woff'),
+  url('opensans-light.ttf') format('truetype'),
+  url('opensans-light.svg#OpenSansLight') format('svg');
+}
+@font-face {
+  font-family: 'OpenSansItalic';
+  src: url('opensans-italic.eot');
+  src: url('opensans-italic.eot') format('embedded-opentype'),
+  url('opensans-italic.woff') format('woff'),
+  url('opensans-italic.ttf') format('truetype'),
+  url('opensans-italic.svg#OpenSansItalic') format('svg');
+}
+@font-face {
+  font-family: 'OpenSansBold';
+  src: url('opensans-bold.eot');
+  src: url('opensans-bold.eot') format('embedded-opentype'),
+  url('opensans-bold.woff') format('woff'),
+  url('opensans-bold.ttf') format('truetype'),
+  url('opensans-bold.svg#OpenSansBold') format('svg');
+}
+
+
 /************
 MIGUEL STYLES
 ************/
@@ -55,18 +89,18 @@ MIGUEL STYLES
 }
 .title_bar span, .title_bar span.open {
 	color:#FFF;
-	background:url(disclose_arrow_right.png) no-repeat 0 0;
+	background:url(disclose_arrow_right.png) no-repeat 0 3px;
 	padding-left:15px;
 }
 .title_bar span.open {
-	background:url(disclose_arrow_down.png) no-repeat 0 0;
+	background:url(disclose_arrow_down.png) no-repeat 0 3px;
 }
 .article {
-	background:url(disclose_arrow_right_blk.png) no-repeat 0 0;
+	background:url(disclose_arrow_right_blk.png) no-repeat 0 3px;
 	padding-left:15px;
 }
 .article.open {
-	background:url(disclose_arrow_down_blk.png) no-repeat 0 0;
+	background:url(disclose_arrow_down_blk.png) no-repeat 0 3px;
 }
 #user {
 	display: block;
@@ -77,65 +111,69 @@ END MIGUEL STYLES
 
 
 
-
-
-
 body {
-	font-family: Tahoma, Helvetica, Arial, sans-serif;
+	font-family: OpenSansRegular, Helvetica, Arial, sans-serif;
 	font-size: 14px;
+	color:#26363d;
 }
 #wrapper {
 	margin-right: auto;
 	margin-left: auto;
-	margin-top: 10px;
+	margin-top: 0px;
 	width: 800px;
 }
 #header {
 	width: 100%;
 	padding: 0 0 10px 0;
 	background: transparent;
+	background-image:url(color-bar.png);
+	background-position:24px 70px;
+	background-repeat:no-repeat;
 	height: 80px;
 }
 #title {
 	background: transparent;
-	width: 400px;
-	color: #FFFFFF;
-	font-family: "Franklin Gothic Demi", Tahoma, Arial;
-	font-size: 2em;
-	text-shadow: 0 1px 1px #000000;
+	width: 580px;
+	color: #1973bc;
+	font-family: OpenSansLight, Helvetica, Arial, sans-serif;
+	font-size: 28px;
+	/*text-shadow: 0 1px 1px #000000;*/
 	padding: 30px 0 0 24px;
 	float: left;
 }
 #logo {
-	width: 200px;
+	width: 150px;
 	background: transparent;
 	float: right;
 	text-align: right;
+	padding: 0 20px 0 0;
 }
 #infoMap {
-	border-left: 1px solid #000;
-	border-right: 1px solid #000;
-	border-bottom: 1px solid #000;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
 	width: 720px;
 	padding: 20px;
-	background-color: #d4d6db;
+	background-color: #FFF;
+}
+#footer{
+	text-align: right; 
+	padding: 8px 0 4px 0;  
+	font-size: 12px;
 }
 .pentaho-rounded-panel2-shadowed {
-	border: 1px solid black;
-	border-radius: 5px 5px 5px 5px;
-	box-shadow: 1px 1px 5px 0 #333333, 0 0 1px 1px rgba(255, 255, 255, 0.6) inset;
 	text-align: left;
 	width: 760px;
 	padding: 20px 20px 20px 20px;
 }
 .pentaho-background {
-	background-color: rgba(255, 255, 255, 0.2);
+	background-color: transparent;
 }
 .pentaho-shine {
-	background: -moz-linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15) 100%) repeat scroll 0 0 transparent;
+
 }
 .pentaho-page-background {
-	background: url("bg_pentaho_default.png") repeat-x scroll left top #303030;
+	background: #f6f7f8;
 }
 #controls {
 	text-align: right;
@@ -143,29 +181,34 @@ body {
 .panel-title {
 	text-decoration: none;
 	color: #FFF;
-	font-size:.85em;
-	text-shadow: 0 1px 1px #000;
+	font-size:14px;
+	/*text-shadow: 0 1px 1px #000;*/
 }
 .title_bar {
 	padding: 4px 4px 4px 6px;
-	background-color: #000;
+	background-color: #908e8e;
 	margin: 0 0 4px 0;
-	border-bottom: 1px solid #d4d6db;
-	background: -moz-linear-gradient(center top, #1A1A1A 0%, #333333 50%, #000000 51%, #000000 100%) repeat scroll 0 0 transparent;
 }
 :-moz-any-link:focus {
  outline: none;
 }
 ul {
 	padding: 0;
-	margin: 0 0px 4px 18px;
+	margin: 0 0px 4px 18px;	
 }
 ul li {
 	list-style: none;
-	font-size: .85em;
+	font-size: 14px;
+	padding-bottom:5px;
+	line-height: 1.45em;
+	font-weight:400;
 }
 a {
-	color: #e74e01;
+	color: #005ca7;
+	font-size: 14px;
+}
+#footer a {
+	font-size: 12px;
 }
 a:hover {
 	text-decoration: none
@@ -173,32 +216,32 @@ a:hover {
 a:active {
 }
 a:visited {
-	color: #944a17
+	color:#1973bc;
 }
 .disc {
-	padding: 2px 0 4px 12px;
-	Line-height: 1.25em;
+	padding: 2px 0 4px 16px;
+	line-height: 1.25em;
 }
 #banner {
 	width: 720px;
 	padding: 20px;
-	height: 90px;
-	background: #dedede; /* Old browsers */
-	background: -moz-linear-gradient(top, #dedede 0%, #ffffff 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dedede), color-stop(100%, #ffffff)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #dedede 0%, #ffffff 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top, #dedede 0%, #ffffff 100%); /* Opera11.10+ */
-	background: -ms-linear-gradient(top, #dedede 0%, #ffffff 100%); /* IE10+ */
- filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dedede', endColorstr='#ffffff', GradientType=0 ); /* IE6-9 */
-	background: linear-gradient(top, #dedede 0%, #ffffff 100%); /* W3C */
-	box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.6) inset;
-	border: 1px solid black;
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-top-right-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-topright: 5px;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
+	/*height: 90px;*/
+background: rgb(255,255,255); /* Old browsers */
+background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(248,248,248,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(248,248,248,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(248,248,248,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(248,248,248,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(248,248,248,1) 100%); /* IE10+ */
+background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(248,248,248,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f8f8f8',GradientType=0 ); /* IE6-9 */
+
+	border: 1px solid #ccc;
+	-webkit-border-top-left-radius: 0px;
+	-webkit-border-top-right-radius: 0px;
+	-moz-border-radius-topleft: 0px;
+	-moz-border-radius-topright: 0px;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
 }
 .panel {
 	width: 100%;
@@ -206,7 +249,18 @@ a:visited {
 	padding: 2px;
 }
 .style2 {
-	font-size: .8em
+	/*font-size: .8em*/
+	line-height:1.45;
+	font-size: 14px;
+	font-weight: 400;
+	color: #444;
+}
+.bannerimage{
+	padding: 0px 0px 0px 20px;
+	width:122px;
+}
+.bannercontent{
+	padding: 8px 0 0 0;
 }
 </style>
 </head>
@@ -220,12 +274,12 @@ a:visited {
     <div id="banner">
       <table width="700" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td width="17%" rowspan="2"><img src="pdf_icon.png" width="80" height="80" /></td>
-          <td width="83%"><a href="puc_user_guide.pdf" target="_blank">Pentaho User Console Guide</a><br />
+          <td rowspan="2" class="bannerimage"><img src="pdf_icon.png" width="80" height="80" /></td>
+          <td><a href="puc_user_guide.pdf" target="_blank">Pentaho User Console Guide</a><br />
             <span class="style2">Reference material and task-based documentation on Pentaho Dashboard Designer, Pentaho Analyzer, Pentaho Interactive Reporting, and the content scheduling and authorization features in the Pentaho User Console.</span></td>
         </tr>
         <tr>
-          <td valign="top" style="padding: 8px 0 0 0;"><a href="getting_started_with_pentaho.pdf" target="_blank">Getting Started with BI Suite</a><br />
+          <td valign="top" class="bannercontent"><a href="getting_started_with_pentaho.pdf" target="_blank">Getting Started with BI Suite</a><br />
             <span class="style2">Detailed walkthroughs that show how to create content with Pentaho User Console design tools.</span></td>
         </tr>
       </table>
@@ -325,7 +379,7 @@ a:visited {
           </li>
         </ul>
       </div>
-      <div id="footer" style="text-align: right; padding: 8px 0 4px 0;  font-size: .8em;">Adobe Acrobat Reader is required to view PDF files.<br />
+      <div id="footer">Adobe Acrobat Reader is required to view PDF files.<br />
         This is a free program available from the Adobe web site. <a href="http://get.adobe.com/reader/" target="_blank">Download Acrobat Reader here</a>.</div>
     </div>
   </div>

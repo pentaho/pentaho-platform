@@ -47,7 +47,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private IUnifiedRepository unifiedRepository;
 
-  public LocaleImportHandler(List<String> artifacts) {
+  public LocaleImportHandler(List<String> artifacts, List<String> approvedExtensionList, List<String> hiddenExtensionList) {
+	super(approvedExtensionList, hiddenExtensionList);
     this.unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
     this.artifacts = artifacts;
   }
@@ -58,7 +59,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
     Properties localeProperties = buildLocaleProperties(localeBundle);
   
-    if (localeParent != null && unifiedRepository != null) {
+    if (localeParent != null && unifiedRepository != null && localeBundle.getFile() != null) {
       //If the parent file (content) got skipped because it existed then we will not import the locale information
       String fullPath = RepositoryFilenameUtils.concat(localeBundle.getPath(), localeBundle.getFile().getName());
       if (ImportSession.getSession().getSkippedFiles().contains(fullPath)) {

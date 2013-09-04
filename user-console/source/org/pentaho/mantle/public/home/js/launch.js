@@ -18,6 +18,19 @@ pen.define([
 		//selectedContentIndex
 
 		var prevTab;
+		
+		function insertVideo($container, videoId, resolution) {
+			var videoTemplate = GettingStartedWidget.brightCoveVideoTemplate;
+			var resolutionArr = resolution.split("x");
+
+			$container
+				.empty()
+				.append(HandlebarsCompiler.compile(videoTemplate, {
+					width: resolutionArr[0],
+					height: resolutionArr[1],
+					videoId: videoId
+				}));
+		}
 
 		BootstrappedTabLoader.init({
 			parentSelector: "#launch-widget",
@@ -25,21 +38,31 @@ pen.define([
 			defaultTabSelector : "#"+urlVars.selectedTab,
 			before: function() { 
 				ContextProvider.get(function(context) {
+					$("#launch-widget-title").text(context.i18n.getting_started_heading);
+
 					GettingStartedWidget.injectMessagesArray(
 						"getting_started_samples", 
 						context.config.getting_started_sample_message_template, 
-						context.config.getting_started_sample_link_template );
+						context.config.getting_started_sample_link_template,
+						"sample-card" );
 					
 					GettingStartedWidget.injectMessagesArray(
 						"getting_started_tutorials", 
 						context.config.getting_started_video_message_template, 
-						context.config.getting_started_video_link_template );	
+						context.config.getting_started_bc_video_link_template,
+						"tutorial-card" );	
 		 		});
 			}, postLoad: function(jHtml, tabSelector) {
 				var tabId = $(tabSelector).attr("id");
-
+				
 				if (tabId == "tab1") {
-					GettingStartedWidget.checkInternet(jHtml, function(){}, function() {
+					GettingStartedWidget.checkInternet(jHtml, function(){
+
+						ContextProvider.get(function(context){							
+							insertVideo($("#welcome-video"), context.config.bc_welcome_link_id, context.config.bc_welcome_resolution);
+						})
+						
+					}, function() {
 						$("#welcome-video").hide();
 					});
 				}
@@ -99,25 +122,18 @@ pen.define([
 								// Update video
 								var cardIndex = jHtml.find(".tutorial-card").index(card);
 								
-								if (internet){
-									$("#tutorial-video").attr("src", context.config.youtube_embed_base + context.config["tutorial_link" + (cardIndex+1) + "_id"] + "?autoplay=1");	
+								if (internet) {
+									insertVideo( $("#tutorial-video"), 
+										context.config["bc_tutorial_link" + (cardIndex+1) + "_id"],
+										context.config.bc_tutorial_resolution);									
 								}								
 								
-								// Copy title and description
-								jHtml.find(".detail-title").text(card.find(".card-title").text());
-								jHtml.find(".detail-description").text(card.find(".card-description").text());
+								
 							})						
 						});	
 					}
 
-					GettingStartedWidget.checkInternet(jHtml, function() {
-						ContextProvider.get(function(context) {
-							jHtml.find(".tutorial-card").each(function(index) {
-								var youtubeLinkId = context.config["tutorial_link"+(index+1)+"_id"];
-								GettingStartedWidget.injectYoutubeVideoDuration(youtubeLinkId, $(this), ".tutorial-card-time");
-							});					
-						});
-
+					GettingStartedWidget.checkInternet(jHtml, function() {						
 						bindInteractions(true);
 						
 					}, function() {
@@ -134,7 +150,7 @@ pen.define([
 				// Re-populate welcome video src link
 				if (tabId == "tab1") {
 					ContextProvider.get(function(context) {
-						$("#welcome-video").attr("src", context.config.youtube_embed_base + context.config.welcome_link_id + "?autoplay=1");
+						insertVideo($("#welcome-video"), context.config.bc_welcome_link_id, context.config.bc_welcome_resolution);						
 					});
 				}
 
@@ -142,24 +158,22 @@ pen.define([
 				if (tabId == "tab3") {
 					ContextProvider.get(function(context) {
 						var selectedCard = $(".tutorial-card.selected");
-						var cardIndex = $(".tutorial-card").index(selectedCard);
-						$("#tutorial-video").attr("src", context.config.youtube_embed_base + context.config["tutorial_link" + (cardIndex+1) + "_id"] + "?autoplay=1")
-					})
+						var cardIndex = $(".tutorial-card").index(selectedCard);						
+
+						insertVideo($("#tutorial-video"), 
+							context.config["bc_tutorial_link" + (cardIndex+1) + "_id"], 
+							context.config.bc_tutorial_resolution);						
+					});
 				}
 				
 				// Clear source of welcome video to comply with tab switching
 				if (prevTab == "tab1" && tabId != "tab1") {
-					try{
-						$("#welcome-video").attr("src", "");
-					} catch (err) {
-						alert(err);
-					}
-										
+					$("#welcome-video").empty();					
 				}
 
 				// Clear source of tutorial video to comply with tab switching
 				if (prevTab == "tab3" && tabId != "tab3") {					
-					$("#tutorial-video").attr("src", "");					
+					$("#tutorial-video").empty();					
 				}
 
 				prevTab = tabId;
@@ -180,6 +194,10 @@ pen.define([
 			// Clear selected cards
 			jParent.find(".selected").removeClass("selected");
 			card.addClass("selected");
+
+			// Copy title and description
+			jParent.find(".detail-title").text(card.find(".card-title").text());
+			jParent.find(".detail-description").text(card.find(".card-description").text());
 
 			if (post) {
 				post(card);

@@ -17,18 +17,6 @@
 
 package org.pentaho.mantle.client.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
-import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -40,6 +28,19 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wseyler
@@ -112,6 +113,7 @@ public class PasteFilesCommand extends AbstractCommand {
       String getChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder childrenRequestBuilder = new RequestBuilder(RequestBuilder.GET, getChildrenUrl);
       try {
+        childrenRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         childrenRequestBuilder.sendRequest(null, new RequestCallback() {
   
           @Override
@@ -186,6 +188,7 @@ public class PasteFilesCommand extends AbstractCommand {
     String pasteChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?mode=" + overwriteMode;  //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder(RequestBuilder.PUT, pasteChildrenUrl);
     pasteChildrenRequestBuilder.setHeader("Content-Type", "text/plain");  //$NON-NLS-1$//$NON-NLS-2$
+    pasteChildrenRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       pasteChildrenRequestBuilder.sendRequest(filesList, new RequestCallback() {
 
@@ -212,6 +215,7 @@ public class PasteFilesCommand extends AbstractCommand {
 
           event.setMessage("Success");
           EventBusUtil.EVENT_BUS.fireEvent(event);
+          FileChooserDialog.setIsDirty(Boolean.TRUE);
         }
         
       });

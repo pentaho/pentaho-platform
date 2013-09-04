@@ -44,25 +44,25 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
 
   // ~ Methods =========================================================================================================
 
-  public synchronized void newTenant() {
+  public void newTenant() {
     for (IBackingRepositoryLifecycleManager manager : managers) {
       manager.newTenant();
     }
   }
 
-  public synchronized void newTenant(final ITenant tenant) {
+  public void newTenant(final ITenant tenant) {
     for (IBackingRepositoryLifecycleManager manager : managers) {
       manager.newTenant(tenant);
     }
   }
 
-  public synchronized void newUser() {
+  public void newUser() {
     for (IBackingRepositoryLifecycleManager manager : managers) {
       manager.newUser();
     }
   }
 
-  public synchronized void newUser(final ITenant tenant, final String username) {
+  public void newUser(final ITenant tenant, final String username) {
     for (IBackingRepositoryLifecycleManager manager : managers) {
       manager.newUser(tenant, username);
     }
@@ -78,6 +78,18 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
     for (IBackingRepositoryLifecycleManager manager : managers) {
       manager.startup();
     }
+  }
+
+  @Override
+  public void addMetadataToRepository(String arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public Boolean doesMetadataExists(String arg0) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

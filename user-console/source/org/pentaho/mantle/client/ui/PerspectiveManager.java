@@ -103,6 +103,7 @@ public class PerspectiveManager extends SimplePanel {
     final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/perspectives?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     try {
       builder.sendRequest(null, new RequestCallback() {

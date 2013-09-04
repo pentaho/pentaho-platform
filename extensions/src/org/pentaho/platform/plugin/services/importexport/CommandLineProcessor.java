@@ -25,11 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
@@ -37,6 +34,17 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.api.json.JSONConfiguration;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.xml.ws.developer.JAXWSProperties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -53,18 +61,6 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataMultiPart;
-import com.sun.xml.ws.developer.JAXWSProperties;
 
 /**
  * Handles the parsing of command line arguments and creates an import process
@@ -456,8 +452,6 @@ public class CommandLineProcessor {
       String overwrite) throws ParseException, FileNotFoundException, IOException {
     File metadataFileInZip = null;
     InputStream metadataFileInZipInputStream = null;
-    List<File> localesFileList = new ArrayList<File>();
-    List<InputStream> localesStreamList = new ArrayList<InputStream>();
 
     String metadataImportURL = contextURL + METADATA_DATASOURCE_IMPORT;
 
@@ -472,73 +466,78 @@ public class CommandLineProcessor {
     final String name = RepositoryFilenameUtils.separatorsToRepository(metadataDatasourceFile.getName());
     final String ext = RepositoryFilenameUtils.getExtension(name);
 
-    if (ext.equals(ZIP_EXT)) {
-      ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(metadataDatasourceFile));
-      ZipEntry entry = zipInputStream.getNextEntry();
-      while (entry != null) {
-        final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
-        final String extension = RepositoryFilenameUtils.getExtension(entryName);
-        File tempFile = null;
-        boolean isDir = entry.getSize() == 0;
-        if (!isDir) {
-          tempFile = File.createTempFile("zip", null);
-          tempFile.deleteOnExit();
-          FileOutputStream fos = new FileOutputStream(tempFile);
-          IOUtils.copy(zipInputStream, fos);
-          fos.close();
-        }
-        if (extension.equals(METADATA_DATASOURCE_EXT)) {
-          if (metadataFileInZip == null) {
-            metadataFileInZip = new File(entryName);
-            metadataFileInZipInputStream = new FileInputStream(metadataFileInZip);
-          } else {
-            // Throw exception
+    try
+    {
+      if (ext.equals(ZIP_EXT)) {
+        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(metadataDatasourceFile));
+        ZipEntry entry = zipInputStream.getNextEntry();
+        while (entry != null) {
+          final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
+          final String extension = RepositoryFilenameUtils.getExtension(entryName);
+          File tempFile = null;
+          boolean isDir = entry.getSize() == 0;
+          if (!isDir) {
+            tempFile = File.createTempFile("zip", null);
+            tempFile.deleteOnExit();
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            IOUtils.copy(zipInputStream, fos);
+            fos.close();
           }
-        } else {
-          File localeFile = new File(entryName);
-          localesFileList.add(localeFile);
-          localesStreamList.add(new FileInputStream(localeFile));
+          if (extension.equals(METADATA_DATASOURCE_EXT)) {
+            if (metadataFileInZip == null) {
+              metadataFileInZip = new File(entryName);
+              metadataFileInZipInputStream = new FileInputStream(metadataFileInZip);
+            } else {
+              // Throw exception
+            }
+          }
+
+          zipInputStream.closeEntry();
+          entry = zipInputStream.getNextEntry();
         }
-        zipInputStream.closeEntry();
-        entry = zipInputStream.getNextEntry();
+        zipInputStream.close();
+
+        part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+        part.field("domainId", domainId, MediaType.MULTIPART_FORM_DATA_TYPE).field("metadataFile",
+            metadataFileInZipInputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+        // If the import service needs the file name do the following.
+        part.getField("metadataFile").setContentDisposition(
+            FormDataContentDisposition.name("metadataFile").fileName(metadataFileInZip.getName()).build());
+
+        // Response response
+        ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+        if (response != null) {
+          String message = response.getEntity(String.class);
+          System.out.println(Messages.getInstance()
+              .getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
+        }
+
+      } else {
+        FileInputStream metadataDatasourceInputStream = new FileInputStream(metadataDatasourceFile);
+
+        part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+        part.field("domainId", domainId, MediaType.MULTIPART_FORM_DATA_TYPE).field("metadataFile",
+            metadataDatasourceInputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+        // If the import service needs the file name do the following.
+        part.getField("metadataFile").setContentDisposition(
+            FormDataContentDisposition.name("metadataFile").fileName(metadataDatasourceFile.getName()).build());
+
+        // Response response
+        ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+        if (response != null) {
+          String message = response.getEntity(String.class);
+          System.out.println(Messages.getInstance()
+              .getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
+        }
+        metadataDatasourceInputStream.close();
       }
-      zipInputStream.close();
-
-      part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
-      part.field("domainId", domainId, MediaType.MULTIPART_FORM_DATA_TYPE).field("metadataFile",
-          metadataFileInZipInputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
-
-      // If the import service needs the file name do the following.
-      part.getField("metadataFile").setContentDisposition(
-          FormDataContentDisposition.name("metadataFile").fileName(metadataFileInZip.getName()).build());
-
-      // Response response
-      ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
-      if (response != null) {
-        String message = response.getEntity(String.class);
-        System.out.println(Messages.getInstance()
-            .getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
-      }
-
-    } else {
-      FileInputStream metadataDatasourceInputStream = new FileInputStream(metadataDatasourceFile);
-
-      part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
-      part.field("domainId", domainId, MediaType.MULTIPART_FORM_DATA_TYPE).field("metadataFile",
-          metadataDatasourceInputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
-
-      // If the import service needs the file name do the following.
-      part.getField("metadataFile").setContentDisposition(
-          FormDataContentDisposition.name("metadataFile").fileName(metadataDatasourceFile.getName()).build());
-
-      // Response response
-      ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
-      if (response != null) {
-        String message = response.getEntity(String.class);
-        System.out.println(Messages.getInstance()
-            .getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
-      }
-      metadataDatasourceInputStream.close();
+    }
+    finally
+    {
+      metadataFileInZipInputStream.close();
+      part.cleanup();
     }
 
   }
@@ -600,9 +599,11 @@ public class CommandLineProcessor {
     ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
     if (response != null) {
       String message = response.getEntity(String.class);
+      response.close();
       System.out.println(Messages.getInstance().getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
     }
     inputStream.close();
+    part.cleanup();
   }
 
   /**
@@ -682,6 +683,7 @@ public class CommandLineProcessor {
       String importURL = contextURL + API_REPO_FILES_IMPORT;
       File fileIS = new File(filePath);
       InputStream in = new FileInputStream(fileIS);
+      FormDataMultiPart part = new FormDataMultiPart();
 
       /*
        * wrap in a try/finally to ensure input stream
@@ -701,7 +703,6 @@ public class CommandLineProcessor {
             Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_KEY"), Messages.getInstance()
                 .getString("CommandLineProcessor.INFO_OPTION_PERMISSION_NAME"), true, false);
 
-        FormDataMultiPart part = new FormDataMultiPart();
         part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE);
         part.field("overwriteAclPermissions", "true".equals(overwrite) ? "true" : "false",
             MediaType.MULTIPART_FORM_DATA_TYPE);
@@ -724,13 +725,16 @@ public class CommandLineProcessor {
           if (logFile != null && !"".equals(logFile)) {
             writeFile(message, logFile);
           }
+          response.close();
         }
       } catch (Exception e) {
         System.err.println(e.getMessage());
         log.error(e.getMessage());
         writeFile(e.getMessage(), logFile);
       } finally {
-        // if we get here, close input stream
+        // close input stream and cleanup the jersey resources
+        client.destroy();
+        part.cleanup();
         in.close();
       }
     }
@@ -856,6 +860,8 @@ public class CommandLineProcessor {
       while ((bytesRead = input.read(buffer)) != -1) {
         output.write(buffer, 0, bytesRead);
       }
+
+      buffer = null;
     } catch (IOException e) {
       e.printStackTrace();
     } finally {

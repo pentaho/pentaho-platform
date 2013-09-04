@@ -154,7 +154,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
       }
     }
 
-    props.put("pentaho.solutionpath", PentahoSystem.getApplicationContext().getFileOutputPath("")); //$NON-NLS-1$ //$NON-NLS-2$
+    props.put("pentaho.solutionpath", "solution:"); //$NON-NLS-1$ //$NON-NLS-2$
     return props;
 
   }

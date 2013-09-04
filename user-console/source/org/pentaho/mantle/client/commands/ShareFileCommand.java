@@ -84,6 +84,7 @@ public class ShareFileCommand implements Command {
       String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(item.getPath()) + "/canAccess?permissions="+MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
       try {
+        builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         builder.sendRequest(null, new RequestCallback() {
 
           public void onError(Request request, Throwable exception) {

@@ -43,6 +43,10 @@
         <entry key="xmi" value-ref="streamConverter"/>
         <entry key="xml" value-ref="streamConverter"/>
         <entry key="cda" value-ref="streamConverter"/>
+		<entry key="kcs" value-ref="streamConverter"/>
+        <entry key="kdb" value-ref="streamConverter"/>
+        <entry key="kps" value-ref="streamConverter"/>
+		<entry key="ksl" value-ref="streamConverter"/>        
     </util:map>
 
     <bean id="DefaultExportHandler" class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
@@ -62,9 +66,11 @@
     </bean>
 
     <bean id="defaultImportHandler" class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
+        <constructor-arg ref="approvedExtensionList"/>
+        <constructor-arg ref="hiddenExtensionList"/>
         <property name="repository" ref="unifiedRepository"/>
         <property name="converters" ref="convertersMap"/>
-	<property name="defaultAclHandler" ref="defaultAclHandler"/>
+	    <property name="defaultAclHandler" ref="defaultAclHandler"/>
     </bean>
 
     <bean id="NameBaseMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
@@ -73,9 +79,9 @@
                 <entry key="zip" value="application/vnd.pentaho.solution-repository"/>
                 <entry key="xmi" value="text/xmi+xml"/>
                 <entry key="xanalyzer" value="text/xml"/>
-                <entry key="prpti" value="application/zip"/>
+                <entry key="prpti" value="application/vnd.pentaho.interactive.reporting.classic"/>
                 <entry key="gif" value="image/gif"/>
-                <entry key="prpt" value="application/prpt"/>
+                <entry key="prpt" value="application/vnd.pentaho.reporting.classic"/>
                 <entry key="css" value="text/css"/>
                 <entry key="html" value="text/html"/>
                 <entry key="htm" value="text/html"/>
@@ -93,71 +99,82 @@
                 <entry key="svg" value="image/svg+xml"/>
                 <entry key="url" value="application/internet-shortcut"/>
                 <entry key="sql" value="text/plain"/>
-                <entry key="xaction" value="text/xml"/>
+                <entry key="xaction" value="application/vnd.pentaho.xaction"/>
                 <entry key="xanalyzer" value="text/xml"/>
                 <entry key="xcdf" value="text/xml"/>
-                <entry key="xdash" value="text/xml"/>
+                <entry key="xdash" value="application/vnd.pentaho.dashboard"/>
                 <entry key="xmi" value="text/xml"/>
                 <entry key="xml" value="text/xml"/>
                 <entry key="xreportspec" value="text/xml"/>
                 <entry key="cda" value="text/xml"/>
                 <entry key="xls" value="application/vnd.ms-excel"/>
+				<entry key="kcs" value="text/xml"/>
+                <entry key="kdb" value="text/xml"/>
+                <entry key="kps" value="text/xml"/>
+				<entry key="ksl" value="text/xml"/>
+				<entry key="ktr" value="text/xml"/>                
             </map>
         </constructor-arg>
     </bean>
 
+	<util:list id="approvedExtensionList">
+       <value>.xanalyzer</value>
+       <value>.prpti</value>
+       <value>.gif</value>
+       <value>.prpt</value>
+       <value>.css</value>
+       <value>.html</value>
+       <value>.htm</value>
+       <value>.jpg</value>
+       <value>.js</value>
+       <value>.cfg.xml</value>
+       <value>.jrxml</value>
+       <value>.png</value>
+       <value>.properties</value>
+       <value>.locale</value>
+       <value>.report</value>
+       <value>.rptdesign</value>
+       <value>.svg</value>
+       <value>.url</value>
+       <value>.sql</value>
+       <value>.xaction</value>
+       <value>.xanalyzer</value>
+       <value>.xcdf</value>
+       <value>.xdash</value>
+       <value>.xml</value>
+       <value>.xmi</value>
+       <value>.xreportspec</value>
+       <value>.cda</value>
+       <value>.xls</value>
+       <value>.kjb</value>
+       <value>.ktr</value>
+		<value>.kcs</value>
+		<value>.kbs</value>
+		<value>.kdb</value>
+		<value>.ksl</value>       
+	</util:list>
+
+	<util:list id="hiddenExtensionList">
+       <value>.xml</value>
+       <value>.properties</value>
+       <value>.png</value>
+       <value>.jpg</value>
+       <value>.gif</value>
+       <value>.svg</value>
+       <value>.html</value>
+       <value>.htm</value>
+       <value>.kjb</value>
+       <value>.ktr</value>
+	</util:list>
+		
     <bean id="IPlatformImporter" class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter" scope="singleton">
         <constructor-arg>
             <map>
                 <entry key="application/vnd.pentaho.solution-repository">
                     <bean class="org.pentaho.platform.plugin.services.importer.SolutionImportHandler">
                         <constructor-arg ref="NameBaseMimeResolver"/>
-                        <property name="whiteList">
-                            <list>
-                                <value>.xanalyzer</value>
-                                <value>.prpti</value>
-                                <value>.gif</value>
-                                <value>.prpt</value>
-                                <value>.css</value>
-                                <value>.html</value>
-                                <value>.htm</value>
-                                <value>.jpg</value>
-                                <value>.js</value>
-                                <value>.cfg.xml</value>
-                                <value>.jrxml</value>
-                                <value>.kjb</value>
-                                <value>.ktr</value>
-                                <value>.png</value>
-                                <value>.properties</value>
-                                <value>.locale</value>
-                                <value>.report</value>
-                                <value>.rptdesign</value>
-                                <value>.svg</value>
-                                <value>.url</value>
-                                <value>.sql</value>
-                                <value>.xaction</value>
-                                <value>.xanalyzer</value>
-                                <value>.xcdf</value>
-                                <value>.xdash</value>
-                                <value>.xml</value>
-                                <value>.xmi</value>
-                                <value>.xreportspec</value>
-                                <value>.cda</value>
-                                <value>.xls</value>
-                            </list>
-                        </property>
-                        <property name="blackList">
-                            <list>
-                                <value>.xml</value>
-                                <value>.properties</value>
-                                <value>.png</value>
-                                <value>.jpg</value>
-                                <value>.gif</value>
-                                <value>.svg</value>
-                                <value>.html</value>
-                                <value>.htm</value>
-                            </list>
-                        </property>
+				        <constructor-arg ref="approvedExtensionList"/>
+        				<constructor-arg ref="hiddenExtensionList"/>
                     </bean>
                 </entry>
                 <entry key="text/xmi+xml">
@@ -170,13 +187,15 @@
                         <constructor-arg ref="IMondrianCatalogService"/>
                     </bean>                    
                 </entry>
-                <entry key="application/prpt">
-			<bean class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
-				<property name="repository" ref="unifiedRepository"/>
-				<property name="converters" ref="convertersMap"/>
-			</bean>
-		</entry>
-		<entry key="text/locale">
+                <entry key="application/vnd.pentaho.reporting.classic">
+					<bean class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
+						<constructor-arg ref="approvedExtensionList"/>
+						<constructor-arg ref="hiddenExtensionList"/>					
+						<property name="repository" ref="unifiedRepository"/>
+						<property name="converters" ref="convertersMap"/>
+					</bean>
+				</entry>
+				<entry key="text/locale">
                     <bean class="org.pentaho.platform.plugin.services.importer.LocaleImportHandler">
 						<constructor-arg>
 		            		<list>
@@ -186,8 +205,18 @@
                 				<value>prpt</value>
 		            		</list>
 	        			</constructor-arg>
+						<constructor-arg ref="approvedExtensionList"/>
+						<constructor-arg ref="hiddenExtensionList"/>	        			
 		    		</bean>	
                 </entry>
+		        <entry key="application/vnd.pentaho.xaction">
+					<bean class="org.pentaho.platform.plugin.services.importer.XActionImportHandler">
+						<constructor-arg ref="approvedExtensionList"/>
+						<constructor-arg ref="hiddenExtensionList"/>					
+						<property name="repository" ref="unifiedRepository"/>
+						<property name="converters" ref="convertersMap"/>
+					</bean>
+        		</entry>
             </map>
         </constructor-arg>
         <constructor-arg ref="NameBaseMimeResolver"/>

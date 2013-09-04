@@ -17,11 +17,19 @@
  */
 package org.pentaho.platform.api.ui;
 
+import java.io.Serializable;
+
 /**
  * User: nbaker
  * Date: 5/15/11
  */
-public class ThemeResource{
+public class ThemeResource implements Serializable {
+  
+  /**
+   * for Serializable
+   */
+  private static final long serialVersionUID = -7755888490441339129L;
+  
   Theme theme;
   String location;
   public ThemeResource(Theme theme, String resource){

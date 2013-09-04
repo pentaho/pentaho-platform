@@ -62,6 +62,9 @@ public class SecurityHelper implements ISecurityHelper {
    * The default instance of this singleton
    */
   private static final ISecurityHelper instance = new SecurityHelper();
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  private IAclVoter aclVoter;
+  private UserDetailsService userDetailsService;
 
   /**
    * Returns the one-and-only default instance
@@ -103,8 +106,7 @@ public class SecurityHelper implements ISecurityHelper {
   @Override
   public void becomeUser(final String principalName, final IParameterProvider paramProvider) {
     UserSession session = null;
-    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class,
-        "tenantedUserNameUtils", null);
+    tenantedUserNameUtils = getTenantedUserNameUtils();
     if (tenantedUserNameUtils != null) {
       session = new UserSession(principalName, null, false, paramProvider);
       ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
@@ -211,8 +213,7 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public boolean isPentahoAdministrator(final IPentahoSession session) {
-    IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
-    return voter.isPentahoAdministrator(session);
+    return getAclVoter().isPentahoAdministrator(session);
   }
 
   /**
@@ -224,8 +225,7 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public boolean isGranted(final IPentahoSession session, final GrantedAuthority role) {
-    IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
-    return voter.isGranted(session, role);
+    return getAclVoter().isGranted(session, role);
   }
 
   /**
@@ -244,7 +244,6 @@ public class SecurityHelper implements ISecurityHelper {
 
   @Override
   public boolean hasAccess(final IAclHolder aHolder, final int actionOperation, final IPentahoSession session) {
-    IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
     int aclMask = -1;
 
     switch (actionOperation) {
@@ -271,7 +270,7 @@ public class SecurityHelper implements ISecurityHelper {
       }
 
     }
-    return voter.hasAccess(session, aHolder, aclMask);
+    return getAclVoter().hasAccess(session, aHolder, aclMask);
   }
 
   /**
@@ -283,7 +282,7 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public Authentication createAuthentication(String principalName) {
-    UserDetailsService userDetailsService = PentahoSystem.get(UserDetailsService.class);
+    userDetailsService = getUserDetailsService();
     UserDetails userDetails = userDetailsService.loadUserByUsername(principalName);
     if (SecurityHelper.logger.isDebugEnabled()) {
       SecurityHelper.logger.debug("rolesForUser from UserDetailsService:" + userDetails.getAuthorities()); //$NON-NLS-1$
@@ -347,4 +346,28 @@ public class SecurityHelper implements ISecurityHelper {
         SecurityContextHolder.getContext().setAuthentication(origAuth);
       }
   }
+
+  public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
+    if(tenantedUserNameUtils == null){
+      tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class,
+        "tenantedUserNameUtils", null);
+    }
+    return tenantedUserNameUtils;
+  }
+
+  public IAclVoter getAclVoter() {
+    if(aclVoter == null){
+      aclVoter = PentahoSystem.get(IAclVoter.class);
+    }
+    return aclVoter;
+  }
+
+  public UserDetailsService getUserDetailsService() {
+    if(userDetailsService == null){
+      userDetailsService = PentahoSystem.get(UserDetailsService.class);
+    }
+    return userDetailsService;
+  }
+
+
 }

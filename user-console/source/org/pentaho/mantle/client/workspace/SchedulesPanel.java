@@ -807,6 +807,7 @@ public class SchedulesPanel extends SimplePanel {
               + System.currentTimeMillis() + "&permissions=" + READ_PERMISSION;
           RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
           try {
+            executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, Throwable exception) {
@@ -870,6 +871,7 @@ public class SchedulesPanel extends SimplePanel {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + editJob.getJobId();
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -883,6 +885,7 @@ public class SchedulesPanel extends SimplePanel {
 
             // check email is setup
             RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/emailconfig/isValid");
+            emailValidRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             emailValidRequest.setHeader("accept", "text/plain");
             try {
               emailValidRequest.sendRequest(null, new RequestCallback() {

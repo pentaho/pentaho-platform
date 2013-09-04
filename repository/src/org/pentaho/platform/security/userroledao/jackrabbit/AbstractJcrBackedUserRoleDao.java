@@ -18,6 +18,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
 import org.apache.jackrabbit.api.security.user.Group;
@@ -56,6 +57,8 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
+import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.cache.NullUserCache;
 
 public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
@@ -93,11 +96,15 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   
   HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
 
+  private LRUMap userCache = new LRUMap(4096);
+
+  private UserCache userDetailsCache = new NullUserCache();
+
   public AbstractJcrBackedUserRoleDao(ITenantedPrincipleNameResolver userNameUtils,
-      ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
-      String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
-      final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
-      final IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles) throws NamespaceException {
+                                      ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
+                                      String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
+                                      final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
+                                      final IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles, UserCache userDetailsCache) throws NamespaceException {
     this.tenantedUserNameUtils = userNameUtils;
     this.tenantedRoleNameUtils = roleNameUtils;
     this.authenticatedRoleName = authenticatedRoleName;
@@ -110,6 +117,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     this.defaultAclHandler = defaultAclHandler;
     this.systemRoles = systemRoles;
     this.extraRoles = extraRoles;
+    this.userDetailsCache = userDetailsCache;
   }
 
   public void setRoleMembers(Session session, final ITenant theTenant, final String roleName,
@@ -159,6 +167,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
     for (String userId : usersToAdd) {
       jackrabbitGroup.addMember(finalCollectionOfAssignedUsers.get(userId));
+
+      // Purge the UserDetails cache
+      purgeUserFromCache(userId);
     }
   }
 
@@ -192,7 +203,13 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
     for (String groupId : groupsToAdd) {
       finalCollectionOfAssignedGroups.get(groupId).addMember(jackrabbitUser);
+      // Purge the UserDetails cache
+      purgeUserFromCache(userName);
     }
+  }
+
+  private void purgeUserFromCache(String userName) {
+    userDetailsCache.removeUserFromCache(getTenantedUserNameUtils().getPrincipleName(userName));
   }
 
   public void setUserRoles(Session session, final ITenant theTenant, final String userName, final String[] roles)
@@ -245,6 +262,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     for (String groupId : groupsToAdd) {
       finalCollectionOfAssignedGroups.get(groupId).addMember(jackrabbitUser);
     }
+
+    // Purge the UserDetails cache
+    purgeUserFromCache(userName);
   }
 
   public IPentahoRole createRole(Session session, final ITenant theTenant, final String roleName,
@@ -301,6 +321,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     session.save();
     createUserHomeFolder(tenant, user, session);
     session.save();
+    this.userDetailsCache.removeUserFromCache(userName);
     return getUser(session, tenant, userName);
   }
 
@@ -347,6 +368,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
   private IPentahoUser convertToPentahoUser(User jackrabbitUser) throws RepositoryException {
+    if(userCache.containsKey(jackrabbitUser.getID())){
+      return (IPentahoUser) userCache.get(jackrabbitUser.getID());
+    }
     IPentahoUser pentahoUser = null;
     Value[] propertyValues = null;
 
@@ -367,6 +391,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         tenantedUserNameUtils.getPrincipleName(jackrabbitUser.getID()), password, description,
         !jackrabbitUser.isDisabled());
 
+    userCache.put(jackrabbitUser.getID(), pentahoUser);
     return pentahoUser;
   }
 
@@ -433,6 +458,12 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
           "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND"));
     }
     jackrabbitUser.changePassword(password);
+
+    /**
+     * BISERVER-9906 Clear cache after changing password
+     */
+    purgeUserFromCache(userName);
+    userCache.remove(jackrabbitUser.getID());
   }
 
   public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {

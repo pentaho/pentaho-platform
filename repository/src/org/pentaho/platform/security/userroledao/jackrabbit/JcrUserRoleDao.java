@@ -29,6 +29,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrSystemException;
 import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.cache.NullUserCache;
 
 public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
 
@@ -41,10 +43,10 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   public JcrUserRoleDao(JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao, IPathConversionHelper pathConversionHelper,
-      ILockHelper  lockHelper, IRepositoryDefaultAclHandler  defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles)
+      ILockHelper  lockHelper, IRepositoryDefaultAclHandler  defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles, UserCache userCache)
       throws NamespaceException {
     super(userNameUtils, roleNameUtils, authenticatedRoleName, tenantAdminRoleName, repositoryAdminUsername,
-        repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler, systemRoles, extraRoles);
+        repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler, systemRoles, extraRoles, userCache);
     this.adminJcrTemplate = adminJcrTemplate;
   }
 

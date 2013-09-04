@@ -118,6 +118,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       // update setting
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_LOCALIZED_FILENAMES"; //$NON-NLS-1$
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       try {
         builder.sendRequest("" + solutionTree.isShowLocalizedFileNames(), EmptyRequestCallback.getInstance());
       } catch (RequestException e) {
@@ -141,6 +142,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES"; //$NON-NLS-1$
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
       try {
+        builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         builder.sendRequest("" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance());
         RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true, null, null, solutionTree.isShowHiddenFiles());
       } catch (RequestException e) {
@@ -163,6 +165,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS"; //$NON-NLS-1$
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
       try {
+        builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         builder.sendRequest("" + solutionTree.isUseDescriptionsForTooltip(), EmptyRequestCallback.getInstance());
       } catch (RequestException e) {
         // showError(e);
@@ -274,8 +277,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     Element pucHeader = DOM.getElementById("pucHeader");
     if (pucHeader != null) {
       final int offset = pucHeader.getOffsetHeight();
-      setElementHeightOffset(navigatorAndContentSplit.getElement(), 0);
-      setElementHeightOffset(contentTabPanel.getElement(), 0);
+      setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
+      setElementHeightOffset(contentTabPanel.getElement(), -1 * offset);
       Timer t = new Timer() {
         public void run() {
           setElementHeightOffset(navigatorAndContentSplit.getElement(), -1 * offset);
@@ -446,6 +449,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -479,6 +483,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -528,7 +533,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         url = getPath()
             + "api/repos/" + pathToId(fileNameWithPath) + "/" + (plugin != null && (plugin.getCommandPerspective(mode) != null) ? plugin.getCommandPerspective(mode) : "generatedContent"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
-      if (mode == FileCommand.COMMAND.NEWWINDOW) {
+      boolean isIE = RootPanel.getBodyElement().getClassName().contains("IE");
+      if (mode == FileCommand.COMMAND.NEWWINDOW || (extension.equals("pdf") && isIE)) {
         Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         PerspectiveManager.getInstance().setPerspective(PerspectiveManager.OPENED_PERSPECTIVE);
@@ -581,6 +587,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     final String url = contextURL + "api/repos/executableTypes"; //$NON-NLS-1$
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -703,6 +710,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
           RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
           try {
+            builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
             builder.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, Throwable exception) {

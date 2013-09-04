@@ -23,14 +23,22 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
 import javax.jcr.security.Privilege;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -89,6 +97,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.security.AccessDeniedException;
@@ -232,6 +241,24 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     mp.start();
     loginAsRepositoryAdmin();
     systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+
+    testJcrTemplate.execute(new JcrCallback() {
+      @Override
+      public Object doInJcr(Session session) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+        Workspace workspace = session.getWorkspace();
+        PrivilegeManager privilegeManager =((JackrabbitWorkspace) workspace).getPrivilegeManager();
+        try {
+          privilegeManager.getPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE());
+        } catch(AccessControlException ace) {
+          privilegeManager.registerPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(),
+              false, new String[0]);
+        }
+        session.save();
+        return null;
+      }
+    });
+
     userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
     logout();
   }
@@ -749,7 +776,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY) + "/test"));
   }
 
-  @Ignore
   @Test
   public void testStopThenStartInheriting() throws Exception {
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
@@ -940,8 +966,17 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         expectedMimeType);
     Date beginTime = Calendar.getInstance().getTime();
     Thread.sleep(1000); // when the test runs too fast, begin and lastModifiedDate are the same; manual pause
+
+    Calendar cal = Calendar.getInstance(Locale.US);
+    SimpleDateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+    cal.setTime(df.parse("Wed, 4 Jul 2000 12:08:56 -0700"));
+
     RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(expectedName)
-        .hidden(true).build(), content, null);
+        .hidden(true).versioned(true).createdDate(cal.getTime()).build(), content, null);
+
+
+    assertEquals(cal.getTime(), repo.getVersionSummaries(newFile.getId()).get(0).getDate());
+
     Date endTime = Calendar.getInstance().getTime();
     assertTrue(beginTime.before(newFile.getLastModifiedDate()));
     assertTrue(endTime.after(newFile.getLastModifiedDate()));
@@ -1335,11 +1370,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     List<RepositoryFile> children = repo.getChildren(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId());
     assertEquals(3, children.size());
     RepositoryFile f0 = children.get(0);
-    assertEquals("etc", f0.getName());
+    assertEquals("public", f0.getName());
     RepositoryFile f1 = children.get(1);
-    assertEquals("home", f1.getName());
+    assertEquals("etc", f1.getName());
     RepositoryFile f2 = children.get(2);
-    assertEquals("public", f2.getName());
+    assertEquals("home", f2.getName());
     children = repo.getChildren(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId(), null);
     assertEquals(3, children.size());
     children = repo.getChildren(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId(), "*");
@@ -2228,8 +2263,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(modSampleInteger, c2.getSampleInteger());
   }
 
-  @Ignore
   @Test
+  @Ignore // Failing due to pho:aclManagement not present.
   public void testOwnership() throws Exception {
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
@@ -2475,6 +2510,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   /**
    * Tests parent ACL's contribution to decision.
+   * // This test is bogus, it doesn't actually try the delete
    */
   @Test
   public void testDeleteInheritingFile() throws Exception {
@@ -2864,7 +2900,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   }
 
   @Test
-  @Ignore // TODO: Uncomment once a solution is found.
   public void testAdminCreate() throws Exception {
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
@@ -2872,12 +2907,17 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+
+
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+
         
     final String expectedName = "helloworld.sample";
     final String sampleString = "Ciao World!";
     final boolean sampleBoolean = true;
     final int sampleInteger = 99;
-    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     RepositoryFile newFile = createSampleFile(parentFolderPath, expectedName, sampleString, sampleBoolean,
         sampleInteger);
     RepositoryFileAcl acls = repo.getAcl(newFile.getId());
@@ -3720,4 +3760,182 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       SecurityContextHolder.getContext().setAuthentication(origAuthentication);
     }
   }
+
+
+  @Test
+  public void testDeleteUsersFolder() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    RepositoryFile parentFolder = repo.getFile(parentFolderPath);
+    final String dataString = "Hello World!";
+    final String encoding = "UTF-8";
+    byte[] data = dataString.getBytes(encoding);
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(data);
+    final String mimeType = "text/plain";
+    final String fileName = "helloworld.xaction";
+
+    final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
+    RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName).build(),
+        content, null);
+    final String filePath = parentFolderPath + RepositoryFile.SEPARATOR + fileName;
+
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    try{
+      repo.deleteFile(repo.getFile(parentFolderPath).getId(), null);
+    } catch(Exception e){
+      e.printStackTrace();
+      fail();
+    }
+
+  }
+
+
+  @Test
+  public void testDeleteInheritingFolder() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    RepositoryFile parentFolder = repo.getFile(parentFolderPath);
+    final String dataString = "Hello World!";
+    final String encoding = "UTF-8";
+    byte[] data = dataString.getBytes(encoding);
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(data);
+    final String mimeType = "text/plain";
+    final String fileName = "helloworld.xaction";
+
+    final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
+
+    // Try an inheriting folder delete
+    {
+      RepositoryFile newFolder = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testFolder").folder(true).build(),
+          null, null);
+
+      RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
+
+      RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).ace(
+          userNameUtils.getPrincipleId(tenantAcme, USERNAME_ADMIN), RepositoryFileSid.Type.USER,
+          RepositoryFilePermission.ALL).entriesInheriting(true).build();
+      repo.updateAcl(newAcl);
+
+
+      login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      try{
+        repo.deleteFile(newFolder.getId(), null);
+      } catch(Exception e){
+        e.printStackTrace();
+        fail();
+      }
+    }
+
+    // Now try one not inheriting
+    {
+      RepositoryFile newFolder = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testFolder2").folder(true).build(),
+          null, null);
+
+      RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
+
+      RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).clearAces().ace(
+          userNameUtils.getPrincipleId(tenantAcme, USERNAME_ADMIN), RepositoryFileSid.Type.USER,
+          RepositoryFilePermission.ALL).entriesInheriting(false).build();
+      repo.updateAcl(newAcl);
+
+
+      login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      try{
+        repo.deleteFile(newFolder.getId(), null);
+      } catch(Exception e){
+        e.printStackTrace();
+        fail();
+      }
+    }
+  }
+
+  @Test
+  public void testDeleteInheritingFile2() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    RepositoryFile parentFolder = repo.getFile(parentFolderPath);
+    final String dataString = "Hello World!";
+    final String encoding = "UTF-8";
+    byte[] data = dataString.getBytes(encoding);
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(data);
+    final String mimeType = "text/plain";
+    final String fileName = "helloworld.xaction";
+
+    final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
+
+    RepositoryFile newFolder = null;
+    // Try an inheriting file delete
+    {
+      newFolder = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testFolder").folder(true).build(),
+          null, null);
+
+      RepositoryFile newFile = repo.createFile(newFolder.getId(), new RepositoryFile.Builder("testFile").folder(false).build(),
+          content, null);
+
+
+      RepositoryFileAcl acl = repo.getAcl(newFile.getId());
+
+      RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).ace(
+          userNameUtils.getPrincipleId(tenantAcme, USERNAME_ADMIN), RepositoryFileSid.Type.USER,
+          RepositoryFilePermission.ALL).entriesInheriting(true).build();
+      repo.updateAcl(newAcl);
+
+
+      login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      try{
+        repo.deleteFile(newFile.getId(), null);
+      } catch(Exception e){
+        e.printStackTrace();
+        fail();
+      }
+    }
+
+    // Now try one not inheriting
+    {
+
+      RepositoryFile newFile = repo.createFile(newFolder.getId(), new RepositoryFile.Builder("testFile").folder(false).build(),
+          content, null);
+
+      RepositoryFileAcl acl = repo.getAcl(newFile.getId());
+
+      RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).ace(
+          userNameUtils.getPrincipleId(tenantAcme, USERNAME_ADMIN), RepositoryFileSid.Type.USER,
+          RepositoryFilePermission.ALL).entriesInheriting(false).build();
+      repo.updateAcl(newAcl);
+
+
+      login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      try{
+        repo.deleteFile(newFile.getId(), null);
+      } catch(Exception e){
+        e.printStackTrace();
+        fail();
+      }
+    }
+  }
+
 }

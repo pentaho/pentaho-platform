@@ -26,16 +26,18 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
   public String outputFilePath;
   public String inputFilePath;
   private IStreamingAction streamingAction;
-  
-  public RepositoryFileStreamProvider(String inputFilePath, String outputFilePath) {
+  private boolean autoCreateUniqueFilename;
+
+  public RepositoryFileStreamProvider(final String inputFilePath, final String outputFilePath, final boolean autoCreateUniqueFilename) {
     this.outputFilePath = outputFilePath;
     this.inputFilePath = inputFilePath;
+    this.autoCreateUniqueFilename = autoCreateUniqueFilename;
   }
-  
+
   public RepositoryFileStreamProvider() {
   }
-  
-  
+
+
   public IStreamingAction getStreamingAction() {
     return streamingAction;
   }
@@ -75,7 +77,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
       }
     }
     
-    RepositoryFileOutputStream outputStream = new RepositoryFileOutputStream(tempOutputFilePath, true, true);
+    RepositoryFileOutputStream outputStream = new RepositoryFileOutputStream(tempOutputFilePath, autoCreateUniqueFilename, true);
     outputStream.addListener(this);
     return outputStream;
   }

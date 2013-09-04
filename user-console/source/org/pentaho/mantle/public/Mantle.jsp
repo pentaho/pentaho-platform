@@ -11,9 +11,8 @@
 <%
   Locale effectiveLocale = request.getLocale();
   if (!StringUtils.isEmpty(request.getParameter("locale"))) {
-    effectiveLocale = new Locale(request.getParameter("locale"));
     request.getSession().setAttribute("locale_override", request.getParameter("locale"));
-    LocaleHelper.setLocaleOverride(effectiveLocale);
+        LocaleHelper.parseAndSetLocaleOverride(request.getParameter("locale"));
   } else {
     request.getSession().setAttribute("locale_override", null);
     LocaleHelper.setLocaleOverride(null);

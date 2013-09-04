@@ -242,7 +242,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
         boolean isExistingNode = id.denotesNode();
         boolean canRead = false;
         // emulates behavior of CompiledPermissionsImpl with two locks
-        synchronized (readMonitor) {
+        //synchronized (readMonitor) {
             synchronized (monitor) {
                 if (readCache.containsKey(id)) {
                     return readCache.get(id);
@@ -284,7 +284,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
             synchronized (monitor) {
                 readCache.put(id, canRead);
             }
-        }// readMonitor
+        //}// readMonitor
         return canRead;
     }
 

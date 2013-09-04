@@ -145,7 +145,7 @@
     <dependency org="com.google.gwt" name="gwt-servlet" rev="2.5.1"/>
 
     <!-- To support Enunciate Annotations in Resource classes 1.21.1 -->
-	<dependency org="org.codehaus.enunciate" name="enunciate-jersey-rt" rev="1.26.2" />
+	<dependency org="org.codehaus.enunciate" name="enunciate-jersey-rt" rev="1.27" />
 	
     <!--  internal dependencies -->
 
@@ -157,8 +157,6 @@
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-core"
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions"
-                rev="${dependency.pentaho-reporting.revision}" changing="true"/>
-    <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-hibernate"
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-kettle"
                 rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
@@ -356,8 +354,10 @@
     </dependency>
 
     <!-- dependencies for generating doc -->
-    <dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.26.2" conf="enunciate->default"/>
+    <dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.27" conf="enunciate->default"/>
 
+    <exclude org="junit" conf="default,runtime,source"/>
+    <exclude org="org.apache.ant" conf="default,runtime,source"/>
     <exclude org="org.glassfish" module="javax.servlet"/>
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>

@@ -222,7 +222,7 @@ public class JcrRepositoryFileAclUtils {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, acl.getId());
     RepositoryFileAcl updatedAcl = internalUpdateAcl(session, pentahoJcrConstants, acl.getId(), acl);
-    JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, acl.getId(), null,
+    JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, acl.getId(), null, null,
         true);
   }
 

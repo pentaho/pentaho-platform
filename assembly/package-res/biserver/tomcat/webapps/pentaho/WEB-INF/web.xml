@@ -520,7 +520,7 @@
 
   <!-- insert additional servlet mappings -->
   <session-config>
-    <session-timeout>120</session-timeout>
+    <session-timeout>30</session-timeout>
   </session-config>
 
   <mime-mapping>

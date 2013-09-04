@@ -36,6 +36,7 @@ public class RefreshSystemSettingsCommand extends AbstractCommand {
     final String url = GWT.getHostPageBaseURL() + "api/system/refresh/systemSettings"; //$NON-NLS-1$
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     requestBuilder.setHeader("accept", "text/plain");
+    requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       requestBuilder.sendRequest(null, new RequestCallback() {
 

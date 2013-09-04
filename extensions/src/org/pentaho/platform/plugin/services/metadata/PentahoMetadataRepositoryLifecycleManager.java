@@ -17,6 +17,7 @@ package org.pentaho.platform.plugin.services.metadata;
 import java.io.Serializable;
 
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -25,7 +26,11 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.lifecycle.AbstractBackingRepositoryLifecycleManager;
+import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -37,9 +42,11 @@ import org.springframework.util.Assert;
  *
  * @author dkincade
  */
-public class PentahoMetadataRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
+public class PentahoMetadataRepositoryLifecycleManager  extends AbstractBackingRepositoryLifecycleManager {
 
   private static final String FOLDER_METADATA = "metadata"; //$NON-NLS-1$
+
+  private ITenantedPrincipleNameResolver userNameUtils;
 
   protected String repositoryAdminUsername;
 
@@ -47,32 +54,24 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
 
   protected String singleTenantAuthenticatedAuthorityName;
 
-  protected TransactionTemplate txnTemplate;
-
   protected IRepositoryFileDao repositoryFileDao;
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
 
   public PentahoMetadataRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
       final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
-
+      final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
+      final ITenantedPrincipleNameResolver userNameUtils, final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper) {
+    super(txnTemplate, adminJcrTemplate, pathConversionHelper);
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
-    Assert.notNull(txnTemplate);
     Assert.hasText(repositoryAdminUsername);
     Assert.hasText(tenantAuthenticatedAuthorityNamePattern);
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
-    this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
+    this.userNameUtils = userNameUtils;
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
-    initTransactionTemplate();
-  }
-
-  protected void initTransactionTemplate() {
-    // a new transaction must be created (in order to run with the correct user privileges)
-    txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
   }
 
   public synchronized void doNewTenant(final String tenantPath) {
@@ -80,8 +79,7 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
 
   @Override
   public void startup() {
-    // TODO Auto-generated method stub
-
+	  createEtcMetadaFolder(JcrTenantUtils.getDefaultTenant());
   }
 
   @Override
@@ -92,31 +90,9 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
 
   @Override
   public void newTenant(final ITenant tenant) {
-    try {
-      txnTemplate.execute(new TransactionCallbackWithoutResult() {
-        @Override
-        public void doInTransactionWithoutResult(final TransactionStatus status) {
-          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(repositoryAdminUsername);
-          RepositoryFile etcFolder = repositoryFileDao.getFile(ClientRepositoryPaths.getEtcFolderPath());
-          Assert.notNull(etcFolder);
-
-          final String metadataPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR
-              + FOLDER_METADATA;
-          if (repositoryFileDao.getFile(metadataPath) == null) {
-            // create the metadata folder
-            internalCreateFolder(
-                etcFolder.getId(),
-                new RepositoryFile.Builder(FOLDER_METADATA).folder(true).build(),
-                true,
-                repositoryAdminUserSid,
-                Messages.getInstance().getString(
-                    "PentahoMetadataRepositoryLifecycleManager.USER_0001_VER_COMMENT_METADATA"));
-          }
-        }
-      });
-    } finally {
-
-    }
+		if(!tenant.equals(JcrTenantUtils.getDefaultTenant())) {
+			createEtcMetadaFolder(tenant);	
+		}
   }
 
   @Override
@@ -135,6 +111,31 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
     // TODO Auto-generated method stub
 
   }
+  
+
+  protected void createEtcMetadaFolder(final ITenant tenant) {
+	    try {
+	      txnTemplate.execute(new TransactionCallbackWithoutResult() {
+	        @Override
+	        public void doInTransactionWithoutResult(final TransactionStatus status) {
+	          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenant, repositoryAdminUsername));
+	          RepositoryFile tenantEtcFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
+	              .getTenantEtcFolderPath(tenant));
+	          Assert.notNull(tenantEtcFolder);
+
+	          if (repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getTenantEtcFolderPath(tenant)
+	              + RepositoryFile.SEPARATOR + FOLDER_METADATA) == null) {
+	        	// create the metadata folder
+	            internalCreateFolder(tenantEtcFolder.getId(),
+	                new RepositoryFile.Builder(FOLDER_METADATA).folder(true).build(), true, repositoryAdminUserSid, Messages
+	                .getInstance().getString("PentahoMetadataRepositoryLifecycleManager.USER_0001_VER_COMMENT_METADATA")); //$NON-NLS-1$
+	          }
+	        }
+	      });
+	    } finally {
+	     
+	    }
+	  }
 
   protected RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
       final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) {

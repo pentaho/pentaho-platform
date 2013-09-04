@@ -78,6 +78,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob?cb=" + System.currentTimeMillis());
+    scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
     scheduleFileRequestBuilder.setHeader("accept", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
     
@@ -249,6 +250,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+    scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
     try {
       scheduleFileRequestBuilder.sendRequest(json, new RequestCallback() {

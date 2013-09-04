@@ -650,17 +650,18 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       final List<LogicalModel> logicalModels = domain.getLogicalModels();
       if (null != logicalModels) {
         for (LogicalModel model : logicalModels) {
-          sb.append('\n').append(model.getId());
+          sb.append('|').append(model.getId());
         }
       }
       return sb.toString();
     }
 
     public Domain parseXmi(final InputStream xmi) throws Exception {
-      final List<String> strings = IOUtils.readLines(xmi);
-      final MockDomain domain = new MockDomain(strings.get(0));
-      for (int i = 1; i < strings.size(); ++i) {
-        domain.addLogicalModel(strings.get(i));
+      String[] lines = IOUtils.toString(xmi).split("\\|");
+
+      final MockDomain domain = new MockDomain(lines[0]);
+      for (int i = 1; i < lines.length; ++i) {
+        domain.addLogicalModel(lines[i]);
       }
       if (domain.getId().equals("exception")) {
         throw new NullPointerException();

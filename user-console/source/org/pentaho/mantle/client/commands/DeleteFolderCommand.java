@@ -84,7 +84,7 @@ public class DeleteFolderCommand extends AbstractCommand {
     event.setAction(this.getClass().getName());
 
     final String filesList = repositoryFile.getId();
-    final String folderName = repositoryFile.getName();
+    final String folderName = repositoryFile.getTitle() == null ? repositoryFile.getName() : repositoryFile.getTitle();
     final HTML messageTextBox = new HTML(Messages.getString("moveToTrashQuestionFolder",folderName));
     final PromptDialogBox folderDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     folderDeleteWarningDialogBox.setContent(messageTextBox);
@@ -98,6 +98,7 @@ public class DeleteFolderCommand extends AbstractCommand {
       public void okPressed() {
         String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
         RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
+        deleteFilesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
         deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
         try {
           deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {

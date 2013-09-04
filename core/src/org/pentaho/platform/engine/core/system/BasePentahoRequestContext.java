@@ -35,7 +35,7 @@ public class BasePentahoRequestContext implements IPentahoRequestContext{
       this.contextPath = contextPath + (contextPath.endsWith(SLASH) ? EMPTY : SLASH);  
     } else {
       String path = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
-      this.contextPath = path + (path.endsWith(SLASH) ? EMPTY : SLASH);
+      this.contextPath = path + (path != null && path.endsWith(SLASH) ? EMPTY : SLASH);
     }
   }
 

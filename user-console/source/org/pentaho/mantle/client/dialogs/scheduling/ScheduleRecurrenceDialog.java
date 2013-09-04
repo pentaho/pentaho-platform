@@ -159,6 +159,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     scheduleEditor = scheduleEditorWizardPanel.getScheduleEditor();
     String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/hasblockouts?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder hasBlockoutsRequest = new RequestBuilder(RequestBuilder.GET, url);
+    hasBlockoutsRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     hasBlockoutsRequest.setHeader("accept", "text/plain");
     try {
       hasBlockoutsRequest.sendRequest(url, new RequestCallback() {
@@ -206,6 +207,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
     //setHeight("100%"); //$NON-NLS-1$
     setSize("650px", "450px");
+    addStyleName("schedule-recurrence-dialog");
   }
 
   private void setupExisting(JsJob jsJob) {
@@ -638,6 +640,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
     addBlockoutPeriodRequest.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
     addBlockoutPeriodRequest.setHeader("Content-Type", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+    addBlockoutPeriodRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     // Create a unique blockout period name
     final Long duration = trigger.getBlockDuration();
@@ -724,6 +727,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.POST, url);
     blockoutConflictRequest.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
     blockoutConflictRequest.setHeader("Content-Type", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+    blockoutConflictRequest.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
     final JSONObject verifyBlockoutParams = schedule;
     verifyBlockoutParams.put("jobName", new JSONString(scheduleName)); //$NON-NLS-1$
@@ -794,6 +798,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job"); //$NON-NLS-1$
       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+      scheduleFileRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
 
       try {
         scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
@@ -868,6 +873,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -906,6 +912,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
