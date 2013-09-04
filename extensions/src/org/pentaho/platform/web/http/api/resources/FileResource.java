@@ -332,7 +332,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
     // check whitelist acceptance of file (based on extension)
-    if (whitelist.accept(repoFile.getName()) == false) {
+    if (getWhitelist().accept(repoFile.getName()) == false) {
       // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
       if (getPolicy().isAllowed(PublishAction.NAME) == false) {
         return Response.status(FORBIDDEN).build();
@@ -586,7 +586,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
     
     // check whitelist acceptance of file (based on extension)
-    if (whitelist.accept(repositoryFile.getName()) == false) {
+    if (getWhitelist().accept(repositoryFile.getName()) == false) {
       // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
       if (getPolicy().isAllowed(PublishAction.NAME) == false) {
         return Response.status(FORBIDDEN).build();
@@ -1171,6 +1171,9 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
+    if (whitelist == null) {
+      whitelist = new RepositoryDownloadWhitelist();
+    }
     return whitelist;
   }
 

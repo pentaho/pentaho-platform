@@ -90,7 +90,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return fileResource.doGetFileOrDir(pathId);
   }
 
-
   @GET
   @Path("{pathId : .+}/default")
   @Produces({WILDCARD})
@@ -506,6 +505,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     rsc("Is [{0}] a relative path to a repository file, relative to [{1}]?", relPath, filePath); //$NON-NLS-1$
 
     FileResource fileResource = new FileResource(httpServletResponse);
+    fileResource.setWhitelist(whitelist);
     String path = RepositoryFilenameUtils.separatorsToRepository(RepositoryFilenameUtils.concat(filePath, "../" + relPath)); //$NON-NLS-1$
     Response response = fileResource.doGetFileOrDir(path.replace('/', ':').substring(1));
     if (response.getStatus() != Status.NOT_FOUND.getStatusCode()) {
