@@ -21,6 +21,12 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -31,6 +37,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -57,15 +64,10 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path("/repos")
 public class RepositoryResource extends AbstractJaxRSResource {
@@ -77,11 +79,14 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
 
+  protected RepositoryDownloadWhitelist whitelist;
+  
   @GET
   @Path("{pathId : .+}/content")
   @Produces({WILDCARD})
   public Response doGetFileOrDir(@PathParam("pathId") String pathId) throws FileNotFoundException {
     FileResource fileResource = new FileResource(httpServletResponse);
+    fileResource.setWhitelist(whitelist);
     return fileResource.doGetFileOrDir(pathId);
   }
 
@@ -530,7 +535,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     data = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
     StringWriter writer = new StringWriter();
     try {
-      IOUtils.copy(data.getStream(), writer);
+      IOUtils.copy(data.getInputStream(), writer);
     } catch (IOException e) {
       return ""; //$NON-NLS-1$
     }
@@ -556,4 +561,12 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return "";//$NON-NLS-1$
 
   }
+  
+  public RepositoryDownloadWhitelist getWhitelist() {
+    return whitelist;
+  }
+
+  public void setWhitelist(RepositoryDownloadWhitelist whitelist) {
+    this.whitelist = whitelist;
+  }    
 }

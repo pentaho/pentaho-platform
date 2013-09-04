@@ -580,6 +580,13 @@
   </bean>
 
   <!-- 
+  	This bean is used to for controlling the whitelist of what can be downloaded without having ABS org.pentaho.security.publish
+   -->
+  <bean id="downloadWhitelist" class="org.pentaho.platform.repository.RepositoryDownloadWhitelist">
+  	<property name="extensions" value="gif,jpg,jpeg,png,bmp,tiff,csv,xls,xlsx,pdf,txt,css,htm,html,js,xml,doc,ppt" />
+  </bean>
+
+  <!-- 
   	This bean is responsible for converting deriving a user's tenant and user name from a user id and visa-versa.
    -->
   <bean id="tenantedRoleNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">

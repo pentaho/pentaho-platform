@@ -52,7 +52,6 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -68,7 +67,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -87,9 +85,8 @@ import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -103,6 +100,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDt
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -126,6 +124,8 @@ public class FileResource extends AbstractJaxRSResource {
   public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
 
   private static final Log logger = LogFactory.getLog(FileResource.class);
+
+  protected RepositoryDownloadWhitelist whitelist;
 
   protected static IUnifiedRepository repository;
 
@@ -331,6 +331,14 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(NOT_FOUND).build();
     }
 
+    // check whitelist acceptance of file (based on extension)
+    if (whitelist.accept(repoFile.getName()) == false) {
+      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
+      if (getPolicy().isAllowed(PublishAction.NAME) == false) {
+        return Response.status(FORBIDDEN).build();
+      }
+    }
+    
     return doGetFileOrDir(repoFile);
   }
 
@@ -363,6 +371,11 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(FORBIDDEN).build();
     }
 
+    // you have to have PublishAction in order to get dir as zip
+    if (getPolicy().isAllowed(PublishAction.NAME) == false) {
+      return Response.status(FORBIDDEN).build();
+    }
+    
     RepositoryFile repoFile = getRepository().getFile(path);
 
     if (repoFile == null) {
@@ -477,6 +490,12 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces(WILDCARD)
   // have to accept anything for browsers to work
   public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId, @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
+    
+    // you have to have PublishAction in order to download
+    if (getPolicy().isAllowed(PublishAction.NAME) == false) {
+      return Response.status(FORBIDDEN).build();
+    }
+    
     String quotedFileName = null;
 
     // send zip with manifest by default
@@ -511,10 +530,10 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create processor
       if (repositoryFile.isFolder() || withManifest) {
-        exportProcessor = new ZipExportProcessor(path, this.repository, withManifest);
+        exportProcessor = new ZipExportProcessor(path, FileResource.repository, withManifest);
         quotedFileName = "\"" + repositoryFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
       } else {
-        exportProcessor = new SimpleExportProcessor(path, this.repository, withManifest);
+        exportProcessor = new SimpleExportProcessor(path, FileResource.repository, withManifest);
         quotedFileName = "\"" + repositoryFile.getName() + "\""; //$NON-NLS-1$//$NON-NLS-2$
       }
 
@@ -532,7 +551,6 @@ public class FileResource extends AbstractJaxRSResource {
       };
 
       // create response
-
       response = Response.ok(streamingOutput, APPLICATION_ZIP).header("Content-Disposition", "attachment; filename=" + quotedFileName).build();
 
       return response;
@@ -548,25 +566,33 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces(WILDCARD)
   // have to accept anything for browsers to work
   public Response doGetFileAsInline(@PathParam("pathId") String pathId) throws FileNotFoundException {
-	String path = null;
-	RepositoryFile repositoryFile = null;
-	// Check if the path is actually and ID
-	if(isPath(pathId)) {
-		path = idToPath(pathId);
-	    if (!isPathValid(path)) {
-	        return Response.status(FORBIDDEN).build();
-	    }
-
-	    repositoryFile = getRepository().getFile(path);
-	} else {
-		// Yes path provided is an ID
-		repositoryFile = getRepository().getFileById(pathId);
-	}
+  	String path = null;
+  	RepositoryFile repositoryFile = null;
+  	// Check if the path is actually and ID
+  	if(isPath(pathId)) {
+  		path = idToPath(pathId);
+      if (!isPathValid(path)) {
+        return Response.status(FORBIDDEN).build();
+      }
+      repositoryFile = getRepository().getFile(path);
+  	} else {
+  		// Yes path provided is an ID
+  		repositoryFile = getRepository().getFileById(pathId);
+  	}
 
     if (repositoryFile == null) {
         // file does not exist or is not readable but we can't tell at this point
         return Response.status(NOT_FOUND).build();
     }
+    
+    // check whitelist acceptance of file (based on extension)
+    if (whitelist.accept(repositoryFile.getName()) == false) {
+      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
+      if (getPolicy().isAllowed(PublishAction.NAME) == false) {
+        return Response.status(FORBIDDEN).build();
+      }
+    }
+    
     try {
       SimpleRepositoryFileData fileData = getRepository().getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class);
       final InputStream is = fileData.getInputStream();
@@ -582,7 +608,6 @@ public class FileResource extends AbstractJaxRSResource {
       };
 
       // create response
-
       response = Response.ok(streamingOutput).header("Content-Disposition", "inline; filename=" + repositoryFile.getName()).build();
 
       return response;
@@ -702,7 +727,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<Setting> doGetCanAccessList(@PathParam("pathId") String pathId, @QueryParam("permissions") String permissions) {
     StringTokenizer tokenizer = new StringTokenizer(permissions, "|");
-    ArrayList<Setting> permMap = new ArrayList();
+    ArrayList<Setting> permMap = new ArrayList<Setting>();
     while (tokenizer.hasMoreTokens()) {
       Integer perm = Integer.valueOf(tokenizer.nextToken());
       EnumSet<RepositoryFilePermission> permission = EnumSet.of(RepositoryFilePermission.values()[perm]);
@@ -1145,6 +1170,14 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  public RepositoryDownloadWhitelist getWhitelist() {
+    return whitelist;
+  }
+
+  public void setWhitelist(RepositoryDownloadWhitelist whitelist) {
+    this.whitelist = whitelist;
+  }  
+  
   public static IAuthorizationPolicy getPolicy() {
     if(policy == null){
       policy = PentahoSystem.get(IAuthorizationPolicy.class);
