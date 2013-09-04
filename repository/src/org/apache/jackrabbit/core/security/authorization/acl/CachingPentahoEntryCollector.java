@@ -71,12 +71,14 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   private EntryCache getCache(){
     IPentahoSession session = PentahoSessionHolder.getSession();
-    if(cacheBySession.containsKey(session)){
-      return cacheBySession.get(session);
+    synchronized(cacheBySession){
+      if(cacheBySession.containsKey(session)){
+        return cacheBySession.get(session);
+      }
+      EntryCache newCache = new EntryCache();
+      cacheBySession.put(session, newCache);
+      return newCache;
     }
-    EntryCache newCache = new EntryCache();
-    cacheBySession.put(session, newCache);
-    return newCache;
   }
 
   private ConcurrentMap<NodeId, FutureEntries> getFutures(){
@@ -93,8 +95,10 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   protected void close() {
     super.close();
 
-    for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
-      entry.getValue().clear();
+    synchronized(cacheBySession){
+      for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+        entry.getValue().clear();
+      }
     }
   }
 
@@ -270,26 +274,34 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
         // clear the complete cache since the nextAcNodeId may
         // have changed due to the added ACL.
         log.debug("Policy added, clearing the cache");
-        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
-          entry.getValue().clear();
+        synchronized(cacheBySession){
+          for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+            entry.getValue().clear();
+          }
         }
         break; // no need for further processing.
       } else if ((type & POLICY_REMOVED) == POLICY_REMOVED) {
         // clear the entry and change the entries having a nextID
         // pointing to this node.
-        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
-          entry.getValue().remove(nodeId, true);
+        synchronized(cacheBySession){
+          for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+            entry.getValue().remove(nodeId, true);
+          }
         }
       } else if ((type & POLICY_MODIFIED) == POLICY_MODIFIED) {
         // simply clear the cache entry -> reload upon next access.
-        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
-          entry.getValue().remove(nodeId, false);
+        synchronized(cacheBySession){
+          for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+            entry.getValue().remove(nodeId, false);
+          }
         }
       } else if ((type & MOVE) == MOVE) {
         // some sort of move operation that may affect the cache
         log.debug("Move operation, clearing the cache");
-        for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
-          entry.getValue().clear();
+        synchronized(cacheBySession){
+          for(Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet()){
+            entry.getValue().clear();
+          }
         }
         break; // no need for further processing.
       }

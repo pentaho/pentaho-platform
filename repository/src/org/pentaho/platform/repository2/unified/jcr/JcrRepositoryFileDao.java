@@ -883,9 +883,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
         // Now we need to update the title
         RepositoryFile destFile = internalGetFile(session, finalDestAbsPath, true, null);
+
         // Check if the file to be updated is a folder or not
-            String contentType = JcrRepositoryFileUtils.getFileContentType(session, pentahoJcrConstants, destFile.getId(),destFile.getVersionId());
-        if(!destFile.isFolder() && (contentType != null && contentType.equals(IRepositoryFileData.SIMPLE_CONTENT_TYPE))) {
+        if(!destFile.isFolder()) {
               String title = extractNameFromPath(finalDestAbsPath);
               Map<String, Properties> localePropertiesMap = destFile.getLocalePropertiesMap();
               for(Entry<String,Properties> entry :destFile.getLocalePropertiesMap().entrySet()) {
@@ -897,8 +897,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
                   properties.setProperty("title", title);
                 }         
               }
-                RepositoryFile updatedFile = new RepositoryFile.Builder(destFile).localePropertiesMap(localePropertiesMap).title(title).build();
-          internalUpdateFile(session, pentahoJcrConstants, updatedFile,getData(destFile.getId(), null, SimpleRepositoryFileData.class), "Updating the Title");  
+              // Extract the content type (simple or node) from the node to be updated
+              String contentType = null;
+              if(destFile.getId() != null) {
+                Node nodeToBeUpdated = session.getNodeByIdentifier(destFile.getId().toString());
+                contentType = nodeToBeUpdated.getProperty(pentahoJcrConstants.getPHO_CONTENTTYPE()).getString();
+              }
+
+              RepositoryFile updatedFile = new RepositoryFile.Builder(destFile).localePropertiesMap(localePropertiesMap).title(title).build();
+              internalUpdateFile(session, pentahoJcrConstants, updatedFile,getData(destFile.getId(), null,
+                  ((contentType != null && contentType.equals(IRepositoryFileData.NODE_CONTENT_TYPE)) ? NodeRepositoryFileData.class :SimpleRepositoryFileData.class)), "Updating the Title");  
         } 
         
         JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,

@@ -19,6 +19,7 @@ package org.pentaho.platform.scheduler2.quartz;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -36,10 +37,15 @@ import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.api.scheduler2.*;
+import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.email.Emailer;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.beans.ActionHarness;
@@ -144,7 +150,10 @@ public class ActionAdapterQuartzJob implements Job {
     final IBackgroundExecutionStreamProvider streamProvider = (IBackgroundExecutionStreamProvider) params.get(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_UIPASSPARAM);
-    params.put(IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime());
+    // The scheduled_fire_time is useful only to the blockoutAction see PDI-10171
+    if (actionBean instanceof BlockoutAction) {
+      params.put(IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime());
+    }
 
     if (log.isDebugEnabled()) {
       log.debug(MessageFormat.format("Scheduling system invoking action {0} as user {1} with params [ {2} ]", actionBean //$NON-NLS-1$
@@ -182,8 +191,8 @@ public class ActionAdapterQuartzJob implements Job {
           String outputPath = resolver.resolveOutputFilePath();
           actionParams.put("useJcr", Boolean.TRUE);
           actionParams.put("jcrOutputPath", outputPath.substring(0, outputPath.lastIndexOf("/")));
-          
-          if(!outputPath.equals(streamProvider.getOutputPath())){
+
+          if (!outputPath.equals(streamProvider.getOutputPath())) {
             streamProvider.setOutputFilePath(outputPath); // set fallback path
             updateJob = true; // job needs to be deleted and recreated with the new output path
           }
@@ -210,6 +219,8 @@ public class ActionAdapterQuartzJob implements Job {
             });
           }
           actionParams.put("outputStream", stream);
+          // The lineage_id is only useful for the metadata and not needed at this level see PDI-10171
+          actionParams.remove(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
           actionHarness.setValues(actionParams);
         }
 
@@ -225,12 +236,35 @@ public class ActionAdapterQuartzJob implements Job {
       // that created the job is a system user. See PPP-2350
       requiresUpdate = SecurityHelper.getInstance().runAsAnonymous(actionBeanRunner);
     } else {
-      requiresUpdate = SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
+      try {
+        requiresUpdate = SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
+      } catch (Throwable t) {
+        Object restartFlag = jobParams.get(QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG);
+        if (restartFlag == null) {
+          final SimpleJobTrigger trigger = new SimpleJobTrigger(new Date(), null, 0, 0);
+          final Class<IAction> iaction = (Class<IAction>) actionBean.getClass();
+          // recreate the job in the context of the original creator
+          SecurityHelper.getInstance().runAsUser(actionUser, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              streamProvider.setStreamingAction(null); // remove generated content
+              String jobName = StringUtils.substringBetween(context.getJobDetail().getName(), ":", ":");
+              jobParams.put(QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG, Boolean.TRUE);
+              scheduler.createJob(jobName, iaction, jobParams, trigger, streamProvider);
+              log.warn("New RunOnce job created for " + jobName + " -> possible startup synchronization error");
+              return null;
+            }
+          });
+        } else {
+          log.warn("RunOnce already created, skipping");
+          throw new Exception(t);
+        }
+      }
     }
 
     scheduler.fireJobCompleted(actionBean, actionUser, params, streamProvider);
 
-    if(requiresUpdate){
+    if (requiresUpdate) {
       log.warn("Output path for job: " + context.getJobDetail().getName() + " has changed. Job requires update");
       try {
         final IJobTrigger trigger = scheduler.getJob(context.getJobDetail().getName()).getJobTrigger();
@@ -250,8 +284,7 @@ public class ActionAdapterQuartzJob implements Job {
             return null;
           }
         });
-      }
-      catch(Exception e){
+      } catch (Exception e) {
         log.error(e.getMessage(), e);
       }
     }

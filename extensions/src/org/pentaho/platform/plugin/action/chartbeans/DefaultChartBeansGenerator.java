@@ -67,6 +67,7 @@ import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.plugin.action.pentahometadata.ActionDefinitionEncoder;
 import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.platform.config.messages.Messages;
 
 public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
@@ -261,7 +262,14 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
         }
         buf.append(message);
       }
-      throw new RuntimeException(buf.toString());
+      String errorStr;
+      if(buf.indexOf("action_sequence_failed") > -1 && buf.indexOf("MQLRelationalDataComponent") > -1){
+        errorStr = Messages.getInstance().getString("DefaultChartBeansGenerator.ERROR_0001_SECURITY_ERROR");
+      } else {
+        errorStr= Messages.getInstance().getString("DefaultChartBeansGenerator.ERROR_0002_UNKNOWN_ERROR");
+      }
+
+      throw new RuntimeException(errorStr);
     }
 
   }

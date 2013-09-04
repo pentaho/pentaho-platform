@@ -73,7 +73,7 @@
 
                 window.top.mantle_addHandler("ShowDescriptionsEvent", function(event){
                     if(event.value != undefined){
-                        FileBrowser.updateShowDescriptions(!event.value);
+                        FileBrowser.updateShowDescriptions(event.value);
                     }
                 });
 
@@ -188,7 +188,7 @@
                 type: "GET",
                 async: true,
                 success: function(response){
-                    checkPublish(canDownload, showHiddenFiles, !(response == "true"));
+                    checkPublish(canDownload, showHiddenFiles, (response == "true"));
                 },
                 error: function(response){
                     checkPublish(canDownload, showHiddenFiles, false);

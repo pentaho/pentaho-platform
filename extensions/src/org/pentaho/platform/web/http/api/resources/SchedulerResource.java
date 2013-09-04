@@ -105,6 +105,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
     boolean runInBackground = scheduleRequest.getSimpleJobTrigger() == null
         && scheduleRequest.getComplexJobTrigger() == null && scheduleRequest.getCronJobTrigger() == null;
 
+    if (!runInBackground && !policy.isAllowed(SchedulerAction.NAME)) {
+      return Response.status(UNAUTHORIZED).build();
+    }
+    
     boolean hasInputFile = !StringUtils.isEmpty(scheduleRequest.getInputFile());
     RepositoryFile file = null;
     if (hasInputFile) {
@@ -126,10 +130,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } else if (!hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       // just make up a name
       scheduleRequest.setJobName("" + System.currentTimeMillis()); //$NON-NLS-1$
-    }
-
-    if (!runInBackground && !policy.isAllowed(SchedulerAction.NAME)) {
-      return Response.status(UNAUTHORIZED).build();
     }
 
     if (hasInputFile) {

@@ -259,6 +259,7 @@
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>    
   </bean>
  
   <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
@@ -591,7 +592,11 @@
     </entry>
     <!-- for single tenant mode -->
   </util:map>
-  
+
+  <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
+       <value>org.pentaho.repository.read</value>
+  </util:list>
+
   <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
     <property name="interceptorNames">

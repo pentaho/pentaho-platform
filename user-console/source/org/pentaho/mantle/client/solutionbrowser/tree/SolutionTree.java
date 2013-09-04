@@ -110,7 +110,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
             RepositoryFile repositoryFile = ((FileTreeItem) selectedItem).getRepositoryFile();
             if (repositoryFile != null && repositoryFile.isHidden() && !isShowHiddenFiles()) {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-                ((LeafItemWidget) treeItemWidget).getParent().addStyleName("hidden"); //$NON-NLS-1$
+                ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("hidden"); //$NON-NLS-1$
                 ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
               } else {
                 selectedItem.addStyleName("hidden"); //$NON-NLS-1$

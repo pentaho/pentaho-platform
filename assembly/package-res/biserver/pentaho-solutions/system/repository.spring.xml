@@ -244,6 +244,7 @@
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>
   </bean>
 
 
@@ -390,19 +391,19 @@
     </property>
     <property name="objectDefinitionSource">
       <value>
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
       </value>
     </property>
   </bean>
@@ -724,6 +725,9 @@
     <!-- for single tenant mode -->
   </util:map>
 
+  <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
+       <value>org.pentaho.repository.read</value>
+  </util:list>
   <!--
    The actual implementation of the binding between runtime and logical roles. The biserver does not use this bean directly
    instead a proxy bean is defined that provides transaction, and method level security support using spring aop. If you wish
