@@ -11,7 +11,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -28,7 +35,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.util.VersionHelper;
 
 @SuppressWarnings("nls")
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
@@ -192,7 +198,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   static String idToPath(String relPath) {
     relPath = relPath.replace(':', '/');
-    return relPath.replaceFirst("^/?([A-z])//(.*)","$1:/$2");
+    return relPath.replaceFirst("^/?([A-z])/[/\\\\](.*)","$1:/$2");
   }
 
   public RepositoryFile getFile(Serializable fileId, Serializable versionId) {

@@ -14,11 +14,6 @@
   <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" scope="singleton"/>
 
   <!-- JAX-WS bindings -->
-  <wss:binding url="/webservices/unifiedRepository">
-    <wss:service>
-      <ws:service impl="org.pentaho.platform.repository2.unified.webservices.jaxws.DefaultUnifiedRepositoryJaxwsWebService" />
-    </wss:service>
-  </wss:binding>
   <wss:binding url="/webservices/datasourceMgmtService">
     <wss:service>
       <ws:service impl="org.pentaho.platform.repository.webservices.DefaultDatasourceMgmtWebService" />
@@ -77,12 +72,16 @@
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
     <constructor-arg ref="extraSystemAuthorities"/>
   </bean>
-  <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
+	<property name="whitelist" ref="downloadWhitelist" />
+  </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.BlockoutResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request">
+	<property name="whitelist" ref="downloadWhitelist" />
+  </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.PluginManagerResource" scope="request"/>

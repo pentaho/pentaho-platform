@@ -385,7 +385,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       }
       
       if (user != null) {
-        newUser = new User(user.getUsername(), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED,
+        String password = user.getPassword() != null ? user.getPassword() : "";
+        newUser = new User(user.getUsername(), password, user.isEnabled(), ACCOUNT_NON_EXPIRED,
             CREDS_NON_EXPIRED, ACCOUNT_NON_LOCKED, auths);
       }
 
