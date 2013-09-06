@@ -99,7 +99,7 @@ sub {
 }
 
 img {
-  width: auto\9;
+  width: auto;
   height: auto;
   max-width: 100%;
   vertical-align: middle;
@@ -777,6 +777,7 @@ h3 {
   line-height: 20px;
   margin-top: 15px;
   font-weight: 400;
+  height: 40px;
 }
 
 h4 {

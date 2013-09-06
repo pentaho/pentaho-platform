@@ -60,6 +60,7 @@ $(document).ready(function() {
 					groups.push( currentGroup );
 					lastParent = $tag.parent();
 					newGroup = false;
+
 				}
 				var section = $tag.add($tag.nextUntil( tag + (stopTag ? "," + stopTag : "") ));
 				newGroup = section.last().next().is(stopTag);
@@ -72,7 +73,19 @@ $(document).ready(function() {
 			var wrapWithRow = function($sel){
 				// console.log("Wrapping " + $sel.length + " objects");
 				$sel.wrapAll("<div class='contentRow row'></div>");
-				$sel.parent("div.contentRow").before( (hideRuler) ? "" : "<hr/>" );
+
+				if(!hideRuler){
+					$sel.parent("div.contentRow").before("<hr/>" );
+				}
+				else{
+				
+					// Even if we want to hide the rules, force one if theres
+					// a paragraph before
+					if( $sel.parent("div.contentRow").prev().get(0).nodeName.toLowerCase() == "p"){
+						$sel.parent("div.contentRow").before("<hr/>" );
+					}
+
+				}
 			};
 
 			$(groups).each( function(groupIdx, currentGroup){
@@ -138,6 +151,7 @@ $(document).ready(function() {
                 }
                 else if ($t.text().indexOf("ENDBUTTONIZE") == 0){
                     $t.remove();
+					$buttonTarget.addClass("buttonizeButtons" + $buttonTarget.find("div.buttonizeButton").length);
                 }
                 else{
             
@@ -258,6 +272,11 @@ $(document).ready(function() {
 
 		buttonizeTag("buttonizeH6", "h6");
 
+		columnizeTag("columnizeH2", "h2", 3);
+		columnizeTag("columnizeUL", "ul", 3);
+		columnizeTag("columnizeH3", "h3", 3, true, true);
+
+
 		highlightTag("highlightH1", "h1", false);
 		highlightTag("highlightH1WithHR", "h1", true);
 		highlightTag("highlightH1WithHRBefore", "h1", true,"before");
@@ -265,9 +284,6 @@ $(document).ready(function() {
 		highlightTag("highlightH2WithHR", "h2", true);
 		highlightTag("highlightH2WithHRBefore", "h2", true,"before");
 
-		columnizeTag("columnizeH2", "h2", 3);
-		columnizeTag("columnizeUL", "ul", 3);
-		columnizeTag("columnizeH3", "h3", 3, true, true);
 
 	}
 
@@ -283,10 +299,8 @@ $(document).ready(function() {
 		$("a").each(function(){
 				var $a=$(this);
 				var href = $a.attr("href");
-				if(href.indexOf("http")==0){
-					console.log(href);
-					$a.attr("target","_self");
-				}
+
+				$a.attr('target','_blank');
 
 				if(href.indexOf(".pdf")>0){
 					$a.addClass("pdfLink");
