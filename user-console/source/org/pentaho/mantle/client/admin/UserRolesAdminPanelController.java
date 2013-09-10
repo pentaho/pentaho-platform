@@ -80,11 +80,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	public void saveUser(final String name, final String password) {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createUser?userName=" + encodeUri(name) + "&password=" + encodeUri(password);
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createUser";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 		  executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+      executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
+      String json = "{\"userName\": \"" + encodeUri(name) + "\", \"password\": \"" + encodeUri(password) + "\"}";
+		  executableTypesRequestBuilder.sendRequest(json, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
@@ -208,11 +210,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	public void updatePassword(String newPassword) {
 
 		String userName = usersListBox.getValue(usersListBox.getSelectedIndex());
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword?userName=" + encodeUri(userName) + "&newPassword=" + encodeUri(newPassword);
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
       executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+      executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
+      String json = "{\"userName\": \"" + encodeUri(userName) + "\", \"password\": \"" + encodeUri(newPassword) + "\"}";
+			executableTypesRequestBuilder.sendRequest(json, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
