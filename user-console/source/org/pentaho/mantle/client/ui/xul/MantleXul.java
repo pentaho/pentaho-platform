@@ -139,6 +139,34 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     Widget menu = (Widget) container.getDocumentRoot().getElementById("mainMenubar").getManagedObject(); //$NON-NLS-1$
     menubar.setWidget(menu);
 
+    // check based on user permissions
+      final String moduleBaseURL = GWT.getModuleBaseURL();
+      final String moduleName = GWT.getModuleName();
+      final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+      final String url = contextURL + "api/repo/files/canCreate"; //$NON-NLS-1$
+      RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      executableTypesRequestBuilder.setHeader("accept", "text/plain");
+      executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+
+      try {
+          executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+              public void onError(Request request, Throwable exception) {
+                  // showError(exception);
+              }
+
+              public void onResponseReceived(Request request, Response response) {
+                  if (response.getStatusCode() == Response.SC_OK) {
+                      Boolean visible=new Boolean(response.getText());
+                      controller.setMenuBarEnabled("newmenu", visible);
+                      controller.setToolBarButtonEnabled("newButton", visible);
+                  }
+              }
+          });
+      } catch (RequestException e) {
+          // showError(e);
+      }
+
     // get the admin perspective from the XUL doc
     Widget admin = (Widget) container.getDocumentRoot().getElementById("adminPerspective").getManagedObject(); //$NON-NLS-1$
     admin.setStyleName("admin-perspective");
