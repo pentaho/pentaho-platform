@@ -43,6 +43,8 @@ public class DatabaseHelper {
   
   private static final String NODE_POOLING_PROPS = "poolProps"; //$NON-NLS-1$
   
+  private static final String NODE_EXTRA_OPTIONS = "extraOptions"; //$NON-NLS-1$
+
   private static final String PROP_CONNECT_SQL = "connectionSQL"; //$NON-NLS-1$
   
   private static final String PROP_INITIAL_POOL_SIZE = "initialPoolSize"; //$NON-NLS-1$
@@ -108,6 +110,14 @@ public class DatabaseHelper {
       String value = attributes.get(key);
       attrNode.setProperty(key, value);
     }
+
+    // Store the extra options
+    attrNode = rootNode.addNode(NODE_EXTRA_OPTIONS);
+    attributes = databaseConnection.getExtraOptions();
+    for (String key : attributes.keySet()) {
+      String value = attributes.get(key);
+      attrNode.setProperty(key, value);
+    }
     return rootNode;
   }
   
@@ -155,6 +165,16 @@ public class DatabaseHelper {
         String code = property.getName();
         String attribute = property.getString();
         databaseConnection.getConnectionPoolingProperties().put(code, (attribute == null || attribute.length() ==0) ? "": attribute); //$NON-NLS-1$
+      }
+    }
+
+    // Load extra options
+    attrNode = rootNode.getNode(NODE_EXTRA_OPTIONS);
+    if (attrNode != null) {
+      for (DataProperty property : attrNode.getProperties()) {
+        String code = property.getName();
+        String attribute = property.getString();
+        databaseConnection.getExtraOptions().put(code, (attribute == null || attribute.length() == 0) ? "" : attribute); //$NON-NLS-1$
       }
     }
 
