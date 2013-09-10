@@ -17,12 +17,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -243,11 +240,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path("/createUser")
   @Consumes({ WILDCARD })
-  public Response createUser(@QueryParam("tenant") String tenantPath
-      , @QueryParam("userName") String userName
-      , @QueryParam("password") String password) {
+  public Response createUser(@QueryParam("tenant") String tenantPath, User user) {
     IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    roleDao.createUser(getTenant(tenantPath), userName, password, "", new String[0]);
+    roleDao.createUser(getTenant(tenantPath), user.getUserName(), user.getPassword(), "", new String[0]);
     return Response.ok().build();
   }
 
@@ -302,11 +297,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path("/updatePassword")
   @Consumes({ WILDCARD })
-  public Response updatePassword(@QueryParam("userName")  String userName, @QueryParam("newPassword") String newPassword) {
+  public Response updatePassword(User user) {
     IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    IPentahoUser user = roleDao.getUser(null, userName);
-    if (user != null) {
-      roleDao.setPassword(null, userName, newPassword);
+    IPentahoUser puser = roleDao.getUser(null, user.getUserName());
+    if (puser != null) {
+      roleDao.setPassword(null, user.getUserName(), user.getPassword());
     }
     return Response.ok().build();
   }
