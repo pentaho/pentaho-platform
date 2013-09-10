@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -32,6 +33,8 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.usersettings.pojo.UserSetting;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserSettingService implements IUserSettingService {
 
@@ -40,6 +43,7 @@ public class UserSettingService implements IUserSettingService {
   private static final byte[] lock = new byte[0];
 
   protected IUnifiedRepository repository;
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   public UserSettingService(IUnifiedRepository repository) {
     this.repository = repository;
@@ -157,19 +161,31 @@ public class UserSettingService implements IUserSettingService {
   }
 
   public void setUserSetting(String settingName, String settingValue) {
-    
-    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
-    
-    synchronized (lock) {
-    
-    Serializable id = repository.getFile(homePath).getId();
 
-    Map<String, Serializable> fileMetadata = repository.getFileMetadata(id);
-    if (fileMetadata.containsKey(SETTING_PREFIX + settingName)) {
-      fileMetadata.remove(SETTING_PREFIX + settingName);
-    }
-    fileMetadata.put(SETTING_PREFIX + settingName, settingValue);
-    repository.setFileMetadata(id, fileMetadata);
+    String name = PentahoSessionHolder.getSession().getName();
+    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(name);
+
+    synchronized (lock) {
+
+      final Serializable id = repository.getFile(homePath).getId();
+
+      final Map<String, Serializable> fileMetadata = repository.getFileMetadata(id);
+      if (fileMetadata.containsKey(SETTING_PREFIX + settingName)) {
+        fileMetadata.remove(SETTING_PREFIX + settingName);
+      }
+      fileMetadata.put(SETTING_PREFIX + settingName, settingValue);
+      try {
+        SecurityHelper.getInstance().runAsSystem(new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            repository.setFileMetadata(id, fileMetadata);
+            return null;
+          }
+        });
+      } catch (Exception e) {
+        log.debug("Error storing user setting for user: " + name + ", setting: "+ settingName + ", value: "+ settingValue, e);
+        log.error("Error storing user setting", e);
+      }
     }
   }
 
