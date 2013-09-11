@@ -4,6 +4,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -40,6 +43,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   private ArrayList<String> systemRoles;
   private String adminRole;  
 
+  private static final Logger logger = Logger.getLogger(UserRoleDaoResource.class);
 
   public UserRoleDaoResource() {
     this(PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class), PentahoSystem.get(ITenantManager.class),
@@ -242,7 +246,21 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes({ WILDCARD })
   public Response createUser(@QueryParam("tenant") String tenantPath, User user) {
     IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    roleDao.createUser(getTenant(tenantPath), user.getUserName(), user.getPassword(), "", new String[0]);
+    String userName = user.getUserName();
+    String password = user.getPassword();
+    try {
+      userName = URLDecoder.decode(userName.replace("+", "%2B"), "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      userName = user.getUserName();
+      logger.warn(e.getMessage(), e);
+    }
+    try {
+      password = URLDecoder.decode(password.replace("+", "%2B"), "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      password = user.getPassword();
+      logger.warn(e.getMessage(), e);
+    }
+    roleDao.createUser(getTenant(tenantPath), userName, password, "", new String[0]);
     return Response.ok().build();
   }
 
