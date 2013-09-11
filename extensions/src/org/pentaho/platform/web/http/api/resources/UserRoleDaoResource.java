@@ -317,9 +317,23 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes({ WILDCARD })
   public Response updatePassword(User user) {
     IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-    IPentahoUser puser = roleDao.getUser(null, user.getUserName());
+    String userName = user.getUserName();
+    String password = user.getPassword();
+    try {
+      userName = URLDecoder.decode(userName.replace("+", "%2B"), "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      userName = user.getUserName();
+      logger.warn(e.getMessage(), e);
+    }
+    try {
+      password = URLDecoder.decode(password.replace("+", "%2B"), "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      password = user.getPassword();
+      logger.warn(e.getMessage(), e);
+    }
+    IPentahoUser puser = roleDao.getUser(null, userName);
     if (puser != null) {
-      roleDao.setPassword(null, user.getUserName(), user.getPassword());
+      roleDao.setPassword(null, userName, password);
     }
     return Response.ok().build();
   }
