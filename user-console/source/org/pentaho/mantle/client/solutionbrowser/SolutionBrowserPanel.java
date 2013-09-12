@@ -416,6 +416,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     id = id.replace("<", "%3C");
     id = id.replace(">", "%3E");
     id = id.replace("+", "%2B");
+    id = id.replace("%", "%25");
     
     if (!id.startsWith(":")) {
       id = ":" + id;
