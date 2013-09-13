@@ -293,7 +293,7 @@
 			}
 
 			var me = this;
-			BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + repoPath + "/localeProperties", 
+			BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", 
 				function(success){
 					if (success) {
 						var arr = success.stringKeyStringValueDto;

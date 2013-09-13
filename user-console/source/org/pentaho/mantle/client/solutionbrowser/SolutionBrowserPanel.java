@@ -410,13 +410,14 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   @SuppressWarnings("nls")
   public static String pathToId(String path) {
     String id = path.replace("/", ":");
+    id = id.replace("%", "%25");
     id = id.replace("#", "%23");
     id = id.replace("{", "%7B");
     id = id.replace("}", "%7D");
     id = id.replace("<", "%3C");
     id = id.replace(">", "%3E");
     id = id.replace("+", "%2B");
-    id = id.replace("%", "%25");
+    
     
     if (!id.startsWith(":")) {
       id = ":" + id;
