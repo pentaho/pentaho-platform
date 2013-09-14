@@ -1,26 +1,32 @@
 /*
- * Copyright 2011 Pentaho Corporation.  All rights reserved. 
- * This software was developed by Pentaho Corporation and is provided under the terms 
- * of the Mozilla Public License, Version 1.1, or any later version. You may not use 
- * this file except in compliance with the license. If you need a copy of the license, 
- * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. The Original Code is the Pentaho 
+ * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ * This software was developed by Pentaho Corporation and is provided under the terms
+ * of the Mozilla Public License, Version 1.1, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. The Original Code is the Pentaho
  * BI Platform.  The Initial Developer is Pentaho Corporation.
  *
- * Software distributed under the Mozilla Public License is distributed on an "AS IS" 
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to 
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  *
- * @created Nov 7, 2011 
+ * @created Nov 7, 2011
  * @author Ezequiel Cuellar
  */
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -30,9 +36,12 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 public class MondrianCatalogRepositoryHelper {
 
   private final static String ETC_MONDRIAN_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
+  private final static String ETC_OLAP_SERVERS_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "olap-servers";
 
   private IUnifiedRepository repository;
 
@@ -63,6 +72,177 @@ public class MondrianCatalogRepositoryHelper {
     }
   }
 
+  public void addOlapServer(
+      String name,
+      String className,
+      String URL,
+      String SSO,
+      String user,
+      String password,
+      Properties props)
+  {
+      // Get the /etc/olap-servers folder.
+      // Create it if necessary.
+      RepositoryFile etcOlapServers =
+        repository.getFile(ETC_OLAP_SERVERS_JCR_FOLDER);
+      if (etcOlapServers == null) {
+        etcOlapServers =
+          repository.createFolder(
+                    repository.getFile(RepositoryFile.SEPARATOR + "etc").getId(),
+                    new RepositoryFile.Builder("olap-servers")
+                        .folder(true)
+                        .build(),
+                    "Creating olap-servers directory in /etc");
+      }
+      RepositoryFile entry =
+        repository.getFile(ETC_OLAP_SERVERS_JCR_FOLDER + RepositoryFile.SEPARATOR + name);
+      if (entry == null) {
+        entry =
+          repository.createFolder(
+            etcOlapServers.getId(),
+            new RepositoryFile.Builder(name)
+              .folder(true)
+              .build(),
+            "Creating entry for olap server: "
+              + name
+              + " into folder "
+              + ETC_OLAP_SERVERS_JCR_FOLDER);
+      }
+
+      final String path =
+        ETC_OLAP_SERVERS_JCR_FOLDER
+        + RepositoryFile.SEPARATOR
+        + name
+        + RepositoryFile.SEPARATOR
+        + "metadata";
+
+      // Convert the properties to a serializable XML format.
+      final String xmlProperties;
+      ByteArrayOutputStream os = new ByteArrayOutputStream();
+      try {
+          props.storeToXML(
+              os,
+              "Connection properties for server: " + name,
+              "UTF-8");
+          xmlProperties =
+              os.toString("UTF-8");
+      } catch (IOException e) {
+          // Very bad. Just throw.
+          throw new RuntimeException(e);
+      } finally {
+          try {
+              os.close();
+          } catch (IOException e) {
+              // Don't care. Just cleaning up.
+          }
+      }
+
+      DataNode node = new DataNode("server");
+      node.setProperty("name", name);
+      node.setProperty("className", className);
+      node.setProperty("URL", URL);
+      node.setProperty("SSO", SSO);
+      node.setProperty("user", user);
+      node.setProperty("password", password);
+      node.setProperty("properties", xmlProperties);
+      NodeRepositoryFileData data = new NodeRepositoryFileData(node);
+
+      RepositoryFile metadata = repository.getFile(path);
+
+      if (metadata == null) {
+        repository.createFile(
+            entry.getId(),
+            new RepositoryFile.Builder("metadata").build(),
+            data,
+            "Creating olap-server metadata for server "
+            + name);
+      } else {
+        repository.updateFile(
+            metadata,
+            data,
+            "Updating olap-server metadata for server "
+            + name);
+      }
+  }
+
+  public void deleteOlapServer(String name) {
+      // Get the /etc/olap-servers/[name] folder.
+      // Create it if necessary.
+      RepositoryFile serverNode =
+        repository.getFile(
+            ETC_OLAP_SERVERS_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + name);
+
+      if (serverNode != null) {
+        repository.deleteFile(serverNode,
+            "Deleting olap server: " + name);
+      }
+  }
+
+  public List<String> getOlapServers() {
+      final RepositoryFile serversFolder =
+          repository.getFile(
+              ETC_OLAP_SERVERS_JCR_FOLDER);
+      if (serversFolder == null) {
+          return Collections.emptyList();
+      }
+      final List<String> names = new ArrayList<String>();
+      for (RepositoryFile repoFile : repository.getChildren(serversFolder.getId())) {
+          names.add(repoFile.getName());
+      }
+      return names;
+  }
+
+  public OlapServerInfo getOlapServer(String name) {
+      RepositoryFile serverNode =
+        repository.getFile(
+          ETC_OLAP_SERVERS_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + name);
+
+      if (serverNode != null) {
+        return new OlapServerInfo(serverNode);
+      } else {
+          return null;
+      }
+  }
+
+  public final class OlapServerInfo {
+      public final String name;
+      public final String className;
+      public final String URL;
+      public final String SSO;
+      public final String user;
+      public final String password;
+      public final Properties properties;
+      private OlapServerInfo(RepositoryFile source) {
+          final NodeRepositoryFileData data =
+              repository.getDataForRead(
+                  source.getId(),
+                  NodeRepositoryFileData.class);
+
+          this.name = data.getNode().getProperty("name").getString();
+          this.className = data.getNode().getProperty("className").getString();
+          this.URL = data.getNode().getProperty("URL").getString();
+          this.SSO = data.getNode().getProperty("SSO").getString();
+          this.user = data.getNode().getProperty("user").getString();
+          this.password = data.getNode().getProperty("password").getString();
+          this.properties = new Properties();
+
+          final String propertiesXml =
+              data.getNode().getProperty("properties").getString();
+          try {
+            properties.loadFromXML(
+              new ByteArrayInputStream(
+                propertiesXml.getBytes("UTF-8")));
+        } catch (Exception e) {
+            // Very bad.
+            throw new RuntimeException(e);
+        }
+      }
+  }
+
   public Map<String, InputStream> getModrianSchemaFiles(String catalogName) {
     Map<String, InputStream> values = new HashMap<String, InputStream>();
     RepositoryFile catalogFolder = repository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
@@ -80,7 +260,7 @@ public class MondrianCatalogRepositoryHelper {
     }
     return values;
   }
-  
+
   /*
     * Creates "/etc/mondrian/<catalog>"
     */
