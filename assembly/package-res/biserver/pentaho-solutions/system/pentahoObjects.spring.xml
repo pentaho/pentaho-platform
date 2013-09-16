@@ -179,6 +179,9 @@ not directly from the PentahoObjectFactory. -->
     <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper"
         scope="singleton"/>
 
+    <bean id="IOlapService" class="org.pentaho.platform.plugin.action.mondrian.catalog.OlapServiceImpl"
+        scope="singleton"/>
+
   <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
 
   <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.JcrBackedDatasourceMgmtService"

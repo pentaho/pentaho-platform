@@ -199,7 +199,9 @@ public class MondrianCatalogRepositoryHelper {
         repository.getFile(
           ETC_OLAP_SERVERS_JCR_FOLDER
             + RepositoryFile.SEPARATOR
-            + name);
+            + name
+            + RepositoryFile.SEPARATOR
+            + "metadata");
 
       if (serverNode != null) {
         return new OlapServerInfo(serverNode);

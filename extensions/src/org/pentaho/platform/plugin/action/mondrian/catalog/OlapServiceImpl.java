@@ -27,6 +27,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.messages.Messages;
@@ -34,6 +35,8 @@ import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.OlapServerInfo;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class OlapServiceImpl implements IOlapService {
 
@@ -197,7 +200,7 @@ public class OlapServiceImpl implements IOlapService {
         IPentahoSession session)
     throws IOlapServiceException
     {
-        List<String> names = new ArrayList<String>();
+        final List<String> names = new ArrayList<String>();
         OlapConnection conn = null;
         try {
             conn =
@@ -214,19 +217,6 @@ public class OlapServiceImpl implements IOlapService {
                 }
             }
 
-            // Now add the remote ones
-            MondrianCatalogRepositoryHelper helper =
-                new MondrianCatalogRepositoryHelper(
-                PentahoSystem.get(IUnifiedRepository.class));
-            for (String name : helper.getOlapServers()) {
-                // Check for access rights.
-                if (hasAccess(name, CatalogPermission.READ, session)) {
-                    names.add(name);
-                }
-            }
-
-            // Done.
-            return names;
         } catch (Exception e) {
             if (conn != null) {
                 try {
@@ -238,8 +228,24 @@ public class OlapServiceImpl implements IOlapService {
                         e1);
                 }
             }
-            throw new IOlapServiceException(e);
+            LOG.error(
+                "Exception encountered while populating the list of local catalogs.",
+                e);
         }
+
+        // Now add the remote ones
+        MondrianCatalogRepositoryHelper helper =
+            new MondrianCatalogRepositoryHelper(
+            PentahoSystem.get(IUnifiedRepository.class));
+        for (String name : helper.getOlapServers()) {
+            // Check for access rights.
+            if (hasAccess(name, CatalogPermission.READ, session)) {
+                names.add(name);
+            }
+        }
+
+        // Done.
+        return names;
     }
 
     public OlapConnection getConnection(
