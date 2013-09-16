@@ -36,8 +36,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 public class MondrianCatalogRepositoryHelper {
 
   private final static String ETC_MONDRIAN_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
@@ -76,7 +74,6 @@ public class MondrianCatalogRepositoryHelper {
       String name,
       String className,
       String URL,
-      String SSO,
       String user,
       String password,
       Properties props)
@@ -141,7 +138,6 @@ public class MondrianCatalogRepositoryHelper {
       node.setProperty("name", name);
       node.setProperty("className", className);
       node.setProperty("URL", URL);
-      node.setProperty("SSO", SSO);
       node.setProperty("user", user);
       node.setProperty("password", password);
       node.setProperty("properties", xmlProperties);
@@ -181,20 +177,33 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   public List<String> getOlapServers() {
-      final RepositoryFile serversFolder =
-          repository.getFile(
-              ETC_OLAP_SERVERS_JCR_FOLDER);
-      if (serversFolder == null) {
-          return Collections.emptyList();
-      }
-      final List<String> names = new ArrayList<String>();
-      for (RepositoryFile repoFile : repository.getChildren(serversFolder.getId())) {
+      return getOlapServers(false);
+  }
+
+  public List<String> getOlapServers(boolean hostedOnly) {
+      List<String> names = new ArrayList<>();
+
+      RepositoryFile hostedFolder =
+          repository.getFile(ETC_MONDRIAN_JCR_FOLDER);
+      for (RepositoryFile repoFile : repository.getChildren(hostedFolder.getId())) {
           names.add(repoFile.getName());
+      }
+
+      if (hostedOnly) {
+          return names;
+      }
+
+      RepositoryFile serversFolder =
+          repository.getFile(ETC_OLAP_SERVERS_JCR_FOLDER);
+      if (serversFolder != null) {
+          for (RepositoryFile repoFile : repository.getChildren(serversFolder.getId())) {
+              names.add(repoFile.getName());
+          }
       }
       return names;
   }
 
-  public OlapServerInfo getOlapServer(String name) {
+  public Olap4jServerInfo getOlap4jServerInfo(String name) {
       RepositoryFile serverNode =
         repository.getFile(
           ETC_OLAP_SERVERS_JCR_FOLDER
@@ -204,21 +213,20 @@ public class MondrianCatalogRepositoryHelper {
             + "metadata");
 
       if (serverNode != null) {
-        return new OlapServerInfo(serverNode);
+        return new Olap4jServerInfo(serverNode);
       } else {
           return null;
       }
   }
 
-  public final class OlapServerInfo {
+  public final class Olap4jServerInfo {
       public final String name;
       public final String className;
       public final String URL;
-      public final String SSO;
       public final String user;
       public final String password;
       public final Properties properties;
-      private OlapServerInfo(RepositoryFile source) {
+      private Olap4jServerInfo(RepositoryFile source) {
           final NodeRepositoryFileData data =
               repository.getDataForRead(
                   source.getId(),
@@ -227,7 +235,6 @@ public class MondrianCatalogRepositoryHelper {
           this.name = data.getNode().getProperty("name").getString();
           this.className = data.getNode().getProperty("className").getString();
           this.URL = data.getNode().getProperty("URL").getString();
-          this.SSO = data.getNode().getProperty("SSO").getString();
           this.user = data.getNode().getProperty("user").getString();
           this.password = data.getNode().getProperty("password").getString();
           this.properties = new Properties();

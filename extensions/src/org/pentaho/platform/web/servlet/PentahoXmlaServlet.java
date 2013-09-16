@@ -30,7 +30,7 @@ import mondrian.xmla.impl.DefaultXmlaServlet;
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.action.mondrian.catalog.IOlapService;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 
 public class PentahoXmlaServlet extends DefaultXmlaServlet {
 

@@ -12,18 +12,25 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 - 2009 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
 */
-package org.pentaho.platform.plugin.action.mondrian.catalog;
+package org.pentaho.platform.plugin.action.olap;
 
+import javax.jcr.AccessDeniedException;
 
 public class IOlapServiceException extends RuntimeException {
 
     private static final long serialVersionUID = 1852374894433624504L;
 
     public static enum Reason {
-      GENERAL, ACCESS_DENIED, ALREADY_EXISTS, XMLA_SCHEMA_NAME_EXISTS
+      GENERAL, ACCESS_DENIED, ALREADY_EXISTS, XMLA_SCHEMA_NAME_EXISTS;
+      public static Reason convert(Throwable t) {
+          if (t instanceof AccessDeniedException) {
+              return Reason.ACCESS_DENIED;
+          }
+          return Reason.GENERAL;
+      }
     };
 
     private Reason reason;

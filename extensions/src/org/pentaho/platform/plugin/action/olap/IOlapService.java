@@ -12,10 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 - 2009 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
 */
-package org.pentaho.platform.plugin.action.mondrian.catalog;
+package org.pentaho.platform.plugin.action.olap;
 
 import java.io.InputStream;
 import java.util.List;
@@ -24,6 +24,10 @@ import java.util.Properties;
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.IPentahoSession;
 
+/**
+ * This service manages the hosted OLAP connections, implemented with Mondrian,
+ * as well as other generic olap4j connections.
+ */
 public interface IOlapService {
 
   /**
@@ -58,9 +62,6 @@ public interface IOlapService {
    * @param className The class of the driver to use.
    * Must be an imlementation of OlapConnection.
    * @param URL The URL to use.
-   * @param SSO One of 'true' or 'false'. If true, we use the credentials from the
-   * user's session when creating the connection. This will override any value of
-   * the user and password parameters. If false, we use user/password.
    * @param user Username to use when connecting.
    * @param password Password to use when connecting.
    * @param props Extra conenction parameters to pass.
@@ -71,7 +72,6 @@ public interface IOlapService {
       String name,
       String className,
       String URL,
-      String SSO,
       String user,
       String password,
       Properties props,
@@ -86,6 +86,17 @@ public interface IOlapService {
    */
   List<String> getCatalogs(
       final IPentahoSession pentahoSession)
+  throws IOlapServiceException;
+
+  /**
+   * Provides a list of catalog names known to this server,
+   * but only returns those locally hosted if the parameter is set.
+   * @param pentahoSession The session asking for catalogs.
+   * @param hostedOnly Returns only the locally hosted catalogs if true.
+   */
+  List<String> getCatalogs(
+      final IPentahoSession pentahoSession,
+      boolean hostedOnly)
   throws IOlapServiceException;
 
   /**

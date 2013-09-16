@@ -1,10 +1,29 @@
-package org.pentaho.platform.plugin.action.mondrian.catalog;
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ *
+*/
+package org.pentaho.platform.plugin.action.olap.impl;
 
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -30,9 +49,12 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.plugin.action.olap.IOlapConnectionFilter;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
+import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.OlapServerInfo;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
 public class OlapServiceImpl implements IOlapService {
@@ -42,7 +64,11 @@ public class OlapServiceImpl implements IOlapService {
 
     private static final Log LOG = getLogger();
 
+    private final IUnifiedRepository repository;
+    private final MondrianCatalogRepositoryHelper helper;
+
     private MondrianServer server = null;
+    private List<IOlapConnectionFilter> filters;
 
     protected static enum CatalogPermission {
         READ, WRITE
@@ -50,6 +76,20 @@ public class OlapServiceImpl implements IOlapService {
 
     private static Log getLogger() {
         return LogFactory.getLog(IOlapService.class);
+    }
+
+    public OlapServiceImpl() {
+        this(PentahoSystem.get(IUnifiedRepository.class));
+    }
+
+    public OlapServiceImpl(IUnifiedRepository repo) {
+        if (repo == null) {
+            throw new NullPointerException();
+        }
+        this.repository = repo;
+        this.helper =
+            new MondrianCatalogRepositoryHelper(
+                repository);
     }
 
     public void addHostedCatalog(
@@ -80,14 +120,13 @@ public class OlapServiceImpl implements IOlapService {
 
         try {
             MondrianCatalogRepositoryHelper helper =
-                new MondrianCatalogRepositoryHelper(
-                PentahoSystem.get(IUnifiedRepository.class));
+                new MondrianCatalogRepositoryHelper(repository);
             helper.addSchema(inputStream, name, dataSourceInfo);
           } catch (Exception e) {
             throw new IOlapServiceException(
                 Messages.getInstance().getErrorString(
                     "OlapServiceImpl.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
-                    IOlapServiceException.Reason.valueOf(e.getMessage()));
+                    IOlapServiceException.Reason.convert(e));
           }
     }
 
@@ -105,7 +144,6 @@ public class OlapServiceImpl implements IOlapService {
         String name,
         String className,
         String URL,
-        String SSO,
         String user,
         String password,
         Properties props,
@@ -132,10 +170,9 @@ public class OlapServiceImpl implements IOlapService {
         }
 
         MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(
-            PentahoSystem.get(IUnifiedRepository.class));
+            new MondrianCatalogRepositoryHelper(repository);
 
-        helper.addOlapServer(name, className, URL, SSO, user, password, props);
+        helper.addOlapServer(name, className, URL, user, password, props);
     }
 
     public void removeCatalog(String name, IPentahoSession session) {
@@ -163,17 +200,13 @@ public class OlapServiceImpl implements IOlapService {
                     IOlapServiceException.Reason.ACCESS_DENIED);
         }
 
-        final IUnifiedRepository solutionRepository =
-            PentahoSystem.get(IUnifiedRepository.class);
-        final MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(solutionRepository);
         final RepositoryFile deletingFile =
-            solutionRepository.getFile(RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
+            repository.getFile(RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
             + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + name); //$NON-NLS-1$
 
         if (deletingFile != null) {
             // We are dealing with a local datasource here. We can delete it.
-            solutionRepository.deleteFile(
+            repository.deleteFile(
                 deletingFile.getId(),
                 "Deleting Mondrian Schema because of a request from "
                 + session.getName());
@@ -197,52 +230,18 @@ public class OlapServiceImpl implements IOlapService {
         IPentahoSession session)
     throws IOlapServiceException
     {
-        final List<String> names = new ArrayList<String>();
-        OlapConnection conn = null;
-        try {
-            conn =
-                // We get a non-authenticated session here.
-                // We want all catalogs for now.
-                getServer().getConnection(
-                    DATASOURCE_NAME, null, null);
+        return getCatalogs(session, false);
+    }
 
-            // First, add the local ones
-            for (String name : conn.getOlapCatalogs().asMap().keySet()) {
-                // Check for access rights.
-                if (hasAccess(name, CatalogPermission.READ, session)) {
-                    names.add(name);
-                }
-            }
+    public List<String> getCatalogs(
+        IPentahoSession session,
+        boolean hostedOnly)
+    throws IOlapServiceException
+    {
+        final MondrianCatalogRepositoryHelper helper =
+            new MondrianCatalogRepositoryHelper(repository);
 
-        } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e1) {
-                    // Don't care.
-                    LOG.debug(
-                        "Failed to cleanup the connection.",
-                        e1);
-                }
-            }
-            LOG.error(
-                "Exception encountered while populating the list of local catalogs.",
-                e);
-        }
-
-        // Now add the remote ones
-        MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(
-            PentahoSystem.get(IUnifiedRepository.class));
-        for (String name : helper.getOlapServers()) {
-            // Check for access rights.
-            if (hasAccess(name, CatalogPermission.READ, session)) {
-                names.add(name);
-            }
-        }
-
-        // Done.
-        return names;
+        return helper.getOlapServers(hostedOnly);
     }
 
     public OlapConnection getConnection(
@@ -264,13 +263,10 @@ public class OlapServiceImpl implements IOlapService {
         }
 
         // Check if it is a remote server
-        MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(
-            PentahoSystem.get(IUnifiedRepository.class));
         if (catalogName != null
-            && helper.getOlapServers().contains(catalogName))
+            && !helper.getOlapServers(true).contains(catalogName))
         {
-            return makeRemoteConnection(catalogName, session);
+            return makeOlap4jConnection(catalogName, session);
         }
 
         // Check its existence.
@@ -336,14 +332,13 @@ public class OlapServiceImpl implements IOlapService {
         }
     }
 
-    private OlapConnection makeRemoteConnection(
+    private OlapConnection makeOlap4jConnection(
         String name,
         IPentahoSession session)
     {
-        MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(
-            PentahoSystem.get(IUnifiedRepository.class));
-        OlapServerInfo olapServerInfo = helper.getOlapServer(name);
+        final Olap4jServerInfo olapServerInfo =
+            helper.getOlap4jServerInfo(name);
+        assert olapServerInfo != null;
 
         // Make sure the driver is present
         try {
@@ -352,20 +347,27 @@ public class OlapServiceImpl implements IOlapService {
             throw new IOlapServiceException(e);
         }
 
+        // As per the JDBC specs, we can set the user/pass into
+        // connection properties called 'user' and 'password'.
         Properties newProps =
                 new Properties(olapServerInfo.properties);
-        if (olapServerInfo.SSO.equalsIgnoreCase("true")) {
-            newProps.put(
-                "user", session.getName());
-            // TODO pass the password here.
-            newProps.put(
-                "password", "NOT_IMPLEMENTED");
-        } else {
+
+        // First, apply the filters.
+        for (IOlapConnectionFilter filter : this.filters) {
+            filter.filterProperties(newProps);
+        }
+
+        // Then override the user and password. We do this after the filters
+        // so as not to expose this.
+        if (olapServerInfo.user != null) {
             newProps.put(
                 "user", olapServerInfo.user);
+        }
+        if (olapServerInfo.password != null) {
             newProps.put(
                 "password", olapServerInfo.password);
         }
+
         try {
             Connection conn =
                 DriverManager.getConnection(
@@ -410,8 +412,6 @@ public class OlapServiceImpl implements IOlapService {
     }
 
     private String generateInMemoryDatasourcesXml() {
-        IUnifiedRepository unifiedRepository =
-            PentahoSystem.get(IUnifiedRepository.class);
         StringBuffer datasourcesXML = new StringBuffer();
         datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
         datasourcesXML.append("<DataSources>\n"); //$NON-NLS-1$
@@ -425,33 +425,23 @@ public class OlapServiceImpl implements IOlapService {
         datasourcesXML.append("<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"); //$NON-NLS-1$
         datasourcesXML.append("<Catalogs>\n"); //$NON-NLS-1$
 
-        //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
-        /*IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-        String tenantEtcFolder = null;
-        if(pentahoSession != null) {
-          String tenantId = (String) pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY);
-          tenantEtcFolder = ServerRepositoryPaths.getTenantEtcFolderPath(tenantId);
-        } else {
-          tenantEtcFolder = ServerRepositoryPaths.getTenantEtcFolderPath();
-        }*/
-
         String etcMondrian =
             ClientRepositoryPaths.getEtcFolderPath()
             + RepositoryFile.SEPARATOR
             + MONDRIAN_DATASOURCE_FOLDER;
 
-        RepositoryFile etcMondrianFolder = unifiedRepository.getFile(etcMondrian);
+        RepositoryFile etcMondrianFolder = repository.getFile(etcMondrian);
         if (etcMondrianFolder != null) {
-          List<RepositoryFile> mondrianCatalogs = unifiedRepository.getChildren(etcMondrianFolder.getId());
+          List<RepositoryFile> mondrianCatalogs = repository.getChildren(etcMondrianFolder.getId());
 
           for (RepositoryFile catalog : mondrianCatalogs) {
 
             String catalogName = catalog.getName();
-            RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + RepositoryFile.SEPARATOR + catalogName
+            RepositoryFile metadata = repository.getFile(etcMondrian + RepositoryFile.SEPARATOR + catalogName
                 + RepositoryFile.SEPARATOR + "metadata"); //$NON-NLS-1$
 
             if (metadata != null) {
-              DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class)
+              DataNode metadataNode = repository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class)
                   .getNode();
               String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString(); //$NON-NLS-1$
               String definition = metadataNode.getProperty("definition").getString(); //$NON-NLS-1$
@@ -463,11 +453,7 @@ public class OlapServiceImpl implements IOlapService {
           }
 
           // Now add the remote catalogs
-          MondrianCatalogRepositoryHelper helper =
-              new MondrianCatalogRepositoryHelper(
-              PentahoSystem.get(IUnifiedRepository.class));
-          for (String name : helper.getOlapServers()) {
-              final OlapServerInfo os = helper.getOlapServer(name);
+          for (String name : helper.getOlapServers(true)) {
               addCatalogXml(
                   datasourcesXML,
                   name,
@@ -492,5 +478,11 @@ public class OlapServiceImpl implements IOlapService {
         }
         str.append("<Definition>" + definition + "</Definition>\n"); //$NON-NLS-1$ //$NON-NLS-2$
         str.append("</Catalog>\n"); //$NON-NLS-1$
+    }
+
+    public void setConnectionFilters(Collection<IOlapConnectionFilter> filters) {
+        this.filters =
+            Collections.unmodifiableList(
+                new ArrayList<IOlapConnectionFilter>(filters));
     }
 }

@@ -179,8 +179,14 @@ not directly from the PentahoObjectFactory. -->
     <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper"
         scope="singleton"/>
 
-    <bean id="IOlapService" class="org.pentaho.platform.plugin.action.mondrian.catalog.OlapServiceImpl"
-        scope="singleton"/>
+    <bean id="IOlapService" class="org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl"
+        scope="singleton">
+      <!--property name="connectionFilters">
+        <list>
+          <bean class="org.pentaho.platform.plugin.action.olap.IOlapConnectionFilter"/>
+        </list>
+      </property-->
+    </bean>
 
   <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
 
