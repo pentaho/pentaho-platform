@@ -181,7 +181,7 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   public List<String> getOlapServers(boolean hostedOnly) {
-      List<String> names = new ArrayList<>();
+      List<String> names = new ArrayList<String>();
 
       RepositoryFile hostedFolder =
           repository.getFile(ETC_MONDRIAN_JCR_FOLDER);
