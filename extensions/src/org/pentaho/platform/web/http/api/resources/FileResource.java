@@ -777,6 +777,14 @@ public class FileResource extends AbstractJaxRSResource {
     return getPolicy().isAllowed(RepositoryReadAction.NAME) && getPolicy().isAllowed(RepositoryCreateAction.NAME) && getPolicy().isAllowed(AdministerSecurityAction.NAME) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
+
+    @GET
+    @Path("/canCreate")
+    @Produces(TEXT_PLAIN)
+    public String doGetCanCreate() {
+        return getPolicy().isAllowed(RepositoryCreateAction.NAME)? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+  }
+
   @GET
   @Path("{pathId : .+}/acl")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
