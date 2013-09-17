@@ -152,7 +152,7 @@ pen.define([
 
     var FileBrowserModel = Backbone.Model.extend({
         defaults: {
-            showHiddenFilesURL: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
+            showHiddenFilesURL: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
 
             fileButtons: fileButtons,
             folderButtons: folderButtons,
@@ -272,7 +272,7 @@ pen.define([
 
             //Ajax request to check write permissions for folder
             $.ajax({
-                url: '/pentaho/api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
+                url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
                 type: "GET",
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
@@ -307,7 +307,7 @@ pen.define([
 
             //Ajax request to check write permissions for file
             $.ajax({
-                url: '/pentaho/api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
+                url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
                 type: "GET",
                 beforeSend: function (request) {
                     request.setRequestHeader('accept', 'application/json');
@@ -449,7 +449,7 @@ pen.define([
         },
 
         getFileTreeRequest: function (path) {
-            return "/pentaho/api/repo/files/" + path + "/children?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
+            return CONTEXT_PATH + "api/repo/files/" + path + "/children?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
         }
 
     });
@@ -553,10 +553,10 @@ pen.define([
         getFileListRequest: function (path) {
             var request;
             if (path == ".trash") {
-                request = "/pentaho/api/repo/files/deleted";
+                request = CONTEXT_PATH + "api/repo/files/deleted";
             }
             else {
-                request = "/pentaho/api/repo/files/" + path + "/children?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
+                request = CONTEXT_PATH + "api/repo/files/" + path + "/children?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
             }
             return request;
         }

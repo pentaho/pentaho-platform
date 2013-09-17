@@ -156,7 +156,7 @@
 
         function checkDownload() {
             $.ajax({
-                url: "/pentaho/api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
+                url: CONTEXT_PATH + "api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
                 type: "GET",
                 async: true,
                 success: function(response){
@@ -170,7 +170,7 @@
 
         function checkShowHiddenFiles(canDownload){
             $.ajax({
-                url: "/pentaho/api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
+                url: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
                 type: "GET",
                 async: true,
                 success: function(response){
@@ -184,7 +184,7 @@
 
         function checkShowDescriptions(canDownload, showHiddenFiles){
             $.ajax({
-                url: "/pentaho/api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS",
+                url: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS",
                 type: "GET",
                 async: true,
                 success: function(response){
@@ -198,7 +198,7 @@
 
         function checkPublish(canDownload, showHiddenFiles, showDescriptions){
             $.ajax({
-                url: "/pentaho/api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
+                url: CONTEXT_PATH + "api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
                 type: "GET",
                 async: true,
                 success: function(response){

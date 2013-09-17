@@ -65,7 +65,7 @@
 		<fileset dir="${build.third-party.dir}">
 			<excludesfile name="excludejars.jboss" />
 			<exclude name="**/licenses/*" />
-			<exclude name="**/quartz-oracle-1.5.2.jar" />
+			<exclude name="**/quartz-oracle-1.7.2.jar" />
 		</fileset>
 		<fileset dir="${build.jars.dir}" />
 	</path>
@@ -75,7 +75,7 @@
 		<fileset dir="${build.third-party.dir}">
 			<excludesfile name="excludejars-noportal.jboss" />
 			<exclude name="**/licenses/*" />
-			<exclude name="**/quartz-oracle-1.5.2.jar" />
+			<exclude name="**/quartz-oracle-1.7.2.jar" />
 		</fileset>
 		<fileset dir="${build.jars.dir}" />
 	</path>
@@ -85,7 +85,7 @@
 		<fileset dir="${build.third-party.dir}">
 			<excludesfile name="excludejars.jboss" />
 			<exclude name="**/licenses/*" />
-			<exclude name="**/quartz-1.5.2.jar" />
+			<exclude name="**/quartz-1.7.2.jar" />
 		</fileset>
 		<fileset dir="${build.jars.dir}" />
 	</path>
@@ -95,7 +95,7 @@
 		<fileset dir="${build.third-party.dir}">
 			<excludesfile name="excludejars-noportal.jboss" />
 			<exclude name="**/licenses/*" />
-			<exclude name="**/quartz-1.5.2.jar" />
+			<exclude name="**/quartz-1.7.2.jar" />
 		</fileset>
 		<fileset dir="${build.jars.dir}" />
 	</path>
