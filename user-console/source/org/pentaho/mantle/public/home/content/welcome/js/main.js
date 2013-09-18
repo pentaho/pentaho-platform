@@ -1,9 +1,31 @@
+// Define an utility block for wecomePageUtils
+
+var wpg = {
+
+	gotoSteelwheelsSamples: function(args){
+
+		// See if we have mantle
+		if(window.top.mantle_addHandler == undefined) return;
+
+		// Switch to browser perspective
+		window.top.mantle_setPerspective('browser.perspective');
+
+		// Wait for it to load, and switch to SW
+		setTimeout(function(){
+				window.top.mantle_fireEvent('GenericEvent', {
+						'eventSubType': 'OpenFolderEvent',
+						'stringParam': "/public/Steel Wheels"
+					});
+			},2000);
+	}
+
+}
+
+
 $(document).ready(function() {
 
 	// Pedro's stuff
-
-
-
+	
 	
     var stylePage = function(){
 
@@ -254,6 +276,44 @@ $(document).ready(function() {
 
 
 		}
+		
+
+		///////////////////////////////////////
+		//
+		// functionizeLinks
+		//
+		///////////////////////////////////////
+
+		var functionizeLinks = function(){
+
+			// This is where we define custom applications for the links
+
+			$("a").each(function(n){
+
+					var $a = $(this);
+					if(!$a.attr("href")) return;
+
+					var found = $a.attr("href").match(/.*FUNCTION_(.*)/);
+					if(found && found[1]){
+
+						// Get function name and execute it
+						var fargs = found[1].split("_");
+						var f = wpg[fargs.splice(0,1)[0]];
+						if(f){
+							// replace the href with a click
+							$a.removeAttr("href");
+							$a.click(function(){
+									f.call(fargs);                
+								});
+
+						}
+
+					}
+
+				});
+
+		}
+
 
 
 		///////////////////////////////////////
@@ -285,6 +345,8 @@ $(document).ready(function() {
 		highlightTag("highlightH2WithHRBefore", "h2", true,"before");
 
 
+		functionizeLinks();
+
 	}
 
 	stylePage();
@@ -300,10 +362,12 @@ $(document).ready(function() {
 				var $a=$(this);
 				var href = $a.attr("href");
 
-				$a.attr('target','_blank');
+				if(href){
+					$a.attr('target','_blank');
 
-				if(href.indexOf(".pdf")>0){
-					$a.addClass("pdfLink");
+					if(href.indexOf(".pdf")>0){
+						$a.addClass("pdfLink");
+					}
 				}
 
 			});	
