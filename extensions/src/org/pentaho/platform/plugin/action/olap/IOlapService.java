@@ -57,7 +57,7 @@ public interface IOlapService {
   throws IOlapServiceException;
 
   /**
-   * Adds a remote olap catalog to this server.
+   * Adds a generic olap4j catalog to this server.
    * @param name Name of the catalog to use
    * @param className The class of the driver to use.
    * Must be an imlementation of OlapConnection.
@@ -68,7 +68,7 @@ public interface IOlapService {
    * @param overwrite Whether to overwrite the catalog if it exists.
    * @param pentahoSession The session to use when creating the connection.
    */
-  void addRemoteCatalog(
+  void addOlap4jCatalog(
       String name,
       String className,
       String URL,
@@ -86,17 +86,6 @@ public interface IOlapService {
    */
   List<String> getCatalogs(
       final IPentahoSession pentahoSession)
-  throws IOlapServiceException;
-
-  /**
-   * Provides a list of catalog names known to this server,
-   * but only returns those locally hosted if the parameter is set.
-   * @param pentahoSession The session asking for catalogs.
-   * @param hostedOnly Returns only the locally hosted catalogs if true.
-   */
-  List<String> getCatalogs(
-      final IPentahoSession pentahoSession,
-      boolean hostedOnly)
   throws IOlapServiceException;
 
   /**

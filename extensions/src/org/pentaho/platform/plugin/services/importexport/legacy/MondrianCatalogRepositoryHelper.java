@@ -23,9 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -34,7 +33,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
 public class MondrianCatalogRepositoryHelper {
 
@@ -70,7 +68,7 @@ public class MondrianCatalogRepositoryHelper {
     }
   }
 
-  public void addOlapServer(
+  public void addOlap4jServer(
       String name,
       String className,
       String URL,
@@ -161,9 +159,8 @@ public class MondrianCatalogRepositoryHelper {
       }
   }
 
-  public void deleteOlapServer(String name) {
+  public void deleteOlap4jServer(String name) {
       // Get the /etc/olap-servers/[name] folder.
-      // Create it if necessary.
       RepositoryFile serverNode =
         repository.getFile(
             ETC_OLAP_SERVERS_JCR_FOLDER
@@ -176,29 +173,23 @@ public class MondrianCatalogRepositoryHelper {
       }
   }
 
-  public List<String> getOlapServers() {
-      return getOlapServers(false);
-  }
-
-  public List<String> getOlapServers(boolean hostedOnly) {
-      List<String> names = new ArrayList<String>();
-
+  /**
+   * Provides a list of the catalog names which are not hosted on this server.
+   * (generic olap4j connections)
+   */
+  public List<String> getOlap4jServers() {
       RepositoryFile hostedFolder =
-          repository.getFile(ETC_MONDRIAN_JCR_FOLDER);
+          repository.getFile(ETC_OLAP_SERVERS_JCR_FOLDER);
+
+      if (hostedFolder == null) {
+          // This can happen on old systems when this code first kicks in.
+          // The folder gets created in addOlap4jServer
+          return Collections.emptyList();
+      }
+
+      final List<String> names = new ArrayList<String>();
       for (RepositoryFile repoFile : repository.getChildren(hostedFolder.getId())) {
           names.add(repoFile.getName());
-      }
-
-      if (hostedOnly) {
-          return names;
-      }
-
-      RepositoryFile serversFolder =
-          repository.getFile(ETC_OLAP_SERVERS_JCR_FOLDER);
-      if (serversFolder != null) {
-          for (RepositoryFile repoFile : repository.getChildren(serversFolder.getId())) {
-              names.add(repoFile.getName());
-          }
       }
       return names;
   }
@@ -216,6 +207,55 @@ public class MondrianCatalogRepositoryHelper {
         return new Olap4jServerInfo(serverNode);
       } else {
           return null;
+      }
+  }
+
+  /**
+   * Provides a list of the catalog names hosted locally on this server.
+   */
+  public List<String> getHostedCatalogs() {
+      List<String> names = new ArrayList<String>();
+      RepositoryFile serversFolder =
+          repository.getFile(ETC_MONDRIAN_JCR_FOLDER);
+      if (serversFolder != null) {
+          for (RepositoryFile repoFile : repository.getChildren(serversFolder.getId())) {
+              names.add(repoFile.getName());
+          }
+      }
+      return names;
+  }
+
+  public HostedCatalogInfo getHostedCatalogInfo(String name) {
+      RepositoryFile catalogNode =
+        repository.getFile(
+          ETC_MONDRIAN_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + name
+            + RepositoryFile.SEPARATOR
+            + "metadata");
+
+      if (catalogNode != null) {
+        return new HostedCatalogInfo(name, catalogNode);
+      } else {
+          return null;
+      }
+  }
+
+  public final class HostedCatalogInfo {
+      public final String name;
+      public final String dataSourceInfo;
+      public final String definition;
+      public HostedCatalogInfo(
+          String name,
+          RepositoryFile source)
+      {
+          final NodeRepositoryFileData data =
+              repository.getDataForRead(
+                  source.getId(),
+                  NodeRepositoryFileData.class);
+          this.name = name;
+          this.dataSourceInfo = data.getNode().getProperty("datasourceInfo").getString();
+          this.definition = data.getNode().getProperty("definition").getString();
       }
   }
 
@@ -251,24 +291,24 @@ public class MondrianCatalogRepositoryHelper {
         }
       }
   }
-
-  public Map<String, InputStream> getModrianSchemaFiles(String catalogName) {
-    Map<String, InputStream> values = new HashMap<String, InputStream>();
-    RepositoryFile catalogFolder = repository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
-    for (RepositoryFile repoFile : repository.getChildren(catalogFolder.getId())) {
-      RepositoryFileInputStream is;
-      try {
-        if (repoFile.getName().equals("metadata")) {
-          continue;
-        }
-        is = new RepositoryFileInputStream(repoFile);
-      } catch (Exception e) {
-        return null;  // This pretty much ensures an exception will be thrown later and passed to the client
-      }
-      values.put(repoFile.getName(), is);
-    }
-    return values;
-  }
+//
+//  public Map<String, InputStream> getModrianSchemaFiles(String catalogName) {
+//    Map<String, InputStream> values = new HashMap<String, InputStream>();
+//    RepositoryFile catalogFolder = repository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
+//    for (RepositoryFile repoFile : repository.getChildren(catalogFolder.getId())) {
+//      RepositoryFileInputStream is;
+//      try {
+//        if (repoFile.getName().equals("metadata")) {
+//          continue;
+//        }
+//        is = new RepositoryFileInputStream(repoFile);
+//      } catch (Exception e) {
+//        return null;  // This pretty much ensures an exception will be thrown later and passed to the client
+//      }
+//      values.put(repoFile.getName(), is);
+//    }
+//    return values;
+//  }
 
   /*
     * Creates "/etc/mondrian/<catalog>"

@@ -23,10 +23,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import mondrian.olap.MondrianServer;
 import mondrian.rolap.RolapConnection;
@@ -43,8 +43,6 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -54,8 +52,8 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.HostedCatalogInfo;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
 public class OlapServiceImpl implements IOlapService {
 
@@ -64,11 +62,16 @@ public class OlapServiceImpl implements IOlapService {
 
     private static final Log LOG = getLogger();
 
-    private final IUnifiedRepository repository;
-    private final MondrianCatalogRepositoryHelper helper;
+    /*
+     * Do not access these two fields directly. They need to be accessed through
+     * getRepository and getHelper because we can't init them before spring is
+     * done initializing the sub modules.
+     */
+    private IUnifiedRepository repository;
+    private MondrianCatalogRepositoryHelper helper;
 
     private MondrianServer server = null;
-    private List<IOlapConnectionFilter> filters;
+    private final List<IOlapConnectionFilter> filters;
 
     protected static enum CatalogPermission {
         READ, WRITE
@@ -79,17 +82,28 @@ public class OlapServiceImpl implements IOlapService {
     }
 
     public OlapServiceImpl() {
-        this(PentahoSystem.get(IUnifiedRepository.class));
+        this(null);
     }
 
     public OlapServiceImpl(IUnifiedRepository repo) {
-        if (repo == null) {
-            throw new NullPointerException();
-        }
         this.repository = repo;
-        this.helper =
-            new MondrianCatalogRepositoryHelper(
-                repository);
+        this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
+    }
+
+    private synchronized IUnifiedRepository getRepository() {
+        if (repository == null) {
+            repository = PentahoSystem.get(IUnifiedRepository.class);
+        }
+        return repository;
+    }
+
+    private synchronized MondrianCatalogRepositoryHelper getHelper() {
+        if (helper == null) {
+            helper =
+                new MondrianCatalogRepositoryHelper(
+                    getRepository());
+        }
+        return helper;
     }
 
     public void addHostedCatalog(
@@ -120,7 +134,7 @@ public class OlapServiceImpl implements IOlapService {
 
         try {
             MondrianCatalogRepositoryHelper helper =
-                new MondrianCatalogRepositoryHelper(repository);
+                new MondrianCatalogRepositoryHelper(getRepository());
             helper.addSchema(inputStream, name, dataSourceInfo);
           } catch (Exception e) {
             throw new IOlapServiceException(
@@ -140,7 +154,7 @@ public class OlapServiceImpl implements IOlapService {
         return true;
     }
 
-    public void addRemoteCatalog(
+    public void addOlap4jCatalog(
         String name,
         String className,
         String URL,
@@ -170,9 +184,9 @@ public class OlapServiceImpl implements IOlapService {
         }
 
         MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(repository);
+            new MondrianCatalogRepositoryHelper(getRepository());
 
-        helper.addOlapServer(name, className, URL, user, password, props);
+        helper.addOlap4jServer(name, className, URL, user, password, props);
     }
 
     public void removeCatalog(String name, IPentahoSession session) {
@@ -201,24 +215,24 @@ public class OlapServiceImpl implements IOlapService {
         }
 
         final RepositoryFile deletingFile =
-            repository.getFile(RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
+            getRepository().getFile(RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
             + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + name); //$NON-NLS-1$
 
         if (deletingFile != null) {
             // We are dealing with a local datasource here. We can delete it.
-            repository.deleteFile(
+            getRepository().deleteFile(
                 deletingFile.getId(),
                 "Deleting Mondrian Schema because of a request from "
                 + session.getName());
         } else {
             // This could be a remote connection
-            helper.deleteOlapServer(name);
+            getHelper().deleteOlap4jServer(name);
         }
     }
 
     public void flushAll(IPentahoSession pentahoSession) {
         try {
-            server.getConnection(null, null, null)
+            getServer().getConnection(null, null, null)
                 .unwrap(RolapConnection.class).getCacheControl(null)
                     .flushSchemaCache();
         } catch (Exception e) {
@@ -230,18 +244,10 @@ public class OlapServiceImpl implements IOlapService {
         IPentahoSession session)
     throws IOlapServiceException
     {
-        return getCatalogs(session, false);
-    }
-
-    public List<String> getCatalogs(
-        IPentahoSession session,
-        boolean hostedOnly)
-    throws IOlapServiceException
-    {
-        final MondrianCatalogRepositoryHelper helper =
-            new MondrianCatalogRepositoryHelper(repository);
-
-        return helper.getOlapServers(hostedOnly);
+        List<String> names = new ArrayList<String>();
+        names.addAll(getHelper().getHostedCatalogs());
+        names.addAll(getHelper().getOlap4jServers());
+        return names;
     }
 
     public OlapConnection getConnection(
@@ -264,7 +270,7 @@ public class OlapServiceImpl implements IOlapService {
 
         // Check if it is a remote server
         if (catalogName != null
-            && !helper.getOlapServers(true).contains(catalogName))
+            && getHelper().getOlap4jServers().contains(catalogName))
         {
             return makeOlap4jConnection(catalogName, session);
         }
@@ -323,10 +329,10 @@ public class OlapServiceImpl implements IOlapService {
         // Return a connection
         try {
             return getServer().getConnection(
-                DATASOURCE_NAME,
-                catalogName,
-                roleName.toString(),
-                new Properties());
+                    DATASOURCE_NAME,
+                    catalogName,
+                    roleName.toString(),
+                    new Properties());
         } catch (Exception e) {
             throw new IOlapServiceException(e);
         }
@@ -337,7 +343,7 @@ public class OlapServiceImpl implements IOlapService {
         IPentahoSession session)
     {
         final Olap4jServerInfo olapServerInfo =
-            helper.getOlap4jServerInfo(name);
+            getHelper().getOlap4jServerInfo(name);
         assert olapServerInfo != null;
 
         // Make sure the driver is present
@@ -415,6 +421,7 @@ public class OlapServiceImpl implements IOlapService {
         StringBuffer datasourcesXML = new StringBuffer();
         datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
         datasourcesXML.append("<DataSources>\n"); //$NON-NLS-1$
+
         datasourcesXML.append("<DataSource>\n"); //$NON-NLS-1$
         datasourcesXML.append("<DataSourceName>" + DATASOURCE_NAME + "</DataSourceName>\n"); //$NON-NLS-1$
         datasourcesXML.append("<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n"); //$NON-NLS-1$
@@ -425,49 +432,23 @@ public class OlapServiceImpl implements IOlapService {
         datasourcesXML.append("<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"); //$NON-NLS-1$
         datasourcesXML.append("<Catalogs>\n"); //$NON-NLS-1$
 
-        String etcMondrian =
-            ClientRepositoryPaths.getEtcFolderPath()
-            + RepositoryFile.SEPARATOR
-            + MONDRIAN_DATASOURCE_FOLDER;
-
-        RepositoryFile etcMondrianFolder = repository.getFile(etcMondrian);
-        if (etcMondrianFolder != null) {
-          List<RepositoryFile> mondrianCatalogs = repository.getChildren(etcMondrianFolder.getId());
-
-          for (RepositoryFile catalog : mondrianCatalogs) {
-
-            String catalogName = catalog.getName();
-            RepositoryFile metadata = repository.getFile(etcMondrian + RepositoryFile.SEPARATOR + catalogName
-                + RepositoryFile.SEPARATOR + "metadata"); //$NON-NLS-1$
-
-            if (metadata != null) {
-              DataNode metadataNode = repository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class)
-                  .getNode();
-              String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString(); //$NON-NLS-1$
-              String definition = metadataNode.getProperty("definition").getString(); //$NON-NLS-1$
-
-              addCatalogXml(datasourcesXML, catalogName, datasourceInfo, definition);
-            } else {
-              LOG.warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_META_DATA_IS_NULL")); //$NON-NLS-1$
-            }
-          }
-
-          // Now add the remote catalogs
-          for (String name : helper.getOlapServers(true)) {
-              addCatalogXml(
-                  datasourcesXML,
-                  name,
-                  null,
-                  "olap-server://" + name);
-          }
-
-          datasourcesXML.append("</Catalogs>\n"); //$NON-NLS-1$
-          datasourcesXML.append("</DataSource>\n"); //$NON-NLS-1$
-          datasourcesXML.append("</DataSources>\n"); //$NON-NLS-1$
-          return datasourcesXML.toString();
-        } else {
-          return null;
+        // Start with local catalogs.
+        for (String name : getHelper().getHostedCatalogs()) {
+            final HostedCatalogInfo hostedServerInfo =
+                getHelper().getHostedCatalogInfo(name);
+            addCatalogXml(
+                datasourcesXML,
+                hostedServerInfo.name,
+                hostedServerInfo.dataSourceInfo,
+                hostedServerInfo.definition);
         }
+
+        // Don't add the olap4j catalogs. This doesn't work for now.
+
+        datasourcesXML.append("</Catalogs>\n"); //$NON-NLS-1$
+        datasourcesXML.append("</DataSource>\n"); //$NON-NLS-1$
+        datasourcesXML.append("</DataSources>\n"); //$NON-NLS-1$
+        return datasourcesXML.toString();
     }
 
     private void addCatalogXml(StringBuffer str, String catalogName, String dsInfo, String definition) {
@@ -481,8 +462,6 @@ public class OlapServiceImpl implements IOlapService {
     }
 
     public void setConnectionFilters(Collection<IOlapConnectionFilter> filters) {
-        this.filters =
-            Collections.unmodifiableList(
-                new ArrayList<IOlapConnectionFilter>(filters));
+        this.filters.addAll(filters);
     }
 }

@@ -44,7 +44,8 @@ public class PentahoXmlaServlet extends DefaultXmlaServlet {
 
     @Override
     protected ConnectionFactory createConnectionFactory(ServletConfig arg0)
-            throws ServletException {
+        throws ServletException
+    {
         return new ConnectionFactory() {
             public Map<String, Object> getPreConfiguredDiscoverDatasourcesResponse() {
                 return null;
