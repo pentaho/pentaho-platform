@@ -24,13 +24,18 @@ import java.util.Properties;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import mondrian.xmla.XmlaHandler;
 import mondrian.xmla.XmlaHandler.ConnectionFactory;
+import mondrian.xmla.XmlaHandler.Request;
+import mondrian.xmla.XmlaHandler.XmlaExtra;
+import mondrian.xmla.XmlaRequest;
 import mondrian.xmla.impl.DefaultXmlaServlet;
 
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
+import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 
 public class PentahoXmlaServlet extends DefaultXmlaServlet {
 
@@ -63,6 +68,30 @@ public class PentahoXmlaServlet extends DefaultXmlaServlet {
                     .getConnection(
                         catalogName,
                         PentahoSessionHolder.getSession());
+            }
+            public void endRequest(Request arg0) {
+                // no op.
+            }
+            public XmlaExtra getExtra() {
+                OlapConnection conn = olapService
+                    .getConnection(null, PentahoSessionHolder.getSession());
+                try {
+                    return conn.unwrap(XmlaHandler.XmlaExtra.class);
+                } catch (SQLException e) {
+                    throw new IOlapServiceException(
+                        "Failed to obtain XmlaExtra form olap connection.",
+                        e);
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        // ignore.
+                        LOGGER.warn("Failed to close olap connection.", e);
+                    }
+                }
+            }
+            public Request startRequest(XmlaRequest request, OlapConnection conn) {
+                return null;
             }
         };
     }
