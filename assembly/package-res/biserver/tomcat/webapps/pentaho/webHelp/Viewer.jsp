@@ -1,4 +1,4 @@
-/*
+<%--
 * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
 * 
 * This software was developed by Pentaho Corporation and is provided under the terms
@@ -9,7 +9,7 @@
 * Software distributed under the Mozilla Public License is distributed on an "AS IS"
 * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
 * the license for the specific language governing your rights and limitations.
-*/
+--%>
 
 <%@ page language="java"
 import="org.pentaho.platform.web.jsp.messages.Messages"%>
