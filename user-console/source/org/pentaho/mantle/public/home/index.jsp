@@ -291,8 +291,8 @@
 
       <div class="row-fluid welcome-container">
       
-      <iframe src="content/welcome/index.html" class='welcome-frame'></iframe>
-      
+      <iframe src="content/welcome/index.html" class='welcome-frame' frameborder="0" scrolling="no"></iframe>
+            
       </div>
       
     </div>
