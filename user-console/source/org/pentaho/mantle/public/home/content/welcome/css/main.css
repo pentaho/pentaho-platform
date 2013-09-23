@@ -13,8 +13,7 @@ body, html {
 	font-family: "Open Sans", sans-serif;
 	font-weight: 300;
 	color: #444;
-	/*background: #f6f7f8;*/
-	background: inherit;
+	background-color: transparent;
 }
 
 
