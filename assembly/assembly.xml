@@ -306,6 +306,9 @@
     <copy todir="${prep.pentaho.war.lib.dir}">
       <fileset dir="${lib.dir}">
         <include name="*.jar" />
+          <!-- TEMPORARY CE BUILD - This should go away after merging back to TRUNK -->
+        <exclude name="pentaho-platform-*-TRUNK-SNAPSHOT.jar" />        
+        <!-- END TEMPORARY CE BUILD -->
         <exclude name="servlet-api-*.jar" />
         <exclude name="gwt-user-*.jar" />
         <exclude name="mysql-connector-*.jar" />
@@ -313,6 +316,9 @@
         <!-- TODO: Remove the line below when we fix the circular dependency between kettle-engine and metadata -->
         <exclude name="hibernate-3.2.6.ga.jar" />
       </fileset>
+      
+
+          
     </copy>
 
     <!-- Add manifest -->
