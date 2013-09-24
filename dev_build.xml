@@ -19,7 +19,7 @@
   <property name="dev-project.list" value="api,core,repository,scheduler,extensions,user-console" />
 
 
-  <target name="package" description="Creates zip with full distro" depends="dev_rebuild">
+  <target name="package" description="Creates zip with full distro" depends="dev-rebuild">
   
     <ant antfile="assembly.xml" dir="${assembly.dir}" inheritall="false">
       <target name="package" />
