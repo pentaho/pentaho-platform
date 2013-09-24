@@ -126,6 +126,21 @@
     </dependency>
 
 
+  
+
+
+          <!-- TEMPORARY CE BUILD - This should go away after merging back to TRUNK -->    
+        <dependency org="pentaho" name="pentaho-platform-api"        rev="${project.revision}" force="true" conf="default->default" changing="true" transitive="true">
+          <artifact name="pentaho-platform-api"/>
+        </dependency>
+        <dependency org="pentaho" name="pentaho-platform-core"  rev="${project.revision}" force="true" conf="default->default" changing="true" transitive="true"/>
+        <dependency org="pentaho" name="pentaho-platform-repository" rev="${project.revision}" force="true" conf="default->default" changing="true" transitive="true">
+          <artifact name="pentaho-platform-repository"/>
+        </dependency>
+        <dependency org="pentaho" name="pentaho-platform-extensions"  rev="${project.revision}" force="true" conf="default->default" changing="true" transitive="true"/>
+        <dependency org="pentaho" name="pentaho-platform-scheduler"  rev="${project.revision}" force="true" conf="default->default" changing="true" transitive="true"/>        
+    <!-- END TEMPORARY CE BUILD -->
+
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
