@@ -19,9 +19,8 @@ package org.pentaho.platform.plugin.action.builtin;
 
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
+
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.AuthenticationFailedException;
@@ -37,19 +36,21 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.Node;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionInput;
 import org.pentaho.actionsequence.dom.actions.EmailAction;
 import org.pentaho.actionsequence.dom.actions.EmailAttachment;
 import org.pentaho.commons.connection.ActivationHelper;
 import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.api.util.PasswordServiceException;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
@@ -85,14 +86,14 @@ public class EmailComponent extends ComponentBase {
 
   @Override
   protected boolean validateSystemSettings() {
-    // get the settings from the system configuration file
-    String mailhost = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.smtp.host", null); //$NON-NLS-1$ //$NON-NLS-2$
-    boolean authenticate = "true".equalsIgnoreCase(PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.smtp.auth", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-    // don't store these in a class member for secutiry
-    String user = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.userid", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    String password = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.password", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    defaultFrom = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.from.default", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
+    final IEmailService service = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
+    String mailhost = service.getEmailConfig().getSmtpHost();
+    boolean authenticate = service.getEmailConfig().isAuthenticate();
+    defaultFrom = service.getEmailConfig().getDefaultFrom();
+    String user = service.getEmailConfig().getUserId();
+    String password = service.getEmailConfig().getPassword();
+    
     // Check the email server settings...
     if (mailhost.equals("") || (user.equals("") && authenticate) || defaultFrom.equals("")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       // looks like the email stuff is not configured yet...
@@ -245,40 +246,35 @@ public class EmailComponent extends ComponentBase {
     }
 
     try {
-
       Properties props = new Properties();
-
-      try {
-        Document configDocument = PentahoSystem.getSystemSettings().getSystemSettingsDocument(
-            "smtp-email/email_config.xml"); //$NON-NLS-1$
-        List properties = configDocument.selectNodes("/email-smtp/properties/*"); //$NON-NLS-1$
-        Iterator propertyIterator = properties.iterator();
-        while (propertyIterator.hasNext()) {
-          Node propertyNode = (Node) propertyIterator.next();
-          String propertyName = propertyNode.getName();
-          String propertyValue = propertyNode.getText();
-          props.put(propertyName, propertyValue);
-        }
-      } catch (Exception e) {
-        error(Messages.getInstance().getString("Email.ERROR_0013_CONFIG_FILE_INVALID"), e); //$NON-NLS-1$
-        return false;
+      final IEmailService service = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
+      props.put("mail.smtp.host", service.getEmailConfig().getSmtpHost());
+      props.put("mail.smtp.port", ObjectUtils.toString(service.getEmailConfig().getSmtpPort()));
+      props.put("mail.transport.protocol", service.getEmailConfig().getSmtpProtocol());
+      props.put("mail.smtp.starttls.enable", ObjectUtils.toString(service.getEmailConfig().isUseStartTls()));
+      props.put("mail.smtp.auth", ObjectUtils.toString(service.getEmailConfig().isAuthenticate()));
+      props.put("mail.smtp.ssl", ObjectUtils.toString(service.getEmailConfig().isUseSsl()));
+      props.put("mail.smtp.quitwait", ObjectUtils.toString(service.getEmailConfig().isSmtpQuitWait()));
+      props.put("mail.from.default", service.getEmailConfig().getDefaultFrom());
+      String fromName = service.getEmailConfig().getFromName();
+      if (StringUtils.isEmpty(fromName)) {
+        fromName = Messages.getInstance().getString("schedulerEmailFromName");
       }
-
-      boolean authenticate = "true".equalsIgnoreCase(props.getProperty("mail.smtp.auth")); //$NON-NLS-1$//$NON-NLS-2$
-
-      // Get a Session object
+      props.put("mail.from.name", fromName);
+      props.put("mail.debug", ObjectUtils.toString(service.getEmailConfig().isDebug()));
 
       Session session;
-      if (authenticate) {
+      if (service.getEmailConfig().isAuthenticate()) {
+        props.put("mail.userid", service.getEmailConfig().getUserId());
+        props.put("mail.password", service.getEmailConfig().getPassword());
         Authenticator authenticator = new EmailAuthenticator();
         session = Session.getInstance(props, authenticator);
       } else {
         session = Session.getInstance(props);
       }
-
-      // if debugging is not set in the email config file, match the
-      // component debug setting
-      if (ComponentBase.debug && !props.containsKey("mail.debug")) { //$NON-NLS-1$
+      
+      // debugging is on if either component (xaction) or email config debug is on
+      if (service.getEmailConfig().isDebug() || ComponentBase.debug) { 
         session.setDebug(true);
       }
 
