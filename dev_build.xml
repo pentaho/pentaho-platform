@@ -19,6 +19,15 @@
   <property name="dev-project.list" value="api,core,repository,scheduler,extensions,user-console" />
 
 
+  <target name="package" description="Creates zip with full distro" depends="dev_rebuild">
+  
+    <ant antfile="assembly.xml" dir="${assembly.dir}" inheritall="false">
+      <target name="package" />
+      <target name="zip-pentaho-data" />
+      <target name="zip-pentaho-solutions" />      
+    </ant>
+  </target>
+
   <target name="dev-rebuild"
           description="Creates a Pentaho-ready Tomcat instance."
           depends="clean-all, dev-update" />
