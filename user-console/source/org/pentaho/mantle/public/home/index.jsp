@@ -131,32 +131,6 @@
           <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('OpenDocCommand')">
             {{i18n.documentation}}
           </button>
-
-
-          <div style="display:none" id="btnCreateNewContent">
-
-            {{#if hasAnalyzerPlugin}}
-            <button class="btn btn-large btn-block nobreak"
-                    onclick="Home.openFile('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
-              {{i18n.analysis_report}}
-            </button>
-            {{/if}}
-
-            {{#if hasIRPlugin}}
-            <button class="btn btn-large btn-block nobreak"
-                    onclick="Home.openFile('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
-              {{i18n.interactive_report}}
-            </button>
-            {{/if}}
-
-            {{#if hasDashBoardsPlugin}}
-            <button class="btn btn-large btn-block nobreak"
-                    onclick="Home.openFile('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
-              {{i18n.dashboard}}
-            </button>
-            {{/if}}
-          </div>
-
         </div>
       </script>
 
