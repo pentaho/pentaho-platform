@@ -134,7 +134,6 @@ public class RepositoryFileContentItem implements IContentItem {
 
   public void setName(String arg0) {
     // TODO Auto-generated method stub
-
   }
 
 }
