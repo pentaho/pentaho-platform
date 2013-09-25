@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-088.dtd">
+<report name="Subreport Example">
+	<reportheader>
+                <label fontsize="14" height="15" width="100%" x="0" y="20">(and also highlighting the use of includes)</label>
+	</reportheader>
+</report>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>analyzer_report.xaction</name>
+  <title>Analyzer Report Generation Example</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Benny Chow</author>  
+    <description><![CDATA[Generates an Analyzer report in the specified format parameterized by Year.]]></description>  
+    <icon>/style/icons/jfree1.png</icon>  
+    <help/>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <filePath type="string"> 
+      <sources> 
+        <request>filePath</request> 
+      </sources>  
+      <default-value><![CDATA[/public/Steel Wheels/Country Performance (heat grid).xanalyzer]]></default-value> 
+    </filePath>  
+    <reportFormatType type="string"> 
+      <default-value>PDF</default-value>  
+      <sources> 
+        <request>reportFormatType</request> 
+      </sources> 
+    </reportFormatType>  
+    <outputTypeList type="property-map-list"> 
+      <sources> 
+        <runtime>outputTypeList</runtime> 
+      </sources>  
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="report-output-desc">PDF</entry>  
+          <entry key="report-output-type-id">PDF</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Excel</entry>  
+          <entry key="report-output-type-id">EXCEL</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Comma Separated Values</entry>  
+          <entry key="report-output-type-id">CSV</entry> 
+        </property-map> 
+      </default-value> 
+    </outputTypeList> 
+    <yearParameter type="string"> 
+      <default-value>2003</default-value>  
+      <sources> 
+        <request>yearParameter</request> 
+      </sources> 
+    </yearParameter>  
+    <yearList type="property-map-list"> 
+      <sources> 
+        <runtime>yearList</runtime> 
+      </sources>  
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="year-desc">2003</entry>  
+          <entry key="year-id">2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="year-desc">2004</entry>  
+          <entry key="year-id">2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="year-desc">2005</entry>  
+          <entry key="year-id">2005</entry> 
+        </property-map> 
+      </default-value> 
+    </yearList> 
+  </inputs>
+
+  <outputs> 
+    <myReport type="content" is-output-parameter="false"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </myReport> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Analyzer Report Format</action-type>
+      <action-inputs> 
+        <outputTypeList type="property-map-list"/>  
+        <yearList type="property-map-list"/>
+        <reportFormatType type="string"/>
+        <yearParameter type="string"/>  
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <reportFormatType style="radio"> 
+            <title>Select Analyzer Report Format</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter> 
+          </reportFormatType>
+          <yearParameter style="radio"> 
+            <title>Select Year</title>  
+            <filter value-col-name="year-id" display-col-name="year-desc">yearList</filter> 
+          </yearParameter>
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>AnalyzerAction</component-name>
+      <action-type>Generate the analyzer report using a solution path to the report definition</action-type>
+      <action-inputs> 
+        <reportFormatType type="string"/>  
+        <filePath type="string"/>
+        <yearParameter type="string"/>  
+      </action-inputs>
+      <action-outputs> 
+        <output type="content" mapping="myReport"/> 
+      </action-outputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

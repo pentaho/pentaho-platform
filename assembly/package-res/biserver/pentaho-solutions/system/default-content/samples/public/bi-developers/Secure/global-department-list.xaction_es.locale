@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Lista de Departamentos por parametros globales
+file.description=Hace una consulta SQL para la lista de departmentos y guarda la lista en el proveedor de par\u00E1metros globales

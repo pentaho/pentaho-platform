@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>XQ_Datasource.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>William Seyler</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>XML_Datasource.png</icon> 
+  </documentation>
+
+  <outputs> 
+    <rule-result type="result-set"/>
+  </outputs>
+
+  <resources> 
+    <document> 
+      <solution-file> 
+        <location>books.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </document> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>rule</action-type>
+      <action-resources> 
+        <document type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <query><![CDATA[/bookstore/book]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

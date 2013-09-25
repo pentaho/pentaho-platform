@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:46 EDT 2013
+file.title=Time Series Charting
+title=time-series-report
+file.description=Example report to demonstrate a time based chart in a report.

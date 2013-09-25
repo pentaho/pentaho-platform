@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes createdBy="admin" updatedBy="admin" description="" created="2012-02-20T10:20:43" update="2013-08-12T17:06:21">
+        <path name="Departmental Spending (bubble chart)" folder="/public/Steel Wheels/Departmental Spending (bubble chart).xanalyzer"/>
+    </commonStorageAttributes>
+    <report catalog="SampleData" cube="Quadrant Analysis" reportTypeEnum="JSON" showRowGrandTotal="false" showColumnGrandTotal="false" useNonVisualTotals="false" showEmptyCells="false" emptyCellDisplay="-" showDrillLinks="false" version="9" autoRefresh="true" freezeColumns="true" freezeRows="true">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure formula="[Measures].[Actual]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:0]" gembarId="x" gembarOrdinal="0"/>
+            <measure formula="[Measures].[Budget]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:1]" gembarId="y" gembarOrdinal="0"/>
+            <measure formula="[Measures].[Variance]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:2]" gembarId="size" gembarOrdinal="0"/>
+        </measures>
+        <columnAttributes/>
+        <rowAttributes>
+            <attribute formula="[Positions].[Positions]" showSubtotal="false" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="0"/>
+            <attribute formula="[Department].[Department]" showSubtotal="false" sortOrderEnum="ASC" gembarId="color" gembarOrdinal="0"/>
+        </rowAttributes>
+        <filters/>
+        <chartOptions chartType="CUSTOM" customChartType="ccc_scatter" legendPosition="RIGHT" showLegend="true" autoRange="true" displayUnits="UNITS_0" autoRangeSecondary="true" displayUnitsSecondary="UNITS_0" lineWidth="2" lineShape="CIRCLE" maxValues="1000" backgroundColor="#ffffff" labelColor="#000000" labelSize="12" backgroundFill="NONE" maxChartsPerRow="3" backgroundColorEnd="#ffffff" labelStyle="PLAIN" legendBackgroundColor="#ffffff" legendSize="12" legendColor="#000000" legendStyle="PLAIN" labelFontFamily="Default" legendFontFamily="Default"/>
+        <selectionFilters>
+            <selectionItem type="LegendItem" op="EXCLUDE">
+                <selectionMember formula="[Department].[Department]" member="[Department].[Professional Services]"/>
+            </selectionItem>
+        </selectionFilters>
+        <selectionItems/>
+        <pageSetup excelPageSize="LETTER" pdfPageSize="LETTER" excelOrientation="LANDSCAPE" pdfOrientation="LANDSCAPE" excelScalingType="PERCENT" excelScalingPercent="100" excelScalingPageWide="1" excelScalingPageTall="1"/>
+        <drillColumns/>
+    </report>
+    <uiAttributes showFieldList="false" showFieldLayout="false" showFilterPanel="false">
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+        <pluginData>[{"args":{"filter.selection.max.count":500,"pattern":"GRADIENT","colorSet":"ryg","trendType":"none","trendLineWidth":"1","colorScaleType":"linear","colors":["#FF0000","#FFBF3F","#FFFF00","#BFDF3F","#008000"]},"visualizationId":"ccc_scatter"}]</pluginData>
+    </uiAttributes>
+</reportRecord>

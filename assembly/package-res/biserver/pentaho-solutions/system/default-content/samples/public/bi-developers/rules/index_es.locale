@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Ejemplos de Reglas de Negocio
+file.description=Ejemplos de reglas de negocio usando tablas de bases de datos y scripting.<br/>La Reglas son usadas como parte del proceso BI, pero aqu\u00ED puede ejecutarlas individualmente

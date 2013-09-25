@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:47 EDT 2013
+file.title=Dynamic Cross Tab Report
+title=CrossTab
+file.description=This report demonstrates the ability to build cross-tab reports on-the-fly

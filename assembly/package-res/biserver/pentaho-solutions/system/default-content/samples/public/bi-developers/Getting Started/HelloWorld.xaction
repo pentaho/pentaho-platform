@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Admin Pentaho</author>
+    <description>%description</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloWorld.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>HelloWorldComponent</component-name>
+      <action-type>Hello World</action-type>
+      <component-definition> 
+        <quote>%quote</quote> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>
