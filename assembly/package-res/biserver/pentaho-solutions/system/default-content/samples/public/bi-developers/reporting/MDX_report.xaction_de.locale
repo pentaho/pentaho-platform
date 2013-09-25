@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:49 EDT 2013
+file.title=OLAP Crosstab Bericht
+file.description=Der Tabellenvergleich zeigt die momentanen und budgetierten Daten f\u00FCr jede Abteilung gegen\u00FCber jeder Region. Der Bericht fr\u00E4gt einen Modarian OLAP Server ab und verwendet JFreeReport, um diese Seite zu erzeugen.

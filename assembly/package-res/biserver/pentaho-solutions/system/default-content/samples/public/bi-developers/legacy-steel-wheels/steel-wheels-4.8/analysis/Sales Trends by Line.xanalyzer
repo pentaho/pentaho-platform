@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2011-07-13T16:04:25" created="2011-07-12T09:22:29" description="" updatedBy="admin" createdBy="admin">
+        <path folder="steel-wheels/analysis/Sales Trends by Line.xanalyzer" name="Sales Trends by Line"/>
+    </commonStorageAttributes>
+    <report freezeRows="true" freezeColumns="true" autoRefresh="true" version="5" showDrillLinks="false" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showColumnGrandTotal="false" showRowGrandTotal="false" reportTypeEnum="CHART" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure id="[MEASURE:0]" sortOrderEnum="DESC" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showAggregate="true" showSum="false" formula="[Measures].[Sales]"/>
+        </measures>
+        <columnAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Markets].[Territory]"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Product].[Line]"/>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Time].[Years]"/>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Time].[Quarters]"/>
+        </rowAttributes>
+        <filters>
+            <filter viewFilterEnum="MULTIPLE" formula="[Product].[Line]">
+                <topBottom count="6" type="TOP" formula="[Measures].[Sales]"/>
+            </filter>
+        </filters>
+        <chartOptions legendFontFamily="Tahoma" labelFontFamily="Tahoma" legendStyle="PLAIN" legendColor="#000000" legendSize="12" legendBackgroundColor="#ffffff" labelStyle="PLAIN" backgroundColorEnd="#ffffff" maxChartsPerRow="3" backgroundFill="NONE" labelSize="12" labelColor="#000000" backgroundColor="#c0c0c0" maxValues="100" lineShape="DIAMOND" lineWidth="2" displayUnits="UNITS_0" valueAxisUpperLimit="420000.0" valueAxisLowerLimit="0.0" autoRange="false" showLegend="true" legendPosition="TOP" showMultiChart="true" chartType="LINE"/>
+    </report>
+    <uiAttributes>
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+    </uiAttributes>
+</reportRecord>

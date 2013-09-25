@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=Requ\u00EAte XQuery sur une source de donn\u00E9es XML
+file.description=Cette r\u00E8gle utilise une requ\u00EAte XML pour extraire une liste de livres.

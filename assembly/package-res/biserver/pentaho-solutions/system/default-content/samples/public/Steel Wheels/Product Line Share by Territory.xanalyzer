@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2009-10-21T10:26:03" created="2009-10-21T10:14:08" description="" updatedBy="admin" createdBy="admin">
+        <path folder="steel-wheels/analysis/Product Line Share by Territory.xanalyzer" name="Product Line Share by Territory"/>
+    </commonStorageAttributes>
+    <report version="4" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showSubTotals="true" showColumnGrandTotal="false" showRowGrandTotal="false" reportTypeEnum="CHART" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure id="[MEASURE:0]" sortOrderEnum="NONE" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showSum="true" formula="[Measures].[Sales]"/>
+        </measures>
+        <columnAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Product].[Line]"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Markets].[Territory]"/>
+        </rowAttributes>
+        <filters/>
+        <chartOptions chartType="PCT_STACKED_HORIZONTAL_BAR"/>
+    </report>
+    <uiAttributes>
+        <rowFieldWidths/>
+        <columnDataFieldWidths>
+            <labelWidth index="0">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="1">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="2">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="3">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="4">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="5">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="6">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="7">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="8">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="9">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="10">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="11">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="12">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="13">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="14">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="15">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="16">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="17">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="18">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="19">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="20">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="21">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="22">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="23">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="24">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="25">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="26">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="27">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="28">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="29">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="30">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="31">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="32">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="33">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="34">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="35">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="36">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="37">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="38">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="39">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="40">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="41">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="42">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="43">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="44">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="45">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="46">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="47">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="48">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="49">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="50">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="51">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="52">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="53">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="54">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="55">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="56">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="57">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="58">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="59">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="60">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="61">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="62">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="63">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="64">
+                <width>0</width>
+            </labelWidth>
+        </columnDataFieldWidths>
+    </uiAttributes>
+</reportRecord>

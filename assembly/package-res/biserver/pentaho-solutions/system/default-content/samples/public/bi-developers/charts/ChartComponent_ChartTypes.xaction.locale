@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Chart Pick List
+title=ChartComponent_ChartTypes
+file.description=This demonstrates multiple chart types using the ChartComponent in the action sequence

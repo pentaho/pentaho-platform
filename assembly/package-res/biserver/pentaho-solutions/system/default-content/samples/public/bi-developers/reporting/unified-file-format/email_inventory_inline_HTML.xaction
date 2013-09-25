@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>E-mail Inventory Report in Message</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>Send email with report in the Message</description>  
+    <help/>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <sendto type="string"> 
+      <sources> 
+        <request>sendto</request> 
+      </sources>  
+      <default-value><![CDATA[joe@pentaho.com]]></default-value>
+    </sendto>  
+    <productline type="string"> 
+      <sources> 
+        <request>productline</request> 
+      </sources>  
+      <default-value>Classic Cars</default-value> 
+    </productline> 
+  </inputs>
+
+  <outputs> 
+    <reportOutput type="content"> 
+      <destinations> 
+        <contentrepo>reportOutput</contentrepo> 
+      </destinations> 
+    </reportOutput> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>inventory.prpt</location>  
+        <mime-type>application/zip</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Return list of Product Lines</action-type>
+      <action-outputs> 
+        <productline type="string"/>  
+        <query-result type="result-set" mapping="productLineList"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct(productline) from PRODUCTS]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Line and Email Address</action-type>
+      <action-inputs> 
+        <sendto type="string"/>  
+        <productline type="string"/>  
+        <productLineList type="result-set"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <productline style="list-multi"> 
+            <title>Select Product Line</title>  
+            <filter value-col-name="productline" display-col-name="productline">productLineList</filter> 
+          </productline>  
+          <sendto filter="none" style="text-box"> 
+            <title>Email To</title> 
+          </sendto> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query For Report Data</action-type>
+      <action-inputs> 
+        <productline type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="queryData"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE, PRODUCTS.PRODUCTVENDOR, PRODUCTS.PRODUCTCODE, PRODUCTS.PRODUCTNAME, PRODUCTS.PRODUCTSCALE, PRODUCTS.PRODUCTDESCRIPTION, PRODUCTS.QUANTITYINSTOCK, PRODUCTS.BUYPRICE, PRODUCTS.MSRP FROM PRODUCTS WHERE PRODUCTS.PRODUCTLINE IN ({PREPARE:productline}) ORDER BY PRODUCTLINE ASC, PRODUCTVENDOR ASC, PRODUCTCODE ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SimpleReportingComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <queryData type="result-set"/>
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <outputstream type="content" mapping="reportOutput"/> 
+      </action-outputs>
+      <component-definition> 
+        <useContentRepository><![CDATA[true]]></useContentRepository>  
+        <outputType><![CDATA[text/html]]></outputType>
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>EmailComponent</component-name>
+      <action-type>E-Mail HTML</action-type>
+      <action-inputs> 
+        <to type="string" mapping="sendto"/>  
+        <message-html type="string" mapping="reportOutput"/> 
+      </action-inputs>
+      <component-definition> 
+        <message-plain><![CDATA[Please see the report attached.]]></message-plain>  
+        <subject><![CDATA[Income Statement HTML]]></subject> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

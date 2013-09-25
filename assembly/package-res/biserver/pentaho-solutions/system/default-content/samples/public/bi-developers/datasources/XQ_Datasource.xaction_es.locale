@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=Consulta XQuery de una Fuente de Datos XML
+file.description=Esta regla usa una consulta XML para devolver una Lista de Libros.<p>La fuente de datos es un Documento XML.

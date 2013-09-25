@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5" "http://jfreereport.sourceforge.net/report-085.dtd">
+
+<report bottommargin="10" topmargin="10" rightmargin="10" leftmargin="10" pageformat="LETTER" orientation="landscape" name="bubble-charting">
+  <parser-config>
+    <property name="reportheader"/>
+    <property name="reportfooter"/>
+    <property name="pageheader">Variance By Department</property>
+    <property name="pagefooter"/>
+  </parser-config>
+  <reportheader color="#ff7d17" fontname="Arial" fontsize="16">
+    <message-field alignment="left" height="18" vertical-alignment="middle" width="100%" x="0%" y="0">${reportheader}</message-field>
+	<drawable-field x="0" y="20" fieldname="BubbleChart" width="600" height="400"/>   
+  </reportheader>
+  <reportfooter color="#ff7d17" fontname="Arial" fontsize="16">
+    <message-field alignment="center" height="18" vertical-alignment="top" width="100%" x="0%" y="0">${reportfooter}</message-field>
+  </reportfooter>
+  <pageheader color="#c0c0c0" fontname="Arial" fontsize="8">
+    <message-field alignment="left" height="18" vertical-alignment="middle" width="50%" x="0%" y="0">${pageheader}</message-field>
+    <message-field alignment="right" height="18" width="50%" x="50%" y="0">$(report.date, date, MMMM dd, yyyy @ hh:mm )</message-field>
+    <line color="#9eaa36" height="3" weight="1" width="100%" x1="0%" x2="100%" y1="18" y2="18"/>
+  </pageheader>
+  <pagefooter color="#c0c0c0" fontname="Arial" fontsize="8">
+    <line color="#9eaa36" height="3" weight="1" width="100%" x1="0%" x2="100%" y1="0" y2="0"/>
+    <message-field alignment="left" height="18" width="50%" x="0" y="0">${pagefooter}</message-field>
+    <message-field alignment="right" height="18" width="50%" x="50%" y="0">Page $(PageofPages)</message-field>
+  </pagefooter>
+  <functions>
+    <property-ref name="report.date"/>
+    <function class="org.jfree.report.function.PageOfPagesFunction" name="PageofPages"/>
+    <function name="backgroundTrigger" class="org.jfree.report.function.ElementVisibilitySwitchFunction">
+      <properties>
+        <property name="element">rowBandingElement</property>
+        <property name="numberOfElements">1</property>
+        <property name="initialState">true</property>
+      </properties>
+    </function>
+    <expression class="org.jfree.report.function.HideElementIfDataAvailableExpression" name="DummyGroupNoDataBandElementHideIfNullTrigger">
+      <properties>
+        <property name="element">DummyGroupNoDataBandElement</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="DummyGroupDataBandElementHideIfNullTrigger">
+      <properties>
+        <property name="element">DummyGroupDataBandElement</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="dummyGroupFooterHideIfNullTrigger">
+      <properties>
+        <property name="element">dummyGroupFooter</property>
+      </properties>
+    </expression>
+ 	<expression class="org.pentaho.plugin.jfreereport.reportcharts.XYZSeriesCollectorFunction" name="chartDataSource" depLevel="1">
+      <properties>
+        <property name="seriesColumn">true</property>
+        <property name="seriesName[0]">DEPARTMENT</property>
+        <property name="xValueColumn[0]">ACTUAL</property>
+        <property name="yValueColumn[0]">BUDGET</property>
+        <property name="zValueColumn[0]">VARIANCE</property>
+        <property name="summaryOnly">false</property>
+      </properties>
+    </expression>
+
+    <expression class="org.pentaho.plugin.jfreereport.reportcharts.BubbleChartExpression" name="BubbleChart" depLevel="1">
+      <properties>
+        <!--  
+          Font specification: fontfamilyname-style-pointsize
+          e.g. Arial-BOLD-14
+          Style can be BOLD, BOLDITALIC, or ITALIC        
+         -->
+		<property name="threeD">true</property>
+        <property name="titleFont">Arial-BOLD-14</property>
+        <property name="labelFont">Arial--8</property>
+        <property name="legendFont">Arial--6</property>
+        <property name="backgroundColor">#9EAA36</property>
+        <property name="showBorder">true</property>
+        <property name="horizontal">false</property>
+        <property name="dataSource">chartDataSource</property>
+		<property name="seriesColor[0]">#EE7733</property>
+		<property name="seriesColor[1]">#9EAA36</property>
+		<property name="seriesColor[2]">#BF0000</property>
+		<property name="seriesColor[3]">#FCCF12</property>
+		<property name="seriesColor[4]">#772200</property>
+		<property name="seriesColor[5]">#DDCC88</property>
+		<property name="seriesColor[6]">#123D82</property>
+		<property name="seriesColor[7]">#4A0866</property>
+		<property name="seriesColor[8]">#445500</property>
+		<property name="seriesColor[9]">#FFAA00</property>
+		<property name="seriesColor[10]">#1E8AD3</property>
+		<property name="seriesColor[11]">#AA6611</property>
+		<property name="seriesColor[12]">#772200</property>
+        <property name="legendLocation">BOTTOM</property>
+		<property name="showLegend">true</property>
+		<property name="chartHeight">400</property>
+        <property name="chartWidth">600</property>
+		<property name="useDrawable">true</property>
+		<property name="domainStickyZero">false</property>
+		<property name="domainIncludesZero">false</property>
+		<property name="rangeStickyZero">false</property>
+		<property name="rangeIncludesZero">false</property>
+		<property name="domainTitle">Actual</property>
+		<property name="rangeTitle">Budget</property>
+		<property name="maxBubbleSize">90</property>
+		<property name="rangeMinimum">5000000</property>
+		<property name="domainMinimum">5000000</property>
+		<property name="domainMaximum">15000000</property>
+      </properties>
+    </expression>
+  </functions>
+  <items color="#000000" fontname="Arial" fontsize="9" fontstyle="plain">
+    <rectangle name="rowBandingElement" color="#e7e7e7" draw="false" fill="true" height="11" x="0%" width="100%" y="0"/>
+    <string-field name="DEPARTMENTElement" nullstring="-" fieldname="DEPARTMENT" vertical-alignment="middle" alignment="left" width="25.0%" x="0.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <number-field name="ACTUALElement" nullstring="-" fieldname="ACTUAL" format="$#,###.00" vertical-alignment="middle" alignment="right" width="25.0%" x="25.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <number-field name="BUDGETElement" nullstring="-" fieldname="BUDGET" format="$#,###.00" vertical-alignment="middle" alignment="right" width="25.0%" x="50.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <number-field name="VARIANCEElement" nullstring="-" fieldname="VARIANCE" format="$#,###.00" vertical-alignment="middle" alignment="right" width="25.0%" x="75.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <line color="#c0c0c0" weight=".5" x1="0.0%" y1="0" x2="0.0%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="25.0%" y1="0" x2="25.0%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="50.0%" y1="0" x2="50.0%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="75.0%" y1="0" x2="75.0%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="100%" y1="0" x2="100%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="0%" y1="0" x2="100%" y2="0"/>
+    <line color="#c0c0c0" weight=".5" x1="0%" y1="11" x2="100%" y2="11"/>
+  </items>
+  <groups>
+    <group name="dummy">
+      <groupheader repeat="true" height="19" color="#767676" fontname="Arial" fontsize="12" fontstyle="bold">
+        <band name="DummyGroupNoDataBandElement">
+          <label height="11" vertical-alignment="middle" alignment="left" width="100%" x="0%" y="0">No Data Available</label>
+        </band>
+        <band name="DummyGroupDataBandElement" y="1" height="19">
+          <rectangle color="#9eaa36" draw="false" fill="true" height="18" width="100%" x="0%" y="0"/>
+          <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="left" width="25.0%" x="0.0%" y="0">DEPARTMENT</label>
+          <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="right" width="25.0%" x="25.0%" y="0">ACTUAL</label>
+          <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="right" width="25.0%" x="50.0%" y="0">BUDGET</label>
+          <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="right" width="25.0%" x="75.0%" y="0">VARIANCE</label>
+        </band>
+      </groupheader>
+      <groupfooter name="dummyGroupFooter" color="#ff7d17" fontname="Arial" fontsize="12" fontstyle="bold"/>
+    </group>
+  </groups>
+</report>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs>
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query For Report Data</action-type>
+      <action-outputs> 
+        <query-result type="result-set"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query> 
+      </component-definition> 
+    </action-definition>
+
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript to Build JFreeReport Definition</action-type>
+      <action-inputs>
+        <resultset type="result-set" mapping="query-result"/> 
+      </action-inputs>
+      <action-outputs> 
+        <report-definition type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+			    function getReportDefinition() { 
+			      var reportSpec = new Packages.org.pentaho.jfreereport.castormodel.reportspec.ReportSpec();
+			      //reportSpec.setUseRowBanding(false);
+			      var regionField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      regionField.setName("REGION");
+			      regionField.setDisplayName("Region: $(REGION)");
+			      regionField.setHorizontalAlignment("left");
+			      regionField.setIsDetail(false);
+			      reportSpec.addField(regionField);
+			      
+			      var deptField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      deptField.setName("DEPARTMENT");
+			      deptField.setDisplayName("Department");
+			      deptField.setIsDetail(true);
+			      deptField.setUseItemHide(true);
+			      reportSpec.addField(deptField);
+
+			      var positionField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      positionField.setName("POSITIONTITLE");
+			      positionField.setDisplayName("Position");
+			      positionField.setIsDetail(true);
+			      reportSpec.addField(positionField);
+
+			      var actualField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      actualField.setName("ACTUAL");
+			      actualField.setDisplayName("Actual");
+			      actualField.setIsDetail(true);
+			      actualField.setType(Packages.java.sql.Types.NUMERIC);
+			      actualField.setExpression("sum");
+                  actualField.setHorizontalAlignment("right"); //$NON-NLS-1$
+			      reportSpec.addField(actualField);
+
+			      var budgetField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      budgetField.setName("BUDGET");
+			      budgetField.setDisplayName("Budget");
+			      budgetField.setIsDetail(true);
+			      budgetField.setType(Packages.java.sql.Types.NUMERIC);
+			      budgetField.setExpression("sum");
+                  budgetField.setHorizontalAlignment("right"); //$NON-NLS-1$
+			      reportSpec.addField(budgetField);
+
+			      var varCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      varCalc.setName("Difference");
+			      varCalc.setDisplayName("Difference");
+                              varCalc.setIsDetail(true);
+			      varCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              varCalc.setExpression("sum");
+			      varCalc.setIsCalculatedColumn(true);
+			      varCalc.addCalculatedColumns("ACTUAL");
+			      varCalc.addCalculatedColumns("BUDGET");
+			      varCalc.setCalculatedColumnFunction("diff");
+                  varCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+			      reportSpec.addField(varCalc);
+			
+                              var absvarCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              absvarCalc.setName("Absolute Difference");
+                              absvarCalc.setDisplayName("Absolute Difference");
+                              absvarCalc.setIsDetail(true);
+                              absvarCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              absvarCalc.setExpression("sum");
+                              absvarCalc.setIsCalculatedColumn(true);
+                              absvarCalc.addCalculatedColumns("ACTUAL");
+                              absvarCalc.addCalculatedColumns("BUDGET");
+                              absvarCalc.setCalculatedColumnFunction("absdiff");
+                              absvarCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                              reportSpec.addField(absvarCalc);
+
+
+
+                              var sumCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              sumCalc.setName("Sum");
+                              sumCalc.setDisplayName("Sum");
+                              sumCalc.setIsDetail(true);
+                              sumCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              sumCalc.setIsCalculatedColumn(true);
+                              sumCalc.addCalculatedColumns("ACTUAL");
+                              sumCalc.addCalculatedColumns("BUDGET");
+                              sumCalc.setCalculatedColumnFunction("sum");
+                              sumCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                              reportSpec.addField(sumCalc);
+
+
+                              var minCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              minCalc.setName("Min");
+                              minCalc.setDisplayName("Min");
+                              minCalc.setIsDetail(true);
+                              minCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              minCalc.setIsCalculatedColumn(true);
+                              minCalc.addCalculatedColumns("ACTUAL");
+                              minCalc.addCalculatedColumns("BUDGET");
+                              minCalc.setCalculatedColumnFunction("min");
+                              minCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                              reportSpec.addField(minCalc);
+
+     
+                              var maxCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              maxCalc.setName("Max");
+                              maxCalc.setDisplayName("Max");
+                              maxCalc.setIsDetail(true);
+                              maxCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              maxCalc.setIsCalculatedColumn(true);
+                              maxCalc.addCalculatedColumns("ACTUAL");
+                              maxCalc.addCalculatedColumns("BUDGET");
+                              maxCalc.setCalculatedColumnFunction("max");
+                              maxCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                              reportSpec.addField(maxCalc);
+
+                              var avgCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              avgCalc.setName("Average");
+                              avgCalc.setDisplayName("Average");
+                              avgCalc.setIsDetail(true);
+                              avgCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              avgCalc.setIsCalculatedColumn(true);
+                              avgCalc.addCalculatedColumns("ACTUAL");
+                              avgCalc.addCalculatedColumns("BUDGET");
+                              avgCalc.setCalculatedColumnFunction("avg");
+                              avgCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                              reportSpec.addField(avgCalc);
+
+                              var multCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              multCalc.setName("Multiply");
+                              multCalc.setDisplayName("Multiply");                               
+			                  multCalc.setIsDetail(true);
+                              multCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              multCalc.setIsCalculatedColumn(true);
+                              multCalc.addCalculatedColumns("ACTUAL");
+                              multCalc.addCalculatedColumns("BUDGET");
+                              multCalc.setCalculatedColumnFunction("mult");
+                              multCalc.setFormat("#,###.##");
+                              multCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                              reportSpec.addField(multCalc);
+
+      			  var retStr = Packages.org.pentaho.jfreereport.wizard.utility.report.ReportGenerationUtility.createJFreeReportXML(reportSpec, "UTF-8" );
+			return retStr;
+			    } 
+			    getReportDefinition(); 
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Report Using Query Results</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="query-result"/> 
+        <report-definition type="string"/>
+        <output-type type="string"/>
+      </action-inputs>
+      <action-resources/> 
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

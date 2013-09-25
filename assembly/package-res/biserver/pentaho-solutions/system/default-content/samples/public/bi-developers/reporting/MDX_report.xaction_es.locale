@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:49 EDT 2013
+file.title=Informe OLAP de Tablas Cruzadas
+file.description=Un informe de tablas cruzadas que muestra los datos actuales y de facturaci\u00F3n de cada departamento y cada regi\u00F3n. El informe consulta un servidor OLAP Mondrian y usa JFreeReport para generar la p\u00E1gina

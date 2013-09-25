@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=Consulta MDX de una Fuente de Datos de un OLAP
+file.description=Esta regla usa una consulta multidimensional MDX para devolver lo Actual y Facturacio\u00F3n para todas las Regiones.<p>La fuente de datos en un cubo de Mondrian OLAP.
