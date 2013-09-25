@@ -28,7 +28,7 @@
 }
 
 /* ==========================================================================
-   Author's custom styles
+    GENERAL STYLES
    ========================================================================== */
 
 body {
@@ -41,22 +41,20 @@ body {
 	width: 960px;
 }
 
+img {
+	max-width: 100%;
+}
+
+/* ==========================================================================
+    HEADER STYLES
+   ========================================================================== */
+
 .header {
 	color: #999;
 }
 
 .header p {
 	color: #444;
-}
-
-h1 *, h1 {
-	font-family: 'Open Sans',sans-serif;
-	font-size: 60px;
-	font-weight: 300;
-	color: #005ca7;
-	line-height: 1.05;
-	margin: 0;
-	margin-left: -3px;
 }
 
 p.subhead {
@@ -67,16 +65,6 @@ p.subhead {
 	margin-top: 12px;
 	margin-bottom: 10px;
 	line-height: 37px;
-}
-
-p *, p {
-	line-height: 27px;
-}
-
-.player-block {
-	text-align: center;
-	margin-top: 30px;
-	margin-bottom: 30px;
 }
 
 hr.topYellowMark {
@@ -94,26 +82,28 @@ hr.topYellowMark {
 	text-align: left;
 }
 
-.jumbotron img {
-	max-width: 100%;
+/* ==========================================================================
+   TEXT / LINK STYLES
+   ========================================================================== */
+
+h1 *, h1 {
+	font-family: 'Open Sans',sans-serif;
+	font-size: 60px;
+	font-weight: 300;
+	color: #005ca7;
+	line-height: 1.05;
+	margin: 0;
+	margin-left: -3px;
 }
 
-.try-pentaho-row {
-	margin-top: 50px;
+h3 {
+	font-size: 24px;
+	font-weight: 300;
+	color: #005ca7;
 }
 
-a.btn.btn-primary {
-	background-color: #005ca7;
-	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#247dc5),color-stop(100%,#015ea9));
-	background-image: -webkit-linear-gradient(#247dc5,#015ea9);
-	background-image: -moz-linear-gradient(#247dc5,#015ea9);
-	background-image: -o-linear-gradient(#247dc5,#015ea9);
-	background-image: linear-gradient(#247dc5,#015ea9);
-	text-shadow: 0 1px rgba(255,255,255,0.3);color: #FFFFFF;
-	border-radius: 4px;
-	box-shadow: 0 0 5px rgba(0,0,0,0.3);
-	border: none;
-	padding: 10px 30px;
+p *, p {
+	line-height: 27px;
 }
 
 a p,
@@ -142,6 +132,156 @@ a:hover .col-xs-4 {
 a:hover h3,
 a:focus h3 {
 	text-decoration: underline;
+}
+
+/* ==========================================================================
+    VIDEO PLAYER
+   ========================================================================== */
+
+.player-block {
+	text-align: center;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
+
+.screenshot-row {
+	margin-top:30px;
+	margin-bottom:30px;
+}
+
+.video-screen {
+	margin-top: 50px;
+}
+
+#dashboard-designer-video-screen .video-player {
+	position: absolute;
+	margin-top: -370px;
+	margin-left: 223px;
+}
+
+#interactive-reports-video-screen .video-player {
+	position: absolute;
+	margin-top: -411px;
+	margin-left: 216px;
+}
+
+#pentaho-analyzer-video-screen .video-player {
+	position: absolute;
+	margin-top: -391px;
+	margin-left: 226px;
+}
+
+/* ==========================================================================
+    FOOTER
+   ========================================================================== */
+
+.jumbotron img {
+	max-width: 100%;
+}
+
+.try-pentaho-row {
+	margin-top: 50px;
+}
+
+.jumbotron h2 {
+	font-size: 24px;
+	font-weight: 300;
+	color: #333;
+	margin: 16px 0;
+}
+
+.jumbotron h3 {
+	font-size: 24px;
+	font-weight: 300;
+	color: #005ca7;
+	margin: 5px 0 10px;
+}
+
+hr.topShadow {
+	margin-top: -30px;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+}
+
+hr.topShadow:after {
+	content: "";
+	position: absolute;
+	right: 0;
+	left: 0;
+	height: 80px;
+	background-image: -webkit-gradient(radial,50% 50%,0,50% 50%,100,color-stop(0%,rgba(0,0,0,0.05)),color-stop(100%,rgba(0,0,0,0)));
+	background-image: -webkit-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-image: -moz-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-image: -o-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-image: radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-size: 140% 200%;
+	background-repeat: no-repeat;
+	background-position: 50% -80px;
+	z-index: 1;
+}
+
+.jumbotron .container {
+	margin-top: 20px;
+	margin-bottom: 0px;
+}
+
+.link-icon {
+	width: 56px;
+	float:left;
+	margin-right: 20px;
+	display: block;
+	position: relative;
+	margin-top: 15px;
+}
+
+.link-content {
+	width: 235px;
+	display: block;
+	float:right;
+	position: absolute;
+	/*left: 86px;*/
+	left: 25px;
+	margin-top: 15px;
+}
+
+.other-tool {
+	position:relative;
+	height: 125px;
+}
+
+.try-pentaho h2 {
+	font-size: 18px;
+	line-height: 1.2;
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
+.try-pentaho p {
+	margin-top: 5px;
+}
+
+.try-pentaho {
+	width: 250px;
+	border-left: 1px solid #ddd;
+	height: 125px;
+	padding-top: 3px;
+}
+
+/* ==========================================================================
+    BUTTONS
+   ========================================================================== */
+
+a.btn.btn-primary {
+	background-color: #005ca7;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#247dc5),color-stop(100%,#015ea9));
+	background-image: -webkit-linear-gradient(#247dc5,#015ea9);
+	background-image: -moz-linear-gradient(#247dc5,#015ea9);
+	background-image: -o-linear-gradient(#247dc5,#015ea9);
+	background-image: linear-gradient(#247dc5,#015ea9);
+	text-shadow: 0 1px rgba(255,255,255,0.3);color: #FFFFFF;
+	border-radius: 4px;
+	box-shadow: 0 0 5px rgba(0,0,0,0.3);
+	border: none;
+	padding: 10px 30px;
 }
 
 a.btn.btn-primary:hover,
@@ -181,81 +321,8 @@ a.btn.btn-primary:focus {
 	background-image: linear-gradient(#015ea9,#247dc5);
 }
 
-.jumbotron h2 {
-	font-size: 24px;
-	font-weight: 300;
-	color: #333;
-	margin: 16px 0;
-}
-
-h3 {
-	font-size: 24px;
-	font-weight: 300;
-	color: #005ca7;
-}
-
-.jumbotron h3 {
-	font-size: 24px;
-	font-weight: 300;
-	color: #005ca7;
-	margin: 5px 0 10px;
-}
-
-hr.topShadow {
-	margin-top: -30px;
-	box-shadow: 0 1px 1px rgba(0,0,0,0.06);
-}
-
-hr.topShadow:after {
-	content: "";
-	position: absolute;
-	right: 0;
-	left: 0;
-	height: 80px;
-	background-image: -webkit-gradient(radial,50% 50%,0,50% 50%,100,color-stop(0%,rgba(0,0,0,0.05)),color-stop(100%,rgba(0,0,0,0)));
-	background-image: -webkit-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
-	background-image: -moz-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
-	background-image: -o-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
-	background-image: radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
-	background-size: 140% 200%;
-	background-repeat: no-repeat;
-	background-position: 50% -80px;
-	z-index: 1;
-}
-
-img {
-	max-width: 100%;
-}
-
-.screenshot-row {
-	margin-top:30px;
-	margin-bottom:30px;
-}
-
-.video-screen {
-	margin-top: 50px;
-}
-
-#dashboard-designer-video-screen .video-player {
-	position: absolute;
-	margin-top: -370px;
-	margin-left: 223px;
-}
-
-#interactive-reports-video-screen .video-player {
-	position: absolute;
-	margin-top: -411px;
-	margin-left: 216px;
-}
-
-#pentaho-analyzer-video-screen .video-player {
-	position: absolute;
-	margin-top: -391px;
-	margin-left: 226px;
-}
-
 a.btn.btn-try-dashboard-designer {
-	padding-left: 20px;
+	/*padding-left: 20px;*/
 	text-align: left;
 	margin-top: 30px;
 	margin-bottom: 20px;
@@ -265,55 +332,8 @@ a.btn.btn-try-dashboard-designer img {
 	margin-right: 10px;
 }
 
-.jumbotron .container {
-	margin-top: 20px;
-	margin-bottom: 0px;
-}
-
-.link-icon {
-	width: 56px;
-	float:left;
-	margin-right: 20px;
-	display: block;
-	position: relative;
-	margin-top: 15px;
-}
-
-.link-content {
-	width: 235px;
-	display: block;
-	float:right;
-	position: absolute;
-	left: 86px;
-	margin-top: 15px;
-}
-
-.other-tool {
-	position:relative;
-	height: 125px;
-}
-
-.try-pentaho h2 {
-	font-size: 18px;
-	line-height: 1.2;
-	margin-top: 0px;
-	margin-bottom: 10px;
-}
-
-.try-pentaho p {
-	margin-top: 5px;
-}
-
-.try-pentaho {
-	width: 250px;
-	border-left: 1px solid #ddd;
-	height: 125px;
-	padding-top: 3px;
-}
-
-
 /* ==========================================================================
-   CAROUSEL
+    CAROUSEL
    ========================================================================== */
 
 .carousel {
