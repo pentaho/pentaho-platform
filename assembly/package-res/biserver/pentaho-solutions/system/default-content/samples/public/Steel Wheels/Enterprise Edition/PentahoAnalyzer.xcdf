@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdf>
+	<title>Pentaho Analyzer</title>
+	<author>Pentaho</author>
+	<description>Pentaho Analyzer description</description>
+	<icon></icon>
+	<template>PentahoAnalyzer.html</template>
+	<style>clean</style>
+</cdf>

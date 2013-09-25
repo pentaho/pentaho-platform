@@ -1,0 +1,5 @@
+#Locale = default
+#Tue Sep 24 17:43:52 WEST 2013
+file.title=Programmatic Quadrant Report with Calculated Columns
+title=Calculated_Column
+file.description=This action sequence executes a SQL query and then programmatically builds a ReportSpec object model which is used to generate a JFreeReport definition.  This example shows that we can programatically generate calculated columns.  The report definition is passed to JFreeReport and a formatted report is generated.

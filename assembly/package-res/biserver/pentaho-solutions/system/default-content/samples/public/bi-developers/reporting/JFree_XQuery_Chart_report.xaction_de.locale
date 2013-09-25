@@ -1,0 +1,4 @@
+#Locale = de
+#Tue Sep 24 17:43:53 WEST 2013
+file.title=JFreeReport mit einem S\u00E4ulendiagramm
+file.description=Der Bericht wird durch ein XML Dokument erzeugt und gibt ein S\u00E4ulendiagramm mit Hilfe von JFreeChart aus.

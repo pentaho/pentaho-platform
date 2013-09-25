@@ -1,0 +1,5 @@
+#Locale = default
+#Tue Sep 24 17:43:54 WEST 2013
+file.title=Invoices by Customer
+title=invoice
+file.description=Choose from a list of customers to view Billing Statements.

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title><![CDATA[Yearly Sales by Market]]></title>  
+  <version>1</version>  
+  <logging-level>ERROR</logging-level>  
+  <documentation> 
+    <author>admin</author>  
+    <help/>  
+    <result-type>report</result-type>  
+    <description>!BaseTest.DEFAULT_DESCRIPTION!</description>  
+    <icon/>  
+    <!-- need an icon --> 
+  </documentation>  
+  <inputs> 
+    <mode type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>mode</request> 
+      </sources> 
+    </mode> 
+  </inputs>  
+  <outputs> 
+    <model type="string"/>  
+    <connection type="string"/>  
+    <mdx type="string"/>  
+    <options type="list"/>  
+    <title type="string"/>  
+    <url type="string"> 
+      <destinations> 
+        <response>redirect</response> 
+      </destinations> 
+    </url> 
+  <chartbackgroundg type="string"/><chartvertaxislabel type="string"/><chartslicerfontsize type="string"/><chartaxislabelfontfamily type="string"/><charttitlefontfamily type="string"/><chartshowslicer type="string"/><query type="string"/><charttype type="string"/><chartbackgroundb type="string"/><actionreference type="string"/><showgrid type="string"/><chartslicerlocation type="string"/><chartaxistickfontstyle type="string"/><chartlocation type="string"/><role type="string"/><chartheight type="string"/><chartlegendfontsize type="string"/><chartwidth type="string"/><chartslicerfontfamily type="string"/><chartlegendlocation type="string"/><chartaxistickfontsize type="string"/><charttitlefontsize type="string"/><chartlegendfontstyle type="string"/><chartshowlegend type="string"/><chartaxislabelfontsize type="string"/><charttitlefontstyle type="string"/><chartaxistickfontfamily type="string"/><chartaxisticklabelrotation type="string"/><chartaxislabelfontstyle type="string"/><chartlegendfontfamily type="string"/><chartdrillthroughenabled type="string"/><charthorizaxislabel type="string"/><charttitle type="string"/><chartsliceralignment type="string"/><chartslicerfontstyle type="string"/><chartbackgroundr type="string"/></outputs>  
+  <resources/>  
+  <actions> 
+    <action-definition> 
+      <component-name>PivotViewComponent</component-name>  
+      <action-type>Pivot View</action-type>  
+      <action-inputs> 
+        <mode type="string"/> 
+      </action-inputs>  
+      <action-outputs> 
+        <model type="string"/>  
+        <connection type="string"/>  
+        <mdx type="string"/>  
+        <options type="list"/>  
+        <title type="string"/>  
+        <url type="string"/> 
+      <chartbackgroundg type="string"/><chartvertaxislabel type="string"/><chartslicerfontsize type="string"/><chartaxislabelfontfamily type="string"/><charttitlefontfamily type="string"/><chartshowslicer type="string"/><query type="string"/><charttype type="string"/><chartbackgroundb type="string"/><actionreference type="string"/><showgrid type="string"/><chartslicerlocation type="string"/><chartaxistickfontstyle type="string"/><chartlocation type="string"/><role type="string"/><chartheight type="string"/><chartlegendfontsize type="string"/><chartwidth type="string"/><chartslicerfontfamily type="string"/><chartlegendlocation type="string"/><chartaxistickfontsize type="string"/><charttitlefontsize type="string"/><chartlegendfontstyle type="string"/><chartshowlegend type="string"/><chartaxislabelfontsize type="string"/><charttitlefontstyle type="string"/><chartaxistickfontfamily type="string"/><chartaxisticklabelrotation type="string"/><chartaxislabelfontstyle type="string"/><chartlegendfontfamily type="string"/><chartdrillthroughenabled type="string"/><charthorizaxislabel type="string"/><charttitle type="string"/><chartsliceralignment type="string"/><chartslicerfontstyle type="string"/><chartbackgroundr type="string"/></action-outputs>  
+      <component-definition> 
+        <title><![CDATA[Yearly Sales by Market]]></title>  
+        <viewer>plugin/jpivot/Pivot</viewer>  
+        <model><![CDATA[mondrian:/SteelWheels]]></model>  
+        <options> 
+          <personal/>  
+          <cube-nav/>  
+          <mdx-edit/>  
+          <sort-conf/>  
+          <spacer/>  
+          <level-style/>  
+          <hide-spans/>  
+          <properties/>  
+          <non-empty/>  
+          <swap-axes/>  
+          <spacer/>  
+          <drill-member/>  
+          <drill-position/>  
+          <drill-replace/>  
+          <drill-thru/>  
+          <spacer/>  
+          <chart/>  
+          <chart-conf/>  
+          <spacer/>  
+          <print-conf/>  
+          <print-pdf/>  
+          <spacer/>  
+          <excel/> 
+        </options>  
+        <query><![CDATA[select NON EMPTY [Time].[All Years].Children ON COLUMNS,
+  NON EMPTY [Markets].[All Markets].Children ON ROWS
+from [SteelWheelsSales]
+where Crossjoin({[Measures].[Sales]}, {[Order Status].[Resolved], [Order Status].[Shipped]})
+]]></query>  
+        <jndi><![CDATA[SampleData]]></jndi> 
+      <chartbackgroundg><![CDATA[255]]></chartbackgroundg><chartvertaxislabel><![CDATA[]]></chartvertaxislabel><chartslicerfontsize><![CDATA[12]]></chartslicerfontsize><chartaxislabelfontfamily><![CDATA[SansSerif]]></chartaxislabelfontfamily><charttitlefontfamily><![CDATA[SansSerif]]></charttitlefontfamily><chartshowslicer><![CDATA[true]]></chartshowslicer><charttype><![CDATA[3]]></charttype><chartbackgroundb><![CDATA[255]]></chartbackgroundb><actionreference><![CDATA[NEW_ACTION]]></actionreference><showgrid><![CDATA[true]]></showgrid><chartslicerlocation><![CDATA[1]]></chartslicerlocation><chartaxistickfontstyle><![CDATA[0]]></chartaxistickfontstyle><chartlocation><![CDATA[bottom]]></chartlocation><role/><chartheight><![CDATA[300]]></chartheight><chartlegendfontsize><![CDATA[10]]></chartlegendfontsize><chartwidth><![CDATA[500]]></chartwidth><chartslicerfontfamily><![CDATA[SansSerif]]></chartslicerfontfamily><chartlegendlocation><![CDATA[3]]></chartlegendlocation><chartaxistickfontsize><![CDATA[12]]></chartaxistickfontsize><charttitlefontsize><![CDATA[18]]></charttitlefontsize><connection><![CDATA[SampleData]]></connection><chartlegendfontstyle><![CDATA[0]]></chartlegendfontstyle><chartshowlegend><![CDATA[true]]></chartshowlegend><chartaxislabelfontsize><![CDATA[12]]></chartaxislabelfontsize><charttitlefontstyle><![CDATA[1]]></charttitlefontstyle><chartaxistickfontfamily><![CDATA[SansSerif]]></chartaxistickfontfamily><chartaxisticklabelrotation><![CDATA[30]]></chartaxisticklabelrotation><chartaxislabelfontstyle><![CDATA[0]]></chartaxislabelfontstyle><chartlegendfontfamily><![CDATA[SansSerif]]></chartlegendfontfamily><chartdrillthroughenabled><![CDATA[false]]></chartdrillthroughenabled><charthorizaxislabel><![CDATA[]]></charthorizaxislabel><charttitle><![CDATA[]]></charttitle><chartsliceralignment><![CDATA[3]]></chartsliceralignment><chartslicerfontstyle><![CDATA[0]]></chartslicerfontstyle><chartbackgroundr><![CDATA[255]]></chartbackgroundr></component-definition>  
+      <action-name>Pivot View</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition> 
+  </actions> 
+</action-sequence>

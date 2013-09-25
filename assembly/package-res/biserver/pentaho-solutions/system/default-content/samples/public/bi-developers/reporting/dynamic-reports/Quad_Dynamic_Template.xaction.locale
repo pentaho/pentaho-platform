@@ -1,0 +1,5 @@
+#Locale = default
+#Tue Sep 24 17:43:52 WEST 2013
+file.title=Report-Spec Template Example
+title=Quad_Dynamic_Template
+file.description=This Report-Spec API example shows the use of a template to add header/footer and other sections

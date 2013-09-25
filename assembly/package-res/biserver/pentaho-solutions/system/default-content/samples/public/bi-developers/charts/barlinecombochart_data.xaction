@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Chart Component Test (BarLineChart)</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Ingo Klose</author>  
+    <result-type>none</result-type>  
+    <description/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <results type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data from</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="results"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT
+     PRODUCTS.PRODUCTLINE AS LINE,
+     SUM(ORDERFACT.TOTALPRICE) AS TOTAL,
+     SUM(ORDERFACT.QUANTITYORDERED*PRODUCTS.BUYPRICE) AS COST,
+     SUM(ORDERFACT.QUANTITYORDERED*PRODUCTS.BUYPRICE)/SUM(ORDERFACT.TOTALPRICE) AS MARGIN
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+GROUP BY
+     PRODUCTS.PRODUCTLINE
+ORDER BY
+     PRODUCTS.PRODUCTLINE ASC]]></query>  
+        <live><![CDATA[true]]></live> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

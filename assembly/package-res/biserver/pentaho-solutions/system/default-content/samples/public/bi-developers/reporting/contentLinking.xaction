@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>ContentLink</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author></author>  
+    <description>Content link example using territory</description>  
+    <help/>  
+    <result-type></result-type> 
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <image-tag type="string"/>
+		<!-- is-output-parameter="false" will prevent ouput from being shown to the user
+				and allow it to be used for content link -->
+		<territory type="string" is-output-parameter="false"> 
+			<default-value>NA</default-value>
+		</territory>
+  </outputs>
+
+  <resources> 
+  </resources>
+  
+  <actions> 
+    <actions> 
+      <action-definition> 
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry territory sales</action-type>
+        <action-inputs/>
+        <action-resources> 
+        </action-resources>
+        <action-outputs> 
+          <query-results type="string-list" mapping="swresult"/> 
+        </action-outputs>
+        <component-definition> 
+          <catalog>SteelWheels</catalog>  
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Markets].[All Markets].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales]]]></query>  
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <action-definition> 
+      <component-name>ChartComponent</component-name>
+      <action-type>topTenCustomersBarChart</action-type>
+      <action-inputs> 
+        <chart-data type="result-set" mapping="swresult"/> 
+      </action-inputs>
+      <action-outputs> 
+        <image-tag type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <chart-attributes> 
+          <chart-type>BarChart</chart-type>
+			<!-- update content link parameter's value on click -->
+		  <paramName>PARAM</paramName>
+		  <url-template>javascript:parent.Dashboards.fireChange('territory',parent.encode_prepare('{PARAM}'))</url-template>  
+          <url-target>_self</url-target>  
+          <use-base-url>false</use-base-url>  
+          <orientation>horizontal</orientation>  
+          <include-legend>false</include-legend>  
+          <domain-label-rotation>0</domain-label-rotation>  
+          <chart-background type="color">#FFFFFF</chart-background>  
+          <plot-background type="color">#EEEEEE</plot-background>  
+          <color-palette> 
+            <color>#ee7733</color>  
+            <color>#9EAA36</color>  
+            <color>#BF0000</color>  
+            <color>#FCCF12</color>  
+            <color>#772200</color>  
+            <color>#ddcc88</color>  
+            <color>#123D82</color>  
+            <color>#4A0866</color>  
+            <color>#445500</color>  
+            <color>#FFAA00</color>  
+            <color>#1E8AD3</color>  
+            <color>#AA6611</color>  
+            <color>#772200</color> 
+          </color-palette> 
+        </chart-attributes>  
+        <width><![CDATA[500]]></width>  
+        <height><![CDATA[600]]></height>  
+        <title><![CDATA[Territories by sales]]></title> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>
