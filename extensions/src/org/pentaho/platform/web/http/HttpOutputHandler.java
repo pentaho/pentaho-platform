@@ -162,7 +162,11 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
       }
       if (output != null) {
         output.setInstanceId(instanceId);
-        String filePath = "~/workspace/" + instanceId; //$NON-NLS-1$
+        
+        String filePath = "~/workspace/" + contentName; //$NON-NLS-1$
+        if (contentName.startsWith("/")) {
+        	filePath = contentName;
+        }
         output.setSolutionPath(filePath);
         output.setMimeType(mimeType);
         output.setSession(session);

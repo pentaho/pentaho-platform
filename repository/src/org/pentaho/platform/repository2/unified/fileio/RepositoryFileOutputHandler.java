@@ -26,6 +26,7 @@ import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.MimeHelper;
 
@@ -88,7 +89,13 @@ public class RepositoryFileOutputHandler implements IOutputHandler {
         output = PentahoSystem.getOutputDestinationFromContentRef(outputName + ":" + contentName, session); //$NON-NLS-1$
       }
       if (output != null) {
+    	output.setSession(PentahoSessionHolder.getSession());
         output.setInstanceId(instanceId);
+        String filePath = "~/workspace/" + contentName; //$NON-NLS-1$
+        if (contentName.startsWith("/")) {
+        	filePath = contentName;
+        }
+        output.setSolutionPath(filePath);
         output.setMimeType(localMimeType);
         outputContentItem = output.getFileOutputContentItem();
       }

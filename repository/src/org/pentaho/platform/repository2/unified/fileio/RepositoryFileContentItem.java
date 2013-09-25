@@ -38,7 +38,7 @@ public class RepositoryFileContentItem implements IContentItem {
   RepositoryFileOutputStream outputStream;
   
   public RepositoryFileContentItem(String filePath) {
-    outputStream = new RepositoryFileOutputStream(filePath);
+    outputStream = new RepositoryFileOutputStream(filePath, true, true, null, false);
   }
   
   RepositoryFileContentItem(RepositoryFileOutputStream outputStream) {
@@ -135,7 +135,6 @@ public class RepositoryFileContentItem implements IContentItem {
 
   public void setName(String arg0) {
     // TODO Auto-generated method stub
-
   }
 
 }
