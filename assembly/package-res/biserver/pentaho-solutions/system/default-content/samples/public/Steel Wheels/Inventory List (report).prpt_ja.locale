@@ -1,5 +1,0 @@
-#Locale = default
-#Thu Aug 15 12:32:57 EDT 2013  Test:  川 月 木 心 火 \u5DDD \u6708 \u6728 \u5FC3 \u706B
-file.title=Inventory List (report)[JA] 
-title=Inventory List [JA]
-file.description=Scan-able inventory report showing inventory on hand with detailed product descriptions. [JA]
