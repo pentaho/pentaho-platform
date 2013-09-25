@@ -1,0 +1,5 @@
+#Locale = pt_BR
+#Thu Aug 15 12:32:58 EDT 2013
+file.title=Vendor Sales Report (interactive report) [pt_BR]
+title=Vendor Sales Report [pt_BR]
+file.description=View current orders by product vendor, quickly filter by territory and order status. [pt_BR]

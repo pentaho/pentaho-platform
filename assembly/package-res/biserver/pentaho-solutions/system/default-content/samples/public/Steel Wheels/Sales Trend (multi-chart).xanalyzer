@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes createdBy="admin" updatedBy="admin" description="" created="2011-07-12T09:22:29" update="2013-08-12T17:38:19">
+        <path name="Sales Trend (multi-chart)" folder="/public/Steel Wheels/Sales Trend (multi-chart).xanalyzer"/>
+    </commonStorageAttributes>
+    <report catalog="SteelWheels" cube="SteelWheelsSales" reportTypeEnum="JSON" showRowGrandTotal="false" showColumnGrandTotal="false" useNonVisualTotals="false" showEmptyCells="false" emptyCellDisplay="-" showDrillLinks="false" version="9" autoRefresh="true" freezeColumns="true" freezeRows="true">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure formula="[Measures].[Sales]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="DESC" id="[MEASURE:0]" gembarId="measures" gembarOrdinal="0"/>
+        </measures>
+        <columnAttributes>
+            <attribute formula="[Markets].[Territory]" showSubtotal="false" sortOrderEnum="ASC" gembarId="columns" gembarOrdinal="0"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute formula="[Product].[Line]" showSubtotal="false" sortOrderEnum="ASC" gembarId="multi" gembarOrdinal="0"/>
+            <attribute formula="[Time].[Years]" showSubtotal="false" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="1"/>
+            <attribute formula="[Time].[Quarters]" showSubtotal="false" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="2"/>
+        </rowAttributes>
+        <filters>
+            <filter formula="[Product].[Line]" viewFilterEnum="MULTIPLE">
+                <topBottom formula="[Measures].[Sales]" type="TOP" count="6"/>
+            </filter>
+        </filters>
+        <chartOptions chartType="CUSTOM" customChartType="ccc_line" showMultiChart="true" legendPosition="TOP" showLegend="true" autoRange="true" valueAxisLowerLimit="0.0" valueAxisUpperLimit="420.0" displayUnits="UNITS_3" autoRangeSecondary="true" displayUnitsSecondary="UNITS_3" lineWidth="2" lineShape="DIAMOND" maxValues="100" backgroundColor="#c0c0c0" labelColor="#000000" labelSize="10" backgroundFill="NONE" maxChartsPerRow="3" multiChartRangeScope="CELL" emptyCellMode="LINEAR" sizeByNegativesMode="NEG_LOWEST" backgroundColorEnd="#87cefa" labelStyle="PLAIN" legendBackgroundColor="#ffffff" legendSize="10" legendColor="#000000" legendStyle="PLAIN" labelFontFamily="Tahoma" legendFontFamily="Tahoma"/>
+        <selectionFilters/>
+        <selectionItems/>
+        <pageSetup excelPageSize="LETTER" pdfPageSize="LETTER" excelOrientation="LANDSCAPE" pdfOrientation="LANDSCAPE" excelScalingType="PERCENT" excelScalingPercent="100" excelScalingPageWide="1" excelScalingPageTall="1"/>
+        <drillColumns/>
+    </report>
+    <uiAttributes showFieldList="false" showFieldLayout="false" showFilterPanel="false">
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+        <pluginData>[{"args":{"shape":"circle","lineWidth":1,"filter.selection.max.count":500,"trendType":"none","trendLineWidth":"1"},"visualizationId":"ccc_line"}]</pluginData>
+    </uiAttributes>
+</reportRecord>

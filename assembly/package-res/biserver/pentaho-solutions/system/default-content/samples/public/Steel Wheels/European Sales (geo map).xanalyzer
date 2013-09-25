@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes createdBy="admin" updatedBy="admin" description="" created="2012-02-07T14:59:52" update="2013-08-12T17:06:47">
+        <path name="European Sales (geo map)" folder="/public/Steel Wheels/European Sales (geo map).xanalyzer"/>
+    </commonStorageAttributes>
+    <report catalog="SteelWheels" cube="SteelWheelsSales" reportTypeEnum="JSON" showRowGrandTotal="false" showColumnGrandTotal="false" useNonVisualTotals="false" showEmptyCells="false" emptyCellDisplay="-" showDrillLinks="false" version="9" autoRefresh="true" freezeColumns="true" freezeRows="true">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure formula="[Measures].[Sales]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:0]" gembarId="color" gembarOrdinal="0"/>
+            <measure formula="[Measures].[Quantity]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:1]" gembarId="size" gembarOrdinal="0"/>
+        </measures>
+        <columnAttributes/>
+        <rowAttributes>
+            <attribute formula="[Markets].[Country]" showSubtotal="false" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="0"/>
+        </rowAttributes>
+        <filters>
+            <filter formula="[Markets].[Territory]" viewFilterEnum="MULTIPLE">
+                <predicates>
+                    <predicate ordinal="1" operatorEnum="EQUAL">
+                        <member formula="[Markets].[EMEA]" caption="EMEA" pos="0"/>
+                    </predicate>
+                </predicates>
+            </filter>
+        </filters>
+        <chartOptions chartType="CUSTOM" customChartType="open_layers" legendPosition="RIGHT" showLegend="true" autoRange="true" displayUnits="UNITS_0" autoRangeSecondary="true" displayUnitsSecondary="UNITS_0" lineWidth="2" lineShape="CIRCLE" maxValues="250" backgroundColor="#ffffff" labelColor="#000000" labelSize="12" backgroundFill="NONE" maxChartsPerRow="3" backgroundColorEnd="#ffffff" labelStyle="PLAIN" legendBackgroundColor="#ffffff" legendSize="12" legendColor="#000000" legendStyle="PLAIN" labelFontFamily="Default" legendFontFamily="Default"/>
+        <selectionFilters/>
+        <selectionItems/>
+        <pageSetup excelPageSize="LETTER" pdfPageSize="LETTER" excelOrientation="LANDSCAPE" pdfOrientation="LANDSCAPE" excelScalingType="PERCENT" excelScalingPercent="100" excelScalingPageWide="1" excelScalingPageTall="1"/>
+        <drillColumns/>
+    </report>
+    <uiAttributes showFieldList="false" showFieldLayout="false" showFilterPanel="false">
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+        <pluginData>[{"args":{"type":"bubbles","baseLayer":"Open Street Maps","zoomState":{"center":{"lon":1127341.667521,"lat":6106723.2189345,"CLASS_NAME":"OpenLayers.LonLat"},"zoom":4,"layers":["Open Street Maps","Measures"],"extent":{"top":9125068.5914394,"left":-5819255.4620688,"bottom":3088377.8464296,"right":8073938.7971108}},"scalingType":"linear","colorRange":["#FF0000","#FFBF3F","#FFFF00","#BFDF3F","#008000"],"filter.selection.max.count":500,"reverseColors":false},"visualizationId":"open_layers"}]</pluginData>
+    </uiAttributes>
+</reportRecord>
