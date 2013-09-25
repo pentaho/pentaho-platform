@@ -142,11 +142,11 @@
           <div class="row-fluid nowrap">
             <div class="input-container">
               <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></label>
-              <input id="j_username" name="j_username" type="text" placeholder="">
+              <input id="j_username" name="j_username" type="text" placeholder="" autocomplete="off">
             </div>
             <div class="input-container">
               <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></label>
-              <input id="j_password" name="j_password" type="password" placeholder="">
+              <input id="j_password" name="j_password" type="password" placeholder="" autocomplete="off">
             </div>
             <div class="input-container">
               <label>&nbsp;</label>
