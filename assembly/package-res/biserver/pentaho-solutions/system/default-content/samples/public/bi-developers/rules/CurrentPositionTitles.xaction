@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>CurrentPositionTitles.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>CurrentPositionTitles.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <dept type="string"> 
+      <default-value>Product Development</default-value>  
+      <sources> 
+        <request>dept</request> 
+      </sources> 
+    </dept> 
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform SQL Query</action-type>
+      <action-inputs> 
+        <dept type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct PositionTitle from QUADRANT_ACTUALS where department={PREPARE:dept} order by PositionTitle]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

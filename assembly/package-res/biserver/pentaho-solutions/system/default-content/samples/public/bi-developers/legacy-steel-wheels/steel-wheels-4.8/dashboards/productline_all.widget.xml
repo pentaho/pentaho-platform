@@ -1,0 +1,80 @@
+<chart>
+
+	<!-- This file defines the bar chart that shows the actual-to-budget variance for each department -->
+
+	<!-- Define the chart type -->	
+	<chart-type>BarChart</chart-type>
+
+	<!-- Specify the title of the chart -->
+	<title>click on Product Line</title>
+
+	<!-- Specify the location of the title -->
+	<title-position>TOP</title-position>
+
+	<!-- Specify the font of the title -->
+	<title-font>
+		<font-family>Ariel</font-family>
+		<size>12</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+    <range-title></range-title>
+	<domain-label-rotation>1.1</domain-label-rotation>
+	<domain-label-rotation-dir></domain-label-rotation-dir>
+	<domain-title></domain-title>
+	<chart-background type="color">#FFFFFF</chart-background>
+	<plot-background type="color">#EEEEEE</plot-background>
+	<!-- Specify the orientation of the bars -->
+	<orientation>horizontal</orientation>
+
+	<!-- Specify the 3D-ness of the bars -->
+	<is-3D>false</is-3D>
+
+	<!-- Specify if the bars are stacked -->
+	<is-stacked>false</is-stacked>
+
+	<!-- Specify if the chart has a border and the border color -->
+	<border-visible>false</border-visible>
+	<border-paint>#000000</border-paint>
+
+	<!-- Specify is the chart legend should be shown -->
+	   <include-legend>true</include-legend> 
+       <legend-font>
+      <font-family>Arial</font-family>
+	  <size>10</size>
+	  <is-bold>false</is-bold>
+	  <is-italic>false</is-italic>
+       </legend-font> 
+
+	<!-- Specify the color palette for the chart -->
+	<color-palette>
+		<color>#387179</color>
+		<color>#626638</color>
+		<color>#A8979A</color>
+		<color>#B09A6B</color>
+		<color>#772200</color>
+		<color>#C52F0D</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	</color-palette>
+
+	<!-- Specify where the data for the chart comes from -->
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution></data-solution>
+		<data-path>/public/pentaho-solutions/steel-wheels/dashboards/Sales_by_Productline_all.xaction</data-path>
+		<data-action></data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>swresult</data-output>
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>rows</data-orientation>
+	</data>	
+		
+</chart>

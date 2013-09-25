@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:48 EDT 2013
+file.title=Inventory Report
+title=Inventory List
+file.description=Detail Listing of Inventory. Shows key values of COST, MSRP and QUANTITY ON HAND.

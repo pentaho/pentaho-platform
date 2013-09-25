@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=SQL Rule - Manager for Departments
+title=department_managers
+file.description=This rule uses a database query to determine the manager for each region<p>This rule is used in the Bursting Examples. See the Quick Start Guide for how to customize this data.

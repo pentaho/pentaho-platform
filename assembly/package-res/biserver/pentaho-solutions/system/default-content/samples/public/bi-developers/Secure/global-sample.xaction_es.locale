@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Sesi\u00F3n Segura y Filtros Globales
+file.description=Esto es un ejemplo del uso de un filtro global y un filtro de sesi\u00F3n.  <p/>El filtro global es DEPARTMENT_LIST que provee valores del par\u00E1metro DEPARTMENT.  DEPARTMENT_LIST es\\tgenerada por el SQL 'select distinct' en la columna departamentos. Siendo un filtro global, la consulta es ejecutada solo una vez y disponible para todos los usuarios. <p/>El filtro de sesi\u00F3n REGION_FILTER es generado por una regla que es ejecutada para cada usuario.  Los valores son almacenados en la sesi\u00F3n de usuario y esta disponible mientras el usuario continue logeado.

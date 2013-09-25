@@ -1,0 +1,90 @@
+<action-sequence>
+  <name>test1.xaction</name>
+  <version>1</version>
+  <title>Report Generation Example 1</title>
+  <logging-level>debug</logging-level>
+  <documentation>
+    <author>Michael D'Amour</author>
+    <description><![CDATA[Generates a Pentaho report in the specified format. The location of the report definition is specified using a solution relative path.]]></description>
+    <icon>/style/icons/jfree1.png</icon>
+    <help/>
+    <result-type>report</result-type>
+  </documentation>
+
+  <inputs>
+    <outputType type="string">
+      <default-value>text/html</default-value>
+        <sources>
+          <request>outputType</request>
+        </sources>
+    </outputType>
+    <reportDefinitionPath type="string">
+      <sources>
+        <request>reportDefinitionPath</request>
+      </sources>
+      <default-value><![CDATA[/public/bi-developers/reporting/unified-file-format/simpleReport.prpt]]></default-value>
+    </reportDefinitionPath>
+    <outputTypeList type="property-map-list"> 
+      <sources> 
+        <runtime>outputTypeList</runtime> 
+      </sources>  
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="report-output-desc">PDF</entry>  
+          <entry key="report-output-type-id">application/pdf</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Excel</entry>  
+          <entry key="report-output-type-id">application/vnd.ms-excel</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Web Page</entry>  
+          <entry key="report-output-type-id">text/html</entry> 
+        </property-map> 
+      </default-value> 
+    </outputTypeList> 
+  </inputs>
+
+  <outputs>
+    <myReport type="content">
+      <destinations>
+        <response>content</response>
+      </destinations>
+    </myReport>
+  </outputs>
+
+  <resources/>
+
+  <actions>
+	
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Product Line and Report Format</action-type>
+      <action-inputs> 
+        <outputTypeList type="property-map-list"/>  
+        <outputType type="string"/>  
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <outputType style="radio"> 
+            <title>Select Report Format</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter> 
+          </outputType> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+    	
+    <action-definition>
+      <component-name>SimpleReportingComponent</component-name>
+      <action-type>Generate the report using a solution path to the report definition</action-type>
+      <component-definition/>
+      <action-inputs>
+        <outputType type="string"/>
+        <reportDefinitionPath type="string"/>
+      </action-inputs>
+      <action-outputs>
+        <outputstream type="content" mapping="myReport"/>
+      </action-outputs>
+    </action-definition>
+  </actions>
+</action-sequence>

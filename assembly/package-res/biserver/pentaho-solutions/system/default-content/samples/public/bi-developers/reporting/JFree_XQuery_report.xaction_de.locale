@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:52 EDT 2013
+file.title=JFree XQuery Bericht
+file.description=Der Bericht wird mit den Daten aus einem XML Dokument erzeugt. Die Daten werden mit Hilfe einer XQueryLookupRule abgerufen.

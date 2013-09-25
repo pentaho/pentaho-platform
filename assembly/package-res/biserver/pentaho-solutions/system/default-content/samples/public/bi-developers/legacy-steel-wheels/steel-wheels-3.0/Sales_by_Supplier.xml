@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+
+<report bottommargin="36" leftmargin="36" name="Sales Report" pageformat="LETTER" rightmargin="36"
+  topmargin="36">
+
+  <parser-config>
+    <property name="Group_by">PRODUCTVENDOR</property>
+    <property name="Amount">SOLD_PRICE</property>
+    <property name="steel-wheels-location">/ViewAction?solution=bi-developers&amp;path=reporting/steel-wheels-reports&amp;</property>    
+  </parser-config>
+
+  <configuration>
+    <property name="org.jfree.report.modules.output.pageable.pdf.Encoding">iso-8859-15</property>
+  </configuration>
+
+  <reportheader fontname="SanSerif"> </reportheader>
+  <reportfooter>
+    <drawable-field x="0%" y="9" fieldname="BarChart" width="100%" height="300"/>
+  </reportfooter>
+
+  <pageheader fontname="SanSerif" fontsize="8" fontstyle="plain">
+    <band x="0" y="0">
+      <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="0" y2="0"/>
+      <line color="#5C7485" weight=".5" width="100%" x1="0%" x2="100%" y1="3" y2="3"/>
+      <band x="0" y="9">
+        <message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%"
+          y="0">Steel Wheels, Inc.</message-field>
+        <message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%"
+          y="14">Summary of Sales by Supplier</message-field>
+        <message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%"
+          y="28">From $(timeStart, date, MMMM d, yyyy) through $(timeStop, date, MMMM d, yyyy)</message-field>
+      </band>
+      <!-- message-field vertical-alignment="middle" alignment="left" height="10" width="33%" x="0%" y="16">$(username)</message-field -->
+      <imageref src="${serverBaseURL}/sw-style/active/sw_logo.jpg" width="50%" height="40"
+        keepAspectRatio="true" scale="true" alignment="left" x="0%" y="14"/>
+      <line color="white" weight=".5" x1="0%" x2="100%" y1="56" y2="56"/>
+      <line color="#5C7485" weight=".5" x1="0%" x2="100%" y1="57" y2="57"/>
+      <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="60" y2="60"/>
+      <rectangle color="white" fill="false" height="9" width="100%" x="0" y="61"/>
+    </band>
+    <!--  
+		<imageref src="${serverBaseURL}/pentaho/images/sw_text_rgb.jpg" width="40%" height="25" keepAspectRatio="true" scale="true" alignment="center" x="30%" />
+		<label height="12" width="100%" y="30" color="#C90404" alignment="center">Customer Sales Summary</label>
+		<label height="12" width="100%" y="45" color="#C90404" alignment="center">Year to Date 2005</label>
+    -->
+  </pageheader>
+  <pagefooter fontname="SanSerif">
+    <message-field alignment="center" fontname="Arial" fontsize="8" height="10" width="20%" x="40%"
+      >$(PageofPages)</message-field>
+    <message-field height="10" width="40%" alignment="left" fontname="Arial" fontsize="8"
+      >Confidential Material</message-field>
+    <label alignment="right" height="10" width="50%" x="50%" y="15"
+      >Pentaho Sample Report</label>
+    <message-field height="10" width="50%" y="15">Report Run: $(report.date)</message-field>
+
+  </pagefooter>
+  <groups>
+    <group name="dummy group">
+      <groupheader fontname="SanSerif">
+        <band x="0" y="0">
+          <rectangle color="#5C7485" draw="false" fill="true" height="15" width="100%" x="0" y="0"/>
+          <message-field height="15" width="50%" x="15%" color="white" alignment="left" y="0"
+            vertical-alignment="middle">Supplier</message-field>
+          <label height="15" width="15%" x="70%" y="0" color="white" alignment="right"
+            vertical-alignment="middle">Sales ($)</label>
+        </band>
+      </groupheader>
+
+      <groupfooter pagebreak-after-print="false">
+        <line x2="85%" x1="70%" y2="6" y1="6" weight=".75" width="15%" color="black" height="1"/>
+        <rectangle color="#FFC607" draw="false" fill="true" height="15" width="100%" x="0" y="7"/>
+        <message-field vertical-alignment="middle" fontname="Arial" fontsize="10" fontstyle="bold"
+          height="15" width="50%" x="15%" y="7">Total </message-field>
+        <number-field vertical-alignment="middle" height="15" width="15%" fieldname="totalsales"
+          format="$ #,###" fontsize="10" fontname="Arial" fontstyle="bold" x="70%" y="7"
+          alignment="right"/>
+        <line x2="85%" x1="70%" y2="23" y1="23" weight=".5" color="black"/>
+        <line x2="85%" x1="70%" y2="24" y1="24" weight=".5" color="black"/>
+      </groupfooter>
+    </group>
+  </groups>
+  <items fontname="SanSerif" fontsize="9" fontstyle="plain" layout-cachable="false" visible="true">
+    <rectangle name="background" x="15%" y="0" width="70%" height="12" color="#DFDFDF"/>
+    <string-field height="12" width="55%" fieldname="${Group_by}" x="15%" alignment="left"
+      vertical-alignment="middle"/>
+    <number-field height="12" width="15%" fieldname="${Amount}" x="70%" alignment="right"
+      format="#,###" vertical-alignment="middle"/>
+  </items>
+  <functions>
+    <function name="backgroundTrigger"
+      class="org.jfree.report.function.ElementVisibilitySwitchFunction">
+      <properties>
+        <property name="element">background</property>
+        <property name="numberOfElements">1</property>
+      </properties>
+    </function>
+    <property-ref name="report.date"/>
+    <function class="org.jfree.report.function.PageOfPagesFunction" name="PageofPages"/>
+    <expression class="org.jfree.report.function.TextFormatExpression" name="URLCreateExpression">
+      <properties>
+        <property name="pattern"
+          >${pentahoBaseURL}${steel-wheels-location}action=order_detail.xaction&amp;customer={0}</property>
+        <property name="field[0]">${Group_by}</property>
+        <property name="urlEncodeValues">true</property>
+      </properties>
+    </expression>
+    <function class="org.jfree.report.function.CreateHyperLinksFunction" name="AddHRefs">
+      <properties>
+        <property name="field">URLCreateExpression</property>
+        <property name="element">URL-Field</property>
+      </properties>
+    </function>
+    <function name="totalsales" class="org.jfree.report.function.TotalGroupSumFunction">
+      <properties>
+        <property name="field">${Amount}</property>
+      </properties>
+    </function>
+    <!-- This makes sure, that we can access the parameter as if it was a column from the table -->
+    <property-ref name="${Group_by}"/>
+    <property-ref name="${Amount}"/>
+    <property-ref name="BarChart"/>
+    <expression class="org.pentaho.plugin.jfreereport.reportcharts.CategorySetCollectorFunction"
+      name="chartDataSource">
+      <properties>
+        <property name="categoryColumn">${Group_by}</property>
+        <property name="seriesName[0]">${Group_by} Sales</property>
+        <property name="valueColumn[0]">${Amount}</property>
+        <property name="summaryOnly">false</property>
+      </properties>
+    </expression>
+    <expression class="org.pentaho.plugin.jfreereport.reportcharts.BarChartExpression"
+      name="BarChart">
+      <properties>
+        <!--  
+          Font specification: fontfamilyname-style-pointsize
+          e.g. Arial-BOLD-14
+          Style can be BOLD, BOLDITALIC, or ITALIC        
+         -->
+        <property name="title">Sales By Supplier</property>
+        <property name="titleFont">SanSerif--9</property>
+        <property name="labelFont">SanSerif--7</property>
+        <property name="labelRotation">90</property>
+        <property name="legendFont">SanSerif--6</property>
+        <property name="backgroundColor">#C8D0D5</property>
+        <property name="showBorder">true</property>
+        <property name="showGridlines">true</property>
+        <property name="horizontal">true</property>
+        <property name="dataSource">chartDataSource</property>
+        <property name="drawBarOutline">false</property>
+        <property name="seriesColor[0]">#97AA09</property>
+        <property name="legendLocation">BOTTOM</property>
+        <property name="showLegend">false</property>
+        <!-- 	<property name="maxBarWidth">0.10</property> -->
+        <property name="maxCategoryLabelWidthRatio">7.0</property>
+        <property name="chartHeight">300</property>
+        <property name="chartWidth">200</property>
+        <property name="useDrawable">true</property>
+        <property name="antiAlias">true</property>
+      </properties>
+    </expression>
+    <expression name="timeStart" formula="=(DATEVALUE([time_start]));"/>
+    <expression name="timeStop" formula="=(DATEVALUE([time_stop]));"/>
+  </functions>
+</report>

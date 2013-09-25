@@ -1,0 +1,4 @@
+#Locale = default
+#Thu Aug 15 12:32:58 EDT 2013 Test: 成 空 明 静 海 \u6210 \u7A7A \u660E \u9759 \u6D77
+file.title=Vendor Sales Report (interactive report) [JA] title=Vendor Sales Report [JA]
+file.description=View current orders by product vendor, quickly filter by territory and order status. [JA] 

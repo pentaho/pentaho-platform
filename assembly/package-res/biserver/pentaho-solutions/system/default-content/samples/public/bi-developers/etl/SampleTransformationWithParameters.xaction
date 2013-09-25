@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>3. Call Transformation with Variables</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Mike Tarallo</author>  
+    <description>This action sequence calls a Pentaho Data Integration transformation with inputs from the secure prompt. A very powerful component in the BI Suite.</description>  
+    <help/>  
+    <result-type/>  
+    <icon/> 
+  </documentation>
+
+  <inputs> 
+    <start_date_str type="string"> 
+      <sources> 
+        <request>start_date_str</request> 
+      </sources>  
+      <default-value><![CDATA[Jan 27, 2009]]></default-value> 
+    </start_date_str>  
+    <end_date_str type="string"> 
+      <sources> 
+        <request>end_date_str</request> 
+      </sources>  
+      <default-value><![CDATA[Feb 14, 2009]]></default-value> 
+    </end_date_str> 
+  </inputs>
+
+  <outputs> 
+    <out type="string"/>  
+    <start_date_str type="string"/>  
+    <end_date_str type="string"/> 
+  </outputs>
+
+  <resources> 
+    <transformation-file> 
+      <solution-file> 
+        <location>SampleTransformationWithParameters.ktr</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </transformation-file> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt/Secure Filter</action-type>
+      <action-inputs> 
+        <start_date_str type="string"/>  
+        <end_date_str type="string"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <start_date_str filter="none"> 
+            <title>Start Date</title> 
+          </start_date_str>  
+          <end_date_str filter="none"> 
+            <title>End Date</title> 
+          </end_date_str> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>KettleComponent</component-name>
+      <action-type>Pentaho Data Integration</action-type>
+      <action-inputs> 
+        <start_date_str type="string"/>  
+        <end_date_str type="string"/> 
+      </action-inputs>
+      <action-resources> 
+        <transformation-file type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <transformation-output-rows type="result-set" mapping="out"/> 
+      </action-outputs>
+      <component-definition> 
+        <monitor-step><![CDATA[Dummy]]></monitor-step> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Abteilungsliste f\u00FCr globale Parameter
+file.description=Erstellt eine SQL Abfrage, um eine Liste der Abteilungen zu erstellen und speichert diese in den 'global parameter provider'.

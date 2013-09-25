@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Huidige Positie Titels
+file.description=Deze regel gebruikt een database query om geldige functies voor een bepaalde afdeling te bepalen.<p>Je kan verschillende afdelingen tegelijk doorgeven. Probeer deze <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Finance" target\="pentaho_action">Financi&\#235n</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Sales" target\="pentaho_action">Verkoop</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Human%20Resource" target\="pentaho_action">Personeel</a>
