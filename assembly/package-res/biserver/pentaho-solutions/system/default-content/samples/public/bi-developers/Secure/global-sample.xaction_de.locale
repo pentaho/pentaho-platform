@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Sichere Session und globale Filter
+file.description=Dieses Beispiel zeigt, wie man globale Filter und Sessionfilter verwendet. <p/> Der globale Filter ist DEPARTMENT_LIST, der die Werte f\u00FCr die Abteilungsparameter bereitstellt. DEPARTMENT_LIST wird mit einem 'select distinct' der Spalte 'Abteilungen' generiert. Da es ein globale Filter ist, muss er nur einmal aktiviert werden um f\u00FCr alle Benutzer verf\u00FCgbar zu sein.<p/> Der Sessionfilter REGION_FILTER wir bei jedem einloggen eines Users erzeugt. Der Werte werden in der User-Session gespeichert und bleiben solange erhalten, wie der User eingeloggt bleibt.

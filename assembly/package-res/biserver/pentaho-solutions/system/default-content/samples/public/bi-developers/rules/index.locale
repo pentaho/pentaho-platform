@@ -1,0 +1,4 @@
+#Locale = default
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Business Rules
+file.description=Examples of business rules using scripting and database tables.<br/>Rules are used as part of business intelligence process, but here you can run them individually

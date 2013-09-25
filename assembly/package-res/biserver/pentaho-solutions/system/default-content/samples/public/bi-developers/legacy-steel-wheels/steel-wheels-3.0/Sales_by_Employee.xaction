@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>Sales_by_Employee.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <visible>false</visible>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>%description</description>  
+    <icon>slsbyter.png</icon>  
+    <help/>  
+    <result-type>none</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value><![CDATA[html]]></default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>  
+    <territory type="string"> 
+      <sources> 
+        <request>territory</request> 
+      </sources>  
+      <default-value>default</default-value> 
+    </territory>  
+    <product type="string"> 
+      <sources> 
+        <request>product</request> 
+      </sources>  
+      <default-value>default</default-value> 
+    </product>  
+    <employee type="string"> 
+      <sources> 
+        <request>employee</request> 
+      </sources>  
+      <default-value>default</default-value> 
+    </employee>  
+    <productline type="string"> 
+      <sources> 
+        <request>productline</request> 
+      </sources>  
+      <default-value>default</default-value> 
+    </productline>  
+    <time_stop type="string"> 
+      <sources> 
+        <request>time_stop</request> 
+      </sources>  
+      <default-value>2005-05-31 23:59:59</default-value> 
+    </time_stop>  
+    <time_stop_list type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jan 31 2003</entry>  
+          <entry key="TIME_ID">2003-1-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Feb 28 2003</entry>  
+          <entry key="TIME_ID">2003-02-28 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Mar 31 2003</entry>  
+          <entry key="TIME_ID">2003-03-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Apr 30 2003</entry>  
+          <entry key="TIME_ID">2003-04-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">May 31 2003</entry>  
+          <entry key="TIME_ID">2003-05-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">June 30 2003</entry>  
+          <entry key="TIME_ID">2003-06-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">July 31 2003</entry>  
+          <entry key="TIME_ID">2003-07-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Aug 31 2003</entry>  
+          <entry key="TIME_ID">2003-08-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Sep 30 2003</entry>  
+          <entry key="TIME_ID">2003-9-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Oct 31 2003</entry>  
+          <entry key="TIME_ID">2003-10-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Nov 30 2003</entry>  
+          <entry key="TIME_ID">2003-11-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Dec 31 2003</entry>  
+          <entry key="TIME_ID">2003-12-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jan 31 2004</entry>  
+          <entry key="TIME_ID">2004-01-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Feb 29 2004</entry>  
+          <entry key="TIME_ID">2004-02-29 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Mar 31 2004</entry>  
+          <entry key="TIME_ID">2004-03-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Apr 30 2004</entry>  
+          <entry key="TIME_ID">2004-04-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">May 31 2004</entry>  
+          <entry key="TIME_ID">2004-05-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jun 30 2004</entry>  
+          <entry key="TIME_ID">2004-06-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jul 31 2004</entry>  
+          <entry key="TIME_ID">2004-07-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Aug 31 2004</entry>  
+          <entry key="TIME_ID">2004-08-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Sep 30 2004</entry>  
+          <entry key="TIME_ID">2004-09-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Oct 31 2004</entry>  
+          <entry key="TIME_ID">2004-10-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Nov 30 2004</entry>  
+          <entry key="TIME_ID">2004-11-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Dec 31 2004</entry>  
+          <entry key="TIME_ID">2004-12-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jan 31 2005</entry>  
+          <entry key="TIME_ID">2005-01-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Feb 28 2005</entry>  
+          <entry key="TIME_ID">2005-02-28 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Mar 31 2005</entry>  
+          <entry key="TIME_ID">2005-03-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Apr 30 2005</entry>  
+          <entry key="TIME_ID">2005-04-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">May 31 2005</entry>  
+          <entry key="TIME_ID">2005-05-31 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jun 30 2005</entry>  
+          <entry key="TIME_ID">2005-06-30 23:59:59</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_STOP_DESC">Jul 31 2005</entry>  
+          <entry key="TIME_ID">2005-07-31 23:59:59</entry> 
+        </property-map> 
+      </default-value> 
+    </time_stop_list>  
+    <time_start type="string"> 
+      <sources> 
+        <request>time_start</request> 
+      </sources>  
+      <default-value>2005-01-01</default-value> 
+    </time_start>  
+    <time_start_list type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="TIME_ID">2003-01-01</entry>  
+          <entry key="TIME_START_DESC">Jan 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-02-01</entry>  
+          <entry key="TIME_START_DESC">Feb 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-03-01</entry>  
+          <entry key="TIME_START_DESC">Mar 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-04-01</entry>  
+          <entry key="TIME_START_DESC">Apr 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-05-01</entry>  
+          <entry key="TIME_START_DESC">May 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-06-01</entry>  
+          <entry key="TIME_START_DESC">June 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-07-01</entry>  
+          <entry key="TIME_START_DESC">July 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-08-01</entry>  
+          <entry key="TIME_START_DESC">Aug 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-09-01</entry>  
+          <entry key="TIME_START_DESC">Sep 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-10-01</entry>  
+          <entry key="TIME_START_DESC">Oct 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-11-01</entry>  
+          <entry key="TIME_START_DESC">Nov 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-12-01</entry>  
+          <entry key="TIME_START_DESC">Dec 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-01-01</entry>  
+          <entry key="TIME_START_DESC">Jan 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-02-01</entry>  
+          <entry key="TIME_START_DESC">Feb 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-03-01</entry>  
+          <entry key="TIME_START_DESC">Mar 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-04-01</entry>  
+          <entry key="TIME_START_DESC">Apr 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-05-01</entry>  
+          <entry key="TIME_START_DESC">May 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-06-01</entry>  
+          <entry key="TIME_START_DESC">Jun 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-07-01</entry>  
+          <entry key="TIME_START_DESC">Jul 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-08-01</entry>  
+          <entry key="TIME_START_DESC">Aug 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-09-01</entry>  
+          <entry key="TIME_START_DESC">Sep 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-10-01</entry>  
+          <entry key="TIME_START_DESC">Oct 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-11-01</entry>  
+          <entry key="TIME_START_DESC">Nov 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-12-01</entry>  
+          <entry key="TIME_START_DESC">Dec 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-01-01</entry>  
+          <entry key="TIME_START_DESC">Jan 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-02-01</entry>  
+          <entry key="TIME_START_DESC">Feb 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-03-01</entry>  
+          <entry key="TIME_START_DESC">Mar 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-04-01</entry>  
+          <entry key="TIME_START_DESC">Apr 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-05-01</entry>  
+          <entry key="TIME_START_DESC">May 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-06-01</entry>  
+          <entry key="TIME_START_DESC">Jun 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-07-01</entry>  
+          <entry key="TIME_START_DESC">Jul 01 2005</entry> 
+        </property-map> 
+      </default-value> 
+    </time_start_list>  
+    <output-type-list type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="report-output-desc">PDF</entry>  
+          <entry key="report-output-type-id">pdf</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Excel</entry>  
+          <entry key="report-output-type-id">xls</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Web Page</entry>  
+          <entry key="report-output-type-id">html</entry> 
+        </property-map> 
+      </default-value> 
+    </output-type-list> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default --> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>Sales_by_Employee.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>TemplateComponent</component-name>
+      <action-type>Set Base URL</action-type>
+      <action-outputs> 
+        <output-message type="string" mapping="baseURL"/> 
+      </action-outputs>
+      <component-definition> 
+        <template><![CDATA[{$url}]]></template> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get productlines</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="productline_list"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT DISTINCT(PRODUCTLINE) FROM PRODUCTS UNION ALL SELECT DISTINCT 'default' FROM OFFICES]]></query>  
+        <live><![CDATA[true]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get employee</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="employee_list"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT DISTINCT(LASTNAME) FROM EMPLOYEES UNION ALL SELECT DISTINCT 'default' FROM OFFICES]]></query>  
+        <live><![CDATA[true]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get products</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="product_list"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[SELECT DISTINCT(PRODUCTNAME) FROM PRODUCTS UNION ALL SELECT DISTINCT 'default' FROM OFFICES]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get territory</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="territory_list"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT DISTINCT(TERRITORY) FROM OFFICES UNION ALL SELECT DISTINCT 'default' FROM OFFICES]]></query>  
+        <live><![CDATA[true]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Secure Filter Territory, Productline, ProductLine, Employees</action-type>
+      <action-inputs> 
+        <product type="string"/>  
+        <employee type="string"/>  
+        <productline type="string"/>  
+        <territory type="string"/>  
+        <product_list type="result-set"/>  
+        <employee_list type="result-set"/>  
+        <productline_list type="result-set"/>  
+        <territory_list type="result-set"/> 
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <selections> 
+          <product optional="true"> 
+            <filter value-col-name="productname" display-col-name="productname">product_list</filter> 
+          </product>  
+          <employee optional="true"> 
+            <filter value-col-name="lastname" display-col-name="lastname">employee_list</filter> 
+          </employee>  
+          <productline optional="true"> 
+            <filter value-col-name="productline" display-col-name="productline">productline_list</filter> 
+          </productline>  
+          <territory optional="true"> 
+            <filter value-col-name="territory" display-col-name="territory">territory_list</filter> 
+          </territory> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Start Date, Stop Date and Report Format</action-type>
+      <action-inputs> 
+        <time_start type="string"/>  
+        <time_start_list type="property-map-list"/>  
+        <time_stop type="string"/>  
+        <time_stop_list type="property-map-list"/>  
+        <output-type type="string"/>  
+        <output-type-list type="property-map-list"/> 
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <selections> 
+          <time_start style="select"> 
+            <title>Start Date</title>  
+            <filter value-col-name="TIME_ID" display-col-name="TIME_START_DESC">time_start_list</filter> 
+          </time_start>  
+          <time_stop style="select"> 
+            <title>End Date</title>  
+            <filter value-col-name="TIME_ID" display-col-name="TIME_STOP_DESC">time_stop_list</filter> 
+          </time_stop>  
+          <output-type style="radio"> 
+            <title>Report Output</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">output-type-list</filter> 
+          </output-type> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Set Context</action-type>
+      <action-inputs> 
+        <territory type="string"/>  
+        <product type="string"/>  
+        <employee type="string"/>  
+        <productline type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <territory_qry_string type="string"/>  
+        <territory_name type="string"/>  
+        <employee_qry_string type="string"/>  
+        <employee_name type="string"/>  
+        <product_qry_string type="string"/>  
+        <product_name type="string"/>  
+        <productline_qry_string type="string"/>  
+        <productline_name type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[if ((territory == "default") || (null==territory)) {
+territory_qry_string=" ";
+territory_name="All Territories";
+}
+else {
+territory_qry_string="AND OFFICES.TERRITORY='" + territory + "'";
+territory_name=territory + " Territory";
+}
+
+if ((employee == "default") || (null==employee)) {
+employee_qry_string=" ";
+employee_name="All Employees";
+}
+else {
+employee_qry_string="AND EMPLOYEES.LASTNAME='" + employee + "'";
+employee_name="Sales Rep: " + employee;
+}
+
+if ((product == "default") || (null==product)) {
+product_qry_string=" ";
+product_name="All Products";
+}
+else {
+product_qry_string="AND PRODUCTS.PRODUCTNAME='" + product + "'";
+product_name=product + " product";
+}
+
+if ((productline == "default") || (null==productline)) {
+productline_qry_string=" ";
+productline_name="All Product Lines";
+}
+else {
+productline_qry_string="AND PRODUCTS.PRODUCTLINE='" + productline + "'";
+productline_name=productline + " Product Line";
+}]]></script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data</action-type>
+      <action-inputs> 
+        <territory_qry_string type="string"/>  
+        <productline_qry_string type="string"/>  
+        <time_stop type="string"/>  
+        <product_qry_string type="string"/>  
+        <time_start type="string"/>  
+        <employee_qry_string type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>true</live>  
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT EMPLOYEES.LASTNAME, ROUND(SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH),0) AS 
+"SOLD_PRICE" FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN PRODUCTS ON ORDERDETAILS.PRODUCTCODE =PRODUCTS.PRODUCTCODE  INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER  INNER JOIN EMPLOYEES ON CUSTOMERS.SALESREPEMPLOYEENUMBER = EMPLOYEES.EMPLOYEENUMBER INNER JOIN OFFICES ON EMPLOYEES.OFFICECODE=OFFICES.OFFICECODE  WHERE  (ORDERS.ORDERDATE >= {PREPARE:time_start} AND ORDERS.ORDERDATE <= {PREPARE:time_stop})  {territory_qry_string} {employee_qry_string} {product_qry_string} {productline_qry_string} GROUP BY EMPLOYEES.LASTNAME ORDER BY 2 DESC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Run Report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <territory_name type="string"/>  
+        <employee_name type="string"/>  
+        <product_name type="string"/>  
+        <productline_name type="string"/>  
+        <territory type="string"/>  
+        <product type="string"/>  
+        <employee type="string"/>  
+        <productline type="string"/>  
+        <time_stop type="string"/>  
+        <time_start type="string"/>  
+        <baseURL type="string"/>  
+        <data type="result-set" mapping="query_result"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs/>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>XY Chart Data</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description/>  
+    <help/>  
+    <result-type>none</result-type>  
+    <icon>folder.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <results type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get data from</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="results"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[SELECT
+     PRODUCTS.PRODUCTLINE AS LINE,
+     SUM(ORDERFACT.QUANTITYORDERED) AS QUANTITY,
+     SUM(ORDERFACT.TOTALPRICE) AS TOTAL,
+     PRODUCTS.PRODUCTNAME AS NAME
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+GROUP BY
+     PRODUCTS.PRODUCTLINE,
+     PRODUCTS.PRODUCTNAME
+ORDER BY
+     PRODUCTS.PRODUCTLINE ASC, PRODUCTS.PRODUCTNAME ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

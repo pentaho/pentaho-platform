@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:48 EDT 2013
+file.title=10. INVENTORY REPORT - EMAIL
+title=invent_subscribe
+file.description=This report enables users to email the report.
