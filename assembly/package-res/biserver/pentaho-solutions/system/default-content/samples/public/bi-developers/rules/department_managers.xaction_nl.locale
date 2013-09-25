@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Departmentshoofden
+file.description=Deze regel gebruikt een database query om de regiomanager op te zoeken<p>De regel wordt gebruikt in de BIRT Uitbarstingsvoorbeelden. Raadpleeg de Quick Start Guide om deze gegevens te wijzigen.

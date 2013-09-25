@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Areachart Data</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description/>  
+    <help/>  
+    <result-type>none</result-type>
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <query_result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get data</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[false]]></live>  
+        <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE AS LINE,
+     SUM(CASE ORDERFACT.YEAR_ID WHEN '2003' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "2003",
+     SUM(CASE ORDERFACT.YEAR_ID WHEN '2004' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "2004",
+     SUM(CASE ORDERFACT.YEAR_ID WHEN '2005' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "2005"
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+     INNER JOIN CUSTOMER_W_TER ON ORDERFACT.CUSTOMERNUMBER = CUSTOMER_W_TER.CUSTOMERNUMBER GROUP BY
+     LINE
+ORDER BY
+     2 DESC]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

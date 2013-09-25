@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:49 EDT 2013
+file.title=OLAP Crosstab Rapport
+file.description=Een crosstab rapport dat actuele en gebudgetteerde data voor elke afdeling in elke regio toont. Het rapport haalt data op uit een Mondrian OLAP server en gebruikt JFreeReport om de pagina te genereren

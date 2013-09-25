@@ -1,0 +1,29 @@
+<chartModel chartEngine="OpenFlashChart" style="border-top-width: 5; border-top-color: #987654; background-color: #fffacd;">
+  <title style="font-family: courier; color: #ffaa00; font-size: 20px; font-weight: bold; text-align: center;">Chart Title</title>
+  <legend style="font-family: verdana; font-size: 18px; font-weight: bold; border-top-width: 10; border-top-color: #880a0f; font-style: italic;"/>
+  <barPlot orientation="HORIZONTAL" style="opacity: 0.75; background-color: #fffff0;" flavor="PLAIN">
+    <palette>
+      <paint style="color: #880a0f;"/>
+      <paint style="color: #b09a6b;"/>
+      <paint style="color: #772200;"/>
+      <paint style="color: #c52f0d;"/>
+      <paint style="color: #123d82;"/>
+      <paint style="color: #4a0866;"/>
+      <paint style="color: #ffaa00;"/>
+      <paint style="color: #1e8ad3;"/>
+      <paint style="color: #aa6611;"/>
+      <paint style="color: #772200;"/>
+      <paint style="color: #8b2834;"/>
+      <paint style="color: #333333;"/>
+    </palette>
+    <verticalAxis>
+      <legend style="font-family: san-serif; color: #772200; font-size: 12px; font-weight: bold;">yAxis</legend>
+    </verticalAxis>
+    <horizontalAxis class="org.pentaho.chart.model.NumericAxis" labelOrientation="DIAGONAL">
+      <legend style="font-family: san-serif; color: #772200; font-size: 10px;">xAxis</legend>
+    </horizontalAxis>
+  </barPlot>
+</chartModel>
+
+
+

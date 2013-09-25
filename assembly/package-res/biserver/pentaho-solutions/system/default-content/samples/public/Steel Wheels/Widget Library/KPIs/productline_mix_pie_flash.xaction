@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>Simple Dial Chart Example</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Jake Cornelius</author>  
+    <description/>  
+    <help/> 
+  </documentation>
+
+  <inputs> 
+    <Territory type="string"> 
+      <sources> 
+        <request>Territory</request> 
+      </sources>  
+      <default-value>NA</default-value> 
+    </Territory> 
+  </inputs>
+
+  <outputs> 
+    <chartContent type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </chartContent> 
+  </outputs>
+
+  <resources> 
+    <pie> 
+      <solution-file> 
+        <location>productline_mix_pie_flash.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </pie> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>MQLRelationalDataComponent</component-name>
+      <action-type>MQL</action-type>
+      <action-inputs> 
+        <Territory/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="chartData"/> 
+      </action-outputs>
+      <component-definition> 
+        <query><![CDATA[<mql>
+  <domain_type>relational</domain_type>
+  <domain_id>steel-wheels</domain_id>
+  <model_id>BV_ORDERS</model_id>
+  <model_name>Orders</model_name>
+  <options>
+    <disable_distinct>false</disable_distinct>
+  </options>
+  <parameters>
+	<parameter name="Territory" type="string" defaultValue="NA"/>
+  </parameters>
+  <selections>
+    <selection>
+      <view>CAT_PRODUCTS</view>
+      <column>BC_PRODUCTS_PRODUCTLINE</column>
+    </selection>
+    <selection>
+      <view>CAT_ORDERS</view>
+      <column>BC_ORDERDETAILS_TOTAL</column>
+      <aggregation>sum</aggregation>
+    </selection>
+  </selections>
+  <constraints>
+    <constraint>
+      <operator/>
+      <condition>[BC_CUSTOMER_W_TER_.BC_CUSTOMER_W_TER_TERRITORY]=[param:Territory]</condition>
+    </constraint>
+  </constraints>
+  <orders/>
+</mql>]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartBeansAction</component-name>
+      <action-inputs> 
+        <chartData type="result-set"/> 
+      </action-inputs>
+      <action-resources> 
+        <chartModelXmlStream type="resource" mapping="pie"/> 
+      </action-resources>
+      <action-outputs> 
+        <chartContent type="content"/> 
+      </action-outputs>
+      <component-definition> 
+        <seriesColumn>BC_PRODUCTS_PRODUCTLINE</seriesColumn>  
+        <valueColumn>BC_ORDERDETAILS_TOTAL</valueColumn> 
+      </component-definition>  
+      <action-name>Simple demonstration Flash pie chart.</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

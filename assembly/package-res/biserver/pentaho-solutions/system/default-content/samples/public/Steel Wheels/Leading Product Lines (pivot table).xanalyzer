@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes createdBy="admin" updatedBy="admin" description="" created="2009-10-21T10:06:43" update="2013-08-13T11:23:15">
+        <path name="Leading Product Lines (pivot table)" folder="/public/Steel Wheels/Leading Product Lines (pivot table).xanalyzer"/>
+    </commonStorageAttributes>
+    <report catalog="SteelWheels" cube="SteelWheelsSales" reportTypeEnum="PIVOT" showRowGrandTotal="false" showColumnGrandTotal="true" showSubTotals="true" useNonVisualTotals="false" showEmptyCells="false" emptyCellDisplay="-" showDrillLinks="true" version="9" autoRefresh="true" freezeColumns="true" freezeRows="true">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure formula="[Measures].[Sales]" showSum="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="DESC" id="[MEASURE:0]" gembarId="measures" gembarOrdinal="0">
+                <displayLabels>
+                    <displayLabel locale="" label="Sales" labelPlural=""/>
+                </displayLabels>
+                <numberFormat formatCategory="Currency ($)" formatScale="0" currencySymbol="$"/>
+            </measure>
+            <measure formula="[Measures].[Quantity]" showSum="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:1]" gembarId="measures" gembarOrdinal="1">
+                <numberFormat formatCategory="Default" formatScale="0" formatShortcut="DATA_BAR_BLUE" currencySymbol="$">
+                    <formatExpression>Case
+When [Measures].CurrentMember &gt; 0
+Then '|#,##0|arrow=up'
+When [Measures].CurrentMember &lt; 0
+Then '|#,##0|arrow=down'
+Else '|#,##0'
+End</formatExpression>
+                </numberFormat>
+            </measure>
+            <measure showSum="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="EXPRESSION" sortOrderEnum="NONE" id="[MEASURE:2]" calculateSubtotalsUsingFormula="true" gembarId="measures" gembarOrdinal="2">
+                <displayLabels>
+                    <displayLabel locale="" label="Unit Sales" labelPlural=""/>
+                </displayLabels>
+                <expression>[Measures].[Sales]/[Measures].[Quantity]</expression>
+                <numberFormat formatCategory="Currency ($)" formatScale="0" formatShortcut="COLOR_SCALE_G_Y_R" currencySymbol="$">
+                    <formatExpression>Case
+When [Measures].CurrentMember &gt; 0
+Then '|#,##0|arrow=up'
+When [Measures].CurrentMember &lt; 0
+Then '|#,##0|arrow=down'
+Else '|#,##0'
+End</formatExpression>
+                </numberFormat>
+            </measure>
+        </measures>
+        <columnAttributes>
+            <attribute formula="[Time].[Years]" showSubtotal="false" sortOrderEnum="ASC" gembarId="columns" gembarOrdinal="0"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute formula="[Markets].[Territory]" showSubtotal="true" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="0"/>
+            <attribute formula="[Product].[Line]" showSubtotal="false" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="1"/>
+        </rowAttributes>
+        <filters>
+            <filter formula="[Product].[Line]" viewFilterEnum="MULTIPLE">
+                <topBottom formula="[Measures].[Sales]" type="TOP" count="5"/>
+            </filter>
+        </filters>
+        <chartOptions chartType="CUSTOM" customChartType="ccc_horzbar" legendPosition="RIGHT" showLegend="true" autoRange="true" displayUnits="UNITS_0" autoRangeSecondary="true" displayUnitsSecondary="UNITS_0" lineWidth="2" lineShape="CIRCLE" maxValues="100" backgroundColor="#ffffff" labelColor="#000000" labelSize="12" backgroundFill="NONE" maxChartsPerRow="3" backgroundColorEnd="#ffffff" labelStyle="PLAIN" legendBackgroundColor="#ffffff" legendSize="12" legendColor="#000000" legendStyle="PLAIN" labelFontFamily="Default" legendFontFamily="Default"/>
+        <selectionFilters/>
+        <selectionItems/>
+        <pageSetup excelPageSize="LETTER" pdfPageSize="LETTER" excelOrientation="LANDSCAPE" pdfOrientation="LANDSCAPE" excelScalingType="PERCENT" excelScalingPercent="100" excelScalingPageWide="1" excelScalingPageTall="1"/>
+        <drillColumns/>
+    </report>
+    <uiAttributes showFieldList="false" showFieldLayout="false" showFilterPanel="false">
+        <rowFieldWidths actualWidths="80,107"/>
+        <columnDataFieldWidths actualWidths="91,89,79,109,87,86,99,86,86">
+            <labelWidth index="0">
+                <width>29</width>
+            </labelWidth>
+            <labelWidth index="1">
+                <width>31</width>
+            </labelWidth>
+            <labelWidth index="2">
+                <width>41</width>
+            </labelWidth>
+            <labelWidth index="3">
+                <width>11</width>
+            </labelWidth>
+            <labelWidth index="4">
+                <width>33</width>
+            </labelWidth>
+            <labelWidth index="5">
+                <width>34</width>
+            </labelWidth>
+            <labelWidth index="6">
+                <width>21</width>
+            </labelWidth>
+            <labelWidth index="7">
+                <width>34</width>
+            </labelWidth>
+            <labelWidth index="8">
+                <width>34</width>
+            </labelWidth>
+            <labelWidth index="9">
+                <width>0</width>
+            </labelWidth>
+        </columnDataFieldWidths>
+        <pluginData>[]</pluginData>
+    </uiAttributes>
+</reportRecord>

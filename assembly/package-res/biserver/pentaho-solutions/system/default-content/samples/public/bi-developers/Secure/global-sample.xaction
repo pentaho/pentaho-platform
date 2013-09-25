@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>global-sample.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Doug Moran</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>global-sample.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <reportFormat type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </reportFormat>  
+    <REGION type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION>  
+    <REGION_FILTER type="result-set"> 
+      <sources> 
+        <session>REGION_FILTER</session> 
+      </sources>  
+      <default-value/> 
+    </REGION_FILTER>  
+    <DEPARTMENT type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>DEPARTMENT</request> 
+      </sources> 
+    </DEPARTMENT>  
+    <DEPARTMENT_LIST type="result-set"> 
+      <sources> 
+        <global>DEPARTMENT_LIST</global> 
+      </sources>  
+      <default-value/> 
+    </DEPARTMENT_LIST>  
+    <result type="string"> 
+      <sources> 
+        <request>result</request> 
+      </sources>  
+      <default-value>&lt;HTML&gt;No selections for REGION or DEPARTMENT were found in your session. &lt;p/&gt;This means you are not logged in or you do not have permission to view this report.&lt;/HTML&gt;</default-value> 
+    </result> 
+  </inputs>
+
+  <outputs> 
+    <result type="content">
+      <destinations>
+        <response>content</response>
+      </destinations>
+    </result>
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeQuadForRegion.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <actions> 
+      <condition><![CDATA[DEPARTMENT_LIST && REGION_FILTER]]></condition>  
+      <action-definition> 
+        <component-name>SecureFilterComponent</component-name>
+        <action-type>Prompt For Region And Department</action-type>
+        <action-inputs> 
+          <REGION type="string"/>  
+          <REGION_FILTER type="result-set"/>  
+          <DEPARTMENT type="string"/>  
+          <DEPARTMENT_LIST type="result-set"/> 
+        </action-inputs>
+        <action-outputs/>
+        <component-definition> 
+          <selections> 
+            <REGION style="radio"> 
+              <title>Region</title>  
+              <filter value-col-name="REGION" display-col-name="REGION">REGION_FILTER</filter> 
+            </REGION>  
+            <DEPARTMENT style="select"> 
+              <title>Department</title>  
+              <filter value-col-name="DEPARTMENT" display-col-name="DEPARTMENT">DEPARTMENT_LIST</filter> 
+            </DEPARTMENT> 
+          </selections> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition>
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Query For Report Data</action-type>
+        <action-inputs>
+          <DEPARTMENT type="string"/>
+          <REGION type="string"/>
+        </action-inputs>
+        <action-outputs>
+          <query-result type="result-set" mapping="reportData"/>
+        </action-outputs>
+        <component-definition>
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION={PREPARE:REGION} and QUADRANT_ACTUALS.DEPARTMENT={PREPARE:DEPARTMENT} order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query>
+          <live>true</live>
+        </component-definition>
+      </action-definition>
+
+      <action-definition>
+        <component-name>JFreeReportComponent</component-name>
+        <action-type>Pentaho Report</action-type>
+        <action-inputs>
+          <output-type type="string" mapping="reportFormat"/>
+          <data type="result-set" mapping="reportData"/>
+        </action-inputs>
+        <action-resources>
+          <report-definition type="resource"/>
+        </action-resources>
+        <action-outputs>
+          <report-output type="content" mapping="result"/>
+        </action-outputs>
+        <component-definition/>
+      </action-definition>
+    </actions>
+ 
+  </actions> 
+</action-sequence>

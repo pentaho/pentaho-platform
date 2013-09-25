@@ -1,0 +1,85 @@
+<chart>
+	<!-- Define the chart type -->	
+	<chart-type>BarChart</chart-type>
+	
+	<!-- Specify the title of the chart -->
+	<title>Chart Title</title>
+		<title-font>
+		<font-family>Arial</font-family>
+		<size>18</size>
+		<is-bold>true</is-bold>
+	</title-font>
+	
+	<!-- General Chart Attributes -->
+	<orientation>vertical</orientation>	
+	<is-stacked>false</is-stacked>
+	<is-3D>false</is-3D>
+	<height-3d>1</height-3d>
+	<is-glass>false</is-glass>
+	<is-sketch>true</is-sketch>
+		<!-- additional properties specific to sketch charts -->
+		<fun-factor>10</fun-factor>
+		<outline-color-palette> 
+			<color>#0f3765</color>
+			<color>#880a0f</color>
+			<color>#B09A6B</color>
+		</outline-color-palette>
+
+    <!-- General Chart Formatting Propeties --> 
+	<chart-background type="color">#FFffff</chart-background>
+	<plot-background type="color">#ffffff</plot-background>
+	<alpha>.70</alpha>
+	
+	<!-- Define what to display in hover tips -->
+	<!-- <tooltip> -->
+		<!-- #top# -->
+		<!-- #bottom# -->
+		<!-- #val# -->
+		<!-- #x_label# -->
+		<!-- #key# -->
+	<!-- </tooltip> -->	
+
+	<!--  X-Axis properties (domain)-->
+	<domain-title>Domain Title</domain-title>
+	<domain-title-font>
+      <font-family>Arial</font-family>
+	  <size>14</size>
+	  <is-bold>false</is-bold>
+	</domain-title-font>
+	<domain-color>#000000</domain-color>
+	<domain-grid-color>#ffffff</domain-grid-color>
+	<domain-stroke>1</domain-stroke>
+	
+
+	<!--  Y-Axis properties (range) -->
+	<range-title>Range Title</range-title>
+	<range-title-font>
+      <font-family>Arial</font-family>
+	  <size>14</size>
+	  <is-bold>false</is-bold>
+	</range-title-font>
+	<range-minimum></range-minimum>
+	<range-maximum></range-maximum>
+	<range-color>#000000</range-color>
+	<range-grid-color>#eaeaea</range-grid-color>
+	<range-stroke>1</range-stroke>
+	<range-steps>6</range-steps>	
+
+	<!-- Specify the color palette for the chart -->
+	<color-palette>
+	    <color>#0f3765</color>
+		<color>#880a0f</color>
+		<color>#B09A6B</color>
+		<color>#772200</color>
+		<color>#C52F0D</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+		<color>#8b2834</color>
+	</color-palette>
+		
+</chart>

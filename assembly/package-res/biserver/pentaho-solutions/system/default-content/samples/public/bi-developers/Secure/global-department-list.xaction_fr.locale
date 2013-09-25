@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Liste des d\u00E9partements pour des param\u00E8tres globaux
+file.description=Fait une requ\u00EAte SQL pour obtenir la liste des d\u00E9partements et sauvegarde la liste dans le fournisseur du param\u00E8tre global

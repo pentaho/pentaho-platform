@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Department list for global parameters 
+title=global-department-list
+file.description=Does a SQL query for the list of departments and saves the list into the global parameter provider 
