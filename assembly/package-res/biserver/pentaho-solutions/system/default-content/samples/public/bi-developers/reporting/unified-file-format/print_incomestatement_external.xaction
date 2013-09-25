@@ -109,6 +109,8 @@
                          var report = rc.getReport();
 
                          var parameterContext = new Packages.org.pentaho.reporting.engine.classic.core.parameters.DefaultParameterContext(report);
+                         // open parameter context
+                         parameterContext.open();
                          rc.applyInputsToReportParameters(report, parameterContext);
                          parameterContext.close();
 
