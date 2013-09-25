@@ -1,0 +1,106 @@
+<html xmlns:xf="http://www.w3.org/2002/xforms">
+   <head>
+	<!-- do not include a <meta> tag -->
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css"></link>
+      <title>Parameter Page Customization Example</title>
+            			
+				<script src="../../../js/parameters.js" type="text/javascript"></script>
+						
+      			<script><![CDATA[
+      			  var pentaho_notOptionalMessage = 'Please select something for {0}';
+				  var pentaho_backgroundWarning = 'Info:  Reports that prompt for parameters are not supported with this feature.  Run in Background may report errors. Click OK to continue.';
+				  var USEPOSTFORFORMS = false;
+                  var url=window.location.pathname;
+      			  var target=unescape('');
+      			  function doForm() {
+      			    var submitUrl = url + '?';
+      			    var form = document.forms['parameter-form'];
+      			    var elements = form.elements;
+      			    var i;
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      } else if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      	}
+      			      } else if( elements[i].type == 'checkbox' ) {
+      			      	if( elements[i].checked ) {
+      				      submitUrl += '&' + elements[i].name + "=" + escape( elements[i].value );
+      			      	}
+      			      } else if( elements[i].type == 'select-multiple' ) {
+      				    var options = elements[i].options;
+      				    var j;
+      				    for( j=0; j!=options.length; j++ ) {
+      				      if( options[j].selected ) {
+      	  			        submitUrl += '&' + elements[i].name + '=' + escape( options[ j ].value );
+      				      }
+      				    }
+      				  }
+      			    }
+      			    if( target == '' ) {
+      				    document.location.href=submitUrl;
+      				} else {
+      					window.open( submitUrl, target );
+      				}
+      			    return false;
+      			  }
+      			]]></script>
+      		
+	{xform-header}
+
+   </head>
+   <body style="border:2px solid #dddddd">
+      <div style="margin:10px"><span class="portlet-section-header">Parameter Page Customization Example 2</span></div>
+      <div style="margin:10px;border:1px solid #808080;padding:5px;">
+         <form name="parameter-form" id="parameter-form" method="GET">
+            <table width="100%" style="padding:5px;">
+               <tr>
+                  <td><span class="portlet-font">Use this form to supply the parameters required for this content. 
+<p/>This parameter page was generated using at html template. You can find the template in pentaho-demo/samples/reporting/parameter_template.html
+</span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader">Select a DEPARTMENT<br/><span class="portlet-font">Try 'Finance' or maybe 'Sales' </span>
+                  </td>
+               </tr>
+               <tr>
+			<!-- this shows an example of using the form control that is built automatically -->
+                  <td class="portlet-font">{DEPARTMENT}</td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br/>Select a REGION
+                  </td>
+               </tr>
+               <tr>
+			<!-- this shows an example of providing your own form control -->
+                  <td class="portlet-font">
+				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Central" title=""/>
+				<span id="REGION-label" class="portlet-form-field-label">Central</span>
+				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Eastern" title=""/>
+				<span id="REGION-label" class="portlet-form-field-label">Eastern</span>
+				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Western" title=""/>
+				<span id="REGION-label" class="portlet-form-field-label">Western</span>
+				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Southern" title=""/>
+				<span id="REGION-label" class="portlet-form-field-label">Southern</span>
+				<span id="REGION-required" class="required-symbol"></span></td>
+
+               </tr>
+               <tr>
+                  <td><br/><input type="button" name="go" id="go" class="portlet-form-button" value="Run..." onClick="doForm()"/></td>
+               </tr>
+            </table>
+		{path}
+	    </form>
+      </div>
+   </body>
+   
+
+	<script><![CDATA[
+		var inSchedulerDialog = window.location.pathname.indexOf('parameterUi') >= 0;
+		if (inSchedulerDialog) {
+			document.getElementById('go').style.display = 'none';
+		}
+	]]></script>
+   
+</html>

@@ -392,6 +392,12 @@
       <!-- Set the visible value of the sample dirs -->
       <set-solution-visibility dir="${stage.dir.solutions}/bi-developers" visible="${bi-developers.visible}" />
 
+      <zip destfile="${stage.dir.solutions}/system/default-content/samples.zip">
+      	<fileset dir="${stage.dir.solutions}/system/default-content/samples"/>
+      </zip>
+  	
+  	  <delete dir="${stage.dir.solutions}/system/default-content/samples"/>
+	  	
   </target>
 
   <!-- =================================

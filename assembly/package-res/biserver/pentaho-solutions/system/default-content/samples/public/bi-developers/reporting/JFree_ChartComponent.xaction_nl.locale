@@ -1,0 +1,4 @@
+#Locale = nl
+#Tue Sep 24 17:43:53 WEST 2013
+file.title=JFreeReport met taartdiagram
+file.description=Genereert een PDF met een taartdiagram gebaseerd op een andere SQL query dan het rapport zelf.  Het taartdiagram is gemaakt met de ChartComponent en wordt aan JFreeReport doorgegeven als een parameter.

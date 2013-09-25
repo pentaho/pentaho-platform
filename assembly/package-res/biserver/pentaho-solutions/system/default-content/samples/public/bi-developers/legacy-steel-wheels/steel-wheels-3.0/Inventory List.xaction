@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">  
+  <name>Inventory List.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>%description</description>  
+    <icon>inventory.png</icon>  
+    <help/>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <outputType type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </outputType>  
+    <productline type="string"> 
+      <sources> 
+        <request>productline</request> 
+      </sources>  
+      <default-value>Classic Cars</default-value> 
+    </productline>  
+    <outputTypeList type="property-map-list"> 
+      <sources> 
+        <runtime>outputTypeList</runtime> 
+      </sources>  
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="report-output-desc">PDF</entry>  
+          <entry key="report-output-type-id">pdf</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Excel</entry>  
+          <entry key="report-output-type-id">xls</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Web Page</entry>  
+          <entry key="report-output-type-id">html</entry> 
+        </property-map> 
+      </default-value> 
+    </outputTypeList> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default --> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>Inventory List.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Return list of Product Lines</action-type>
+      <action-outputs> 
+        <productline type="string"/>  
+        <query-result type="result-set" mapping="productLineList"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct(productline) from PRODUCTS]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Product Line and Report Format</action-type>
+      <action-inputs> 
+        <productline type="string"/>  
+        <outputTypeList type="property-map-list"/>  
+        <outputType type="string"/>  
+        <productLineList type="result-set"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <productline style="list-multi"> 
+            <title>Select Product Line</title>  
+            <filter value-col-name="productline" display-col-name="productline">productLineList</filter> 
+          </productline>  
+          <outputType style="radio"> 
+            <title>Select Report Format</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter> 
+          </outputType> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data</action-type>
+      <action-inputs> 
+        <productline type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[SELECT PRODUCTLINE, PRODUCTVENDOR, PRODUCTCODE, PRODUCTNAME,PRODUCTSCALE, PRODUCTDESCRIPTION, QUANTITYINSTOCK, BUYPRICE, MSRP FROM PRODUCTS WHERE PRODUCTLINE IN ({PREPARE:productline}) ORDER BY PRODUCTLINE ASC, PRODUCTVENDOR ASC, PRODUCTCODE ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Run Report</action-type>
+      <action-inputs> 
+        <output-type type="string" mapping="outputType"/>  
+        <data type="result-set" mapping="query_result"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs/>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,5 @@
+#Locale = default
+#Tue Sep 24 17:43:52 WEST 2013
+file.title=Dynamic Dependent Parameter Page
+title=DependentParameterExample
+file.description=Dynamic dependent parameter page example using AJAX and an HTML template

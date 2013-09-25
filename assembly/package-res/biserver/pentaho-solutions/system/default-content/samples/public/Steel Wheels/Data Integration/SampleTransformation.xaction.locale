@@ -1,0 +1,5 @@
+#Locale = default
+#Tue Sep 24 17:43:57 WEST 2013
+file.title=Sample PDI Transformation
+title=SampleTransformation
+file.description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data table, and sending a Hello message to each position.  

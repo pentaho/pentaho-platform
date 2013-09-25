@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<Schema name="SteelWheels">
+  <Cube name="SteelWheelsSales">
+    <Table name="ORDERFACT"/>
+    <Dimension name="Markets" foreignKey="CUSTOMERNUMBER">
+      <Hierarchy hasAll="true" allMemberName="All Markets" primaryKey="CUSTOMERNUMBER">
+        <Table name="CUSTOMER_W_TER"/>
+        <Level name="Territory" column="TERRITORY" uniqueMembers="true"/>  
+        <Level name="Country" column="COUNTRY" uniqueMembers="true"/>
+        <Level name="State Province" column="STATE" uniqueMembers="true"/>
+        <Level name="City" column="CITY" uniqueMembers="true"/>
+      </Hierarchy>
+    </Dimension>
+    <Dimension name="Customers" foreignKey="CUSTOMERNUMBER">
+      <Hierarchy hasAll="true" allMemberName="All Customers" primaryKey="CUSTOMERNUMBER">
+        <Table name="CUSTOMER_W_TER"/>
+        <Level name="Customer" column="CUSTOMERNAME" uniqueMembers="true"/>
+      </Hierarchy>
+    </Dimension>
+    <Dimension name="Product" foreignKey="PRODUCTCODE">
+      <Hierarchy hasAll="true" allMemberName="All Products" primaryKey="PRODUCTCODE">
+        <Table name="PRODUCTS"/>
+        <Level name="Line" column="PRODUCTLINE" uniqueMembers="true"/>
+        <Level name="Vendor" column="PRODUCTVENDOR" uniqueMembers="true"/>
+        <Level name="Product" column="PRODUCTNAME" uniqueMembers="true"/>
+      </Hierarchy>
+    </Dimension>
+    <Dimension name="Time" foreignKey="TIME_ID" type="TimeDimension">
+      <Hierarchy hasAll="true" allMemberName="All Years" primaryKey="TIME_ID">
+        <Table name="DIM_TIME"/>
+        <Level name="Years" column="YEAR_ID" type="Integer" uniqueMembers="true" levelType="TimeYears"/>
+        <Level name="Quarters" column="QTR_NAME" uniqueMembers="false" ordinalColumn="QTR_ID" levelType="TimeQuarters"/>
+        <Level name="Months" column="MONTH_NAME" uniqueMembers="false" ordinalColumn="MONTH_ID" levelType="TimeMonths"/>
+      </Hierarchy>
+    </Dimension>
+    <Dimension name="Order Status" foreignKey="STATUS">
+      <Hierarchy hasAll="true" allMemberName="All Status Types" primaryKey="STATUS">
+        <Level name="Type" column="STATUS" uniqueMembers="true"/>
+      </Hierarchy>
+    </Dimension>    
+    <Measure name="Quantity" column="QUANTITYORDERED" aggregator="sum" formatString="#,###"/>
+    <Measure name="Sales" column="TOTALPRICE" aggregator="sum" formatString="#,###"/>
+  </Cube>
+</Schema>

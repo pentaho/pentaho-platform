@@ -1,0 +1,4 @@
+#Locale = de
+#Tue Sep 24 17:43:53 WEST 2013
+file.title=JFreeReport mit Tortendiagramm
+file.description=Hierbei basiert das Tortendiagramm auf einer anderen SQL Abfrage, als der Bericht selbst. Das Diagramm wird mit der Diagramm-Komponente erstellt und als Parameter zu JFreeReport weitergeleitet.
