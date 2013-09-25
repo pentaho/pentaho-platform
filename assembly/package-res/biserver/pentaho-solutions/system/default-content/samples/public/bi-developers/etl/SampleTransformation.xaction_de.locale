@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:44 EDT 2013
+file.title=1. Hallo ETL
+file.description=Hier wird eine einfache Kettle Transformation durchgef\u00FChrt. Sie filtert die Datens\u00E4tze des 'Quartals-Ist' Beispiels und schickt eine 'Hallo' Nachricht zu jeder Position.

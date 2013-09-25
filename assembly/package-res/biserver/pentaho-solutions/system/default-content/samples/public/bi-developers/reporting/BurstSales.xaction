@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>BurstSales.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type/>  
+    <icon>salerep.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <ReportType type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>ReportType</request> 
+      </sources> 
+    </ReportType>  
+    <from type="string"> 
+      <default-value>joe.pentaho@pentaho.org</default-value>
+    </from>  
+    <attach type="string"> 
+      <default-value>report-output</default-value> 
+    </attach>  
+    <time_stop type="string"> 
+      <sources> 
+        <request>time_stop</request> 
+      </sources>  
+      <default-value>2005-06-01</default-value> 
+    </time_stop>  
+    <time_stop_list type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="TIME_ID">2003-02-01</entry>  
+          <entry key="TIME_STOP_DESC">Jan 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-03-01</entry>  
+          <entry key="TIME_STOP_DESC">Feb 28 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-04-01</entry>  
+          <entry key="TIME_STOP_DESC">Mar 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-05-01</entry>  
+          <entry key="TIME_STOP_DESC">Apr 30 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-06-01</entry>  
+          <entry key="TIME_STOP_DESC">May 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-07-01</entry>  
+          <entry key="TIME_STOP_DESC">June 30 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-08-01</entry>  
+          <entry key="TIME_STOP_DESC">July 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-09-01</entry>  
+          <entry key="TIME_STOP_DESC">Aug 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-10-01</entry>  
+          <entry key="TIME_STOP_DESC">Sep 30 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-11-01</entry>  
+          <entry key="TIME_STOP_DESC">Oct 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-12-01</entry>  
+          <entry key="TIME_STOP_DESC">Nov 30 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-01-01</entry>  
+          <entry key="TIME_STOP_DESC">Dec 31 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-02-01</entry>  
+          <entry key="TIME_STOP_DESC">Jan 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-03-01</entry>  
+          <entry key="TIME_STOP_DESC">Feb 29 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-04-01</entry>  
+          <entry key="TIME_STOP_DESC">Mar 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-05-01</entry>  
+          <entry key="TIME_STOP_DESC">Apr 30 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-06-01</entry>  
+          <entry key="TIME_STOP_DESC">May 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-07-01</entry>  
+          <entry key="TIME_STOP_DESC">Jun 30 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-08-01</entry>  
+          <entry key="TIME_STOP_DESC">Jul 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-09-01</entry>  
+          <entry key="TIME_STOP_DESC">Aug 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-10-01</entry>  
+          <entry key="TIME_STOP_DESC">Sep 30 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-11-01</entry>  
+          <entry key="TIME_STOP_DESC">Oct 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-12-01</entry>  
+          <entry key="TIME_STOP_DESC">Nov 30 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-01-01</entry>  
+          <entry key="TIME_STOP_DESC">Dec 31 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-02-01</entry>  
+          <entry key="TIME_STOP_DESC">Jan 31 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-03-01</entry>  
+          <entry key="TIME_STOP_DESC">Feb 28 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-04-01</entry>  
+          <entry key="TIME_STOP_DESC">Mar 31 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-05-01</entry>  
+          <entry key="TIME_STOP_DESC">Apr 30 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-06-01</entry>  
+          <entry key="TIME_STOP_DESC">May 31 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-07-01</entry>  
+          <entry key="TIME_STOP_DESC">Jun 30 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-08-01</entry>  
+          <entry key="TIME_STOP_DESC">Jul 31 2005</entry> 
+        </property-map> 
+      </default-value> 
+    </time_stop_list>  
+    <time_start type="string"> 
+      <sources> 
+        <request>time_start</request> 
+      </sources>  
+      <default-value>2005-01-01</default-value> 
+    </time_start>  
+    <time_start_list type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="TIME_ID">2003-01-01</entry>  
+          <entry key="TIME_START_DESC">Jan 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-02-01</entry>  
+          <entry key="TIME_START_DESC">Feb 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-03-01</entry>  
+          <entry key="TIME_START_DESC">Mar 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-04-01</entry>  
+          <entry key="TIME_START_DESC">Apr 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-05-01</entry>  
+          <entry key="TIME_START_DESC">May 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-06-01</entry>  
+          <entry key="TIME_START_DESC">June 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-07-01</entry>  
+          <entry key="TIME_START_DESC">July 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-08-01</entry>  
+          <entry key="TIME_START_DESC">Aug 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-09-01</entry>  
+          <entry key="TIME_START_DESC">Sep 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-10-01</entry>  
+          <entry key="TIME_START_DESC">Oct 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-11-01</entry>  
+          <entry key="TIME_START_DESC">Nov 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2003-12-01</entry>  
+          <entry key="TIME_START_DESC">Dec 01 2003</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-01-01</entry>  
+          <entry key="TIME_START_DESC">Jan 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-02-01</entry>  
+          <entry key="TIME_START_DESC">Feb 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-03-01</entry>  
+          <entry key="TIME_START_DESC">Mar 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-04-01</entry>  
+          <entry key="TIME_START_DESC">Apr 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-05-01</entry>  
+          <entry key="TIME_START_DESC">May 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-06-01</entry>  
+          <entry key="TIME_START_DESC">Jun 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-07-01</entry>  
+          <entry key="TIME_START_DESC">Jul 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-08-01</entry>  
+          <entry key="TIME_START_DESC">Aug 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-09-01</entry>  
+          <entry key="TIME_START_DESC">Sep 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-10-01</entry>  
+          <entry key="TIME_START_DESC">Oct 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-11-01</entry>  
+          <entry key="TIME_START_DESC">Nov 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2004-12-01</entry>  
+          <entry key="TIME_START_DESC">Dec 01 2004</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-01-01</entry>  
+          <entry key="TIME_START_DESC">Jan 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-02-01</entry>  
+          <entry key="TIME_START_DESC">Feb 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-03-01</entry>  
+          <entry key="TIME_START_DESC">Mar 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-04-01</entry>  
+          <entry key="TIME_START_DESC">Apr 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-05-01</entry>  
+          <entry key="TIME_START_DESC">May 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-06-01</entry>  
+          <entry key="TIME_START_DESC">Jun 01 2005</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="TIME_ID">2005-07-01</entry>  
+          <entry key="TIME_START_DESC">Jul 01 2005</entry> 
+        </property-map> 
+      </default-value> 
+    </time_start_list>  
+    <ReportTypeList type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="reportTypeDesc">PDF</entry>  
+          <entry key="reportTypeId">pdf</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="reportTypeDesc">Excel</entry>  
+          <entry key="reportTypeId">xls</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="reportTypeDesc">Web Page</entry>  
+          <entry key="reportTypeId">html</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="reportTypeDesc">Word</entry>  
+          <entry key="reportTypeId">rtf</entry> 
+        </property-map> 
+      </default-value> 
+    </ReportTypeList>  
+    <emailOverride type="string"> 
+      <sources> 
+        <request>emailOverride</request> 
+      </sources>  
+      <default-value/> 
+    </emailOverride> 
+  </inputs>
+
+  <outputs/>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>Sales_by_Customer.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Date Range and Report Type</action-type>
+      <action-inputs> 
+        <time_start type="string"/>  
+        <time_start_list type="property-map-list"/>  
+        <time_stop type="string"/>  
+        <time_stop_list type="property-map-list"/>  
+        <ReportType type="string"/>  
+        <ReportTypeList type="property-map-list"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <time_start style="select"> 
+            <title>Start Date</title>  
+            <filter value-col-name="TIME_ID" display-col-name="TIME_START_DESC">time_start_list</filter> 
+          </time_start>  
+          <time_stop style="select"> 
+            <title>Stop Date</title>  
+            <filter value-col-name="TIME_ID" display-col-name="TIME_STOP_DESC">time_stop_list</filter> 
+          </time_stop>  
+          <ReportType style="radio"> 
+            <title>Report Type</title>  
+            <filter value-col-name="reportTypeId" display-col-name="reportTypeDesc">ReportTypeList</filter> 
+          </ReportType> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>TemplateComponent</component-name>
+      <action-type>Set Base URL</action-type>
+      <action-outputs> 
+        <output-message type="string" mapping="baseURL"/> 
+      </action-outputs>
+      <component-definition> 
+        <template><![CDATA[{$url}]]></template> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Test for Valid E-Mail Addresses</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="emailResult"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT
+     EMAIL
+FROM
+     EMPLOYEES
+WHERE
+     EMAIL not like '%@classicmodelcars.com']]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <actions> 
+      <condition><![CDATA[emailResult.getRowCount() == 0]]></condition>  
+      <action-definition> 
+        <component-name>SecureFilterComponent</component-name>
+        <action-type>Prompt for Email Address if NOT Valid</action-type>
+        <action-inputs> 
+          <emailOverride type="string"/> 
+        </action-inputs>
+        <component-definition> 
+          <selections> 
+            <emailOverride filter="none"> 
+              <title>Enter E-mail Address since e-mail addresses in EMPLOYEES TABLE are not valid.</title> 
+            </emailOverride> 
+          </selections> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get List of employees to send Sales Report</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <EMPLOYEENUMBER type="string"/>  
+        <LASTNAME type="string"/>  
+        <EMAIL type="string"/>  
+        <query-result type="result-set" mapping="employeeList"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT EMPLOYEENUMBER, LASTNAME, EMAIL FROM EMPLOYEES WHERE  EMPLOYEES.JOBTITLE='Sales Rep']]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <actions loop-on="employeeList"> 
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Get Data</action-type>
+        <action-inputs> 
+          <EMPLOYEENUMBER type="string"/>  
+          <time_stop type="string"/>  
+          <time_start type="string"/> 
+        </action-inputs>
+        <action-outputs> 
+          <query-result type="result-set" mapping="queryResult"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi>SampleData</jndi>  
+          <query><![CDATA[SELECT CUSTOMERS.CUSTOMERNUMBER, CUSTOMERS.CUSTOMERNAME, SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) SOLD_PRICE FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER WHERE ( ORDERDATE >= {PREPARE:time_start} AND ORDERDATE <= {PREPARE:time_stop} ) AND SALESREPEMPLOYEENUMBER={PREPARE:EMPLOYEENUMBER} GROUP BY CUSTOMERS.CUSTOMERNUMBER, CUSTOMERS.CUSTOMERNAME ORDER BY 3 DESC]]></query> 
+        </component-definition> 
+      </action-definition>
+  
+      <actions> 
+        <condition><![CDATA[queryResult.getRowCount()>0]]></condition>  
+        <action-definition> 
+          <component-name>JavascriptRule</component-name>
+          <action-type>Check whether to use Email Override</action-type>
+          <action-inputs> 
+            <emailOverride type="string"/> 
+          </action-inputs>
+          <action-outputs> 
+            <EMAIL type="string"/> 
+          </action-outputs>
+          <component-definition> 
+            <script><![CDATA[if ( emailOverride != "" ) EMAIL = emailOverride;]]></script> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>UtilityComponent</component-name>
+          <action-type>Create attachment filename</action-type>
+          <action-inputs> 
+            <LASTNAME type="string"/>  
+            <ReportType type="string"/> 
+          </action-inputs>
+          <action-outputs> 
+            <attach-name type="string" mapping="attachName"/> 
+          </action-outputs>
+          <component-definition> 
+            <format> 
+              <format-string>"Sales_Report_{0}.{1}"</format-string>  
+              <return>attach-name</return>  
+              <arg>LASTNAME</arg>  
+              <arg>ReportType</arg> 
+            </format> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>UtilityComponent</component-name>
+          <action-type>Create email subject</action-type>
+          <action-inputs> 
+            <LASTNAME type="string"/> 
+          </action-inputs>
+          <action-outputs> 
+            <subject type="string"/> 
+          </action-outputs>
+          <component-definition> 
+            <format> 
+              <format-string>"Customer Sales Report for {0} employee"</format-string>  
+              <return>subject</return>  
+              <arg>LASTNAME</arg> 
+            </format> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>UtilityComponent</component-name>
+          <action-type>Create email text message</action-type>
+          <action-inputs> 
+            <subject type="string"/> 
+          </action-inputs>
+          <action-outputs> 
+            <message-text type="string" mapping="messageText"/> 
+          </action-outputs>
+          <component-definition> 
+            <format> 
+              <format-string>"Attached is the {0}."</format-string>  
+              <return>message-text</return>  
+              <arg>subject</arg> 
+            </format> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>JFreeReportComponent</component-name>
+          <action-type>Run Report</action-type>
+          <action-inputs> 
+            <output-type type="string" mapping="ReportType"/>  
+            <employee_name type="string" mapping="LASTNAME"/>  
+            <data type="result-set" mapping="queryResult"/>  
+            <time_stop type="string"/>  
+            <time_start type="string"/>  
+            <baseURL type="string"/> 
+          </action-inputs>
+          <action-resources> 
+            <report-definition type="resource"/> 
+          </action-resources>
+          <action-outputs> 
+            <report-output type="content" mapping="reportOutput"/> 
+          </action-outputs>
+          <component-definition/> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>EmailComponent</component-name>
+          <action-type>Email</action-type>
+          <action-inputs> 
+            <message-plain type="string" mapping="messageText"/>  
+            <attach type="string"/>  
+            <reportOutput type="content"/>  
+            <subject type="string"/>  
+            <to type="string" mapping="EMAIL"/>  
+            <attachName type="string"/> 
+          </action-inputs>
+          <component-definition> 
+            <!--from>salessystem@pentaho.org</from-->  
+            <attachment-ref name-param="attachName" input-param="reportOutput"/> 
+          </component-definition> 
+        </action-definition>
+ 
+      </actions>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

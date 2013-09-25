@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:44 EDT 2013
+file.title=HQL Query using Hibernate
+title=HQL_Datasource
+file.description=This rule uses the Hibernate Query Language (HQL) to return data for ContentItems.  If no data is returned, then there is no data in hibernate for ContentItem.

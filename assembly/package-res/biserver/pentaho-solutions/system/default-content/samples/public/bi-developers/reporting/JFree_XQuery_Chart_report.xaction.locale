@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:52 EDT 2013
+file.title=Regional Sales Chart - XML data
+title=JFree_XQuery_Chart_report
+file.description=Runs a JFreeReport against data stored in an XML document and produces a Bar Chart using JFreeChart.

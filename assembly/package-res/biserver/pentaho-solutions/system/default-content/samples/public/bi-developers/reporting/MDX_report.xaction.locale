@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:49 EDT 2013
+file.title=OLAP Crosstab Report
+title=MDX_report
+file.description=A cross tab report that shows actual and budget data for every department across every region. The report queries a Mondrian OLAP server and uses JFreeReport to generate the page
