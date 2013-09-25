@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes createdBy="admin" updatedBy="admin" description="" created="2012-02-20T10:58:27" update="2013-08-13T11:20:19">
+        <path name="Country Performance (heat grid)" folder="/public/Steel Wheels/Country Performance (heat grid).xanalyzer"/>
+    </commonStorageAttributes>
+    <report catalog="SteelWheels" cube="SteelWheelsSales" reportTypeEnum="JSON" showRowGrandTotal="false" showColumnGrandTotal="false" useNonVisualTotals="false" showEmptyCells="false" emptyCellDisplay="-" showDrillLinks="false" version="9" autoRefresh="true" freezeColumns="true" freezeRows="true">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure formula="[Measures].[Sales]" showSum="false" showAggregate="true" showAverage="false" showCount="false" showMax="false" showMin="false" measureTypeEnum="VALUE" sortOrderEnum="NONE" id="[MEASURE:0]" gembarId="color" gembarOrdinal="0"/>
+        </measures>
+        <columnAttributes/>
+        <rowAttributes>
+            <attribute formula="[Markets].[Country]" showSubtotal="false" sortOrderEnum="ASC" gembarId="rows" gembarOrdinal="0"/>
+            <attribute formula="[Time].[Years]" showSubtotal="false" sortOrderEnum="DESC" gembarId="columns" gembarOrdinal="0"/>
+            <attribute formula="[Time].[Quarters]" showSubtotal="false" sortOrderEnum="DESC" gembarId="columns" gembarOrdinal="1"/>
+        </rowAttributes>
+        <filters>
+            <filter formula="[Markets].[Country]" viewFilterEnum="MULTIPLE">
+                <predicates>
+                    <predicate ordinal="1" operatorEnum="NOT_EQUAL">
+                        <member formula="[Markets].[NA].[USA]" caption="USA" pos="0"/>
+                    </predicate>
+                </predicates>
+            </filter>
+            <filter formula="[Time].[Years]" viewFilterEnum="MULTIPLE">
+                <predicates>
+                    <predicate ordinal="1" operatorEnum="EQUAL" parameterName="yearParameter">
+                        <member formula="[Time].[2003]" caption="2003" pos="0"/>
+                        <member formula="[Time].[2004]" caption="2004" pos="0"/>
+                        <member formula="[Time].[2005]" caption="2005" pos="0"/>
+                    </predicate>
+                </predicates>
+            </filter>
+        </filters>
+        <chartOptions chartType="CUSTOM" customChartType="ccc_heatgrid" legendPosition="RIGHT" showLegend="true" autoRange="true" displayUnits="UNITS_0" autoRangeSecondary="true" displayUnitsSecondary="UNITS_0" lineWidth="2" lineShape="CIRCLE" maxValues="500" backgroundColor="#ffffff" labelColor="#000000" labelSize="12" backgroundFill="NONE" maxChartsPerRow="3" backgroundColorEnd="#ffffff" labelStyle="PLAIN" legendBackgroundColor="#ffffff" legendSize="12" legendColor="#000000" legendStyle="PLAIN" labelFontFamily="Default" legendFontFamily="Default"/>
+        <selectionFilters/>
+        <selectionItems/>
+        <pageSetup excelPageSize="LETTER" pdfPageSize="LETTER" excelOrientation="LANDSCAPE" pdfOrientation="LANDSCAPE" excelScalingType="PERCENT" excelScalingPercent="100" excelScalingPageWide="1" excelScalingPageTall="1"/>
+        <drillColumns/>
+    </report>
+    <uiAttributes showFieldList="false" showFieldLayout="false" showFilterPanel="false">
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+        <pluginData>[{"args":{"shape":"square","filter.selection.max.count":500,"pattern":"GRADIENT","colorSet":"ryg","colorScaleType":"linear","colors":["#FF0000","#FFBF3F","#FFFF00","#BFDF3F","#008000"]},"visualizationId":"ccc_heatgrid"}]</pluginData>
+    </uiAttributes>
+</reportRecord>

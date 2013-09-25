@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2012-04-05T11:20:06" created="2012-02-07T14:59:52" description="" updatedBy="admin" createdBy="admin">
+        <path folder="steel-wheels/analysis/EMEA Sales Map.xanalyzer" name="EMEA Sales Map"/>
+    </commonStorageAttributes>
+    <report freezeRows="true" freezeColumns="true" autoRefresh="true" version="6" showDrillLinks="false" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showColumnGrandTotal="false" showRowGrandTotal="false" reportTypeEnum="JSON" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure gembarOrdinal="0" gembarId="color" id="[MEASURE:0]" sortOrderEnum="NONE" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showAggregate="true" showSum="false" formula="[Measures].[Sales]"/>
+            <measure gembarOrdinal="0" gembarId="size" id="[MEASURE:1]" sortOrderEnum="NONE" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showAggregate="true" showSum="false" formula="[Measures].[Quantity]"/>
+        </measures>
+        <columnAttributes/>
+        <rowAttributes>
+            <attribute gembarOrdinal="0" gembarId="rows" sortOrderEnum="ASC" showSubtotal="false" formula="[Markets].[Country]"/>
+        </rowAttributes>
+        <filters>
+            <filter viewFilterEnum="MULTIPLE" formula="[Markets].[Territory]">
+                <predicates>
+                    <predicate operatorEnum="EQUAL" ordinal="1">
+                        <member pos="0" caption="EMEA" formula="[Markets].[EMEA]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+        </filters>
+        <chartOptions legendFontFamily="Default" labelFontFamily="Default" legendStyle="PLAIN" legendColor="#000000" legendSize="12" legendBackgroundColor="#ffffff" labelStyle="PLAIN" backgroundColorEnd="#ffffff" maxChartsPerRow="3" backgroundFill="NONE" labelSize="12" labelColor="#000000" backgroundColor="#ffffff" maxValues="100" lineShape="CIRCLE" lineWidth="2" displayUnitsSecondary="UNITS_0" autoRangeSecondary="true" displayUnits="UNITS_0" autoRange="true" showLegend="true" legendPosition="RIGHT" customChartType="open_layers" chartType="CUSTOM"/>
+        <selectionFilters/>
+        <selectionItems/>
+    </report>
+    <uiAttributes showFilterPanel="false" showFieldLayout="true" showFieldList="true">
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+        <pluginData>[{"id":"open_layers","type":"geographic","source":"openlayers","name":"Geo Map","class":"pentaho.openlayers.OpenLayersMap","needsColorGradient":true,"customType":"MAP","args":{"type":"bubbles","baseLayer":"Open Street Maps","zoomState":{"center":{"lon":1088205.9090446,"lat":7222092.3355165,"CLASS_NAME":"OpenLayers.LonLat"},"zoom":4,"layers":["Open Street Maps","Measures"],"extent":{"top":10670931.051264,"left":-2150278.1048909,"bottom":3773253.6197694,"right":4326689.9229801}},"reverseColors":false,"scalingType":"linear","colorRange":["#FF0000","#FFBF3F","#FFFF00","#BFDF3F","#008000"]},"propMap":[],"dataReqs":[{"name":"Known Regions","reqs":[{"id":"rows","dataType":"string","dataStructure":"column","caption":"geography","required":true},{"id":"color","dataType":"number","dataStructure":"column","caption":"color_by","required":false,"isColorGradient":true,"allowMultiple":false},{"id":"size","dataType":"number","dataStructure":"column","caption":"size_by","required":false,"allowMultiple":false},{"id":"columns","dataType":"string","dataStructure":"column","caption":"agg_by","required":false,"allowMultiple":true},{"id":"pattern","dataType":"string","values":["GRADIENT","3-COLOR","5-COLOR"],"ui":{"labels":["gradient","step_3","step_5"],"group":"options","type":"combo","caption":"Pattern"},"value":undefined},{"id":"colorSet","dataType":"string","values":["ryg","ryb","blue","gray"],"ui":{"labels":["RYG","RYB","blue_scale","gray_scale"],"group":"options","type":"combo","caption":"Color"},"value":undefined},{"id":"reverseColors","dataType":"boolean","ui":{"label":"reverse_colors","group":"options","type":"checkbox"},"value":false}]},{"name":"Lat/Long","reqs":[{"id":"latitude","dataType":"number","dataStructure":"column","caption":"Latitude","required":true},{"id":"longitude","dataType":"number","dataStructure":"column","caption":"Longitude","required":true},{"id":"color","dataType":"number","dataStructure":"column","caption":"Color","required":true,"isColorGradient":true},{"id":"size","dataType":"number","dataStructure":"column","caption":"Size","required":false},{"id":"attributes","dataType":"any","dataStructure":"column","caption":"Attributes","required":false,"allowMultiple":true}]},{"name":"Advanced","reqs":[{"id":"Country","dataType":"string","dataStructure":"column","caption":"Country","required":false},{"id":"CountrySubdivision","dataType":"string","dataStructure":"column","caption":"State/Region","required":false},{"id":"Municipality","dataType":"string","dataStructure":"column","caption":"City","required":false},{"id":"PostalCode","dataType":"string","dataStructure":"column","caption":"Zip/Postal Code","required":false},{"id":"color","dataType":"number","dataStructure":"column","caption":"Color","required":true,"isColorGradient":true},{"id":"size","dataType":"number","dataStructure":"column","caption":"Size","required":false},{"id":"attributes","dataType":"any","dataStructure":"column","caption":"Attributes","required":false,"allowMultiple":true}]}]}]</pluginData>
+    </uiAttributes>
+</reportRecord>

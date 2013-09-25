@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2010-10-20T15:23:32" created="2009-10-21T10:06:43" description="" updatedBy="admin" createdBy="admin">
+        <path folder="" name="Top 5 Product Lines by Territory"/>
+    </commonStorageAttributes>
+    <report version="5" showDrillLinks="true" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showSubTotals="true" showColumnGrandTotal="true" showRowGrandTotal="false" reportTypeEnum="PIVOT" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure id="[MEASURE:0]" sortOrderEnum="DESC" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showSum="true" formula="[Measures].[Sales]">
+                <displayLabels>
+                    <displayLabel labelPlural="" label="Sales" locale=""/>
+                </displayLabels>
+                <numberFormat formatScale="0" formatCategory="Currency ($)"/>
+            </measure>
+            <measure id="[MEASURE:1]" sortOrderEnum="NONE" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showSum="true" formula="[Measures].[Quantity]">
+                <numberFormat formatShortcut="DATA_BAR_BLUE" formatScale="0" formatCategory="Default">
+                    <formatExpression>Case
+When [Measures].CurrentMember &gt; 0
+Then '|#,##0|arrow=up'
+When [Measures].CurrentMember &lt; 0
+Then '|#,##0|arrow=down'
+Else '|#,##0'
+End</formatExpression>
+                </numberFormat>
+            </measure>
+            <measure calculateSubtotalsUsingFormula="true" id="[MEASURE:2]" sortOrderEnum="NONE" measureTypeEnum="EXPRESSION" showMin="false" showMax="false" showCount="false" showAverage="false" showSum="true">
+                <displayLabels>
+                    <displayLabel labelPlural="" label="Unit Sales" locale=""/>
+                </displayLabels>
+                <expression>[Measures].[Sales]/[Measures].[Quantity]</expression>
+                <numberFormat formatShortcut="COLOR_SCALE_G_Y_R" formatScale="0" formatCategory="Currency ($)">
+                    <formatExpression>Case
+When [Measures].CurrentMember &gt; 0
+Then '|#,##0|arrow=up'
+When [Measures].CurrentMember &lt; 0
+Then '|#,##0|arrow=down'
+Else '|#,##0'
+End</formatExpression>
+                </numberFormat>
+            </measure>
+        </measures>
+        <columnAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Time].[Years]"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="true" formula="[Markets].[Territory]"/>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Product].[Line]"/>
+        </rowAttributes>
+        <filters>
+            <filter viewFilterEnum="MULTIPLE" formula="[Product].[Line]">
+                <topBottom count="5" type="TOP" formula="[Measures].[Sales]"/>
+            </filter>
+        </filters>
+        <chartOptions chartType="HORIZONTAL_BAR"/>
+    </report>
+    <uiAttributes>
+        <rowFieldWidths/>
+        <columnDataFieldWidths>
+            <labelWidth index="0">
+                <width>29</width>
+            </labelWidth>
+            <labelWidth index="1">
+                <width>31</width>
+            </labelWidth>
+            <labelWidth index="2">
+                <width>41</width>
+            </labelWidth>
+            <labelWidth index="3">
+                <width>11</width>
+            </labelWidth>
+            <labelWidth index="4">
+                <width>33</width>
+            </labelWidth>
+            <labelWidth index="5">
+                <width>34</width>
+            </labelWidth>
+            <labelWidth index="6">
+                <width>21</width>
+            </labelWidth>
+            <labelWidth index="7">
+                <width>34</width>
+            </labelWidth>
+            <labelWidth index="8">
+                <width>34</width>
+            </labelWidth>
+            <labelWidth index="9">
+                <width>0</width>
+            </labelWidth>
+        </columnDataFieldWidths>
+    </uiAttributes>
+</reportRecord>

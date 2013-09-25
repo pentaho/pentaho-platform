@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:58 EDT 2013 Test: 今 名 美 見 外 \u4ECA \u540D \u7F8E \u898B \u5916
+file.title=Sales Trend (multi-chart) [JA] 
+title=Sales Trend [JA]
+file.description=Review the sales trends over time. [JA]
