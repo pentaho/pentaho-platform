@@ -27,6 +27,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -53,11 +55,12 @@ public class PluginManagerResource {
   @GET
   @Path("/overlays")
   @Produces({ APPLICATION_JSON })
-  public List<Overlay> getOverlays() {
+  public List<Overlay> getOverlays(@QueryParam("id") @DefaultValue("") String id) {
     IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); //$NON-NLS-1$
     List<XulOverlay> overlays = pluginManager.getOverlays();
     ArrayList<Overlay> result = new ArrayList<Overlay>();
     for (XulOverlay overlay : overlays) {
+      if(!id.isEmpty() && !overlay.getId().equals(id)) continue;
       Overlay tempOverlay = new Overlay(overlay.getId(), overlay.getOverlayUri(), overlay.getSource(), overlay.getResourceBundleUri(), overlay.getPriority());
       result.add(tempOverlay);
     }
