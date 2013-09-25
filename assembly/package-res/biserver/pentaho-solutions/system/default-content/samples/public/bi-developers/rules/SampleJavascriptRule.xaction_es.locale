@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:41 EDT 2013
+file.title=Ejemplo de Regla Javascript
+file.description=Este ejemplo usa javascript para ejecutar una regla de negocio

@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=MDX Query of an OLAP Datasource
+title=MDX_Datasource
+file.description=This rule uses an MDX multidimensional query to return Actual and Budget for all Regions.<p>The data source is a Mondrian OLAP cube.

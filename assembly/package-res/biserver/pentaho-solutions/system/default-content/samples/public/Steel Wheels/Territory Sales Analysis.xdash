@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dashboard>
+<title>Territory Sales Analysis</title>
+<heading>Territory Sales Analysis</heading>
+<enableWidgetPrinting>false</enableWidgetPrinting>
+<documentation>
+<author>admin</author>
+<description/>
+<icon/>
+</documentation>
+<template-ref>xul/04-1-then-2.xul</template-ref>
+<theme-ref>0-Crystal</theme-ref>
+<layout>
+<overlay xmlns:pho="http://www.pentaho.com"><box id="FilterPanel" hidden="true" height="100" width="0" type="povpanel" collapsed="false" title=""/>
+<box id="Panel_1" pho:title="Territory Sales" type="titled-panel" flex="1" collapsed="false"/>
+<box id="Panel_2" pho:title="Average Sale (USD)" type="titled-panel" flex="1" collapsed="false"/>
+<box id="Panel_3" pho:title="Items Sold Per Transaction" type="titled-panel" flex="1" collapsed="false"/>
+<box id="Panel_4" pho:title="Untitled 4"/>
+<box id="Panel_5" pho:title="Untitled 5"/>
+<box id="Panel_6" pho:title="Untitled 6"/>
+<box id="Panel_7" pho:title="Untitled 7"/>
+<box id="Panel_8" pho:title="Untitled 8"/>
+<box id="Panel_9" pho:title="Untitled 9"/>
+<box id="Panel_10" pho:title="Untitled 10"/>
+<box id="titlebar" height="20" hidden="false" width="0" type="pagetitle" collapsed="false" title=""/><box id="widget-area" type="scrollarea"/><box id="widget-area" flex="1"/><box id="bottomWrapper" type="layout"/><box id="bottomWrapper" flex="1"/><box id="vbox1" type="layout"/><box id="vbox1" flex="1"/><box id="vbox2" type="layout"/><box id="vbox2" flex="1"/><box id="widget-area" type="scrollarea"/><box id="widget-area" flex="1"/><box id="bottomWrapper" type="layout"/><box id="bottomWrapper" flex="1"/><box id="vbox1" type="layout"/><box id="vbox1" flex="1"/><box id="vbox2" type="layout"/><box id="vbox2" flex="1"/></overlay>
+</layout>
+<parameters>
+<parameter>
+  <name>region</name>
+  <defaultValue>NA</defaultValue>
+</parameter>
+<parameter>
+  <name>8116$8116$[Time].[Years]</name>
+  <defaultValue/>
+</parameter>
+<parameter>
+  <name>8116$8116$[Markets].[Territory]</name>
+  <defaultValue/>
+</parameter>
+<parameter>
+  <name>8116$8116$[Product].[Line]</name>
+  <defaultValue/>
+</parameter>
+</parameters>
+
+
+
+<widgetJavascript><![CDATA[%5B%7B%22localizedName%22%3A%22Territory%20Sales%22%2C%22GUID%22%3A%228116%22%2C%22iframe%22%3Atrue%2C%22parameters%22%3A%5B%5B%22Output%20Type%22%2C%22%22%2C%22HTML%22%5D%2C%5B%22Output%20Type%22%2C%22%22%2C%22EXCEL%22%5D%2C%5B%22Output%20Type%22%2C%22%22%2C%22CSV%22%5D%2C%5B%22Output%20Type%22%2C%22%22%2C%22PDF%22%5D%5D%2C%22outputParameters%22%3A%5B%5B%22Years%22%2Cfalse%2C%228116%24%5BTime%5D.%5BYears%5D%22%5D%2C%5B%22Territory%22%2Cfalse%2C%228116%24%5BMarkets%5D.%5BTerritory%5D%22%5D%2C%5B%22Line%22%2Cfalse%2C%228116%24%5BProduct%5D.%5BLine%5D%22%5D%5D%2C%22name%22%3A%22widget1%22%2C%22htmlObject%22%3A%22content-area-Panel_1%22%2C%22xactionPath%22%3A%22%2Fpublic%2FSteel%20Wheels%2FWidget%20Library%2FAnalysis%20Views%2FTerritory%20Sales.xanalyzer%22%2C%22solution%22%3A%22%22%2C%22path%22%3A%22%2Fpublic%2FSteel%20Wheels%2FWidget%20Library%2FAnalysis%20Views%2FTerritory%20Sales.xanalyzer%22%2C%22action%22%3A%22Territory%20Sales.xanalyzer%22%2C%22staticParameters%22%3Atrue%2C%22priority%22%3A-995%2C%22isDirty%22%3Afalse%2C%22listeners%22%3A%5B%5D%2C%22refreshPeriod%22%3A0%2C%22cl%22%3A%22%22%2C%22timerStart%22%3A%222013-08-12T21%3A40%3A14.769Z%22%2C%22timerSplit%22%3A%222013-08-12T21%3A40%3A14.770Z%22%2C%22elapsedSinceStart%22%3A1%2C%22elapsedSinceSplit%22%3A1%2C%22logColor%22%3A%22rgb(85%2C184%2C83)%22%7D%2C%7B%22htmlObject%22%3A%22content-area-Panel_2%22%2C%22visible%22%3Atrue%2C%22isDirty%22%3Afalse%2C%22chartModel%22%3A%7B%22%40theme%22%3A%22THEME1%22%2C%22legend%22%3A%22%22%2C%22dialPlot%22%3A%7B%22annotation%22%3A%22%22%2C%22scale%22%3A%7B%22range%22%3A%5B%7B%22%40style%22%3A%22color%3A%20%23ff0000%3B%22%2C%22%40min%22%3A%220%22%2C%22%40max%22%3A%221000%22%7D%2C%7B%22%40style%22%3A%22color%3A%20%23ffff00%3B%22%2C%22%40min%22%3A%221000%22%2C%22%40max%22%3A%223000%22%7D%2C%7B%22%40style%22%3A%22color%3A%20%2300ff00%3B%22%2C%22%40min%22%3A%223000%22%2C%22%40max%22%3A%226000%22%7D%5D%7D%2C%22%40animate%22%3A%22true%22%2C%22%40orientation%22%3A%22VERTICAL%22%7D%7D%2C%22image%22%3A%22..%2FgetImage%3Fimage%3Dchartbeans.png%22%2C%22chartDataModel%22%3A%7B%22scalingFactor%22%3A%7B%22%24%22%3A%221%22%2C%22%40class%22%3A%22int%22%7D%2C%22convertNullsToZero%22%3A%22false%22%2C%22query%22%3A%22%3C%3Fxml%20version%3D%5C%221.0%5C%22%20encoding%3D%5C%22UTF-8%5C%22%3F%3E%5Cn%3Cmql%3E%5Cn%3Cdomain_id%3Esteel-wheels%3C%2Fdomain_id%3E%5Cn%3Cmodel_id%3EBV_ORDERS%3C%2Fmodel_id%3E%5Cn%3Coptions%3E%5Cn%3Cdisable_distinct%3Efalse%3C%2Fdisable_distinct%3E%5Cn%3C%2Foptions%3E%5Cn%3Cselections%3E%5Cn%3Cselection%3E%5Cn%3Cview%3ECAT_ORDERS%3C%2Fview%3E%5Cn%3Ccolumn%3EBC_ORDERDETAILS_TOTAL%3C%2Fcolumn%3E%5Cn%3Caggregation%3EAVERAGE%3C%2Faggregation%3E%5Cn%3C%2Fselection%3E%5Cn%3C%2Fselections%3E%5Cn%3Cconstraints%2F%3E%5Cn%3Corders%2F%3E%5Cn%3C%2Fmql%3E%22%2C%22defaultParameterMap%22%3A%22%22%2C%22rangeColumn%22%3A%5B%22BC_ORDERDETAILS_TOTAL%22%5D%7D%2C%22type%22%3A%22PentahoChartComponent%22%2C%22refreshPeriod%22%3A0%2C%22outputParameters%22%3A%5B%5D%2C%22localizedName%22%3A%22Chart%22%2C%22parameter%22%3A%2248785%24widget2%22%2C%22mqlQuery%22%3A%7B%22cols%22%3A%7B%22org.pentaho.commons.metadata.mqleditor.beans.Column%22%3A%5B%7B%22id%22%3A%22BC_ORDERDETAILS_TOTAL%22%2C%22selectedAggType%22%3A%22AVERAGE%22%2C%22name%22%3A%22Total%22%2C%22defaultAggType%22%3A%22SUM%22%2C%22aggTypes%22%3A%7B%22org.pentaho.commons.metadata.mqleditor.AggType%22%3A%5B%22SUM%22%2C%22AVERAGE%22%2C%22MIN%22%2C%22MAX%22%5D%7D%2C%22type%22%3A%22FLOAT%22%7D%5D%7D%2C%22model%22%3A%7B%22%40id%22%3A%22BV_ORDERS%22%2C%22%40name%22%3A%22Orders%22%7D%2C%22query%22%3A%22%3C%3Fxml%20version%3D%5C%221.0%5C%22%20encoding%3D%5C%22UTF-8%5C%22%3F%3E%5Cn%3Cmql%3E%5Cn%3Cdomain_id%3Esteel-wheels%3C%2Fdomain_id%3E%5Cn%3Cmodel_id%3EBV_ORDERS%3C%2Fmodel_id%3E%5Cn%3Coptions%3E%5Cn%3Cdisable_distinct%3Efalse%3C%2Fdisable_distinct%3E%5Cn%3C%2Foptions%3E%5Cn%3Cselections%3E%5Cn%3Cselection%3E%5Cn%3Cview%3ECAT_ORDERS%3C%2Fview%3E%5Cn%3Ccolumn%3EBC_ORDERDETAILS_TOTAL%3C%2Fcolumn%3E%5Cn%3Caggregation%3EAVERAGE%3C%2Faggregation%3E%5Cn%3C%2Fselection%3E%5Cn%3C%2Fselections%3E%5Cn%3Cconstraints%2F%3E%5Cn%3Corders%2F%3E%5Cn%3C%2Fmql%3E%22%2C%22domain%22%3A%7B%22%40id%22%3A%22default%22%2C%22%40name%22%3A%22steel-wheels%22%7D%7D%2C%22executeAtStart%22%3Atrue%2C%22name%22%3A%22widget2%22%2C%22parameters%22%3A%5B%5D%2C%22iconImgSrc%22%3A%22..%2F..%2Fimages%2Fchart.png%22%2C%22iconClass%22%3A%22chartIcon%22%2C%22isManaged%22%3Atrue%2C%22timerStart%22%3A%222013-08-12T21%3A40%3A14.460Z%22%2C%22timerSplit%22%3A%222013-08-12T21%3A40%3A14.674Z%22%2C%22elapsedSinceSplit%22%3A28%2C%22elapsedSinceStart%22%3A214%2C%22priority%22%3A-999%2C%22GUID%22%3A%2248785%22%2C%22domainParameter%22%3A%2248785%24widget2_domain%22%2C%22logColor%22%3A%22rgb(84%2C184%2C82)%22%2C%22listeners%22%3A%5B%5D%7D%2C%7B%22htmlObject%22%3A%22content-area-Panel_3%22%2C%22visible%22%3Atrue%2C%22isDirty%22%3Afalse%2C%22chartModel%22%3A%7B%22%40theme%22%3A%22THEME1%22%2C%22legend%22%3A%22%22%2C%22dialPlot%22%3A%7B%22annotation%22%3A%22%22%2C%22scale%22%3A%7B%22range%22%3A%5B%7B%22%40style%22%3A%22color%3A%20%23ff0000%3B%22%2C%22%40min%22%3A%22100%22%2C%22%40max%22%3A%22200%22%7D%2C%7B%22%40style%22%3A%22color%3A%20%23ffff00%3B%22%2C%22%40min%22%3A%22200%22%2C%22%40max%22%3A%22300%22%7D%2C%7B%22%40style%22%3A%22color%3A%20%2300ff00%3B%22%2C%22%40min%22%3A%22300%22%2C%22%40max%22%3A%22700%22%7D%5D%7D%2C%22%40animate%22%3A%22true%22%2C%22%40orientation%22%3A%22VERTICAL%22%7D%7D%2C%22image%22%3A%22..%2FgetImage%3Fimage%3Dchartbeans.png%22%2C%22chartDataModel%22%3A%7B%22scalingFactor%22%3A%7B%22%24%22%3A%221%22%2C%22%40class%22%3A%22int%22%7D%2C%22convertNullsToZero%22%3A%22false%22%2C%22query%22%3A%22%3C%3Fxml%20version%3D%5C%221.0%5C%22%20encoding%3D%5C%22UTF-8%5C%22%3F%3E%5Cn%3Cmql%3E%5Cn%3Cdomain_id%3Esteel-wheels%3C%2Fdomain_id%3E%5Cn%3Cmodel_id%3EBV_ORDERS%3C%2Fmodel_id%3E%5Cn%3Coptions%3E%5Cn%3Cdisable_distinct%3Efalse%3C%2Fdisable_distinct%3E%5Cn%3C%2Foptions%3E%5Cn%3Cselections%3E%5Cn%3Cselection%3E%5Cn%3Cview%3ECAT_ORDERS%3C%2Fview%3E%5Cn%3Ccolumn%3EBC_ORDERS_ORDERNUMBER%3C%2Fcolumn%3E%5Cn%3Caggregation%3ECOUNT_DISTINCT%3C%2Faggregation%3E%5Cn%3C%2Fselection%3E%5Cn%3C%2Fselections%3E%5Cn%3Cconstraints%2F%3E%5Cn%3Corders%2F%3E%5Cn%3C%2Fmql%3E%22%2C%22defaultParameterMap%22%3A%22%22%2C%22rangeColumn%22%3A%5B%22BC_ORDERS_ORDERNUMBER%22%5D%7D%2C%22type%22%3A%22PentahoChartComponent%22%2C%22refreshPeriod%22%3A0%2C%22outputParameters%22%3A%5B%5D%2C%22localizedName%22%3A%22Chart%22%2C%22parameter%22%3A%2281051%24widget3%22%2C%22mqlQuery%22%3A%7B%22cols%22%3A%7B%22org.pentaho.commons.metadata.mqleditor.beans.Column%22%3A%5B%7B%22id%22%3A%22BC_ORDERS_ORDERNUMBER%22%2C%22selectedAggType%22%3A%22COUNT_DISTINCT%22%2C%22name%22%3A%22Order%20Number%22%2C%22defaultAggType%22%3A%22NONE%22%2C%22aggTypes%22%3A%7B%22org.pentaho.commons.metadata.mqleditor.AggType%22%3A%5B%22COUNT%22%2C%22COUNT_DISTINCT%22%2C%22NONE%22%5D%7D%2C%22type%22%3A%22FLOAT%22%7D%5D%7D%2C%22model%22%3A%7B%22%40id%22%3A%22BV_ORDERS%22%2C%22%40name%22%3A%22Orders%22%7D%2C%22query%22%3A%22%3C%3Fxml%20version%3D%5C%221.0%5C%22%20encoding%3D%5C%22UTF-8%5C%22%3F%3E%5Cn%3Cmql%3E%5Cn%3Cdomain_id%3Esteel-wheels%3C%2Fdomain_id%3E%5Cn%3Cmodel_id%3EBV_ORDERS%3C%2Fmodel_id%3E%5Cn%3Coptions%3E%5Cn%3Cdisable_distinct%3Efalse%3C%2Fdisable_distinct%3E%5Cn%3C%2Foptions%3E%5Cn%3Cselections%3E%5Cn%3Cselection%3E%5Cn%3Cview%3ECAT_ORDERS%3C%2Fview%3E%5Cn%3Ccolumn%3EBC_ORDERS_ORDERNUMBER%3C%2Fcolumn%3E%5Cn%3Caggregation%3ECOUNT_DISTINCT%3C%2Faggregation%3E%5Cn%3C%2Fselection%3E%5Cn%3C%2Fselections%3E%5Cn%3Cconstraints%2F%3E%5Cn%3Corders%2F%3E%5Cn%3C%2Fmql%3E%22%2C%22domain%22%3A%7B%22%40id%22%3A%22default%22%2C%22%40name%22%3A%22steel-wheels%22%7D%7D%2C%22executeAtStart%22%3Atrue%2C%22name%22%3A%22widget3%22%2C%22parameters%22%3A%5B%5D%2C%22iconImgSrc%22%3A%22..%2F..%2Fimages%2Fchart.png%22%2C%22iconClass%22%3A%22chartIcon%22%2C%22isManaged%22%3Atrue%2C%22timerStart%22%3A%222013-08-12T21%3A40%3A14.673Z%22%2C%22timerSplit%22%3A%222013-08-12T21%3A40%3A14.715Z%22%2C%22elapsedSinceSplit%22%3A24%2C%22elapsedSinceStart%22%3A42%2C%22priority%22%3A-998%2C%22GUID%22%3A%2281051%22%2C%22domainParameter%22%3A%2281051%24widget3_domain%22%2C%22logColor%22%3A%22rgb(83%2C184%2C81)%22%2C%22listeners%22%3A%5B%5D%7D%5D]]></widgetJavascript>
+<widgets><widget jsonType="object"><htmlObject jsonType="string">content-area-Panel_1</htmlObject><GUID jsonType="string">8116</GUID><visible jsonType="string">true</visible><isDirty jsonType="string">false</isDirty><timerStart jsonType="object"/><type jsonType="string">AnalyzerComponent</type><solution jsonType="string"/><isManaged jsonType="string">true</isManaged><outputParameters jsonType="object"><parameter0 jsonType="object"><id jsonType="string">8116__dollar_[Time].[Years]</id><enabled jsonType="string">false</enabled><name jsonType="string">Years</name></parameter0><parameter2 jsonType="object"><id jsonType="string">8116__dollar_[Product].[Line]</id><enabled jsonType="string">false</enabled><name jsonType="string">Line</name></parameter2><parameter1 jsonType="object"><id jsonType="string">8116__dollar_[Markets].[Territory]</id><enabled jsonType="string">false</enabled><name jsonType="string">Territory</name></parameter1></outputParameters><localizedName jsonType="string">Territory Sales</localizedName><priority jsonType="string">-995</priority><name jsonType="string">widget1</name><action jsonType="string">Territory Sales.xanalyzer</action><path jsonType="string">/public/Steel Wheels/Widget Library/Analysis Views/Territory Sales.xanalyzer</path><elapsedSinceStart jsonType="string">1</elapsedSinceStart><parameters jsonType="object"><parameter0 jsonType="object"><const jsonType="string">HTML</const><var jsonType="string"/><name jsonType="string">Output Type</name></parameter0><parameter2 jsonType="object"><const jsonType="string">CSV</const><var jsonType="string"/><name jsonType="string">Output Type</name></parameter2><parameter1 jsonType="object"><const jsonType="string">EXCEL</const><var jsonType="string"/><name jsonType="string">Output Type</name></parameter1><parameter3 jsonType="object"><const jsonType="string">PDF</const><var jsonType="string"/><name jsonType="string">Output Type</name></parameter3></parameters><logColor jsonType="string">rgb(85,184,83)</logColor><timerSplit jsonType="object"/><elapsedSinceSplit jsonType="string">1</elapsedSinceSplit><refreshPeriod jsonType="string">0</refreshPeriod><staticParameters jsonType="string">true</staticParameters><xactionPath jsonType="string">/public/Steel Wheels/Widget Library/Analysis Views/Territory Sales.xanalyzer</xactionPath><iframe jsonType="string">true</iframe><executeAtStart jsonType="string">true</executeAtStart><cl jsonType="string"/><iconImgSrc jsonType="string">../../../../../repos/analyzer/images/analysis_report_file_icon.png</iconImgSrc></widget><widget jsonType="object"><htmlObject jsonType="string">content-area-Panel_2</htmlObject><GUID jsonType="string">48785</GUID><isDirty jsonType="string">false</isDirty><visible jsonType="string">true</visible><iconClass jsonType="string">chartIcon</iconClass><timerStart jsonType="object"/><type jsonType="string">PentahoChartComponent</type><isManaged jsonType="string">true</isManaged><outputParameters jsonType="object"/><localizedName jsonType="string">Chart</localizedName><parameter jsonType="string">48785__dollar_widget2</parameter><priority jsonType="string">-999</priority><name jsonType="string">widget2</name><elapsedSinceStart jsonType="string">214</elapsedSinceStart><parameters jsonType="object"/><logColor jsonType="string">rgb(84,184,82)</logColor><timerSplit jsonType="object"/><chartModel jsonType="object"><__at_theme jsonType="string">THEME1</__at_theme><legend jsonType="string"/><dialPlot jsonType="object"><annotation jsonType="string"/><scale jsonType="object"><range jsonType="object" jsonIsArray="true"><__at_style jsonType="string">color: #ff0000;</__at_style><__at_min jsonType="string">0</__at_min><__at_max jsonType="string">1000</__at_max></range><range jsonType="object" jsonIsArray="true"><__at_style jsonType="string">color: #ffff00;</__at_style><__at_min jsonType="string">1000</__at_min><__at_max jsonType="string">3000</__at_max></range><range jsonType="object" jsonIsArray="true"><__at_style jsonType="string">color: #00ff00;</__at_style><__at_min jsonType="string">3000</__at_min><__at_max jsonType="string">6000</__at_max></range></scale><__at_animate jsonType="string">true</__at_animate><__at_orientation jsonType="string">VERTICAL</__at_orientation></dialPlot></chartModel><image jsonType="string">../getImage?image=chartbeans.png</image><elapsedSinceSplit jsonType="string">28</elapsedSinceSplit><chartDataModel jsonType="object"><scalingFactor jsonType="object"><__dollar_ jsonType="string">1</__dollar_><__at_class jsonType="string">int</__at_class></scalingFactor><convertNullsToZero jsonType="string">false</convertNullsToZero><query jsonType="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mql&gt;
+&lt;domain_id&gt;steel-wheels&lt;/domain_id&gt;
+&lt;model_id&gt;BV_ORDERS&lt;/model_id&gt;
+&lt;options&gt;
+&lt;disable_distinct&gt;false&lt;/disable_distinct&gt;
+&lt;/options&gt;
+&lt;selections&gt;
+&lt;selection&gt;
+&lt;view&gt;CAT_ORDERS&lt;/view&gt;
+&lt;column&gt;BC_ORDERDETAILS_TOTAL&lt;/column&gt;
+&lt;aggregation&gt;AVERAGE&lt;/aggregation&gt;
+&lt;/selection&gt;
+&lt;/selections&gt;
+&lt;constraints/&gt;
+&lt;orders/&gt;
+&lt;/mql&gt;</query><rangeColumn jsonType="string" jsonIsArray="true">BC_ORDERDETAILS_TOTAL</rangeColumn><defaultParameterMap jsonType="string"/></chartDataModel><refreshPeriod jsonType="string">0</refreshPeriod><mqlQuery jsonType="object"><model jsonType="object"><__at_id jsonType="string">BV_ORDERS</__at_id><__at_name jsonType="string">Orders</__at_name></model><cols jsonType="object"><org.pentaho.commons.metadata.mqleditor.beans.Column jsonType="object" jsonIsArray="true"><id jsonType="string">BC_ORDERDETAILS_TOTAL</id><selectedAggType jsonType="string">AVERAGE</selectedAggType><name jsonType="string">Total</name><defaultAggType jsonType="string">SUM</defaultAggType><aggTypes jsonType="object"><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">SUM</org.pentaho.commons.metadata.mqleditor.AggType><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">AVERAGE</org.pentaho.commons.metadata.mqleditor.AggType><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">MIN</org.pentaho.commons.metadata.mqleditor.AggType><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">MAX</org.pentaho.commons.metadata.mqleditor.AggType></aggTypes><type jsonType="string">FLOAT</type></org.pentaho.commons.metadata.mqleditor.beans.Column></cols><query jsonType="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mql&gt;
+&lt;domain_id&gt;steel-wheels&lt;/domain_id&gt;
+&lt;model_id&gt;BV_ORDERS&lt;/model_id&gt;
+&lt;options&gt;
+&lt;disable_distinct&gt;false&lt;/disable_distinct&gt;
+&lt;/options&gt;
+&lt;selections&gt;
+&lt;selection&gt;
+&lt;view&gt;CAT_ORDERS&lt;/view&gt;
+&lt;column&gt;BC_ORDERDETAILS_TOTAL&lt;/column&gt;
+&lt;aggregation&gt;AVERAGE&lt;/aggregation&gt;
+&lt;/selection&gt;
+&lt;/selections&gt;
+&lt;constraints/&gt;
+&lt;orders/&gt;
+&lt;/mql&gt;</query><domain jsonType="object"><__at_id jsonType="string">default</__at_id><__at_name jsonType="string">steel-wheels</__at_name></domain></mqlQuery><domainParameter jsonType="string">48785__dollar_widget2_domain</domainParameter><executeAtStart jsonType="string">true</executeAtStart><iconImgSrc jsonType="string">../../images/chart.png</iconImgSrc></widget><widget jsonType="object"><htmlObject jsonType="string">content-area-Panel_3</htmlObject><GUID jsonType="string">81051</GUID><isDirty jsonType="string">false</isDirty><visible jsonType="string">true</visible><iconClass jsonType="string">chartIcon</iconClass><timerStart jsonType="object"/><type jsonType="string">PentahoChartComponent</type><isManaged jsonType="string">true</isManaged><outputParameters jsonType="object"/><localizedName jsonType="string">Chart</localizedName><parameter jsonType="string">81051__dollar_widget3</parameter><priority jsonType="string">-998</priority><name jsonType="string">widget3</name><elapsedSinceStart jsonType="string">42</elapsedSinceStart><parameters jsonType="object"/><logColor jsonType="string">rgb(83,184,81)</logColor><timerSplit jsonType="object"/><chartModel jsonType="object"><__at_theme jsonType="string">THEME1</__at_theme><legend jsonType="string"/><dialPlot jsonType="object"><annotation jsonType="string"/><scale jsonType="object"><range jsonType="object" jsonIsArray="true"><__at_style jsonType="string">color: #ff0000;</__at_style><__at_min jsonType="string">100</__at_min><__at_max jsonType="string">200</__at_max></range><range jsonType="object" jsonIsArray="true"><__at_style jsonType="string">color: #ffff00;</__at_style><__at_min jsonType="string">200</__at_min><__at_max jsonType="string">300</__at_max></range><range jsonType="object" jsonIsArray="true"><__at_style jsonType="string">color: #00ff00;</__at_style><__at_min jsonType="string">300</__at_min><__at_max jsonType="string">700</__at_max></range></scale><__at_animate jsonType="string">true</__at_animate><__at_orientation jsonType="string">VERTICAL</__at_orientation></dialPlot></chartModel><image jsonType="string">../getImage?image=chartbeans.png</image><elapsedSinceSplit jsonType="string">24</elapsedSinceSplit><chartDataModel jsonType="object"><scalingFactor jsonType="object"><__dollar_ jsonType="string">1</__dollar_><__at_class jsonType="string">int</__at_class></scalingFactor><convertNullsToZero jsonType="string">false</convertNullsToZero><query jsonType="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mql&gt;
+&lt;domain_id&gt;steel-wheels&lt;/domain_id&gt;
+&lt;model_id&gt;BV_ORDERS&lt;/model_id&gt;
+&lt;options&gt;
+&lt;disable_distinct&gt;false&lt;/disable_distinct&gt;
+&lt;/options&gt;
+&lt;selections&gt;
+&lt;selection&gt;
+&lt;view&gt;CAT_ORDERS&lt;/view&gt;
+&lt;column&gt;BC_ORDERS_ORDERNUMBER&lt;/column&gt;
+&lt;aggregation&gt;COUNT_DISTINCT&lt;/aggregation&gt;
+&lt;/selection&gt;
+&lt;/selections&gt;
+&lt;constraints/&gt;
+&lt;orders/&gt;
+&lt;/mql&gt;</query><rangeColumn jsonType="string" jsonIsArray="true">BC_ORDERS_ORDERNUMBER</rangeColumn><defaultParameterMap jsonType="string"/></chartDataModel><refreshPeriod jsonType="string">0</refreshPeriod><mqlQuery jsonType="object"><model jsonType="object"><__at_id jsonType="string">BV_ORDERS</__at_id><__at_name jsonType="string">Orders</__at_name></model><cols jsonType="object"><org.pentaho.commons.metadata.mqleditor.beans.Column jsonType="object" jsonIsArray="true"><id jsonType="string">BC_ORDERS_ORDERNUMBER</id><selectedAggType jsonType="string">COUNT_DISTINCT</selectedAggType><name jsonType="string">Order Number</name><defaultAggType jsonType="string">NONE</defaultAggType><aggTypes jsonType="object"><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">COUNT</org.pentaho.commons.metadata.mqleditor.AggType><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">COUNT_DISTINCT</org.pentaho.commons.metadata.mqleditor.AggType><org.pentaho.commons.metadata.mqleditor.AggType jsonType="string" jsonIsArray="true">NONE</org.pentaho.commons.metadata.mqleditor.AggType></aggTypes><type jsonType="string">FLOAT</type></org.pentaho.commons.metadata.mqleditor.beans.Column></cols><query jsonType="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mql&gt;
+&lt;domain_id&gt;steel-wheels&lt;/domain_id&gt;
+&lt;model_id&gt;BV_ORDERS&lt;/model_id&gt;
+&lt;options&gt;
+&lt;disable_distinct&gt;false&lt;/disable_distinct&gt;
+&lt;/options&gt;
+&lt;selections&gt;
+&lt;selection&gt;
+&lt;view&gt;CAT_ORDERS&lt;/view&gt;
+&lt;column&gt;BC_ORDERS_ORDERNUMBER&lt;/column&gt;
+&lt;aggregation&gt;COUNT_DISTINCT&lt;/aggregation&gt;
+&lt;/selection&gt;
+&lt;/selections&gt;
+&lt;constraints/&gt;
+&lt;orders/&gt;
+&lt;/mql&gt;</query><domain jsonType="object"><__at_id jsonType="string">default</__at_id><__at_name jsonType="string">steel-wheels</__at_name></domain></mqlQuery><domainParameter jsonType="string">81051__dollar_widget3_domain</domainParameter><executeAtStart jsonType="string">true</executeAtStart><iconImgSrc jsonType="string">../../images/chart.png</iconImgSrc></widget></widgets></dashboard>

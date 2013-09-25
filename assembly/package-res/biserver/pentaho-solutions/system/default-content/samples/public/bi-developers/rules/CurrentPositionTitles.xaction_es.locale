@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=T\u00EDtulos de los Puestos Actuales
+file.description=Esta regla usa una consulta de base de datos para determinar posiciones de job v\u00E1lidas para un departamento dado.<p>Puede pasar los diferentes departamentos  en la URL. Pruebe esto<a href\\\="ViewAction?solution\\\=samples&path\\\=rules&action\\\=CurrentPositionTitles.xaction&dept\\\=Finance" target\\\="pentaho_action">Finanzas</a>, <a href\\\="ViewAction?solution\\\=samples&path\\\=rules&action\\\=CurrentPositionTitles.xaction&dept\\\=Sales" target\\\="pentaho_action">Ventas</a>, <a href\\\="ViewAction?solution\\\=samples&path\\\=rules&action\\\=CurrentPositionTitles.xaction&dept\\\=Human%20Resource" target\\\="pentaho_action">Recursos Humanos</a>

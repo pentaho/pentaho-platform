@@ -1,0 +1,4 @@
+#Locale = default
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=Data Source
+file.description=Examples of data sets being returned from different OLAP and RDBMS data sources.

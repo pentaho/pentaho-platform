@@ -1,0 +1,16 @@
+<chartModel chartEngine="OpenFlashChart" style="border-top-width: 5; border-top-color: #000000; background-color: #ffffff;">
+  <!--<title style="font-family: verdana; color: #000000; font-size: 20px; font-weight: bold; text-align: center; font-style: oblique; background-color: #ffffff;">Chart Title</title>-->
+  <subtitle style="font-family: monospace; color: #00ff00; font-size: 12px; font-weight: bold; font-style: italic; background-color: #0000ff;">subtitle</subtitle>
+  <legend style="font-family: verdana; font-size: 18px; font-weight: bold; border-top-width: 10; border-top-color: #880a0f; font-style: italic;"/>
+  <dialPlot orientation="VERTICAL" style="opacity: 0.75; background-color: #fffff0;" animate="true">
+    <scale>
+      <range min="0" max="2" style="color: #ff0000;"/>
+      <range min="2" max="6" style="color: #ffff00;"/>
+      <range min="6" max="12" style="color: #00ff00;"/>
+    </scale>
+    <annotation style="font-family: verdana; font-size: 10px; font-weight: bold; font-style: italic;">annotation</annotation>
+  </dialPlot>
+</chartModel>
+
+
+

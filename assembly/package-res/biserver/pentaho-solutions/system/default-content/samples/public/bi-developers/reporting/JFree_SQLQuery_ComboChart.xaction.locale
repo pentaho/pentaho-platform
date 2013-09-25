@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:52 EDT 2013
+file.title=Regional Sales - Line/Bar Chart
+title=JFree_SQLQuery_ComboChart
+file.description=This is the initial merge of Ingo's contribution of combination charts in a Pentaho Report. Over the coming weeks, this chart type will be implemented across portal, action sequence and report charts.

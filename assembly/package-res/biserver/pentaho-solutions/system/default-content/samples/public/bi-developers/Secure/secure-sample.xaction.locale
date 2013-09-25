@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:54 EDT 2013
+file.title=Two filter sets, secure and hard coded
+title=secure-sample
+file.description=This is an example of a report that requires 2 parameters; Region and Department.<p/>The Region selections are defined by a business rule executed during login and saved in the user's session.<p/>The Department values are hard coded in the Action Sequence document.

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Curtis Boyden</author>  
+    <description>%description</description>  
+    <help>%help</help>  
+    <result-type/>  
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs>
+    <execStatus type="string"/>
+    <execLog type="string"/>
+    <outRowsCount type="integer"/>
+    <outRows type="result-set"/>
+  </outputs>
+
+  <resources>
+    <transformation-file>
+      <solution-file>
+        <location>KettleComponentDemo.ktr</location>
+        <mime-type>text/plain</mime-type>
+      </solution-file>
+    </transformation-file>
+  </resources>
+  
+  <actions> 
+    <action-definition>
+      <component-name>KettleComponent</component-name>
+      <action-type>Pentaho Data Integration</action-type>
+      <action-resources>
+        <transformation-file type="resource"/>
+      </action-resources>
+      <action-outputs>
+        <kettle-execution-log type="string" mapping="execLog"/>
+        <kettle-execution-status type="string" mapping="execStatus"/>
+        <transformation-output-rows type="result-set" mapping="outRows"/>
+        <transformation-output-rows-count type="integer" mapping="outRowsCount"/>
+      </action-outputs>
+      <component-definition>
+        <monitor-step><![CDATA[Output Step]]></monitor-step>
+        <kettle-logging-level><![CDATA[rowlevel]]></kettle-logging-level>
+      </component-definition>
+    </action-definition>
+
+  </actions> 
+</action-sequence>

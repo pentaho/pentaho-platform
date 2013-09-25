@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:46 EDT 2013
+file.title=Current Position Titles
+title=DepartmentsForRegion
+file.description=This rule uses a database query to determine valid job positions for a given department.<p>You can pass it different departments on the URL. try these <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Finance" target\="pentaho_action">Finance</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Sales" target\="pentaho_action">Sales</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Human%20Resource" target\="pentaho_action">Human Resource</a>

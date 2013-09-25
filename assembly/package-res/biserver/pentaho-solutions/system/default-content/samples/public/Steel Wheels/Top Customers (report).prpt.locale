@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:58 EDT 2013
+file.title=Top Customers (report)
+title=Top Customers (report)
+file.description=View the top customers for sales and volume of units sold, quickly filter by region and product line.

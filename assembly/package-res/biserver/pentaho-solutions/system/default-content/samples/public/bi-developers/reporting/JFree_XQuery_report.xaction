@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFree_XQuery_report.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>JFree-quadrant-budget-hsql.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <resources> 
+    <document> 
+      <solution-file> 
+        <location>Quad_Data.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </document>  
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeQuadForRegion.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>XQuery For Report Data</action-type>
+      <action-resources> 
+        <document type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <query-result type="result-set" mapping="reportData"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>false</live>  
+        <!--query><![CDATA[/descendant::row[REGION='Central']]]></query-->  
+        <query><![CDATA[/result-set/*]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Pentaho Report Using XQuery Data</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <data type="result-set" mapping="reportData"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

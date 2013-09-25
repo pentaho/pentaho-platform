@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Session s\u00E9curis\u00E9e et filtres globaux
+file.description=Exemple d'utilisation d'un filtre au niveau global et d'un filtre au niveau session.<p/>Le filtre global est DEPARTMENT_LIST qui fournit des vleurs pour le param\u00E8tre DEPARTMENT. DEPARTMENT_LIST est\tg\u00E9n\u00E9r\u00E9 par une requ\u00EAte SQL 'select distinct' sur la colonne des d\u00E9partements. Etant un filtre global, la requ\u00EAte n'est ex\u00E9cut\u00E9e qu'une fois et est disponible pour tous les utilisateurs. <p/>Le filtre session REGION_FILTER est g\u00E9n\u00E9r\u00E9 par une r\u00E8gle qui est ex\u00E9cut\u00E9e pour chaque utilisateur qui se connecte. Les valeurs sont stock\u00E9es dans la session de l'utilisateur et sont disponibles tant que l'utilisateur reste connect\u00E9.
