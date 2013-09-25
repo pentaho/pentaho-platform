@@ -389,8 +389,21 @@
       <zip destfile="${stage.dir.solutions}/system/default-content/samples.zip">
       	<fileset dir="${stage.dir.solutions}/system/default-content/samples"/>
       </zip>
-  	
   	  <delete dir="${stage.dir.solutions}/system/default-content/samples"/>
+
+
+    <!-- Handle plugin samples -->
+    <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples" />
+    <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples/public" />            
+    <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples/public/plugin-samples" />                
+    <copy todir="${stage.dir.solutions}/system/default-content/plugin-samples/public/plugin-samples">
+        <fileset dir="${stage.dir.solutions}/plugin-samples"/>
+    </copy>
+    <zip destfile="${stage.dir.solutions}/system/default-content/plugin-samples.zip">
+        <fileset dir="${stage.dir.solutions}/system/default-content/plugin-samples"/>
+    </zip>
+  	<delete dir="${stage.dir.solutions}/system/default-content/plugin-samples"/>
+
 	  	
   </target>
 
