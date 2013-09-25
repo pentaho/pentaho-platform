@@ -15,7 +15,6 @@
 *
 * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
 */
-
 package org.pentaho.platform.repository2.unified.fileio;
 
 import java.io.FileNotFoundException;
@@ -38,7 +37,7 @@ public class RepositoryFileContentItem implements IContentItem {
   RepositoryFileOutputStream outputStream;
   
   public RepositoryFileContentItem(String filePath) {
-    outputStream = new RepositoryFileOutputStream(filePath);
+    outputStream = new RepositoryFileOutputStream(filePath, true, true, null, false);
   }
   
   RepositoryFileContentItem(RepositoryFileOutputStream outputStream) {
