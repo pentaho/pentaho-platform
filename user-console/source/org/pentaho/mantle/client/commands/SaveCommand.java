@@ -169,6 +169,7 @@ public class SaveCommand extends AbstractCommand {
           doSaveAs(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true);
           clearValues();
         }
+        WaitPopup.getInstance().setVisibleById(false, spinnerId); 
       }
     }, forceReload, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
   }
