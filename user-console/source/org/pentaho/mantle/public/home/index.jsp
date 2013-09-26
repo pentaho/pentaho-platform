@@ -115,6 +115,8 @@
             {{i18n.documentation}}
           </button>
         </div>
+
+        <div style="display:none" id="btnCreateNewContent"></div>
       </script>
 
 </div>
