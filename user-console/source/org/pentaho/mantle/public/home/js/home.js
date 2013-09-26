@@ -77,7 +77,10 @@ pen.define([
       }
     });
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e26cbb66641d29791e0da58f966780c2b1b5acfb
     // setup a listener to hide popovers when a click happens outside of them
     $('body').on('click', function (e) {
       $('.popover-source').each(function () {
