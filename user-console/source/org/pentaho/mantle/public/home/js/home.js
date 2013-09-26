@@ -62,16 +62,19 @@ pen.define([
     // Handle the new popover menu. If we add another, make generic
     pen.require(["home/createNew"], function(createNew) {
       createNew.buildContents(function($contents){
-
-        var html = "";
+        var result = "";
         for(var i = 0; i < $contents.length; i++){
-          html+=$contents[i][0].outerHTML;
+          result+=$contents[i][0].outerHTML;
         }
-        $("#btnCreateNew").popover({
-          html: true,
-          content: html
-        });
+        $("#btnCreateNewContent").append($(result));
       });
+    });
+
+    $("#btnCreateNew").popover({
+      'html': true,
+      content: function () {
+        return $('#btnCreateNewContent').html();
+      }
     });
 
     // setup a listener to hide popovers when a click happens outside of them
