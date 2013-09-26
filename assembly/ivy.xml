@@ -100,6 +100,11 @@
       <artifact name="pentaho-jpivot-plugin" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
 
+    <dependency org="pentaho" name="marketplace" rev="${dependency.pentaho-marketplace-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="marketplace" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
 
     <!-- Solutions bundles -->
     <dependency org="pentaho" name="pentaho-cdf-samples" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="solution->default">
