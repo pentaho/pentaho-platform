@@ -57,7 +57,7 @@
         	var me = this;
 
         	// api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
-        	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + prevPath + "/rename?newName=" + name, 
+           	BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(prevPath) + "/rename?newName=" + FileBrowser.encodePathComponents(name),
     			function(success) {
 
     				// An exception occured
@@ -293,7 +293,7 @@
 			}
 
 			var me = this;
-			BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + repoPath + "/localeProperties", 
+			BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", 
 				function(success){
 					if (success) {
 						var arr = success.stringKeyStringValueDto;
