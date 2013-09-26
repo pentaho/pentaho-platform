@@ -10,11 +10,13 @@ var wpg = {
 		// Switch to browser perspective
 		window.top.mantle_setPerspective('browser.perspective');
 
-		// Fire event
-		window.top.mantle_fireEvent('GenericEvent', {
-				'eventSubType': 'OpenFolderEvent',
-				'stringParam': "/public/Steel Wheels"
-			});
+		// Wait for it to load, and switch to SW
+		setTimeout(function(){
+				window.top.mantle_fireEvent('GenericEvent', {
+						'eventSubType': 'OpenFolderEvent',
+						'stringParam': "/public/Steel Wheels"
+					});
+			},2000);
 	}
 
 }

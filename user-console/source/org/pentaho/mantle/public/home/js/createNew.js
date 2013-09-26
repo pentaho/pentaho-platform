@@ -45,7 +45,7 @@ pen.define(["common-ui/jquery-i18n"], function() {
       $.ajax({
         url: myself.getUrlBase() + myself.serviceUrlPlugins,
         success: function(result){
-          if(result["strings"].lastIndexOf("marketplace") > 0){
+          if($.inArray("marketplace", result["strings"]) > 0){
             myself.marketplaceAvaliable = true;
           }
           myself.getOverlays(callback);
@@ -86,13 +86,8 @@ pen.define(["common-ui/jquery-i18n"], function() {
                   .attr("id", "plugin"+i)
                   .addClass(myself.bootstrapButtonClasses);
 
-            var overlayButton = $(overlay.source).find("button"),
-                buttonId = myself.createName(overlayButton.attr("id"));
-
-            $button.attr("id", buttonId);
-            $content.push($button);
-
             myself.processOverlay(overlay, $button);
+            $content.push($button);
           }
         }
 
@@ -141,17 +136,26 @@ pen.define(["common-ui/jquery-i18n"], function() {
             }
           }
 
-          var $sourceButton = $(source).find("button");
+          var obj = $.parseXML(source),
+              button = obj.getElementsByTagName("button")[0];
 
-          if($sourceButton.length == 0){
+          if(button != undefined){
+            var label = button.getAttribute("label"),
+                id = button.getAttribute("id"),
+                command = button.getAttribute("command");
+
+            if(label == null) console.log("Button created without label");
+            if(id == null) console.log("Button created without id");
+            if(command == null) console.log("Button created without command");
+
+            $button.text(label)
+              .attr("id", myself.createName(id))
+              .attr("onclick", command);
+
+          } else {
             console.log("Overlay without button to add, please check");
-            return;
           }
-
-          $button.text($sourceButton.attr("label"));
-          $button.attr("onclick", $sourceButton.attr("command"));
         }
-
       });
     },
 
