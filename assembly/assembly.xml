@@ -387,7 +387,7 @@
   <!-- =================================
           target: update-solutions
          ================================= -->
-  <target name="update-solutions">
+  <target name="update-solutions" depends="update-plugin-samples">
 
       <!-- Set the visible value of the sample dirs -->
       <set-solution-visibility dir="${stage.dir.solutions}/bi-developers" visible="${bi-developers.visible}" />
@@ -398,20 +398,24 @@
   	  <delete dir="${stage.dir.solutions}/system/default-content/samples"/>
 
 
-    <!-- Handle plugin samples -->
-    <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples" />
-    <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples/public" />            
-    <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples/public/plugin-samples" />                
-    <copy todir="${stage.dir.solutions}/system/default-content/plugin-samples/public/plugin-samples">
-        <fileset dir="${stage.dir.solutions}/plugin-samples"/>
-    </copy>
-    <zip destfile="${stage.dir.solutions}/system/default-content/plugin-samples.zip">
-        <fileset dir="${stage.dir.solutions}/system/default-content/plugin-samples"/>
-    </zip>
-  	<delete dir="${stage.dir.solutions}/system/default-content/plugin-samples"/>
-
 	  	
   </target>
+
+    <target name="update-plugin-samples" if="plugin-samples.install">
+     
+        <!-- Handle plugin samples -->
+        <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples" />
+        <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples/public" />            
+        <mkdir dir="${stage.dir.solutions}/system/default-content/plugin-samples/public/plugin-samples" />                
+        <copy todir="${stage.dir.solutions}/system/default-content/plugin-samples/public/plugin-samples">
+            <fileset dir="${stage.dir.solutions}/plugin-samples"/>
+        </copy>
+        <zip destfile="${stage.dir.solutions}/system/default-content/plugin-samples.zip">
+            <fileset dir="${stage.dir.solutions}/system/default-content/plugin-samples"/>
+        </zip>
+  	    <delete dir="${stage.dir.solutions}/system/default-content/plugin-samples"/>
+
+    </target>
 
   <!-- =================================
           target: install-plugins                      
