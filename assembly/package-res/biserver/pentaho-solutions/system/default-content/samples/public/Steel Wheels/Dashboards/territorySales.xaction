@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>territorySales</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Harris Ward</author>  
+    <description>territorySales</description>  
+    <help/>  
+    <result-type>none</result-type> 
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <image-tag type="string"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>territorySalesData</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="territorySalesResult"/> 
+      </action-outputs>
+      <component-definition> 
+        <query><![CDATA[SELECT OFFICES.TERRITORY, SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) SOLD_PRICE FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN PRODUCTS ON ORDERDETAILS.PRODUCTCODE =PRODUCTS.PRODUCTCODE  INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER  INNER JOIN EMPLOYEES ON CUSTOMERS.SALESREPEMPLOYEENUMBER = EMPLOYEES.EMPLOYEENUMBER INNER JOIN OFFICES ON EMPLOYEES.OFFICECODE=OFFICES.OFFICECODE  GROUP BY OFFICES.TERRITORY ORDER BY 2 DESC]]></query>  
+        <live><![CDATA[true]]></live>  
+        <jndi><![CDATA[SampleData]]></jndi> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartComponent</component-name>
+      <action-type>Pie Chart</action-type>
+      <action-inputs> 
+        <chart-data type="result-set" mapping="territorySalesResult"/> 
+      </action-inputs>
+      <action-outputs> 
+        <image-tag type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <chart-attributes> 
+          <chart-type>PieChart</chart-type>  
+          <!--<url-template><![CDATA[javascript:Dashboards.fireChange('territory', '{TERRITORY}')]]></url-template>-->  
+          <!--<url-template><![CDATA[javascript:Dashboards.fireChange(clickOnTerritory('{TERRITORY}'))]]></url-template>-->  
+          <url-template><![CDATA[javascript:clickOnTerritory('{TERRITORY}')]]></url-template>  
+          <paramName>TERRITORY</paramName>  
+          <include-legend>false</include-legend>  
+          <title-font> 
+            <font-family>Ariel</font-family>  
+            <size>12</size>  
+            <is-bold>false</is-bold>  
+            <is-italic>false</is-italic> 
+          </title-font>  
+          <color-palette> 
+            <color>#ee7733</color>  
+            <color>#9EAA36</color>  
+            <color>#BF0000</color>  
+            <color>#FCCF12</color>  
+            <color>#772200</color>  
+            <color>#ddcc88</color>  
+            <color>#123D82</color>  
+            <color>#4A0866</color>  
+            <color>#445500</color>  
+            <color>#FFAA00</color>  
+            <color>#1E8AD3</color>  
+            <color>#AA6611</color>  
+            <color>#772200</color> 
+          </color-palette> 
+        </chart-attributes>  
+        <width><![CDATA[420]]></width>  
+        <height><![CDATA[240]]></height>  
+        <title><![CDATA[Click on Territory]]></title> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -60,8 +60,18 @@ pen.define([
     }
 
     // Handle the new popover menu. If we add another, make generic
+    pen.require(["home/createNew"], function(createNew) {
+      createNew.buildContents(function($contents){
+        var result = "";
+        for(var i = 0; i < $contents.length; i++){
+          result+=$contents[i][0].outerHTML;
+        }
+        $("#btnCreateNewContent").append($(result));
+      });
+    });
+
     $("#btnCreateNew").popover({
-      html: true,
+      'html': true,
       content: function () {
         return $('#btnCreateNewContent').html();
       }
