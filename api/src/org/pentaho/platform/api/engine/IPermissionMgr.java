@@ -23,8 +23,7 @@ public interface IPermissionMgr {
   /**
    * TODO mlowery This is really addPermission. Perhaps a method name change?
    */
-  public void
-    setPermission( IPermissionRecipient permissionRecipient, IPermissionMask permission, Object domainInstance );
+  public void setPermission( IPermissionRecipient permRecipient, IPermissionMask permission, Object domainInstance );
 
   /**
    * Returns permission map containing access control entries that are defined directly on this

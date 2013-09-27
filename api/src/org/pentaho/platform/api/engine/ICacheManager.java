@@ -193,7 +193,7 @@ public interface ICacheManager extends ILogoutListener {
    *          the region where the object was put in the cache
    * @return The corresponding list of objects
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getAllEntriesFromRegionCache( String region );
 
   /**
@@ -203,7 +203,7 @@ public interface ICacheManager extends ILogoutListener {
    *          the region where the object was put in the cache
    * @return The corresponding list of objects
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getAllKeysFromRegionCache( String region );
 
   /**
@@ -213,7 +213,7 @@ public interface ICacheManager extends ILogoutListener {
    *          the region where the object was put in the cache
    * @return The corresponding list of objects
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getAllValuesFromRegionCache( String region );
 
   /**

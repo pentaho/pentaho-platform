@@ -28,6 +28,11 @@ import org.pentaho.actionsequence.dom.IActionLoop;
 import org.pentaho.actionsequence.dom.IActionSequenceExecutableStatement;
 
 public class ActionSequenceException extends Exception {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -2301587142420194146L;
+
   Date date = new Date();
 
   String stepDescription;

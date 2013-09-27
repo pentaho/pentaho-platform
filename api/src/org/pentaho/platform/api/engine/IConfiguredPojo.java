@@ -20,13 +20,11 @@ package org.pentaho.platform.api.engine;
 import java.util.Map;
 import java.util.Set;
 
-import org.pentaho.platform.api.action.IAction;
-
 /**
  * The interface for a POJO component that wants access to system settings. This is an optional interface.
  * 
  * @author jamesdixon
- * @deprecated Pojo components are deprecated, use {@link IAction}
+ * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  */
 public interface IConfiguredPojo {
 

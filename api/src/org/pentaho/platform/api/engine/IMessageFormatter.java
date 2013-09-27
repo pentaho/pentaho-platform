@@ -34,14 +34,14 @@ public interface IMessageFormatter {
    * @param messages
    * @return
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   String getFirstError( final List messages );
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   void formatErrorMessage( final String mimeType, final String title, final List messages,
       final StringBuffer messageBuffer );
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   void formatFailureMessage( final String mimeType, final IRuntimeContext context, final StringBuffer messageBuffer,
       final List defaultMessages );
 

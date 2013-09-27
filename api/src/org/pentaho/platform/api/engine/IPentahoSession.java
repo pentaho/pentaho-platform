@@ -103,7 +103,7 @@ public interface IPentahoSession extends ILogger, IAuditable {
    * 
    * @return The enumeration of the attribute names
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Iterator getAttributeNames();
 
   /**

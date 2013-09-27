@@ -23,7 +23,7 @@ import java.util.Set;
 
 public interface IParameterManager {
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getAllParameters();
 
   public IActionParameter getCurrentInput( String inputName );
@@ -32,22 +32,22 @@ public interface IParameterManager {
 
   public IActionSequenceResource getCurrentResource( String resource );
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getCurrentInputNames();
 
   public IActionParameter getLoopParameter( String inputName );
 
   public String getActualRequestParameterName( String fieldName );
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getCurrentOutputNames();
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getCurrentResourceNames();
 
   public void dispose();
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void dispose( List exceptParameters );
 
   public void resetParameters();
@@ -68,7 +68,7 @@ public interface IParameterManager {
    * 
    * @return a map with the param name as the key and a ReturnParameter containing the data.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getReturnParameters();
 
   public IActionParameter getInput( String inputName );

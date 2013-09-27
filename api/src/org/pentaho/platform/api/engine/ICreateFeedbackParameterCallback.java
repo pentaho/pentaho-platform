@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ICreateFeedbackParameterCallback {
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void createFeedbackParameter( IRuntimeContext runtimeContext, String fieldName, final String displayName,
       String hint, Object defaultValues, final List values, final Map dispNames, final String displayStyle,
       final boolean optional, final boolean visible );

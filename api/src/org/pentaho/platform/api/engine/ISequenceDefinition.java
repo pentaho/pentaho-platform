@@ -70,7 +70,7 @@ public interface ISequenceDefinition {
    * 
    * @return Map of input parameters. Parameters take the name-value form.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getInputDefinitions();
 
   /**
@@ -84,7 +84,7 @@ public interface ISequenceDefinition {
    * 
    * @return Map of input parameters. Parameters take the name-value form.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getInputDefinitionsForParameterProvider( String parameterProviderName );
 
   /**
@@ -93,7 +93,7 @@ public interface ISequenceDefinition {
    * 
    * @return Map of output parameters. Parameters take the name-value form.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getOutputDefinitions();
 
   /**
@@ -102,7 +102,7 @@ public interface ISequenceDefinition {
    * 
    * @return Map of resource parameters. Parameters take the name-value form.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getResourceDefinitions();
 
   /**

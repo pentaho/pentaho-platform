@@ -282,7 +282,7 @@ public interface IUnifiedRepository {
   /**
    * Creates a folder.
    * 
-   * @param parentFolderId
+   * @param parFolderId
    *          parent folder id
    * @param file
    *          file to create
@@ -290,8 +290,7 @@ public interface IUnifiedRepository {
    *          optional version comment to be applied to parentFolder
    * @return file that is equal to given file except with id populated
    */
-  RepositoryFile
-    createFolder( final Serializable parentFolderId, final RepositoryFile file, final String versionMessage );
+  RepositoryFile createFolder( final Serializable parFolderId, final RepositoryFile file, final String versionMessage );
 
   /**
    * Creates a folder.
@@ -646,8 +645,7 @@ public interface IUnifiedRepository {
 
   void setLocalePropertiesForFileByPath( final String relPath, final String locale, final Properties properties );
 
-  void
-    setLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale, final Properties properties );
+  void setLocalePropertiesForFile( final RepositoryFile repoFile, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
 }

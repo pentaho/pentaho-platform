@@ -24,15 +24,13 @@ public interface IPentahoSystemHelper {
 
   public String getSystemName();
 
-  @Deprecated
   // use get(...) to retrieve pentaho system objects
-    public
-    Object createObject( final String className, final ILogger logger );
+  @Deprecated
+  public Object createObject( final String className, final ILogger logger );
 
-  @Deprecated
   // use get(...) to retrieve pentaho system objects
-    public
-    Object createObject( final String className );
+  @Deprecated
+  public Object createObject( final String className );
 
   public void registerHostnameVerifier();
 

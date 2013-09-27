@@ -62,7 +62,7 @@ public interface IActionRequestHandler {
    * 
    * @return list of messages
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getMessages();
 
   public void setCreateFeedbackParameterCallback( ICreateFeedbackParameterCallback createFeedbackParameterCallback );

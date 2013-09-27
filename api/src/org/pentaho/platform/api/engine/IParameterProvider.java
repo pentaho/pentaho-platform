@@ -105,7 +105,7 @@ public interface IParameterProvider {
    * 
    * @return Set of parameter names
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Iterator getParameterNames();
 
   /**
