@@ -118,7 +118,7 @@ public class PojoComponent extends ComponentBase {
     boolean done = false;
 
     for ( Method method : methods ) {
-      Class<?> paramClasses[] = method.getParameterTypes();
+      Class<?>[] paramClasses = method.getParameterTypes();
       if ( paramClasses.length != 1 ) {
         // we don't know how to handle this
         throw new GenericSignatureFormatError();
@@ -204,7 +204,7 @@ public class PojoComponent extends ComponentBase {
     // Search ALL instances of a given method for an implementation
     // that takes a single string
     for ( Method method : methodList ) {
-      Class<?> paramClasses[] = method.getParameterTypes();
+      Class<?>[] paramClasses = method.getParameterTypes();
       if ( paramClasses.length != 1 ) {
         // we don't know how to handle this
         throw new GenericSignatureFormatError();
@@ -220,7 +220,7 @@ public class PojoComponent extends ComponentBase {
 
     if ( !done ) {
       for ( Method method : methodList ) {
-        Class<?> paramClasses[] = method.getParameterTypes();
+        Class<?>[] paramClasses = method.getParameterTypes();
         if ( paramClasses.length != 1 ) {
           // we don't know how to handle this
           throw new GenericSignatureFormatError();
@@ -504,7 +504,7 @@ public class PojoComponent extends ComponentBase {
     if ( pojo != null ) {
       // By the time we get here, we've got our class
       try {
-        Method methods[] = pojo.getClass().getMethods();
+        Method[] methods = pojo.getClass().getMethods();
         // create a method map
         for ( Method method : methods ) {
           String name = method.getName();

@@ -39,7 +39,7 @@ public class ServiceTestHelper {
       File file = new File( solutionRoot + "/" + actionPath );
       StringBuilder str = new StringBuilder();
       reader = new FileReader( file );
-      char buffer[] = new char[4096];
+      char[] buffer = new char[4096];
       int n = reader.read( buffer );
       while ( n != -1 ) {
         str.append( buffer, 0, n );

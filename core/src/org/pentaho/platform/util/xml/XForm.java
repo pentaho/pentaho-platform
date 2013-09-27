@@ -232,13 +232,13 @@ public class XForm {
       xformHeader
           .append( "<" ).append( fieldName ).append( ">" ).append( XmlHelper.encode( (String) defaultValues ) ).append( "</" ).append( fieldName ).append( ">" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     } else if ( defaultValues instanceof String[] ) {
-      String values[] = (String[]) defaultValues;
+      String[] values = (String[]) defaultValues;
       for ( String element : values ) {
         xformHeader
             .append( "<" ).append( fieldName ).append( ">" ).append( XmlHelper.encode( element ) ).append( "</" ).append( fieldName ).append( ">" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
       }
     } else if ( defaultValues instanceof Object[] ) {
-      Object values[] = (String[]) defaultValues;
+      Object[] values = (String[]) defaultValues;
       for ( Object element : values ) {
         xformHeader
             .append( "<" ).append( fieldName ).append( ">" ).append( XmlHelper.encode( element.toString() ) ).append( "</" ).append( fieldName ).append( ">" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -283,11 +283,14 @@ public class XForm {
     } else if ( ( type == XForm.TYPE_RADIO ) || ( type == XForm.TYPE_SELECT ) || ( type == XForm.TYPE_LIST ) ) {
       switch ( type ) {
         case TYPE_RADIO:
-          appearance = "appearance=\"full\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"full\"";
+          break; //$NON-NLS-1$
         case TYPE_SELECT:
-          appearance = "";break; //$NON-NLS-1$
+          appearance = "";
+          break; //$NON-NLS-1$
         case TYPE_LIST:
-          appearance = "appearance=\"compact\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"compact\"";
+          break; //$NON-NLS-1$
       }
       xformBody
           .append( "<xf:select1 " ).append( appearance ).append( " model=\"" ).append( formName ).append( "\" id=\"" ).append( fieldName ).append( "\" ref=\"" ).append( fieldName ).append( "\">" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -310,17 +313,23 @@ public class XForm {
         || ( type == XForm.TYPE_CHECK_MULTI_SCROLL_3_COLUMN ) || ( type == XForm.TYPE_CHECK_MULTI_SCROLL_4_COLUMN ) ) {
       switch ( type ) {
         case TYPE_CHECK_MULTI:
-          appearance = "appearance=\"full\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"full\"";
+          break; //$NON-NLS-1$
         case TYPE_LIST_MULTI:
-          appearance = "appearance=\"compact\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"compact\"";
+          break; //$NON-NLS-1$
         case TYPE_CHECK_MULTI_SCROLL:
-          appearance = "appearance=\"full-scroll\" columns=\"1\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"full-scroll\" columns=\"1\"";
+          break; //$NON-NLS-1$
         case TYPE_CHECK_MULTI_SCROLL_2_COLUMN:
-          appearance = "appearance=\"full-scroll\" columns=\"2\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"full-scroll\" columns=\"2\"";
+          break; //$NON-NLS-1$
         case TYPE_CHECK_MULTI_SCROLL_3_COLUMN:
-          appearance = "appearance=\"full-scroll\" columns=\"3\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"full-scroll\" columns=\"3\"";
+          break; //$NON-NLS-1$
         case TYPE_CHECK_MULTI_SCROLL_4_COLUMN:
-          appearance = "appearance=\"full-scroll\" columns=\"4\"";break; //$NON-NLS-1$
+          appearance = "appearance=\"full-scroll\" columns=\"4\"";
+          break; //$NON-NLS-1$
       }
       xformBody
           .append( "<xf:select " ).append( appearance ).append( " model=\"" ).append( formName ).append( "\" id=\"" ).append( fieldName ).append( "\" ref=\"" ).append( fieldName ).append( "\">" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$

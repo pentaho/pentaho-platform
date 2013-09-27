@@ -41,7 +41,7 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
  * @author unknow, probably James Dixon
  * 
  */
-abstract public class FilterDefinition {
+public abstract class FilterDefinition {
 
   private static final String RE_HAS_WHITE_SPACE = ".+\\s+.+"; //$NON-NLS-1$
 
@@ -202,7 +202,7 @@ abstract public class FilterDefinition {
         // we cannot determin the values for this filter
         return false;
       }
-      Object row[] = resultSet.next();
+      Object[] row = resultSet.next();
       String rowValue;
       while ( row != null ) {
         rowValue = row[valueColumnNo].toString();
@@ -233,7 +233,7 @@ abstract public class FilterDefinition {
    * 
    * }
    */
-  abstract protected IPentahoResultSet getResultSet( Map parameterProviders );
+  protected abstract IPentahoResultSet getResultSet( Map parameterProviders );
 
   public boolean populate( final Map parameterProviders, final String[] value ) {
     // TODO apply session-based security
@@ -295,7 +295,7 @@ abstract public class FilterDefinition {
         // all is well with the world, you may proceed
       }
 
-      Object row[] = null;
+      Object[] row = null;
       try {
         row = resultSet.next();
       } catch ( Exception e ) {
@@ -338,7 +338,7 @@ abstract public class FilterDefinition {
   }
 
   public static void main( final String[] args ) {
-    String nm[] = { " xx", "xx ", " xx ", "x x", "xx", "custome rnumber", " x x " }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+    String[] nm = { " xx", "xx ", " xx ", "x x", "xx", "custome rnumber", " x x " }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
     for ( String element : nm ) {
       boolean matches = element.matches( FilterDefinition.RE_HAS_WHITE_SPACE );

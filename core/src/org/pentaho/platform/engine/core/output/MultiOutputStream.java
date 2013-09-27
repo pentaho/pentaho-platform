@@ -29,9 +29,9 @@ import java.io.OutputStream;
 
 public class MultiOutputStream extends OutputStream {
 
-  OutputStream outs[];
+  OutputStream[] outs;
 
-  public MultiOutputStream( OutputStream outs[] ) {
+  public MultiOutputStream( OutputStream[] outs ) {
     this.outs = outs;
   }
 
@@ -50,7 +50,7 @@ public class MultiOutputStream extends OutputStream {
     }
   }
 
-  public void write( byte b[] ) throws IOException {
+  public void write( byte[] b ) throws IOException {
     IOException ioEx = null;
     for ( int idx = 0; idx < outs.length; idx++ ) {
       try {
@@ -64,7 +64,7 @@ public class MultiOutputStream extends OutputStream {
     }
   }
 
-  public void write( byte b[], int off, int len ) throws IOException {
+  public void write( byte[] b, int off, int len ) throws IOException {
     IOException ioEx = null;
     for ( int idx = 0; idx < outs.length; idx++ ) {
       try {

@@ -51,24 +51,24 @@ public class SecurityParameterProvider implements IParameterProvider {
 
   public static final String SCOPE_SECURITY = "security"; //$NON-NLS-1$
 
-  private String listSeparator = ",";//$NON-NLS-1$
+  private String listSeparator = ","; //$NON-NLS-1$
 
   private IPentahoSession session;
 
   static {
     SecurityParameterProvider.SecurityNames.add( "principalName" ); //$NON-NLS-1$
-    SecurityParameterProvider.SecurityNames.add( "principalRoles" );//$NON-NLS-1$
-    SecurityParameterProvider.SecurityNames.add( "principalAuthenticated" );//$NON-NLS-1$
-    SecurityParameterProvider.SecurityNames.add( "principalAdministrator" );//$NON-NLS-1$
-    SecurityParameterProvider.SecurityNames.add( "systemRoleNames" );//$NON-NLS-1$
-    SecurityParameterProvider.SecurityNames.add( "systemUserNames" );//$NON-NLS-1$
+    SecurityParameterProvider.SecurityNames.add( "principalRoles" ); //$NON-NLS-1$
+    SecurityParameterProvider.SecurityNames.add( "principalAuthenticated" ); //$NON-NLS-1$
+    SecurityParameterProvider.SecurityNames.add( "principalAdministrator" ); //$NON-NLS-1$
+    SecurityParameterProvider.SecurityNames.add( "systemRoleNames" ); //$NON-NLS-1$
+    SecurityParameterProvider.SecurityNames.add( "systemUserNames" ); //$NON-NLS-1$
 
     SecurityParameterProvider.SecurityTypes.add( "string" ); //$NON-NLS-1$
-    SecurityParameterProvider.SecurityTypes.add( "string-list" );//$NON-NLS-1$
+    SecurityParameterProvider.SecurityTypes.add( "string-list" ); //$NON-NLS-1$
     SecurityParameterProvider.SecurityTypes.add( "string" ); //$NON-NLS-1$
     SecurityParameterProvider.SecurityTypes.add( "string" ); //$NON-NLS-1$
-    SecurityParameterProvider.SecurityTypes.add( "string-list" );//$NON-NLS-1$
-    SecurityParameterProvider.SecurityTypes.add( "string-list" );//$NON-NLS-1$
+    SecurityParameterProvider.SecurityTypes.add( "string-list" ); //$NON-NLS-1$
+    SecurityParameterProvider.SecurityTypes.add( "string-list" ); //$NON-NLS-1$
   }
 
   public SecurityParameterProvider( final IPentahoSession session ) {
@@ -106,9 +106,9 @@ public class SecurityParameterProvider implements IParameterProvider {
       if ( aList.get( i ) != null ) {
         Object listObj = aList.get( i );
         if ( listObj instanceof GrantedAuthority ) {
-          sb.append( i > 0 ? this.listSeparator : "" ).append( ( (GrantedAuthority) listObj ).getAuthority() );//$NON-NLS-1$
+          sb.append( i > 0 ? this.listSeparator : "" ).append( ( (GrantedAuthority) listObj ).getAuthority() ); //$NON-NLS-1$
         } else {
-          sb.append( i > 0 ? this.listSeparator : "" ).append( listObj.toString() );//$NON-NLS-1$
+          sb.append( i > 0 ? this.listSeparator : "" ).append( listObj.toString() ); //$NON-NLS-1$
         }
       }
     }
@@ -119,7 +119,7 @@ public class SecurityParameterProvider implements IParameterProvider {
     StringBuffer sb = new StringBuffer();
     for ( int i = 0; i < anArray.length; i++ ) {
       if ( anArray[i] != null ) {
-        sb.append( i > 0 ? this.listSeparator : "" ).append( anArray[i] );//$NON-NLS-1$
+        sb.append( i > 0 ? this.listSeparator : "" ).append( anArray[i] ); //$NON-NLS-1$
       }
     }
     return sb.toString();
@@ -129,7 +129,7 @@ public class SecurityParameterProvider implements IParameterProvider {
     StringBuffer sb = new StringBuffer();
     for ( int i = 0; i < anArray.length; i++ ) {
       if ( anArray[i] != null ) {
-        sb.append( i > 0 ? this.listSeparator : "" ).append( anArray[i].getAuthority() );//$NON-NLS-1$
+        sb.append( i > 0 ? this.listSeparator : "" ).append( anArray[i].getAuthority() ); //$NON-NLS-1$
       }
     }
     return sb.toString();

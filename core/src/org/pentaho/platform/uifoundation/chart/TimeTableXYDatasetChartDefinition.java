@@ -226,10 +226,10 @@ public class TimeTableXYDatasetChartDefinition extends TimeTableXYDataset implem
       // log a deprecation warning for this property...
       TimeTableXYDatasetChartDefinition.getLogger().warn(
           Messages.getInstance().getString(
-              "CHART.WARN_DEPRECATED_CHILD", ChartDefinition.SUBTITLE_NODE_NAME, ChartDefinition.SUBTITLES_NODE_NAME ) );//$NON-NLS-1$ 
+              "CHART.WARN_DEPRECATED_CHILD", ChartDefinition.SUBTITLE_NODE_NAME, ChartDefinition.SUBTITLES_NODE_NAME ) ); //$NON-NLS-1$ 
       TimeTableXYDatasetChartDefinition.getLogger().warn(
           Messages.getInstance()
-              .getString( "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", ChartDefinition.SUBTITLE_NODE_NAME ) );//$NON-NLS-1$  
+              .getString( "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", ChartDefinition.SUBTITLE_NODE_NAME ) ); //$NON-NLS-1$  
     }
 
     if ( subtitles != null ) {

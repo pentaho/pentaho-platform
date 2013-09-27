@@ -183,9 +183,9 @@ public class XmlHelperTest extends TestCase {
       String xslPath = "system/custom/xsl";
 
       Map parameters = new HashMap();
-      String actionUrl = "http://localhost:8080/pentaho/ViewAction?";//$NON-NLS-1$
-      String baseUrl = "http://localhost:8080/pentaho";//$NON-NLS-1$
-      String displayUrl = "http://localhost:8080/pentaho";//$NON-NLS-1$
+      String actionUrl = "http://localhost:8080/pentaho/ViewAction?"; //$NON-NLS-1$
+      String baseUrl = "http://localhost:8080/pentaho"; //$NON-NLS-1$
+      String displayUrl = "http://localhost:8080/pentaho"; //$NON-NLS-1$
       parameters.put( "baseUrl", baseUrl ); //$NON-NLS-1$ 
       parameters.put( "actionUrl", actionUrl ); //$NON-NLS-1$ 
       parameters.put( "displayUrl", displayUrl ); //$NON-NLS-1$ 
@@ -193,7 +193,7 @@ public class XmlHelperTest extends TestCase {
       //Document document = XmlHelper.getDocFromString("<?xml encoding=\"windows-1252\" version=\"1.0\"?><root></root>"); //$NON-NLS-1$
       Document document =
           XmlDom4JHelper.getDocFromString( "<?xml version=\"1.0\" encoding=\"windows-1252\"?><root></root>", null ); //$NON-NLS-1$
-      Assert.assertEquals( document.getRootElement().getName(), "root" );//$NON-NLS-1$
+      Assert.assertEquals( document.getRootElement().getName(), "root" ); //$NON-NLS-1$
 
       StringBuffer content =
           XmlHelper.transformXml( parameterXsl, xslPath, document.asXML(), parameters, new JarEntityResolver() );
@@ -211,9 +211,9 @@ public class XmlHelperTest extends TestCase {
       String xslPath = "system/custom/xsl";
 
       Map parameters = new HashMap();
-      String actionUrl = "http://localhost:8080/pentaho/ViewAction?";//$NON-NLS-1$
-      String baseUrl = "http://localhost:8080/pentaho";//$NON-NLS-1$
-      String displayUrl = "http://localhost:8080/pentaho";//$NON-NLS-1$
+      String actionUrl = "http://localhost:8080/pentaho/ViewAction?"; //$NON-NLS-1$
+      String baseUrl = "http://localhost:8080/pentaho"; //$NON-NLS-1$
+      String displayUrl = "http://localhost:8080/pentaho"; //$NON-NLS-1$
       parameters.put( "baseUrl", baseUrl ); //$NON-NLS-1$ 
       parameters.put( "actionUrl", actionUrl ); //$NON-NLS-1$ 
       parameters.put( "displayUrl", displayUrl ); //$NON-NLS-1$ 
@@ -258,9 +258,9 @@ public class XmlHelperTest extends TestCase {
       String xslPath = "system/custom/xsl";
 
       Map parameters = new HashMap();
-      String actionUrl = "http://localhost:8080/pentaho/ViewAction?";//$NON-NLS-1$
-      String baseUrl = "http://localhost:8080/pentaho";//$NON-NLS-1$
-      String displayUrl = "http://localhost:8080/pentaho";//$NON-NLS-1$
+      String actionUrl = "http://localhost:8080/pentaho/ViewAction?"; //$NON-NLS-1$
+      String baseUrl = "http://localhost:8080/pentaho"; //$NON-NLS-1$
+      String displayUrl = "http://localhost:8080/pentaho"; //$NON-NLS-1$
       parameters.put( "baseUrl", baseUrl ); //$NON-NLS-1$ 
       parameters.put( "actionUrl", actionUrl ); //$NON-NLS-1$ 
       parameters.put( "displayUrl", displayUrl ); //$NON-NLS-1$ 

@@ -23,8 +23,8 @@ import org.pentaho.platform.api.engine.IPentahoRequestContext;
 public class BasePentahoRequestContext implements IPentahoRequestContext {
 
   public String contextPath;
-  public final static String SLASH = "/";
-  public final static String EMPTY = "";
+  public static final String SLASH = "/";
+  public static final String EMPTY = "";
 
   public BasePentahoRequestContext( String contextPath ) {
     super();

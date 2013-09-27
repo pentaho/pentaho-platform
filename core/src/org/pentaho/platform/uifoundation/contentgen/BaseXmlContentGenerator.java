@@ -58,7 +58,7 @@ public abstract class BaseXmlContentGenerator extends BaseContentGenerator {
     String footer = ""; //$NON-NLS-1$
     IUITemplater templater = PentahoSystem.get( IUITemplater.class, userSession );
     if ( templater != null ) {
-      String sections[] = templater.breakTemplate( "template.html", "", userSession ); //$NON-NLS-1$ //$NON-NLS-2$
+      String[] sections = templater.breakTemplate( "template.html", "", userSession ); //$NON-NLS-1$ //$NON-NLS-2$
       if ( sections != null && sections.length > 0 ) {
         intro = sections[0];
       }
