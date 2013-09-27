@@ -51,7 +51,7 @@ public interface IConditionalExecution {
    * @return true if the actions should be executed
    * @throws Exception
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public boolean shouldExecute( Map currentInputs, Log logger ) throws Exception;
 
 }

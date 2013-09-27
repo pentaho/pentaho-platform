@@ -393,19 +393,19 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   /**
    * @return a <tt>Set</tt> containing all the inputs in the current action.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getInputNames();
 
   /**
    * @return a <tt>Set</tt> containing the resource names in the action
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getResourceNames();
 
   /**
    * @return a <tt>Set</tt> containing the output names in the current action
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getOutputNames();
 
   /**
@@ -522,14 +522,13 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    *          Maps <code>IPentahoResultSet</code> objects to selection objects
    * @param fieldName
    *          Name of the form field
-   * @param defaultValues
+   * @param defaults
    *          default values for the input field
    * @param optional
    *          specifies if the feedback parameter is required or not
    * @see SelectionMapper
    */
-  public void
-    createFeedbackParameter( ISelectionMapper selMap, String fieldName, Object defaultValues, boolean optional );
+  public void createFeedbackParameter( ISelectionMapper selMap, String fieldName, Object defaults, boolean optional );
 
   /**
    * Adds a scalar feedback parameter
@@ -588,7 +587,7 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    *          how to display the control
    * @see XForm
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void createFeedbackParameter( String fieldName, String displayName, String hint, Object defaultValues,
       List values, Map dispNames, String displayStyle );
 
@@ -612,7 +611,7 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    * @parm optional specifies if the feedback parameter is required or not
    * @see XForm
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void createFeedbackParameter( String fieldName, String displayName, String hint, Object defaultValues,
       List values, Map dispNames, String displayStyle, boolean optional );
 
@@ -624,7 +623,7 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   /**
    * @return List of messages saved up during execution. This is used to provide failure feedback to the user.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getMessages();
 
   /**
@@ -646,7 +645,7 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    *          parameters for the new instance
    * @return Instance id of the new RuntimeContext
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public String createNewInstance( boolean persisted, Map parameters );
 
   /**
@@ -662,12 +661,12 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    *          if true, will call the new runtime element's forceSave method before returning.
    * @return Instance id of the new RuntimeContext
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public String createNewInstance( boolean persisted, Map parameters, boolean forceImmediateWrite );
 
   public void dispose();
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void dispose( List exceptParameters );
 
   /**
@@ -721,7 +720,7 @@ public interface IRuntimeContext extends IAuditable, ILogger {
 
   public IParameterManager getParameterManager();
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getParameterProviders();
 
 }

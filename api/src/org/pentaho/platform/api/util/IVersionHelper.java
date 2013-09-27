@@ -21,7 +21,7 @@ public interface IVersionHelper {
 
   public String getVersionInformation();
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public String getVersionInformation( Class clazz );
 
 }

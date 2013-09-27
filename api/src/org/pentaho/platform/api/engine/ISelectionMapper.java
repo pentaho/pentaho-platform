@@ -28,10 +28,10 @@ public interface ISelectionMapper {
 
   public String getSelectionNameForValue( String val );
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getSelectionValues();
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getSelectionNameMap();
 
   public boolean hasValue( String value );

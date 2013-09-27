@@ -31,7 +31,7 @@ public interface IActionSequence extends ISequenceDefinition {
    * 
    * @return list of ActionDefinitions
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getActionDefinitionsAndSequences();
 
   /**

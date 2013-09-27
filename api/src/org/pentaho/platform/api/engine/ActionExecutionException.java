@@ -20,6 +20,11 @@ package org.pentaho.platform.api.engine;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 
 public class ActionExecutionException extends ActionSequenceException {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -8637659803018435207L;
+
   public ActionExecutionException() {
 
   }

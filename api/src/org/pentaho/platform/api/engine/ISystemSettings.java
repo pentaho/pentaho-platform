@@ -71,7 +71,7 @@ public interface ISystemSettings {
    *          the section is the document to retrieve
    * @return the list of settings in the specified section of the document
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getSystemSettings( String path, String settingSection );
 
   /**
@@ -81,7 +81,7 @@ public interface ISystemSettings {
    *          the section to retrieve
    * @return the list of elements in the section of the document.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getSystemSettings( String settingSection );
 
   /**
