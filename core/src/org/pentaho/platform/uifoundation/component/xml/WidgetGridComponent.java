@@ -275,7 +275,7 @@ public class WidgetGridComponent extends XmlComponent {
     // TODO support an iteration across columns for a given row
 
     // find the column that we have been told to you
-    Object columnHeaders[][] = metaData.getColumnHeaders();
+    Object[][] columnHeaders = metaData.getColumnHeaders();
     int nameColumnNo = -1;
     int valueColumnNo = -1;
     for ( int idx = 0; idx < columnHeaders[0].length; idx++ ) {
@@ -301,7 +301,7 @@ public class WidgetGridComponent extends XmlComponent {
 
     double value;
     String name;
-    Object row[] = resultSet.next();
+    Object[] row = resultSet.next();
     while ( row != null ) {
       name = row[nameColumnNo].toString();
       try {
@@ -354,7 +354,7 @@ public class WidgetGridComponent extends XmlComponent {
     widgetNode.addElement( "units" ).setText( units ); //$NON-NLS-1$
     widgetNode.addElement( "width" ).setText( Integer.toString( widgetWidth ) ); //$NON-NLS-1$
     widgetNode.addElement( "height" ).setText( Integer.toString( widgetHeight ) ); //$NON-NLS-1$
-    Element valueNode = widgetNode.addElement( "value" );//$NON-NLS-1$
+    Element valueNode = widgetNode.addElement( "value" ); //$NON-NLS-1$
     valueNode.setText( Double.toString( value ) );
     valueNode.addAttribute( "in-image", Boolean.toString( widgetDefinition.getValueFont() != null ) ); //$NON-NLS-1$
     root.addElement( "image" ).setText( fileName ); //$NON-NLS-1$

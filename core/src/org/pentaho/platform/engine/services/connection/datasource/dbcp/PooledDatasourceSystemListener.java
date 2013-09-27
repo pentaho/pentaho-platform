@@ -29,7 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.logging.Logger;
 
 public class PooledDatasourceSystemListener implements IPentahoSystemListener {
-  public static final String DATASOURCE_REGION = "DATASOURCE";//$NON-NLS-1$
+  public static final String DATASOURCE_REGION = "DATASOURCE"; //$NON-NLS-1$
 
   public boolean startup( final IPentahoSession session ) {
     /* try { */

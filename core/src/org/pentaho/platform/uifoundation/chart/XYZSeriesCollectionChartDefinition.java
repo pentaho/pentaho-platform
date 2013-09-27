@@ -66,7 +66,7 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
   private static final String DOMAIN_TITLE_FONT_NODE_NAME = "domain-title-font"; //$NON-NLS-1$
 
-  private static final String DOMAIN_TICK_FONT_NODE_NAME = "domain-tick-font";//$NON-NLS-1$ 
+  private static final String DOMAIN_TICK_FONT_NODE_NAME = "domain-tick-font"; //$NON-NLS-1$ 
 
   private static final String DOMAIN_TICK_FORMAT_NODE_NAME = "domain-tick-format"; //$NON-NLS-1$
 
@@ -189,7 +189,7 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
   private double maxBubbleSize = 0;
 
-  private String bubbleLabelContent = "{0}: ({1}, {2}, {3})";//$NON-NLS-1$ 
+  private String bubbleLabelContent = "{0}: ({1}, {2}, {3})"; //$NON-NLS-1$ 
 
   private NumberFormat xFormat = NumberFormat.getNumberInstance();
 
@@ -287,10 +287,10 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
       // log a deprecation warning for this property...
       XYZSeriesCollectionChartDefinition.getLogger().warn(
           Messages.getInstance().getString(
-              "CHART.WARN_DEPRECATED_CHILD", ChartDefinition.SUBTITLE_NODE_NAME, ChartDefinition.SUBTITLES_NODE_NAME ) );//$NON-NLS-1$ 
+              "CHART.WARN_DEPRECATED_CHILD", ChartDefinition.SUBTITLE_NODE_NAME, ChartDefinition.SUBTITLES_NODE_NAME ) ); //$NON-NLS-1$ 
       XYZSeriesCollectionChartDefinition.getLogger().warn(
           Messages.getInstance()
-              .getString( "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", ChartDefinition.SUBTITLE_NODE_NAME ) );//$NON-NLS-1$  
+              .getString( "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", ChartDefinition.SUBTITLE_NODE_NAME ) ); //$NON-NLS-1$  
     }
 
     if ( subtitles != null ) {

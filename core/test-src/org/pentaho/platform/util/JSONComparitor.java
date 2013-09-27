@@ -66,10 +66,12 @@ public class JSONComparitor {
    * @throws JSONException
    */
   public static boolean jsonEqual( JSONObject jso1, JSONObject jso2, String compareKey ) throws JSONException {
-    if ( jso1 == null && jso2 == null )
+    if ( jso1 == null && jso2 == null ) {
       return true;
-    if ( jso1 == null || jso2 == null || jso1.length() != jso2.length() )
+    }
+    if ( jso1 == null || jso2 == null || jso1.length() != jso2.length() ) {
       return false;
+    }
 
     if ( compareKey != null ) {
       return compareKey( jso1, jso2, compareKey );
@@ -77,8 +79,9 @@ public class JSONComparitor {
       Iterator<String> i = jso1.keys();
       while ( i.hasNext() ) {
         String key = i.next();
-        if ( !compareKey( jso1, jso2, key ) )
+        if ( !compareKey( jso1, jso2, key ) ) {
           return false;
+        }
       }
       return true;
     }
@@ -97,18 +100,21 @@ public class JSONComparitor {
    * @throws JSONException
    */
   public static boolean jsonEqual( JSONArray jsa1, JSONArray jsa2, Integer item ) throws JSONException {
-    if ( jsa1 == null && jsa2 == null )
+    if ( jsa1 == null && jsa2 == null ) {
       return true;
-    if ( jsa1 == null || jsa2 == null || jsa1.length() != jsa2.length() )
+    }
+    if ( jsa1 == null || jsa2 == null || jsa1.length() != jsa2.length() ) {
       return false;
+    }
 
     if ( item != null ) {
       return compareArray( jsa1, jsa2, item );
     } else {
       for ( int i = 0; i < jsa1.length(); i++ ) {
         // System.out.println("Array item " + i);
-        if ( !compareArray( jsa1, jsa2, i ) )
+        if ( !compareArray( jsa1, jsa2, i ) ) {
           return false;
+        }
       }
       return true;
     }
@@ -117,7 +123,7 @@ public class JSONComparitor {
   private static boolean compareKey( JSONObject jso1, JSONObject jso2, String key ) throws JSONException {
     KeyType keyType = getKeyType( jso1, key );
     if ( jso2.has( key ) ) {
-      if ( keyType == getKeyType( jso2, key ) )
+      if ( keyType == getKeyType( jso2, key ) ) {
         if ( keyType == KeyType.OBJECT ) {
           return jsonEqual( jso1.getJSONObject( key ), jso2.getJSONObject( key ), null );
         } else {
@@ -127,13 +133,14 @@ public class JSONComparitor {
             return jso1.getString( key ).equals( jso2.getString( key ) );
           }
         }
+      }
     }
     return false;
   }
 
   private static boolean compareArray( JSONArray jsa1, JSONArray jsa2, int i ) throws JSONException {
     KeyType keyType = getKeyType( jsa1, i );
-    if ( keyType == getKeyType( jsa2, i ) )
+    if ( keyType == getKeyType( jsa2, i ) ) {
       if ( keyType == KeyType.OBJECT ) {
         return jsonEqual( jsa1.getJSONObject( i ), jsa2.getJSONObject( i ), null );
       } else {
@@ -143,16 +150,19 @@ public class JSONComparitor {
           return jsa1.getString( i ).equals( jsa2.getString( i ) );
         }
       }
+    }
     return false;
   }
 
   private static KeyType getKeyType( JSONObject jso, String key ) {
     try {
       Object o = jso.get( key );
-      if ( o instanceof JSONObject )
+      if ( o instanceof JSONObject ) {
         return KeyType.OBJECT;
-      if ( o instanceof JSONArray )
+      }
+      if ( o instanceof JSONArray ) {
         return KeyType.ARRAY;
+      }
       return KeyType.STRING;
 
     } catch ( Exception ex ) {
@@ -163,10 +173,12 @@ public class JSONComparitor {
   private static KeyType getKeyType( JSONArray jso, int item ) {
     try {
       Object o = jso.get( item );
-      if ( o instanceof JSONObject )
+      if ( o instanceof JSONObject ) {
         return KeyType.OBJECT;
-      if ( o instanceof JSONArray )
+      }
+      if ( o instanceof JSONArray ) {
         return KeyType.ARRAY;
+      }
       return KeyType.STRING;
 
     } catch ( Exception ex ) {

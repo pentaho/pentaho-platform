@@ -169,7 +169,7 @@ public class SolutionReposHelper {
           } else {
             childNode.addElement( SolutionReposHelper.BRANCH_TEXT_NODE_NAME ).setText( targetFile.getFileName() );
           }
-          ISolutionFile files[] = targetFile.listFiles();
+          ISolutionFile[] files = targetFile.listFiles();
           for ( ISolutionFile file : files ) {
             SolutionReposHelper.processSolutionTree( childNode, file, sFilter, contributor, actionOperation );
           }
@@ -218,7 +218,7 @@ public class SolutionReposHelper {
                 SolutionReposHelper.TYPE_ATTR_NAME, SolutionReposHelper.DIRECTORY_ATTR ).addAttribute(
                 SolutionReposHelper.NAME_ATTR_NAME, targetFile.getFileName() );
         contributor.contributeAttributes( targetFile, childNode );
-        ISolutionFile files[] = targetFile.listFiles();
+        ISolutionFile[] files = targetFile.listFiles();
         for ( ISolutionFile file : files ) {
           SolutionReposHelper.processSolutionStructure( childNode, file, actionOperation );
         }

@@ -841,7 +841,7 @@ public class PentahoSystem {
     }
 
     try {
-      SecurityHelper.getInstance().runAsSystem(new Callable<Void>() {
+      SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
         @Override
         public Void call() throws Exception {
           PentahoSystem.globalStartup( PentahoSessionHolder.getSession() );
@@ -960,10 +960,9 @@ public class PentahoSystem {
     PentahoSystem.applicationContext = pApplicationContext;
   }
 
-  @Deprecated
   // use PentahoSystem.get(...) to retrieve pentaho system objects
-    public static
-    Object createObject( final String className, final ILogger logger ) {
+  @Deprecated
+  public static Object createObject( final String className, final ILogger logger ) {
 
     Object object = null;
     try {
@@ -983,10 +982,9 @@ public class PentahoSystem {
     return object;
   }
 
-  @Deprecated
   // use PentahoSystem.get(...) to retrieve pentaho system objects
-    public static
-    Object createObject( final String className ) {
+  @Deprecated
+  public static Object createObject( final String className ) {
 
     return PentahoSystem.createObject( className, null );
   }

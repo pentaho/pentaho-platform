@@ -39,7 +39,7 @@ public class XmlW3CHelperTest extends TestCase {
     try {
       in = new FileInputStream( path );
 
-      byte bytes[] = new byte[10000];
+      byte[] bytes = new byte[10000];
       in.read( bytes );
     } catch ( Exception e ) {
       // should not get here

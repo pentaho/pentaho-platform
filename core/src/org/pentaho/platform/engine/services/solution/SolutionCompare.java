@@ -35,8 +35,8 @@ public class SolutionCompare implements Comparator {
     String str1 = o1.toString();
     String str2 = o2.toString();
 
-    String str1Array[] = StringUtil.tokenStringToArray( str1, "/" ); //$NON-NLS-1$
-    String str2Array[] = StringUtil.tokenStringToArray( str2, "/" ); //$NON-NLS-1$
+    String[] str1Array = StringUtil.tokenStringToArray( str1, "/" ); //$NON-NLS-1$
+    String[] str2Array = StringUtil.tokenStringToArray( str2, "/" ); //$NON-NLS-1$
 
     // If the solution paths are at the same depth, a straight compare will do
     if ( str1Array.length == str2Array.length ) {

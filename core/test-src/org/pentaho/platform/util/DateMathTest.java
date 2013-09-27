@@ -29,7 +29,7 @@ public class DateMathTest extends TestCase {
 
     Calendar cal = DateMath.calculateDate( "0:ME -1:DS" ); //$NON-NLS-1$
 
-    System.out.println( "Time is " + cal.getTime() );//$NON-NLS-1$
+    System.out.println( "Time is " + cal.getTime() ); //$NON-NLS-1$
 
     Calendar cal2 = DateMath.calculateDate( cal, "0:MS  0:WE" ); //$NON-NLS-1$
     System.out.println( "Time is milliseconds " + cal2.getTimeInMillis() ); //$NON-NLS-1$

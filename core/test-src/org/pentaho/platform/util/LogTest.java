@@ -36,37 +36,37 @@ public class LogTest extends TestCase {
 
     Logger.setLogLevel( ILogger.ERROR );
     logLevel = Logger.getLogLevel();
-    logLevelWithParam = Logger.getLogLevel( "ERROR" );//$NON-NLS-1$
+    logLevelWithParam = Logger.getLogLevel( "ERROR" ); //$NON-NLS-1$
     logLevelName = Logger.getLogLevelName( logLevel );
     Assert.assertEquals( logLevelWithParam, logLevel );
 
     Logger.setLogLevel( ILogger.FATAL );
     logLevel = Logger.getLogLevel();
-    logLevelWithParam = Logger.getLogLevel( "FATAL" );//$NON-NLS-1$
+    logLevelWithParam = Logger.getLogLevel( "FATAL" ); //$NON-NLS-1$
     logLevelName = Logger.getLogLevelName( logLevel );
     Assert.assertEquals( logLevelWithParam, logLevel );
 
     Logger.setLogLevel( ILogger.INFO );
     logLevel = Logger.getLogLevel();
-    logLevelWithParam = Logger.getLogLevel( "INFO" );//$NON-NLS-1$
+    logLevelWithParam = Logger.getLogLevel( "INFO" ); //$NON-NLS-1$
     logLevelName = Logger.getLogLevelName( logLevel );
     Assert.assertEquals( logLevelWithParam, logLevel );
 
     Logger.setLogLevel( ILogger.TRACE );
     logLevel = Logger.getLogLevel();
-    logLevelWithParam = Logger.getLogLevel( "TRACE" );//$NON-NLS-1$
+    logLevelWithParam = Logger.getLogLevel( "TRACE" ); //$NON-NLS-1$
     logLevelName = Logger.getLogLevelName( logLevel );
     Assert.assertEquals( logLevelWithParam, logLevel );
 
     Logger.setLogLevel( ILogger.WARN );
     logLevel = Logger.getLogLevel();
-    logLevelWithParam = Logger.getLogLevel( "WARN" );//$NON-NLS-1$
+    logLevelWithParam = Logger.getLogLevel( "WARN" ); //$NON-NLS-1$
     logLevelName = Logger.getLogLevelName( logLevel );
     Assert.assertEquals( logLevelWithParam, logLevel );
 
     Logger.setLogLevel( ILogger.ERROR );
     logLevel = Logger.getLogLevel();
-    logLevelWithParam = Logger.getLogLevel( "UNKNOWN" );//$NON-NLS-1$ - this will return the deafult value of ERROR
+    logLevelWithParam = Logger.getLogLevel( "UNKNOWN" ); //$NON-NLS-1$ - this will return the deafult value of ERROR
     logLevelName = Logger.getLogLevelName( logLevel );
     Assert.assertEquals( logLevelWithParam, logLevel );
 
@@ -75,28 +75,28 @@ public class LogTest extends TestCase {
     Logger.warn( this.getClass(), "This is a warning with class as an object" + +ILogger.WARN, new Throwable() ); //$NON-NLS-1$
     Logger.warn( "LogTest", "This is a warning with class as a string" + +ILogger.WARN, new Throwable() ); //$NON-NLS-1$ //$NON-NLS-2$
 
-    Logger.debug( this.getClass(), "This is a debug with class as an object" + +ILogger.DEBUG );//$NON-NLS-1$
-    Logger.debug( "LogTest", "This is a debug with class as a string" + ILogger.DEBUG );//$NON-NLS-1$ //$NON-NLS-2$
-    Logger.debug( this.getClass(), "This is a debug with class as an object" + +ILogger.DEBUG, new Throwable() );//$NON-NLS-1$
-    Logger.debug( "LogTest", "This is a debug with class as a string" + ILogger.DEBUG, new Throwable() );//$NON-NLS-1$ //$NON-NLS-2$
+    Logger.debug( this.getClass(), "This is a debug with class as an object" + +ILogger.DEBUG ); //$NON-NLS-1$
+    Logger.debug( "LogTest", "This is a debug with class as a string" + ILogger.DEBUG ); //$NON-NLS-1$ //$NON-NLS-2$
+    Logger.debug( this.getClass(), "This is a debug with class as an object" + +ILogger.DEBUG, new Throwable() ); //$NON-NLS-1$
+    Logger.debug( "LogTest", "This is a debug with class as a string" + ILogger.DEBUG, new Throwable() ); //$NON-NLS-1$ //$NON-NLS-2$
 
-    Logger.error( this.getClass(), "This is a error with class as an object" + ILogger.ERROR );//$NON-NLS-1$
-    Logger.error( "LogTest", "This is a error with class as a string" + ILogger.ERROR );//$NON-NLS-1$ //$NON-NLS-2$
-    Logger.error( this.getClass(), "This is a error with class as an object" + ILogger.ERROR, new Throwable() );//$NON-NLS-1$
-    Logger.error( "LogTest", "This is a error with class as a string" + ILogger.ERROR, new Throwable() );//$NON-NLS-1$ //$NON-NLS-2$
+    Logger.error( this.getClass(), "This is a error with class as an object" + ILogger.ERROR ); //$NON-NLS-1$
+    Logger.error( "LogTest", "This is a error with class as a string" + ILogger.ERROR ); //$NON-NLS-1$ //$NON-NLS-2$
+    Logger.error( this.getClass(), "This is a error with class as an object" + ILogger.ERROR, new Throwable() ); //$NON-NLS-1$
+    Logger.error( "LogTest", "This is a error with class as a string" + ILogger.ERROR, new Throwable() ); //$NON-NLS-1$ //$NON-NLS-2$
 
-    Logger.fatal( this.getClass(), "This is a fatal with class as an object" + ILogger.FATAL );//$NON-NLS-1$
-    Logger.fatal( "LogTest", "This is a fatal with class as a string" + ILogger.FATAL );//$NON-NLS-1$ //$NON-NLS-2$
-    Logger.fatal( this.getClass(), "This is a fatal with class as an object" + ILogger.FATAL, new Throwable() );//$NON-NLS-1$
-    Logger.fatal( "LogTest", "This is a fatal with class as a string" + ILogger.FATAL, new Throwable() );//$NON-NLS-1$ //$NON-NLS-2$
+    Logger.fatal( this.getClass(), "This is a fatal with class as an object" + ILogger.FATAL ); //$NON-NLS-1$
+    Logger.fatal( "LogTest", "This is a fatal with class as a string" + ILogger.FATAL ); //$NON-NLS-1$ //$NON-NLS-2$
+    Logger.fatal( this.getClass(), "This is a fatal with class as an object" + ILogger.FATAL, new Throwable() ); //$NON-NLS-1$
+    Logger.fatal( "LogTest", "This is a fatal with class as a string" + ILogger.FATAL, new Throwable() ); //$NON-NLS-1$ //$NON-NLS-2$
 
-    Logger.info( this.getClass(), "This is an info with class as an object" + ILogger.INFO );//$NON-NLS-1$ 
-    Logger.info( "LogTest", "This is an info with class as a string" + ILogger.INFO );//$NON-NLS-1$ //$NON-NLS-2$
-    Logger.info( this.getClass(), "This is an info with class as an object" + ILogger.INFO, new Throwable() );//$NON-NLS-1$
-    Logger.info( "LogTest", "This is an info with class as a string" + ILogger.INFO, new Throwable() );//$NON-NLS-1$ //$NON-NLS-2$
+    Logger.info( this.getClass(), "This is an info with class as an object" + ILogger.INFO ); //$NON-NLS-1$ 
+    Logger.info( "LogTest", "This is an info with class as a string" + ILogger.INFO ); //$NON-NLS-1$ //$NON-NLS-2$
+    Logger.info( this.getClass(), "This is an info with class as an object" + ILogger.INFO, new Throwable() ); //$NON-NLS-1$
+    Logger.info( "LogTest", "This is an info with class as a string" + ILogger.INFO, new Throwable() ); //$NON-NLS-1$ //$NON-NLS-2$
 
-    Logger.trace( this.getClass(), "This is an info with class as an object" + ILogger.TRACE, new Throwable() );//$NON-NLS-1$
-    Logger.trace( "LogTest", "This is an info with class as a string" + ILogger.TRACE, new Throwable() );//$NON-NLS-1$ //$NON-NLS-2$
+    Logger.trace( this.getClass(), "This is an info with class as an object" + ILogger.TRACE, new Throwable() ); //$NON-NLS-1$
+    Logger.trace( "LogTest", "This is an info with class as a string" + ILogger.TRACE, new Throwable() ); //$NON-NLS-1$ //$NON-NLS-2$
 
     Assert.assertTrue( true );
   }
@@ -114,21 +114,21 @@ public class LogTest extends TestCase {
     logger.warn( "This is a warning with class as an object" + ILogger.WARN ); //$NON-NLS-1$
     logger.warn( "This is a warning with class as an object" + +ILogger.WARN, new Throwable() ); //$NON-NLS-1$
 
-    logger.debug( "This is a debug with class as an object" + ILogger.DEBUG );//$NON-NLS-1$
-    logger.debug( "This is a debug with class as an object" + ILogger.DEBUG, new Throwable() );//$NON-NLS-1$
+    logger.debug( "This is a debug with class as an object" + ILogger.DEBUG ); //$NON-NLS-1$
+    logger.debug( "This is a debug with class as an object" + ILogger.DEBUG, new Throwable() ); //$NON-NLS-1$
 
-    logger.error( "This is a error with class as an object" + ILogger.ERROR );//$NON-NLS-1$
-    logger.error( "This is a error with class as an object" + ILogger.ERROR, new Throwable() );//$NON-NLS-1$
+    logger.error( "This is a error with class as an object" + ILogger.ERROR ); //$NON-NLS-1$
+    logger.error( "This is a error with class as an object" + ILogger.ERROR, new Throwable() ); //$NON-NLS-1$
 
-    logger.fatal( "This is a fatal with class as an object" + ILogger.FATAL );//$NON-NLS-1$
-    logger.fatal( "This is a fatal with class as an object" + ILogger.FATAL, new Throwable() );//$NON-NLS-1$
+    logger.fatal( "This is a fatal with class as an object" + ILogger.FATAL ); //$NON-NLS-1$
+    logger.fatal( "This is a fatal with class as an object" + ILogger.FATAL, new Throwable() ); //$NON-NLS-1$
 
-    logger.info( "This is an info with class as an object" + ILogger.INFO );//$NON-NLS-1$ 
-    logger.info( "This is an info with class as an object" + ILogger.INFO, new Throwable() );//$NON-NLS-1$
+    logger.info( "This is an info with class as an object" + ILogger.INFO ); //$NON-NLS-1$ 
+    logger.info( "This is an info with class as an object" + ILogger.INFO, new Throwable() ); //$NON-NLS-1$
 
-    logger.trace( "This is a trace with class as an object" + ILogger.TRACE, new Throwable() );//$NON-NLS-1$
-    logger.trace( "This is a trace with class as a string" + ILogger.TRACE, new Throwable() );//$NON-NLS-1$ 
-    logger.trace( "This is a trace test" );//$NON-NLS-1$
+    logger.trace( "This is a trace with class as an object" + ILogger.TRACE, new Throwable() ); //$NON-NLS-1$
+    logger.trace( "This is a trace with class as a string" + ILogger.TRACE, new Throwable() ); //$NON-NLS-1$ 
+    logger.trace( "This is a trace test" ); //$NON-NLS-1$
 
     Assert.assertTrue( true );
   }

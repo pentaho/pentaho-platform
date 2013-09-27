@@ -172,7 +172,7 @@ public class SimpleParameterProviderTest extends TestCase {
     assertNotNull( "param value is wrong", decimal );
     assertEquals( "param value is wrong", 100, decimal.intValue() );
 
-    String strs[] = params.getStringArrayParameter( "int", new String[0] );
+    String[] strs = params.getStringArrayParameter( "int", new String[0] );
     assertNotNull( "param value is wrong", strs );
     assertEquals( "param value is wrong", "100", strs[0] );
 
@@ -213,7 +213,7 @@ public class SimpleParameterProviderTest extends TestCase {
     params.setParameter( "long", (long) 200 );
     assertEquals( "param value is wrong", (long) 200, params.getParameter( "long" ) );
 
-    String strs[] = params.getStringArrayParameter( "long", new String[0] );
+    String[] strs = params.getStringArrayParameter( "long", new String[0] );
     assertNotNull( "param value is wrong", strs );
     assertEquals( "param value is wrong", "200", strs[0] );
 
@@ -230,7 +230,7 @@ public class SimpleParameterProviderTest extends TestCase {
     assertNotNull( "param value is wrong", decimal );
     assertEquals( "param value is wrong", 100, decimal.intValue() );
 
-    String strs[] = params.getStringArrayParameter( "int", new String[0] );
+    String[] strs = params.getStringArrayParameter( "int", new String[0] );
     assertNotNull( "param value is wrong", strs );
     assertEquals( "param value is wrong", "100", strs[0] );
 

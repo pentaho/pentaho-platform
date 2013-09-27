@@ -63,7 +63,7 @@ public class StandaloneSession extends BaseSession {
   public Iterator getAttributeNames() {
     if ( attributes == null ) {
       throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) );//$NON-NLS-1$
+          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
     }
 
     // TODO need to turn the set iterator into an enumeration...
@@ -73,7 +73,7 @@ public class StandaloneSession extends BaseSession {
   public Object getAttribute( final String attributeName ) {
     if ( attributes == null ) {
       throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) );//$NON-NLS-1$
+          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
     }
     return attributes.get( attributeName );
   }
@@ -81,7 +81,7 @@ public class StandaloneSession extends BaseSession {
   public void setAttribute( final String attributeName, final Object value ) {
     if ( attributes == null ) {
       throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) );//$NON-NLS-1$
+          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
     }
 
     attributes.put( attributeName, value );
@@ -90,7 +90,7 @@ public class StandaloneSession extends BaseSession {
   public Object removeAttribute( final String attributeName ) {
     if ( attributes == null ) {
       throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) );//$NON-NLS-1$
+          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
     }
 
     Object result = getAttribute( attributeName );

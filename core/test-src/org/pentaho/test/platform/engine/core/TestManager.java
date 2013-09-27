@@ -68,7 +68,7 @@ public class TestManager extends PentahoBase {
     return LogFactory.getLog( TestManager.class );
   }
 
-  private static String propertyNames[] = { "os.name", //$NON-NLS-1$
+  private static String[] propertyNames = { "os.name", //$NON-NLS-1$
     "os.version", //$NON-NLS-1$
     "java.version", //$NON-NLS-1$
     "java.vendor", //$NON-NLS-1$

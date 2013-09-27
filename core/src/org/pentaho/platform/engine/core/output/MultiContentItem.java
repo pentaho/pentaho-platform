@@ -37,7 +37,7 @@ public class MultiContentItem extends SimpleContentItem {
   @Override
   public OutputStream getOutputStream( String actionName ) throws IOException {
 
-    OutputStream outs[] = new OutputStream[contentItems.size()];
+    OutputStream[] outs = new OutputStream[contentItems.size()];
 
     for ( int idx = 0; idx < outs.length; idx++ ) {
       outs[idx] = contentItems.get( idx ).getOutputStream( actionName );

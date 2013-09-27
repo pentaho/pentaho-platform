@@ -123,7 +123,7 @@ public class SelectionMapper implements ISelectionMapper {
     ArrayList<Object> values = new ArrayList<Object>();
 
     HashMap<Object, Object> displayNames = ( dispColIndex < 0 ) ? null : new HashMap<Object, Object>();
-    Object row[] = resultSet.next();
+    Object[] row = resultSet.next();
     Object value, name;
     while ( row != null ) {
       value = row[valueColIndex];

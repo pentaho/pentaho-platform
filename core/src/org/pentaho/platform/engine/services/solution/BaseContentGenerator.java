@@ -65,7 +65,7 @@ public abstract class BaseContentGenerator extends PentahoBase implements IConte
 
     // see if we have a callback of the appropriate type
     for ( Object obj : callbacks ) {
-      Class<?> interfaces[] = obj.getClass().getInterfaces();
+      Class<?>[] interfaces = obj.getClass().getInterfaces();
       if ( interfaces != null && interfaces.length > 0 ) {
         for ( Class<? extends Object> interfaze : interfaces ) {
           if ( interfaze.equals( clazz ) ) {
