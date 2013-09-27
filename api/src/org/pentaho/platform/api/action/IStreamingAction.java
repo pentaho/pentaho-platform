@@ -19,9 +19,6 @@ package org.pentaho.platform.api.action;
 
 import java.io.OutputStream;
 
-import org.pentaho.platform.api.engine.IOutputHandler;
-import org.pentaho.platform.api.engine.ISolutionEngine;
-
 /**
  * The interface for Actions that want to stream content to the caller. A "streaming" output is a special type of action
  * definition output that will result in an {@link OutputStream} being set on the Action.
@@ -40,8 +37,8 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
  * <myContentOutput type="content"/>
  * </code> The output may or may not have a globally defined destination to which it corresponds. If the output does
  * correspond to a globally defined output with a destination, then the source of the {@link OutputStream} will be
- * determined by the {@link IOutputHandler} provided during the execution of the Action Sequence by the
- * {@link ISolutionEngine}.
+ * determined by the {@link org.pentaho.platform.api.engine.IOutputHandler} provided during the execution of the Action
+ * Sequence by the {@link org.pentaho.platform.api.engine.ISolutionEngine}.
  * <p>
  * In the case that an output is considered "streaming", it will basically be treated similar to an input in that it
  * will be set on the Action with a setter method. For example, if an action definition declares a streaming output

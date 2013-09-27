@@ -36,7 +36,7 @@ public interface ISolutionActionDefinition {
    * 
    * @return Map of input parameters. Parameters take the name-value form.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getActionInputDefinitions();
 
   /**
@@ -54,7 +54,7 @@ public interface ISolutionActionDefinition {
    * 
    * @return <tt>Map</tt> of output parameters. Parameters take the name-value form.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getActionOutputDefinitions();
 
   /**
@@ -72,7 +72,7 @@ public interface ISolutionActionDefinition {
    * 
    * @return <tt>List</tt> of resource parameter names.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getActionResourceDefinitionNames();
 
   public boolean hasActionResources();
@@ -102,7 +102,7 @@ public interface ISolutionActionDefinition {
    * 
    * @return <tt>List</tt> of parameters defined for pre-execution auditing
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getPreExecuteAuditList();
 
   /**
@@ -111,7 +111,7 @@ public interface ISolutionActionDefinition {
    * 
    * @return <tt>List</tt> of parameters defined for post-execution auditing
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getPostExecuteAuditList();
 
   /**

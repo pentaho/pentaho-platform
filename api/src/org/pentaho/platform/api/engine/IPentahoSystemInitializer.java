@@ -22,6 +22,7 @@ import java.util.Map;
 
 public interface IPentahoSystemInitializer {
 
+  @SuppressWarnings( "rawtypes" )
   public boolean init( final IApplicationContext pApplicationContext, final Map listenerMap );
 
   public boolean getInitializedOK();

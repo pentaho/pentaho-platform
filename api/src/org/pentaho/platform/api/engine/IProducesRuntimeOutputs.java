@@ -19,10 +19,8 @@ package org.pentaho.platform.api.engine;
 
 import java.util.Map;
 
-import org.pentaho.platform.api.action.IAction;
-
 /**
- * @deprecated Pojo components are deprecated, use {@link IAction}
+ * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  */
 public interface IProducesRuntimeOutputs {
 

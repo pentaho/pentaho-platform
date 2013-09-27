@@ -29,7 +29,7 @@ import java.util.Map;
  * method is called
  * 
  */
-public interface IPentahoObjectReference<T> extends Comparable {
+public interface IPentahoObjectReference<T> extends Comparable<T> {
   Map<String, Object> getAttributes();
 
   T getObject();

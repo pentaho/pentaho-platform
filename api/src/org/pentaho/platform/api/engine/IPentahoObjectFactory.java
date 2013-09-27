@@ -29,7 +29,8 @@ import java.util.Map;
  * 1. IPentahoObjectFactory fac = new MyPentahoObjectFactory();<br>
  * //configure the factory with an object specification file and/or a runtime context object<br>
  * 2. fac.init(objectSpecFile, contextObject) {@link IPentahoObjectFactory#init(String, Object)}<br>
- * 3. ISolutionEngine eng = fac.get(ISolutionEngine.class, session) {@link IPentahoObjectFactory#get(Class, IPentahoSession)}
+ * 3. ISolutionEngine eng = fac.get(ISolutionEngine.class, session) 
+ * {@link IPentahoObjectFactory#get(Class, IPentahoSession)}
  * </code>
  * <p>
  * 

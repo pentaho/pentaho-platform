@@ -21,6 +21,11 @@ import org.pentaho.actionsequence.dom.IActionDefinition;
 
 public class ActionInitializationException extends ActionSequenceException {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -7105753821507187932L;
+
   public ActionInitializationException() {
 
   }

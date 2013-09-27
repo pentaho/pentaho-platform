@@ -318,10 +318,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     private String description;
 
-    private Map<String, String> titleMap;
-
-    private Map<String, String> descriptionMap;
-
     private Map<String, Properties> localePropertiesMap;
 
     private String locale;

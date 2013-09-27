@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.List;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -144,7 +143,7 @@ public interface IPluginResourceLoader {
    * @param baseName
    *          points to a particular resource bundle
    * @return a {@link ResourceBundle}
-   * @throws MissingResourceException
+   * @throws java.util.MissingResourceException
    *           if resource bundle not found
    * @see ResourceBundle
    */

@@ -19,8 +19,9 @@ package org.pentaho.platform.api.repository2.unified;
 
 /**
  * Repository file permission enumeration. These are the permission "bits." Loosely based on <a href=
- * "http://developer.apple.com/mac/library/documentation/Security/Conceptual/Security_Overview/Concepts/Concepts.html#//apple_ref/doc/uid/TP30000976-CH203-SW3"
- * > Mac OS X File System Access Control Policy bits</a>.
+ * "http://developer.apple.com/mac/library/documentation/Security/Conceptual/
+ * Security_Overview/Concepts/Concepts.html#//apple_ref/doc/uid/TP30000976-CH203-SW3" > Mac OS X File System Access
+ * Control Policy bits</a>.
  * 
  * <p>
  * Why no {@code EXECUTE}?

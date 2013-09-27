@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.api.data;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 /**
@@ -54,7 +53,7 @@ public interface IDBDatasourceService {
    * @param dsName
    *          The Datasource name
    * @return DataSource if there is one bound in JNDI
-   * @throws NamingException
+   * @throws DBDatasourceServiceException
    */
   public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException;
 
@@ -66,7 +65,7 @@ public interface IDBDatasourceService {
    * @param dsName
    *          The Datasource name (like SampleData)
    * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
-   * @throws NamingException
+   * @throws DBDatasourceServiceException
    */
   public String getDSBoundName( String dsName ) throws DBDatasourceServiceException;
 

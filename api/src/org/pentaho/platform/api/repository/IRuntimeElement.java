@@ -217,7 +217,7 @@ public interface IRuntimeElement {
    *          The key of the property to get
    * @return The list associated with the key, or NULL if it doesn't exist.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public List getListProperty( String key );
 
   /**
@@ -228,7 +228,7 @@ public interface IRuntimeElement {
    *          The key of the property to get
    * @return The Map associated with the key, or NULL if it doesn't exist.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Map getMapProperty( String key );
 
   /**
@@ -239,7 +239,7 @@ public interface IRuntimeElement {
    * @param value
    *          The List value to associate with the key.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void setListProperty( String key, List value );
 
   /**
@@ -251,7 +251,7 @@ public interface IRuntimeElement {
    * @param value
    *          The Map value to associate with the key.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void setMapProperty( String key, Map value );
 
   /**
@@ -268,13 +268,13 @@ public interface IRuntimeElement {
    * @param allowableReadAttributeNames
    *          The names of the attributes that this process is allowed to read.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public void setAllowableAttributeNames( Collection allowableReadAttributeNames );
 
   /**
    * @return The set of currently defined parameter names
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( "rawtypes" )
   public Set getParameterNames();
 
   /**

@@ -17,10 +17,9 @@
 
 package org.pentaho.platform.api.engine;
 
-import org.pentaho.platform.api.action.IAction;
-
+@SuppressWarnings( "deprecation" )
 /**
- * @deprecated Pojo components are deprecated, use {@link IAction}
+ * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  */
 public interface IStreamingPojoComponent extends IStreamingPojo {
 }

@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.pentaho.ui.xul.XulOverlay;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 /**
  * The contract API between the platform and BIServer plugins. The plugin manager provides the ability to load and
@@ -87,9 +85,8 @@ public interface IPluginManager {
    * 
    * @param beanId
    *          a unique identifier for a particular bean (cannot be null)
-   * @return an instance of the bean registered under beanId
-   * @throws PluginBeanException
-   *           if there was a problem retrieving the bean instance
+   * @return an instance of the bean registered under beanId may generate an unchecked PluginBeanException if there was
+   *         a problem retrieving the bean instance
    */
   public Object getBean( String beanId ) throws PluginBeanException;
 
@@ -103,11 +100,9 @@ public interface IPluginManager {
    * @param perspectiveName
    *          specifies a distinct view of the resource. Can be <code>null</code> in which case the default perspective
    *          'generatedContent' is implied.
-   * @return a list of suitable {@link IContentGenerator}s
-   * @throws NoSuchBeanDefinitionException
-   *           - if there is no bean definition with the specified name
-   * @throws BeansException
-   *           - if the bean could not be obtained
+   * @return a list of suitable {@link IContentGenerator}s may generate an unchecked NoSuchBeanDefinitionException - if
+   *         there is no bean definition with the specified name may generate an unchecked BeansException - if the bean
+   *         could not be obtained
    */
   public IContentGenerator getContentGenerator( String type, String perspectiveName );
 
