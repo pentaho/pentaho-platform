@@ -174,7 +174,7 @@ public class SolutionHelper {
       if ( ( actionUrlComponent != null ) && ( actionUrlComponent.toString().length() > 0 ) ) {
         url += actionUrlComponent.toString();
       } else {
-        url += "ViewAction?";//$NON-NLS-1$ 
+        url += "ViewAction?"; //$NON-NLS-1$ 
       }
 
       HashMap<String, IParameterProvider> parameterProviderMap = new HashMap<String, IParameterProvider>();

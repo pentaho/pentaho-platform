@@ -37,9 +37,9 @@ public class ParameterHelperTest extends TestCase {
     BigDecimal dec = ParameterHelper.parameterToDecimal( "100.43", null ); //$NON-NLS-1$
     Assert.assertNotNull( dec );
     long longVal = ParameterHelper.parameterToLong( "1000000", 0 ); //$NON-NLS-1$
-    Assert.assertEquals( longVal, Long.parseLong( "1000000" ) );//$NON-NLS-1$
-    String str = ParameterHelper.parameterToString( "New String", "Default String" );//$NON-NLS-1$ //$NON-NLS-2$
-    Assert.assertEquals( str, "New String" );//$NON-NLS-1$
+    Assert.assertEquals( longVal, Long.parseLong( "1000000" ) ); //$NON-NLS-1$
+    String str = ParameterHelper.parameterToString( "New String", "Default String" ); //$NON-NLS-1$ //$NON-NLS-2$
+    Assert.assertEquals( str, "New String" ); //$NON-NLS-1$
 
   }
 

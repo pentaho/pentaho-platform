@@ -58,7 +58,7 @@ public class Logger {
     return Logger.threadExceptions.get();
   }
 
-  public synchronized static void setVersionHelper( final IVersionHelper helper ) {
+  public static synchronized void setVersionHelper( final IVersionHelper helper ) {
     Logger.versionHelper = helper;
   }
 

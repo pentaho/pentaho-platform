@@ -89,10 +89,10 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
         Messages.getInstance().getString( "PentahoAclEntry.USER_DELETE" ), new Integer( PentahoAclEntry.PERM_DELETE ) ); //$NON-NLS-1$
     solutionPermissionsMap
         .put(
-            Messages.getInstance().getString( "PentahoAclEntry.USER_EXECUTE" ), new Integer( PentahoAclEntry.PERM_EXECUTE ) );//$NON-NLS-1$
+            Messages.getInstance().getString( "PentahoAclEntry.USER_EXECUTE" ), new Integer( PentahoAclEntry.PERM_EXECUTE ) ); //$NON-NLS-1$
     solutionPermissionsMap
         .put(
-            Messages.getInstance().getString( "PentahoAclEntry.USER_SUBSCRIBE" ), new Integer( PentahoAclEntry.PERM_SUBSCRIBE ) );//$NON-NLS-1$
+            Messages.getInstance().getString( "PentahoAclEntry.USER_SUBSCRIBE" ), new Integer( PentahoAclEntry.PERM_SUBSCRIBE ) ); //$NON-NLS-1$
 
     allPermissionsMap.put( Messages.getInstance().getString( "PentahoAclEntry.USER_NONE" ), new Integer( 0 ) ); //$NON-NLS-1$
     allPermissionsMap

@@ -59,7 +59,7 @@ public class PentahoChartURLTagFragmentGenerator extends StandardURLTagFragmentG
     this.dataset = dataset;
     this.parameterName = parameterName;
     this.seriesName = outerParameterName;
-    this.urlTarget = "pentaho_popup";//$NON-NLS-1$ 
+    this.urlTarget = "pentaho_popup"; //$NON-NLS-1$ 
     this.useBaseUrl = true;
   }
 

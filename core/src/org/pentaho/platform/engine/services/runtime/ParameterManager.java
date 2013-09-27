@@ -221,8 +221,9 @@ public class ParameterManager implements IParameterManager {
     Map outParams = actionDefinition.getActionOutputDefinitions();
     for ( Object outKey : outParams.keySet() ) {
       ActionParameter param = (ActionParameter) outParams.get( outKey );
-      if ( param.isOutputParameter() )
+      if ( param.isOutputParameter() ) {
         currentOutputs.put( outKey, param );
+      }
     }
 
     // This enables the old behavior - It should eventually be removed
@@ -293,8 +294,9 @@ public class ParameterManager implements IParameterManager {
       String outputName = (String) entry.getKey();
       IActionParameter outputParam = (IActionParameter) entry.getValue();
 
-      if ( !outputParam.isOutputParameter() )
+      if ( !outputParam.isOutputParameter() ) {
         continue;
+      }
 
       // The output Action Parameter objects do not have values - they are just the definition
       // Pull the value from allParams

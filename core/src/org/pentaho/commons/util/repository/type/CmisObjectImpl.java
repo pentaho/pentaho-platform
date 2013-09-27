@@ -138,8 +138,9 @@ public class CmisObjectImpl implements CmisObject {
   private CmisProperty findProperty( String name, PropertyType type ) {
     if ( properties != null ) {
       for ( CmisProperty aProperty : properties.getProperties() ) {
-        if ( aProperty.getName().equals( name ) && aProperty.getPropertyType().getType().equals( type.getType() ) )
+        if ( aProperty.getName().equals( name ) && aProperty.getPropertyType().getType().equals( type.getType() ) ) {
           return aProperty;
+        }
       }
     }
     return null;

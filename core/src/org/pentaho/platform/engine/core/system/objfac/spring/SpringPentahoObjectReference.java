@@ -77,21 +77,27 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
 
   @Override
   public boolean equals( Object o ) {
-    if ( this == o )
+    if ( this == o ) {
       return true;
-    if ( o == null || getClass() != o.getClass() )
+    }
+    if ( o == null || getClass() != o.getClass() ) {
       return false;
+    }
 
     SpringPentahoObjectReference that = (SpringPentahoObjectReference) o;
 
-    if ( !clazz.equals( that.clazz ) )
+    if ( !clazz.equals( that.clazz ) ) {
       return false;
-    if ( !name.equals( that.name ) )
+    }
+    if ( !name.equals( that.name ) ) {
       return false;
-    if ( attributes != null ? !attributes.equals( that.attributes ) : that.attributes != null )
+    }
+    if ( attributes != null ? !attributes.equals( that.attributes ) : that.attributes != null ) {
       return false;
-    if ( session != null ? !session.equals( that.session ) : that.session != null )
+    }
+    if ( session != null ? !session.equals( that.session ) : that.session != null ) {
       return false;
+    }
 
     return true;
   }

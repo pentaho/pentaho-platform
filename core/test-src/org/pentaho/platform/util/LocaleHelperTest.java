@@ -44,11 +44,11 @@ public class LocaleHelperTest extends TestCase {
 
     LocaleHelper.setSystemEncoding( "UTF8" ); //$NON-NLS-1$
     String systemEncoding = LocaleHelper.getSystemEncoding();
-    Assert.assertEquals( systemEncoding, "UTF8" );//$NON-NLS-1$
+    Assert.assertEquals( systemEncoding, "UTF8" ); //$NON-NLS-1$
 
     LocaleHelper.setTextDirection( "English" ); //$NON-NLS-1$
     String textDirection = LocaleHelper.getTextDirection();
-    Assert.assertEquals( textDirection, "English" );//$NON-NLS-1$
+    Assert.assertEquals( textDirection, "English" ); //$NON-NLS-1$
 
     DateFormat dateFormat = LocaleHelper.getDateFormat( LocaleHelper.FORMAT_MEDIUM, LocaleHelper.FORMAT_MEDIUM );
     String format = dateFormat.format( new Date() );

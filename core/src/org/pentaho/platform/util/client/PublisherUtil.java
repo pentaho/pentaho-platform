@@ -77,7 +77,7 @@ public class PublisherUtil {
    *          Whether the server should overwrite the file if it exists already
    * @return Server response as a string
    */
-  public static int publish( final String publishURL, final String publishPath, final File publishFiles[],
+  public static int publish( final String publishURL, final String publishPath, final File[] publishFiles,
       final String publishPassword, final String serverUserid, final String serverPassword, final boolean overwrite ) {
     return PublisherUtil.publish( publishURL, publishPath, publishFiles, publishPassword, serverUserid, serverPassword,
         overwrite, true );
@@ -106,14 +106,14 @@ public class PublisherUtil {
    *          Whether the server should create any missing folders on the publish path
    * @return Server response as a string
    */
-  public static int publish( final String publishURL, final String publishPath, final File publishFiles[],
+  public static int publish( final String publishURL, final String publishPath, final File[] publishFiles,
       final String publishPassword, final String serverUserid, final String serverPassword, final boolean overwrite,
       final boolean mkdirs ) {
     int status = -1;
     System.setProperty( "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog" ); //$NON-NLS-1$ //$NON-NLS-2$
     System.setProperty( "org.apache.commons.logging.simplelog.showdatetime", "true" ); //$NON-NLS-1$ //$NON-NLS-2$
-    System.setProperty( "org.apache.commons.logging.simplelog.log.httpclient.wire.header", "warn" );//$NON-NLS-1$ //$NON-NLS-2$
-    System.setProperty( "org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "warn" );//$NON-NLS-1$ //$NON-NLS-2$
+    System.setProperty( "org.apache.commons.logging.simplelog.log.httpclient.wire.header", "warn" ); //$NON-NLS-1$ //$NON-NLS-2$
+    System.setProperty( "org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "warn" ); //$NON-NLS-1$ //$NON-NLS-2$
 
     String fullURL = null;
     try {

@@ -162,8 +162,8 @@ public class GenericPentahoTest extends TestCase {
 
     int goldPos = 0;
     int tmpPos = 0;
-    byte goldBuffer[] = new byte[2048];
-    byte tmpBuffer[] = new byte[2048];
+    byte[] goldBuffer = new byte[2048];
+    byte[] tmpBuffer = new byte[2048];
     int filePosition = 0;
     try {
       // read the start of both files

@@ -70,7 +70,7 @@ public class HttpUtil {
       if ( status == 200 ) {
         InputStream response = call.getResponseBodyAsStream();
         try {
-          byte buffer[] = new byte[2048];
+          byte[] buffer = new byte[2048];
           int size = response.read( buffer );
           while ( size > 0 ) {
             for ( int idx = 0; idx < size; idx++ ) {
@@ -100,7 +100,7 @@ public class HttpUtil {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.connect();
     InputStream in = connection.getInputStream();
-    byte buffer[] = new byte[300];
+    byte[] buffer = new byte[300];
     int n = buffer.length;
     while ( n > 0 ) {
       n = in.read( buffer );
@@ -169,7 +169,7 @@ public class HttpUtil {
   // and use Map instead of Hashtable
   //
   public static Map parseQueryString( final String s ) {
-    String valArray[] = null;
+    String[] valArray = null;
     if ( s == null ) {
       throw new IllegalArgumentException();
     }
@@ -185,7 +185,7 @@ public class HttpUtil {
       key = HttpUtil.parseName( pair.substring( 0, pos ), sb );
       String val = HttpUtil.parseName( pair.substring( pos + 1, pair.length() ), sb );
       if ( rtn.containsKey( key ) ) {
-        String oldVals[] = rtn.get( key );
+        String[] oldVals = rtn.get( key );
         valArray = new String[oldVals.length + 1];
         System.arraycopy( oldVals, 0, valArray, 0, oldVals.length );
         valArray[oldVals.length] = val;

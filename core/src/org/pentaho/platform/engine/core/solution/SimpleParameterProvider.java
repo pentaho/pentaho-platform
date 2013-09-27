@@ -30,7 +30,7 @@ public class SimpleParameterProvider extends BaseParameterProvider implements IP
 
   private Map<String, Object> parameters;
 
-  protected static final String ADDITIONAL_PARAMS = "_PENTAHO_ADDITIONAL_PARAMS_";//$NON-NLS-1$
+  protected static final String ADDITIONAL_PARAMS = "_PENTAHO_ADDITIONAL_PARAMS_"; //$NON-NLS-1$
 
   public SimpleParameterProvider() {
     this( null );

@@ -50,7 +50,7 @@ public class PentahoSystemExceptionTest extends TestCase {
   public void testPentahoSystemException4() {
     //    info("Expected: Exception will be caught and thrown as a Pentaho System Exception"); //$NON-NLS-1$
     PentahoSystemException pse3 =
-        new PentahoSystemException( "A test Pentaho System Exception has been thrown", new Throwable() );//$NON-NLS-1$
+        new PentahoSystemException( "A test Pentaho System Exception has been thrown", new Throwable() ); //$NON-NLS-1$
     System.out.println( "PentahoSystemException :" + pse3 ); //$NON-NLS-1$    
     Assert.assertTrue( true );
 

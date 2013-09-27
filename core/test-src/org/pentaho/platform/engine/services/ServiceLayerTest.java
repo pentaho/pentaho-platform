@@ -78,7 +78,7 @@ public class ServiceLayerTest extends TestCase {
       File file = new File( getSolutionPath() + "/services_layer/test1.xaction" );
       StringBuilder str = new StringBuilder();
       reader = new FileReader( file );
-      char buffer[] = new char[4096];
+      char[] buffer = new char[4096];
       int n = reader.read( buffer );
       while ( n != -1 ) {
         str.append( buffer, 0, n );

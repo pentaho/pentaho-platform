@@ -237,9 +237,9 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
     } else {
       // log a deprecation warning for background-color ...
       DialWidgetDefinition.getLogger().warn(
-          Messages.getInstance().getString( "CHART.WARN_DEPRECATED_PROPERTY", "background-color", "chart-background" ) );//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$    
+          Messages.getInstance().getString( "CHART.WARN_DEPRECATED_PROPERTY", "background-color", "chart-background" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$    
       DialWidgetDefinition.getLogger().warn(
-          Messages.getInstance().getString( "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", "background-color" ) );//$NON-NLS-1$ //$NON-NLS-2$     
+          Messages.getInstance().getString( "CHART.WARN_PROPERTY_WILL_NOT_VALIDATE", "background-color" ) ); //$NON-NLS-1$ //$NON-NLS-2$     
     }
 
     if ( paint != null ) {

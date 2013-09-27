@@ -299,7 +299,7 @@ public class LocaleHelper {
     return NumberFormat.getCurrencyInstance( LocaleHelper.getLocale() );
   }
 
-  public static String getClosestLocale( String locale, String locales[] ) {
+  public static String getClosestLocale( String locale, String[] locales ) {
     // see if this locale is supported
     if ( locales == null || locales.length == 0 ) {
       return locale;

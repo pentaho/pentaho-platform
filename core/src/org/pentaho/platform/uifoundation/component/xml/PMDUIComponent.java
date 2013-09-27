@@ -384,7 +384,7 @@ public class PMDUIComponent extends XmlComponent {
               }
             }
           }
-          Object row[] = results.next();
+          Object[] row = results.next();
           while ( row != null ) {
             rowElement = dataElement.addElement( "DATA-ROW" ); //$NON-NLS-1$
             for ( Object element : row ) {

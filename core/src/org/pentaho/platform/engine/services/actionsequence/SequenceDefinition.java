@@ -78,7 +78,7 @@ public class SequenceDefinition implements ISequenceDefinition {
 
   IApplicationContext applicationContext;
 
-  ISolutionActionDefinition actionDefinitions[];
+  ISolutionActionDefinition[] actionDefinitions;
 
   public static IActionSequence ActionSequenceFactory( final Document document, final String solutionPath,
       final ILogger logger, final IApplicationContext applicationContext, final int loggingLevel ) {
@@ -272,7 +272,7 @@ public class SequenceDefinition implements ISequenceDefinition {
           }
         }
         boolean isOutputParameter =
-            Boolean.parseBoolean( XmlDom4JHelper.getNodeText( "@is-output-parameter", parameterNode, "true" ) );//$NON-NLS-1$ //$NON-NLS-2$
+            Boolean.parseBoolean( XmlDom4JHelper.getNodeText( "@is-output-parameter", parameterNode, "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$
         parameter = new ActionParameter( parameterName, parameterType, null, variables, defaultValue );
         parameter.setOutputParameter( isOutputParameter );
         parameterMap.put( parameterName, parameter );

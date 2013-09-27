@@ -46,16 +46,16 @@ import org.pentaho.platform.util.DateMath;
 
 public class TemplateUtil {
 
-  private final static String PARAMETER_PATTERN = "\\{([^\\}\\{$^]*)\\}"; //$NON-NLS-1$
+  private static final String PARAMETER_PATTERN = "\\{([^\\}\\{$^]*)\\}"; //$NON-NLS-1$
 
-  private final static String DATE_EXPR_PATTERN = "([\\+\\-\\s]?(\\d)+:[YMWDhms][ES]?[\\s]?)+((\\s)?;.*)?"; //$NON-NLS-1$
+  private static final String DATE_EXPR_PATTERN = "([\\+\\-\\s]?(\\d)+:[YMWDhms][ES]?[\\s]?)+((\\s)?;.*)?"; //$NON-NLS-1$
 
   //  private final static String DATE_EXPR_PATTERN2 = "(DATEMATH\\(['\"])?([\\+\\-]?\\d:[YMWDhms][MS]?[\\s]?)+((\\s)?;.*)?.*"; //$NON-NLS-1$
 
-  private final static String DATEMATH_EXPR_PATTERN = "DATEMATH\\((\\s*)['\"].*['\"](\\s)*\\)"; //$NON-NLS-1$
-  private final static String DATEMATH_VAR_PATTERN = "DATEMATH:.*"; //$NON-NLS-1$
+  private static final String DATEMATH_EXPR_PATTERN = "DATEMATH\\((\\s*)['\"].*['\"](\\s)*\\)"; //$NON-NLS-1$
+  private static final String DATEMATH_VAR_PATTERN = "DATEMATH:.*"; //$NON-NLS-1$
 
-  private final static String DATE_PATTERN = "\\d\\d\\d\\d-\\d\\d-\\d\\d"; //$NON-NLS-1$
+  private static final String DATE_PATTERN = "\\d\\d\\d\\d-\\d\\d-\\d\\d"; //$NON-NLS-1$
 
   private static final Pattern parameterExpressionPattern = Pattern.compile( TemplateUtil.PARAMETER_PATTERN );
 
@@ -72,8 +72,8 @@ public class TemplateUtil {
   private static final Log logger = LogFactory.getLog( TemplateUtil.class );
 
   static {
-    TemplateUtil.SystemInputs.add( "$user" );//$NON-NLS-1$
-    TemplateUtil.SystemInputs.add( "$url" );//$NON-NLS-1$
+    TemplateUtil.SystemInputs.add( "$user" ); //$NON-NLS-1$
+    TemplateUtil.SystemInputs.add( "$url" ); //$NON-NLS-1$
     TemplateUtil.SystemInputs.add( "$solution" ); //$NON-NLS-1$
   }
 
@@ -225,20 +225,20 @@ public class TemplateUtil {
       int start = parameterMatcher.start();
       String parameter = parameterMatcher.group( 1 );
       // pull out the repeating part
-      int pos1 = parameter.indexOf( ":col:" );//$NON-NLS-1$ 
+      int pos1 = parameter.indexOf( ":col:" ); //$NON-NLS-1$ 
       if ( pos1 > -1 ) {
         String part = template.substring( lastEnd, start );
         if ( PentahoSystem.debug ) {
-          TemplateUtil.logger.debug( "parameter=" + parameter );//$NON-NLS-1$ 
-          TemplateUtil.logger.debug( "part=" + part );//$NON-NLS-1$ 
+          TemplateUtil.logger.debug( "parameter=" + parameter ); //$NON-NLS-1$ 
+          TemplateUtil.logger.debug( "part=" + part ); //$NON-NLS-1$ 
         }
         String inputName = parameter.substring( 0, pos1 );
         String columnNoStr = parameter.substring( pos1 + 5 );
         int columnNo = Integer.parseInt( columnNoStr );
         if ( PentahoSystem.debug ) {
-          TemplateUtil.logger.debug( "inputName=" + inputName );//$NON-NLS-1$ 
-          TemplateUtil.logger.debug( "columnNoStr=" + columnNoStr );//$NON-NLS-1$ 
-          TemplateUtil.logger.debug( "columnNo=" + columnNo );//$NON-NLS-1$ 
+          TemplateUtil.logger.debug( "inputName=" + inputName ); //$NON-NLS-1$ 
+          TemplateUtil.logger.debug( "columnNoStr=" + columnNoStr ); //$NON-NLS-1$ 
+          TemplateUtil.logger.debug( "columnNo=" + columnNo ); //$NON-NLS-1$ 
         }
         Object obj = null;
         if ( inputs instanceof InputProperties ) {
@@ -266,13 +266,13 @@ public class TemplateUtil {
       }
     }
     if ( PentahoSystem.debug ) {
-      TemplateUtil.logger.debug( "partsList.size()=" + partsList.size() );//$NON-NLS-1$ 
+      TemplateUtil.logger.debug( "partsList.size()=" + partsList.size() ); //$NON-NLS-1$ 
     }
     if ( PentahoSystem.debug ) {
-      TemplateUtil.logger.debug( "columnsList.size()=" + columnsList.size() );//$NON-NLS-1$ 
+      TemplateUtil.logger.debug( "columnsList.size()=" + columnsList.size() ); //$NON-NLS-1$ 
     }
     if ( PentahoSystem.debug ) {
-      TemplateUtil.logger.debug( "data=" + data );//$NON-NLS-1$ 
+      TemplateUtil.logger.debug( "data=" + data ); //$NON-NLS-1$ 
     }
     if ( partsList.size() > 0 ) {
       partsList.add( template.substring( lastEnd ) );
@@ -282,12 +282,12 @@ public class TemplateUtil {
 
     if ( ( data != null ) && ( partsList.size() == columnsList.size() + 1 ) ) {
       // here we go
-      String parts[] = new String[partsList.size()];
+      String[] parts = new String[partsList.size()];
       partsList.toArray( parts );
-      Integer cols[] = new Integer[columnsList.size()];
+      Integer[] cols = new Integer[columnsList.size()];
       columnsList.toArray( cols );
       int rowNo = 0;
-      Object row[] = data.getDataRow( rowNo );
+      Object[] row = data.getDataRow( rowNo );
       while ( row != null ) {
         for ( idx = 0; idx < cols.length; idx++ ) {
           results.append( parts[idx] );
@@ -299,7 +299,7 @@ public class TemplateUtil {
       }
     }
     if ( PentahoSystem.debug ) {
-      TemplateUtil.logger.debug( "results=" + results.toString() );//$NON-NLS-1$ 
+      TemplateUtil.logger.debug( "results=" + results.toString() ); //$NON-NLS-1$ 
     }
 
   }
@@ -541,7 +541,7 @@ public class TemplateUtil {
         if ( valueObj instanceof String ) {
           value = (String) valueObj;
         } else if ( valueObj instanceof Object[] ) {
-          Object values[] = (Object[]) valueObj;
+          Object[] values = (Object[]) valueObj;
           StringBuffer valuesBuffer = new StringBuffer();
           // TODO support non-string items
           // TODO this is assuming that the surrounding 's exist

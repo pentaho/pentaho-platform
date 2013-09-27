@@ -66,7 +66,7 @@ public class ClientUtil {
       }
       // get the result as a string
       InputStream in = callMethod.getResponseBodyAsStream();
-      byte buffer[] = new byte[2048];
+      byte[] buffer = new byte[2048];
       int n = in.read( buffer );
       StringBuilder sb = new StringBuilder();
       while ( n != -1 ) {

@@ -28,7 +28,7 @@ public class StandardBubbleURLGenerator extends StandardXYURLGenerator {
    */
   private static final long serialVersionUID = -8866266240558511140L;
 
-  private final String seriesParameterName = "series";//$NON-NLS-1$ 
+  private final String seriesParameterName = "series"; //$NON-NLS-1$ 
 
   public StandardBubbleURLGenerator() {
     super();

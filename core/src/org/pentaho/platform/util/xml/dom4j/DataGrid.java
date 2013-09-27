@@ -67,12 +67,12 @@ public class DataGrid {
     HashMap<String, String> headerMap = new HashMap<String, String>();
     IPentahoMetaData metadata = results.getMetaData();
     // first process the column headers
-    Object headers[][] = metadata.getColumnHeaders();
+    Object[][] headers = metadata.getColumnHeaders();
     addHeaderMetadata( headers, metadataNode, headerMap );
 
     // now process the rows in the data set
     Element rowsNode = root.addElement( "data" ); //$NON-NLS-1$
-    Object row[] = results.next();
+    Object[] row = results.next();
 
     while ( row != null ) {
       // create a new node tree for every row
@@ -99,7 +99,7 @@ public class DataGrid {
     // System .out.println(gridDocument.asXML());
   }
 
-  protected void addHeaderMetadata( final Object headers[][], final Element metadataNode,
+  protected void addHeaderMetadata( final Object[][] headers, final Element metadataNode,
       final HashMap<String, String> headerMap ) {
     if ( headers == null ) {
       return;
@@ -113,9 +113,8 @@ public class DataGrid {
           String headerStr = (String) header;
           metadataMap.put( headerStr, headerStr );
           createMetadata( headerStr, metadataNode, headerMap );
-        }
-        // TODO suppport heavier metadata objects
-        else {
+        } else {
+          // TODO suppport heavier metadata objects
           String headerStr = header.toString();
           metadataMap.put( headerStr, headerStr );
           createMetadata( headerStr, metadataNode, headerMap );

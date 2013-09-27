@@ -131,7 +131,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   // private int loggingLevel = UNKNOWN;
   private static final String LOG_NAME = "RUNTIME"; //$NON-NLS-1$
 
-  private static final String PLUGIN_BUNDLE_NAME = "org.pentaho.platform.engine.services.runtime.plugins";//$NON-NLS-1$
+  private static final String PLUGIN_BUNDLE_NAME = "org.pentaho.platform.engine.services.runtime.plugins"; //$NON-NLS-1$
 
   protected static final String PARAMETER_FORM = "actionparam"; //$NON-NLS-1$
 
@@ -649,8 +649,9 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           Messages.getInstance().getString( "RuntimeContext.WARN_BAD_PLUGIN_PROPERTIES" ), ignored ); //$NON-NLS-1$
     } finally {
       try {
-        if ( is != null )
+        if ( is != null ) {
           is.close();
+        }
       } catch ( IOException e ) {
       }
     }
@@ -1039,10 +1040,10 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           "RuntimeContext.ERROR_0033_NOT_PEEKABLE" ), //$NON-NLS-1$
           session.getName(), instanceId, getActionSequence().getSequenceName(), null );
     }
-    Object row[] = peekOnly ? ( (IPeekable) loopSet ).peek() : loopSet.next();
-    Object headerSet[][] = loopSet.getMetaData().getColumnHeaders();
+    Object[] row = peekOnly ? ( (IPeekable) loopSet ).peek() : loopSet.next();
+    Object[][] headerSet = loopSet.getMetaData().getColumnHeaders();
     // TODO handle OLAP result sets
-    Object headers[] = headerSet[0];
+    Object[] headers = headerSet[0];
     while ( row != null ) {
       loopCount++;
       if ( RuntimeContext.debug ) {
@@ -1713,7 +1714,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       Iterator parameterNameIterator = parameterProvider.getParameterNames();
       while ( parameterNameIterator.hasNext() ) {
         String name = (String) parameterNameIterator.next();
-        if ( !"path".equals( name ) && ( xformFields.get( name ) == null ) ) {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                   
+        if ( !"path".equals( name ) && ( xformFields.get( name ) == null ) ) {
           // TODO we need to check to see if this has been handled as
           // a control before adding a hidden field
           Object value = parameterProvider.getParameter( name );

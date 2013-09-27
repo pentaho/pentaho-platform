@@ -49,7 +49,7 @@ public class OutputTest extends TestCase {
 
     InputStream in = content.getInputStream();
 
-    byte b[] = new byte[100];
+    byte[] b = new byte[100];
     int n = in.read( b );
 
     assertEquals( "test sting", new String( b, 0, n ) );
@@ -68,7 +68,7 @@ public class OutputTest extends TestCase {
     multiContent.addContentItem( item1 );
     multiContent.addContentItem( item2 );
 
-    byte in[] = "abcd".getBytes();
+    byte[] in = "abcd".getBytes();
     String outStr1 = "";
     String outStr2 = "";
 
@@ -102,7 +102,7 @@ public class OutputTest extends TestCase {
     multiContent.addContentItem( item1 );
     multiContent.addContentItem( item2 );
 
-    byte in[] = "abcd".getBytes();
+    byte[] in = "abcd".getBytes();
     String outStr1 = "";
     String outStr2 = "";
 
@@ -131,10 +131,10 @@ public class OutputTest extends TestCase {
     ByteArrayOutputStream out1 = new ByteArrayOutputStream();
     ByteArrayOutputStream out2 = new ByteArrayOutputStream();
 
-    ByteArrayOutputStream outs[] = new ByteArrayOutputStream[] { out1, out2 };
+    ByteArrayOutputStream[] outs = new ByteArrayOutputStream[] { out1, out2 };
 
     MultiOutputStream multi = new MultiOutputStream( outs );
-    byte in[] = "abcd".getBytes();
+    byte[] in = "abcd".getBytes();
     String outStr1 = "";
     String outStr2 = "";
 
@@ -160,10 +160,10 @@ public class OutputTest extends TestCase {
     MockExceptionOutputStream out2 = new MockExceptionOutputStream();
     ByteArrayOutputStream out3 = new ByteArrayOutputStream();
 
-    OutputStream outs[] = new OutputStream[] { out1, out2, out3 };
+    OutputStream[] outs = new OutputStream[] { out1, out2, out3 };
 
     MultiOutputStream multi = new MultiOutputStream( outs );
-    byte in[] = "abcd".getBytes();
+    byte[] in = "abcd".getBytes();
     String outStr1 = "";
     String outStr2 = "";
 
