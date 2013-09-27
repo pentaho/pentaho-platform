@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.api.repository;
 
@@ -29,13 +29,14 @@ public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
   public static final char SEPARATOR = '/';
 
   /**
-   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients should likely use resetAccessControls.
+   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients should
+   * likely use resetAccessControls.
    */
-  @SuppressWarnings("unchecked")
-  public void setAccessControls(List acls);
+  @SuppressWarnings( "unchecked" )
+  public void setAccessControls( List acls );
 
-  @SuppressWarnings("unchecked")
-  public void resetAccessControls(List acls);
+  @SuppressWarnings( "unchecked" )
+  public void resetAccessControls( List acls );
 
   public int getRevision();
 
@@ -49,7 +50,7 @@ public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
 
   public String getFullPath();
 
-  public void setParent(IRepositoryFile parent);
+  public void setParent( IRepositoryFile parent );
 
   public IRepositoryFile getParent();
 
@@ -81,19 +82,19 @@ public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
   /**
    * @return Returns the childrenResources.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public Set getChildrenFiles();
 
   /**
    * @param childrenResources
    *          The childrenResources to set.
    */
-  @SuppressWarnings("unchecked")
-  public void setChildrenFiles(Set childrenFiles);
+  @SuppressWarnings( "unchecked" )
+  public void setChildrenFiles( Set childrenFiles );
 
-  public void addChildFile(IRepositoryFile file);
+  public void addChildFile( IRepositoryFile file );
 
-  public void removeChildFile(IRepositoryFile file);
+  public void removeChildFile( IRepositoryFile file );
 
   /**
    * @return Returns the data.
@@ -104,15 +105,15 @@ public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
    * @param data
    *          The data to set.
    */
-  public void setData(byte[] data);
+  public void setData( byte[] data );
 
-  public ISolutionFile[] listFiles(IFileFilter filter);
+  public ISolutionFile[] listFiles( IFileFilter filter );
 
   public ISolutionFile[] listFiles();
 
   public IRepositoryFile[] listRepositoryFiles();
 
-  public int compareTo(Object o);
+  public int compareTo( Object o );
 
   /**
    * @return Returns the modDate.
@@ -123,7 +124,7 @@ public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
    * @param modDate
    *          The modDate to set.
    */
-  public void setLastModified(long modDate);
+  public void setLastModified( long modDate );
 
   public boolean containsActions();
 

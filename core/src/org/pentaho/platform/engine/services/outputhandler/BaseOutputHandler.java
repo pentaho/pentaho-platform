@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.services.outputhandler;
 
@@ -46,9 +46,10 @@ public abstract class BaseOutputHandler implements IContentOutputHandler {
   }
 
   /**
-   * @param handlerId The handlerId to set.
+   * @param handlerId
+   *          The handlerId to set.
    */
-  public void setHandlerId(final String handlerId) {
+  public void setHandlerId( final String handlerId ) {
     this.handlerId = handlerId;
   }
 
@@ -60,9 +61,10 @@ public abstract class BaseOutputHandler implements IContentOutputHandler {
   }
 
   /**
-   * @param instanceId The instanceId to set.
+   * @param instanceId
+   *          The instanceId to set.
    */
-  public void setInstanceId(final String instanceId) {
+  public void setInstanceId( final String instanceId ) {
     this.instanceId = instanceId;
   }
 
@@ -74,9 +76,10 @@ public abstract class BaseOutputHandler implements IContentOutputHandler {
   }
 
   /**
-   * @param mimeType The mimeType to set.
+   * @param mimeType
+   *          The mimeType to set.
    */
-  public void setMimeType(final String mimeType) {
+  public void setMimeType( final String mimeType ) {
     this.mimeType = mimeType;
   }
 
@@ -88,9 +91,10 @@ public abstract class BaseOutputHandler implements IContentOutputHandler {
   }
 
   /**
-   * @param session The session to set.
+   * @param session
+   *          The session to set.
    */
-  public void setSession(final IPentahoSession session) {
+  public void setSession( final IPentahoSession session ) {
     this.session = session;
   }
 
@@ -102,9 +106,10 @@ public abstract class BaseOutputHandler implements IContentOutputHandler {
   }
 
   /**
-   * @param solutionPath The solutionPath to set.
+   * @param solutionPath
+   *          The solutionPath to set.
    */
-  public void setSolutionPath(final String solutionPath) {
+  public void setSolutionPath( final String solutionPath ) {
     this.solutionPath = solutionPath;
   }
 
@@ -116,14 +121,15 @@ public abstract class BaseOutputHandler implements IContentOutputHandler {
   }
 
   /**
-   * @param contentRef The contentRef to set.
+   * @param contentRef
+   *          The contentRef to set.
    */
-  public void setContentRef(final String contentRef) {
+  public void setContentRef( final String contentRef ) {
     this.contentRef = contentRef;
   }
 
   public void setName( String name ) {
-	  
+
   }
-  
+
 }

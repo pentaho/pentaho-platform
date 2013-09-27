@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.security.event;
 
@@ -34,7 +34,9 @@ import org.springframework.util.Assert;
 /**
  * Runs the session startup upon hearing an interactive login success.
  * 
- * <p>Replaces functionality from SecurityStartupFilter.</p>
+ * <p>
+ * Replaces functionality from SecurityStartupFilter.
+ * </p>
  * 
  * @author mlowery
  */
@@ -42,7 +44,7 @@ public class PentahoSessionStartupAuthenticationSuccessListener implements Appli
 
   // ~ Static fields/initializers ======================================================================================
 
-  private static final Log logger = LogFactory.getLog(PentahoSessionStartupAuthenticationSuccessListener.class);
+  private static final Log logger = LogFactory.getLog( PentahoSessionStartupAuthenticationSuccessListener.class );
 
   // ~ Instance fields =================================================================================================
 
@@ -56,17 +58,17 @@ public class PentahoSessionStartupAuthenticationSuccessListener implements Appli
 
   // ~ Methods =========================================================================================================
 
-  public void onApplicationEvent(final ApplicationEvent event) {
-    if (event instanceof InteractiveAuthenticationSuccessEvent) {
-      logger.debug("received InteractiveAuthenticationSuccessEvent"); //$NON-NLS-1$
-      logger.debug("calling PentahoSystem.sessionStartup"); //$NON-NLS-1$
+  public void onApplicationEvent( final ApplicationEvent event ) {
+    if ( event instanceof InteractiveAuthenticationSuccessEvent ) {
+      logger.debug( "received InteractiveAuthenticationSuccessEvent" ); //$NON-NLS-1$
+      logger.debug( "calling PentahoSystem.sessionStartup" ); //$NON-NLS-1$
       try {
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-        Assert.notNull(pentahoSession, "PentahoSessionHolder doesn't have a session");
-        IParameterProvider sessionParameters = new PentahoSessionParameterProvider(pentahoSession);
-        PentahoSystem.sessionStartup(pentahoSession, sessionParameters);
-      } catch (Exception e) {
-        logger.error(e.getLocalizedMessage(), e);
+        Assert.notNull( pentahoSession, "PentahoSessionHolder doesn't have a session" );
+        IParameterProvider sessionParameters = new PentahoSessionParameterProvider( pentahoSession );
+        PentahoSystem.sessionStartup( pentahoSession, sessionParameters );
+      } catch ( Exception e ) {
+        logger.error( e.getLocalizedMessage(), e );
       }
     }
   }
@@ -75,7 +77,7 @@ public class PentahoSessionStartupAuthenticationSuccessListener implements Appli
     return order;
   }
 
-  public void setOrder(int order) {
+  public void setOrder( int order ) {
     this.order = order;
   }
 

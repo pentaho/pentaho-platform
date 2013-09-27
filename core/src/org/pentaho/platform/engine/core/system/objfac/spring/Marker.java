@@ -1,33 +1,33 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
 /**
- * Used by the {@link PublishedBeanRegistry} to identify a particular beanFactory. An instance is registered inside
- * the BeanFactory with a UUID. This is later extracted to find published beans from that factory.
- *
- * User: nbaker
- * Date: 3/27/13
+ * Used by the {@link PublishedBeanRegistry} to identify a particular beanFactory. An instance is registered inside the
+ * BeanFactory with a UUID. This is later extracted to find published beans from that factory.
+ * 
+ * User: nbaker Date: 3/27/13
  */
-public class Marker{
+public class Marker {
   private String id;
-  public Marker(String id){
+
+  public Marker( String id ) {
     this.id = id;
   }
 
@@ -37,7 +37,7 @@ public class Marker{
   }
 
   @Override
-  public boolean equals(Object o) {
-    return id.equals(o);
+  public boolean equals( Object o ) {
+    return id.equals( o );
   }
 }

@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.api.repository2.unified.data.simple;
 
@@ -48,7 +48,7 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
 
   // ~ Constructors ====================================================================================================
 
-  public SimpleRepositoryFileData(final InputStream stream, final String encoding, final String mimeType) {
+  public SimpleRepositoryFileData( final InputStream stream, final String encoding, final String mimeType ) {
     super();
     this.stream = stream;
     this.encoding = encoding;
@@ -61,9 +61,8 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
    * Returns a stream for reading the data in this file.
    * 
    * @return stream (may be {@code null})
-   * @deprecated
-   * Use {@link #getInputStream()} instead. Proguard likes to obfuscate any method named getStream that returns an InputStream,
-   * even if you tell it not to via keep rules.
+   * @deprecated Use {@link #getInputStream()} instead. Proguard likes to obfuscate any method named getStream that
+   *             returns an InputStream, even if you tell it not to via keep rules.
    */
   @Deprecated
   public InputStream getStream() {
@@ -72,9 +71,9 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
 
   /**
    * Returns a stream for reading the data in this file.
-   *
+   * 
    * @return stream (may be {@code null})
-  */
+   */
   public InputStream getInputStream() {
     return stream;
   }
@@ -97,72 +96,74 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
     return mimeType;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.platform.api.repository2.unified.IRepositoryFileData#getDataSize()
    */
   @Override
   public long getDataSize() {
     try {
       return stream.available();
-    } catch (IOException e) {
+    } catch ( IOException e ) {
       return 0;
     }
   }
 
   @Override
-  @SuppressWarnings("nls")
+  @SuppressWarnings( "nls" )
   public String toString() {
     final int MAX_EXCERPT_LENGTH = 20;
 
     StringBuilder buf = new StringBuilder();
-    buf.append("SimpleRepositoryFileData[");
+    buf.append( "SimpleRepositoryFileData[" );
 
-    if (stream.markSupported()) {
-      stream.mark(Integer.MAX_VALUE);
-      buf.append("stream excerpt=");
-      if (StringUtils.isNotBlank(encoding)) {
+    if ( stream.markSupported() ) {
+      stream.mark( Integer.MAX_VALUE );
+      buf.append( "stream excerpt=" );
+      if ( StringUtils.isNotBlank( encoding ) ) {
         String text = null;
         try {
-          text = toString(stream, encoding);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+          text = toString( stream, encoding );
+        } catch ( IOException e ) {
+          throw new RuntimeException( e );
         }
-        buf.append(head(text, MAX_EXCERPT_LENGTH));
-        buf.append(",");
-        buf.append("encoding=");
-        buf.append(encoding);
+        buf.append( head( text, MAX_EXCERPT_LENGTH ) );
+        buf.append( "," );
+        buf.append( "encoding=" );
+        buf.append( encoding );
       } else {
         byte[] bytes = null;
         try {
-          bytes = toByteArray(stream);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+          bytes = toByteArray( stream );
+        } catch ( IOException e ) {
+          throw new RuntimeException( e );
         }
-        buf.append(head(bytes, MAX_EXCERPT_LENGTH));
+        buf.append( head( bytes, MAX_EXCERPT_LENGTH ) );
       }
 
       try {
         stream.reset();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      } catch ( IOException e ) {
+        throw new RuntimeException( e );
       }
     } else {
-      buf.append("stream=<unable to show>");
+      buf.append( "stream=<unable to show>" );
     }
-    buf.append(",");
-    buf.append("mimeType=");
-    buf.append(mimeType);
-    buf.append("]");
+    buf.append( "," );
+    buf.append( "mimeType=" );
+    buf.append( mimeType );
+    buf.append( "]" );
     return buf.toString();
   }
 
   /**
    * Returns at most {@code count} characters from {@code str}.
    */
-  @SuppressWarnings("nls")
-  private String head(final String str, final int count) {
-    if (str.length() > count) {
-      return str.substring(0, count) + "...";
+  @SuppressWarnings( "nls" )
+  private String head( final String str, final int count ) {
+    if ( str.length() > count ) {
+      return str.substring( 0, count ) + "...";
     } else {
       return str;
     }
@@ -171,36 +172,36 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
   /**
    * Returns {@code String} representation of array consisting of at most {@code count} bytes from {@code bytes}.
    */
-  @SuppressWarnings("nls")
-  private String head(final byte[] bytes, final int count) {
-    if (bytes.length > count) {
+  @SuppressWarnings( "nls" )
+  private String head( final byte[] bytes, final int count ) {
+    if ( bytes.length > count ) {
       StringBuilder buf = new StringBuilder();
-      buf.append("[");
-      for (int i = 0; i < count; i++) {
-        if (i > 0) {
-          buf.append(", ");
+      buf.append( "[" );
+      for ( int i = 0; i < count; i++ ) {
+        if ( i > 0 ) {
+          buf.append( ", " );
         }
-        buf.append(bytes[i]);
+        buf.append( bytes[i] );
       }
-      buf.append("...");
-      buf.append("]");
+      buf.append( "..." );
+      buf.append( "]" );
       return buf.toString();
     } else {
-      return Arrays.toString(bytes);
+      return Arrays.toString( bytes );
     }
   }
 
   /*
    * Copied from IOUtils.
    */
-  private static String toString(final InputStream input, final String encoding) throws IOException {
+  private static String toString( final InputStream input, final String encoding ) throws IOException {
     final int DEFAULT_BUFFER_SIZE = 1024 * 4;
     StringWriter sw = new StringWriter();
-    InputStreamReader in = new InputStreamReader(input, encoding);
+    InputStreamReader in = new InputStreamReader( input, encoding );
     char[] buffer = new char[DEFAULT_BUFFER_SIZE];
     int n = 0;
-    while (-1 != (n = in.read(buffer))) {
-      sw.write(buffer, 0, n);
+    while ( -1 != ( n = in.read( buffer ) ) ) {
+      sw.write( buffer, 0, n );
     }
     return sw.toString();
   }
@@ -208,13 +209,13 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
   /*
    * Copied from IOUtils.
    */
-  private static byte[] toByteArray(final InputStream input) throws IOException {
+  private static byte[] toByteArray( final InputStream input ) throws IOException {
     final int DEFAULT_BUFFER_SIZE = 1024 * 4;
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
     int n = 0;
-    while (-1 != (n = input.read(buffer))) {
-      output.write(buffer, 0, n);
+    while ( -1 != ( n = input.read( buffer ) ) ) {
+      output.write( buffer, 0, n );
     }
     return output.toByteArray();
   }
