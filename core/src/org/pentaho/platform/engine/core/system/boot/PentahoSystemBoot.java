@@ -34,7 +34,6 @@ import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 /**
  * This class is designed to help embedded deployments start the Pentaho system. {@link PentahoSystemBoot} is a
@@ -411,7 +410,7 @@ public class PentahoSystemBoot {
    *          the key to retrieval of this object
    * @param implClass
    *          the actual type that is served back to you when requested.
-   * @return the current {@link MicroPlatform} instance, for chaining
+   * @return the current MicroPlatform instance, for chaining
    */
   public PentahoSystemBoot define( Class<?> interfaceClass, Class<?> implClass ) {
     return define( interfaceClass.getSimpleName(), implClass.getName(), Scope.LOCAL );
@@ -424,7 +423,7 @@ public class PentahoSystemBoot {
    *          the key to retrieval of this object
    * @param implClass
    *          the actual type that is served back to you when requested.
-   * @return the current {@link MicroPlatform} instance, for chaining
+   * @return the current MicroPlatform instance, for chaining
    */
   public PentahoSystemBoot define( String key, Class<?> implClass ) {
     return define( key, implClass.getName(), Scope.LOCAL );
@@ -437,7 +436,7 @@ public class PentahoSystemBoot {
    *          the key to retrieval of this object
    * @param instance
    *          the actual instance that is served back to you when requested.
-   * @return the current {@link MicroPlatform} instance, for chaining
+   * @return the current MicroPlatform instance, for chaining
    */
 
   public PentahoSystemBoot define( String key, Object instance ) {
