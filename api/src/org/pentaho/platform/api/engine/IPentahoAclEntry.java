@@ -1,31 +1,31 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.api.engine;
 
 import org.springframework.security.acl.basic.BasicAclEntry;
 
 /**
- * Base Pentaho Access Control entry. Subclassed <tt>BasicAclEntry</tt> from Spring Security. Provides known access 
+ * Base Pentaho Access Control entry. Subclassed <tt>BasicAclEntry</tt> from Spring Security. Provides known access
  * controls.
  * 
  * @author mbatchel
  * */
-@SuppressWarnings("deprecation")
+@SuppressWarnings( "deprecation" )
 public interface IPentahoAclEntry extends BasicAclEntry {
   /**
    * No access (0)
@@ -74,8 +74,8 @@ public interface IPentahoAclEntry extends BasicAclEntry {
   public static final int PERM_EXECUTE_SUBSCRIBE = IPentahoAclEntry.PERM_EXECUTE | IPentahoAclEntry.PERM_SUBSCRIBE;
 
   /**
-   * @deprecated Do not use this constant; instead use FULL_CONTROL for truly inclusive all access.  
-   * Old ADMIN_ALL (ie, WRITE) combination (31)
+   * @deprecated Do not use this constant; instead use FULL_CONTROL for truly inclusive all access. Old ADMIN_ALL (ie,
+   *             WRITE) combination (31)
    */
   @Deprecated
   public static final int PERM_ADMIN_ALL = IPentahoAclEntry.PERM_CREATE | IPentahoAclEntry.PERM_UPDATE
@@ -101,7 +101,7 @@ public interface IPentahoAclEntry extends BasicAclEntry {
   public static final String PERMISSIONS_LIST_SOLUTIONS = "solutions"; //$NON-NLS-1$
 
   public static final String PERMISSIONS_LIST_ALL = "all"; //$NON-NLS-1$
-  
+
   public static final String PERMISSION_PREFIX = "PERM_"; //$NON-NLS-1$
 
 }

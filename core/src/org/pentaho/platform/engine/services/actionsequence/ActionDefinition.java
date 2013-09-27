@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.services.actionsequence;
 
@@ -73,7 +73,7 @@ public class ActionDefinition implements ISolutionActionDefinition {
 
   private boolean hasActionResources = false;
 
-  public ActionDefinition(final Node actionRootNode, final ILogger logger) {
+  public ActionDefinition( final Node actionRootNode, final ILogger logger ) {
 
     this.actionRootNode = actionRootNode;
 
@@ -83,31 +83,34 @@ public class ActionDefinition implements ISolutionActionDefinition {
     // get the input parameter definitions
     actionInputDefinitions = new ListOrderedMap();
     actionInputMapping = new ListOrderedMap();
-    errorCode = SequenceDefinition.parseParameters(actionRootNode, logger,
-        "action-inputs/*", actionInputDefinitions, actionInputMapping, true); //$NON-NLS-1$
+    errorCode =
+        SequenceDefinition.parseParameters( actionRootNode, logger,
+            "action-inputs/*", actionInputDefinitions, actionInputMapping, true ); //$NON-NLS-1$
 
     // get the ouput definitions
     actionOutputDefinitions = new ListOrderedMap();
     actionOutputMapping = new ListOrderedMap();
-    errorCode = SequenceDefinition.parseParameters(actionRootNode, logger,
-        "action-outputs/*", actionOutputDefinitions, actionOutputMapping, false); //$NON-NLS-1$
+    errorCode =
+        SequenceDefinition.parseParameters( actionRootNode, logger,
+            "action-outputs/*", actionOutputDefinitions, actionOutputMapping, false ); //$NON-NLS-1$
 
     // get the resource definitions
     actionResourceMapping = new ListOrderedMap();
-    if (actionRootNode.selectNodes("action-resources/*").size() > 0) { //$NON-NLS-1$
+    if ( actionRootNode.selectNodes( "action-resources/*" ).size() > 0 ) { //$NON-NLS-1$
       hasActionResources = true;
-      errorCode = SequenceDefinition.parseActionResourceDefinitions(actionRootNode, logger,
-          "action-resources/*", actionResourceMapping); //$NON-NLS-1$
+      errorCode =
+          SequenceDefinition.parseActionResourceDefinitions( actionRootNode, logger,
+              "action-resources/*", actionResourceMapping ); //$NON-NLS-1$
     }
 
-    componentName = XmlDom4JHelper.getNodeText("component-name", actionRootNode); //$NON-NLS-1$
-    String loggingLevelString = XmlDom4JHelper.getNodeText("logging-level", actionRootNode); //$NON-NLS-1$
-    loggingLevel = Logger.getLogLevel(loggingLevelString);
+    componentName = XmlDom4JHelper.getNodeText( "component-name", actionRootNode ); //$NON-NLS-1$
+    String loggingLevelString = XmlDom4JHelper.getNodeText( "logging-level", actionRootNode ); //$NON-NLS-1$
+    loggingLevel = Logger.getLogLevel( loggingLevelString );
 
     // get the component payload
-    componentNode = actionRootNode.selectSingleNode("component-definition"); //$NON-NLS-1$
-    if (componentNode == null) {
-      componentNode = ((Element)actionRootNode).addElement("component-definition"); //$NON-NLS-1$
+    componentNode = actionRootNode.selectSingleNode( "component-definition" ); //$NON-NLS-1$
+    if ( componentNode == null ) {
+      componentNode = ( (Element) actionRootNode ).addElement( "component-definition" ); //$NON-NLS-1$
     }
 
     // TODO populate preExecuteAuditList and postExecuteAuditList
@@ -117,35 +120,35 @@ public class ActionDefinition implements ISolutionActionDefinition {
     return errorCode;
   }
 
-  public String getMappedInputName(final String name) {
-    return ((String) actionInputMapping.get(name));
+  public String getMappedInputName( final String name ) {
+    return ( (String) actionInputMapping.get( name ) );
   }
 
   public Map getActionInputDefinitions() {
     return actionInputDefinitions;
   }
 
-  public String getMappedOutputName(final String name) {
-    return ((String) actionOutputMapping.get(name));
+  public String getMappedOutputName( final String name ) {
+    return ( (String) actionOutputMapping.get( name ) );
   }
 
   public Map getActionOutputDefinitions() {
     return actionOutputDefinitions;
   }
 
-  public String getMappedResourceName(final String name) {
-    return ((String) actionResourceMapping.get(name));
+  public String getMappedResourceName( final String name ) {
+    return ( (String) actionResourceMapping.get( name ) );
   }
 
   public List getActionResourceDefinitionNames() {
-    return (new ArrayList(actionResourceMapping.keySet()));
+    return ( new ArrayList( actionResourceMapping.keySet() ) );
   }
 
   public boolean hasActionResources() {
-    return (hasActionResources);
+    return ( hasActionResources );
   }
 
-  public void setLoggingLevel(final int loggingLevel) {
+  public void setLoggingLevel( final int loggingLevel ) {
     this.loggingLevel = loggingLevel;
   }
 
@@ -199,7 +202,7 @@ public class ActionDefinition implements ISolutionActionDefinition {
     return component;
   }
 
-  public void setComponent(final IComponent component) {
+  public void setComponent( final IComponent component ) {
     this.component = component;
   }
 

@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.api.engine;
 
@@ -44,7 +44,8 @@ public interface IActionParameter {
   public static final String TYPE_LIST = "list"; //$NON-NLS-1$
 
   /**
-   * Parameter type indicating streamable content. @see <tt>RuntimeContext#getOutputStream(java.lang.String,java.lang.String,java.lang.String)</tt>
+   * Parameter type indicating streamable content. @see
+   * <tt>RuntimeContext#getOutputStream(java.lang.String,java.lang.String,java.lang.String)</tt>
    */
   public static final String TYPE_CONTENT = "content"; //$NON-NLS-1$
 
@@ -90,8 +91,8 @@ public interface IActionParameter {
   /**
    * Get the value for this ActionParameter as type String.
    * 
-   * @return the ActionParameter value as a String. getType() should be
-   *         referenced first to be sure the value type is TYPE_STRING.
+   * @return the ActionParameter value as a String. getType() should be referenced first to be sure the value type is
+   *         TYPE_STRING.
    */
   public String getStringValue();
 
@@ -105,25 +106,23 @@ public interface IActionParameter {
   /**
    * Get the value for this ActionParameter as a java.util.List.
    * 
-   * @return the ActionParameter value as a List. getType() should be
-   *         referenced first to be sure the value type is TYPE_LIST.
+   * @return the ActionParameter value as a List. getType() should be referenced first to be sure the value type is
+   *         TYPE_LIST.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public List getValueAsList();
 
   /**
    * Get the value for this ActionParameter as a IPentahoResultSet
    * 
-   * @return the IPentahoResultSet getType() should be referenced first to be
-   *         sure the value type is TYPE_RESULT_SET.
+   * @return the IPentahoResultSet getType() should be referenced first to be sure the value type is TYPE_RESULT_SET.
    */
   public IPentahoResultSet getValueAsResultSet();
 
   /**
    * Return the value type as one of the constants available in this class.
    * 
-   * @return valid return values are TYPE_STRING, TYPE_INTEGER, TYPE_LIST,
-   *         TYPE_CONTENT or TYPE_DATE
+   * @return valid return values are TYPE_STRING, TYPE_INTEGER, TYPE_LIST, TYPE_CONTENT or TYPE_DATE
    */
   public String getType();
 
@@ -131,14 +130,14 @@ public interface IActionParameter {
    * Sets the value object for this ActionParameter.
    * 
    * @param value
-   *            the value Object to be set.
+   *          the value Object to be set.
    */
-  public void setValue(Object value);
+  public void setValue( Object value );
 
   /**
    * @return List of where the parameter may come from (request, session, etc)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public List getVariables();
 
   /**
@@ -149,16 +148,15 @@ public interface IActionParameter {
   public boolean hasDefaultValue();
 
   /**
-   * Check to se if a value has been set for this parameter. Default value
-   * does not count;
+   * Check to se if a value has been set for this parameter. Default value does not count;
    * 
    * @return true if this parameter has a non default value
    */
   public boolean hasValue();
 
   /**
-   * Check to see if the value returned from thisActionParameter is indeed the
-   * default value instead of a value that was set.
+   * Check to see if the value returned from thisActionParameter is indeed the default value instead of a value that was
+   * set.
    * 
    * @return true if the parameter is using the default value, false otherwise
    */
@@ -192,15 +190,14 @@ public interface IActionParameter {
    * Sets the prompt status for this parameter.
    * 
    * @param status
-   *            The status to set.
-   * @return true if the set was successful or false if the current setting
-   *         cannot be changed.
+   *          The status to set.
+   * @return true if the set was successful or false if the current setting cannot be changed.
    * @see IActionParameter#PROMPT_ALLOWED
    * @see IActionParameter#PROMPT_NEVER
    * @see IActionParameter#PROMPT_NEEDED
    * @see IActionParameter#PROMPT_PENDING
    */
-  public boolean setPromptStatus(int status);
+  public boolean setPromptStatus( int status );
 
   // // Selection Support
   /*
@@ -209,19 +206,20 @@ public interface IActionParameter {
   public boolean hasSelections();
 
   /**
-   * The display name to use when building a prompt. 
+   * The display name to use when building a prompt.
+   * 
    * @return The display name for the prompt.
    */
   public String getSelectionDisplayName();
 
   /**
-   * When building a parameter prompt page, what is the
-   * name of the prompt
+   * When building a parameter prompt page, what is the name of the prompt
+   * 
    * @param value
    * @return name for the value
    */
-  public String getSelectionNameForValue(String value);
-  
+  public String getSelectionNameForValue( String value );
+
   /**
    * 
    * @return Whether parameter should be displayed in output.
@@ -229,27 +227,24 @@ public interface IActionParameter {
   public boolean isOutputParameter();
 
   /**
-   * @deprecated
-   * Unused in the platform
+   * @deprecated Unused in the platform
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public Map getSelectionNameMap();
 
   /**
-   * @deprecated
-   * Unused in the platform
+   * @deprecated Unused in the platform
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public List getSelectionValues();
 
   /**
-   * @deprecated
-   * Unused in the platform
+   * @deprecated Unused in the platform
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
-  public void setParamSelections(List selValues, Map selNames, String displayname);
+  @SuppressWarnings( "unchecked" )
+  public void setParamSelections( List selValues, Map selNames, String displayname );
 
 }

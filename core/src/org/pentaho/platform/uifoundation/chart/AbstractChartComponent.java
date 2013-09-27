@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.uifoundation.chart;
 
@@ -61,7 +61,7 @@ public abstract class AbstractChartComponent extends XmlComponent {
   public static final String URLTEMPLATE_NODE_NAME = "url-template"; //$NON-NLS-1$ 
 
   /**
-   * XML node for the series name 
+   * XML node for the series name
    */
   public static final String PARAM2_NODE_NAME = "series-name"; //$NON-NLS-1$
 
@@ -105,13 +105,13 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   protected static Log logger = null;
 
-  protected AbstractChartComponent(final String definitionPath, final int width, final int height,
-      final IPentahoUrlFactory urlFactory, final List messages) {
-    this(urlFactory, messages);
+  protected AbstractChartComponent( final String definitionPath, final int width, final int height,
+      final IPentahoUrlFactory urlFactory, final List messages ) {
+    this( urlFactory, messages );
     this.definitionPath = definitionPath;
     this.width = width;
     this.height = height;
-    setSourcePath(definitionPath);
+    setSourcePath( definitionPath );
   }
 
   /**
@@ -119,26 +119,25 @@ public abstract class AbstractChartComponent extends XmlComponent {
    * @param urlFactory
    * @param messages
    */
-  protected AbstractChartComponent(final String definitionPath, final IPentahoUrlFactory urlFactory,
-      final ArrayList messages) {
-    this(urlFactory, messages);
+  protected AbstractChartComponent( final String definitionPath, final IPentahoUrlFactory urlFactory,
+      final ArrayList messages ) {
+    this( urlFactory, messages );
     this.definitionPath = definitionPath;
-    setSourcePath(definitionPath);
+    setSourcePath( definitionPath );
   }
 
-  protected AbstractChartComponent(final IPentahoUrlFactory urlFactory, final List messages) {
-    super(urlFactory, messages, null);
-    setXsl("text/html", "Chart.xsl"); //$NON-NLS-1$ //$NON-NLS-2$
-    AbstractChartComponent.logger = LogFactory.getLog(this.getClass());
+  protected AbstractChartComponent( final IPentahoUrlFactory urlFactory, final List messages ) {
+    super( urlFactory, messages, null );
+    setXsl( "text/html", "Chart.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
+    AbstractChartComponent.logger = LogFactory.getLog( this.getClass() );
   }
 
   /**
    * @param chartDefinition
-   *            String that represents a file in the solution to create the
-   *            chart from.
+   *          String that represents a file in the solution to create the chart from.
    * @return
    */
-  public abstract boolean setDataAction(String chartDefinition);
+  public abstract boolean setDataAction( String chartDefinition );
 
   /**
    * Sets the action to be executed to get the data for the pies
@@ -148,7 +147,7 @@ public abstract class AbstractChartComponent extends XmlComponent {
    * @param actionName
    * @param actionOutput
    */
-  public void setDataAction(final String actionPath, final String actionOutput) {
+  public void setDataAction( final String actionPath, final String actionOutput ) {
     this.actionPath = actionPath;
     this.actionOutput = actionOutput;
   }
@@ -162,31 +161,31 @@ public abstract class AbstractChartComponent extends XmlComponent {
     // create an instance of the solution engine to execute the specified
     // action
 
-    ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, getSession());
-    solutionEngine.setLoggingLevel(ILogger.DEBUG);
-    solutionEngine.init(getSession());
+    ISolutionEngine solutionEngine = PentahoSystem.get( ISolutionEngine.class, getSession() );
+    solutionEngine.setLoggingLevel( ILogger.DEBUG );
+    solutionEngine.init( getSession() );
 
     HashMap parameterProviders = getParameterProviders();
 
     OutputStream outputStream = null;
     SimpleOutputHandler outputHandler = null;
-    outputHandler = new SimpleOutputHandler(outputStream, false);
+    outputHandler = new SimpleOutputHandler( outputStream, false );
 
     ArrayList messages = new ArrayList();
     String processId = this.getClass().getName();
-    context = solutionEngine.execute(actionPath, processId, false, true, instanceId, false, //$NON-NLS-1$ //$NON-NLS-2$
-        parameterProviders, outputHandler, null, urlFactory, messages);
+    context = solutionEngine.execute( actionPath, processId, false, true, instanceId, false, //$NON-NLS-1$ //$NON-NLS-2$
+        parameterProviders, outputHandler, null, urlFactory, messages );
 
-    if (context == null) {
+    if ( context == null ) {
       // this went badly wrong
       return null;
     }
 
-    if (actionOutput != null) {
-      if (context.getOutputNames().contains(actionOutput)) {
-        IActionParameter output = context.getOutputParameter(actionOutput);
+    if ( actionOutput != null ) {
+      if ( context.getOutputNames().contains( actionOutput ) ) {
+        IActionParameter output = context.getOutputParameter( actionOutput );
         IPentahoResultSet results = output.getValueAsResultSet();
-        if (results != null) {
+        if ( results != null ) {
           results = results.memoryCopy();
         }
         return results;
@@ -195,11 +194,11 @@ public abstract class AbstractChartComponent extends XmlComponent {
         return null;
       }
     } else {
-      for (Object objAp : context.getOutputNames()) {
+      for ( Object objAp : context.getOutputNames() ) {
         IActionParameter output = (IActionParameter) objAp;
-        if (output.getType().equalsIgnoreCase(IActionParameter.TYPE_RESULT_SET)) {
+        if ( output.getType().equalsIgnoreCase( IActionParameter.TYPE_RESULT_SET ) ) {
           IPentahoResultSet results = output.getValueAsResultSet();
-          if (results != null) {
+          if ( results != null ) {
             results = results.memoryCopy();
           }
           return results;
@@ -225,11 +224,12 @@ public abstract class AbstractChartComponent extends XmlComponent {
     String fileName = null;
     String filePathWithoutExtension = null;
     try {
-      File file = PentahoSystem.getApplicationContext().createTempFile(getSession(), fileNamePrefix, extension, true);
+      File file = PentahoSystem.getApplicationContext().createTempFile( getSession(), fileNamePrefix, extension, true );
       fileName = file.getName();
-      filePathWithoutExtension = solutionDir + fileName.substring(0, fileName.indexOf('.'));
-    } catch (IOException e) {
-      getLogger().error(Messages.getInstance().getErrorString("AbstractChartComponent.ERROR_0001_CANT_CREATE_TEMP_CHART"), e); //$NON-NLS-1$
+      filePathWithoutExtension = solutionDir + fileName.substring( 0, fileName.indexOf( '.' ) );
+    } catch ( IOException e ) {
+      getLogger().error(
+          Messages.getInstance().getErrorString( "AbstractChartComponent.ERROR_0001_CANT_CREATE_TEMP_CHART" ), e ); //$NON-NLS-1$
     }
     String[] value = new String[2];
     value[AbstractChartComponent.FILENAME_INDEX] = fileName;
@@ -239,42 +239,43 @@ public abstract class AbstractChartComponent extends XmlComponent {
   }
 
   protected void applyOuterURLTemplateParam() {
-    if (outerParamNames == null) {
+    if ( outerParamNames == null ) {
       return;
     }
-    for (String outerParamName : outerParamNames) {
+    for ( String outerParamName : outerParamNames ) {
       Object value = null;
-      if ((context != null) && context.getInputNames().contains(outerParamName)) {
-        value = context.getInputParameterValue(outerParamName);
+      if ( ( context != null ) && context.getInputNames().contains( outerParamName ) ) {
+        value = context.getInputParameterValue( outerParamName );
       }
-      if (value == null) {
+      if ( value == null ) {
         return;
       }
       try {
-        if (value.getClass().isArray()) {
-          if (Array.getLength(value) > 0) {
-            String[] encodedVals = new String[Array.getLength(value)];
-            for (int i = 0; i < Array.getLength(value); ++i) // ESCA-JAVA0049:
+        if ( value.getClass().isArray() ) {
+          if ( Array.getLength( value ) > 0 ) {
+            String[] encodedVals = new String[Array.getLength( value )];
+            for ( int i = 0; i < Array.getLength( value ); ++i ) // ESCA-JAVA0049:
             {
-              encodedVals[i] = URLEncoder.encode(Array.get(value, i).toString(), LocaleHelper.getSystemEncoding());
+              encodedVals[i] = URLEncoder.encode( Array.get( value, i ).toString(), LocaleHelper.getSystemEncoding() );
             }
-            // TODO Sleeze Alert!!! This is a temporary hack for making the 
-            // URLs generated support multiple selections.  A JIRA case PLATFORM-393
-            // has been generated to address this issue.  
-            // 
-            // For now, applyTemplate looks for an "&" or "?" preceding and following the param,  uses all 
-            // the characters between them as the template and repeats it once for each param value 
+            // TODO Sleeze Alert!!! This is a temporary hack for making the
+            // URLs generated support multiple selections. A JIRA case PLATFORM-393
+            // has been generated to address this issue.
+            //
+            // For now, applyTemplate looks for an "&" or "?" preceding and following the param, uses all
+            // the characters between them as the template and repeats it once for each param value
             // separating them with '&'
-            urlTemplate = TemplateUtil.applyTemplate(urlTemplate, outerParamName, encodedVals);
+            urlTemplate = TemplateUtil.applyTemplate( urlTemplate, outerParamName, encodedVals );
           }
         } else {
-          String encodedVal = URLEncoder.encode(value.toString(), LocaleHelper.getSystemEncoding());
-          urlTemplate = TemplateUtil.applyTemplate(urlTemplate, outerParamName, encodedVal);
+          String encodedVal = URLEncoder.encode( value.toString(), LocaleHelper.getSystemEncoding() );
+          urlTemplate = TemplateUtil.applyTemplate( urlTemplate, outerParamName, encodedVal );
         }
 
         //encodedVal = URLEncoder.encode(stringVal, LocaleHelper.getSystemEncoding()); //$NON-NLS-1$
-      } catch (UnsupportedEncodingException e) {
-        getLogger().error(Messages.getInstance().getErrorString("AbstractChartComponent.ERROR_0002_URL_ENCODE_FAILED"), e); //$NON-NLS-1$
+      } catch ( UnsupportedEncodingException e ) {
+        getLogger().error(
+            Messages.getInstance().getErrorString( "AbstractChartComponent.ERROR_0002_URL_ENCODE_FAILED" ), e ); //$NON-NLS-1$
       }
     }
   }
@@ -283,7 +284,7 @@ public abstract class AbstractChartComponent extends XmlComponent {
    * 
    */
   public void dispose() {
-    if (context != null) {
+    if ( context != null ) {
       context.dispose();
     }
   }
@@ -297,9 +298,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param actionOutput
-   *            The actionOutput to set.
+   *          The actionOutput to set.
    */
-  public void setActionOutput(final String actionOutput) {
+  public void setActionOutput( final String actionOutput ) {
     this.actionOutput = actionOutput;
   }
 
@@ -312,9 +313,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param actionPath
-   *            The actionPath to set.
+   *          The actionPath to set.
    */
-  public void setActionPath(final String actionPath) {
+  public void setActionPath( final String actionPath ) {
     this.actionPath = actionPath;
   }
 
@@ -327,9 +328,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param context
-   *            The context to set.
+   *          The context to set.
    */
-  public void setContext(final IRuntimeContext context) {
+  public void setContext( final IRuntimeContext context ) {
     this.context = context;
   }
 
@@ -342,9 +343,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param definitionPath
-   *            The definitionPath to set.
+   *          The definitionPath to set.
    */
-  public void setDefinitionPath(final String definitionPath) {
+  public void setDefinitionPath( final String definitionPath ) {
     this.definitionPath = definitionPath;
   }
 
@@ -357,9 +358,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param height
-   *            The height to set.
+   *          The height to set.
    */
-  public void setHeight(final int height) {
+  public void setHeight( final int height ) {
     this.height = height;
   }
 
@@ -372,9 +373,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param instanceId
-   *            The instanceId to set.
+   *          The instanceId to set.
    */
-  public void setInstanceId(final String instanceId) {
+  public void setInstanceId( final String instanceId ) {
     this.instanceId = instanceId;
   }
 
@@ -387,9 +388,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param title
-   *            The title to set.
+   *          The title to set.
    */
-  public void setTitle(final String title) {
+  public void setTitle( final String title ) {
     this.title = title;
   }
 
@@ -402,9 +403,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param urlTemplate
-   *            The urlTemplate to set.
+   *          The urlTemplate to set.
    */
-  public void setUrlTemplate(final String urlTemplate) {
+  public void setUrlTemplate( final String urlTemplate ) {
     this.urlTemplate = urlTemplate;
   }
 
@@ -417,9 +418,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param values
-   *            The values to set.
+   *          The values to set.
    */
-  public void setValues(final Object values) {
+  public void setValues( final Object values ) {
     this.values = values;
   }
 
@@ -432,17 +433,17 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param width
-   *            The width to set.
+   *          The width to set.
    */
-  public void setWidth(final int width) {
+  public void setWidth( final int width ) {
     this.width = width;
   }
 
   /**
    * @param logger
-   *            The logger to set.
+   *          The logger to set.
    */
-  public void setLogger(final Log logger) {
+  public void setLogger( final Log logger ) {
     AbstractChartComponent.logger = logger;
   }
 
@@ -455,9 +456,9 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param byRow
-   *            The byRow to set.
+   *          The byRow to set.
    */
-  public void setByRow(final boolean byRow) {
+  public void setByRow( final boolean byRow ) {
     this.byRow = byRow;
   }
 
@@ -470,25 +471,22 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
   /**
    * @param paramName
-   *            The paramName to set.
+   *          The paramName to set.
    */
-  public void setParamName(final String paramName) {
+  public void setParamName( final String paramName ) {
     this.paramName = paramName;
   }
 
   /**
-   * @return Returns the outerParamNames.
-   private List getOuterParamNames() {
-   return outerParamNames;
-   }
+   * @return Returns the outerParamNames. private List getOuterParamNames() { return outerParamNames; }
    */
 
   /**
    * @param outerParamName
-   *            The outerParamNames name to add to the outParamNames list.
+   *          The outerParamNames name to add to the outParamNames list.
    */
-  public void addOuterParamName(final String outerParamName) {
-    outerParamNames.add(outerParamName);
+  public void addOuterParamName( final String outerParamName ) {
+    outerParamNames.add( outerParamName );
   }
 
 }

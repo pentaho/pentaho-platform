@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.services;
 
@@ -67,19 +67,20 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
   protected IRuntimeContext runtime = null;
 
   protected ICreateFeedbackParameterCallback createFeedbackParameterCallback;
-  
+
   // IActionRequestHandler methods
 
-  public BaseRequestHandler(final IPentahoSession session, final String instanceId, final IOutputHandler outputHandler,
-      final IParameterProvider parameterProvider, final IPentahoUrlFactory urlFactory) {
+  public BaseRequestHandler( final IPentahoSession session, final String instanceId,
+      final IOutputHandler outputHandler, final IParameterProvider parameterProvider,
+      final IPentahoUrlFactory urlFactory ) {
     this.session = session;
     this.outputHandler = outputHandler;
     this.urlFactory = urlFactory;
     this.instanceId = instanceId;
     parameterProviders = new HashMap();
     messages = new ArrayList();
-    if (parameterProvider != null) {
-      parameterProviders.put(IParameterProvider.SCOPE_REQUEST, parameterProvider);
+    if ( parameterProvider != null ) {
+      parameterProviders.put( IParameterProvider.SCOPE_REQUEST, parameterProvider );
 
     }
     instanceEnds = true;
@@ -89,27 +90,27 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     return messages;
   }
 
-  public void setInstanceEnds(final boolean instanceEnds) {
+  public void setInstanceEnds( final boolean instanceEnds ) {
     this.instanceEnds = instanceEnds;
   }
 
-  public void setParameterProvider(final String name, final IParameterProvider parameterProvider) {
-    parameterProviders.put(name, parameterProvider);
+  public void setParameterProvider( final String name, final IParameterProvider parameterProvider ) {
+    parameterProviders.put( name, parameterProvider );
   }
 
   public HashMap getParameterProviders() {
     return parameterProviders;
   }
 
-  public void setOutputHandler(final IOutputHandler outputHandler) {
+  public void setOutputHandler( final IOutputHandler outputHandler ) {
     this.outputHandler = outputHandler;
   }
 
-  public void setProcessId(final String processId) {
+  public void setProcessId( final String processId ) {
     this.processId = processId;
   }
 
-  public void setInstanceId(final String instanceId) {
+  public void setInstanceId( final String instanceId ) {
     this.instanceId = instanceId;
   }
 
@@ -117,25 +118,26 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     return instanceId;
   }
 
-  public IRuntimeContext handleActionRequest(final int timeout, final int timeoutType) {
+  public IRuntimeContext handleActionRequest( final int timeout, final int timeoutType ) {
 
     // Get the solution engine
-    ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
-    if (solutionEngine == null) {
-      Logger.error(this, Messages.getInstance().getErrorString("BaseRequestHandler.ERROR_0001_NO_SOLUTION_ENGINE")); //$NON-NLS-1$
+    ISolutionEngine solutionEngine = PentahoSystem.get( ISolutionEngine.class, session );
+    if ( solutionEngine == null ) {
+      Logger.error( this, Messages.getInstance().getErrorString( "BaseRequestHandler.ERROR_0001_NO_SOLUTION_ENGINE" ) ); //$NON-NLS-1$
       return null;
     }
-    solutionEngine.setCreateFeedbackParameterCallback(createFeedbackParameterCallback);
-    solutionEngine.setLoggingLevel(ILogger.DEBUG);
-    solutionEngine.init(session);
-    solutionEngine.setForcePrompt(forcePrompt);
-    if (parameterXsl != null) {
-      solutionEngine.setParameterXsl(parameterXsl);
+    solutionEngine.setCreateFeedbackParameterCallback( createFeedbackParameterCallback );
+    solutionEngine.setLoggingLevel( ILogger.DEBUG );
+    solutionEngine.init( session );
+    solutionEngine.setForcePrompt( forcePrompt );
+    if ( parameterXsl != null ) {
+      solutionEngine.setParameterXsl( parameterXsl );
     }
 
     dispose();
-    runtime = solutionEngine.execute(actionPath, processId, false, instanceEnds, instanceId, true, parameterProviders, outputHandler,
-        this, urlFactory, messages);
+    runtime =
+        solutionEngine.execute( actionPath, processId, false, instanceEnds, instanceId, true, parameterProviders,
+            outputHandler, this, urlFactory, messages );
 
     // need to wait until this is complete
     // TODO
@@ -148,7 +150,7 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
 
   public void dispose() {
     // execute the action
-    if (runtime != null) {
+    if ( runtime != null ) {
       runtime.dispose();
     }
   }
@@ -158,12 +160,12 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     return null;
   }
 
-  public IRuntimeContext getRuntime(final String requestHandle) {
+  public IRuntimeContext getRuntime( final String requestHandle ) {
     return runtime;
   }
 
   // IActionCompleteListener methods
-  public void actionComplete(final IRuntimeContext completedRuntime) {
+  public void actionComplete( final IRuntimeContext completedRuntime ) {
     // TODO
 
   }
@@ -172,11 +174,11 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     return outputHandler;
   }
 
-  public void setForcePrompt(final boolean forcePrompt) {
+  public void setForcePrompt( final boolean forcePrompt ) {
     this.forcePrompt = forcePrompt;
   }
 
-  public void setParameterXsl(final String xsl) {
+  public void setParameterXsl( final String xsl ) {
     this.parameterXsl = xsl;
   }
 
@@ -184,11 +186,11 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     return actionPath;
   }
 
-  public void setActionPath(final String actionPath) {
+  public void setActionPath( final String actionPath ) {
     this.actionPath = actionPath;
   }
 
-  public void setCreateFeedbackParameterCallback(ICreateFeedbackParameterCallback createFeedbackParameterCallback) {
+  public void setCreateFeedbackParameterCallback( ICreateFeedbackParameterCallback createFeedbackParameterCallback ) {
     this.createFeedbackParameterCallback = createFeedbackParameterCallback;
   }
 
