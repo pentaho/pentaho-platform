@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import java.net.URLDecoder;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -60,12 +62,22 @@ public class DirectoryResource extends AbstractJaxRSResource {
         if (currentFolder == null) {
           currentFolder = new RepositoryFileDto();
           currentFolder.setFolder(true);
-          currentFolder.setName(folder);
+          currentFolder.setName(decode(folder));
           currentFolder.setPath(parentDir.getPath() + FileResource.PATH_SEPARATOR + folder);
           currentFolder = repoWs.createFolder(parentDir.getId(), currentFolder, currentFolderPath);
         }
         parentDir = currentFolder;
       }
     return Response.ok().build();    
+  }
+
+  private String decode(String folder) {
+    String decodeName = folder;
+    try{
+      decodeName = URLDecoder.decode(folder, "UTF-8");
+    } catch(Exception ex){
+      ex.printStackTrace();
+    }
+    return decodeName;
   }
 }
