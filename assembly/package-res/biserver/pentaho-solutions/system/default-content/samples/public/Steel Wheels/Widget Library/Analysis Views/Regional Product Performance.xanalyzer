@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2011-03-04T10:34:43" created="2011-03-03T11:27:06" description="" updatedBy="admin" createdBy="admin">
+        <path folder="steel-wheels/dashboards/Widget Library/Analysis Views/Regional Product Performance.xanalyzer" name="Regional Product Performance"/>
+    </commonStorageAttributes>
+    <report freezeRows="true" freezeColumns="true" autoRefresh="true" version="5" showDrillLinks="false" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showColumnGrandTotal="false" showRowGrandTotal="false" reportTypeEnum="PIVOT" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure id="[MEASURE:0]" sortOrderEnum="DESC" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showAggregate="true" showSum="false" formula="[Measures].[Sales]">
+                <numberFormat formatShortcut="COLOR_SCALE_G_Y_R" formatScale="0" formatCategory="Default">
+                    <formatExpression></formatExpression>
+                </numberFormat>
+            </measure>
+            <measure id="[MEASURE:1]" sortOrderEnum="NONE" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showAggregate="true" showSum="false" formula="[Measures].[Quantity]">
+                <numberFormat formatShortcut="DATA_BAR_BLUE" formatScale="0" formatCategory="Default">
+                    <formatExpression></formatExpression>
+                </numberFormat>
+            </measure>
+        </measures>
+        <columnAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Time].[Years]"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Markets].[Country]"/>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Product].[Product]">
+                <link url="http://www.google.com/images?query={Product}" target="NEW_WINDOW" toolTip="Search Google for Product Images" type="URL"/>
+            </attribute>
+        </rowAttributes>
+        <filters>
+            <filter viewFilterEnum="MULTIPLE" formula="[Time].[Years]">
+                <predicates>
+                    <predicate operatorEnum="EQUAL" ordinal="1">
+                        <member pos="0" caption="2005" formula="[Time].[2005]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+            <filter viewFilterEnum="MULTIPLE" formula="[Markets].[Country]">
+                <predicates>
+                    <predicate parameterName="COUNTRY" operatorEnum="EQUAL" ordinal="1">
+                        <member pos="0" caption="Australia" formula="[Markets].[APAC].[Australia]"/>
+                        <member pos="0" caption="Austria" formula="[Markets].[EMEA].[Austria]"/>
+                        <member pos="0" caption="Belgium" formula="[Markets].[EMEA].[Belgium]"/>
+                        <member pos="0" caption="Canada" formula="[Markets].[NA].[Canada]"/>
+                        <member pos="0" caption="Denmark" formula="[Markets].[EMEA].[Denmark]"/>
+                        <member pos="0" caption="Finland" formula="[Markets].[EMEA].[Finland]"/>
+                        <member pos="0" caption="France" formula="[Markets].[EMEA].[France]"/>
+                        <member pos="0" caption="Germany" formula="[Markets].[#null].[Germany]"/>
+                        <member pos="0" caption="Germany" formula="[Markets].[EMEA].[Germany]"/>
+                        <member pos="0" caption="Hong Kong" formula="[Markets].[Japan].[Hong Kong]"/>
+                        <member pos="0" caption="Ireland" formula="[Markets].[#null].[Ireland]"/>
+                        <member pos="0" caption="Ireland" formula="[Markets].[EMEA].[Ireland]"/>
+                        <member pos="0" caption="Israel" formula="[Markets].[#null].[Israel]"/>
+                        <member pos="0" caption="Italy" formula="[Markets].[EMEA].[Italy]"/>
+                        <member pos="0" caption="Japan" formula="[Markets].[Japan].[Japan]"/>
+                        <member pos="0" caption="Netherlands" formula="[Markets].[#null].[Netherlands]"/>
+                        <member pos="0" caption="New Zealand" formula="[Markets].[APAC].[New Zealand]"/>
+                        <member pos="0" caption="Norway" formula="[Markets].[EMEA].[Norway]"/>
+                        <member pos="0" caption="Philippines" formula="[Markets].[Japan].[Philippines]"/>
+                        <member pos="0" caption="Poland" formula="[Markets].[#null].[Poland]"/>
+                        <member pos="0" caption="Portugal" formula="[Markets].[#null].[Portugal]"/>
+                        <member pos="0" caption="Russia" formula="[Markets].[#null].[Russia]"/>
+                        <member pos="0" caption="Singapore" formula="[Markets].[#null].[Singapore]"/>
+                        <member pos="0" caption="Singapore" formula="[Markets].[APAC].[Singapore]"/>
+                        <member pos="0" caption="Singapore" formula="[Markets].[Japan].[Singapore]"/>
+                        <member pos="0" caption="South Africa" formula="[Markets].[#null].[South Africa]"/>
+                        <member pos="0" caption="Spain" formula="[Markets].[#null].[Spain]"/>
+                        <member pos="0" caption="Spain" formula="[Markets].[EMEA].[Spain]"/>
+                        <member pos="0" caption="Sweden" formula="[Markets].[EMEA].[Sweden]"/>
+                        <member pos="0" caption="Switzerland" formula="[Markets].[#null].[Switzerland]"/>
+                        <member pos="0" caption="Switzerland" formula="[Markets].[EMEA].[Switzerland]"/>
+                        <member pos="0" caption="UK" formula="[Markets].[EMEA].[UK]"/>
+                        <member pos="0" caption="USA" formula="[Markets].[NA].[USA]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+            <filter viewFilterEnum="MULTIPLE" formula="[Product].[Line]">
+                <predicates>
+                    <predicate parameterName="LINE" operatorEnum="EQUAL" ordinal="1">
+                        <member pos="0" caption="Classic Cars" formula="[Product].[Classic Cars]"/>
+                        <member pos="0" caption="Motorcycles" formula="[Product].[Motorcycles]"/>
+                        <member pos="0" caption="Planes" formula="[Product].[Planes]"/>
+                        <member pos="0" caption="Ships" formula="[Product].[Ships]"/>
+                        <member pos="0" caption="Trains" formula="[Product].[Trains]"/>
+                        <member pos="0" caption="Trucks and Buses" formula="[Product].[Trucks and Buses]"/>
+                        <member pos="0" caption="Vintage Cars" formula="[Product].[Vintage Cars]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+        </filters>
+        <chartOptions chartType="HORIZONTAL_BAR"/>
+    </report>
+    <uiAttributes>
+        <rowFieldWidths>
+            <labelWidth index="1">
+                <width>-54</width>
+            </labelWidth>
+        </rowFieldWidths>
+        <columnDataFieldWidths>
+            <labelWidth index="0">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="1">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="2">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="3">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="4">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="5">
+                <width>0</width>
+            </labelWidth>
+        </columnDataFieldWidths>
+    </uiAttributes>
+</reportRecord>

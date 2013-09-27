@@ -221,6 +221,17 @@ button.btn-large.btn-block {
   background: url("../images/generic.png");
 }
 
+.welcome-container {
+    height:1520px;
+}
+
+.welcome-frame {
+    height:99%;
+    width:110%;
+    border:0;
+}
+
+
 #getting-started-message-content #sub-messages {
   position: relative;
   left: 30px;
