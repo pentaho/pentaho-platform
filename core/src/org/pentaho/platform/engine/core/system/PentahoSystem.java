@@ -45,6 +45,7 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
@@ -816,7 +817,7 @@ public class PentahoSystem {
 
 
     try {
-      runAsSystem(new Callable<Void>() {
+      SecurityHelper.getInstance().runAsSystem(new Callable<Void>() {
         @Override
         public Void call() throws Exception {
           PentahoSystem.globalStartup(PentahoSessionHolder.getSession());
