@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.uifoundation.component.xml;
 
@@ -35,21 +35,20 @@ import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 /**
- * This class provides a user interface that lets users select items from lists
- * or radio buttons. The selections are used by other components to filter
- * queries used to populate data.
+ * This class provides a user interface that lets users select items from lists or radio buttons. The selections are
+ * used by other components to filter queries used to populate data.
  * 
  * @author James Dixon
  */
 public class FilterPanelComponent extends XmlComponent {
-  private static final Log log = LogFactory.getLog(FilterPanelComponent.class);
+  private static final Log log = LogFactory.getLog( FilterPanelComponent.class );
 
   /**
    * 
    */
   private static final long serialVersionUID = 700681534058825526L;
 
-  private static final Log logger = LogFactory.getLog(FilterPanelComponent.class);
+  private static final Log logger = LogFactory.getLog( FilterPanelComponent.class );
 
   /**
    * repository relative path and filename to the filter panel definition file
@@ -62,24 +61,24 @@ public class FilterPanelComponent extends XmlComponent {
 
   private Map defaultValues;
 
-  public FilterPanelComponent(final String definitionPath, String xslName, final IPentahoUrlFactory urlFactory,
-      final List messages) {
-    super(urlFactory, messages, null);
+  public FilterPanelComponent( final String definitionPath, String xslName, final IPentahoUrlFactory urlFactory,
+      final List messages ) {
+    super( urlFactory, messages, null );
     this.definitionPath = definitionPath;
-    if (xslName == null) {
+    if ( xslName == null ) {
       // use a default XSL
       xslName = "FilterPanelDefault.xsl"; //$NON-NLS-1$
     }
-    ActionInfo info = ActionInfo.parseActionString(definitionPath);
-    if (info != null) {
-      setSourcePath(info.getSolutionName() + File.separator + info.getPath());
+    ActionInfo info = ActionInfo.parseActionString( definitionPath );
+    if ( info != null ) {
+      setSourcePath( info.getSolutionName() + File.separator + info.getPath() );
     }
     this.xslName = xslName;
     defaultValues = new HashMap();
   }
 
-  public void setDefaultValue(final String filterName, final String[] defaultValue) {
-    defaultValues.put(filterName, defaultValue);
+  public void setDefaultValue( final String filterName, final String[] defaultValue ) {
+    defaultValues.put( filterName, defaultValue );
   }
 
   @Override
@@ -97,22 +96,25 @@ public class FilterPanelComponent extends XmlComponent {
   }
 
   public boolean init() {
-    if (filterPanel == null) {
+    if ( filterPanel == null ) {
       // load the XML document that defines the dial
       Document filterDocument = null;
       try {
         org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
-        reader.setEntityResolver(new SolutionURIResolver());
-        filterDocument =  reader.read(ActionSequenceResource.getInputStream(definitionPath, LocaleHelper.getLocale()));
-      } catch (Throwable t) {
-        FilterPanelComponent.logger.error(Messages.getInstance().getString("FilterPanelComponent.ERROR_0002_CREATE_XML"), t); //$NON-NLS-1$
+        reader.setEntityResolver( new SolutionURIResolver() );
+        filterDocument =
+            reader.read( ActionSequenceResource.getInputStream( definitionPath, LocaleHelper.getLocale() ) );
+      } catch ( Throwable t ) {
+        FilterPanelComponent.logger.error( Messages.getInstance().getString(
+            "FilterPanelComponent.ERROR_0002_CREATE_XML" ), t ); //$NON-NLS-1$
         return false;
       }
       try {
-        filterPanel = getFilterPanel(filterDocument);
-      } catch (FilterPanelException e) {
+        filterPanel = getFilterPanel( filterDocument );
+      } catch ( FilterPanelException e ) {
         // TODO sbarkdull localize
-        FilterPanelComponent.logger.error(Messages.getInstance().getString("FilterPanelComponent.ERROR_0003_CREATE"), e); //$NON-NLS-1$
+        FilterPanelComponent.logger.error(
+            Messages.getInstance().getString( "FilterPanelComponent.ERROR_0003_CREATE" ), e ); //$NON-NLS-1$
         return false;
       }
     }
@@ -123,24 +125,24 @@ public class FilterPanelComponent extends XmlComponent {
   public Document getXmlContent() {
     //      assert null != urlFactory : Messages.getInstance().getString("FilterPanelComponent.ERROR_0000_FACTORY_CANNOT_BE_NULL"); //$NON-NLS-1$
 
-    boolean ok = filterPanel.populate(getParameterProviders(), defaultValues);
+    boolean ok = filterPanel.populate( getParameterProviders(), defaultValues );
 
-    if (!ok) {
-      String msg = Messages.getInstance().getString("FilterPanelComponent.ERROR_0001_POPULATE"); //$NON-NLS-1$
-      FilterPanelComponent.log.error(msg);
-      throw new UIException(msg);
+    if ( !ok ) {
+      String msg = Messages.getInstance().getString( "FilterPanelComponent.ERROR_0001_POPULATE" ); //$NON-NLS-1$
+      FilterPanelComponent.log.error( msg );
+      throw new UIException( msg );
     }
 
     String actionUrl = urlFactory.getActionUrlBuilder().getUrl();
-    Document xForm = filterPanel.getXForm(actionUrl);
+    Document xForm = filterPanel.getXForm( actionUrl );
 
-    setXsl("text/html", xslName); //$NON-NLS-1$
+    setXsl( "text/html", xslName ); //$NON-NLS-1$
 
     return xForm;
   }
 
-  private FilterPanel getFilterPanel(final Document filterDocument) throws FilterPanelException {
-    FilterPanel newFilterPanel = new FilterPanel(getSession(), filterDocument, this);
+  private FilterPanel getFilterPanel( final Document filterDocument ) throws FilterPanelException {
+    FilterPanel newFilterPanel = new FilterPanel( getSession(), filterDocument, this );
     return newFilterPanel;
   }
 

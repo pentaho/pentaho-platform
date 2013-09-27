@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.core.system;
 
@@ -45,65 +45,65 @@ public class StandaloneApplicationContext implements IApplicationContext {
 
   private final List<IPentahoSystemExitPoint> exitPointsList = new ArrayList<IPentahoSystemExitPoint>();
 
-  public StandaloneApplicationContext(final String solutionRootPath, final String applicationPath, final Object context) {
-    this(solutionRootPath, applicationPath);
+  public StandaloneApplicationContext( final String solutionRootPath, final String applicationPath, final Object context ) {
+    this( solutionRootPath, applicationPath );
     this.context = context;
   }
 
-  public StandaloneApplicationContext(final String solutionRootPath, final String applicationPath) {
+  public StandaloneApplicationContext( final String solutionRootPath, final String applicationPath ) {
 
     this.solutionRootPath = solutionRootPath;
     this.applicationPath = applicationPath;
     fullyQualifiedServerUrl = null;
   }
 
-  public void setFullyQualifiedServerURL(final String fullyQualifiedServerUrl) {
+  public void setFullyQualifiedServerURL( final String fullyQualifiedServerUrl ) {
     this.fullyQualifiedServerUrl = fullyQualifiedServerUrl;
   }
 
-  public String getFileOutputPath(final String path) {
+  public String getFileOutputPath( final String path ) {
     return solutionRootPath + File.separator + path;
   }
 
-  public String getSolutionPath(final String path) {
+  public String getSolutionPath( final String path ) {
     return solutionRootPath + File.separator + path;
   }
 
-  public void setSolutionRootPath(final String solutionRootPath) {
+  public void setSolutionRootPath( final String solutionRootPath ) {
     this.solutionRootPath = solutionRootPath;
   }
 
-  public File createTempFile(final IPentahoSession session, final String prefix, final String extn, boolean trackFile) throws IOException {
-    return createTempFile(session, prefix, extn, new File(getSolutionPath("system/tmp")), trackFile); //$NON-NLS-1$
+  public File createTempFile( final IPentahoSession session, final String prefix, final String extn, boolean trackFile )
+    throws IOException {
+    return createTempFile( session, prefix, extn, new File( getSolutionPath( "system/tmp" ) ), trackFile ); //$NON-NLS-1$
   }
-  
-  public File createTempFile(final IPentahoSession session, final String prefix, final String extn, final File parentDir, boolean trackFile) throws IOException {
+
+  public File createTempFile( final IPentahoSession session, final String prefix, final String extn,
+      final File parentDir, boolean trackFile ) throws IOException {
     ITempFileDeleter fileDeleter = null;
-    if (session == null) {
+    if ( session == null ) {
       return null;
     }
-    if (trackFile) {
-      fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
+    if ( trackFile ) {
+      fileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
     }
     String name = session.getName();
-	  final String newPrefix = new StringBuilder().append(prefix)
-		  .append(name.substring(0, name.length() > 10 ? 10 : name.length()))
-		  .append('-').toString();
-    if (parentDir != null) {
+    final String newPrefix =
+        new StringBuilder().append( prefix ).append( name.substring( 0, name.length() > 10 ? 10 : name.length() ) )
+            .append( '-' ).toString();
+    if ( parentDir != null ) {
       parentDir.mkdirs();
     }
-    final File file = File.createTempFile(newPrefix, extn, parentDir);
-    if (fileDeleter != null) {
-      fileDeleter.trackTempFile(file);
+    final File file = File.createTempFile( newPrefix, extn, parentDir );
+    if ( fileDeleter != null ) {
+      fileDeleter.trackTempFile( file );
     } else {
       // There is no deleter, so cleanup on VM exit. (old behavior)
-      file.deleteOnExit(); 
+      file.deleteOnExit();
     }
     return file;
   }
-  
-  
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -122,61 +122,62 @@ public class StandaloneApplicationContext implements IApplicationContext {
     // TODO Auto-generated method stub
     return 0;
   }
-  
+
   @Deprecated
-  public void setBaseUrl(final String baseUrl) {
+  public void setBaseUrl( final String baseUrl ) {
     // DO NOTHING
   }
-  
+
   @Deprecated
   public String getBaseUrl() {
     return PentahoRequestContextHolder.getRequestContext().getContextPath();
   }
+
   public String getFullyQualifiedServerURL() {
     return fullyQualifiedServerUrl;
   }
 
-  public String getApplicationPath(final String path) {
+  public String getApplicationPath( final String path ) {
     return applicationPath + File.separator + path;
   }
 
-  public String getProperty(final String key) {
-    return properties.getProperty(key);
+  public String getProperty( final String key ) {
+    return properties.getProperty( key );
   }
 
-  public String getProperty(final String key, final String defaultValue) {
-    return properties.getProperty(key, defaultValue);
+  public String getProperty( final String key, final String defaultValue ) {
+    return properties.getProperty( key, defaultValue );
   }
 
-  public void setProperties(final Properties props) {
+  public void setProperties( final Properties props ) {
     properties = props;
   }
 
-  public void addEntryPointHandler(final IPentahoSystemEntryPoint entryPoint) {
-    entryPointsList.add(entryPoint);
+  public void addEntryPointHandler( final IPentahoSystemEntryPoint entryPoint ) {
+    entryPointsList.add( entryPoint );
   }
 
-  public void removeEntryPointHandler(final IPentahoSystemEntryPoint entryPoint) {
-    entryPointsList.remove(entryPoint);
+  public void removeEntryPointHandler( final IPentahoSystemEntryPoint entryPoint ) {
+    entryPointsList.remove( entryPoint );
   }
 
-  public void addExitPointHandler(final IPentahoSystemExitPoint exitPoint) {
-    exitPointsList.add(exitPoint);
+  public void addExitPointHandler( final IPentahoSystemExitPoint exitPoint ) {
+    exitPointsList.add( exitPoint );
   }
 
-  public void removeExitPointHandler(final IPentahoSystemExitPoint exitPoint) {
-    exitPointsList.remove(exitPoint);
+  public void removeExitPointHandler( final IPentahoSystemExitPoint exitPoint ) {
+    exitPointsList.remove( exitPoint );
   }
 
   public void invokeEntryPoints() {
-    for (int i = 0; i < entryPointsList.size(); i++) {
-      ((IPentahoSystemEntryPoint) entryPointsList.get(i)).systemEntryPoint();
+    for ( int i = 0; i < entryPointsList.size(); i++ ) {
+      ( (IPentahoSystemEntryPoint) entryPointsList.get( i ) ).systemEntryPoint();
     }
   }
 
   public void invokeExitPoints() {
-    for (int i = 0; i < exitPointsList.size(); i++) {
-      ((IPentahoSystemExitPoint) entryPointsList.get(i)).systemExitPoint();
+    for ( int i = 0; i < exitPointsList.size(); i++ ) {
+      ( (IPentahoSystemExitPoint) entryPointsList.get( i ) ).systemExitPoint();
     }
   }
 
@@ -184,7 +185,7 @@ public class StandaloneApplicationContext implements IApplicationContext {
     return context;
   }
 
-  public void setContext(final Object context) {
+  public void setContext( final Object context ) {
     this.context = context;
   }
 

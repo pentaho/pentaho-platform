@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
@@ -30,11 +30,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Spring implementation of {@link IPentahoObjectReference}
- *
+ * 
  * {@inheritDoc}
- *
- * User: nbaker
- * Date: 1/16/13
+ * 
+ * User: nbaker Date: 1/16/13
  */
 public class SpringPentahoObjectReference<T> implements IPentahoObjectReference {
 
@@ -50,23 +49,23 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
 
   private static String PRIORITY = "priority";
 
-  public SpringPentahoObjectReference(ConfigurableApplicationContext context, String name, Class<T> clazz,
-      IPentahoSession session, BeanDefinition beanDef) {
+  public SpringPentahoObjectReference( ConfigurableApplicationContext context, String name, Class<T> clazz,
+      IPentahoSession session, BeanDefinition beanDef ) {
     this.context = context;
     this.name = name;
     this.clazz = clazz;
     this.session = session;
-    this.attributes = new SpringBeanAttributes(beanDef);
+    this.attributes = new SpringBeanAttributes( beanDef );
   }
 
   @Override
   public Object getObject() {
-    SpringScopeSessionHolder.SESSION.set(session);
-    Object obj = context.getBeanFactory().getBean(name);
-    SpringScopeSessionHolder.SESSION.set(null);
+    SpringScopeSessionHolder.SESSION.set( session );
+    Object obj = context.getBeanFactory().getBean( name );
+    SpringScopeSessionHolder.SESSION.set( null );
 
-    if (obj instanceof IPentahoInitializer) {
-      ((IPentahoInitializer) obj).init(session);
+    if ( obj instanceof IPentahoInitializer ) {
+      ( (IPentahoInitializer) obj ).init( session );
     }
     return obj;
   }
@@ -77,21 +76,21 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
+  public boolean equals( Object o ) {
+    if ( this == o )
       return true;
-    if (o == null || getClass() != o.getClass())
+    if ( o == null || getClass() != o.getClass() )
       return false;
 
     SpringPentahoObjectReference that = (SpringPentahoObjectReference) o;
 
-    if (!clazz.equals(that.clazz))
+    if ( !clazz.equals( that.clazz ) )
       return false;
-    if (!name.equals(that.name))
+    if ( !name.equals( that.name ) )
       return false;
-    if (attributes != null ? !attributes.equals(that.attributes) : that.attributes != null)
+    if ( attributes != null ? !attributes.equals( that.attributes ) : that.attributes != null )
       return false;
-    if (session != null ? !session.equals(that.session) : that.session != null)
+    if ( session != null ? !session.equals( that.session ) : that.session != null )
       return false;
 
     return true;
@@ -101,22 +100,22 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
   public int hashCode() {
     int result = name.hashCode();
     result = 31 * result + clazz.hashCode();
-    result = 31 * result + (session != null ? session.hashCode() : 0);
-    result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
+    result = 31 * result + ( session != null ? session.hashCode() : 0 );
+    result = 31 * result + ( attributes != null ? attributes.hashCode() : 0 );
     return result;
   }
 
   @Override
-  public int compareTo(Object o) {
-    if (o == null || o instanceof IPentahoObjectReference == false) {
+  public int compareTo( Object o ) {
+    if ( o == null || o instanceof IPentahoObjectReference == false ) {
       return -1;
     }
     IPentahoObjectReference ref = (IPentahoObjectReference) o;
-    int pri1 = extractPriority(this);
-    int pri2 = extractPriority(ref);
-    if (pri1 == pri2) {
+    int pri1 = extractPriority( this );
+    int pri2 = extractPriority( ref );
+    if ( pri1 == pri2 ) {
       return 0;
-    } else if (pri1 > pri2) {
+    } else if ( pri1 > pri2 ) {
       return 1;
     } else {
       return -1;
@@ -124,15 +123,15 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
 
   }
 
-  private int extractPriority(IPentahoObjectReference ref) {
-    if (ref == null || ref.getAttributes() == null || !ref.getAttributes().containsKey(PRIORITY)) {
+  private int extractPriority( IPentahoObjectReference ref ) {
+    if ( ref == null || ref.getAttributes() == null || !ref.getAttributes().containsKey( PRIORITY ) ) {
       // return default
       return IPentahoObjectFactory.DEFAULT_PRIORTIY;
     }
 
     try {
-      return Integer.parseInt(ref.getAttributes().get(PRIORITY).toString());
-    } catch (NumberFormatException e) {
+      return Integer.parseInt( ref.getAttributes().get( PRIORITY ).toString() );
+    } catch ( NumberFormatException e ) {
       // return default
       return IPentahoObjectFactory.DEFAULT_PRIORTIY;
     }
@@ -148,9 +147,9 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
      */
     private static final long serialVersionUID = -5790844158879001752L;
 
-    public SpringBeanAttributes(final BeanDefinition definition) {
-      for (String s : definition.attributeNames()) {
-        this.put(s, definition.getAttribute(s));
+    public SpringBeanAttributes( final BeanDefinition definition ) {
+      for ( String s : definition.attributeNames() ) {
+        this.put( s, definition.getAttribute( s ) );
       }
     }
 

@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.engine.services.actions;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.pentaho.platform.api.action.IStreamingAction;
 
-@SuppressWarnings("nls")
+@SuppressWarnings( "nls" )
 public class TestAllIOAction implements IStreamingAction {
 
   private OutputStream myContentOutput;
@@ -41,11 +41,11 @@ public class TestAllIOAction implements IStreamingAction {
     return myContentOutput;
   }
 
-  public void setOutputStream(OutputStream outputStream) {
-    setMyContentOutputStream(outputStream);
+  public void setOutputStream( OutputStream outputStream ) {
+    setMyContentOutputStream( outputStream );
   }
 
-  public void setMyContentOutputStream(OutputStream outputStream) {
+  public void setMyContentOutputStream( OutputStream outputStream ) {
     this.myContentOutput = outputStream;
   }
 
@@ -53,7 +53,7 @@ public class TestAllIOAction implements IStreamingAction {
     return message;
   }
 
-  public void setMessage(String message) {
+  public void setMessage( String message ) {
     this.message = message;
   }
 
@@ -61,7 +61,7 @@ public class TestAllIOAction implements IStreamingAction {
     return embeddedXmlResource;
   }
 
-  public void setEmbeddedXmlResource(InputStream embeddedXmlResource) {
+  public void setEmbeddedXmlResource( InputStream embeddedXmlResource ) {
     this.embeddedXmlResource = embeddedXmlResource;
   }
 
@@ -69,7 +69,7 @@ public class TestAllIOAction implements IStreamingAction {
     return addressees;
   }
 
-  public void setAddressees(List<String> addressees) {
+  public void setAddressees( List<String> addressees ) {
     this.addressees = addressees;
   }
 
@@ -77,7 +77,7 @@ public class TestAllIOAction implements IStreamingAction {
     return count;
   }
 
-  public void setCount(Long count) {
+  public void setCount( Long count ) {
     this.count = count;
   }
 
@@ -85,7 +85,7 @@ public class TestAllIOAction implements IStreamingAction {
     return veggieData;
   }
 
-  public void setVeggieData(Map<String, String> veggieData) {
+  public void setVeggieData( Map<String, String> veggieData ) {
     this.veggieData = veggieData;
   }
 
@@ -93,14 +93,14 @@ public class TestAllIOAction implements IStreamingAction {
     return fruitData;
   }
 
-  public void setFruitData(List<Map<String, String>> fruitData) {
+  public void setFruitData( List<Map<String, String>> fruitData ) {
     this.fruitData = fruitData;
   }
 
   public String getEchoMessage() {
     return "Test String Output";
   }
-  
+
   public boolean isExecuteWasCalled() {
     return executeWasCalled;
   }
@@ -109,7 +109,7 @@ public class TestAllIOAction implements IStreamingAction {
     executeWasCalled = true;
   }
 
-  public String getMimeType(String streamPropertyName) {
+  public String getMimeType( String streamPropertyName ) {
     return "text/html";
   }
 

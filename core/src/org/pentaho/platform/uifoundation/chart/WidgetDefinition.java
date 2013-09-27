@@ -1,24 +1,24 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.*;
+import java.awt.Font;
 
 import org.jfree.data.general.DefaultValueDataset;
 
@@ -35,10 +35,10 @@ public abstract class WidgetDefinition extends DefaultValueDataset {
 
   String noDataMessage = null;
 
-  public WidgetDefinition(final double value, final double minimum, final double maximum) {
+  public WidgetDefinition( final double value, final double minimum, final double maximum ) {
     this.minimum = minimum;
     this.maximum = maximum;
-    setValue(new Double(value));
+    setValue( new Double( value ) );
   }
 
   /**
@@ -54,10 +54,10 @@ public abstract class WidgetDefinition extends DefaultValueDataset {
    * Sets the minimum value the widget can display
    * 
    * @param minimum
-   *            The minimum value the widget can display
+   *          The minimum value the widget can display
    */
 
-  public void setMinimum(final double minimum) {
+  public void setMinimum( final double minimum ) {
     this.minimum = minimum;
   }
 
@@ -74,10 +74,10 @@ public abstract class WidgetDefinition extends DefaultValueDataset {
    * Sets the minimum value the widget can display
    * 
    * @param maximum
-   *            The maximum value the widget can display
+   *          The maximum value the widget can display
    */
 
-  public void setMaximum(final double maximum) {
+  public void setMaximum( final double maximum ) {
     this.maximum = maximum;
   }
 

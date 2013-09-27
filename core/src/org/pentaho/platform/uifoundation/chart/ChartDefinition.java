@@ -1,24 +1,26 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Paint;
 import java.util.List;
 
 import org.jfree.ui.RectangleEdge;
@@ -45,7 +47,7 @@ public interface ChartDefinition {
 
   public static final String DOT_CHART_STR = "DotChart"; //$NON-NLS-1$
 
-  //new chart type
+  // new chart type
   public static final String BAR_LINE_CHART_STR = "BarLineChart"; //$NON-NLS-1$
 
   public static final String BUBBLE_CHART_STR = "BubbleChart"; //$NON-NLS-1$
@@ -147,7 +149,7 @@ public interface ChartDefinition {
   public static final String MARKER_VISIBLE_NODE_NAME = "markers-visible"; //$NON-NLS-1$
 
   public static final String FOREGROUND_ALPHA_NODE_NAME = "foreground-alpha"; //$NON-NLS-1$
-  
+
   public static final String BACKGROUND_ALPHA_NODE_NAME = "background-alpha"; //$NON-NLS-1$
 
   public static final String STACKED_NODE_NAME = "is-stacked"; //$NON-NLS-1$
@@ -203,9 +205,9 @@ public interface ChartDefinition {
   public boolean isDisplayLabels();
 
   public String getNoDataMessage();
-    
+
   public Float getForegroundAlpha();
 
   public Float getBackgroundAlpha();
- 
+
 }
