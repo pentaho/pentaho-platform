@@ -23,7 +23,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import java.net.URLDecoder;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
@@ -38,6 +39,8 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 @Path("/repo/dirs/")
 public class DirectoryResource extends AbstractJaxRSResource {
   protected DefaultUnifiedRepositoryWebService repoWs;
+  
+  private static final Log logger = LogFactory.getLog(FileResource.class);
   
   public DirectoryResource() {
     super();
@@ -74,7 +77,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
     try{
       decodeName = URLDecoder.decode(folder, "UTF-8");
     } catch(Exception ex){
-      ex.printStackTrace();
+      logger.error(ex);
     }
     return decodeName;
   }
