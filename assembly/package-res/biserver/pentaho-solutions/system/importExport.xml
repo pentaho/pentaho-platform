@@ -169,6 +169,8 @@
        <value>.htm</value>
        <value>.kjb</value>
        <value>.ktr</value>
+       <value>.js</value>
+       <value>.css</value>
 	</util:list>
 		
     <bean id="IPlatformImporter" class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter" scope="singleton">
