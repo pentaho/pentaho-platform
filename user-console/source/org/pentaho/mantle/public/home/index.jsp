@@ -18,12 +18,14 @@
 <!DOCTYPE html>
 <%@page import="org.pentaho.platform.api.engine.IPluginManager"%>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction"%>
+<%@page import="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction"%>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder"%>
 <%@page import="org.pentaho.platform.api.engine.IAuthorizationPolicy"%>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSystem"%>
 <%@page import="java.util.List"%>
 <%
   boolean canCreateContent = PentahoSystem.get(IAuthorizationPolicy.class, PentahoSessionHolder.getSession()).isAllowed(RepositoryCreateAction.NAME);
+  boolean canAdminister = PentahoSystem.get(IAuthorizationPolicy.class, PentahoSessionHolder.getSession()).isAllowed(AdministerSecurityAction.NAME);
   List<String> pluginIds = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()).getRegisteredPlugins();
 %>
 <html lang="en" class="bootstrap">
@@ -76,11 +78,13 @@
 
       // Define permissions
       ContextProvider.addProperty("canCreateContent", <%=canCreateContent%>);
+      ContextProvider.addProperty("canAdminister", <%=canAdminister%>);
       ContextProvider.addProperty("hasAnalyzerPlugin", <%=pluginIds.contains("analyzer")%>);
       ContextProvider.addProperty("hasIRPlugin", <%=pluginIds.contains("pentaho-interactive-reporting")%>);
       ContextProvider.addProperty("hasDashBoardsPlugin", <%=pluginIds.contains("dashboards")%>);
+      ContextProvider.addProperty("hasMarketplacePlugin", <%=pluginIds.contains("marketplace")%>);
       ContextProvider.addProperty("hasDataAccess", false); // default
-
+      
       // BISERVER-8631 - Manage datasources only available to roles/users with appropriate permissions
       var serviceUrl = Home.getUrlBase() + "plugin/data-access/api/permissions/hasDataAccess";
       Home.getContent(serviceUrl, function(result) {
@@ -136,7 +140,7 @@
         <div style="display:none" id="btnCreateNewContent"></div>
       </script>
 
-</div>
+  </div>
 
 
 

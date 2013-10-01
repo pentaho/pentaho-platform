@@ -15,17 +15,16 @@
 * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
 */
 
-pen.define(["common-ui/jquery-i18n"], function() {
+pen.define(["common-ui/jquery-i18n"], function(context) {
 
   var local = {
     name: "createNew",
     overlayId: "launch",
     serviceUrlOverlays: "api/plugin-manager/overlays",
-    serviceUrlPlugins: "api/plugin-manager/ids",
     buttonTemplate: "<button></button>",
     bootstrapButtonClasses: "btn btn-large btn-block nobreak",
     marketplaceOnClick: "parent.mantle_setPerspective('marketplace.perspective');$('#btnCreateNew').popover('hide')",
-    marketplaceButtonText: "More on Marketplace...",
+    marketplaceButtonText: "Add options via Marketplace",
     marketplaceAvaliable: false,
 
 
@@ -37,24 +36,6 @@ pen.define(["common-ui/jquery-i18n"], function() {
         this.urlBase = window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/home")) + "/";
       }
       return this.urlBase;
-    },
-
-    checkPluginMarketplace: function(callback){
-      var myself = this;
-
-      $.ajax({
-        url: myself.getUrlBase() + myself.serviceUrlPlugins,
-        success: function(result){
-          if($.inArray("marketplace", result["strings"]) > 0){
-            myself.marketplaceAvaliable = true;
-          }
-          myself.getOverlays(callback);
-        }, 
-        error: function(){
-          console.log("Error getting plugin ids");
-          myself.getOverlays(callback);
-        }
-      });
     },
 
     getOverlays: function(callback){
@@ -71,11 +52,11 @@ pen.define(["common-ui/jquery-i18n"], function() {
       });
     },
 
-    buildContents: function(popupCallback /*(contentToAppend*/){
+    buildContents: function(config, popupCallback /*(contentToAppend*/){
       var myself = this,
           $content = $();
 
-      myself.checkPluginMarketplace(function(result){
+      myself.getOverlays(function(result){
 
         if(result.overlay == undefined){
 
@@ -92,11 +73,15 @@ pen.define(["common-ui/jquery-i18n"], function() {
         }
 
         //check logic of only jpivot is installed and add the marketplace link to it
-        if($content.length == 1 && myself.marketplaceAvaliable){
+        if($content.length == 1 && config.hasMarketplacePlugin && config.canAdminister){
           var id = $($content[0]).attr("id").toLowerCase();
           if(id.search("jpivot")>0){
+            if(config.i18nMap['marketplace'] != undefined){
+              myself.marketplaceButtonText = config.i18nMap['marketplace'];
+            }
+
             var $newButton = $(myself.buttonTemplate).
-              addClass(myself.bootstrapButtonClasses).
+              addClass(myself.bootstrapButtonClasses).addClass("marketplace").
               attr("onclick", myself.marketplaceOnClick).
               text(myself.marketplaceButtonText);
 
