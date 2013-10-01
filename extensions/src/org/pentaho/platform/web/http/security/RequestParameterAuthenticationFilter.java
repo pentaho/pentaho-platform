@@ -1,32 +1,40 @@
-/*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
- * Foundation.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
- * or from the Free Software Foundation, Inc., 
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * Copyright 2007 - 2009 Pentaho Corporation.  All rights reserved.
- *
- */
+/*!
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+* Foundation.
+*
+* You should have received a copy of the GNU Lesser General Public License along with this
+* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+* or from the Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Lesser General Public License for more details.
+*
+* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+*/
+
 package org.pentaho.platform.web.http.security;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -118,6 +126,32 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
+    InputStream in = httpRequest.getInputStream();
+    byte[] bytes = IOUtils.toByteArray(in);
+    // Do something with Bytes.
+
+    final BufferedInputStream newStream = new BufferedInputStream(new ByteArrayInputStream(bytes));
+    final Map parameterMap = request.getParameterMap();
+
+    HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(httpRequest){
+
+      @Override
+      public Map getParameterMap() {
+        return parameterMap;
+      }
+
+      @Override
+      public ServletInputStream getInputStream() throws IOException {
+        return new ServletInputStream(){
+          @Override
+          public int read() throws IOException {
+            return newStream.read();
+          }
+        };
+      }
+    };
+
+
     String username = httpRequest.getParameter(this.userNameParameter);
     String password = httpRequest.getParameter(this.passwordParameter);
 
@@ -147,9 +181,9 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
           SecurityContextHolder.getContext().setAuthentication(null);
 
           if (ignoreFailure) {
-            chain.doFilter(request, response);
+            chain.doFilter(wrapper, response);
           } else {
-            authenticationEntryPoint.commence(request, response, failed);
+            authenticationEntryPoint.commence(wrapper, response, failed);
           }
 
           return;
@@ -165,7 +199,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
       }
     }
 
-    chain.doFilter(request, response);
+    chain.doFilter(wrapper, response);
   }
 
   public AuthenticationEntryPoint getAuthenticationEntryPoint() {
