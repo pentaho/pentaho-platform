@@ -18,7 +18,8 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.net.URLDecoder;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -39,7 +40,9 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 @Path("/repo/dirs/")
 public class DirectoryResource extends AbstractJaxRSResource {
   protected DefaultUnifiedRepositoryWebService repoWs;
-  
+
+  private static final Log logger = LogFactory.getLog(FileResource.class);
+
   public DirectoryResource() {
     super();
     
@@ -76,7 +79,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
     try{
       decodeName = URLDecoder.decode(folder, "UTF-8");
     } catch(Exception ex){
-      ex.printStackTrace();
+       logger.error(ex);
     }
     return decodeName;
   }
