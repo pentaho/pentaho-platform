@@ -26,8 +26,17 @@ pen.define([
     var favoriteControllerConfig = {
       favoritesDisabled: false,
       recentsDisabled: false,
-      i18nMap: context.i18n
+      i18nMap: context.i18n,
+
     };
+
+    var createNewConfig = {
+      canAdminister: context.canAdminister,
+      hasMarketplacePlugin: context.hasMarketplacePlugin,
+      i18nMap: context.i18n  
+    };
+
+
 
     // Set disabled = true for
     var disabledWidgetIdsArr = context.config.disabled_widgets.split(",");
@@ -61,7 +70,7 @@ pen.define([
 
     // Handle the new popover menu. If we add another, make generic
     pen.require(["home/createNew"], function(createNew) {
-      createNew.buildContents(function($contents){
+      createNew.buildContents(createNewConfig, function($contents){
         var result = "";
         for(var i = 0; i < $contents.length; i++){
           result+=$contents[i][0].outerHTML;
@@ -77,14 +86,6 @@ pen.define([
       }
     });
 
-    // setup a listener to hide popovers when a click happens outside of them
-    $('body').on('click', function (e) {
-      $('.popover-source').each(function () {
-        if ($(this).has(e.target).length == 0 && !$(this).is(e.target) && $('.popover').has(e.target).length == 0) {
-          $(this).popover('hide');
-        }
-      });
-    });
   }
 
   function openFile(title, tooltip, fullPath) {
@@ -107,7 +108,7 @@ pen.define([
     var extension = path.split(".").pop();
 
     if(!($("body").hasClass("IE") && extension == "pdf")){
-    	parent.mantle_setPerspective('opened.perspective');
+      parent.mantle_setPerspective('opened.perspective');
     }
     window.parent.mantle_openRepositoryFile(path, mode);
   }
