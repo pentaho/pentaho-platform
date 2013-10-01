@@ -15,17 +15,16 @@
 * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
 */
 
-pen.define(["common-ui/jquery-i18n"], function() {
+pen.define(["common-ui/jquery-i18n"], function(context) {
 
   var local = {
     name: "createNew",
     overlayId: "launch",
     serviceUrlOverlays: "api/plugin-manager/overlays",
-    serviceUrlPlugins: "api/plugin-manager/ids",
     buttonTemplate: "<button></button>",
     bootstrapButtonClasses: "btn btn-large btn-block nobreak",
     marketplaceOnClick: "parent.mantle_setPerspective('marketplace.perspective');$('#btnCreateNew').popover('hide')",
-    marketplaceButtonText: "More on Marketplace...",
+    marketplaceButtonText: "Add options via Marketplace",
     marketplaceAvaliable: false,
 
 
@@ -37,24 +36,6 @@ pen.define(["common-ui/jquery-i18n"], function() {
         this.urlBase = window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/home")) + "/";
       }
       return this.urlBase;
-    },
-
-    checkPluginMarketplace: function(callback){
-      var myself = this;
-
-      $.ajax({
-        url: myself.getUrlBase() + myself.serviceUrlPlugins,
-        success: function(result){
-          if(result["strings"].lastIndexOf("marketplace") > 0){
-            myself.marketplaceAvaliable = true;
-          }
-          myself.getOverlays(callback);
-        }, 
-        error: function(){
-          console.log("Error getting plugin ids");
-          myself.getOverlays(callback);
-        }
-      });
     },
 
     getOverlays: function(callback){
@@ -71,11 +52,11 @@ pen.define(["common-ui/jquery-i18n"], function() {
       });
     },
 
-    buildContents: function(popupCallback /*(contentToAppend*/){
+    buildContents: function(config, popupCallback /*(contentToAppend*/){
       var myself = this,
           $content = $();
 
-      myself.checkPluginMarketplace(function(result){
+      myself.getOverlays(function(result){
 
         if(result.overlay == undefined){
 
@@ -86,22 +67,21 @@ pen.define(["common-ui/jquery-i18n"], function() {
                   .attr("id", "plugin"+i)
                   .addClass(myself.bootstrapButtonClasses);
 
-            var overlayButton = $(overlay.source).find("button"),
-                buttonId = myself.createName(overlayButton.attr("id"));
-
-            $button.attr("id", buttonId);
-            $content.push($button);
-
             myself.processOverlay(overlay, $button);
+            $content.push($button);
           }
         }
 
         //check logic of only jpivot is installed and add the marketplace link to it
-        if($content.length == 1 && myself.marketplaceAvaliable){
+        if($content.length == 1 && config.hasMarketplacePlugin && config.canAdminister){
           var id = $($content[0]).attr("id").toLowerCase();
           if(id.search("jpivot")>0){
+            if(config.i18nMap['marketplace'] != undefined){
+              myself.marketplaceButtonText = config.i18nMap['marketplace'];
+            }
+
             var $newButton = $(myself.buttonTemplate).
-              addClass(myself.bootstrapButtonClasses).
+              addClass(myself.bootstrapButtonClasses).addClass("marketplace").
               attr("onclick", myself.marketplaceOnClick).
               text(myself.marketplaceButtonText);
 
@@ -141,17 +121,26 @@ pen.define(["common-ui/jquery-i18n"], function() {
             }
           }
 
-          var $sourceButton = $(source).find("button");
+          var obj = $.parseXML(source),
+              button = obj.getElementsByTagName("button")[0];
 
-          if($sourceButton.length == 0){
+          if(button != undefined){
+            var label = button.getAttribute("label"),
+                id = button.getAttribute("id"),
+                command = button.getAttribute("command");
+
+            if(label == null) console.log("Button created without label");
+            if(id == null) console.log("Button created without id");
+            if(command == null) console.log("Button created without command");
+
+            $button.text(label)
+              .attr("id", myself.createName(id))
+              .attr("onclick", command);
+
+          } else {
             console.log("Overlay without button to add, please check");
-            return;
           }
-
-          $button.text($sourceButton.attr("label"));
-          $button.attr("onclick", $sourceButton.attr("command"));
         }
-
       });
     },
 
