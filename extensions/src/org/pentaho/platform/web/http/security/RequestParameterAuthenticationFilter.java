@@ -17,16 +17,24 @@
 
 package org.pentaho.platform.web.http.security;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -118,6 +126,32 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
+    InputStream in = httpRequest.getInputStream();
+    byte[] bytes = IOUtils.toByteArray(in);
+    // Do something with Bytes.
+
+    final BufferedInputStream newStream = new BufferedInputStream(new ByteArrayInputStream(bytes));
+    final Map parameterMap = request.getParameterMap();
+
+    HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(httpRequest){
+
+      @Override
+      public Map getParameterMap() {
+        return parameterMap;
+      }
+
+      @Override
+      public ServletInputStream getInputStream() throws IOException {
+        return new ServletInputStream(){
+          @Override
+          public int read() throws IOException {
+            return newStream.read();
+          }
+        };
+      }
+    };
+
+
     String username = httpRequest.getParameter(this.userNameParameter);
     String password = httpRequest.getParameter(this.passwordParameter);
 
@@ -147,9 +181,9 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
           SecurityContextHolder.getContext().setAuthentication(null);
 
           if (ignoreFailure) {
-            chain.doFilter(request, response);
+            chain.doFilter(wrapper, response);
           } else {
-            authenticationEntryPoint.commence(request, response, failed);
+            authenticationEntryPoint.commence(wrapper, response, failed);
           }
 
           return;
@@ -165,7 +199,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
       }
     }
 
-    chain.doFilter(request, response);
+    chain.doFilter(wrapper, response);
   }
 
   public AuthenticationEntryPoint getAuthenticationEntryPoint() {
