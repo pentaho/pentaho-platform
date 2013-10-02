@@ -1,28 +1,25 @@
-/*
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
- *
- *
- * @created 03/19/2013
- * @author Peter Minutillo
- *
- */
+/*!
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+* Foundation.
+*
+* You should have received a copy of the GNU Lesser General Public License along with this
+* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+* or from the Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Lesser General Public License for more details.
+*
+* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+*/
+
 package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -39,9 +36,13 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**
@@ -89,7 +90,11 @@ public class SystemResource extends AbstractJaxRSResource {
   @Produces({MediaType.APPLICATION_XML})
   public Response getAll()  throws Exception {
     try {
-      return Response.ok(SystemResourceUtil.getAll().asXML()).type(MediaType.APPLICATION_XML).build();
+      if(canAdminister()) {
+        return Response.ok(SystemResourceUtil.getAll().asXML()).type(MediaType.APPLICATION_XML).build();
+      } else {
+        return Response.status(UNAUTHORIZED).build();
+      }
     } catch (Throwable t) {
       throw new WebApplicationException(t);
     }
@@ -110,11 +115,15 @@ public class SystemResource extends AbstractJaxRSResource {
   @GET
   @Path("/authentication-provider")
   @Produces({MediaType.APPLICATION_JSON})
-  public AuthenticationProvider getAuthenticationProvider() throws Exception {
+  public Response getAuthenticationProvider() throws Exception {
     try{
-      IConfiguration config = this.systemConfig.getConfiguration("security");
-      String provider = config.getProperties().getProperty("provider");
-      return new AuthenticationProvider(provider);
+      if(canAdminister()) {
+        IConfiguration config = this.systemConfig.getConfiguration("security");
+        String provider = config.getProperties().getProperty("provider");
+        return Response.ok(new AuthenticationProvider(provider)).type(MediaType.APPLICATION_JSON).build();
+      } else {
+        return Response.status(UNAUTHORIZED).build();
+      }
     }
     catch (Throwable t) {
       logger.error(Messages.getInstance().getString("SystemResource.GENERAL_ERROR"), t); //$NON-NLS-1$
@@ -140,4 +149,11 @@ public class SystemResource extends AbstractJaxRSResource {
     return new TimeZoneWrapper(timeZones, TimeZone.getDefault().getID());
   }
 
+  private boolean canAdminister() {
+    IAuthorizationPolicy policy = PentahoSystem
+        .get(IAuthorizationPolicy.class);
+    return policy
+        .isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME)
+        && (policy.isAllowed(AdministerSecurityAction.NAME));
+  }
 }
