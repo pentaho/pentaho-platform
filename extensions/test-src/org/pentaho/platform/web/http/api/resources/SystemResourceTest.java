@@ -115,12 +115,12 @@ public class SystemResourceTest {
    */
   @Test
   public void testGetAuthenticationProvider() throws Exception {
-    AuthenticationProvider authenticationProvider = systemResource.getAuthenticationProvider();
+    Response response = systemResource.getAuthenticationProvider();
 
     // default configuration should be JCR
     AuthenticationProvider expectedResult = new AuthenticationProvider("jackrabbit");
-
-    Assert.assertTrue(authenticationProvider.toString().equals(expectedResult.toString()));
+    AuthenticationProvider actualResult = (AuthenticationProvider)response.getEntity();
+    Assert.assertTrue(actualResult.toString().equals(expectedResult.toString()));
   }
 
   /**
