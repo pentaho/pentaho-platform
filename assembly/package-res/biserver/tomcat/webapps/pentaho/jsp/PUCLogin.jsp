@@ -266,11 +266,6 @@
 
     var returnLocation = '<%=ESAPI.encoder().encodeForJavaScript(requestedURL)%>';
 
-    if(/(iPad|iPod|iPhone)/.test(navigator.userAgent) || window.orientation !== undefined){
-      returnLocation = CONTEXT_PATH+"content/analyzer/selectSchema";
-    }
-
-
     if (returnLocation != '' && returnLocation != null) {
       window.location.href = returnLocation;
     } else {
