@@ -18,11 +18,19 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Iterator;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.metadata.model.Domain;
+import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -37,6 +45,9 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   private static final Log log = LogFactory.getLog(MetadataImportHandler.class);
 
   private static final Messages messages = Messages.getInstance();
+  
+  // The name of the property used to determine if metadata source was a DSW
+  private static final String DSW_SOURCE_PROPERTY = "AGILE_BI_GENERATED_SCHEMA";
 
   IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
@@ -74,7 +85,9 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     }
     try {
       log.debug("Importing as metadata - [domain=" + domainId + "]");
-      metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, bundle.overwriteInRepository());
+      InputStream inputStream = StripDswFromStream(bundle.getInputStream());
+      
+      metadataRepositoryImporter.storeDomain(inputStream, domainId, bundle.overwriteInRepository());
       return domainId;
     } catch (DomainIdNullException dine) {
       throw new PlatformImportException(dine.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dine);
@@ -88,6 +101,56 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       log.error(errorMessage, e);
       throw new PlatformImportException(errorMessage, e);
     }
+  }
+  
+  private InputStream StripDswFromStream(InputStream inputStream) throws Exception {
+    //Check if this is valid xml
+    InputStream inputStream2 = null;
+    String xmi = null;
+    XmiParser xmiParser = new XmiParser();
+    try {
+      StringWriter writer = new StringWriter();
+      IOUtils.copy(inputStream, writer, "UTF-8");
+      xmi = writer.toString();
+              
+      //now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
+      Domain domain = xmiParser.parseXmi(new java.io.ByteArrayInputStream(xmi.getBytes()));
+      
+      boolean changed = false;
+      if (domain.getLogicalModels().size() > 1) {
+        Iterator<LogicalModel> iterator = domain.getLogicalModels().iterator();
+        while (iterator.hasNext()) {
+          LogicalModel logicalModel = iterator.next();
+          Object property = logicalModel.getProperty(DSW_SOURCE_PROPERTY); //$NON-NLS-1$
+          if(property != null) {
+            //This metadata file came from a DataSourceWizard, it may have embedded mondrian schema
+            //that would incorrectly inform the system that there is mondrian schema attached.  By
+            //definition we only want to import the metadata portion.
+            if (logicalModel.getProperty(logicalModel.PROPERTY_OLAP_DIMS) != null) {
+              //This logical model is an Olap model that needs to be removed from metadata
+              iterator.remove();
+            } else {
+              //Remove properties that make this a DSW
+              logicalModel.removeChildProperty(DSW_SOURCE_PROPERTY);
+              logicalModel.removeChildProperty("AGILE_BI_VERSION");
+            }
+            changed = true;
+          } 
+        }
+        if (changed) {
+          //The model was modified, regenerate the xml
+          xmi = xmiParser.generateXmi(domain);
+        }
+      }
+      
+      //xmi is valid. Create a new inputstream for the actual import action.
+      inputStream2 = new java.io.ByteArrayInputStream(xmi.getBytes());
+    }
+    catch (Exception e){
+      throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, e);
+    }
+    
+    return inputStream2;
   }
 
   private void processLocaleFile(final IPlatformImportBundle bundle, String domainId) throws PlatformImportException {
