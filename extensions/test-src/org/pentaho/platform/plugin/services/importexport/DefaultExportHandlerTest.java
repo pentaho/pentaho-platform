@@ -88,7 +88,7 @@ public class DefaultExportHandlerTest {
 
         // lets make sure the expected methods get invoked
         verify(repositoryFile).getId();
-        verify(repositoryFile).getName();
+        verify(repositoryFile, atLeast(1)).getName();
         verify(streamConverter).convert("1234-1234-12345");
     }
 
