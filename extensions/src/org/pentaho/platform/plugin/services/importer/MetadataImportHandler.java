@@ -109,12 +109,11 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     String xmi = null;
     XmiParser xmiParser = new XmiParser();
     try {
-      StringWriter writer = new StringWriter();
-      IOUtils.copy(inputStream, writer, "UTF-8");
-      xmi = writer.toString();
+      byte[] is = IOUtils.toByteArray(inputStream);
+      xmi = new String(is, "UTF-8");
               
       //now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
-      Domain domain = xmiParser.parseXmi(new java.io.ByteArrayInputStream(xmi.getBytes()));
+      Domain domain = xmiParser.parseXmi(new java.io.ByteArrayInputStream(is));
       
       boolean changed = false;
       if (domain.getLogicalModels().size() > 1) {
