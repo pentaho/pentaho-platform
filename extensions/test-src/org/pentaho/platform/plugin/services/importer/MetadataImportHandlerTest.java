@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class MetadataImportHandlerTest {
     final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").mime("text/xmi+xml").hidden(false).overwriteFile(true).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
 
     context.checking(new Expectations() {{
-      oneOf(metadataImporter).storeDomain(bundle1.getInputStream(), "parameterized-domain-id", true);
+      oneOf(metadataImporter).storeDomain(with(any(InputStream.class)), with(equal("parameterized-domain-id")), with(equal(true)));
     }});
 
     importer.importFile(bundle1);
@@ -94,9 +95,9 @@ public class MetadataImportHandlerTest {
         .addChildBundle(localizationBundle)
         .addChildBundle(localizationBundle2)
         .build();
-
+    
     context.checking(new Expectations() {{
-      oneOf(metadataImporter).storeDomain(in, "steel-wheels", true);
+      oneOf(metadataImporter).storeDomain(with(any(InputStream.class)), with(equal("steel-wheels")), with(equal(true)));
       atLeast(1).of (metadataImporter).addLocalizationFile("steel-wheels", "en", propIn, true);
       atLeast(1).of (metadataImporter).addLocalizationFile("steel-wheels", "en_US", propIn, true);
     }});
