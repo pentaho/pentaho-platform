@@ -275,6 +275,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
             if (key.equals("_PERM_SCHEDULABLE") && !fileSummary.isFolder() || key.equals("_PERM_HIDDEN")) {
               final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length())
                   .toLowerCase()));
+              cb.setWordWrap(false);
               cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
               cb.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
