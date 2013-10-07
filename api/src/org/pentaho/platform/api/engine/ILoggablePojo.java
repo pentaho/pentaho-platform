@@ -24,6 +24,7 @@ package org.pentaho.platform.api.engine;
  * @author jamesdixon
  * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  */
+@Deprecated
 public interface ILoggablePojo {
 
   /**

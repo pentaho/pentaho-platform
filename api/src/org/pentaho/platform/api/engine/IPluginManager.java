@@ -56,6 +56,7 @@ public interface IPluginManager {
   /**
    * @deprecated Use {@link #getContentGenerator(String, String) instead
    */
+  @Deprecated
   public IContentGenerator getContentGeneratorForType( String type, IPentahoSession session )
     throws ObjectFactoryException;
 
@@ -70,6 +71,7 @@ public interface IPluginManager {
   /**
    * @deprecated Use {@link #reload()} instead
    */
+  @Deprecated
   public boolean reload( IPentahoSession session );
 
   /**
@@ -201,6 +203,7 @@ public interface IPluginManager {
    *          the path to the plugin resource
    * @return the ID of the plugin which owns the resource or <code>null</code> if one cannot be found
    */
+  @Deprecated
   public String getServicePlugin( String path );
 
   /**
@@ -236,6 +239,7 @@ public interface IPluginManager {
    * 
    * @return true if path begins as a static resource
    */
+  @Deprecated
   public boolean isStaticResource( String path );
 
   /**
@@ -261,6 +265,7 @@ public interface IPluginManager {
    *             determine if a particular plugin dir is accessable through the plugin resources REST service.
    * @return the InputStream which may be used to read the plugin resource
    */
+  @Deprecated
   public InputStream getStaticResource( String path );
 
   /**

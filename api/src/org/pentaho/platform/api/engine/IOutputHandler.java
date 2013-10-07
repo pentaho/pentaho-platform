@@ -48,6 +48,7 @@ public interface IOutputHandler {
    * @deprecated This method could never tell you if the content was actually done. Use {@link #isResponseExpected()} if
    *             you need information about a handlers likelihood to generate a response.
    */
+  @Deprecated
   public boolean contentDone();
 
   /**

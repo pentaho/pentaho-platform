@@ -71,6 +71,7 @@ public interface IApplicationContext {
    * 
    * @return the URL to the server application context root. Use getFullyQualifiedServerURL instead
    */
+  @Deprecated
   public String getBaseUrl();
 
   /**
@@ -160,7 +161,7 @@ public interface IApplicationContext {
    * @param url
    *          Use setFullyQualifiedServerURL instead
    */
-
+  @Deprecated
   public void setBaseUrl( String url );
 
   public void setSolutionRootPath( String path );
