@@ -20,6 +20,7 @@ package org.pentaho.platform.api.engine;
 /**
  * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  */
+@Deprecated
 public interface ISimplePojoComponent {
 
   public boolean execute() throws Exception;

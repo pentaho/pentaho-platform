@@ -29,6 +29,7 @@ public interface IContentGeneratorInfo {
   /**
    * @deprecated URL is determined by the system
    */
+  @Deprecated
   public String getUrl();
 
   public String getTitle();
@@ -39,6 +40,7 @@ public interface IContentGeneratorInfo {
    * @deprecated file info generators or solution file meta providers are now associated with content types, not content
    *             generators. This method is not called from within the platform.
    */
+  @Deprecated
   public String getFileInfoGeneratorClassname();
 
   public String getClassname();

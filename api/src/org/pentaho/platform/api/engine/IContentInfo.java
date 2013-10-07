@@ -57,6 +57,7 @@ public interface IContentInfo {
    * @return mime type
    * @deprecated Don't Use - this is way too early to know the mime type
    */
+  @Deprecated
   public String getMimeType();
 
   /**
