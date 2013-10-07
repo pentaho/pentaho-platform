@@ -26,6 +26,7 @@ import java.io.OutputStream;
  * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  * 
  */
+@Deprecated
 public interface IStreamingPojo {
 
   /**

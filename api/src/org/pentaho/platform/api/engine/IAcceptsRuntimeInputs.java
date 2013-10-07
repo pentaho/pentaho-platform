@@ -22,6 +22,7 @@ import java.util.Map;
 /**
  * @deprecated Pojo components are deprecated, use {@link org.pentaho.platform.api.action.IAction}
  */
+@Deprecated
 public interface IAcceptsRuntimeInputs {
 
   public void setInputs( Map<String, Object> inputs );
