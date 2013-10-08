@@ -143,7 +143,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       }
       
       //xmi is valid. Create a new inputstream for the actual import action.
-      inputStream2 = new java.io.ByteArrayInputStream(xmi.getBytes());
+      inputStream2 = new java.io.ByteArrayInputStream(xmi.getBytes("UTF-8"));
     }
     catch (Exception e){
       throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, e);
