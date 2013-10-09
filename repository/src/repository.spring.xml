@@ -595,6 +595,7 @@
 
   <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
        <value>org.pentaho.repository.read</value>
+       <value>org.pentaho.repository.create</value>
   </util:list>
 
   <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
