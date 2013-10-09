@@ -153,7 +153,6 @@ public class RunInBackgroundCommand extends AbstractCommand {
   protected void performOperation(boolean feedback) {
 
     final String filePath = (this.getSolutionPath() != null) ? this.getSolutionPath() : repositoryFile.getPath();
-    final String fileName = (this.getSolutionTitle() != null) ? this.getSolutionTitle() : repositoryFile.getName();
     String urlPath = URL.encodePathSegment(filePath.replaceAll("/", ":")); //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" //$NON-NLS-1$
         + urlPath + "/parameterizable"); //$NON-NLS-1$

@@ -17,6 +17,17 @@
 
 package org.pentaho.mantle.client.dialogs;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
+import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
+import org.pentaho.mantle.client.messages.Messages;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -24,7 +35,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -39,17 +49,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
-import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
-import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.GenericEvent;
-import org.pentaho.mantle.client.messages.Messages;
 
 /**
  * @author wseyler/modifed for Import parameters by tband
@@ -226,26 +225,28 @@ public class ImportDialog extends PromptDialogBox {
     removePermissionsListItem.setValue("none");
     filePermissionsDropDown.addItem(removePermissionsListItem); //If selected then set "applyAclPermissions" to false else true.    
     
-    ChangeListener filePermissionsHandler = new ChangeListener() {
-        @Override
-        public void onChange(Widget sender) {
-          String value = filePermissionsDropDown.getSelectedItem().getValue().toString();
-          
-          applyAclPermissions.setValue(Boolean.TRUE);
-          applyAclPermissions.setFormValue("true");
-          
-          overwriteAclPermissions.setFormValue(value);
-          overwriteAclPermissions.setValue(Boolean.valueOf(value));
-          
-          if(value.equals("none")) {
-        	  applyAclPermissions.setValue(Boolean.FALSE);
-        	  applyAclPermissions.setFormValue("false");
-            overwriteAclPermissions.setValue(Boolean.FALSE);
-            overwriteAclPermissions.setFormValue("false");        	  
-          }
+    ChangeHandler filePermissionsHandler = new ChangeHandler() {
+
+      @Override
+      public void onChange(ChangeEvent event) {
+        String value = filePermissionsDropDown.getSelectedItem().getValue().toString();
+
+        applyAclPermissions.setValue(Boolean.TRUE);
+        applyAclPermissions.setFormValue("true");
+
+        overwriteAclPermissions.setFormValue(value);
+        overwriteAclPermissions.setValue(Boolean.valueOf(value));
+
+        if (value.equals("none")) {
+          applyAclPermissions.setValue(Boolean.FALSE);
+          applyAclPermissions.setFormValue("false");
+          overwriteAclPermissions.setValue(Boolean.FALSE);
+          overwriteAclPermissions.setFormValue("false");
         }
+      }
     };
-    filePermissionsDropDown.addChangeListener(filePermissionsHandler);
+
+    filePermissionsDropDown.addHandler(filePermissionsHandler, ChangeEvent.getType());
     filePermissionsDropDown.setVisibleRowCount(1);
     disclosureContent.add(filePermissionsDropDown);
     
@@ -258,12 +259,14 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add(fileOwnershipLabel);
     
     final CustomListBox retainOwnershipDropDown = new CustomListBox();
-    retainOwnershipDropDown.addChangeListener(new ChangeListener() {
-		public void onChange(Widget sender) {
-			String value = retainOwnershipDropDown.getSelectedItem().getValue().toString();
-			retainOwnership.setValue(value);
-		}
-	});
+    retainOwnershipDropDown.addHandler(new ChangeHandler() {
+
+      @Override
+      public void onChange(ChangeEvent event) {
+        String value = retainOwnershipDropDown.getSelectedItem().getValue().toString();
+        retainOwnership.setValue(value);
+      }
+    }, ChangeEvent.getType());
     DefaultListItem keepOwnershipListItem = new DefaultListItem(Messages.getString("keepOwnership"));
     keepOwnershipListItem.setValue("true");
     retainOwnershipDropDown.addItem(keepOwnershipListItem);    
@@ -278,35 +281,37 @@ public class ImportDialog extends PromptDialogBox {
     spacer.setHeight("4px");
     disclosureContent.add(spacer);
     
-    ChangeListener overwriteFileHandler = new ChangeListener() {
-        @Override
-        public void onChange(Widget sender) {
-        	String value = overwriteFileDropDown.getSelectedItem().getValue().toString();
-        	overwriteFile.setValue(value);
-        	if(value.equals("false")) {
-        		filePermissionsDropDown.setSelectedIndex(1);
-        		filePermissionsDropDown.setEnabled(false);
-        		retainOwnershipDropDown.setSelectedIndex(0);
-        		retainOwnershipDropDown.setEnabled(false);
-        	} else if(value.equals("true")) {
-        		filePermissionsDropDown.setEnabled(true);
-        		retainOwnershipDropDown.setEnabled(true);
-        	}
+    ChangeHandler overwriteFileHandler = new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+        String value = overwriteFileDropDown.getSelectedItem().getValue().toString();
+        overwriteFile.setValue(value);
+        if (value.equals("false")) {
+          filePermissionsDropDown.setSelectedIndex(1);
+          filePermissionsDropDown.setEnabled(false);
+          retainOwnershipDropDown.setSelectedIndex(0);
+          retainOwnershipDropDown.setEnabled(false);
+        } else if (value.equals("true")) {
+          filePermissionsDropDown.setEnabled(true);
+          retainOwnershipDropDown.setEnabled(true);
         }
+      }
     };
-    overwriteFileDropDown.addChangeListener(overwriteFileHandler);
-    
+    overwriteFileDropDown.addHandler(overwriteFileHandler, ChangeEvent.getType());
+
     HTML loggingLabel = new HTML(Messages.getString("logging"));
     loggingLabel.setStyleName("gwt-Label");
     disclosureContent.add(loggingLabel);
     
     final CustomListBox loggingDropDown = new CustomListBox();
-    loggingDropDown.addChangeListener(new ChangeListener() {
-		public void onChange(Widget sender) {
-			String value = loggingDropDown.getSelectedItem().getValue().toString();
-			logLevel.setValue(value);
-		}
-	});
+    loggingDropDown.addHandler(new ChangeHandler() {
+
+      @Override
+      public void onChange(ChangeEvent event) {
+        String value = loggingDropDown.getSelectedItem().getValue().toString();
+        logLevel.setValue(value);
+      }
+    }, ChangeEvent.getType());
     DefaultListItem noneListItem = new DefaultListItem(Messages.getString("none"));
     noneListItem.setValue("WARN");
     loggingDropDown.addItem(noneListItem);
