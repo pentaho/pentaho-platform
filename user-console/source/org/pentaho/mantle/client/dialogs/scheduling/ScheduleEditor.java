@@ -780,6 +780,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     cronEditor.setStartDate(startDate);
   }
 
+  @SuppressWarnings("deprecation")
   public Date getStartDate() {
     switch (getScheduleType()) {
       case RUN_ONCE:

@@ -20,12 +20,11 @@ package org.pentaho.mantle.client.commands;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.ImportDialog;
+import org.pentaho.mantle.client.events.SolutionFileHandler;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
-import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 public class ImportFileCommand extends AbstractCommand {
 

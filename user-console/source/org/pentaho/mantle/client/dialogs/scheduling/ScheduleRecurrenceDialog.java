@@ -464,6 +464,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     return durationMilli;
   }
 
+  @SuppressWarnings("deprecation")
   public JsJobTrigger getJsJobTrigger() {
     JsJobTrigger jsJobTrigger = JsJobTrigger.instance();
 
