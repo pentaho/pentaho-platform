@@ -50,7 +50,6 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Tree;
@@ -66,7 +65,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
   public RepositoryFileTree repositoryFileTree;
   public List<RepositoryFile> trashItems;
   public FileTreeItem trashItem;
-  private boolean showTrash = true;
 
   private TreeItem selectedItem = null;
   private String selectedPath = null;
@@ -75,7 +73,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
   public SolutionTree(boolean showTrash) {
     super();
-    this.showTrash = showTrash;
     setAnimationEnabled(true);
     sinkEvents(Event.ONDBLCLICK);
     DOM.setElementAttribute(getElement(), "oncontextmenu", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -341,13 +338,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
 
       DOM.setStyleAttribute(treeItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-  }
-
-  private void buildTrash() {
-    trashItem = new FileTreeItem(new LeafItemWidget(
-        "Recycle Bin", "icon-tree-node", "icon-tree-leaf", "icon-recycle-bin")); //$NON-NLS-1$ //$NON-NLS-2$
-    this.addItem(trashItem);
-    DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
   }
 
   public List<FileTreeItem> getAllNodes() {
