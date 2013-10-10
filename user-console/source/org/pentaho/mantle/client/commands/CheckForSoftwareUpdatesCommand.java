@@ -59,7 +59,7 @@ public class CheckForSoftwareUpdatesCommand extends AbstractCommand {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          Document doc = (Document) XMLParser.parse(response.getText());
+          Document doc = XMLParser.parse(response.getText());
           NodeList updates = doc.getElementsByTagName("update"); //$NON-NLS-1$
           if (updates.getLength() > 0) {
             FlexTable updateTable = new FlexTable();
