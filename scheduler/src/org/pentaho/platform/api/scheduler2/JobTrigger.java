@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.api.scheduler2;
 
@@ -30,14 +30,14 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * @see SimpleJobTrigger
  * @see ComplexJobTrigger
  */
-@XmlSeeAlso({ SimpleJobTrigger.class, ComplexJobTrigger.class, CronJobTrigger.class })
+@XmlSeeAlso( { SimpleJobTrigger.class, ComplexJobTrigger.class, CronJobTrigger.class } )
 public abstract class JobTrigger implements Serializable, IJobTrigger {
   /**
    * 
    */
   private static final long serialVersionUID = -2110414852036623140L;
 
-  public static final SimpleJobTrigger ONCE_NOW = new SimpleJobTrigger(new Date(), null, 0, 0L);
+  public static final SimpleJobTrigger ONCE_NOW = new SimpleJobTrigger( new Date(), null, 0, 0L );
 
   private Date startTime;
 
@@ -52,7 +52,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   public JobTrigger() {
   }
 
-  public JobTrigger(Date startTime, Date endTime) {
+  public JobTrigger( Date startTime, Date endTime ) {
     this.startTime = startTime;
     this.endTime = endTime;
   }
@@ -63,7 +63,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   }
 
   @Override
-  public void setStartTime(Date startTime) {
+  public void setStartTime( Date startTime ) {
     this.startTime = startTime;
   }
 
@@ -73,7 +73,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   }
 
   @Override
-  public void setEndTime(Date endTime) {
+  public void setEndTime( Date endTime ) {
     this.endTime = endTime;
   }
 
@@ -83,7 +83,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   }
 
   @Override
-  public void setUiPassParam(String uiPassParam) {
+  public void setUiPassParam( String uiPassParam ) {
     this.uiPassParam = uiPassParam;
   }
 
@@ -93,7 +93,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   }
 
   @Override
-  public void setCronString(String cronString) {
+  public void setCronString( String cronString ) {
     this.cronString = cronString;
   }
 
@@ -103,7 +103,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   }
 
   @Override
-  public void setDuration(long duration) {
+  public void setDuration( long duration ) {
     this.duration = duration;
   }
 }
