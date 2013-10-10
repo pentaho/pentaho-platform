@@ -30,10 +30,10 @@ public class RepositoryFileUtils {
   public static RepositoryFileTree convertToRepositoryFileTree(RepositoryFileTreeDto tree) {
   RepositoryFileTree fileTree = new RepositoryFileTree();
   List<RepositoryFileTree> fileList = new ArrayList<RepositoryFileTree>();
-  RepositoryFile file = convertToRepositoryFile((RepositoryFileDto)tree.getFile());
+  RepositoryFile file = convertToRepositoryFile(tree.getFile());
   fileTree.setFile(file);
   for (RepositoryFileTreeDto treeItem : tree.getChildren()) {
-    fileList.add(convertToRepositoryFileTree((RepositoryFileTreeDto)treeItem));
+    fileList.add(convertToRepositoryFileTree(treeItem));
   }
   fileTree.setChildren(fileList);
   return fileTree;

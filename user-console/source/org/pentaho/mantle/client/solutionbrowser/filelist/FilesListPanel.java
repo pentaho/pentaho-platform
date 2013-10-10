@@ -426,7 +426,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     List<RepositoryFile> values = new ArrayList<RepositoryFile>();
     if (fileItems != null && fileItems.size() > 0) {
       for (FileItem fileItem : fileItems) {
-        values.add((RepositoryFile) fileItem.getRepositoryFile());
+        values.add(fileItem.getRepositoryFile());
       }
     }
     return values;
