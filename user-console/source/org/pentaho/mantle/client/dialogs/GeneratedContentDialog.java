@@ -17,11 +17,11 @@
 
 package org.pentaho.mantle.client.dialogs;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.gen2.table.client.SelectionGrid;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -31,6 +31,8 @@ import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTy
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
+
+import com.google.gwt.gen2.table.client.SelectionGrid;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SourcesTableEvents;
 import com.google.gwt.user.client.ui.TableListener;
@@ -83,8 +85,9 @@ public class GeneratedContentDialog extends PromptDialogBox implements IDialogCa
     for (int row=0; row<workspaceFiles.size(); row++) {
       String type = workspaceFiles.get(row).getPath().substring(workspaceFiles.get(row).getPath().lastIndexOf("."));
       Date date = workspaceFiles.get(row).getCreatedDate();
+      String formattedDate = DateFormat.getDateTimeInstance().format(date);
       tableContent[row][0] = type;
-      tableContent[row][1] = date.toLocaleString();
+      tableContent[row][1] = formattedDate;
     }
     table.populateTable(tableContent);
     ScrollPanel scrollPanel = new ScrollPanel(table);
@@ -118,7 +121,8 @@ public class GeneratedContentDialog extends PromptDialogBox implements IDialogCa
     for (Integer selectedRow : selected) {
       String dateStr = table.getText(selectedRow, 1);
       for (RepositoryFile fileDto : workspaceFiles) {
-        if (dateStr.equals(fileDto.getCreatedDate().toLocaleString())) {
+        String formattedDate = DateFormat.getDateTimeInstance().format(fileDto.getCreatedDate());
+        if (dateStr.equals(formattedDate)) {
           SolutionBrowserPanel.getInstance().openFile(fileDto, COMMAND.RUN);
           break;
         }

@@ -334,7 +334,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
       String urlParams = "";
       for (int i = 0; i < scheduleParams.size(); i++) {
-        JSONObject o = ((JSONValue) scheduleParams.get(i)).isObject();
+        JSONObject o = scheduleParams.get(i).isObject();
         // keys: name, stringValue, type
         JSONString name = o.get("name").isString();
         JSONArray stringValueArr = o.get("stringValue").isArray();
