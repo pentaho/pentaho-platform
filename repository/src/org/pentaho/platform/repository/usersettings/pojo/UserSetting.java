@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository.usersettings.pojo;
 
@@ -22,23 +22,22 @@ import java.io.Serializable;
 
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 
-
 public class UserSetting implements Serializable, IUserSetting {
-  
+
   private static final long serialVersionUID = 823604019645900631L;
 
   private long id; // Required
 
   private String username;
-  
+
   private String settingName;
 
   private String settingValue;
 
   public UserSetting() {
   }
-  
-  public UserSetting(long id, int revision, String username, String settingName, String settingValue) {
+
+  public UserSetting( long id, int revision, String username, String settingName, String settingValue ) {
     super();
     this.id = id;
     this.username = username;
@@ -50,7 +49,7 @@ public class UserSetting implements Serializable, IUserSetting {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId( long id ) {
     this.id = id;
   }
 
@@ -58,7 +57,7 @@ public class UserSetting implements Serializable, IUserSetting {
     return settingName;
   }
 
-  public void setSettingName(String settingName) {
+  public void setSettingName( String settingName ) {
     this.settingName = settingName;
   }
 
@@ -66,7 +65,7 @@ public class UserSetting implements Serializable, IUserSetting {
     return settingValue;
   }
 
-  public void setSettingValue(String settingValue) {
+  public void setSettingValue( String settingValue ) {
     this.settingValue = settingValue;
   }
 
@@ -74,24 +73,23 @@ public class UserSetting implements Serializable, IUserSetting {
     return username;
   }
 
-  public void setUsername(String username) {
+  public void setUsername( String username ) {
     this.username = username;
   }
 
   public void onModuleLoad() {
     // no-up
   }
-  
-  
-  public boolean equals(Object anotherSetting) {
+
+  public boolean equals( Object anotherSetting ) {
     // we define equality to mean that the settingName's are the same, not the values
-    if (anotherSetting == null || !(anotherSetting instanceof IUserSetting)) {
+    if ( anotherSetting == null || !( anotherSetting instanceof IUserSetting ) ) {
       return false;
     }
-    if (settingName.equals(((IUserSetting)anotherSetting).getSettingName())) {
+    if ( settingName.equals( ( (IUserSetting) anotherSetting ).getSettingName() ) ) {
       return true;
     }
     return false;
   }
-  
+
 }

@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository;
 
@@ -37,9 +37,8 @@ import org.pentaho.platform.util.UUIDUtil;
  * 
  * @author James Dixon
  * 
- * This is a lightweight version on the runtime repository that will not persist
- * any runtime elements. This class is intended for simple standalone
- * applications that do not require workflow
+ *         This is a lightweight version on the runtime repository that will not persist any runtime elements. This
+ *         class is intended for simple standalone applications that do not require workflow
  */
 public class SimpleRuntimeRepository extends PentahoBase implements IRuntimeRepository {
 
@@ -50,7 +49,7 @@ public class SimpleRuntimeRepository extends PentahoBase implements IRuntimeRepo
 
   private static final boolean debug = PentahoSystem.debug;
 
-  private static final Log log = LogFactory.getLog(SimpleRuntimeRepository.class);
+  private static final Log log = LogFactory.getLog( SimpleRuntimeRepository.class );
 
   private static final ThreadLocal threadSession = new ThreadLocal();
 
@@ -70,25 +69,25 @@ public class SimpleRuntimeRepository extends PentahoBase implements IRuntimeRepo
     return null;
   }
 
-  public void setSession(final IPentahoSession sess) {
-    SimpleRuntimeRepository.threadSession.set(sess);
-    genLogIdFromSession(SimpleRuntimeRepository.getUserSession());
+  public void setSession( final IPentahoSession sess ) {
+    SimpleRuntimeRepository.threadSession.set( sess );
+    genLogIdFromSession( SimpleRuntimeRepository.getUserSession() );
   }
 
   /**
    * Loads an existing RuntimeElement
    * 
    * @param instId
-   *            The instance Id
+   *          The instance Id
    * @return the RuntimeElement
    * @throws RepositoryException
    */
-  public IRuntimeElement loadElementById(final String instanceId, final Collection allowableReadAttributeNames)
-      throws RepositoryException {
-    if (SimpleRuntimeRepository.debug) {
-      debug(Messages.getInstance().getString("RTREPO.DEBUG_CREATE_INSTANCE", instanceId)); //$NON-NLS-1$
+  public IRuntimeElement loadElementById( final String instanceId, final Collection allowableReadAttributeNames )
+    throws RepositoryException {
+    if ( SimpleRuntimeRepository.debug ) {
+      debug( Messages.getInstance().getString( "RTREPO.DEBUG_CREATE_INSTANCE", instanceId ) ); //$NON-NLS-1$
     }
-    SimpleRuntimeElement re = new SimpleRuntimeElement(instanceId);
+    SimpleRuntimeElement re = new SimpleRuntimeElement( instanceId );
     return re;
   }
 
@@ -97,20 +96,20 @@ public class SimpleRuntimeRepository extends PentahoBase implements IRuntimeRepo
    * Creates a new RuntimeElement
    * 
    * @param parId
-   *            Parent ID of this instance
+   *          Parent ID of this instance
    * @param parType
-   *            Parent type of the instance
+   *          Parent type of the instance
    * @return the created runtime element
    */
-  public IRuntimeElement newRuntimeElement(final String parId, final String parType, final boolean transientOnly) {
-    if (SimpleRuntimeRepository.debug) {
-      debug(Messages.getInstance().getString("RTREPO.DEBUG_NEW_ELEMENT_PARENT", parId, parType)); //$NON-NLS-1$
+  public IRuntimeElement newRuntimeElement( final String parId, final String parType, final boolean transientOnly ) {
+    if ( SimpleRuntimeRepository.debug ) {
+      debug( Messages.getInstance().getString( "RTREPO.DEBUG_NEW_ELEMENT_PARENT", parId, parType ) ); //$NON-NLS-1$
     }
     String instanceId = UUIDUtil.getUUIDAsString();
-    if (SimpleRuntimeRepository.debug) {
-      debug(Messages.getInstance().getString("RTREPO.DEBUG_CREATE_INSTANCE", instanceId)); //$NON-NLS-1$
+    if ( SimpleRuntimeRepository.debug ) {
+      debug( Messages.getInstance().getString( "RTREPO.DEBUG_CREATE_INSTANCE", instanceId ) ); //$NON-NLS-1$
     }
-    SimpleRuntimeElement re = new SimpleRuntimeElement(instanceId, parId, parType);
+    SimpleRuntimeElement re = new SimpleRuntimeElement( instanceId, parId, parType );
     return re;
   }
 
@@ -119,23 +118,23 @@ public class SimpleRuntimeRepository extends PentahoBase implements IRuntimeRepo
    * Creates a new RuntimeElement
    * 
    * @param parId
-   *            Parent Id of the runtime element
+   *          Parent Id of the runtime element
    * @param parType
-   *            Parent type of the runtime element
+   *          Parent type of the runtime element
    * @param solnId
-   *            Solution Id of the element
+   *          Solution Id of the element
    * @return The created runtime element
    */
-  public IRuntimeElement newRuntimeElement(final String parId, final String parType, final String solnId,
-      final boolean transientOnly) {
-    if (SimpleRuntimeRepository.debug) {
-      debug(Messages.getInstance().getString("RTREPO.DEBUG_NEW_ELEMENT_PARENT_SOLN", parId, parType, solnId)); //$NON-NLS-1$
+  public IRuntimeElement newRuntimeElement( final String parId, final String parType, final String solnId,
+      final boolean transientOnly ) {
+    if ( SimpleRuntimeRepository.debug ) {
+      debug( Messages.getInstance().getString( "RTREPO.DEBUG_NEW_ELEMENT_PARENT_SOLN", parId, parType, solnId ) ); //$NON-NLS-1$
     }
     String instanceId = UUIDUtil.getUUIDAsString();
-    if (SimpleRuntimeRepository.debug) {
-      debug(Messages.getInstance().getString("RTREPO.DEBUG_CREATE_INSTANCE", instanceId)); //$NON-NLS-1$
+    if ( SimpleRuntimeRepository.debug ) {
+      debug( Messages.getInstance().getString( "RTREPO.DEBUG_CREATE_INSTANCE", instanceId ) ); //$NON-NLS-1$
     }
-    SimpleRuntimeElement re = new SimpleRuntimeElement(instanceId, parId, parType, solnId);
+    SimpleRuntimeElement re = new SimpleRuntimeElement( instanceId, parId, parType, solnId );
     return re;
   }
 

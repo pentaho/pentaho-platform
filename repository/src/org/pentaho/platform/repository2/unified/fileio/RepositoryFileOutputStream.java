@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository2.unified.fileio;
 
@@ -50,27 +50,23 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   protected boolean flushed = false;
   protected ArrayList<IStreamListener> listeners = new ArrayList<IStreamListener>();
 
-  public RepositoryFileOutputStream(final String path,
-                                    final boolean autoCreateUniqueFileName,
-                                    final boolean autoCreateDirStructure,
-                                    final IUnifiedRepository repository, final boolean hidden) {
-    setRepository(repository);
+  public RepositoryFileOutputStream( final String path, final boolean autoCreateUniqueFileName,
+      final boolean autoCreateDirStructure, final IUnifiedRepository repository, final boolean hidden ) {
+    setRepository( repository );
     this.path = path;
     this.hidden = hidden;
     this.autoCreateDirStructure = autoCreateDirStructure;
     this.autoCreateUniqueFileName = autoCreateUniqueFileName;
   }
 
-  public RepositoryFileOutputStream(final Serializable id,
-                                    final boolean autoCreateUniqueFileName,
-                                    final boolean autoCreateDirStructure,
-                                    final IUnifiedRepository repository, final boolean hidden)
-      throws FileNotFoundException {
-    setRepository(repository);
-    RepositoryFile file = this.repository.getFileById(id);
-    if (file == null) {
-      throw new FileNotFoundException(MessageFormat.format(
-          "Repository file with id {0} not readable or does not exist", id));
+  public RepositoryFileOutputStream( final Serializable id, final boolean autoCreateUniqueFileName,
+      final boolean autoCreateDirStructure, final IUnifiedRepository repository, final boolean hidden )
+    throws FileNotFoundException {
+    setRepository( repository );
+    RepositoryFile file = this.repository.getFileById( id );
+    if ( file == null ) {
+      throw new FileNotFoundException( MessageFormat.format(
+          "Repository file with id {0} not readable or does not exist", id ) );
     }
     this.hidden = hidden;
     this.path = file.getPath();
@@ -78,83 +74,78 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     this.autoCreateUniqueFileName = autoCreateUniqueFileName;
   }
 
-  public RepositoryFileOutputStream(final RepositoryFile file,
-                                    final boolean autoCreateUniqueFileName,
-                                    final boolean autoCreateDirStructure,
-                                    final IUnifiedRepository repository) {
-    this(file.getPath(), autoCreateUniqueFileName, autoCreateDirStructure, repository, false);
+  public RepositoryFileOutputStream( final RepositoryFile file, final boolean autoCreateUniqueFileName,
+      final boolean autoCreateDirStructure, final IUnifiedRepository repository ) {
+    this( file.getPath(), autoCreateUniqueFileName, autoCreateDirStructure, repository, false );
   }
 
-  public RepositoryFileOutputStream(final String path,
-                                    final boolean autoCreateUniqueFileName,
-                                    final boolean autoCreateDirStructure) {
-    this(path, autoCreateUniqueFileName, autoCreateDirStructure, null, false);
+  public RepositoryFileOutputStream( final String path, final boolean autoCreateUniqueFileName,
+      final boolean autoCreateDirStructure ) {
+    this( path, autoCreateUniqueFileName, autoCreateDirStructure, null, false );
   }
 
-  public RepositoryFileOutputStream(final Serializable id,
-                                    final boolean autoCreateUniqueFileName,
-                                    final boolean autoCreateDirStructure)
-      throws FileNotFoundException {
-    this(id, autoCreateUniqueFileName, autoCreateDirStructure, null, false);
+  public RepositoryFileOutputStream( final Serializable id, final boolean autoCreateUniqueFileName,
+      final boolean autoCreateDirStructure ) throws FileNotFoundException {
+    this( id, autoCreateUniqueFileName, autoCreateDirStructure, null, false );
   }
 
-  public RepositoryFileOutputStream(final RepositoryFile file,
-                                    final boolean autoCreateUniqueFileName,
-                                    final boolean autoCreateDirStructure) {
-    this(file, autoCreateUniqueFileName, autoCreateDirStructure, null);
+  public RepositoryFileOutputStream( final RepositoryFile file, final boolean autoCreateUniqueFileName,
+      final boolean autoCreateDirStructure ) {
+    this( file, autoCreateUniqueFileName, autoCreateDirStructure, null );
   }
 
-  public RepositoryFileOutputStream(final String path) {
-    this(path, false, false, null, false);
+  public RepositoryFileOutputStream( final String path ) {
+    this( path, false, false, null, false );
   }
 
-  public RepositoryFileOutputStream(final String path, final boolean hidden) {
-	    this(path, false, false, null, hidden);
+  public RepositoryFileOutputStream( final String path, final boolean hidden ) {
+    this( path, false, false, null, hidden );
   }
 
-  public RepositoryFileOutputStream(final RepositoryFile file) {
-    this(file.getPath(), false, false, null, file.isHidden());
+  public RepositoryFileOutputStream( final RepositoryFile file ) {
+    this( file.getPath(), false, false, null, file.isHidden() );
   }
 
-  public RepositoryFileOutputStream(final Serializable id) throws FileNotFoundException {
-    this(id, false, false, null, false);
+  public RepositoryFileOutputStream( final Serializable id ) throws FileNotFoundException {
+    this( id, false, false, null, false );
   }
 
-  ////
-  //charsetName is required as metadata so the JCR can be provided the correct encoding, provided
-  //we are storing text.  These are package private methosd only and should only be called by 
-  //RepositoryFileWriter, because if you are wanting to write characters to a repository file,
-  //you need to use RepositoryFileWriter, not this class.
+  // //
+  // charsetName is required as metadata so the JCR can be provided the correct encoding, provided
+  // we are storing text. These are package private methosd only and should only be called by
+  // RepositoryFileWriter, because if you are wanting to write characters to a repository file,
+  // you need to use RepositoryFileWriter, not this class.
   //
-  protected RepositoryFileOutputStream(String path, String charsetName) throws FileNotFoundException {
-    this(path);
+  protected RepositoryFileOutputStream( String path, String charsetName ) throws FileNotFoundException {
+    this( path );
     this.charsetName = charsetName;
   }
 
-  protected RepositoryFileOutputStream(RepositoryFile file, String charsetName) throws FileNotFoundException {
-    this(file);
+  protected RepositoryFileOutputStream( RepositoryFile file, String charsetName ) throws FileNotFoundException {
+    this( file );
     this.charsetName = charsetName;
   }
 
-  protected RepositoryFileOutputStream(Serializable id, String charsetName) throws FileNotFoundException {
-    this(id);
+  protected RepositoryFileOutputStream( Serializable id, String charsetName ) throws FileNotFoundException {
+    this( id );
     this.charsetName = charsetName;
   }
+
   //
-  ////
+  // //
 
-  protected RepositoryFile getParent(String path) {
-    String newFilePath = StringUtils.removeEnd(path, "/"); //$NON-NLS-1$
-    String parentPath = StringUtils.substringBeforeLast(newFilePath, "/"); //$NON-NLS-1$
-    if (parentPath.isEmpty()) {
+  protected RepositoryFile getParent( String path ) {
+    String newFilePath = StringUtils.removeEnd( path, "/" ); //$NON-NLS-1$
+    String parentPath = StringUtils.substringBeforeLast( newFilePath, "/" ); //$NON-NLS-1$
+    if ( parentPath.isEmpty() ) {
       parentPath = "/";
     }
-    return repository.getFile(parentPath);
+    return repository.getFile( parentPath );
   }
 
   @Override
   public void close() throws IOException {
-    if (!closed) {
+    if ( !closed ) {
       flush();
       closed = true;
       reset();
@@ -163,103 +154,114 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
 
   @Override
   public void flush() throws IOException {
-    if (closed) {
+    if ( closed ) {
       return;
     }
     super.flush();
 
-    ByteArrayInputStream bis = new ByteArrayInputStream(toByteArray());
+    ByteArrayInputStream bis = new ByteArrayInputStream( toByteArray() );
 
-    //make an effort to determine the correct mime type, default to application/octet-stream
-    String ext = RepositoryFilenameUtils.getExtension(path);
+    // make an effort to determine the correct mime type, default to application/octet-stream
+    String ext = RepositoryFilenameUtils.getExtension( path );
     String mimeType = "application/octet-stream"; //$NON-NLS-1$
-    if (ext != null) {
-      String tempMimeType = MimeHelper.getMimeTypeFromExtension("." + ext); //$NON-NLS-1$
-      if (tempMimeType != null) {
+    if ( ext != null ) {
+      String tempMimeType = MimeHelper.getMimeTypeFromExtension( "." + ext ); //$NON-NLS-1$
+      if ( tempMimeType != null ) {
         mimeType = tempMimeType;
       }
     }
 
-    if(charsetName == null && mimeType != null){
-    	charsetName = MimeHelper.getDefaultCharset(mimeType);
+    if ( charsetName == null && mimeType != null ) {
+      charsetName = MimeHelper.getDefaultCharset( mimeType );
     }
-    
-    //FIXME: not a good idea that we assume we are dealing with text.  Best if this is somehow moved to the RepositoryFileWriter
-    // but I couldn't figure out a clean way to do that.  For now, charsetName is passed in here and we use it if available.
-    final SimpleRepositoryFileData payload = new SimpleRepositoryFileData(bis, charsetName, mimeType);
-    if (!flushed) {
-      RepositoryFile file = repository.getFile(path);
-      RepositoryFile parentFolder = getParent(path);
-      String baseFileName = RepositoryFilenameUtils.getBaseName(path);
-      String extension = RepositoryFilenameUtils.getExtension(path);
-      if (file == null) {
-        if (autoCreateDirStructure) {
+
+    // FIXME: not a good idea that we assume we are dealing with text. Best if this is somehow moved to the
+    // RepositoryFileWriter
+    // but I couldn't figure out a clean way to do that. For now, charsetName is passed in here and we use it if
+    // available.
+    final SimpleRepositoryFileData payload = new SimpleRepositoryFileData( bis, charsetName, mimeType );
+    if ( !flushed ) {
+      RepositoryFile file = repository.getFile( path );
+      RepositoryFile parentFolder = getParent( path );
+      String baseFileName = RepositoryFilenameUtils.getBaseName( path );
+      String extension = RepositoryFilenameUtils.getExtension( path );
+      if ( file == null ) {
+        if ( autoCreateDirStructure ) {
           ArrayList<String> foldersToCreate = new ArrayList<String>();
-          String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(path);
+          String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( path );
           // Make sure the parent path isn't the root
-          while ((parentPath != null) && (parentPath.length() > 0 && !path.equals(parentPath))
-              && (repository.getFile(parentPath) == null)) {
-            foldersToCreate.add(RepositoryFilenameUtils.getName(parentPath));
-            parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(parentPath);
+          while ( ( parentPath != null ) && ( parentPath.length() > 0 && !path.equals( parentPath ) )
+              && ( repository.getFile( parentPath ) == null ) ) {
+            foldersToCreate.add( RepositoryFilenameUtils.getName( parentPath ) );
+            parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( parentPath );
           }
-          Collections.reverse(foldersToCreate);
-          parentFolder = ((parentPath != null) && (parentPath.length() > 0)) ? repository.getFile(parentPath) : repository.getFile("/");
-          if (!parentFolder.isFolder()) {
+          Collections.reverse( foldersToCreate );
+          parentFolder =
+              ( ( parentPath != null ) && ( parentPath.length() > 0 ) ) ? repository.getFile( parentPath ) : repository
+                  .getFile( "/" );
+          if ( !parentFolder.isFolder() ) {
             throw new FileNotFoundException();
           }
-          for (String folderName : foldersToCreate) {
-            parentFolder = repository.createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build(), null);
+          for ( String folderName : foldersToCreate ) {
+            parentFolder =
+                repository.createFolder( parentFolder.getId(), new RepositoryFile.Builder( folderName ).folder( true )
+                    .build(), null );
           }
         } else {
-          if (parentFolder == null) {
+          if ( parentFolder == null ) {
             throw new FileNotFoundException();
           }
         }
-        file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).hidden(hidden).versioned(true).build(); // Default
+        file =
+            new RepositoryFile.Builder( RepositoryFilenameUtils.getName( path ) ).hidden( hidden ).versioned( true )
+                .build(); // Default
         // versioned to true so that we're keeping history
-        file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
-        for (IStreamListener listener : listeners) {
-          listener.fileCreated(path);
+        file =
+            repository.createFile( parentFolder.getId(), file, payload,
+                "commit from " + RepositoryFileOutputStream.class.getName() ); //$NON-NLS-1$
+        for ( IStreamListener listener : listeners ) {
+          listener.fileCreated( path );
         }
-      } else if (file.isFolder()) {
-        throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+      } else if ( file.isFolder() ) {
+        throw new FileNotFoundException( MessageFormat.format( "Repository file {0} is a directory", file.getPath() ) );
       } else {
-        if (autoCreateUniqueFileName) {
+        if ( autoCreateUniqueFileName ) {
           int nameCount = 1;
           String newFileName = null;
-          
-          List<RepositoryFile> children = repository.getChildren(parentFolder.getId());
+
+          List<RepositoryFile> children = repository.getChildren( parentFolder.getId() );
 
           boolean hasFile = true;
-          while (hasFile) {
+          while ( hasFile ) {
             hasFile = false;
             nameCount++;
-            if ((extension != null) && (extension.length() > 0)) {
-              newFileName = baseFileName + "(" + nameCount + ")." + extension;  //$NON-NLS-1$ //$NON-NLS-2$
+            if ( ( extension != null ) && ( extension.length() > 0 ) ) {
+              newFileName = baseFileName + "(" + nameCount + ")." + extension; //$NON-NLS-1$ //$NON-NLS-2$
             } else {
-              newFileName = baseFileName + "(" + nameCount + ")";  //$NON-NLS-1$ //$NON-NLS-2$
+              newFileName = baseFileName + "(" + nameCount + ")"; //$NON-NLS-1$ //$NON-NLS-2$
             }
-            for (RepositoryFile child : children) {
-              if (child.getPath().equals(parentFolder.getPath() + "/" + newFileName)) {
+            for ( RepositoryFile child : children ) {
+              if ( child.getPath().equals( parentFolder.getPath() + "/" + newFileName ) ) {
                 hasFile = true;
                 break;
               }
             }
           }
-          
-          file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
-          file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
+
+          file = new RepositoryFile.Builder( newFileName ).versioned( true ).build(); // Default versioned to true so
+                                                                                      // that we're keeping history
+          file = repository.createFile( parentFolder.getId(), file, payload, "New File" ); //$NON-NLS-1$
           path = file.getPath();
-          for (IStreamListener listener : listeners) {
-            listener.fileCreated(path);
+          for ( IStreamListener listener : listeners ) {
+            listener.fileCreated( path );
           }
         } else {
-          repository.updateFile(file, payload, "New File"); //$NON-NLS-1$
+          repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
         }
       }
     } else {
-      RepositoryFile file = repository.getFile(path);
-      repository.updateFile(file, payload, "New File"); //$NON-NLS-1$
+      RepositoryFile file = repository.getFile( path );
+      repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
     }
     flushed = true;
   }
@@ -268,8 +270,8 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return path;
   }
 
-  public void setFilePath(String path) {
-    if (!path.equals(this.path)) {
+  public void setFilePath( String path ) {
+    if ( !path.equals( this.path ) ) {
       this.path = path;
       reset();
       flushed = false;
@@ -285,12 +287,12 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return autoCreateDirStructure;
   }
 
-  public void addListener(IStreamListener listener) {
-    listeners.add(listener);
+  public void addListener( IStreamListener listener ) {
+    listeners.add( listener );
   }
 
-  public void setRepository(final IUnifiedRepository repository) {
-    this.repository = (repository != null ? repository : PentahoSystem.get(IUnifiedRepository.class));
+  public void setRepository( final IUnifiedRepository repository ) {
+    this.repository = ( repository != null ? repository : PentahoSystem.get( IUnifiedRepository.class ) );
   }
 
   public IUnifiedRepository getRepository() {
@@ -301,11 +303,11 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return charsetName;
   }
 
-  public void setCharsetName(final String charsetName) {
+  public void setCharsetName( final String charsetName ) {
     this.charsetName = charsetName;
   }
-  
+
   public boolean isFlushed() {
-  	return flushed;
+    return flushed;
   }
 }
