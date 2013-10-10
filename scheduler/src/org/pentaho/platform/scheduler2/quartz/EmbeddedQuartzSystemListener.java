@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.scheduler2.quartz;
 
@@ -45,12 +45,11 @@ import org.quartz.SchedulerException;
 public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
 
   /*
-   * This is re-use by Copy and Paste to avoid a dependency on the 
-   * bi-platform-scheduler project (which will eventually be phased out).
+   * This is re-use by Copy and Paste to avoid a dependency on the bi-platform-scheduler project (which will eventually
+   * be phased out).
    * 
-   * The only difference between this and the other class is that this
-   * system listener will initialize the quartz database if it hasn't been
-   * created yet.
+   * The only difference between this and the other class is that this system listener will initialize the quartz
+   * database if it hasn't been created yet.
    */
 
   private static final String DEFAULT_QUARTZ_PROPERTIES_FILE = "quartz/quartz.properties"; //$NON-NLS-1$
@@ -59,144 +58,162 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
 
   String quartzPropertiesFile = DEFAULT_QUARTZ_PROPERTIES_FILE;
 
-  private static final Log logger = LogFactory.getLog(EmbeddedQuartzSystemListener.class);
+  private static final Log logger = LogFactory.getLog( EmbeddedQuartzSystemListener.class );
 
   private static boolean useNewDatasourceService = false;
 
-  public synchronized void setUseNewDatasourceService(boolean useNewService) {
+  public synchronized void setUseNewDatasourceService( boolean useNewService ) {
     //
-    // The platform should not be calling this method. But, in case someone really 
+    // The platform should not be calling this method. But, in case someone really
     // really wants to use the new datasource service features to talk to
-    // a core service like Quartz, this is now toggle-able. 
+    // a core service like Quartz, this is now toggle-able.
     //
     useNewDatasourceService = useNewService;
   }
 
-  public boolean startup(final IPentahoSession session) {
+  public boolean startup( final IPentahoSession session ) {
     boolean result = true;
     Properties quartzProps = null;
-    if (quartzPropertiesFile != null) {
-      quartzProps = PentahoSystem.getSystemSettings().getSystemSettingsProperties(quartzPropertiesFile);
-    } else if (quartzProperties != null) {
+    if ( quartzPropertiesFile != null ) {
+      quartzProps = PentahoSystem.getSystemSettings().getSystemSettingsProperties( quartzPropertiesFile );
+    } else if ( quartzProperties != null ) {
       quartzProps = quartzProperties;
     }
     try {
-    	if (quartzProps == null) {
+      if ( quartzProps == null ) {
         quartzProps = findPropertiesInClasspath();
-    	}
-      if (quartzProps == null) {
+      }
+      if ( quartzProps == null ) {
         result = false;
       } else {
-        String dsName = quartzProps.getProperty("org.quartz.dataSource.myDS.jndiURL"); //$NON-NLS-1$
-        if (dsName != null) {
-          IDBDatasourceService datasourceService = getQuartzDatasourceService(session);
-          String boundDsName = datasourceService.getDSBoundName(dsName);
-          
-          if (boundDsName != null) {
-            quartzProps.setProperty("org.quartz.dataSource.myDS.jndiURL", boundDsName); //$NON-NLS-1$
+        String dsName = quartzProps.getProperty( "org.quartz.dataSource.myDS.jndiURL" ); //$NON-NLS-1$
+        if ( dsName != null ) {
+          IDBDatasourceService datasourceService = getQuartzDatasourceService( session );
+          String boundDsName = datasourceService.getDSBoundName( dsName );
+
+          if ( boundDsName != null ) {
+            quartzProps.setProperty( "org.quartz.dataSource.myDS.jndiURL", boundDsName ); //$NON-NLS-1$
           }
-          
-          DataSource ds = datasourceService.getDataSource(dsName);
-          result = verifyQuartzIsConfigured(ds);         
+
+          DataSource ds = datasourceService.getDataSource( dsName );
+          result = verifyQuartzIsConfigured( ds );
         }
-        QuartzScheduler scheduler = (QuartzScheduler)PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
-        if(logger.isDebugEnabled()) {
-          logger.debug("Quartz configured with properties"); //$NON-NLS-1$
-          quartzProps.store(System.out, "debugging"); //$NON-NLS-1$
+        QuartzScheduler scheduler = (QuartzScheduler) PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+        if ( logger.isDebugEnabled() ) {
+          logger.debug( "Quartz configured with properties" ); //$NON-NLS-1$
+          quartzProps.store( System.out, "debugging" ); //$NON-NLS-1$
         }
-        scheduler.setQuartzSchedulerFactory(new org.quartz.impl.StdSchedulerFactory(quartzProps));
-        if (logger.isDebugEnabled()) {
-          logger.debug(scheduler.getQuartzScheduler().getSchedulerName());
+        scheduler.setQuartzSchedulerFactory( new org.quartz.impl.StdSchedulerFactory( quartzProps ) );
+        if ( logger.isDebugEnabled() ) {
+          logger.debug( scheduler.getQuartzScheduler().getSchedulerName() );
         }
         scheduler.start();
       }
-    } catch (IOException ex){
+    } catch ( IOException ex ) {
       result = false;
-      logger.error(Messages.getInstance()
-          .getErrorString("EmbeddedQuartzSystemListener.ERROR_0004_LOAD_PROPERTIES_FROM_CLASSPATH"), ex); //$NON-NLS-1$
-    } catch (ObjectFactoryException objface) {
-      logger.error(Messages.getInstance().getErrorString(
-          "EmbeddedQuartzSystemListener.ERROR_0005_UNABLE_TO_INSTANTIATE_OBJECT",EmbeddedQuartzSystemListener.class.getName()), objface); //$NON-NLS-1$
+      logger.error( Messages.getInstance().getErrorString(
+          "EmbeddedQuartzSystemListener.ERROR_0004_LOAD_PROPERTIES_FROM_CLASSPATH" ), ex ); //$NON-NLS-1$
+    } catch ( ObjectFactoryException objface ) {
+      logger
+          .error(
+              Messages
+                  .getInstance()
+                  .getErrorString(
+                      "EmbeddedQuartzSystemListener.ERROR_0005_UNABLE_TO_INSTANTIATE_OBJECT", EmbeddedQuartzSystemListener.class.getName() ), objface ); //$NON-NLS-1$
       result = false;
-    } catch (DBDatasourceServiceException dse) {
-      logger.error(Messages.getInstance().getErrorString(
-          "EmbeddedQuartzSystemListener.ERROR_0006_UNABLE_TO_GET_DATASOURCE",EmbeddedQuartzSystemListener.class.getName()), dse); //$NON-NLS-1$
+    } catch ( DBDatasourceServiceException dse ) {
+      logger
+          .error(
+              Messages
+                  .getInstance()
+                  .getErrorString(
+                      "EmbeddedQuartzSystemListener.ERROR_0006_UNABLE_TO_GET_DATASOURCE", EmbeddedQuartzSystemListener.class.getName() ), dse ); //$NON-NLS-1$
       result = false;
-    } catch (SQLException sqle) {
-      logger.error("EmbeddedQuartzSystemListener.ERROR_0007_SQLERROR", sqle); //$NON-NLS-1$
+    } catch ( SQLException sqle ) {
+      logger.error( "EmbeddedQuartzSystemListener.ERROR_0007_SQLERROR", sqle ); //$NON-NLS-1$
       result = false;
-    } catch (SchedulerException e) {
-      logger.error(Messages.getInstance().getErrorString(
-          "EmbeddedQuartzSystemListener.ERROR_0001_Scheduler_Not_Initialized",EmbeddedQuartzSystemListener.class.getName()), e); //$NON-NLS-1$
-      result = false;        
-    } catch (org.pentaho.platform.api.scheduler2.SchedulerException e) {
-      logger.error(Messages.getInstance().getErrorString(
-          "EmbeddedQuartzSystemListener.ERROR_0001_Scheduler_Not_Initialized",EmbeddedQuartzSystemListener.class.getName()), e); //$NON-NLS-1$
-      result = false;        
+    } catch ( SchedulerException e ) {
+      logger
+          .error(
+              Messages
+                  .getInstance()
+                  .getErrorString(
+                      "EmbeddedQuartzSystemListener.ERROR_0001_Scheduler_Not_Initialized", EmbeddedQuartzSystemListener.class.getName() ), e ); //$NON-NLS-1$
+      result = false;
+    } catch ( org.pentaho.platform.api.scheduler2.SchedulerException e ) {
+      logger
+          .error(
+              Messages
+                  .getInstance()
+                  .getErrorString(
+                      "EmbeddedQuartzSystemListener.ERROR_0001_Scheduler_Not_Initialized", EmbeddedQuartzSystemListener.class.getName() ), e ); //$NON-NLS-1$
+      result = false;
     }
     return result;
   }
 
-  protected boolean verifyQuartzIsConfigured(DataSource ds) throws SQLException {
+  protected boolean verifyQuartzIsConfigured( DataSource ds ) throws SQLException {
     boolean quartzIsConfigured = false;
     Connection conn = ds.getConnection();
-    
+
     try {
-        ResultSet rs =  conn.getMetaData().getTables(null, null, "%QRTZ%", null);
-        try {
-          quartzIsConfigured = rs.next();
-        } finally {
-          rs.close();
+      ResultSet rs = conn.getMetaData().getTables( null, null, "%QRTZ%", null );
+      try {
+        quartzIsConfigured = rs.next();
+      } finally {
+        rs.close();
+      }
+      if ( !quartzIsConfigured ) {
+        // If we're here, then tables need creating
+        String quartzInitializationScriptPath =
+            PentahoSystem.getApplicationContext()
+                .getSolutionPath( "system/quartz/h2-quartz-schema-updated.sql" ).replace( '\\', '/' ); //$NON-NLS-1$
+        File f = new File( quartzInitializationScriptPath );
+        if ( f.exists() ) {
+          Statement stmt = conn.createStatement();
+          // We know now that there's an initialization script
+          stmt.executeUpdate( "RUNSCRIPT FROM '" + quartzInitializationScriptPath + "'" ); //$NON-NLS-1$ //$NON-NLS-2$
+          // Tables should now exist.
+          quartzIsConfigured = true;
+          stmt.close();
         }
-        if (!quartzIsConfigured) {
-          // If we're here, then tables need creating
-          String quartzInitializationScriptPath = PentahoSystem.getApplicationContext().getSolutionPath(
-              "system/quartz/h2-quartz-schema-updated.sql").replace('\\', '/'); //$NON-NLS-1$
-          File f = new File(quartzInitializationScriptPath);
-          if (f.exists()) {
-            Statement stmt = conn.createStatement();  
-            // We know now that there's an initialization script
-            stmt.executeUpdate("RUNSCRIPT FROM '" + quartzInitializationScriptPath + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-            // Tables should now exist.
-            quartzIsConfigured = true;
-            stmt.close();
-          }
-        }
+      }
     } finally {
       conn.close();
     }
     return quartzIsConfigured;
   }
 
-  private IDBDatasourceService getQuartzDatasourceService(IPentahoSession session) throws ObjectFactoryException {
+  private IDBDatasourceService getQuartzDatasourceService( IPentahoSession session ) throws ObjectFactoryException {
     //
     // Our new datasource stuff is provided for running queries and acquiring data. It is
     // NOT there for the inner workings of the platform. So, the Quartz datasource should ALWAYS
-    // be provided by JNDI. However, the class could be twiddled so that it will use the factory. 
+    // be provided by JNDI. However, the class could be twiddled so that it will use the factory.
     //
-    // And, since the default shipping condition should be to NOT use the factory (and force JNDI), 
+    // And, since the default shipping condition should be to NOT use the factory (and force JNDI),
     // I've reversed the logic in the class to have the negative condition first (the default execution
     // path).
     //
     // Marc - BISERVER-2004
     //
-    if (!useNewDatasourceService) {
+    if ( !useNewDatasourceService ) {
       return new JndiDatasourceService();
     } else {
-      IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, session);
+      IDBDatasourceService datasourceService =
+          PentahoSystem.getObjectFactory().get( IDBDatasourceService.class, session );
       return datasourceService;
     }
   }
 
   private Properties findPropertiesInClasspath() throws IOException {
     // Do my best to find the properties file...
-    File propFile = new File("quartz.properties"); //$NON-NLS-1$
-    if (!propFile.canRead()) {
-      InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("quartz.properties"); //$NON-NLS-1$
-      if (in != null) {
+    File propFile = new File( "quartz.properties" ); //$NON-NLS-1$
+    if ( !propFile.canRead() ) {
+      InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream( "quartz.properties" ); //$NON-NLS-1$
+      if ( in != null ) {
         try {
           Properties props = new Properties();
-          props.load(in);
+          props.load( in );
           return props;
         } finally {
           in.close();
@@ -204,16 +221,16 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
       }
       return null; // Couldn't find properties file.
     } else {
-      InputStream iStream = new BufferedInputStream(new FileInputStream(propFile));
+      InputStream iStream = new BufferedInputStream( new FileInputStream( propFile ) );
       try {
         Properties props = new Properties();
-        props.load(iStream);
+        props.load( iStream );
         return props;
       } finally {
         try {
           iStream.close();
-        } catch (IOException ignored) {
-          // close quietly
+        } catch ( IOException ignored ) {
+          boolean ignore = true; // close quietly
         }
       }
     }
@@ -226,9 +243,9 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
    */
   public void shutdown() {
     try {
-      QuartzScheduler scheduler = (QuartzScheduler) PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
+      QuartzScheduler scheduler = (QuartzScheduler) PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
       scheduler.getQuartzScheduler().shutdown();
-    } catch (SchedulerException e) {
+    } catch ( SchedulerException e ) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -238,9 +255,9 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
     return quartzProperties;
   }
 
-  public void setQuartzProperties(Properties quartzProperties) {
+  public void setQuartzProperties( Properties quartzProperties ) {
     this.quartzProperties = quartzProperties;
-    if (quartzProperties != null) {
+    if ( quartzProperties != null ) {
       quartzPropertiesFile = null;
     }
   }
@@ -249,9 +266,9 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
     return quartzPropertiesFile;
   }
 
-  public void setQuartzPropertiesFile(String quartzPropertiesFile) {
+  public void setQuartzPropertiesFile( String quartzPropertiesFile ) {
     this.quartzPropertiesFile = quartzPropertiesFile;
-    if (quartzPropertiesFile != null) {
+    if ( quartzPropertiesFile != null ) {
       quartzProperties = null;
     }
   }
