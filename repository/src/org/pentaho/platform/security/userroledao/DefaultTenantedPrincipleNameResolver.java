@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.security.userroledao;
 
@@ -35,45 +35,50 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
   public DefaultTenantedPrincipleNameResolver() {
   }
 
-  public DefaultTenantedPrincipleNameResolver(String delimiter) {
-    setDelimeter(delimiter);
+  public DefaultTenantedPrincipleNameResolver( String delimiter ) {
+    setDelimeter( delimiter );
   }
 
-  public ITenant getTenant(String principalId) {
+  public ITenant getTenant( String principalId ) {
     String tenantName = null;
-    int delimiterIndex = principalId.lastIndexOf(getDelimeter());
-    if ( delimiterIndex >= 0) {
-      tenantName = (getUserNameFollowsTenantName() ? principalId.substring(0, delimiterIndex - 1) : principalId.substring(delimiterIndex + 1));
-      if(!isTenantValid(tenantName)) {
+    int delimiterIndex = principalId.lastIndexOf( getDelimeter() );
+    if ( delimiterIndex >= 0 ) {
+      tenantName =
+          ( getUserNameFollowsTenantName() ? principalId.substring( 0, delimiterIndex - 1 ) : principalId
+              .substring( delimiterIndex + 1 ) );
+      if ( !isTenantValid( tenantName ) ) {
         tenantName = null;
       }
     }
-    return new Tenant(tenantName, true);
+    return new Tenant( tenantName, true );
   }
 
-  public String getPrincipleName(String principalId) {
+  public String getPrincipleName( String principalId ) {
     String userName = principalId;
-    int delimiterIndex = principalId.lastIndexOf(getDelimeter());
-    if ( delimiterIndex >= 0) {
-      if (getUserNameNaturallyContainsEmbeddedTenantName()) {
+    int delimiterIndex = principalId.lastIndexOf( getDelimeter() );
+    if ( delimiterIndex >= 0 ) {
+      if ( getUserNameNaturallyContainsEmbeddedTenantName() ) {
         userName = principalId;
       } else {
-        userName = (getUserNameFollowsTenantName() ?  principalId.substring(delimiterIndex + 1) : principalId.substring(0, delimiterIndex));
-        if(getTenant(principalId).getId() == null) {
+        userName =
+            ( getUserNameFollowsTenantName() ? principalId.substring( delimiterIndex + 1 ) : principalId.substring( 0,
+                delimiterIndex ) );
+        if ( getTenant( principalId ).getId() == null ) {
           userName = principalId;
         }
       }
     }
     return userName;
   }
-  
 
-  public String getPrincipleId(ITenant tenant, String principleName) {
+  public String getPrincipleId( ITenant tenant, String principleName ) {
     String id = getDelimeter();
-    if ((tenant == null) || (tenant.getId() == null)) {
+    if ( ( tenant == null ) || ( tenant.getId() == null ) ) {
       id = principleName;
     } else {
-      id = principalNameFollowsTenantName ? tenant.getId() + getDelimeter() + principleName : principleName + getDelimeter() + tenant.getId();
+      id =
+          principalNameFollowsTenantName ? tenant.getId() + getDelimeter() + principleName : principleName
+              + getDelimeter() + tenant.getId();
     }
     return id;
   }
@@ -82,7 +87,7 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
     return userNameNaturallyContainsEmbeddedTenantName;
   }
 
-  public void setUserNameNaturallyContainsEmbeddedTenantName(boolean userNameNaturallyContainsEmbeddedTenantName) {
+  public void setUserNameNaturallyContainsEmbeddedTenantName( boolean userNameNaturallyContainsEmbeddedTenantName ) {
     this.userNameNaturallyContainsEmbeddedTenantName = userNameNaturallyContainsEmbeddedTenantName;
   }
 
@@ -90,7 +95,7 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
     return delimeter;
   }
 
-  public void setDelimeter(String delimeter) {
+  public void setDelimeter( String delimeter ) {
     this.delimeter = delimeter;
   }
 
@@ -98,24 +103,23 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
     return principalNameFollowsTenantName;
   }
 
-  public void setUserNameFollowsTenantName(boolean userNameFollowsTenantName) {
+  public void setUserNameFollowsTenantName( boolean userNameFollowsTenantName ) {
     this.principalNameFollowsTenantName = userNameFollowsTenantName;
   }
 
   @Override
-  public boolean isValid(String principleId) {
+  public boolean isValid( String principleId ) {
 
-    int delimiterIndex = principleId.lastIndexOf(getDelimeter());
-    if ( delimiterIndex >= 0) {
+    int delimiterIndex = principleId.lastIndexOf( getDelimeter() );
+    if ( delimiterIndex >= 0 ) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
 
   }
 
-  private boolean isTenantValid(String tenantName) {
-    return tenantName != null && tenantName.contains(ServerRepositoryPaths.getPentahoRootFolderName());
+  private boolean isTenantValid( String tenantName ) {
+    return tenantName != null && tenantName.contains( ServerRepositoryPaths.getPentahoRootFolderName() );
   }
 }

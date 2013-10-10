@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.security.userroledao.service;
 
@@ -41,7 +41,7 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
  */
 public class UserRoleDaoUserRoleListService implements IUserRoleListService {
 
-  // ~ Static fields/initializers ====================================================================================== 
+  // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
 
@@ -51,120 +51,125 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   private List<String> extraRoles;
   private String adminRole;
   private ITenantedPrincipleNameResolver usernamePrincipalResolver;
-  
+
   // ~ Constructors ====================================================================================================
   public UserRoleDaoUserRoleListService() {
     super();
   }
 
-  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService, ITenantedPrincipleNameResolver usernamePrincipalResolver, List<String> systemRoles, List<String> extraRoles, final String adminRole) {
+  public UserRoleDaoUserRoleListService( IUserRoleDao userRoleDao, UserDetailsService userDetailsService,
+      ITenantedPrincipleNameResolver usernamePrincipalResolver, List<String> systemRoles, List<String> extraRoles,
+      final String adminRole ) {
     super();
     this.userRoleDao = userRoleDao;
     this.userDetailsService = userDetailsService;
-    this.usernamePrincipalResolver = usernamePrincipalResolver;;
+    this.usernamePrincipalResolver = usernamePrincipalResolver;
+    ;
     this.systemRoles = systemRoles;
     this.extraRoles = extraRoles;
     this.adminRole = adminRole;
   }
+
   // ~ Methods =========================================================================================================
 
-  private List<String> getAllRoles(List<IPentahoRole> roles) {
-    List<String> auths = new ArrayList<String>(roles.size());
+  private List<String> getAllRoles( List<IPentahoRole> roles ) {
+    List<String> auths = new ArrayList<String>( roles.size() );
 
-    for (IPentahoRole role : roles) {
-      auths.add(role.getName());
+    for ( IPentahoRole role : roles ) {
+      auths.add( role.getName() );
     }
     // We will not allow user to update permission for Administrator
-    if(auths.contains(adminRole)) {
-      auths.remove(adminRole);
+    if ( auths.contains( adminRole ) ) {
+      auths.remove( adminRole );
     }
     // Add extra roles to the list of roles if it does not already have it
-    for(String extraRole:extraRoles) {
-      if(!auths.contains(extraRole)) {
-        auths.add(extraRole);    
+    for ( String extraRole : extraRoles ) {
+      if ( !auths.contains( extraRole ) ) {
+        auths.add( extraRole );
       }
     }
-    
+
     return auths;
-    
+
   }
-  
+
   @Override
   public List<String> getAllRoles() {
-    return getAllRoles(userRoleDao.getRoles());
+    return getAllRoles( userRoleDao.getRoles() );
   }
 
   @Override
-  public List<String> getAllRoles(ITenant tenant) {
-    return getAllRoles(userRoleDao.getRoles(tenant));
+  public List<String> getAllRoles( ITenant tenant ) {
+    return getAllRoles( userRoleDao.getRoles( tenant ) );
   }
-  
-  private List<String> getAllUsers(List<IPentahoUser> users) {
+
+  private List<String> getAllUsers( List<IPentahoUser> users ) {
     List<String> usernames = new ArrayList<String>();
 
-    for (IPentahoUser user : users) {
-      usernames.add(user.getUsername());
+    for ( IPentahoUser user : users ) {
+      usernames.add( user.getUsername() );
     }
 
     return usernames;
   }
-  
+
   @Override
   public List<String> getAllUsers() {
-    return getAllUsers(userRoleDao.getUsers());
+    return getAllUsers( userRoleDao.getUsers() );
   }
 
   @Override
-  public List<String> getAllUsers(ITenant tenant) {
-    return getAllUsers(userRoleDao.getUsers(tenant));
+  public List<String> getAllUsers( ITenant tenant ) {
+    return getAllUsers( userRoleDao.getUsers( tenant ) );
   }
-  
+
   @Override
-  public List<String> getRolesForUser(ITenant tenant, String username) throws UsernameNotFoundException,
-      DataAccessException {
+  public List<String> getRolesForUser( ITenant tenant, String username ) throws UsernameNotFoundException,
+    DataAccessException {
     String userToSearch = username;
     // If no tenant provided then we assume default tenant
-    if(tenant == null || tenant.getId() == null) {
+    if ( tenant == null || tenant.getId() == null ) {
       tenant = JcrTenantUtils.getDefaultTenant();
-      userToSearch = usernamePrincipalResolver.getPrincipleId(tenant, username);
+      userToSearch = usernamePrincipalResolver.getPrincipleId( tenant, username );
     }
-    UserDetails user = userDetailsService.loadUserByUsername(userToSearch);
-    List<String> roles = new ArrayList<String>(user.getAuthorities().length);
-    for (GrantedAuthority role : user.getAuthorities()) {
-      String principalName = role.getAuthority(); 
-      roles.add(principalName);
+    UserDetails user = userDetailsService.loadUserByUsername( userToSearch );
+    List<String> roles = new ArrayList<String>( user.getAuthorities().length );
+    for ( GrantedAuthority role : user.getAuthorities() ) {
+      String principalName = role.getAuthority();
+      roles.add( principalName );
     }
     return roles;
   }
-  public List<String> getUsersInRole(ITenant tenant, IPentahoRole role, String roleName) {
-    if (role == null) {
+
+  public List<String> getUsersInRole( ITenant tenant, IPentahoRole role, String roleName ) {
+    if ( role == null ) {
       return Collections.emptyList();
     }
     List<IPentahoUser> users = null;
     List<String> usernames = new ArrayList<String>();
-    if(tenant == null) {
-      users = userRoleDao.getRoleMembers(null, roleName);
+    if ( tenant == null ) {
+      users = userRoleDao.getRoleMembers( null, roleName );
     } else {
-      users = userRoleDao.getRoleMembers(tenant, roleName);
+      users = userRoleDao.getRoleMembers( tenant, roleName );
     }
-    
-    for (IPentahoUser user : users) {
-      usernames.add(user.getUsername());
+
+    for ( IPentahoUser user : users ) {
+      usernames.add( user.getUsername() );
     }
 
     return usernames;
   }
 
   @Override
-  public List<String> getUsersInRole(ITenant tenant, String roleName) {
-    return getUsersInRole(tenant, userRoleDao.getRole(tenant, roleName), roleName);
+  public List<String> getUsersInRole( ITenant tenant, String roleName ) {
+    return getUsersInRole( tenant, userRoleDao.getRole( tenant, roleName ), roleName );
   }
-  
-  public void setUserRoleDao(IUserRoleDao userRoleDao) {
+
+  public void setUserRoleDao( IUserRoleDao userRoleDao ) {
     this.userRoleDao = userRoleDao;
   }
 
-  public void setUserDetailsService(UserDetailsService userDetailsService) {
+  public void setUserDetailsService( UserDetailsService userDetailsService ) {
     this.userDetailsService = userDetailsService;
   }
 

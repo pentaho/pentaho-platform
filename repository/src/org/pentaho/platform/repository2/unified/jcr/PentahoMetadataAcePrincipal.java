@@ -1,24 +1,23 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class PentahoMetadataAcePrincipal implements IPentahoInternalPrincipal {
 
   public static final char SEPARATOR = ':';
 
-  private static final List<Character> RESERVED_CHARS = Arrays.asList(new Character[] { SEPARATOR });
+  private static final List<Character> RESERVED_CHARS = Arrays.asList( new Character[] { SEPARATOR } );
 
   private final boolean entriesInheriting;
 
@@ -51,30 +50,31 @@ public class PentahoMetadataAcePrincipal implements IPentahoInternalPrincipal {
 
   private final String encodedName;
 
-  public PentahoMetadataAcePrincipal(final String owner, final boolean entriesInheriting) {
+  public PentahoMetadataAcePrincipal( final String owner, final boolean entriesInheriting ) {
     super();
     this.owner = owner;
     this.entriesInheriting = entriesInheriting;
     // escape just in case owner name contains separator character
-    encodedName = PRINCIPAL_PREFIX + SEPARATOR + RepositoryFilenameUtils.escape(owner, RESERVED_CHARS) + SEPARATOR
-        + entriesInheriting;
+    encodedName =
+        PRINCIPAL_PREFIX + SEPARATOR + RepositoryFilenameUtils.escape( owner, RESERVED_CHARS ) + SEPARATOR
+            + entriesInheriting;
   }
 
   @Override
   public String getName() {
     return encodedName;
   }
-  
+
   public String getOwner() {
     return owner;
   }
-  
+
   public boolean isEntriesInheriting() {
     return entriesInheriting;
   }
-  
-  public static boolean isPentahoMetadataAcePrincipal(final String name) {
-    return name.startsWith(PRINCIPAL_PREFIX + SEPARATOR);
+
+  public static boolean isPentahoMetadataAcePrincipal( final String name ) {
+    return name.startsWith( PRINCIPAL_PREFIX + SEPARATOR );
   }
 
 }

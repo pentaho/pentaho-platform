@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.security.policy.rolebased;
 
@@ -56,16 +56,16 @@ import com.google.common.collect.HashMultimap;
 public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizationPolicyRoleBindingDao {
 
   protected ITenantedPrincipleNameResolver tenantedRoleNameUtils;
-  
+
   protected Map<String, List<IAuthorizationAction>> immutableRoleBindings;
   protected Map<String, List<String>> immutableRoleBindingNames;
-  
+
   protected Map<String, List<String>> bootstrapRoleBindings;
-  
+
   protected String superAdminRoleName;
-  
+
   private Set<String> logicalRoles = new TreeSet<String>();
-  
+
   public static final String FOLDER_NAME_AUTHZ = ".authz"; //$NON-NLS-1$
 
   public static final String FOLDER_NAME_ROLEBASED = "roleBased"; //$NON-NLS-1$
@@ -74,280 +74,284 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   /**
    * Key: runtime role name; value: list of logical role names
    */
-  @SuppressWarnings("unchecked")
-  protected Map boundLogicalRoleNamesCache = Collections.synchronizedMap(new LRUMap());
-  
-  public AbstractJcrBackedRoleBindingDao(final List<String> logicalRoleNames, final Map<String, List<IAuthorizationAction>> immutableRoleBindings, final Map<String, List<String>> bootstrapRoleBindings,
-      final String superAdminRoleName, final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles) {
+  @SuppressWarnings( "unchecked" )
+  protected Map boundLogicalRoleNamesCache = Collections.synchronizedMap( new LRUMap() );
+
+  public AbstractJcrBackedRoleBindingDao( final List<String> logicalRoleNames,
+      final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
+      final Map<String, List<String>> bootstrapRoleBindings, final String superAdminRoleName,
+      final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles ) {
     super();
     // TODO: replace with IllegalArgumentException
-    Assert.notNull(immutableRoleBindings);
-    Assert.notNull(bootstrapRoleBindings);
-    Assert.notNull(superAdminRoleName);
-    Assert.notNull(logicalRoles);
+    Assert.notNull( immutableRoleBindings );
+    Assert.notNull( bootstrapRoleBindings );
+    Assert.notNull( superAdminRoleName );
+    Assert.notNull( logicalRoles );
 
-    for (IAuthorizationAction action : logicalRoles) {
-       this.logicalRoles.add(action.getName());
+    for ( IAuthorizationAction action : logicalRoles ) {
+      this.logicalRoles.add( action.getName() );
     }
 
-    if (logicalRoleNames != null) {
-      this.logicalRoles.addAll(logicalRoleNames);
+    if ( logicalRoleNames != null ) {
+      this.logicalRoles.addAll( logicalRoleNames );
     }
     this.immutableRoleBindings = immutableRoleBindings;
     this.bootstrapRoleBindings = bootstrapRoleBindings;
     this.superAdminRoleName = superAdminRoleName;
     this.tenantedRoleNameUtils = tenantedRoleNameUtils;
-    
-    immutableRoleBindingNames = new HashMap<String, List<String>> ();
-    for (final Entry<String, List<IAuthorizationAction>> entry : immutableRoleBindings.entrySet() ) {
-      final List<String> roles = new ArrayList<String> ();
-      for (final IAuthorizationAction a : entry.getValue() ) {
-        roles.add(a.getName());
+
+    immutableRoleBindingNames = new HashMap<String, List<String>>();
+    for ( final Entry<String, List<IAuthorizationAction>> entry : immutableRoleBindings.entrySet() ) {
+      final List<String> roles = new ArrayList<String>();
+      for ( final IAuthorizationAction a : entry.getValue() ) {
+        roles.add( a.getName() );
       }
-      immutableRoleBindingNames.put(entry.getKey(), roles);
+      immutableRoleBindingNames.put( entry.getKey(), roles );
     }
-    
-    
+
   }
-  
-  public List<String> getBoundLogicalRoleNames(Session session, List<String> runtimeRoleNames) throws NamespaceException, RepositoryException {
+
+  public List<String> getBoundLogicalRoleNames( Session session, List<String> runtimeRoleNames )
+    throws NamespaceException, RepositoryException {
     Set<String> boundRoleNames = new HashSet<String>();
     HashMap<ITenant, List<String>> tenantMap = new HashMap<ITenant, List<String>>();
     boolean includeSuperAdminLogicalRoles = false;
-    for (String runtimeRoleName : runtimeRoleNames) {
-      if (!superAdminRoleName.equals(runtimeRoleName)) {
-          ITenant tenant = JcrTenantUtils.getTenant(runtimeRoleName, false);
-          List<String> runtimeRoles = tenantMap.get(tenant);
-          if (runtimeRoles == null) {
-            runtimeRoles = new ArrayList<String>();
-            tenantMap.put(tenant, runtimeRoles);
-          }
-          runtimeRoles.add(tenantedRoleNameUtils.getPrincipleName(runtimeRoleName));
+    for ( String runtimeRoleName : runtimeRoleNames ) {
+      if ( !superAdminRoleName.equals( runtimeRoleName ) ) {
+        ITenant tenant = JcrTenantUtils.getTenant( runtimeRoleName, false );
+        List<String> runtimeRoles = tenantMap.get( tenant );
+        if ( runtimeRoles == null ) {
+          runtimeRoles = new ArrayList<String>();
+          tenantMap.put( tenant, runtimeRoles );
+        }
+        runtimeRoles.add( tenantedRoleNameUtils.getPrincipleName( runtimeRoleName ) );
       } else {
         includeSuperAdminLogicalRoles = true;
       }
     }
-    for (Map.Entry<ITenant, List<String>> mapEntry : tenantMap.entrySet()) {
-      boundRoleNames.addAll(getBoundLogicalRoleNames(session, mapEntry.getKey(), mapEntry.getValue()));
+    for ( Map.Entry<ITenant, List<String>> mapEntry : tenantMap.entrySet() ) {
+      boundRoleNames.addAll( getBoundLogicalRoleNames( session, mapEntry.getKey(), mapEntry.getValue() ) );
     }
-    if (includeSuperAdminLogicalRoles) {
-      boundRoleNames.addAll(immutableRoleBindingNames.get(superAdminRoleName));
+    if ( includeSuperAdminLogicalRoles ) {
+      boundRoleNames.addAll( immutableRoleBindingNames.get( superAdminRoleName ) );
     }
-    return new ArrayList<String>(boundRoleNames);
+    return new ArrayList<String>( boundRoleNames );
   }
 
-  public List<String> getBoundLogicalRoleNames(Session session, ITenant tenant, List<String> runtimeRoleNames) throws NamespaceException, RepositoryException {
-    if ((tenant == null) || (tenant.getId() == null)){
-      return getBoundLogicalRoleNames(session, runtimeRoleNames);
+  public List<String> getBoundLogicalRoleNames( Session session, ITenant tenant, List<String> runtimeRoleNames )
+    throws NamespaceException, RepositoryException {
+    if ( ( tenant == null ) || ( tenant.getId() == null ) ) {
+      return getBoundLogicalRoleNames( session, runtimeRoleNames );
     }
-    
-    if (!TenantUtils.isAccessibleTenant(tenant)) {
+
+    if ( !TenantUtils.isAccessibleTenant( tenant ) ) {
       return new ArrayList<String>();
     }
-    
+
     final List<String> uncachedRuntimeRoleNames = new ArrayList<String>();
     final Set<String> cachedBoundLogicalRoleNames = new HashSet<String>();
-    for (String runtimeRoleName : runtimeRoleNames) {
-      String roleName = tenantedRoleNameUtils.getPrincipleName(runtimeRoleName);
-      String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-      if (boundLogicalRoleNamesCache.containsKey(roleId)) {
-        cachedBoundLogicalRoleNames.addAll((Collection<String>) boundLogicalRoleNamesCache.get(roleId));
+    for ( String runtimeRoleName : runtimeRoleNames ) {
+      String roleName = tenantedRoleNameUtils.getPrincipleName( runtimeRoleName );
+      String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
+      if ( boundLogicalRoleNamesCache.containsKey( roleId ) ) {
+        cachedBoundLogicalRoleNames.addAll( (Collection<String>) boundLogicalRoleNamesCache.get( roleId ) );
       } else {
-        uncachedRuntimeRoleNames.add(roleName);
+        uncachedRuntimeRoleNames.add( roleName );
       }
     }
-    if (uncachedRuntimeRoleNames.isEmpty()) {
+    if ( uncachedRuntimeRoleNames.isEmpty() ) {
       // no need to hit the repo
-      return new ArrayList<String>(cachedBoundLogicalRoleNames);
+      return new ArrayList<String>( cachedBoundLogicalRoleNames );
     }
-    
-    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-    final String phoNsPrefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS) + ":"; //$NON-NLS-1$
+
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    final String phoNsPrefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":"; //$NON-NLS-1$
     final String onlyPentahoPattern = phoNsPrefix + "*"; //$NON-NLS-1$
     HashMultimap<String, String> boundLogicalRoleNames = HashMultimap.create();
-    Node runtimeRolesFolderNode = getRuntimeRolesFolderNode(session, tenant);
-    NodeIterator runtimeRoleNodes = runtimeRolesFolderNode.getNodes(onlyPentahoPattern);
-    if (!runtimeRoleNodes.hasNext()) {
+    Node runtimeRolesFolderNode = getRuntimeRolesFolderNode( session, tenant );
+    NodeIterator runtimeRoleNodes = runtimeRolesFolderNode.getNodes( onlyPentahoPattern );
+    if ( !runtimeRoleNodes.hasNext() ) {
       // no bindings setup yet; fall back on bootstrap bindings
-      for (String runtimeRoleName : uncachedRuntimeRoleNames) {
-        String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-        if (bootstrapRoleBindings.containsKey(runtimeRoleName)) {
-          boundLogicalRoleNames.putAll(roleId, bootstrapRoleBindings.get(runtimeRoleName));
+      for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
+        String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
+        if ( bootstrapRoleBindings.containsKey( runtimeRoleName ) ) {
+          boundLogicalRoleNames.putAll( roleId, bootstrapRoleBindings.get( runtimeRoleName ) );
         }
       }
     } else {
-      for (String runtimeRoleName : uncachedRuntimeRoleNames) {
-        if (runtimeRolesFolderNode.hasNode(phoNsPrefix + runtimeRoleName)) {
-          Node runtimeRoleFolderNode = runtimeRolesFolderNode.getNode(phoNsPrefix + runtimeRoleName);
-          if (runtimeRoleFolderNode.hasProperty(pentahoJcrConstants.getPHO_BOUNDROLES())) {
-            Value[] values = runtimeRoleFolderNode.getProperty(pentahoJcrConstants.getPHO_BOUNDROLES())
-                .getValues();
-            String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-            for (Value value : values) {
-              boundLogicalRoleNames.put(roleId, value.getString());
+      for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
+        if ( runtimeRolesFolderNode.hasNode( phoNsPrefix + runtimeRoleName ) ) {
+          Node runtimeRoleFolderNode = runtimeRolesFolderNode.getNode( phoNsPrefix + runtimeRoleName );
+          if ( runtimeRoleFolderNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {
+            Value[] values = runtimeRoleFolderNode.getProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ).getValues();
+            String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
+            for ( Value value : values ) {
+              boundLogicalRoleNames.put( roleId, value.getString() );
             }
           }
         }
       }
     }
     // now add in immutable bound logical role names
-    for (String runtimeRoleName : uncachedRuntimeRoleNames) {
-      if (immutableRoleBindings.containsKey(runtimeRoleName)) {
-        String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-        boundLogicalRoleNames.putAll(roleId, immutableRoleBindingNames.get(runtimeRoleName));
+    for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
+      if ( immutableRoleBindings.containsKey( runtimeRoleName ) ) {
+        String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
+        boundLogicalRoleNames.putAll( roleId, immutableRoleBindingNames.get( runtimeRoleName ) );
       }
     }
 
     // update cache
-    boundLogicalRoleNamesCache.putAll(boundLogicalRoleNames.asMap());
+    boundLogicalRoleNamesCache.putAll( boundLogicalRoleNames.asMap() );
     // now add in those runtime roles that have no bindings to the cache
-    for (String runtimeRoleName : uncachedRuntimeRoleNames) {
-      String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-      if (!boundLogicalRoleNamesCache.containsKey(roleId)) {
-        boundLogicalRoleNamesCache.put(roleId, Collections.emptyList());
+    for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
+      String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
+      if ( !boundLogicalRoleNamesCache.containsKey( roleId ) ) {
+        boundLogicalRoleNamesCache.put( roleId, Collections.emptyList() );
       }
     }
-    
+
     // combine cached findings plus ones from repo
     Set<String> res = new HashSet<String>();
-    res.addAll(cachedBoundLogicalRoleNames);
-    res.addAll(boundLogicalRoleNames.values());
-    return new ArrayList<String>(res);
+    res.addAll( cachedBoundLogicalRoleNames );
+    res.addAll( boundLogicalRoleNames.values() );
+    return new ArrayList<String>( res );
   }
 
-  public void setRoleBindings(Session session, ITenant tenant, String runtimeRoleName, List<String> logicalRoleNames) throws NamespaceException, RepositoryException {
-    if (tenant == null) {
-      tenant = JcrTenantUtils.getTenant(runtimeRoleName, false);
-      runtimeRoleName = getPrincipalName(runtimeRoleName);
+  public void setRoleBindings( Session session, ITenant tenant, String runtimeRoleName, List<String> logicalRoleNames )
+    throws NamespaceException, RepositoryException {
+    if ( tenant == null ) {
+      tenant = JcrTenantUtils.getTenant( runtimeRoleName, false );
+      runtimeRoleName = getPrincipalName( runtimeRoleName );
     }
 
-    if (!TenantUtils.isAccessibleTenant(tenant)) {
-      throw new NotFoundException("Tenant " + tenant.getId() + " not found");
+    if ( !TenantUtils.isAccessibleTenant( tenant ) ) {
+      throw new NotFoundException( "Tenant " + tenant.getId() + " not found" );
     }
-    
-    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-    final String phoNsPrefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS) + ":"; //$NON-NLS-1$
+
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    final String phoNsPrefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":"; //$NON-NLS-1$
     final String onlyPentahoPattern = phoNsPrefix + "*"; //$NON-NLS-1$
-    Node runtimeRolesFolderNode = getRuntimeRolesFolderNode(session, tenant);
-    NodeIterator runtimeRoleNodes = runtimeRolesFolderNode.getNodes(onlyPentahoPattern);
+    Node runtimeRolesFolderNode = getRuntimeRolesFolderNode( session, tenant );
+    NodeIterator runtimeRoleNodes = runtimeRolesFolderNode.getNodes( onlyPentahoPattern );
     int i = 0;
-    while (runtimeRoleNodes.hasNext()) {
+    while ( runtimeRoleNodes.hasNext() ) {
       runtimeRoleNodes.nextNode();
       i++;
     }
-    if (i == 0) {
-      // no bindings setup yet; install bootstrap bindings; bootstrapRoleBindings will now no longer be 
+    if ( i == 0 ) {
+      // no bindings setup yet; install bootstrap bindings; bootstrapRoleBindings will now no longer be
       // consulted
-      for (Map.Entry<String, List<String>> entry : bootstrapRoleBindings.entrySet()) {
-        JcrRoleAuthorizationPolicyUtils.internalSetBindings(pentahoJcrConstants, runtimeRolesFolderNode, phoNsPrefix
-            + entry.getKey(), entry.getValue());
+      for ( Map.Entry<String, List<String>> entry : bootstrapRoleBindings.entrySet() ) {
+        JcrRoleAuthorizationPolicyUtils.internalSetBindings( pentahoJcrConstants, runtimeRolesFolderNode, phoNsPrefix
+            + entry.getKey(), entry.getValue() );
       }
     }
-    if (!isImmutable(runtimeRoleName)) {
-      JcrRoleAuthorizationPolicyUtils.internalSetBindings(pentahoJcrConstants, runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName,
-          logicalRoleNames);
+    if ( !isImmutable( runtimeRoleName ) ) {
+      JcrRoleAuthorizationPolicyUtils.internalSetBindings( pentahoJcrConstants, runtimeRolesFolderNode, phoNsPrefix
+          + runtimeRoleName, logicalRoleNames );
     } else {
-      throw new RuntimeException(Messages.getInstance().getString(
-          "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0001_ATTEMPT_MOD_IMMUTABLE", runtimeRoleName)); //$NON-NLS-1$
+      throw new RuntimeException( Messages.getInstance().getString(
+          "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0001_ATTEMPT_MOD_IMMUTABLE", runtimeRoleName ) ); //$NON-NLS-1$
     }
     session.save();
-    Assert.isTrue(runtimeRolesFolderNode.hasNode(phoNsPrefix + runtimeRoleName));
-    
+    Assert.isTrue( runtimeRolesFolderNode.hasNode( phoNsPrefix + runtimeRoleName ) );
+
     // update cache
-    String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, runtimeRoleName);
-    boundLogicalRoleNamesCache.put(roleId, logicalRoleNames);
+    String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
+    boundLogicalRoleNamesCache.put( roleId, logicalRoleNames );
   }
-  
-  private String getPrincipalName(String principalId) {
+
+  private String getPrincipalName( String principalId ) {
     String principalName = null;
-    if (tenantedRoleNameUtils != null) {
-      principalName = tenantedRoleNameUtils.getPrincipleName(principalId);
+    if ( tenantedRoleNameUtils != null ) {
+      principalName = tenantedRoleNameUtils.getPrincipleName( principalId );
     }
     return principalName;
   }
-    
-  protected boolean isImmutable(final String runtimeRoleName) {
-    return immutableRoleBindings.containsKey(runtimeRoleName);
+
+  protected boolean isImmutable( final String runtimeRoleName ) {
+    return immutableRoleBindings.containsKey( runtimeRoleName );
   }
 
-  protected Map<String, List<String>> getRoleBindings(Session session, ITenant tenant) throws RepositoryException {
+  protected Map<String, List<String>> getRoleBindings( Session session, ITenant tenant ) throws RepositoryException {
     Map<String, List<String>> map = new HashMap<String, List<String>>();
-    if (tenant == null) {
+    if ( tenant == null ) {
       tenant = JcrTenantUtils.getTenant();
     }
-    if (!TenantUtils.isAccessibleTenant(tenant)) {
+    if ( !TenantUtils.isAccessibleTenant( tenant ) ) {
       return map;
     }
-    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-    final String phoNsPrefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS) + ":"; //$NON-NLS-1$
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    final String phoNsPrefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":"; //$NON-NLS-1$
     final String onlyPentahoPattern = phoNsPrefix + "*"; //$NON-NLS-1$
-    Node runtimeRolesFolderNode = getRuntimeRolesFolderNode(session, tenant);
-    NodeIterator runtimeRoleNodes = runtimeRolesFolderNode.getNodes(onlyPentahoPattern);
-    if (!runtimeRoleNodes.hasNext()) {
+    Node runtimeRolesFolderNode = getRuntimeRolesFolderNode( session, tenant );
+    NodeIterator runtimeRoleNodes = runtimeRolesFolderNode.getNodes( onlyPentahoPattern );
+    if ( !runtimeRoleNodes.hasNext() ) {
       // no bindings setup yet; fall back on bootstrap bindings
-      map.putAll(bootstrapRoleBindings);
+      map.putAll( bootstrapRoleBindings );
     } else {
-      while (runtimeRoleNodes.hasNext()) {
+      while ( runtimeRoleNodes.hasNext() ) {
         Node runtimeRoleNode = runtimeRoleNodes.nextNode();
-        if (runtimeRoleNode.hasProperty(pentahoJcrConstants.getPHO_BOUNDROLES())) {
+        if ( runtimeRoleNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {
           // get clean runtime role name
-          String runtimeRoleName = runtimeRoleNode.getName().substring(phoNsPrefix.length());
+          String runtimeRoleName = runtimeRoleNode.getName().substring( phoNsPrefix.length() );
           // get logical role names
           List<String> logicalRoleNames = new ArrayList<String>();
-          Value[] values = runtimeRoleNode.getProperty(pentahoJcrConstants.getPHO_BOUNDROLES()).getValues();
-          for (Value value : values) {
-            logicalRoleNames.add(value.getString());
+          Value[] values = runtimeRoleNode.getProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ).getValues();
+          for ( Value value : values ) {
+            logicalRoleNames.add( value.getString() );
           }
-          map.put(runtimeRoleName, logicalRoleNames);
+          map.put( runtimeRoleName, logicalRoleNames );
         }
       }
     }
     // add all immutable bindings
-    map.putAll(immutableRoleBindingNames);
+    map.putAll( immutableRoleBindingNames );
     return map;
   }
 
-  public RoleBindingStruct getRoleBindingStruct(Session session, ITenant tenant, String locale) throws RepositoryException {
-    return new RoleBindingStruct(getMapForLocale(locale), getRoleBindings(session, tenant));
+  public RoleBindingStruct getRoleBindingStruct( Session session, ITenant tenant, String locale )
+    throws RepositoryException {
+    return new RoleBindingStruct( getMapForLocale( locale ), getRoleBindings( session, tenant ) );
   }
-  
-  protected Map<String, String> getMapForLocale(final String localeString) {
+
+  protected Map<String, String> getMapForLocale( final String localeString ) {
     final String UNDERSCORE = "_"; //$NON-NLS-1$
     Locale locale;
 
     ResourceBundle resourceBundle = null;
-    if (localeString == null) {
+    if ( localeString == null ) {
       resourceBundle = Messages.getInstance().getBundle();
     } else {
-      String[] tokens = localeString.split(UNDERSCORE);
-      if (tokens.length == 3) {
-        locale = new Locale(tokens[0], tokens[1], tokens[2]);
-      } else if (tokens.length == 2) {
-        locale = new Locale(tokens[0], tokens[1]);
+      String[] tokens = localeString.split( UNDERSCORE );
+      if ( tokens.length == 3 ) {
+        locale = new Locale( tokens[0], tokens[1], tokens[2] );
+      } else if ( tokens.length == 2 ) {
+        locale = new Locale( tokens[0], tokens[1] );
       } else {
-        locale = new Locale(tokens[0]);
+        locale = new Locale( tokens[0] );
       }
-      resourceBundle = Messages.getInstance().getBundle(locale);
+      resourceBundle = Messages.getInstance().getBundle( locale );
     }
 
     Map<String, String> map = new HashMap<String, String>();
-    for (String logicalRoleName : logicalRoles) {
-      map.put(logicalRoleName, resourceBundle.getString(logicalRoleName));
+    for ( String logicalRoleName : logicalRoles ) {
+      map.put( logicalRoleName, resourceBundle.getString( logicalRoleName ) );
     }
     return map;
   }
 
-  public Node getRuntimeRolesFolderNode(final Session session, ITenant tenant) throws RepositoryException {
+  public Node getRuntimeRolesFolderNode( final Session session, ITenant tenant ) throws RepositoryException {
     Node tenantRootFolderNode = null;
     try {
-      tenantRootFolderNode = (Node) session.getItem(ServerRepositoryPaths.getTenantRootFolderPath(tenant));
-    } catch (PathNotFoundException e) {
-      throw new RepositoryException("Error retrieving RuntimeRoles for folder, folder not found", e);
-      //Assert.state(false, Messages.getInstance().getString(
+      tenantRootFolderNode = (Node) session.getItem( ServerRepositoryPaths.getTenantRootFolderPath( tenant ) );
+    } catch ( PathNotFoundException e ) {
+      throw new RepositoryException( "Error retrieving RuntimeRoles for folder, folder not found", e );
+      // Assert.state(false, Messages.getInstance().getString(
       // "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
     }
-    Node authzFolderNode =  tenantRootFolderNode.getNode(FOLDER_NAME_AUTHZ);
-    Node roleBasedFolderNode = authzFolderNode.getNode(FOLDER_NAME_ROLEBASED);
-    return roleBasedFolderNode.getNode(FOLDER_NAME_RUNTIMEROLES);
+    Node authzFolderNode = tenantRootFolderNode.getNode( FOLDER_NAME_AUTHZ );
+    Node roleBasedFolderNode = authzFolderNode.getNode( FOLDER_NAME_ROLEBASED );
+    return roleBasedFolderNode.getNode( FOLDER_NAME_RUNTIMEROLES );
   }
 }
