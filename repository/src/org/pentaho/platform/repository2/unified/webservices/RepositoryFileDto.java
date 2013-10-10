@@ -1,31 +1,32 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository2.unified.webservices;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
- * JAXB-safe version of {@code RepositoryFile}. ({@code RepositoryFile} has no zero-arg constructor and no public 
+ * JAXB-safe version of {@code RepositoryFile}. ({@code RepositoryFile} has no zero-arg constructor and no public
  * mutators.)
  * 
  * @see RepositoryFileAdapter
@@ -66,7 +67,7 @@ public class RepositoryFileDto implements Serializable {
   Date lockDate;
 
   String owner;
-  
+
   String ownerTenantPath;
 
   /**
@@ -95,7 +96,7 @@ public class RepositoryFileDto implements Serializable {
     return ownerTenantPath;
   }
 
-  public void setOwnerTenantPath(String ownerTenantPath) {
+  public void setOwnerTenantPath( String ownerTenantPath ) {
     this.ownerTenantPath = ownerTenantPath;
   }
 
@@ -103,7 +104,7 @@ public class RepositoryFileDto implements Serializable {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName( String name ) {
     this.name = name;
   }
 
@@ -111,16 +112,16 @@ public class RepositoryFileDto implements Serializable {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId( String id ) {
     this.id = id;
   }
 
-  @XmlJavaTypeAdapter(value=DateAdapter.class)
+  @XmlJavaTypeAdapter( value = DateAdapter.class )
   public Date getCreatedDate() {
     return createdDate;
   }
 
-  public void setCreatedDate(Date createdDate) {
+  public void setCreatedDate( Date createdDate ) {
     this.createdDate = createdDate;
   }
 
@@ -128,16 +129,16 @@ public class RepositoryFileDto implements Serializable {
     return creatorId;
   }
 
-  public void setCreatorId(String creatorId) {
+  public void setCreatorId( String creatorId ) {
     this.creatorId = creatorId;
   }
 
-  @XmlJavaTypeAdapter(value=DateAdapter.class)
+  @XmlJavaTypeAdapter( value = DateAdapter.class )
   public Date getLastModifiedDate() {
     return lastModifiedDate;
   }
 
-  public void setLastModifiedDate(Date lastModifiedDate) {
+  public void setLastModifiedDate( Date lastModifiedDate ) {
     this.lastModifiedDate = lastModifiedDate;
   }
 
@@ -145,7 +146,7 @@ public class RepositoryFileDto implements Serializable {
     return fileSize;
   }
 
-  public void setFileSize(long fileSize) {
+  public void setFileSize( long fileSize ) {
     this.fileSize = fileSize;
   }
 
@@ -153,7 +154,7 @@ public class RepositoryFileDto implements Serializable {
     return folder;
   }
 
-  public void setFolder(boolean folder) {
+  public void setFolder( boolean folder ) {
     this.folder = folder;
   }
 
@@ -161,7 +162,7 @@ public class RepositoryFileDto implements Serializable {
     return path;
   }
 
-  public void setPath(String path) {
+  public void setPath( String path ) {
     this.path = path;
   }
 
@@ -169,7 +170,7 @@ public class RepositoryFileDto implements Serializable {
     return hidden;
   }
 
-  public void setHidden(boolean hidden) {
+  public void setHidden( boolean hidden ) {
     this.hidden = hidden;
   }
 
@@ -177,7 +178,7 @@ public class RepositoryFileDto implements Serializable {
     return versioned;
   }
 
-  public void setVersioned(boolean versioned) {
+  public void setVersioned( boolean versioned ) {
     this.versioned = versioned;
   }
 
@@ -185,7 +186,7 @@ public class RepositoryFileDto implements Serializable {
     return versionId;
   }
 
-  public void setVersionId(String versionId) {
+  public void setVersionId( String versionId ) {
     this.versionId = versionId;
   }
 
@@ -193,7 +194,7 @@ public class RepositoryFileDto implements Serializable {
     return locked;
   }
 
-  public void setLocked(boolean locked) {
+  public void setLocked( boolean locked ) {
     this.locked = locked;
   }
 
@@ -201,7 +202,7 @@ public class RepositoryFileDto implements Serializable {
     return lockOwner;
   }
 
-  public void setLockOwner(String lockOwner) {
+  public void setLockOwner( String lockOwner ) {
     this.lockOwner = lockOwner;
   }
 
@@ -209,16 +210,16 @@ public class RepositoryFileDto implements Serializable {
     return lockMessage;
   }
 
-  public void setLockMessage(String lockMessage) {
+  public void setLockMessage( String lockMessage ) {
     this.lockMessage = lockMessage;
   }
 
-  @XmlJavaTypeAdapter(value=DateAdapter.class)
+  @XmlJavaTypeAdapter( value = DateAdapter.class )
   public Date getLockDate() {
     return lockDate;
   }
 
-  public void setLockDate(Date lockDate) {
+  public void setLockDate( Date lockDate ) {
     this.lockDate = lockDate;
   }
 
@@ -226,7 +227,7 @@ public class RepositoryFileDto implements Serializable {
     return owner;
   }
 
-  public void setOwner(String owner) {
+  public void setOwner( String owner ) {
     this.owner = owner;
   }
 
@@ -234,7 +235,7 @@ public class RepositoryFileDto implements Serializable {
     return ownerType;
   }
 
-  public void setOwnerType(int ownerType) {
+  public void setOwnerType( int ownerType ) {
     this.ownerType = ownerType;
   }
 
@@ -242,7 +243,7 @@ public class RepositoryFileDto implements Serializable {
     return title;
   }
 
-  public void setTitle(String title) {
+  public void setTitle( String title ) {
     this.title = title;
   }
 
@@ -250,7 +251,7 @@ public class RepositoryFileDto implements Serializable {
     return description;
   }
 
-  public void setDescription(String description) {
+  public void setDescription( String description ) {
     this.description = description;
   }
 
@@ -258,7 +259,7 @@ public class RepositoryFileDto implements Serializable {
     return locale;
   }
 
-  public void setLocale(String locale) {
+  public void setLocale( String locale ) {
     this.locale = locale;
   }
 
@@ -266,16 +267,16 @@ public class RepositoryFileDto implements Serializable {
     return originalParentFolderPath;
   }
 
-  public void setOriginalParentFolderPath(String originalParentFolderPath) {
+  public void setOriginalParentFolderPath( String originalParentFolderPath ) {
     this.originalParentFolderPath = originalParentFolderPath;
   }
 
-  @XmlJavaTypeAdapter(value=DateAdapter.class)
+  @XmlJavaTypeAdapter( value = DateAdapter.class )
   public Date getDeletedDate() {
     return deletedDate;
   }
 
-  public void setDeletedDate(Date deletedDate) {
+  public void setDeletedDate( Date deletedDate ) {
     this.deletedDate = deletedDate;
   }
 
@@ -283,21 +284,20 @@ public class RepositoryFileDto implements Serializable {
     return localePropertiesMapEntries;
   }
 
-  public void setLocalePropertiesMapEntries(List<LocaleMapDto> localePropertiesMapEntries) {
+  public void setLocalePropertiesMapEntries( List<LocaleMapDto> localePropertiesMapEntries ) {
     this.localePropertiesMapEntries = localePropertiesMapEntries;
   }
 
-  @SuppressWarnings("nls")
+  @SuppressWarnings( "nls" )
   @Override
   public String toString() {
-    return "RepositoryFileDto [id=" + id + ", name=" + name + ", path=" + path + ", folder=" + folder + ", size=" + fileSize
-        + ", createdDate=" + createdDate + ", creatorId=" + creatorId + ", deletedDate=" + deletedDate + ", description=" + description
-        + ", hidden=" + hidden + ", lastModifiedDate="
-        + lastModifiedDate + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage
-        + ", lockOwner=" + lockOwner + ", locked=" + locked 
-        + ", originalParentFolderPath=" + originalParentFolderPath + ", owner=" + owner + ", ownerType=" + ownerType
-        + ", title=" + title + ", localePropertiesMapEntries=" + localePropertiesMapEntries
-        + ", versionId=" + versionId + ", versioned=" + versioned + "]";
+    return "RepositoryFileDto [id=" + id + ", name=" + name + ", path=" + path + ", folder=" + folder + ", size="
+        + fileSize + ", createdDate=" + createdDate + ", creatorId=" + creatorId + ", deletedDate=" + deletedDate
+        + ", description=" + description + ", hidden=" + hidden + ", lastModifiedDate=" + lastModifiedDate
+        + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage + ", lockOwner=" + lockOwner
+        + ", locked=" + locked + ", originalParentFolderPath=" + originalParentFolderPath + ", owner=" + owner
+        + ", ownerType=" + ownerType + ", title=" + title + ", localePropertiesMapEntries="
+        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + "]";
   }
 
 }

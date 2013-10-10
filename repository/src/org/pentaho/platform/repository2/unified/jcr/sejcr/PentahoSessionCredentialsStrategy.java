@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
@@ -47,9 +47,10 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
 
   // ~ Constructors ====================================================================================================
 
-  public PentahoSessionCredentialsStrategy(final String preAuthenticationToken, final ITenantedPrincipleNameResolver tenantedUserNameUtils) {
+  public PentahoSessionCredentialsStrategy( final String preAuthenticationToken,
+      final ITenantedPrincipleNameResolver tenantedUserNameUtils ) {
     super();
-    Assert.hasText(preAuthenticationToken);
+    Assert.hasText( preAuthenticationToken );
     this.preAuthenticationToken = preAuthenticationToken;
     this.tenantedUserNameUtils = tenantedUserNameUtils;
   }
@@ -58,14 +59,14 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
 
   public Credentials getCredentials() {
     String userId = getUserId();
-    SimpleCredentials creds = new SimpleCredentials(userId, PASSWORD);
-    creds.setAttribute(ATTR_PRE_AUTHENTICATION_TOKEN, preAuthenticationToken);
+    SimpleCredentials creds = new SimpleCredentials( userId, PASSWORD );
+    creds.setAttribute( ATTR_PRE_AUTHENTICATION_TOKEN, preAuthenticationToken );
     return creds;
   }
 
   private String getUserId() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    Assert.state(pentahoSession != null, "this method cannot be called with a null IPentahoSession");
-    return JcrTenantUtils.getTenantedUser(pentahoSession.getName());
+    Assert.state( pentahoSession != null, "this method cannot be called with a null IPentahoSession" );
+    return JcrTenantUtils.getTenantedUser( pentahoSession.getName() );
   }
 }

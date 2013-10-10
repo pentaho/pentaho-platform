@@ -1,39 +1,38 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository2.unified.webservices;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class RepositoryFileAclDto  implements Serializable {
+public class RepositoryFileAclDto implements Serializable {
 
-
-
-  List<RepositoryFileAclAceDto> aces = new ArrayList<RepositoryFileAclAceDto>(0);
+  List<RepositoryFileAclAceDto> aces = new ArrayList<RepositoryFileAclAceDto>( 0 );
 
   String id;
 
   String owner;
-  
+
   String tenantPath;
 
   /**
@@ -47,24 +46,25 @@ public class RepositoryFileAclDto  implements Serializable {
     super();
     // TODO Auto-generated constructor stub
   }
+
   public List<RepositoryFileAclAceDto> getAces() {
     return aces;
   }
 
-  public void setAces(List<RepositoryFileAclAceDto> aces, boolean inheriting) {
+  public void setAces( List<RepositoryFileAclAceDto> aces, boolean inheriting ) {
     entriesInheriting = inheriting;
     this.aces = aces;
   }
-  
-  public void setAces(List<RepositoryFileAclAceDto> aces) {
-    setAces(aces, false);
+
+  public void setAces( List<RepositoryFileAclAceDto> aces ) {
+    setAces( aces, false );
   }
 
   public String getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId( String id ) {
     this.id = id;
   }
 
@@ -72,7 +72,7 @@ public class RepositoryFileAclDto  implements Serializable {
     return owner;
   }
 
-  public void setOwner(String owner) {
+  public void setOwner( String owner ) {
     this.owner = owner;
   }
 
@@ -80,7 +80,7 @@ public class RepositoryFileAclDto  implements Serializable {
     return ownerType;
   }
 
-  public void setOwnerType(int ownerType) {
+  public void setOwnerType( int ownerType ) {
     this.ownerType = ownerType;
   }
 
@@ -88,19 +88,19 @@ public class RepositoryFileAclDto  implements Serializable {
     return entriesInheriting;
   }
 
-  public void setEntriesInheriting(boolean entriesInheriting) {
+  public void setEntriesInheriting( boolean entriesInheriting ) {
     this.entriesInheriting = entriesInheriting;
   }
 
   public String getTenantPath() {
     return tenantPath;
   }
-  
-  public void setTenantPath(String tenantPath) {
+
+  public void setTenantPath( String tenantPath ) {
     this.tenantPath = tenantPath;
   }
-  
-  @SuppressWarnings("nls")
+
+  @SuppressWarnings( "nls" )
   @Override
   public String toString() {
     return "RepositoryFileAclDto [id=" + id + ", entriesInheriting=" + entriesInheriting + ", owner=" + owner

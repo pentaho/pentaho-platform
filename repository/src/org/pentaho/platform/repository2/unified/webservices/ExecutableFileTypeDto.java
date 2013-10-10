@@ -1,33 +1,34 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository2.unified.webservices;
 
 import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ExecutableFileTypeDto implements Serializable {
 
   private String description;
-  
+
   private String extension;
-  
+
   private String title;
 
   private boolean canEdit;
@@ -38,7 +39,7 @@ public class ExecutableFileTypeDto implements Serializable {
     return description;
   }
 
-  public void setDescription(String description) {
+  public void setDescription( String description ) {
     this.description = description;
   }
 
@@ -46,7 +47,7 @@ public class ExecutableFileTypeDto implements Serializable {
     return extension;
   }
 
-  public void setExtension(String extension) {
+  public void setExtension( String extension ) {
     this.extension = extension;
   }
 
@@ -54,7 +55,7 @@ public class ExecutableFileTypeDto implements Serializable {
     return title;
   }
 
-  public void setTitle(String title) {
+  public void setTitle( String title ) {
     this.title = title;
   }
 
@@ -62,7 +63,7 @@ public class ExecutableFileTypeDto implements Serializable {
     return canEdit;
   }
 
-  public void setCanEdit(boolean canEdit) {
+  public void setCanEdit( boolean canEdit ) {
     this.canEdit = canEdit;
   }
 
@@ -70,8 +71,8 @@ public class ExecutableFileTypeDto implements Serializable {
     return canSchedule;
   }
 
-  public void setCanSchedule(boolean canSchedule) {
+  public void setCanSchedule( boolean canSchedule ) {
     this.canSchedule = canSchedule;
   }
-  
+
 }

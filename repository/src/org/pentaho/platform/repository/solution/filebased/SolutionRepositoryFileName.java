@@ -1,20 +1,20 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.repository.solution.filebased;
 
@@ -24,20 +24,20 @@ import org.apache.commons.vfs.provider.AbstractFileName;
 
 public class SolutionRepositoryFileName extends AbstractFileName {
 
-  public SolutionRepositoryFileName(final String absPath, final FileType type) {
-    super("solution", absPath, type);//$NON-NLS-1$
+  public SolutionRepositoryFileName( final String absPath, final FileType type ) {
+    super( "solution", absPath, type );//$NON-NLS-1$
   }
 
   @Override
-  protected void appendRootUri(final StringBuffer arg0, final boolean arg1) {
+  protected void appendRootUri( final StringBuffer arg0, final boolean arg1 ) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public FileName createName(final String absPath, final FileType fileType) {
+  public FileName createName( final String absPath, final FileType fileType ) {
 
-    FileName name = new SolutionRepositoryFileName(absPath, fileType);
+    FileName name = new SolutionRepositoryFileName( absPath, fileType );
     return name;
   }
 
