@@ -156,7 +156,9 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     if (dsName != null) {
         sb.append("DataSource=" + dsName + ";");
     }
-
+    if(!parameters.containsKey("EnableXmla")){
+      sb.append("EnableXmla=" + xmlaEnabled +";");
+    }
     sb.append("Provider=" + provider);
 
     // Build a list of the remaining properties
