@@ -21,12 +21,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
@@ -51,6 +58,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -59,6 +67,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.security.Authentication;
@@ -230,8 +239,30 @@ public class UserRoleDaoUserDetailsServiceTest implements ApplicationContextAwar
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     // Start the micro-platform
     mp.start();
+    
+    loginAsRepositoryAdmin();
+    setAclManagement();
     logout();
     startupCalled = true;
+  }
+  
+  private void setAclManagement() {
+    testJcrTemplate.execute(new JcrCallback() {
+      @Override
+      public Object doInJcr(Session session) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+        Workspace workspace = session.getWorkspace();
+        PrivilegeManager privilegeManager =((JackrabbitWorkspace) workspace).getPrivilegeManager();
+        try {
+          privilegeManager.getPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE());
+        } catch(AccessControlException ace) {
+          privilegeManager.registerPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(),
+              false, new String[0]);
+        }
+        session.save();
+        return null;
+      }
+    });
   }
 
   private void cleanupUserAndRoles( String userName, ITenant tenant ) {
