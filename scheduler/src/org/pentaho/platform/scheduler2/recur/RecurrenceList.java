@@ -20,6 +20,7 @@ package org.pentaho.platform.scheduler2.recur;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
@@ -32,8 +33,6 @@ import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
  */
 @XmlRootElement
 public class RecurrenceList implements ITimeRecurrence {
-
-  private static final long serialVersionUID = 1421004684961304919L;
   private List<Integer> values = new ArrayList<Integer>();
 
   public RecurrenceList( Integer... values ) {
