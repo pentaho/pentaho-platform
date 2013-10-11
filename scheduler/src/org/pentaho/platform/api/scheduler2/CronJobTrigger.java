@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class CronJobTrigger extends JobTrigger {
+  private static final long serialVersionUID = 2460248678333124471L;
   String cronString;
 
   public CronJobTrigger() {

@@ -28,7 +28,7 @@ import org.quartz.impl.calendar.BaseCalendar;
  * @author arodriguez
  */
 public class QuartzSchedulerAvailability extends BaseCalendar {
-
+  private static final long serialVersionUID = 8419843512264409846L;
   Date startTime;
   Date endTime;
 
