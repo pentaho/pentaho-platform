@@ -42,9 +42,9 @@ import org.springframework.security.event.authentication.AuthenticationSuccessEv
 public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest extends TestCase {
 
   private static final String CURRENT_USER = "testCurrentUser";
-  private static final String CURRENT_TENANT = "/testTenant";
+  private static final String CURRENT_TENANT = "/pentaho/testTenant";
   private static final String SYSTEM_USER = "system";
-  private static final String SYSTEM_TENANT = "/systemTenant";
+  private static final String SYSTEM_TENANT = "/pentaho/systemTenant";
   private static final String USER_PARAMETER = "user";
   private static final String TENANTID_PARAMETER = "tenantId";
   private ITenantedPrincipleNameResolver usernamePrincipleUtils = new DefaultTenantedPrincipleNameResolver();
