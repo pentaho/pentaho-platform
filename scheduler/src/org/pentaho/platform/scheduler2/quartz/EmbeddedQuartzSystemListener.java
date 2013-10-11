@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -246,7 +247,6 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
       QuartzScheduler scheduler = (QuartzScheduler) PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
       scheduler.getQuartzScheduler().shutdown();
     } catch ( SchedulerException e ) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

@@ -20,6 +20,7 @@ package org.pentaho.platform.api.scheduler2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -118,9 +119,7 @@ public class ComplexJobTrigger extends JobTrigger {
 
   private void addRecurrences( List<ITimeRecurrence> theList, Integer... recurrences ) {
     List<Integer> nonNullRecurrences = ( recurrences == null ? new ArrayList<Integer>() : filterNulls( recurrences ) );
-    if ( nonNullRecurrences.size() == 0 ) {
-      boolean ignore = true;
-    } else if ( nonNullRecurrences.size() == 1 ) {
+    if (nonNullRecurrences.size() == 1) {
       theList.add( new RecurrenceList( nonNullRecurrences.get( 0 ) ) );
     } else if ( nonNullRecurrences.size() == 2 ) {
       TreeSet<Integer> sortedRecurrences = new TreeSet<Integer>( nonNullRecurrences );
