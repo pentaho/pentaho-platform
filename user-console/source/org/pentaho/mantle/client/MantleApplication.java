@@ -47,6 +47,7 @@ import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -244,23 +245,13 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
     mantleRevisionOverride = settings.get("user-console-revision");
     RootPanel.get("pucMenuBar").add(MantleXul.getInstance().getMenubar());
-    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
-      RootPanel.get("pucMenuBar").setVisible(false);
-    }
-
     RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
-    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
-      RootPanel.get("pucPerspectives").setVisible(false);
-    }
-
     RootPanel.get("pucToolBar").add(MantleXul.getInstance().getToolbar());
-    if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
-      RootPanel.get("pucToolBar").setVisible(false);
-    }
-
     RootPanel.get("pucUserDropDown").add(new UserDropDown());
+    
     if (showOnlyPerspective && !StringUtils.isEmpty(startupPerspective)) {
-      RootPanel.get("pucUserDropDown").setVisible(true);
+      RootPanel.get("pucHeader").setVisible(false);
+      RootPanel.get("pucContent").getElement().getStyle().setTop(0, Unit.PX);
     }
     
     // update supported file types
