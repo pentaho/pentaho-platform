@@ -45,7 +45,7 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
     Messages.getInstance().getString( "SolutionRepository.QUERY_COLUMN_NAME" ), //$NON-NLS-1$
     Messages.getInstance().getString( "SolutionRepository.QUERY_COLUMN_PATH" ), //$NON-NLS-1$
     Messages.getInstance().getString( "SolutionRepository.QUERY_COLUMN_PARENT" ) //$NON-NLS-1$
-      };
+  };
 
   private static final String SearchableTable = "org.pentaho.platform.repository.solution.dbbased.RepositoryFile"; //$NON-NLS-1$
 
@@ -80,7 +80,8 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
     this( fileName, parent, data, System.currentTimeMillis() );
   }
 
-  public RepositoryFile( final String fileName, final RepositoryFile parent, final byte[] data, final long lastModified ) {
+  public RepositoryFile( final String fileName,
+      final RepositoryFile parent, final byte[] data, final long lastModified ) {
     this();
     this.fileId = UUIDUtil.getUUIDAsString();
 

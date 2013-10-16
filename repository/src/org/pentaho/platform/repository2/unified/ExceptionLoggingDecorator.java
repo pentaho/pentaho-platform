@@ -379,8 +379,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.copyFile", fileId, destAbsPath ) ); //$NON-NLS-1$
   }
 
-  public void
-    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId,
+      final Serializable versionId, final String versionMessage ) {
     callLogThrow( new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.restoreFileAtVersion( fileId, versionId, versionMessage );
@@ -424,7 +424,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.updateFile", file != null ? file.getId() : null ) ); //$NON-NLS-1$
   }
 
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path,
+      final int depth, final String filter, final boolean showHidden ) {
     return callLogThrow( new Callable<RepositoryFileTree>() {
       public RepositoryFileTree call() throws Exception {
         return delegatee.getTree( path, depth, filter, showHidden );
@@ -615,7 +616,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   @Override
-  public void setLocalePropertiesForFileByPath( final String relPath, final String locale, final Properties properties ) {
+  public void setLocalePropertiesForFileByPath( final String relPath,
+      final String locale, final Properties properties ) {
     callLogThrow( new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.setLocalePropertiesForFileByPath( relPath, locale, properties );

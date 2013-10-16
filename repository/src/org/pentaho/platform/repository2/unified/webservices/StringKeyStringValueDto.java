@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class StringKeyStringValueDto implements Serializable {
+  private static final long serialVersionUID = -4522687034876346385L;
   private String key;
   private String value;
 

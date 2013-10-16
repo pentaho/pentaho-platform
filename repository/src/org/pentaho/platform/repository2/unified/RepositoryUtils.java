@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -30,7 +28,6 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
  * Utility methods that can be applied on any {@link }IUnifiedRepository} User: dkincade
  */
 public class RepositoryUtils {
-  private static final Log logger = LogFactory.getLog( RepositoryUtils.class );
   private IUnifiedRepository repository;
 
   /**

@@ -83,7 +83,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
         adminJcrTemplate.execute( new JcrCallback() {
           @Override
           public Object doInJcr( Session session ) throws IOException, RepositoryException {
-            PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+            new PentahoJcrConstants( session );
             String absPath = ServerRepositoryPaths.getPentahoRootFolderPath();
             RepositoryFile rootFolder =
                 JcrRepositoryFileUtils

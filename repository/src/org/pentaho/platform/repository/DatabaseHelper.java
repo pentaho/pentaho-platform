@@ -150,7 +150,8 @@ public class DatabaseHelper {
       databaseConnection.setId( id.toString() );
     }
     String accessType = getString( rootNode, PROP_CONTYPE );
-    databaseConnection.setAccessType( accessType != null ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
+    databaseConnection
+      .setAccessType( accessType != null ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( getString( rootNode, PROP_HOST_NAME ) );
     databaseConnection.setDatabaseName( getString( rootNode, PROP_DATABASE_NAME ) );
     databaseConnection.setDatabasePort( getString( rootNode, PROP_PORT ) );

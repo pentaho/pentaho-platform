@@ -34,8 +34,8 @@ import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProv
 
 // Equivalent CND:
 // [pho_nt:pentahoLockTokenStorage]
-//     // reference to locked node is not strictly needed; only stored here in case admin needs to find the locked node to 
-//     // clear its lock
+//     reference to locked node is not strictly needed; only stored here in case admin needs to find the locked node to 
+//     clear its lock
 //     - pho:lockedNodeRef (reference) ignore
 //     // lock token string; this is added to session via session.addLockToken()
 //     - pho:lockToken (string) ignore

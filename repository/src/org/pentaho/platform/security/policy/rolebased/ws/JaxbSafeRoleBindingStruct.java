@@ -20,8 +20,6 @@ package org.pentaho.platform.security.policy.rolebased.ws;
 
 import java.util.List;
 
-import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
-
 /**
  * JAXB-safe version of {@code RoleBindingStruct}. ({@code RoleBindingStruct} has contains a {@code Map}.)
  * 

@@ -78,7 +78,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     try {
       url = new URL( "solution:" + fileRef ); //$NON-NLS-1$
     } catch ( Exception e ) {
-
+      // CHECKSTYLES IGNORE
     }
     return url;
   }

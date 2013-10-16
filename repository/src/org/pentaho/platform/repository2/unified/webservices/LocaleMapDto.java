@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class LocaleMapDto implements Serializable {
-
+  private static final long serialVersionUID = -8846483185435026656L;
   private String locale;
   private List<StringKeyStringValueDto> properties;
 

@@ -68,7 +68,6 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
     try {
       datasourceMgmtService.deleteDatasourceByName( name );
     } catch ( NonExistingDatasourceException e ) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch ( DatasourceMgmtServiceException e ) {
       throw new RuntimeException( e );
@@ -78,7 +77,8 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
   @Override
   public DatabaseConnectionDto getDatasourceByName( String name ) {
     try {
-      return databaseConnectionAdapter.marshal( (DatabaseConnection) datasourceMgmtService.getDatasourceByName( name ) );
+      return databaseConnectionAdapter
+          .marshal( (DatabaseConnection) datasourceMgmtService.getDatasourceByName( name ) );
     } catch ( Exception e ) {
       return null;
     }
@@ -92,6 +92,7 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
         try {
           databaseConnections.add( databaseConnectionAdapter.marshal( (DatabaseConnection) databaseConnection ) );
         } catch ( Exception e ) {
+          // CHECKSTYLES IGNORE
         }
       }
     } catch ( DatasourceMgmtServiceException e ) {
@@ -140,7 +141,8 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
   @Override
   public String updateDatasourceById( String id, DatabaseConnectionDto databaseConnection ) {
     try {
-      return datasourceMgmtService.updateDatasourceById( id, databaseConnectionAdapter.unmarshal( databaseConnection ) );
+      return datasourceMgmtService
+          .updateDatasourceById( id, databaseConnectionAdapter.unmarshal( databaseConnection ) );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
     }

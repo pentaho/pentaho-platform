@@ -33,7 +33,6 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
-import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -166,7 +165,7 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
       try {
         userRoleDao.createUser( systemTenant, systemTenantAdminUserName, passwordService
             .decrypt( systemTenantAdminPassword ), "System Tenant User", new String[] { tenantAdminRoleName,
-          tenantAuthenticatedRoleName } );
+              tenantAuthenticatedRoleName } );
         defaultTenant = tenantMgr.getTenant( JcrTenantUtils.getDefaultTenant().getId() );
         if ( defaultTenant == null ) {
           // We'll create the default tenant here... maybe this isn't the best place.

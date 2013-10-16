@@ -25,7 +25,7 @@ import org.apache.commons.vfs.provider.AbstractFileName;
 public class SolutionRepositoryFileName extends AbstractFileName {
 
   public SolutionRepositoryFileName( final String absPath, final FileType type ) {
-    super( "solution", absPath, type );//$NON-NLS-1$
+    super( "solution", absPath, type );
   }
 
   @Override

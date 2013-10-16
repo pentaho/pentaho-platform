@@ -50,7 +50,8 @@ public class RepositoryFileAclAceAdapter extends XmlAdapter<RepositoryFileAclAce
 
   public static RepositoryFileAce toAce( RepositoryFileAclAceDto v ) {
     return new RepositoryFileAce(
-        new RepositoryFileSid( v.recipient, RepositoryFileSid.Type.values()[v.recipientType] ), toPerms( v.permissions ) );
+        new RepositoryFileSid( v.recipient, RepositoryFileSid.Type.values()[v.recipientType] ),
+          toPerms( v.permissions ) );
   }
 
   public static List<Integer> toIntPerms( EnumSet<RepositoryFilePermission> perms ) {

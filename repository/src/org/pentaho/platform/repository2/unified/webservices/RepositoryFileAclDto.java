@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RepositoryFileAclDto implements Serializable {
+  private static final long serialVersionUID = -3534878030681136321L;
 
   List<RepositoryFileAclAceDto> aces = new ArrayList<RepositoryFileAclAceDto>( 0 );
 

@@ -64,7 +64,6 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     this.userRoleDao = userRoleDao;
     this.userDetailsService = userDetailsService;
     this.usernamePrincipalResolver = usernamePrincipalResolver;
-    ;
     this.systemRoles = systemRoles;
     this.extraRoles = extraRoles;
     this.adminRole = adminRole;

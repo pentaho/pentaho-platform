@@ -35,7 +35,8 @@ import org.pentaho.platform.security.policy.rolebased.messages.Messages;
  * @author mlowery
  */
 @WebService(
-    endpointInterface = "org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService",
+    endpointInterface =
+      "org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService",
     serviceName = "roleBindingDao", portName = "roleBindingDaoPort", targetNamespace = "http://www.pentaho.org/ws/1.0" )
 public class DefaultRoleAuthorizationPolicyRoleBindingDaoWebService implements
     IRoleAuthorizationPolicyRoleBindingDaoWebService {

@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 
 public class VersionSummaryDto implements Serializable {
+  private static final long serialVersionUID = -8333387280720917305L;
+
   String message;
 
   Date date;
