@@ -33,7 +33,9 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       url: "url",
       xdash: "xdash",
       xcdf: "xcdf",
-      html: "html"
+      html: "html",
+      cda: "cda",
+      wcdf: "wcdf"
     },
 
     init: function() {
