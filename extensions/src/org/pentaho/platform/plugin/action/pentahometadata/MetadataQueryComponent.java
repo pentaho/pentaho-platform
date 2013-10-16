@@ -47,9 +47,6 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 public class MetadataQueryComponent {
 
   static final Log logger = LogFactory.getLog(MetadataQueryComponent.class);
-  
-  Query queryObject; // An optional query model to execute instead of a string query
-  
   String query;
   Integer maxRows; //-1;
   Integer timeout; // -1;
@@ -95,15 +92,6 @@ public class MetadataQueryComponent {
   
   public void setLive(boolean live) {
     this.live = live;
-  }
-  
-  /**
-   * Sets the query to be executed. This is a query model that will be
-   * executed in preference to a string-based query.
-   * @param queryObject
-   */
-  public void setQueryObject(Query queryObject) {
-    this.queryObject = queryObject;
   }
   
   /**
@@ -155,29 +143,27 @@ public class MetadataQueryComponent {
     // parse the metadata query
     IMetadataDomainRepository repo = PentahoSystem.get(IMetadataDomainRepository.class, null);
     
-    if (queryObject == null) {
-        // there is no query model, so create one from the query string
-        // apply templates to the query
-        String templatedQuery = null;
-        if (inputs != null) {
-          Properties properties = new Properties();
-          for (String name : inputs.keySet()) {
-            if(!(inputs.get(name)==null)){
-                properties.put(name, inputs.get(name).toString());
-            }
-          }
-          templatedQuery = TemplateUtil.applyTemplate(query, properties, null);
-        } else {
-          templatedQuery = query;
+    // apply templates to the query
+    String templatedQuery = null;
+    if (inputs != null) {
+      Properties properties = new Properties();
+      for (String name : inputs.keySet()) {
+        if(!(inputs.get(name)==null)){
+            properties.put(name, inputs.get(name).toString());
         }
-        
-        try {
-          queryObject = helper.fromXML(repo, templatedQuery);
-        } catch (Exception e) {
-          logger.error("error", e); //$NON-NLS-1$
-          return false;
-        }
-    }    
+      }
+      templatedQuery = TemplateUtil.applyTemplate(query, properties, null);
+    } else {
+      templatedQuery = query;
+    }
+    
+    Query queryObject = null;
+    try {
+      queryObject = helper.fromXML(repo, templatedQuery);
+    } catch (Exception e) {
+      logger.error("error", e); //$NON-NLS-1$
+      return false;
+    }
     
     if (queryObject == null) {
       logger.error("error query object null"); //$NON-NLS-1$
@@ -206,18 +192,6 @@ public class MetadataQueryComponent {
     String queryExecDefault = queryObject.getLogicalModel().getPhysicalModel().getDefaultQueryClassname();
 //    String modelType = (String) inputs.get("modeltype");
     IMetadataQueryExec executor = PentahoSystem.get(IMetadataQueryExec.class, queryExecName, session);
-
-    if (executor == null) {
-      // get the executor from a plugin possibly?
-      Class clazz;
-      try {
-        clazz = Class.forName(queryExecDefault, true, queryObject.getLogicalModel().getPhysicalModel().getClass().getClassLoader());
-        executor =  (IMetadataQueryExec)clazz.getConstructor(new Class[]{}).newInstance(new Object[]{});
-      } catch (Exception e) {
-        logger.warn(Messages.getInstance().getErrorString("MetadataQueryComponent.ERROR_0002_NO_EXECUTOR",queryExecName)); //$NON-NLS-1$
-      }
-    }
-
     if( executor == null ) {
       // the query exec class is not defined thru configuration, go with the default
       Class clazz;
