@@ -135,6 +135,8 @@
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
     -->
+    
+    <exclude org="org.slf4j" module="slf4j-jcl"      />    
     <exclude org="javax.servlet"   module="jsp-api" />
     <exclude org="javax.servlet"   module="servlet-api" />
     <exclude org="com.google.gwt"  module="gwt-user" />
