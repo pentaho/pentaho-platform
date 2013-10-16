@@ -45,7 +45,7 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
 
   private final String PATTERN_TENANT_HOME_PATH = "{0}" + ClientRepositoryPaths.getHomeFolderPath(); //$NON-NLS-1$
 
-  private final String PATTERN_TENANT_PUBLIC_PATH = "{0}" + ClientRepositoryPaths.getPublicFolderPath();//$NON-NLS-1$
+  private final String PATTERN_TENANT_PUBLIC_PATH = "{0}" + ClientRepositoryPaths.getPublicFolderPath();
 
   private final String PATTERN_TENANT_ETC_PATH = "{0}" + RepositoryFile.SEPARATOR + FOLDER_ETC; //$NON-NLS-1$
 

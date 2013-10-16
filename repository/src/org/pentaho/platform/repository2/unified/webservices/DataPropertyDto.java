@@ -21,6 +21,7 @@ package org.pentaho.platform.repository2.unified.webservices;
 import java.io.Serializable;
 
 public class DataPropertyDto implements Serializable {
+  private static final long serialVersionUID = 4827387343270199835L;
 
   /**
    * DataPropertyType enum

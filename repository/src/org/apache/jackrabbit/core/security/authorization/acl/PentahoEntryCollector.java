@@ -250,7 +250,8 @@ public class PentahoEntryCollector extends EntryCollector {
     if ( rootID.equals( currentNode.getNodeId() ) ) {
       return currentNode;
     } else {
-      return (NodeImpl) systemSession.getNodeByIdentifier( ( (VersionHistory) currentNode ).getVersionableIdentifier() );
+      return (NodeImpl) systemSession
+          .getNodeByIdentifier( ( (VersionHistory) currentNode ).getVersionableIdentifier() );
     }
   }
 
@@ -297,7 +298,6 @@ public class PentahoEntryCollector extends EntryCollector {
           PentahoSystem.getObjectFactory().get( IRoleAuthorizationPolicyRoleBindingDao.class,
               "roleAuthorizationPolicyRoleBindingDaoTarget", PentahoSessionHolder.getSession() );
     } catch ( ObjectFactoryException e ) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

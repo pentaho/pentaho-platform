@@ -40,7 +40,6 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataAdapter;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceAdapter;
@@ -396,7 +395,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   }
 
   @Override
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path,
+      final int depth, final String filter, final boolean showHidden ) {
     return repositoryFileTreeAdapter.unmarshal( repoWebService.getTree( path, depth, filter, showHidden ) );
   }
 

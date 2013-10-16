@@ -21,9 +21,10 @@ package org.pentaho.platform.repository2.unified.webservices;
 import java.io.Serializable;
 
 public class NodeRepositoryFileDataDto implements Serializable {
+  private static final long serialVersionUID = -1249741993478762926L;
+
   public NodeRepositoryFileDataDto() {
     super();
-    // TODO Auto-generated constructor stub
   }
 
   DataNodeDto node;

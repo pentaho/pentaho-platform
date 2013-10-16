@@ -55,8 +55,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   RepositoryFileDto createFileWithAcl( final String parentFolderId, final RepositoryFileDto file,
       final NodeRepositoryFileDataDto data, final RepositoryFileAclDto acl, final String versionMessage );
 
-  RepositoryFileDto
-    createFolder( final String parentFolderId, final RepositoryFileDto file, final String versionMessage );
+  RepositoryFileDto createFolder( final String parentFolderId,
+      final RepositoryFileDto file, final String versionMessage );
 
   RepositoryFileDto updateFolder( final RepositoryFileDto file, final String versionMessage );
 
@@ -102,8 +102,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   List<RepositoryFileAclAceDto> getEffectiveAces( final String fileId );
 
-  List<RepositoryFileAclAceDto>
-    getEffectiveAcesWithForceFlag( final String fileId, final boolean forceEntriesInheriting );
+  List<RepositoryFileAclAceDto> getEffectiveAcesWithForceFlag( final String fileId,
+      final boolean forceEntriesInheriting );
 
   NodeRepositoryFileDataDto getDataAsNodeForReadAtVersion( final String fileId, final String versionId );
 

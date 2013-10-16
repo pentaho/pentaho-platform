@@ -77,6 +77,7 @@ public class SimpleRepositoryFileDataDto {
           fout.close();
         }
       } catch ( Exception e ) {
+        // CHECKSTYLES IGNORE
       }
     }
   }
@@ -116,6 +117,7 @@ public class SimpleRepositoryFileDataDto {
           fout.close();
         }
       } catch ( Exception e ) {
+        // CHECKSTYLES IGNORE
       }
     }
   }

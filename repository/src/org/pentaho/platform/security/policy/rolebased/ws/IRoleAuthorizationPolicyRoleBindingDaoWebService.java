@@ -24,7 +24,6 @@ import javax.jws.WebService;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
 /**
@@ -60,8 +59,8 @@ public interface IRoleAuthorizationPolicyRoleBindingDaoWebService {
    */
   void setRoleBindings( final String runtimeRoleName, final List<String> logicalRolesNames );
 
-  void
-    setRoleBindingsForTenant( final Tenant tenant, final String runtimeRoleName, final List<String> logicalRolesNames );
+  void setRoleBindingsForTenant( final Tenant tenant,
+      final String runtimeRoleName, final List<String> logicalRolesNames );
 
   /**
    * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not match

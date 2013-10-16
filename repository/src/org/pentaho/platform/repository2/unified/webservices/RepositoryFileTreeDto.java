@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RepositoryFileTreeDto implements Serializable {
+  private static final long serialVersionUID = -4222089807149018286L;
+
   RepositoryFileDto file;
 
   List<RepositoryFileTreeDto> children;
@@ -58,7 +60,7 @@ public class RepositoryFileTreeDto implements Serializable {
 
   public void afterUnmarshal( Unmarshaller unmarshaller, Object parent ) {
     if ( children == null ) {
-      children = Collections.<RepositoryFileTreeDto> emptyList();
+      children = Collections.<RepositoryFileTreeDto>emptyList();
     }
   }
 }

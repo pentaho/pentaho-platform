@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
@@ -130,8 +129,8 @@ public interface IRepositoryFileDao {
 
   void setLocalePropertiesForFileByPath( final String relPath, final String locale, final Properties properties );
 
-  void
-    setLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale, final Properties properties );
+  void setLocalePropertiesForFile( final RepositoryFile repositoryFile,
+      final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
 }

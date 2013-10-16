@@ -243,7 +243,8 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     throw new UnsupportedOperationException();
   }
 
-  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( List<RepositoryFile> files, Class<T> dataClass ) {
+  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(
+      List<RepositoryFile> files, Class<T> dataClass ) {
     throw new UnsupportedOperationException();
   }
 

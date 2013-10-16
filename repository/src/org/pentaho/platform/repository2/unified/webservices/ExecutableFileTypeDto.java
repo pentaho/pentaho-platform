@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ExecutableFileTypeDto implements Serializable {
+  private static final long serialVersionUID = -7235228645953482785L;
 
   private String description;
 

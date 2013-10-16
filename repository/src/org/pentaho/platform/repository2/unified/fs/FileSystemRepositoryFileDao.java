@@ -109,7 +109,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       f.createNewFile();
       fos = new FileOutputStream( f );
       if ( data instanceof SimpleRepositoryFileData ) {
-        fos.write( inputStreamToBytes( ( (SimpleRepositoryFileData) data ).getStream() ) );
+        fos.write( inputStreamToBytes( ( (SimpleRepositoryFileData) data ).getInputStream() ) );
       } else if ( data instanceof NodeRepositoryFileData ) {
         fos.write( inputStreamToBytes( new ByteArrayInputStream( ( (NodeRepositoryFileData) data ).getNode().toString()
             .getBytes() ) ) );
@@ -143,7 +143,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       File f = new File( fileId.toString() );
       f.delete();
     } catch ( Exception e ) {
-
+      // CHECKSTYLES IGNORE
     }
 
   }
@@ -307,7 +307,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     try {
       fos = new FileOutputStream( f, false );
       if ( data instanceof SimpleRepositoryFileData ) {
-        fos.write( inputStreamToBytes( ( (SimpleRepositoryFileData) data ).getStream() ) );
+        fos.write( inputStreamToBytes( ( (SimpleRepositoryFileData) data ).getInputStream() ) );
       } else if ( data instanceof NodeRepositoryFileData ) {
         fos.write( inputStreamToBytes( new ByteArrayInputStream( ( (NodeRepositoryFileData) data ).getNode().toString()
             .getBytes() ) ) );

@@ -401,6 +401,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       propertyValues = jackrabbitUser.getProperty( "description" ); //$NON-NLS-1$
       description = propertyValues.length > 0 ? propertyValues[0].getString() : null;
     } catch ( Exception ex ) {
+      // CHECKSTYLES IGNORE
     }
 
     Credentials credentials = jackrabbitUser.getCredentials();
@@ -426,6 +427,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       propertyValues = jackrabbitGroup.getProperty( "description" ); //$NON-NLS-1$
       description = propertyValues.length > 0 ? propertyValues[0].getString() : null;
     } catch ( Exception ex ) {
+      // CHECKSTYLES IGNORE
     }
 
     role =
@@ -790,9 +792,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
     if ( userHasAdminRole ) {
       List<IPentahoUser> usersWithAdminRole = getRoleMembers( session, null, tenantAdminRoleName );
-      if ( usersWithAdminRole != null ) {
-
-      } else {
+      if ( usersWithAdminRole == null ) {
         throw new RepositoryException( Messages.getInstance().getString(
             "AbstractJcrBackedUserRoleDao.ERROR_0004_LAST_USER_NEEDED_IN_ROLE", tenantAdminRoleName ) );
       }

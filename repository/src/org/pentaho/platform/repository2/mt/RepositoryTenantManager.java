@@ -181,7 +181,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         return null;
       }
     } else {
-      if ( repositoryFileDao.getFileByAbsolutePath( parentTenant.getRootFolderAbsolutePath() + "/" + tenantName ) != null ) {
+      if ( repositoryFileDao
+          .getFileByAbsolutePath( parentTenant.getRootFolderAbsolutePath() + "/" + tenantName ) != null ) {
         return null;
       }
     }
@@ -282,7 +283,6 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         try {
           deleteTenants( session, tenants );
         } catch ( RepositoryException e ) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         return null;
@@ -298,7 +298,6 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         try {
           deleteTenant( session, tenant );
         } catch ( RepositoryException e ) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         return null;
@@ -331,7 +330,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     RepositoryFile rootFolder = repositoryFileDao.getFileByAbsolutePath( tenant.getRootFolderAbsolutePath() );
     if ( rootFolder != null ) {
       Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata( rootFolder.getId() );
-      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT ) || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT )
+          || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         rootFolder = null;
       }
     }
@@ -368,7 +368,6 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
           childTenants = getChildTenants( session, parentTenant, includeDisabledTenants );
         } catch ( RepositoryException e ) {
           childTenants = new ArrayList<ITenant>();
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         return childTenants;
@@ -386,7 +385,6 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
           childTenants = getChildTenants( session, parentTenant );
         } catch ( RepositoryException e ) {
           childTenants = new ArrayList<ITenant>();
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         return childTenants;
@@ -401,7 +399,6 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
    */
   @Override
   public void updateTentant( String tenantPath, Map<String, Serializable> tenantInfo ) {
-    // TODO Auto-generated method stub
   }
 
   String getParentPath( String parentPath ) {
@@ -499,8 +496,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     RepositoryFile etcFolder =
         repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
             .getTenantEtcFolderName() ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
-            .entriesInheriting( true ).ace( tenantAuthenticatedRoleSid, EnumSet.of( RepositoryFilePermission.READ ) )
-            .ace( tenantAdminRoleSid, EnumSet.of( RepositoryFilePermission.ALL ) ).build(), null );
+              .entriesInheriting( true ).ace( tenantAuthenticatedRoleSid, EnumSet.of( RepositoryFilePermission.READ ) )
+              .ace( tenantAdminRoleSid, EnumSet.of( RepositoryFilePermission.ALL ) ).build(), null );
 
     RepositoryFile pdiFolder =
         repositoryFileDao.createFolder( etcFolder.getId(), new RepositoryFile.Builder( "pdi" ).folder( true ).build(),

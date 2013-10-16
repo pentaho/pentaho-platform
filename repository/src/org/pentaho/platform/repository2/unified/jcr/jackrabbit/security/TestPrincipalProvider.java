@@ -144,13 +144,10 @@ public class TestPrincipalProvider implements PrincipalProvider {
         session = repository.login( adminCredentialsStrategy.getCredentials(), null );
       }
     } catch ( LoginException e ) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch ( NoSuchWorkspaceException e ) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch ( RepositoryException e ) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return session;
@@ -199,6 +196,7 @@ public class TestPrincipalProvider implements PrincipalProvider {
 
           }
         } catch ( Exception e ) {
+          // CHECKSTYLES IGNORE
         }
       }
       return null;
