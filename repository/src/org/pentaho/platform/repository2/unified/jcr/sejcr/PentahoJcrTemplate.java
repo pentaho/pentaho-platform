@@ -25,8 +25,6 @@ import javax.jcr.AccessDeniedException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
@@ -39,10 +37,6 @@ import org.springframework.extensions.jcr.SessionFactoryUtils;
  * @author mlowery
  */
 public class PentahoJcrTemplate extends JcrTemplate {
-
-  // ~ Static fields/initializers ======================================================================================
-
-  private static final Log logger = LogFactory.getLog( PentahoJcrTemplate.class );
 
   // ~ Instance fields =================================================================================================
 
@@ -61,9 +55,6 @@ public class PentahoJcrTemplate extends JcrTemplate {
   public Object execute( JcrCallback action, boolean exposeNativeSession ) throws DataAccessException {
     Session session = getSession();
     boolean existingTransaction = SessionFactoryUtils.isSessionThreadBound( session, getSessionFactory() );
-    if ( existingTransaction ) {
-      // logger.debug("Found thread-bound Session for JcrTemplate"); //$NON-NLS-1$
-    }
 
     try {
       Session sessionToExpose = ( exposeNativeSession ? session : createSessionProxy( session ) );
@@ -81,9 +72,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-      if ( existingTransaction ) {
-        // logger.debug("Not closing pre-bound Jcr Session after JcrTemplate"); //$NON-NLS-1$
-      } else {
+      if ( !existingTransaction ) {
         SessionFactoryUtils.releaseSession( session, getSessionFactory() );
       }
     }

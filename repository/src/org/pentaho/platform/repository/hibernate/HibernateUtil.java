@@ -171,7 +171,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       } else {
         HibernateUtil.factoryJndiName = HibernateUtil.configuration.getProperty( Environment.SESSION_FACTORY_NAME );
         if ( HibernateUtil.factoryJndiName == null ) {
-          HibernateUtil.log.error( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0013_NO_SESSION_FACTORY" ) );//$NON-NLS-1$
+          HibernateUtil.log.error( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0013_NO_SESSION_FACTORY" ) );
           return false;
         }
         HibernateUtil.log.info( Messages.getInstance().getString( "HIBUTIL.USER_HIBERNATEMANAGED" ) ); //$NON-NLS-1$
@@ -267,6 +267,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       try {
         sf = (SessionFactory) HibernateUtil.iniCtx.lookup( jndiName );
       } catch ( Exception ignored ) {
+        // CHECKSTYLES IGNORE
       }
       if ( sf == null ) {
         try {
@@ -276,6 +277,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
         }
       }
     } catch ( NamingException ignored ) {
+      // CHECKSTYLES IGNORE
     }
     return sf;
   }
@@ -450,6 +452,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       try {
         HibernateUtil.rollbackTransaction();
       } catch ( Exception e2 ) {
+        // CHECKSTYLES IGNORE
       }
       if ( ex instanceof ConstraintViolationException ) {
         throw new RepositoryException( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0008_COMMIT_TRANS" ), ex ); //$NON-NLS-1$

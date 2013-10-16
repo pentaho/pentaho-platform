@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.userdetails.UsernameNotFoundException;

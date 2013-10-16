@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataNodeDto implements Serializable {
+  private static final long serialVersionUID = -670354483372381494L;
+
   String id;
 
   String name;

@@ -28,7 +28,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
  */
 public class MondrianVfs implements FileProvider {
 
-  public FileObject createFileSystem( String arg0, FileObject arg1, FileSystemOptions arg2 ) throws FileSystemException {
+  public FileObject createFileSystem( String arg0,
+      FileObject arg1, FileSystemOptions arg2 ) throws FileSystemException {
     // TODO Auto-generated method stub
     return null;
   }

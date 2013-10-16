@@ -143,7 +143,8 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
    */
   public IBackingRepositoryLifecycleManager getLifecycleManager() {
     // Check ... if we haven't been injected with a lifecycle manager, get one from PentahoSystem
-    return ( null != lifecycleManager ? lifecycleManager : PentahoSystem.get( IBackingRepositoryLifecycleManager.class ) );
+    return ( null != lifecycleManager ? lifecycleManager
+        : PentahoSystem.get( IBackingRepositoryLifecycleManager.class ) );
   }
 
   /**

@@ -441,8 +441,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public void
-    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId,
+      final Serializable versionId, final String versionMessage ) {
     Assert.notNull( fileId );
     Assert.notNull( versionId );
     repositoryFileDao.restoreFileAtVersion( fileId, versionId, versionMessage );
@@ -459,7 +459,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path,
+      final int depth, final String filter, final boolean showHidden ) {
     Assert.hasText( path );
     return repositoryFileDao.getTree( path, depth, filter, showHidden );
   }

@@ -331,6 +331,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
         try {
           wait();
         } catch ( InterruptedException e ) {
+          // CHECKSTYLES IGNORE
         }
       }
       if ( problem != null ) {

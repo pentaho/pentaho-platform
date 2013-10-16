@@ -245,7 +245,7 @@ public class JcrRepositoryFileAclUtils {
   public static void updateAcl( final Session session, final RepositoryFileAcl acl ) throws RepositoryException {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants, acl.getId() );
-    RepositoryFileAcl updatedAcl = internalUpdateAcl( session, pentahoJcrConstants, acl.getId(), acl );
+    internalUpdateAcl(session, pentahoJcrConstants, acl.getId(), acl);
     JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, acl.getId(), null,
         null, true );
   }

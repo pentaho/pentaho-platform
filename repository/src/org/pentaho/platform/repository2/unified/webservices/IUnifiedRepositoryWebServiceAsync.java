@@ -56,14 +56,15 @@ public interface IUnifiedRepositoryWebServiceAsync {
 
   void getDataAsNodeForReadAtVersion( String fileId, String versionId, AsyncCallback<NodeRepositoryFileDataDto> arg3 );
 
-  void getDataAsNodeForReadInBatch( List<RepositoryFileDto> files, AsyncCallback<List<NodeRepositoryFileDataDto>> arg2 );
+  void getDataAsNodeForReadInBatch( List<RepositoryFileDto> files,
+      AsyncCallback<List<NodeRepositoryFileDataDto>> arg2 );
 
   void getDeletedFiles( AsyncCallback<List<RepositoryFileDto>> arg1 );
 
   void getDeletedFilesInFolder( String folderPath, AsyncCallback<List<RepositoryFileDto>> arg2 );
 
-  void
-    getDeletedFilesInFolderWithFilter( String folderPath, String filter, AsyncCallback<List<RepositoryFileDto>> arg3 );
+  void getDeletedFilesInFolderWithFilter( String folderPath,
+      String filter, AsyncCallback<List<RepositoryFileDto>> arg3 );
 
   void getEffectiveAces( String fileId, AsyncCallback<List<RepositoryFileAclAceDto>> arg2 );
 

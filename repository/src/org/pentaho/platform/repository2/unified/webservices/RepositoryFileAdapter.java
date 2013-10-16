@@ -108,11 +108,8 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     } else {
       builder = new RepositoryFile.Builder( v.name );
     }
-    RepositoryFileSid owner = null;
     if ( v.ownerType != -1 ) {
-      owner = new RepositoryFileSid( v.owner, RepositoryFileSid.Type.values()[v.ownerType] );
-    } else {
-      owner = null;
+      new RepositoryFileSid( v.owner, RepositoryFileSid.Type.values()[v.ownerType] );
     }
     if ( v.localePropertiesMapEntries != null ) {
       for ( LocaleMapDto localeMapDto : v.localePropertiesMapEntries ) {

@@ -95,7 +95,7 @@ public class RepositoryFileInputStream extends InputStream {
     if ( fileData == null ) {
       fileData = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
     }
-    is = fileData.getStream();
+    is = fileData.getInputStream();
   }
 
   @Override

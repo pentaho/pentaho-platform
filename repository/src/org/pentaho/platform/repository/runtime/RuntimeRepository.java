@@ -127,7 +127,8 @@ public class RuntimeRepository extends PentahoBase implements IRuntimeRepository
         session.save( re );
       } catch ( HibernateException ex ) {
         error( Messages.getInstance().getErrorString( "RTREPO.ERROR_0002_SAVING_ELEMENT" ), ex ); //$NON-NLS-1$
-        throw new RepositoryException( Messages.getInstance().getErrorString( "RTREPO.ERROR_0002_SAVING_ELEMENT" ), ex );//$NON-NLS-1$
+        throw new RepositoryException( Messages.getInstance()
+            .getErrorString( "RTREPO.ERROR_0002_SAVING_ELEMENT" ), ex );
       }
     }
     return re;

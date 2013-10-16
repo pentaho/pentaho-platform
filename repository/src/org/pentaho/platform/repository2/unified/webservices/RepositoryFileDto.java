@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlRootElement
 public class RepositoryFileDto implements Serializable {
+  private static final long serialVersionUID = 3578911355440278525L;
 
   String name;
 

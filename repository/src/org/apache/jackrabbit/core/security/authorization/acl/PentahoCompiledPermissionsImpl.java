@@ -41,7 +41,6 @@ import org.apache.jackrabbit.core.security.authorization.AbstractCompiledPermiss
 import org.apache.jackrabbit.core.security.authorization.AccessControlListener;
 import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
 import org.apache.jackrabbit.core.security.authorization.AccessControlUtils;
-import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
 import org.apache.jackrabbit.core.security.authorization.Permission;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeBits;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeManagerImpl;
@@ -72,7 +71,6 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   @SuppressWarnings( "unchecked" )
   private final Map<ItemId, Boolean> readCache = new GrowingLRUMap( 1024, 5000 );
   private final Object monitor = new Object();
-  private final Object readMonitor = new Object();
 
   PentahoCompiledPermissionsImpl( Set<Principal> principals, SessionImpl session, EntryCollector entryCollector,
       AccessControlUtils util, boolean listenToEvents ) throws RepositoryException {
@@ -285,7 +283,8 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
 
   // ----------------------------------------< ACLModificationListener >---
   /**
-   * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener#acModified(org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
+   * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener#acModified
+   *      (org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
    */
   public void acModified( AccessControlModifications modifications ) {
     // ignore the details of the modifications and clear all caches.

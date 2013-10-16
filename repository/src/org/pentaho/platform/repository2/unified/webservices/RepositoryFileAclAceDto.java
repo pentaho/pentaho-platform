@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class RepositoryFileAclAceDto implements Serializable {
+  private static final long serialVersionUID = 3274897756057989184L;
   String recipient;
   String tenantPath;
 

@@ -82,28 +82,24 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
   // ~ Methods =========================================================================================================
 
   protected void createEtcMondrianFolder( final ITenant tenant ) {
-    try {
-      txnTemplate.execute( new TransactionCallbackWithoutResult() {
-        @Override
-        public void doInTransactionWithoutResult( final TransactionStatus status ) {
-          final RepositoryFileSid repositoryAdminUserSid =
-              new RepositoryFileSid( userNameUtils.getPrincipleId( tenant, repositoryAdminUsername ) );
-          RepositoryFile tenantEtcFolder =
-              repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant ) );
-          Assert.notNull( tenantEtcFolder );
+    txnTemplate.execute( new TransactionCallbackWithoutResult() {
+      @Override
+      public void doInTransactionWithoutResult( final TransactionStatus status ) {
+        final RepositoryFileSid repositoryAdminUserSid =
+            new RepositoryFileSid( userNameUtils.getPrincipleId( tenant, repositoryAdminUsername ) );
+        RepositoryFile tenantEtcFolder =
+            repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant ) );
+        Assert.notNull( tenantEtcFolder );
 
-          if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
-              + RepositoryFile.SEPARATOR + FOLDER_MONDRIAN ) == null ) {
-            // mondrian folder
-            internalCreateFolder( tenantEtcFolder.getId(), new RepositoryFile.Builder( FOLDER_MONDRIAN ).folder( true )
-                .build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
-                "MondrianRepositoryLifecycleManager.USER_0001_VER_COMMENT_MONDRIAN" ) ); //$NON-NLS-1$
-          }
+        if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
+            + RepositoryFile.SEPARATOR + FOLDER_MONDRIAN ) == null ) {
+          // mondrian folder
+          internalCreateFolder( tenantEtcFolder.getId(), new RepositoryFile.Builder( FOLDER_MONDRIAN ).folder( true )
+              .build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
+              "MondrianRepositoryLifecycleManager.USER_0001_VER_COMMENT_MONDRIAN" ) ); //$NON-NLS-1$
         }
-      } );
-    } finally {
-
-    }
+      }
+    } );
   }
 
   @Override

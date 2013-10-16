@@ -35,8 +35,8 @@ import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProv
 
 // Equivalent CND:
 // [pho_nt:pentahoFile] > nt:file, pho_nt:pentahoHierarchyNode
-//     // strangely, nt:file's don't have lastModified; instead this attribute is on nt:resource; however not all pentaho
-//     // files have an nt:resource; so we put the lastModified date on the nt:file node itself
+// strangely, nt:file's don't have lastModified; instead this attribute is on nt:resource; however not all pentaho
+// files have an nt:resource; so we put the lastModified date on the nt:file node itself
 //     - pho:lastModified (date) mandatory ignore
 //     - pho:contentType (string) mandatory copy
 //     - pho:fileSize (long) copy

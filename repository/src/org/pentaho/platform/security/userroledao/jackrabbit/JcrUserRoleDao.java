@@ -129,8 +129,9 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   }
 
   @Override
-  public IPentahoUser createUser( final ITenant tenant, final String userName, final String password,
-      final String description, final String[] roles ) throws AlreadyExistsException, UncategorizedUserRoleDaoException {
+  public IPentahoUser createUser( final ITenant tenant,
+      final String userName, final String password, final String description,
+      final String[] roles ) throws AlreadyExistsException, UncategorizedUserRoleDaoException {
     final IPentahoUser user;
     try {
       user = (IPentahoUser) adminJcrTemplate.execute( new JcrCallback() {

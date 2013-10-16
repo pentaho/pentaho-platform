@@ -123,7 +123,8 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
   }
 
   @Override
-  public void setRoleBindings( final ITenant tenant, final String runtimeRoleName, final List<String> logicalRoleNames ) {
+  public void setRoleBindings( final ITenant tenant,
+      final String runtimeRoleName, final List<String> logicalRoleNames ) {
     ITenant tempTenant = tenant;
     if ( tenant == null ) {
       tempTenant = JcrTenantUtils.getTenant( runtimeRoleName, false );
@@ -134,7 +135,6 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
     Assert.notNull( logicalRoleNames );
     jcrTemplate.execute( new JcrCallback() {
       @Override
-      @SuppressWarnings( "unchecked" )
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         setRoleBindings( session, tenant, runtimeRoleName, logicalRoleNames );
         return null;

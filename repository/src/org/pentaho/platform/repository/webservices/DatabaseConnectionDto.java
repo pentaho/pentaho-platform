@@ -27,8 +27,6 @@ import org.pentaho.database.model.PartitionDatabaseMeta;
 
 public class DatabaseConnectionDto {
 
-  private static final long serialVersionUID = -3816140282186728714L;
-
   public static final String EMPTY_OPTIONS_STRING = "><EMPTY><"; //$NON-NLS-1$
 
   // part of the generic database connection, move somewhere else
