@@ -1,26 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.test.platform.web.doubles;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -32,11 +27,16 @@ import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ApplicationContextDouble implements IApplicationContext {
 
   // ~ Static fields/initializers ======================================================================================
 
-  private static final Log logger = LogFactory.getLog(ApplicationContextDouble.class);
+  private static final Log logger = LogFactory.getLog( ApplicationContextDouble.class );
 
   // ~ Instance fields =================================================================================================
 
@@ -52,34 +52,34 @@ public class ApplicationContextDouble implements IApplicationContext {
 
   // ~ Constructors ====================================================================================================
 
-  @SuppressWarnings("nls")
+  @SuppressWarnings( "nls" )
   public ApplicationContextDouble() {
     super();
-    if (logger.isDebugEnabled()) {
-      logger.debug("looking for info as system properties");
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "looking for info as system properties" );
     }
-    solutionRootPath = System.getProperty("org.pentaho.doubles.ApplicationContext.solutionRootPath");
-    fullyQualifiedServerUrl = System.getProperty("org.pentaho.doubles.ApplicationContext.baseUrl");
-    if (logger.isDebugEnabled()) {
-      logger.debug("solutionRootPath=" + solutionRootPath);
-      logger.debug("fullyQualifiedServrUrl=" + fullyQualifiedServerUrl);
+    solutionRootPath = System.getProperty( "org.pentaho.doubles.ApplicationContext.solutionRootPath" );
+    fullyQualifiedServerUrl = System.getProperty( "org.pentaho.doubles.ApplicationContext.baseUrl" );
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "solutionRootPath=" + solutionRootPath );
+      logger.debug( "fullyQualifiedServrUrl=" + fullyQualifiedServerUrl );
     }
-    if (StringUtils.isBlank(solutionRootPath) || StringUtils.isBlank(fullyQualifiedServerUrl)) {
-      throw new IllegalArgumentException("missing required system properties");
+    if ( StringUtils.isBlank( solutionRootPath ) || StringUtils.isBlank( fullyQualifiedServerUrl ) ) {
+      throw new IllegalArgumentException( "missing required system properties" );
     }
   }
 
   // ~ Methods =========================================================================================================
 
-  public void addEntryPointHandler(IPentahoSystemEntryPoint entryPoint) {
-    entryPoints.add(entryPoint);
+  public void addEntryPointHandler( IPentahoSystemEntryPoint entryPoint ) {
+    entryPoints.add( entryPoint );
   }
 
-  public void addExitPointHandler(IPentahoSystemExitPoint exitPoint) {
-    exitPoints.add(exitPoint);
+  public void addExitPointHandler( IPentahoSystemExitPoint exitPoint ) {
+    exitPoints.add( exitPoint );
   }
 
-  public String getApplicationPath(String arg0) {
+  public String getApplicationPath( String arg0 ) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -92,7 +92,7 @@ public class ApplicationContextDouble implements IApplicationContext {
     return context;
   }
 
-  public String getFileOutputPath(String arg0) {
+  public String getFileOutputPath( String arg0 ) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -102,17 +102,17 @@ public class ApplicationContextDouble implements IApplicationContext {
     return null;
   }
 
-  public String getProperty(String arg0) {
+  public String getProperty( String arg0 ) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public String getProperty(String arg0, String arg1) {
+  public String getProperty( String arg0, String arg1 ) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public String getSolutionPath(String path) {
+  public String getSolutionPath( String path ) {
     return solutionRootPath + "/" + path; //$NON-NLS-1$
   }
 
@@ -130,43 +130,46 @@ public class ApplicationContextDouble implements IApplicationContext {
 
   }
 
-  public void removeEntryPointHandler(IPentahoSystemEntryPoint entryPoint) {
-    entryPoints.remove(entryPoint);
+  public void removeEntryPointHandler( IPentahoSystemEntryPoint entryPoint ) {
+    entryPoints.remove( entryPoint );
   }
 
-  public void removeExitPointHandler(IPentahoSystemExitPoint exitPoint) {
-    exitPoints.remove(exitPoint);
+  public void removeExitPointHandler( IPentahoSystemExitPoint exitPoint ) {
+    exitPoints.remove( exitPoint );
   }
 
-  public void setFullyQualifiedServerURL(String fullyQualifiedServerUrl) {
+  public void setFullyQualifiedServerURL( String fullyQualifiedServerUrl ) {
     this.fullyQualifiedServerUrl = fullyQualifiedServerUrl;
   }
 
-  public void setContext(Object context) {
+  public void setContext( Object context ) {
     this.context = context;
   }
 
-  public void setSolutionRootPath(String solutionRootPath) {
+  public void setSolutionRootPath( String solutionRootPath ) {
     this.solutionRootPath = solutionRootPath;
 
   }
 
-  public File createTempFile(final IPentahoSession session, final String prefix, final String extn, boolean trackFile) throws IOException {
-    return createTempFile(session, prefix, extn, new File(getSolutionPath("system/tmp")), trackFile); //$NON-NLS-1$
+  public File createTempFile( final IPentahoSession session, final String prefix, final String extn, boolean trackFile )
+    throws IOException {
+    return createTempFile( session, prefix, extn, new File( getSolutionPath( "system/tmp" ) ), trackFile ); //$NON-NLS-1$
   }
-  
-  public File createTempFile(final IPentahoSession session, final String prefix, final String extn, final File parentDir, boolean trackFile) throws IOException {
+
+  public File createTempFile( final IPentahoSession session, final String prefix, final String extn,
+      final File parentDir, boolean trackFile ) throws IOException {
     ITempFileDeleter fileDeleter = null;
-    if ((session != null) && trackFile) {
-      fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
+    if ( ( session != null ) && trackFile ) {
+      fileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
     }
-    final String newPrefix = new StringBuilder().append(prefix).append(session.getId().substring(0, 10)).append('-').toString();
-    final File file = File.createTempFile(newPrefix, extn, parentDir);
-    if (fileDeleter != null) {
-      fileDeleter.trackTempFile(file);
+    final String newPrefix =
+        new StringBuilder().append( prefix ).append( session.getId().substring( 0, 10 ) ).append( '-' ).toString();
+    final File file = File.createTempFile( newPrefix, extn, parentDir );
+    if ( fileDeleter != null ) {
+      fileDeleter.trackTempFile( file );
     } else {
       // There is no deleter, so cleanup on VM exit. (old behavior)
-      file.deleteOnExit(); 
+      file.deleteOnExit();
     }
     return file;
   }
@@ -177,7 +180,7 @@ public class ApplicationContextDouble implements IApplicationContext {
   }
 
   @Deprecated
-  public void setBaseUrl(String url) {
+  public void setBaseUrl( String url ) {
     // DO NOTHING
   }
 
