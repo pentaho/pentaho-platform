@@ -1,29 +1,23 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.services.connections.mondrian;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Properties;
-
 import mondrian.olap.Util;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
@@ -31,12 +25,16 @@ import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Properties;
+
 /**
- * MDXOlap4jConnection implements IPentahoConenction to support olap4j
- * connections to any olap4j provider. Developers may subclass MDXOlap4jConnection
- * to unwrap the olap4j connection to directly manipulate the underlying connection
+ * MDXOlap4jConnection implements IPentahoConenction to support olap4j connections to any olap4j provider. Developers
+ * may subclass MDXOlap4jConnection to unwrap the olap4j connection to directly manipulate the underlying connection
  * such as setting a DelegatingRole in the case of Mondrian.
- * 
+ *
  * @author Benny Chow
  * @version $Id: $
  * @created Jan 9, 2013
@@ -44,115 +42,119 @@ import org.pentaho.platform.plugin.services.messages.Messages;
  */
 public class MDXOlap4jConnection implements IPentahoConnection {
 
-	static final Log log = LogFactory.getLog(MDXOlap4jConnection.class);
-	
-	protected OlapConnection connection = null;
+  static final Log log = LogFactory.getLog( MDXOlap4jConnection.class );
 
-	public void close() {
-		try {
-			if (connection != null)
-				connection.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  protected OlapConnection connection = null;
 
-	public boolean connect(Properties props) {
-		
-		String url = props.getProperty("url");
-		String driver = props.getProperty("driver");
-		
-		try {
-			if (connection != null)
-				connection.close();
-			
-			// For Mondrian olap4j driver, we will also do role mapping
-			if (driver.equals("mondrian.olap4j.MondrianOlap4jDriver")) {
-				Util.PropertyList connectProperties = Util.parseConnectString(url);
-				MDXConnection.mapPlatformRolesToMondrianRolesHelper(connectProperties);
-				url = connectProperties.toString();
-			}
+  public void close() {
+    try {
+      if ( connection != null ) {
+        connection.close();
+      }
+    } catch ( SQLException e ) {
+      throw new RuntimeException( e );
+    }
+  }
 
-			Class.forName(driver);
-			java.sql.Connection sqlConnection = DriverManager.getConnection(url);
-			connection = sqlConnection.unwrap(org.olap4j.OlapConnection.class);
+  public boolean connect( Properties props ) {
 
-		} catch (Exception e) {
-			log.error(Messages.getInstance().getErrorString(
-		            "MDXConnection.ERROR_0002_INVALID_CONNECTION", "driver=" + driver + ";url=" + url), e);
-			return false;
-		}
+    String url = props.getProperty( "url" );
+    String driver = props.getProperty( "driver" );
 
-		return true;
-	}
+    try {
+      if ( connection != null ) {
+        connection.close();
+      }
 
-	public IPentahoResultSet executeQuery(String arg0) {
-		throw new UnsupportedOperationException();
-	}
+      // For Mondrian olap4j driver, we will also do role mapping
+      if ( driver.equals( "mondrian.olap4j.MondrianOlap4jDriver" ) ) {
+        Util.PropertyList connectProperties = Util.parseConnectString( url );
+        MDXConnection.mapPlatformRolesToMondrianRolesHelper( connectProperties );
+        url = connectProperties.toString();
+      }
 
-	public IPentahoResultSet getResultSet() {
-		throw new UnsupportedOperationException();
-	}
+      Class.forName( driver );
+      java.sql.Connection sqlConnection = DriverManager.getConnection( url );
+      connection = sqlConnection.unwrap( org.olap4j.OlapConnection.class );
 
-	public boolean initialized() {
-		return connection != null;
-	}
+    } catch ( Exception e ) {
+      log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
+        "driver=" + driver + ";url=" + url ), e );
+      return false;
+    }
 
-	public boolean isClosed() {
-		if (connection == null)
-			throw new IllegalStateException();
+    return true;
+  }
 
-		try {
-			return connection.isClosed();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  public IPentahoResultSet executeQuery( String arg0 ) {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isReadOnly() {
-		if (connection == null)
-			throw new IllegalStateException();
+  public IPentahoResultSet getResultSet() {
+    throw new UnsupportedOperationException();
+  }
 
-		try {
-			return connection.isReadOnly();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  public boolean initialized() {
+    return connection != null;
+  }
 
-	public IPentahoResultSet prepareAndExecuteQuery(String arg0, List arg1) throws Exception {
-		throw new UnsupportedOperationException();
-	}
+  public boolean isClosed() {
+    if ( connection == null ) {
+      throw new IllegalStateException();
+    }
 
-	public boolean preparedQueriesSupported() {
-		return false;
-	}
+    try {
+      return connection.isClosed();
+    } catch ( SQLException e ) {
+      throw new RuntimeException( e );
+    }
+  }
 
-	public void setFetchSize(int arg0) {
-		throw new UnsupportedOperationException();
-	}
+  public boolean isReadOnly() {
+    if ( connection == null ) {
+      throw new IllegalStateException();
+    }
 
-	public void setMaxRows(int arg0) {
-		throw new UnsupportedOperationException();
-	}
+    try {
+      return connection.isReadOnly();
+    } catch ( SQLException e ) {
+      throw new RuntimeException( e );
+    }
+  }
 
-	public void setProperties(Properties props) {
-		this.connect(props);
-	}
+  public IPentahoResultSet prepareAndExecuteQuery( String arg0, List arg1 ) throws Exception {
+    throw new UnsupportedOperationException();
+  }
 
-	public void clearWarnings() {
+  public boolean preparedQueriesSupported() {
+    return false;
+  }
 
-	}
+  public void setFetchSize( int arg0 ) {
+    throw new UnsupportedOperationException();
+  }
 
-	public String getDatasourceType() {
-		return IPentahoConnection.MDX_OLAP4J_DATASOURCE;
-	}
+  public void setMaxRows( int arg0 ) {
+    throw new UnsupportedOperationException();
+  }
 
-	public String getLastQuery() {
-		throw new UnsupportedOperationException();
-	}
+  public void setProperties( Properties props ) {
+    this.connect( props );
+  }
 
-	public OlapConnection getConnection() {
-	    return connection;
-	}
+  public void clearWarnings() {
+
+  }
+
+  public String getDatasourceType() {
+    return IPentahoConnection.MDX_OLAP4J_DATASOURCE;
+  }
+
+  public String getLastQuery() {
+    throw new UnsupportedOperationException();
+  }
+
+  public OlapConnection getConnection() {
+    return connection;
+  }
 }

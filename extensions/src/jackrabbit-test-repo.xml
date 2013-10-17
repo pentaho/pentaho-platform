@@ -20,8 +20,8 @@ Jackrabbit configuration suitable for integration tests.
 -->
 
 <!DOCTYPE Repository
-          PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN"
-          "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+    PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN"
+    "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
 
 <!-- Example Repository Configuration File
      Used by
@@ -29,150 +29,151 @@ Jackrabbit configuration suitable for integration tests.
      -
 -->
 <Repository>
+  <!--
+      virtual file system where the repository stores global state
+      (e.g. registered namespaces, custom node types, etc.)
+  -->
+  <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+    <param name="path" value="${rep.home}/repository"/>
+  </FileSystem>
+
+  <!--
+      data store configuration
+  -->
+  <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+
+  <!--
+      security configuration
+  -->
+  <Security appName="Jackrabbit">
     <!--
-        virtual file system where the repository stores global state
-        (e.g. registered namespaces, custom node types, etc.)
+        security manager:
+        class: FQN of class implementing the JackrabbitSecurityManager interface
+    -->
+    <SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="security">
+      <!--
+      workspace access:
+      class: FQN of class implementing the WorkspaceAccessManager interface
+      -->
+      <!-- <WorkspaceAccessManager class="..."/> -->
+      <!-- <param name="config" value="${rep.home}/security.xml"/> -->
+    </SecurityManager>
+
+    <!--
+        access manager:
+        class: FQN of class implementing the AccessManager interface
+    -->
+    <AccessManager class="org.apache.jackrabbit.core.security.DefaultAccessManager">
+      <!-- <param name="config" value="${rep.home}/access.xml"/> -->
+    </AccessManager>
+
+    <LoginModule class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
+      <!--
+         anonymous user name ('anonymous' is the default value)
+       -->
+      <param name="anonymousId" value="anonymous"/>
+      <!--
+         administrator user id (default value if param is missing is 'admin')
+       -->
+      <param name="adminId" value="pentahoRepoAdmin"/>
+
+      <param name="principalProvider"
+             value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider"/>
+    </LoginModule>
+  </Security>
+
+
+  <!--
+      location of workspaces root directory and name of default workspace
+  -->
+  <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default"/>
+  <!--
+      workspace configuration template:
+      used to create the initial workspace if there's no workspace yet
+  -->
+  <Workspace name="${wsp.name}">
+    <!--
+        virtual file system of the workspace:
+        class: FQN of class implementing the FileSystem interface
     -->
     <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
-        <param name="path" value="${rep.home}/repository"/>
+      <param name="path" value="${wsp.home}"/>
+    </FileSystem>
+    <!--
+        persistence manager of the workspace:
+        class: FQN of class implementing the PersistenceManager interface
+    -->
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.DerbyPersistenceManager">
+      <param name="url" value="jdbc:derby:${wsp.home}/db;create=true"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_"/>
+    </PersistenceManager>
+    <!--
+        Search index and the file system it uses.
+        class: FQN of class implementing the QueryHandler interface
+    -->
+    <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+      <param name="path" value="${wsp.home}/index"/>
+      <param name="supportHighlighting" value="true"/>
+    </SearchIndex>
+
+
+    <WorkspaceSecurity>
+      <AccessControlProvider class="org.apache.jackrabbit.core.security.authorization.acl.PentahoACLProvider">
+        <!-- Param names have the prefix magicAceDefinition along with a consecutive integer -->
+        <!-- Param values have four values separated by colons. -->
+        <!-- Param value subitem #1: path possibly including {0} which will be replaced by tenantId -->
+        <!-- Param value subitem #2: ABS action name -->
+        <!-- Param value subitem #3: comma-separated list of JCR privileges -->
+        <!-- Param value subitem #4: boolean where true means that path is a prefix and not to be matched exactly -->
+        <param name="magicAceDefinition0" value="{0};org.pentaho.security.administerSecurity;jcr:all;true;true;true"/>
+        <param name="magicAceDefinition1"
+               value="{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;true"/>
+        <param name="magicAceDefinition2"
+               value="{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;false"/>
+        <param name="magicAceDefinition3"
+               value="{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;true;false;false"/>
+      </AccessControlProvider>
+    </WorkspaceSecurity>
+
+  </Workspace>
+
+  <!--
+      Configures the versioning
+  -->
+  <Versioning rootPath="${rep.home}/version">
+    <!--
+        Configures the filesystem to use for versioning for the respective
+        persistence manager
+    -->
+    <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+      <param name="path" value="${rep.home}/version"/>
     </FileSystem>
 
     <!--
-        data store configuration
+        Configures the persistence manager to be used for persisting version state.
+        Please note that the current versioning implementation is based on
+        a 'normal' persistence manager, but this could change in future
+        implementations.
     -->
-    <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.DerbyPersistenceManager">
+      <param name="url" value="jdbc:derby:${rep.home}/version/db;create=true"/>
+      <param name="schemaObjectPrefix" value="version_"/>
+    </PersistenceManager>
+  </Versioning>
 
-    <!--
-        security configuration
-    -->
-    <Security appName="Jackrabbit">
-        <!--
-            security manager:
-            class: FQN of class implementing the JackrabbitSecurityManager interface
-        -->
-        <SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="security">
-            <!--
-            workspace access:
-            class: FQN of class implementing the WorkspaceAccessManager interface
-            -->
-            <!-- <WorkspaceAccessManager class="..."/> -->
-            <!-- <param name="config" value="${rep.home}/security.xml"/> -->
-        </SecurityManager>
+  <!--
+      Search index for content that is shared repository wide
+      (/jcr:system tree, contains mainly versions)
+  -->
+  <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+    <param name="path" value="${rep.home}/repository/index"/>
+    <param name="supportHighlighting" value="true"/>
+  </SearchIndex>
 
-        <!--
-            access manager:
-            class: FQN of class implementing the AccessManager interface
-        -->
-        <AccessManager class="org.apache.jackrabbit.core.security.DefaultAccessManager">
-            <!-- <param name="config" value="${rep.home}/access.xml"/> -->
-        </AccessManager>
-
-        <LoginModule class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
-           <!-- 
-              anonymous user name ('anonymous' is the default value)
-            -->
-           <param name="anonymousId" value="anonymous"/>
-           <!--
-              administrator user id (default value if param is missing is 'admin')
-            -->
-           <param name="adminId" value="pentahoRepoAdmin"/>
-           
-           <param name="principalProvider" 
-               value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider"/>
-        </LoginModule>
-    </Security>
-
-
-
-
-    <!--
-        location of workspaces root directory and name of default workspace
-    -->
-    <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default"/>
-    <!--
-        workspace configuration template:
-        used to create the initial workspace if there's no workspace yet
-    -->
-    <Workspace name="${wsp.name}">
-        <!--
-            virtual file system of the workspace:
-            class: FQN of class implementing the FileSystem interface
-        -->
-        <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
-            <param name="path" value="${wsp.home}"/>
-        </FileSystem>
-        <!--
-            persistence manager of the workspace:
-            class: FQN of class implementing the PersistenceManager interface
-        -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.DerbyPersistenceManager">
-          <param name="url" value="jdbc:derby:${wsp.home}/db;create=true"/>
-          <param name="schemaObjectPrefix" value="${wsp.name}_"/>
-        </PersistenceManager>
-        <!--
-            Search index and the file system it uses.
-            class: FQN of class implementing the QueryHandler interface
-        -->
-        <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-            <param name="path" value="${wsp.home}/index"/>
-            <param name="supportHighlighting" value="true"/>
-        </SearchIndex>
-        
-        
-        <WorkspaceSecurity>
-          <AccessControlProvider class="org.apache.jackrabbit.core.security.authorization.acl.PentahoACLProvider">
-            <!-- Param names have the prefix magicAceDefinition along with a consecutive integer -->
-            <!-- Param values have four values separated by colons. -->
-            <!-- Param value subitem #1: path possibly including {0} which will be replaced by tenantId -->
-            <!-- Param value subitem #2: ABS action name -->
-            <!-- Param value subitem #3: comma-separated list of JCR privileges -->
-            <!-- Param value subitem #4: boolean where true means that path is a prefix and not to be matched exactly -->
-            <param name="magicAceDefinition0" value="{0};org.pentaho.security.administerSecurity;jcr:all;true;true;true" />
-            <param name="magicAceDefinition1" value="{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;true" />
-            <param name="magicAceDefinition2" value="{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;false" />
-            <param name="magicAceDefinition3" value="{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;true;false;false" />
-          </AccessControlProvider>
-        </WorkspaceSecurity>
-        
-    </Workspace>
-
-    <!--
-        Configures the versioning
-    -->
-    <Versioning rootPath="${rep.home}/version">
-        <!--
-            Configures the filesystem to use for versioning for the respective
-            persistence manager
-        -->
-        <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
-            <param name="path" value="${rep.home}/version" />
-        </FileSystem>
-
-        <!--
-            Configures the persistence manager to be used for persisting version state.
-            Please note that the current versioning implementation is based on
-            a 'normal' persistence manager, but this could change in future
-            implementations.
-        -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.DerbyPersistenceManager">
-          <param name="url" value="jdbc:derby:${rep.home}/version/db;create=true"/>
-          <param name="schemaObjectPrefix" value="version_"/>
-        </PersistenceManager>
-    </Versioning>
-
-    <!--
-        Search index for content that is shared repository wide
-        (/jcr:system tree, contains mainly versions)
-    -->
-    <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-        <param name="path" value="${rep.home}/repository/index"/>
-        <param name="supportHighlighting" value="true"/>
-    </SearchIndex>
-
-    <!--
-        Run with a cluster journal
-    -->
-    <Cluster id="node1">
-        <Journal class="org.apache.jackrabbit.core.journal.MemoryJournal"/>
-    </Cluster>
+  <!--
+      Run with a cluster journal
+  -->
+  <Cluster id="node1">
+    <Journal class="org.apache.jackrabbit.core.journal.MemoryJournal"/>
+  </Cluster>
 </Repository>

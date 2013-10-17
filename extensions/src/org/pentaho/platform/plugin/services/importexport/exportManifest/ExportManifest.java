@@ -1,23 +1,38 @@
 /*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License, version 2 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-*
-* Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
+import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestEntityDto;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -26,21 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.*;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.database.model.DatabaseConnection;
 /**
- * The Primary Object which represents the ExportManifest XML file by the same name 
- * stored in the Repository Export zip file during a repository export.
+ * The Primary Object which represents the ExportManifest XML file by the same name stored in the Repository Export zip
+ * file during a repository export.
  * 
  * @author tkafalas
  */
@@ -58,12 +61,13 @@ public class ExportManifest {
     this.manifestInformation = new ExportManifestDto.ExportManifestInformation();
   }
 
-  public ExportManifest(ExportManifestDto exportManifestDto) {
+  public ExportManifest( ExportManifestDto exportManifestDto ) {
     this();
     this.manifestInformation = exportManifestDto.getExportManifestInformation();
     List<ExportManifestEntityDto> exportManifestEntityList = exportManifestDto.getExportManifestEntity();
-    for (ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList) {
-      exportManifestEntities.put(exportManifestEntityDto.getPath(), new ExportManifestEntity(exportManifestEntityDto));
+    for ( ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList ) {
+      exportManifestEntities
+          .put( exportManifestEntityDto.getPath(), new ExportManifestEntity( exportManifestEntityDto ) );
     }
     this.mondrianList = exportManifestDto.getExportManifestMondrian();
     this.metadataList = exportManifestDto.getExportManifestMetadata();
@@ -75,25 +79,26 @@ public class ExportManifest {
    * 
    * @param repositoryFile
    * @param repositoryFileAcl
-   * @throws ExportManifestFormatException if the RepositoryFile path does not start with the manifest's rootFolder of manifest is 
+   * @throws ExportManifestFormatException
+   *           if the RepositoryFile path does not start with the manifest's rootFolder of manifest is
    */
-  public void add(RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl)
-      throws ExportManifestFormatException {
-    ExportManifestEntity exportManifestEntity = new ExportManifestEntity(manifestInformation.getRootFolder(),
-        repositoryFile, repositoryFileAcl);
-    this.add(exportManifestEntity);
+  public void add( RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl )
+    throws ExportManifestFormatException {
+    ExportManifestEntity exportManifestEntity =
+        new ExportManifestEntity( manifestInformation.getRootFolder(), repositoryFile, repositoryFileAcl );
+    this.add( exportManifestEntity );
   }
 
-  private void add(ExportManifestEntity exportManifestEntity) throws ExportManifestFormatException {
-    if (exportManifestEntity.isValid()) {
-      exportManifestEntities.put(exportManifestEntity.getPath(), exportManifestEntity);
+  private void add( ExportManifestEntity exportManifestEntity ) throws ExportManifestFormatException {
+    if ( exportManifestEntity.isValid() ) {
+      exportManifestEntities.put( exportManifestEntity.getPath(), exportManifestEntity );
     } else {
-      throw new ExportManifestFormatException("Invalid Manifest Entry");
+      throw new ExportManifestFormatException( "Invalid Manifest Entry" );
     }
   }
 
-  public ExportManifestEntity getExportManifestEntity(String path) {
-    return exportManifestEntities.get(path);
+  public ExportManifestEntity getExportManifestEntity( String path ) {
+    return exportManifestEntities.get( path );
   }
 
   /**
@@ -101,47 +106,46 @@ public class ExportManifest {
    * 
    * @param outputStream
    * @throws JAXBException
-   * @throws ExportManifestFormatException 
+   * @throws ExportManifestFormatException
    */
-  public void toXml(OutputStream outputStream) throws JAXBException, ExportManifestFormatException {
-    if (!isValid()) {
-      throw new ExportManifestFormatException("Invalid root Folder for manifest");
+  public void toXml( OutputStream outputStream ) throws JAXBException, ExportManifestFormatException {
+    if ( !isValid() ) {
+      throw new ExportManifestFormatException( "Invalid root Folder for manifest" );
     }
-    final JAXBContext jaxbContext = JAXBContext.newInstance(ExportManifestDto.class);
+    final JAXBContext jaxbContext = JAXBContext.newInstance( ExportManifestDto.class );
     Marshaller marshaller = getMarshaller();
-    marshaller.marshal(
-        new JAXBElement<ExportManifestDto>(new QName("http://www.pentaho.com/schema/", "ExportManifest"),
-            ExportManifestDto.class, getExportManifestDto()), outputStream);
+    marshaller.marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
+        "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), outputStream );
   }
 
   public String toXmlString() throws JAXBException {
     StringWriter sw = new StringWriter();
     Marshaller marshaller = getMarshaller();
-    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-    marshaller.marshal(
-        new JAXBElement<ExportManifestDto>(new QName("http://www.pentaho.com/schema/", "ExportManifest"),
-            ExportManifestDto.class, getExportManifestDto()), sw);
+    marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+    marshaller.marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
+        "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), sw );
     return sw.toString();
   }
 
   private Marshaller getMarshaller() throws JAXBException {
-    final JAXBContext jaxbContext = JAXBContext.newInstance(ExportManifestDto.class);
+    final JAXBContext jaxbContext = JAXBContext.newInstance( ExportManifestDto.class );
     Marshaller marshaller = jaxbContext.createMarshaller();
-    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+    marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
     return marshaller;
   }
 
-  public static ExportManifest fromXml(ByteArrayInputStream input) throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance("org.pentaho.platform.plugin.services.importexport.exportManifest.bindings");
+  public static ExportManifest fromXml( ByteArrayInputStream input ) throws JAXBException {
+    JAXBContext jc =
+        JAXBContext.newInstance( "org.pentaho.platform.plugin.services.importexport.exportManifest.bindings" );
     Unmarshaller u = jc.createUnmarshaller();
 
     try {
-      JAXBElement<ExportManifestDto> o = (JAXBElement) (u.unmarshal(input));
+      JAXBElement<ExportManifestDto> o = (JAXBElement) ( u.unmarshal( input ) );
       ExportManifestDto exportManifestDto = o.getValue();
-      ExportManifest exportManifest = new ExportManifest(exportManifestDto);
+      ExportManifest exportManifest = new ExportManifest( exportManifestDto );
       return exportManifest;
-    } catch (Exception e) {
-      System.out.println(e.toString());
+    } catch ( Exception e ) {
+      System.out.println( e.toString() );
       return null;
     }
   }
@@ -149,24 +153,23 @@ public class ExportManifest {
   ExportManifestDto getExportManifestDto() {
     ExportManifestDto rawExportManifest = new ExportManifestDto();
     List<ExportManifestEntityDto> rawEntityList = rawExportManifest.getExportManifestEntity();
-    rawExportManifest.setExportManifestInformation(manifestInformation);
-    TreeSet<String> ts = new TreeSet<String>(exportManifestEntities.keySet());
-    for (String path : ts) {
-      rawEntityList.add(exportManifestEntities.get(path).getExportManifestEntityDto());
+    rawExportManifest.setExportManifestInformation( manifestInformation );
+    TreeSet<String> ts = new TreeSet<String>( exportManifestEntities.keySet() );
+    for ( String path : ts ) {
+      rawEntityList.add( exportManifestEntities.get( path ).getExportManifestEntityDto() );
     }
 
-    rawExportManifest.getExportManifestMetadata().addAll(this.metadataList);
-    rawExportManifest.getExportManifestMondrian().addAll(this.mondrianList);
-    rawExportManifest.getExportManifestSchedule().addAll(this.scheduleList);
-    rawExportManifest.getExportManifestDatasource().addAll(this.datasourceList);
+    rawExportManifest.getExportManifestMetadata().addAll( this.metadataList );
+    rawExportManifest.getExportManifestMondrian().addAll( this.mondrianList );
+    rawExportManifest.getExportManifestSchedule().addAll( this.scheduleList );
+    rawExportManifest.getExportManifestDatasource().addAll( this.datasourceList );
 
     return rawExportManifest;
   }
 
   /**
-   * Factory method to deliver one ExportManifestEntity. The Manifest is built
-   * by adding one ExportManifestEntity object for each file and folder in the
-   * export set.
+   * Factory method to deliver one ExportManifestEntity. The Manifest is built by adding one ExportManifestEntity object
+   * for each file and folder in the export set.
    * 
    * @return
    */
@@ -175,13 +178,13 @@ public class ExportManifest {
   }
 
   public boolean isValid() {
-    if (this.exportManifestEntities.size() > 0) {
-      for (ExportManifestEntity manEntity : exportManifestEntities.values()) {
-        if (!manEntity.isValid()) {
+    if ( this.exportManifestEntities.size() > 0 ) {
+      for ( ExportManifestEntity manEntity : exportManifestEntities.values() ) {
+        if ( !manEntity.isValid() ) {
           return false;
         }
       }
-      if (manifestInformation.getRootFolder() == null || manifestInformation.getRootFolder().length() == 0) {
+      if ( manifestInformation.getRootFolder() == null || manifestInformation.getRootFolder().length() == 0 ) {
         return false;
       }
     }
@@ -199,7 +202,7 @@ public class ExportManifest {
    * @param manifestInformation
    *          the manifestInformation to set
    */
-  public void setManifestInformation(ExportManifestDto.ExportManifestInformation manifestInformation) {
+  public void setManifestInformation( ExportManifestDto.ExportManifestInformation manifestInformation ) {
     this.manifestInformation = manifestInformation;
   }
 
@@ -207,20 +210,20 @@ public class ExportManifest {
     return new ExportManifestDto.ExportManifestInformation();
   }
 
-  public void addMetadata(ExportManifestMetadata metadata){
-    this.metadataList.add(metadata);
+  public void addMetadata( ExportManifestMetadata metadata ) {
+    this.metadataList.add( metadata );
   }
 
-  public void addMondrian(ExportManifestMondrian mondrian){
-    this.mondrianList.add(mondrian);
-  }
-  
-  public void addSchedule(JobScheduleRequest schedule){
-    this.scheduleList.add(schedule);
+  public void addMondrian( ExportManifestMondrian mondrian ) {
+    this.mondrianList.add( mondrian );
   }
 
-  public void addDatasource(DatabaseConnection connection){
-    this.datasourceList.add(connection);
+  public void addSchedule( JobScheduleRequest schedule ) {
+    this.scheduleList.add( schedule );
+  }
+
+  public void addDatasource( DatabaseConnection connection ) {
+    this.datasourceList.add( connection );
   }
 
   public List<ExportManifestMetadata> getMetadataList() {
@@ -230,7 +233,7 @@ public class ExportManifest {
   public List<ExportManifestMondrian> getMondrianList() {
     return mondrianList;
   }
-  
+
   public List<JobScheduleRequest> getScheduleList() {
     return scheduleList;
   }

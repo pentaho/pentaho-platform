@@ -69,7 +69,8 @@
       <xs:element name="maximumPoolSize" type="xs:int"/>
       <xs:element name="name" type="xs:string" minOccurs="0"/>
       <xs:element name="partitioned" type="xs:boolean"/>
-      <xs:element name="partitioningInformation" type="partitionDatabaseMeta" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="partitioningInformation" type="partitionDatabaseMeta" nillable="true" minOccurs="0"
+                  maxOccurs="unbounded"/>
       <xs:element name="password" type="xs:string" minOccurs="0"/>
       <xs:element name="quoteAllFields" type="xs:boolean"/>
       <xs:element name="SQLServerInstance" type="xs:string" minOccurs="0"/>
@@ -86,7 +87,8 @@
       <xs:element name="extraOptionsHelpUrl" type="xs:string" minOccurs="0"/>
       <xs:element name="name" type="xs:string" minOccurs="0"/>
       <xs:element name="shortName" type="xs:string" minOccurs="0"/>
-      <xs:element name="supportedAccessTypes" type="databaseAccessType" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="supportedAccessTypes" type="databaseAccessType" nillable="true" minOccurs="0"
+                  maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 

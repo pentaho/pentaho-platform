@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.action.datatransforms;
 
@@ -39,26 +39,26 @@ public class ResultSetCompareComponent extends ComponentBase {
     ResultSetCompareAction compareAction = null;
 
     // get report connection setting
-    if (getActionDefinition() instanceof ResultSetCompareAction) {
+    if ( getActionDefinition() instanceof ResultSetCompareAction ) {
       compareAction = (ResultSetCompareAction) getActionDefinition();
-      if (compareAction.getResultSet1() == ActionInputConstant.NULL_INPUT) {
+      if ( compareAction.getResultSet1() == ActionInputConstant.NULL_INPUT ) {
         actionValidated = false;
-        error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0001_INPUT_RS1_UNDEFINED")); //$NON-NLS-1$
+        error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0001_INPUT_RS1_UNDEFINED" ) ); //$NON-NLS-1$
       }
 
-      if (actionValidated && (compareAction.getResultSet2() == ActionInputConstant.NULL_INPUT)) {
+      if ( actionValidated && ( compareAction.getResultSet2() == ActionInputConstant.NULL_INPUT ) ) {
         actionValidated = false;
-        error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0002_INPUT_RS2_UNDEFINED")); //$NON-NLS-1$
+        error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0002_INPUT_RS2_UNDEFINED" ) ); //$NON-NLS-1$
       }
 
-      if (actionValidated && (compareAction.getCompareColumnNum() == ActionInputConstant.NULL_INPUT)) {
+      if ( actionValidated && ( compareAction.getCompareColumnNum() == ActionInputConstant.NULL_INPUT ) ) {
         actionValidated = false;
-        error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0003_COLUMN_UNDEFINED")); //$NON-NLS-1$        
+        error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0003_COLUMN_UNDEFINED" ) ); //$NON-NLS-1$        
       }
     } else {
       actionValidated = false;
-      error(Messages.getInstance().getErrorString(
-          "ComponentBase.ERROR_0001_UNKNOWN_ACTION_TYPE", getActionDefinition().getElement().asXML())); //$NON-NLS-1$      
+      error( Messages.getInstance().getErrorString(
+          "ComponentBase.ERROR_0001_UNKNOWN_ACTION_TYPE", getActionDefinition().getElement().asXML() ) ); //$NON-NLS-1$      
     }
 
     return actionValidated;
@@ -80,14 +80,14 @@ public class ResultSetCompareComponent extends ComponentBase {
     ResultSetCompareAction compareAction = (ResultSetCompareAction) getActionDefinition();
 
     Object obj1 = compareAction.getResultSet1().getValue();
-    if (!(obj1 instanceof IPentahoResultSet)) {
-      error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0004_INPUT_RS1_NOT_RS")); //$NON-NLS-1$
+    if ( !( obj1 instanceof IPentahoResultSet ) ) {
+      error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0004_INPUT_RS1_NOT_RS" ) ); //$NON-NLS-1$
       return false;
     }
 
     Object obj2 = compareAction.getResultSet2().getValue();
-    if (!(obj2 instanceof IPentahoResultSet)) {
-      error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0005_INPUT_RS2_NOT_RS")); //$NON-NLS-1$
+    if ( !( obj2 instanceof IPentahoResultSet ) ) {
+      error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0005_INPUT_RS2_NOT_RS" ) ); //$NON-NLS-1$
       return false;
     }
 
@@ -96,44 +96,45 @@ public class ResultSetCompareComponent extends ComponentBase {
 
     String tempOutputMismatches = compareAction.getOutputMismatches().getStringValue();
     boolean outputMismatches = false;
-    if ((tempOutputMismatches != null) && tempOutputMismatches.trim().toLowerCase().equals("true")) { //$NON-NLS-1$
+    if ( ( tempOutputMismatches != null ) && tempOutputMismatches.trim().toLowerCase().equals( "true" ) ) { //$NON-NLS-1$
       outputMismatches = true;
     }
 
     boolean stopOnError = false;
     String tempStopOnError = compareAction.getStopOnError().getStringValue();
-    if ((tempStopOnError != null) && tempStopOnError.trim().toLowerCase().equals("true")) { //$NON-NLS-1$
+    if ( ( tempStopOnError != null ) && tempStopOnError.trim().toLowerCase().equals( "true" ) ) { //$NON-NLS-1$
       stopOnError = true;
     }
 
-    int compareCol = Integer.parseInt(compareAction.getCompareColumnNum().getStringValue());
+    int compareCol = Integer.parseInt( compareAction.getCompareColumnNum().getStringValue() );
 
-    return compareEquals(rs1, rs2, compareCol, outputMismatches, stopOnError);
+    return compareEquals( rs1, rs2, compareCol, outputMismatches, stopOnError );
   }
 
-  private boolean compareEquals(final IPentahoResultSet rs1, final IPentahoResultSet rs2, final int compareCol,
-      boolean outputMismatches, final boolean stopOnError) {
+  private boolean compareEquals( final IPentahoResultSet rs1, final IPentahoResultSet rs2, final int compareCol,
+      boolean outputMismatches, final boolean stopOnError ) {
     int sourceRowCount = rs1.getRowCount();
     int sourceColCount = rs1.getColumnCount();
     int compRowCount = rs2.getRowCount();
     int compColCount = rs2.getColumnCount();
     StringBuffer outputBuf = new StringBuffer();
-    if (!outputMismatches) {
-      if (sourceRowCount != compRowCount) {
-        error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0006_RESULTSETS_ROWCOUNT_WRONG")); //$NON-NLS-1$
+    if ( !outputMismatches ) {
+      if ( sourceRowCount != compRowCount ) {
+        error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0006_RESULTSETS_ROWCOUNT_WRONG" ) ); //$NON-NLS-1$
         return false;
       }
-      if (sourceColCount != compColCount) {
-        error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0007_RESULTSETS_COLUMNCOUNT_WRONG")); //$NON-NLS-1$
+      if ( sourceColCount != compColCount ) {
+        error( Messages.getInstance().getErrorString(
+            "ResultSetCompareComponent.ERROR_0007_RESULTSETS_COLUMNCOUNT_WRONG" ) ); //$NON-NLS-1$
         return false;
       }
     }
-    if (compareCol > sourceColCount) {
-      error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0008_COLUMN_NOT_FOUND") + compareCol); //$NON-NLS-1$
+    if ( compareCol > sourceColCount ) {
+      error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0008_COLUMN_NOT_FOUND" ) + compareCol ); //$NON-NLS-1$
       return false;
     }
-    if (compareCol > compColCount) {
-      error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0009_COMPARISON_COLUMN_NOT_FOUND") + compareCol); //$NON-NLS-1$
+    if ( compareCol > compColCount ) {
+      error( Messages.getInstance().getErrorString( "ResultSetCompareComponent.ERROR_0009_COMPARISON_COLUMN_NOT_FOUND" ) + compareCol ); //$NON-NLS-1$
       return false;
     }
     boolean anyMismatches = false;
@@ -141,39 +142,40 @@ public class ResultSetCompareComponent extends ComponentBase {
     Object srcValue = null, compValue = null;
     ResultSetCompareAction compareAction = (ResultSetCompareAction) getActionDefinition();
     IActionOutput output = compareAction.getOutputCompareResult();
-    for (int sourceRows = 0; sourceRows < sourceRowCount; sourceRows++) {
+    for ( int sourceRows = 0; sourceRows < sourceRowCount; sourceRows++ ) {
       foundIt = false;
-      srcValue = rs1.getValueAt(sourceRows, compareCol);
+      srcValue = rs1.getValueAt( sourceRows, compareCol );
       // n+1 traversal. This accommodates non-ordered input
-      for (int compRows = 0; compRows < compRowCount; compRows++) {
-        compValue = rs2.getValueAt(compRows, compareCol);
-        if (compValue.equals(srcValue)) {
+      for ( int compRows = 0; compRows < compRowCount; compRows++ ) {
+        compValue = rs2.getValueAt( compRows, compareCol );
+        if ( compValue.equals( srcValue ) ) {
           foundIt = true;
           break;
         }
       }
-      if (!foundIt) {
-        if (outputBuf.length() > 0) {
-          outputBuf.append(",").append(srcValue.toString().trim()); //$NON-NLS-1$
+      if ( !foundIt ) {
+        if ( outputBuf.length() > 0 ) {
+          outputBuf.append( "," ).append( srcValue.toString().trim() ); //$NON-NLS-1$
         } else {
-          outputBuf.append(srcValue.toString().trim());
+          outputBuf.append( srcValue.toString().trim() );
         }
-        if (output != null) {
-          output.setValue(outputBuf.toString());
+        if ( output != null ) {
+          output.setValue( outputBuf.toString() );
         }
-        if (outputMismatches) {
-          error(Messages.getInstance().getErrorString("ResultSetCompareComponent.ERROR_0010_MISMATCH_OUTPUT", srcValue.toString())); //$NON-NLS-1$
+        if ( outputMismatches ) {
+          error( Messages.getInstance().getErrorString(
+              "ResultSetCompareComponent.ERROR_0010_MISMATCH_OUTPUT", srcValue.toString() ) ); //$NON-NLS-1$
           anyMismatches = true;
         } else {
-          if (stopOnError) {
+          if ( stopOnError ) {
             return false;
           }
         }
       }
     }
-    if (!anyMismatches) {
-      if (output != null) {
-        output.setValue(ResultSetCompareComponent.COMPARE_RESULT_OK);
+    if ( !anyMismatches ) {
+      if ( output != null ) {
+        output.setValue( ResultSetCompareComponent.COMPARE_RESULT_OK );
       }
     }
     return stopOnError ? !anyMismatches : true;
@@ -187,7 +189,7 @@ public class ResultSetCompareComponent extends ComponentBase {
 
   @Override
   public Log getLogger() {
-    return LogFactory.getLog(ResultSetCompareComponent.class);
+    return LogFactory.getLog( ResultSetCompareComponent.class );
   }
 
 }

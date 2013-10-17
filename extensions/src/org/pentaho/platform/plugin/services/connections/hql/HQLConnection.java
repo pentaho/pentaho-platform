@@ -1,25 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.services.connections.hql;
-
-import java.io.File;
-import java.util.List;
-import java.util.Properties;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -33,10 +29,15 @@ import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
+import java.io.File;
+import java.util.List;
+import java.util.Properties;
+
 /**
  * @author mdamour
  * 
- * TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
+ *         Code Templates
  */
 public class HQLConnection implements IPentahoLoggingConnection, ILimitableConnection {
   protected String lastQuery = null;
@@ -55,27 +56,27 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
     super();
   }
 
-  public void setConfigFile(final File hbmCfg) {
+  public void setConfigFile( final File hbmCfg ) {
     hibernateConfigFile = hbmCfg;
     hibernateConfig = new Configuration();
-    hibernateConfig.configure(hibernateConfigFile);
+    hibernateConfig.configure( hibernateConfigFile );
   }
 
-  public void setClassNames(final String[] classNames) {
-    for (int i = 0; (classNames != null) && (i < classNames.length); i++) {
+  public void setClassNames( final String[] classNames ) {
+    for ( int i = 0; ( classNames != null ) && ( i < classNames.length ); i++ ) {
       try {
-        hibernateConfig.addClass(Class.forName(classNames[i]));
-      } catch (ClassNotFoundException e) {
-        logger.error(null, e);
+        hibernateConfig.addClass( Class.forName( classNames[i] ) );
+      } catch ( ClassNotFoundException e ) {
+        logger.error( null, e );
       }
     }
   }
 
-  public void setLogger(final ILogger logger) {
+  public void setLogger( final ILogger logger ) {
     this.logger = logger;
   }
 
-  public void setProperties(Properties props) {
+  public void setProperties( Properties props ) {
   }
 
   public boolean initialized() {
@@ -85,13 +86,14 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
 
   /**
    * return datasource type HQL
+   * 
    * @return datasource type
    */
   public String getDatasourceType() {
     return IPentahoConnection.HQL_DATASOURCE;
   }
 
-  public IPentahoResultSet prepareAndExecuteQuery(final String query, final List parameters) throws Exception {
+  public IPentahoResultSet prepareAndExecuteQuery( final String query, final List parameters ) throws Exception {
     throw new UnsupportedOperationException();
   }
 
@@ -122,7 +124,7 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
    * 
    * @see org.pentaho.connection.IPentahoConnection#executeQuery(java.lang.String)
    */
-  public IPentahoResultSet executeQuery(final String query) {
+  public IPentahoResultSet executeQuery( final String query ) {
     lastQuery = query;
     Session sess = null;
     IPentahoResultSet localResultSet = null;
@@ -130,31 +132,32 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
       SessionFactory sf = hibernateConfig.buildSessionFactory();
       // open session
       sess = sf.openSession();
-      Query q = sess.createQuery(query);
-      if (timeOut >=0 ) {
-        q.setTimeout(timeOut);
+      Query q = sess.createQuery( query );
+      if ( timeOut >= 0 ) {
+        q.setTimeout( timeOut );
       }
-      if (maxRows >=0 ) {
-        q.setMaxResults(maxRows);
+      if ( maxRows >= 0 ) {
+        q.setMaxResults( maxRows );
       }
       List list = q.list();
-      localResultSet = generateResultSet(list, q.getReturnAliases(), q.getReturnTypes());
+      localResultSet = generateResultSet( list, q.getReturnAliases(), q.getReturnTypes() );
     } finally {
       try {
-        if (sess != null) {
+        if ( sess != null ) {
           sess.close();
         }
-     } catch (Exception e) {
+      } catch ( Exception e ) {
         // Doesn't seem like we would get any exception from sess.close()
-        logger.error(Messages.getInstance().getErrorString("HQLConnection.ERROR_0001_UNABLE_TO_CLOSE"), e); //$NON-NLS-1$
+        logger.error( Messages.getInstance().getErrorString( "HQLConnection.ERROR_0001_UNABLE_TO_CLOSE" ), e ); //$NON-NLS-1$
       }
     }
 
     return localResultSet;
   }
 
-  public IPentahoResultSet generateResultSet(final List list, final String[] columnHeaders, final Type[] columnTypes) {
-    HQLResultSet localResultSet = new HQLResultSet(list, columnHeaders, columnTypes);
+  public IPentahoResultSet generateResultSet( final List list, final String[] columnHeaders,
+                                              final Type[] columnTypes ) {
+    HQLResultSet localResultSet = new HQLResultSet( list, columnHeaders, columnTypes );
     return localResultSet;
   }
 
@@ -190,7 +193,7 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
     return resultSet;
   }
 
-  public boolean connect(final Properties props) {
+  public boolean connect( final Properties props ) {
     return true;
   }
 
@@ -199,7 +202,7 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
    * 
    * @see org.pentaho.connection.IPentahoConnection#setMaxRows(int)
    */
-  public void setMaxRows(final int value) {
+  public void setMaxRows( final int value ) {
     this.maxRows = value;
   }
 
@@ -208,15 +211,13 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
    * 
    * @see org.pentaho.connection.IPentahoConnection#setFetchSize(int)
    */
-  public void setFetchSize(final int fetchSize) {
+  public void setFetchSize( final int fetchSize ) {
     // TODO Auto-generated method stub
     // throw new UnsupportedOperationException();
   }
 
-  public void setQueryTimeout(final int value) {
+  public void setQueryTimeout( final int value ) {
     this.timeOut = value;
   }
-  
-  
-  
+
 }

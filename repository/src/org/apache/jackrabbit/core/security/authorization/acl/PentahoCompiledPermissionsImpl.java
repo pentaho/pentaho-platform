@@ -71,6 +71,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   @SuppressWarnings( "unchecked" )
   private final Map<ItemId, Boolean> readCache = new GrowingLRUMap( 1024, 5000 );
   private final Object monitor = new Object();
+  private final Object readMonitor = new Object();
 
   PentahoCompiledPermissionsImpl( Set<Principal> principals, SessionImpl session, EntryCollector entryCollector,
       AccessControlUtils util, boolean listenToEvents ) throws RepositoryException {
@@ -277,14 +278,14 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     synchronized ( monitor ) {
       readCache.put( id, canRead );
     }
-    // }// readMonitor
+    // } // readMonitor
     return canRead;
   }
 
   // ----------------------------------------< ACLModificationListener >---
   /**
-   * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener#acModified
-   *      (org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
+   * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener#
+   * acModified(org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
    */
   public void acModified( AccessControlModifications modifications ) {
     // ignore the details of the modifications and clear all caches.

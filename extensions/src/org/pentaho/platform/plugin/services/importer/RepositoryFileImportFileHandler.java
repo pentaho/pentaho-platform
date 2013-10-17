@@ -1,26 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.services.importer;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -36,304 +31,328 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importexport.Converter;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 /**
- * User: nbaker
- * Date: 5/29/12
+ * User: nbaker Date: 5/29/12
  */
 public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private IUnifiedRepository repository;
   private ThreadLocal<ImportSession> importSession = new ThreadLocal<ImportSession>();
- 
+
   private static final Messages messages = Messages.getInstance();
   private SolutionFileImportHelper solutionHelper;
-  
-  public RepositoryFileImportFileHandler(List<String> approvedExtensionList, List<String> hiddenExtensionList) {
-	  if(approvedExtensionList != null && approvedExtensionList.size() > 0 && hiddenExtensionList != null && hiddenExtensionList.size() > 0) {
-		  this.solutionHelper = new SolutionFileImportHelper(hiddenExtensionList, approvedExtensionList);  
-	  } else {
-		  throw new IllegalStateException("ApprovedExtensionList and HiddenExtensionList can not be null");
-	  }
+
+  public RepositoryFileImportFileHandler( List<String> approvedExtensionList, List<String> hiddenExtensionList ) {
+    if ( approvedExtensionList != null && approvedExtensionList.size() > 0 && hiddenExtensionList != null
+        && hiddenExtensionList.size() > 0 ) {
+      this.solutionHelper = new SolutionFileImportHelper( hiddenExtensionList, approvedExtensionList );
+    } else {
+      throw new IllegalStateException( "ApprovedExtensionList and HiddenExtensionList can not be null" );
+    }
   }
-  
+
   private Map<String, Converter> converters;
   IRepositoryDefaultAclHandler defaultAclHandler;
-  
-  
+
   public Log getLogger() {
     return getImportSession().getLogger();
   }
-  
+
   public ImportSession getImportSession() {
-    if (importSession.get() == null) {
-      importSession.set(ImportSession.getSession());
-    } 
+    if ( importSession.get() == null ) {
+      importSession.set( ImportSession.getSession() );
+    }
     return importSession.get();
   }
 
-  public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
-    if (bnd instanceof RepositoryFileImportBundle == false) {
-      throw new PlatformImportException("Error importing bundle. RepositoryFileImportBundle expected");
+  public void importFile( IPlatformImportBundle bnd ) throws PlatformImportException {
+    if ( bnd instanceof RepositoryFileImportBundle == false ) {
+      throw new PlatformImportException( "Error importing bundle. RepositoryFileImportBundle expected" );
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
-    String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
-    getLogger().trace("Processing [" + repositoryFilePath + "]");
+    String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
+    getLogger().trace( "Processing [" + repositoryFilePath + "]" );
 
     // Verify if destination already exists in the repository.
-    RepositoryFile file = repository.getFile(repositoryFilePath);
-    if (file != null) {
-      if (file.isFolder() && getImportSession().getFoldersCreatedImplicitly().contains(repositoryFilePath)) {
-        getLogger().trace("Skipping entry for folder [" + repositoryFilePath + "]. It was already processed implicitly.");
+    RepositoryFile file = repository.getFile( repositoryFilePath );
+    if ( file != null ) {
+      if ( file.isFolder() && getImportSession().getFoldersCreatedImplicitly().contains( repositoryFilePath ) ) {
+        getLogger().trace(
+          "Skipping entry for folder [" + repositoryFilePath + "]. It was already processed implicitly." );
       } else {
-        if (bundle.overwriteInRepossitory()) {
+        if ( bundle.overwriteInRepossitory() ) {
           // If file exists, overwrite is true and is not a folder then update it.
-          if (!file.isFolder()) {
-            file = finalAdjustFile(bundle, file);
-            copyFileToRepository(bundle, repositoryFilePath, file);
+          if ( !file.isFolder() ) {
+            file = finalAdjustFile( bundle, file );
+            copyFileToRepository( bundle, repositoryFilePath, file );
           } else {
             // The folder exists. Possible ACL changes.
-            getLogger().trace("Existing folder [" + repositoryFilePath + "]");
-            file = finalAdjustFolder(bundle, file.getId());
-            repository.updateFolder(file, null);
-            if (bundle.getAcl() != null) {
-              updateAclFromBundle(false, bundle, file);
+            getLogger().trace( "Existing folder [" + repositoryFilePath + "]" );
+            file = finalAdjustFolder( bundle, file.getId() );
+            repository.updateFolder( file, null );
+            if ( bundle.getAcl() != null ) {
+              updateAclFromBundle( false, bundle, file );
             }
           }
         } else {
-          if (importSession.get().getIsNotRunningImport()) {
-            throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", repositoryFilePath)
-                , PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR);
+          if ( importSession.get().getIsNotRunningImport() ) {
+            throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT",
+                repositoryFilePath ), PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR );
           } else {
-            getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
+            getLogger().trace( "Not importing existing file [" + repositoryFilePath + "]" );
             ImportSession importSession = ImportSession.getSession();
-            importSession.getSkippedFiles().add(repositoryFilePath);
+            importSession.getSkippedFiles().add( repositoryFilePath );
           }
         }
       }
     } else {
-      if (bundle.isFolder()) {
+      if ( bundle.isFolder() ) {
         // The file doesn't exist and it is a folder. Create folder.
-        getLogger().trace("Creating folder [" + repositoryFilePath + "]");
-        final Serializable parentId = getParentId(repositoryFilePath);
-        RepositoryFile repoFile = finalAdjustFolder(bundle, null);
-        if (bundle.getAcl() != null) {
-          repoFile = repository.createFolder(parentId, repoFile, bundle.getAcl(), null);
-          updateAclFromBundle(true, bundle, repoFile);
+        getLogger().trace( "Creating folder [" + repositoryFilePath + "]" );
+        final Serializable parentId = getParentId( repositoryFilePath );
+        RepositoryFile repoFile = finalAdjustFolder( bundle, null );
+        if ( bundle.getAcl() != null ) {
+          repoFile = repository.createFolder( parentId, repoFile, bundle.getAcl(), null );
+          updateAclFromBundle( true, bundle, repoFile );
         } else {
-          repository.createFolder(parentId, repoFile, null);
+          repository.createFolder( parentId, repoFile, null );
         }
       } else {
         // The file doesn't exist. Create file.
-        getLogger().trace("Creating file [" + repositoryFilePath + "]");
-        copyFileToRepository(bundle, repositoryFilePath, null);
+        getLogger().trace( "Creating file [" + repositoryFilePath + "]" );
+        copyFileToRepository( bundle, repositoryFilePath, null );
       }
     }
   }
-  
-  private RepositoryFile finalAdjustFolder(RepositoryFileImportBundle bundle, Serializable id) {
-    return finalAdjustFolder(bundle.getFile(), bundle.isHidden(), id);
+
+  private RepositoryFile finalAdjustFolder( RepositoryFileImportBundle bundle, Serializable id ) {
+    return finalAdjustFolder( bundle.getFile(), bundle.isHidden(), id );
   }
-  
-  private RepositoryFile finalAdjustFile(RepositoryFileImportBundle bundle, RepositoryFile file) {
-    return finalAdjustFolder(file, bundle.isHidden(), null);
+
+  private RepositoryFile finalAdjustFile( RepositoryFileImportBundle bundle, RepositoryFile file ) {
+    return finalAdjustFolder( file, bundle.isHidden(), null );
   }
-    
-  private RepositoryFile finalAdjustFolder(RepositoryFile repositoryFile, boolean isHidden, Serializable id) {
-    RepositoryFile.Builder builder = new RepositoryFile.Builder(repositoryFile).hidden(isHidden);
-    if (id != null) {
-      builder.id(id);
+
+  private RepositoryFile finalAdjustFolder( RepositoryFile repositoryFile, boolean isHidden, Serializable id ) {
+    RepositoryFile.Builder builder = new RepositoryFile.Builder( repositoryFile ).hidden( isHidden );
+    if ( id != null ) {
+      builder.id( id );
     }
     return builder.build();
   }
 
   /**
    * Copies the file bundle into the repository
-   *
+   * 
    * @param bundle
    * @param repositoryPath
    * @param file
    */
-  protected boolean copyFileToRepository(final RepositoryFileImportBundle bundle, final String repositoryPath,
-      final RepositoryFile file) throws PlatformImportException {
+  protected boolean copyFileToRepository( final RepositoryFileImportBundle bundle, final String repositoryPath,
+      final RepositoryFile file ) throws PlatformImportException {
     Log log = getLogger();
     // Compute the file extension
     final String name = bundle.getName();
-    final String ext = RepositoryFilenameUtils.getExtension(name);
-    if (StringUtils.isEmpty(ext)) {
-      getLogger().debug("Skipping file without extension: " + name);
+    final String ext = RepositoryFilenameUtils.getExtension( name );
+    if ( StringUtils.isEmpty( ext ) ) {
+      getLogger().debug( "Skipping file without extension: " + name );
       return false;
     }
 
     // Check the mime type
     final String mimeType = bundle.getMimeType();
-    if (mimeType == null) {
-      getLogger().debug("Skipping file without mime-type: " + name);
+    if ( mimeType == null ) {
+      getLogger().debug( "Skipping file without mime-type: " + name );
       return false;
     }
 
     // Copy the file into the repository
     try {
-      getLogger().trace("copying file to repository: " + name);
+      getLogger().trace( "copying file to repository: " + name );
 
-      Converter converter = converters.get(ext);
-      if (converter == null) {
-        getLogger().debug("Skipping file without converter: " + name);
+      Converter converter = converters.get( ext );
+      if ( converter == null ) {
+        getLogger().debug( "Skipping file without converter: " + name );
         return false;
       }
 
-      IRepositoryFileData data = converter.convert(bundle.getInputStream(), bundle.getCharset(), mimeType);
-      if (null == file) {
-        RepositoryFile repositoryFile = createFile(bundle, repositoryPath, data);
-        if(repositoryFile != null) {
-        	updateAclFromBundle(true, bundle, repositoryFile);	
+      IRepositoryFileData data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
+      if ( null == file ) {
+        RepositoryFile repositoryFile = createFile( bundle, repositoryPath, data );
+        if ( repositoryFile != null ) {
+          updateAclFromBundle( true, bundle, repositoryFile );
         }
-        
+
       } else {
-        RepositoryFile repositoryFile = repository.updateFile(file, data, bundle.getComment());
-        updateAclFromBundle(false, bundle, repositoryFile);
+        RepositoryFile repositoryFile = repository.updateFile( file, data, bundle.getComment() );
+        updateAclFromBundle( false, bundle, repositoryFile );
       }
 
       return true;
-    } catch (IOException e) {
-      getLogger().warn(messages.getString("DefaultImportHandler.WARN_0003_IOEXCEPTION", name), e); // TODO make sure string exists
+    } catch ( IOException e ) {
+      getLogger().warn( messages.getString( "DefaultImportHandler.WARN_0003_IOEXCEPTION", name ), e ); // TODO make sure
+                                                                                                       // string exists
       return false;
     }
   }
 
   /**
    * Create a formal <code>RepositoryFileAcl</code> object for import.
-   * @param newFile Whether the file is being newly created or was pre-existing
-   * @param bundle  The RepositoryImportBundle (which contains the effective manifest Acl)
-   * @param repositoryFile The <code>RepositoryFile</code> of the target file 
+   * 
+   * @param newFile
+   *          Whether the file is being newly created or was pre-existing
+   * @param bundle
+   *          The RepositoryImportBundle (which contains the effective manifest Acl)
+   * @param repositoryFile
+   *          The <code>RepositoryFile</code> of the target file
    */
-  private void updateAclFromBundle(boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile) {
-    updateAcl(newFile, repositoryFile, bundle.getAcl());
+  private void updateAclFromBundle( boolean newFile, RepositoryFileImportBundle bundle,
+                                    RepositoryFile repositoryFile ) {
+    updateAcl( newFile, repositoryFile, bundle.getAcl() );
   }
-  
+
   /**
    * Create a formal <code>RepositoryFileAcl</code> object for import.
-   * @param newFile Whether the file is being newly created or was pre-existing
-   * @param repositoryFileAcl The effect Acl as defined in the manifest)
-   * @param repositoryFile The <code>RepositoryFile</code> of the target file 
+   * 
+   * @param newFile
+   *          Whether the file is being newly created or was pre-existing
+   * @param repositoryFileAcl
+   *          The effect Acl as defined in the manifest)
+   * @param repositoryFile
+   *          The <code>RepositoryFile</code> of the target file
    */
-  private void updateAcl(boolean newFile, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl) {
-    getLogger().debug("File " + (newFile ? "is new": "already exists"));
-    if (repositoryFileAcl != null && (getImportSession().isApplyAclSettings() || getImportSession().isRetainOwnership())) {
+  private void updateAcl( boolean newFile, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl ) {
+    getLogger().debug( "File " + ( newFile ? "is new" : "already exists" ) );
+    if ( repositoryFileAcl != null
+        && ( getImportSession().isApplyAclSettings() || getImportSession().isRetainOwnership() ) ) {
       RepositoryFileAcl manifestAcl = repositoryFileAcl;
-      RepositoryFileAcl originalAcl = repository.getAcl(repositoryFile.getId());
+      RepositoryFileAcl originalAcl = repository.getAcl( repositoryFile.getId() );
 
-      //Determine who will own this file
+      // Determine who will own this file
       RepositoryFileSid newOwner;
-      if (getImportSession().isRetainOwnership()) {
-        if (newFile) {
-          getLogger().debug("Getting Owner from Session");
-          newOwner = new RepositoryFileSid(PentahoSessionHolder.getSession().getName(), RepositoryFileSid.Type.USER);
+      if ( getImportSession().isRetainOwnership() ) {
+        if ( newFile ) {
+          getLogger().debug( "Getting Owner from Session" );
+          newOwner = new RepositoryFileSid( PentahoSessionHolder.getSession().getName(), RepositoryFileSid.Type.USER );
         } else {
-          getLogger().debug("Getting Owner from existing file");
+          getLogger().debug( "Getting Owner from existing file" );
           newOwner = originalAcl.getOwner();
         }
       } else {
-        getLogger().debug("Getting Owner from Manifest");
+        getLogger().debug( "Getting Owner from Manifest" );
         newOwner = manifestAcl.getOwner();
       }
-      
-      //Determine the Aces we will use for this file
-      RepositoryFileAcl useAclForPermissions; //The ACL we will use the permissions from
-      if (getImportSession().isApplyAclSettings() && (getImportSession().isOverwriteAclSettings() || newFile)){
-        getLogger().debug("Getting permissions from Manifest");
+
+      // Determine the Aces we will use for this file
+      RepositoryFileAcl useAclForPermissions; // The ACL we will use the permissions from
+      if ( getImportSession().isApplyAclSettings() && ( getImportSession().isOverwriteAclSettings() || newFile ) ) {
+        getLogger().debug( "Getting permissions from Manifest" );
         useAclForPermissions = manifestAcl;
       } else {
-        if (newFile) {
-          getLogger().debug("Getting permissions from Default settings");
-          useAclForPermissions = getDefaultAcl(repositoryFile);
+        if ( newFile ) {
+          getLogger().debug( "Getting permissions from Default settings" );
+          useAclForPermissions = getDefaultAcl( repositoryFile );
         } else {
-          getLogger().debug("Getting permissions from existing file");
+          getLogger().debug( "Getting permissions from existing file" );
           useAclForPermissions = originalAcl;
         }
       }
 
-      //Make the new Acl if it has changed from the orignal
-      if (!newOwner.equals(originalAcl.getOwner()) || !useAclForPermissions.equals(originalAcl)) {
-        RepositoryFileAcl updatedAcl = new RepositoryFileAcl(repositoryFile.getId(), newOwner,
-            useAclForPermissions.isEntriesInheriting(), useAclForPermissions.getAces());
-        repository.updateAcl(updatedAcl);
+      // Make the new Acl if it has changed from the orignal
+      if ( !newOwner.equals( originalAcl.getOwner() ) || !useAclForPermissions.equals( originalAcl ) ) {
+        RepositoryFileAcl updatedAcl =
+            new RepositoryFileAcl( repositoryFile.getId(), newOwner, useAclForPermissions.isEntriesInheriting(),
+                useAclForPermissions.getAces() );
+        repository.updateAcl( updatedAcl );
       }
     }
-  }  
-  
-  
-  private RepositoryFileAcl getDefaultAcl(RepositoryFile repositoryFile) {
-    // ToDo: call default Acl creator when implemented.  For now just return
+  }
+
+  private RepositoryFileAcl getDefaultAcl( RepositoryFile repositoryFile ) {
+    // ToDo: call default Acl creator when implemented. For now just return
     // whatever is stored
-    //return repository.getAcl(repositoryFile.getId());
-    return defaultAclHandler.createDefaultAcl(repositoryFile.clone());
+    // return repository.getAcl(repositoryFile.getId());
+    return defaultAclHandler.createDefaultAcl( repositoryFile.clone() );
   }
 
   /**
    * Creates a new file in the repository
-   *
+   * 
    * @param bundle
    * @param data
    */
-  protected RepositoryFile createFile(final RepositoryFileImportBundle bundle, final String repositoryPath,
-      final IRepositoryFileData data) throws PlatformImportException {
-	if(solutionHelper.isInApprovedExtensionList(repositoryPath)) {
-	    final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(solutionHelper.isInHiddenList(bundle.getName()) || bundle.isHidden())
-	        .title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getTitle() != null ? bundle.getTitle(): bundle.getName())).versioned(true).build();
-	    final Serializable parentId = checkAndCreatePath(repositoryPath, getImportSession().getCurrentManifestKey());
-	    
-	    final RepositoryFileAcl acl = bundle.getAcl();
-	    if (null == acl) {
-	      return repository.createFile(parentId, file, data, bundle.getComment());
-	    } else {
-	      return repository.createFile(parentId, file, data, acl, bundle.getComment());
-	    }
-	} else {
-		getLogger().trace("The file [" + repositoryPath + "] is not in the list of approved file extension that can be stored in the repository.");
-		return null;
-	}
+  protected RepositoryFile createFile( final RepositoryFileImportBundle bundle, final String repositoryPath,
+      final IRepositoryFileData data ) throws PlatformImportException {
+    if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
+      final RepositoryFile file =
+          new RepositoryFile.Builder( bundle.getName() ).hidden(
+            solutionHelper.isInHiddenList( bundle.getName() ) || bundle.isHidden() ).title(
+              RepositoryFile.DEFAULT_LOCALE,
+              getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();
+      final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
+
+      final RepositoryFileAcl acl = bundle.getAcl();
+      if ( null == acl ) {
+        return repository.createFile( parentId, file, data, bundle.getComment() );
+      } else {
+        return repository.createFile( parentId, file, data, acl, bundle.getComment() );
+      }
+    } else {
+      getLogger().trace(
+          "The file [" + repositoryPath
+              + "] is not in the list of approved file extension that can be stored in the repository." );
+      return null;
+    }
   }
-  
+
   /**
-   * Check path for existance.  If path does not exist create folders as necessary to
-   * satisfy the path.  When done return the Id of the path received.
+   * Check path for existance. If path does not exist create folders as necessary to satisfy the path. When done return
+   * the Id of the path received.
+   * 
    * @param repositoryPath
    * @return
    */
-  private Serializable checkAndCreatePath(String repositoryPath, String manifestKey) throws PlatformImportException {
-    if (getParentId(repositoryPath) == null) {
-      String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(repositoryPath);
-      String parentManifestKey = RepositoryFilenameUtils.getFullPathNoEndSeparator(manifestKey);
-      if (!getImportSession().getFoldersCreatedImplicitly().contains(parentPath)) {
-        RepositoryFile parentFile = repository.getFile(parentPath);
-        if (parentFile == null) {
-          checkAndCreatePath(parentPath, parentManifestKey);
+  private Serializable checkAndCreatePath( String repositoryPath, String manifestKey ) throws PlatformImportException {
+    if ( getParentId( repositoryPath ) == null ) {
+      String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( repositoryPath );
+      String parentManifestKey = RepositoryFilenameUtils.getFullPathNoEndSeparator( manifestKey );
+      if ( !getImportSession().getFoldersCreatedImplicitly().contains( parentPath ) ) {
+        RepositoryFile parentFile = repository.getFile( parentPath );
+        if ( parentFile == null ) {
+          checkAndCreatePath( parentPath, parentManifestKey );
           try {
-            parentFile = createFolderJustInTime(parentPath, parentManifestKey);
-          } catch (Exception e){
-            throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0010_JUST_IN_TIME_FOLDER_CREATION", repositoryPath));
+            parentFile = createFolderJustInTime( parentPath, parentManifestKey );
+          } catch ( Exception e ) {
+            throw new PlatformImportException( messages.getString(
+                "DefaultImportHandler.ERROR_0010_JUST_IN_TIME_FOLDER_CREATION", repositoryPath ) );
           }
         }
         Serializable parentFileId = parentFile.getId();
-        Assert.notNull(parentFileId);
+        Assert.notNull( parentFileId );
       }
     }
-    return getParentId(repositoryPath);
+    return getParentId( repositoryPath );
   }
-  
+
   /**
    * truncate the extension from the file name for the extension
+   * 
    * @param name
    * @return title
    */
-  protected String getTitle(String name) {
-    if (name != null && name.length() > 0) {
-      return name.substring(0, name.lastIndexOf('.'));
+  protected String getTitle( String name ) {
+    if ( name != null && name.length() > 0 ) {
+      return name.substring( 0, name.lastIndexOf( '.' ) );
     } else {
       return name;
     }
@@ -341,17 +360,19 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * Returns the Id of the parent folder of the file path provided
-   *
+   * 
    * @param repositoryPath
    * @return
    */
-  protected Serializable getParentId(final String repositoryPath) {
-    Assert.notNull(repositoryPath);
-    final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(repositoryPath);
-    final RepositoryFile parentFile = repository.getFile(parentPath);
-    if (parentFile == null) return null;
+  protected Serializable getParentId( final String repositoryPath ) {
+    Assert.notNull( repositoryPath );
+    final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( repositoryPath );
+    final RepositoryFile parentFile = repository.getFile( parentPath );
+    if ( parentFile == null ) {
+      return null;
+    }
     Serializable parentFileId = parentFile.getId();
-    Assert.notNull(parentFileId);
+    Assert.notNull( parentFileId );
     return parentFileId;
   }
 
@@ -359,50 +380,53 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     return repository;
   }
 
-  public void setRepository(IUnifiedRepository repository) {
+  public void setRepository( IUnifiedRepository repository ) {
     this.repository = repository;
   }
 
-  public void setConverters(Map<String, Converter> converters) {
+  public void setConverters( Map<String, Converter> converters ) {
     this.converters = converters;
   }
-  
-  public void setDefaultAclHandler(IRepositoryDefaultAclHandler defaultAclHandler) {
+
+  public void setDefaultAclHandler( IRepositoryDefaultAclHandler defaultAclHandler ) {
     this.defaultAclHandler = defaultAclHandler;
   }
-  
-  public RepositoryFile createFolderJustInTime(String folderPath, String manifestKey) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+
+  public RepositoryFile createFolderJustInTime( String folderPath, String manifestKey ) throws PlatformImportException,
+    DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
     // The file doesn't exist and it is a folder. Create folder.
-    getLogger().trace("Creating implied folder [" + folderPath + "]");
-    final Serializable parentId = getParentId(folderPath);
-    Assert.notNull(parentId);
-    RepositoryFile.Builder builder = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(folderPath))
-      .path(RepositoryFilenameUtils.getPath(folderPath)).folder(true);
+    getLogger().trace( "Creating implied folder [" + folderPath + "]" );
+    final Serializable parentId = getParentId( folderPath );
+    Assert.notNull( parentId );
+    RepositoryFile.Builder builder =
+        new RepositoryFile.Builder( RepositoryFilenameUtils.getName( folderPath ) ).path(
+          RepositoryFilenameUtils.getPath( folderPath ) ).folder( true );
     RepositoryFile repositoryFile = builder.build();
     boolean isHidden;
-    if (getImportSession().isFileHidden(manifestKey) == null) {
+    if ( getImportSession().isFileHidden( manifestKey ) == null ) {
       isHidden = false;
     } else {
-      isHidden = getImportSession().isFileHidden(manifestKey);
+      isHidden = getImportSession().isFileHidden( manifestKey );
     }
-    RepositoryFile repoFile = finalAdjustFolder(repositoryFile, isHidden, null);
-    RepositoryFileAcl repoAcl = getImportSession().processAclForFile(manifestKey);
-    if (repoAcl != null) {
-      repoFile = repository.createFolder(parentId, repoFile, repoAcl, null);
+    RepositoryFile repoFile = finalAdjustFolder( repositoryFile, isHidden, null );
+    RepositoryFileAcl repoAcl = getImportSession().processAclForFile( manifestKey );
+    if ( repoAcl != null ) {
+      repoFile = repository.createFolder( parentId, repoFile, repoAcl, null );
       RepositoryFileAcl repositoryFileAcl = null;
       try {
-        repositoryFileAcl = getImportSession().getManifest().getExportManifestEntity(manifestKey).getRepositoryFileAcl();
-      } catch (NullPointerException e) { 
-        //If npe then manifest entry is not defined which is likely so just ignore 
-      } catch (ExportManifestFormatException e) {
-        //Same goes here
+        repositoryFileAcl =
+            getImportSession().getManifest().getExportManifestEntity( manifestKey ).getRepositoryFileAcl();
+      } catch ( NullPointerException e ) {
+        // If npe then manifest entry is not defined which is likely so just ignore
+      } catch ( ExportManifestFormatException e ) {
+        // Same goes here
       }
-      updateAcl(true, repoFile, repositoryFileAcl);
+      updateAcl( true, repoFile, repositoryFileAcl );
     } else {
-      repoFile = repository.createFolder(parentId, repoFile, null);
+      repoFile = repository.createFolder( parentId, repoFile, null );
     }
-    getImportSession().getFoldersCreatedImplicitly().add(folderPath);
+    getImportSession().getFoldersCreatedImplicitly().add( folderPath );
     return repoFile;
   }
-  
+
 }
