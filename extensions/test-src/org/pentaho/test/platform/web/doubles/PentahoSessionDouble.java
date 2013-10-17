@@ -1,29 +1,29 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.test.platform.web.doubles;
+
+import org.pentaho.platform.api.engine.IPentahoSession;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 /**
  * A test double for IPentahoSession.
@@ -54,7 +54,7 @@ public class PentahoSessionDouble extends LoggerDouble implements IPentahoSessio
 
   // ~ Constructors ====================================================================================================
 
-  public PentahoSessionDouble(final String name) {
+  public PentahoSessionDouble( final String name ) {
     super();
     this.attributes = new HashMap<String, Object>();
     this.name = name;
@@ -71,8 +71,8 @@ public class PentahoSessionDouble extends LoggerDouble implements IPentahoSessio
     attributes = null;
   }
 
-  public Object getAttribute(final String attributeName) {
-    return attributes.get(attributeName);
+  public Object getAttribute( final String attributeName ) {
+    return attributes.get( attributeName );
   }
 
   public Iterator<String> getAttributeNames() {
@@ -99,25 +99,25 @@ public class PentahoSessionDouble extends LoggerDouble implements IPentahoSessio
     return authenticated;
   }
 
-  public Object removeAttribute(final String attributeName) {
-    return attributes.remove(attributeName);
+  public Object removeAttribute( final String attributeName ) {
+    return attributes.remove( attributeName );
   }
 
   public void resetBackgroundExecutionAlert() {
     backgroundExecutionAlert = false;
   }
 
-  public void setActionName(final String actionName) {
+  public void setActionName( final String actionName ) {
     this.actionName = actionName;
 
   }
 
-  public void setAttribute(final String attributeName, final Object value) {
-    attributes.put(attributeName, value);
+  public void setAttribute( final String attributeName, final Object value ) {
+    attributes.put( attributeName, value );
   }
 
-  public void setAuthenticated(final String name) {
-    if (name != null) {
+  public void setAuthenticated( final String name ) {
+    if ( name != null ) {
       authenticated = true;
       this.name = name;
     }
@@ -140,7 +140,7 @@ public class PentahoSessionDouble extends LoggerDouble implements IPentahoSessio
     return this.getClass().getName();
   }
 
-  public void setProcessId(final String processId) {
+  public void setProcessId( final String processId ) {
     this.processId = processId;
   }
 

@@ -1,21 +1,22 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
-package org.pentaho.platform.plugin.services.importexport;/*
+package org.pentaho.platform.plugin.services.importexport;
+/*
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -48,42 +49,44 @@ import static org.mockito.Mockito.mock;
  */
 public class BaseExportProcessorTest {
 
-    static TestExportProcessor testExportProcessor;
-    static DefaultExportHandler defaultExportHandler;
+  static TestExportProcessor testExportProcessor;
+  static DefaultExportHandler defaultExportHandler;
 
-    class TestExportProcessor extends BaseExportProcessor {
-        @Override
-        public File performExport(RepositoryFile exportRepositoryFile) throws ExportException, IOException {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public void exportDirectory(RepositoryFile repositoryDir, OutputStream outputStream, String filePath) throws ExportException, IOException {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public void exportFile(RepositoryFile repositoryFile, OutputStream outputStream, String filePath) throws ExportException, IOException {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
+  class TestExportProcessor extends BaseExportProcessor {
+    @Override
+    public File performExport( RepositoryFile exportRepositoryFile ) throws ExportException, IOException {
+      return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Before
-    public void setUp() throws Exception {
-        testExportProcessor = new TestExportProcessor();
+    @Override
+    public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath )
+      throws ExportException, IOException {
+      // To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @After
-    public void tearDown() throws Exception {
-
+    @Override
+    public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath )
+      throws ExportException, IOException {
+      // To change body of implemented methods use File | Settings | File Templates.
     }
+  }
 
-    @Test
-    public void testAddExportHandler() throws Exception {
-        defaultExportHandler = mock(DefaultExportHandler.class);
+  @Before
+  public void setUp() throws Exception {
+    testExportProcessor = new TestExportProcessor();
+  }
 
-        // we should be able to add export handlers
-        testExportProcessor.addExportHandler(defaultExportHandler);
-    }
+  @After
+  public void tearDown() throws Exception {
+
+  }
+
+  @Test
+  public void testAddExportHandler() throws Exception {
+    defaultExportHandler = mock( DefaultExportHandler.class );
+
+    // we should be able to add export handlers
+    testExportProcessor.addExportHandler( defaultExportHandler );
+  }
 
 }
