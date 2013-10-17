@@ -1,25 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.action.jfreereport.components;
-
-import java.util.Iterator;
-import java.util.Set;
-import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,14 +23,14 @@ import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
-import org.pentaho.reporting.engine.classic.core.parameters.ModifiableReportParameterDefinition;
-import org.pentaho.reporting.engine.classic.core.parameters.ParameterDefinitionEntry;
-import org.pentaho.reporting.engine.classic.core.parameters.PlainParameter;
+
+import javax.swing.table.TableModel;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
- * This sets the report parameters. This is another data preparation step and
- * should be executed before the query is fired. The data-factory may depend on
- * these parameters.
+ * This sets the report parameters. This is another data preparation step and should be executed before the query is
+ * fired. The data-factory may depend on these parameters.
  * 
  * @deprecated
  * @author Thomas Morgner
@@ -48,7 +44,7 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
 
   @Override
   protected boolean validateAction() {
-    return isDefinedInput(AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT);
+    return isDefinedInput( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT );
   }
 
   @Override
@@ -62,24 +58,24 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
   }
 
   protected MasterReport getReport() {
-    Object maybeReport = getInputValue(AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT);
-    if (maybeReport instanceof MasterReport) {
+    Object maybeReport = getInputValue( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT );
+    if ( maybeReport instanceof MasterReport ) {
       return (MasterReport) maybeReport;
     }
-    error(Messages.getInstance().getString("JFreeReportParametersComponent.ERROR_0033_NO_REPORT_BOUND") + maybeReport); //$NON-NLS-1$
+    error( Messages.getInstance().getString( "JFreeReportParametersComponent.ERROR_0033_NO_REPORT_BOUND" ) + maybeReport ); //$NON-NLS-1$
     return null;
   }
 
   private boolean initReportInputs() throws CloneNotSupportedException {
-	  MasterReport report = getReport();
-    if (report == null) {
-      error(Messages.getInstance().getString("JFreeReportParametersComponent.ERROR_0034_NO_REPORT_DEFINITION")); //$NON-NLS-1$
+    MasterReport report = getReport();
+    if ( report == null ) {
+      error( Messages.getInstance().getString( "JFreeReportParametersComponent.ERROR_0034_NO_REPORT_DEFINITION" ) ); //$NON-NLS-1$
       return false;
     }
 
-    final boolean privateCopy = getInputBooleanValue(
-        AbstractJFreeReportComponent.REPORTPARAMCOMPONENT_PRIVATEREPORT_OUTPUT, false);
-    if (privateCopy && isDefinedOutput(AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT)) {
+    final boolean privateCopy =
+        getInputBooleanValue( AbstractJFreeReportComponent.REPORTPARAMCOMPONENT_PRIVATEREPORT_OUTPUT, false );
+    if ( privateCopy && isDefinedOutput( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT ) ) {
       report = (MasterReport) report.clone();
     }
 
@@ -87,10 +83,10 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
     // object.
     final Set paramNames = getInputNames();
     final Iterator it = paramNames.iterator();
-    while (it.hasNext()) {
+    while ( it.hasNext() ) {
       String paramName = (String) it.next();
-      Object paramValue = getInputValue(paramName);
-      if ((paramValue == null) || "".equals(paramValue)) { //$NON-NLS-1$
+      Object paramValue = getInputValue( paramName );
+      if ( ( paramValue == null ) || "".equals( paramValue ) ) { //$NON-NLS-1$
         continue;
       }
 
@@ -99,68 +95,55 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
       // (the tablemodel) or the "data" reference copied to the report.
       // also dangerous are result sets and table models.
 
-      if (paramValue instanceof IPentahoResultSet) {
+      if ( paramValue instanceof IPentahoResultSet ) {
         continue;
       }
-      if (paramValue instanceof TableModel) {
+      if ( paramValue instanceof TableModel ) {
         continue;
       }
-      if (AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT.equals(paramName)) {
+      if ( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT.equals( paramName ) ) {
         continue;
       }
-      if (AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_DATAINPUT.equals(paramName)) {
+      if ( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_DATAINPUT.equals( paramName ) ) {
         continue;
       }
-      if (AbstractJFreeReportComponent.DATACOMPONENT_DATAINPUT.equals(paramName)) {
+      if ( AbstractJFreeReportComponent.DATACOMPONENT_DATAINPUT.equals( paramName ) ) {
         continue;
       }
       /*
-       * WG: Commenting out because this change (SVN: 44880) breaks bi-developers / reporting / subreport.xaction
-       * we'll need to revisit this when reving to the 4.0 reporting engine.
-       *  
-      final ParameterDefinitionEntry[] parameterDefinitions = report.getParameterDefinition().getParameterDefinitions();
-      boolean foundParameter = false;
-      for (int j = 0; j < parameterDefinitions.length; j++)
-      {
-        final ParameterDefinitionEntry definition = parameterDefinitions[j];
-        if (paramName.equals(definition.getName()))
-        {
-          foundParameter = true;
-          break;
-        }
-      }
-      if (foundParameter == false)
-      {
-        if (report.getParameterDefinition() instanceof ModifiableReportParameterDefinition)
-        {
-          final ModifiableReportParameterDefinition parameterDefinition =
-              (ModifiableReportParameterDefinition) report.getParameterDefinition();
-          parameterDefinition.addParameterDefinition(new PlainParameter(paramName));
-        }
-      }
-      */
+       * WG: Commenting out because this change (SVN: 44880) breaks bi-developers / reporting / subreport.xaction we'll
+       * need to revisit this when reving to the 4.0 reporting engine.
+       * 
+       * final ParameterDefinitionEntry[] parameterDefinitions =
+       * report.getParameterDefinition().getParameterDefinitions(); boolean foundParameter = false; for (int j = 0; j <
+       * parameterDefinitions.length; j++) { final ParameterDefinitionEntry definition = parameterDefinitions[j]; if
+       * (paramName.equals(definition.getName())) { foundParameter = true; break; } } if (foundParameter == false) { if
+       * (report.getParameterDefinition() instanceof ModifiableReportParameterDefinition) { final
+       * ModifiableReportParameterDefinition parameterDefinition = (ModifiableReportParameterDefinition)
+       * report.getParameterDefinition(); parameterDefinition.addParameterDefinition(new PlainParameter(paramName)); } }
+       */
 
-      if (paramValue instanceof Object[]) {
-        Object values[] = (Object[]) paramValue;
+      if ( paramValue instanceof Object[] ) {
+        Object[] values = (Object[]) paramValue;
         StringBuffer valuesBuffer = new StringBuffer();
         // TODO support non-string items
-        for (int j = 0; j < values.length; j++) {
-          if (j == 0) {
-            valuesBuffer.append(values[j].toString());
+        for ( int j = 0; j < values.length; j++ ) {
+          if ( j == 0 ) {
+            valuesBuffer.append( values[j].toString() );
           } else {
-            valuesBuffer.append(',').append(values[j].toString());
+            valuesBuffer.append( ',' ).append( values[j].toString() );
           }
         }
-        report.getParameterValues().put(paramName, valuesBuffer.toString());
-        //report.setProperty(paramName,  valuesBuffer.toString());
+        report.getParameterValues().put( paramName, valuesBuffer.toString() );
+        // report.setProperty(paramName, valuesBuffer.toString());
       } else {
-        report.getParameterValues().put(paramName, paramValue);
-        //report.setProperty(paramName, paramValue);
+        report.getParameterValues().put( paramName, paramValue );
+        // report.setProperty(paramName, paramValue);
       }
     }
 
-    if (privateCopy && isDefinedInput(AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT)) {
-      addTempParameterObject(AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT, report);
+    if ( privateCopy && isDefinedInput( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT ) ) {
+      addTempParameterObject( AbstractJFreeReportComponent.DATACOMPONENT_REPORTTEMP_OBJINPUT, report );
     }
     return true;
   }
@@ -177,6 +160,6 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
 
   @Override
   public Log getLogger() {
-    return LogFactory.getLog(JFreeReportParametersComponent.class);
+    return LogFactory.getLog( JFreeReportParametersComponent.class );
   }
 }

@@ -1,25 +1,24 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @XmlRootElement
 public class Overlay implements Serializable {
@@ -36,7 +35,7 @@ public class Overlay implements Serializable {
   public Overlay() {
   }
 
-  public Overlay(String id, String overlayUri, String source, String resourceBundleUri, int priority) {
+  public Overlay( String id, String overlayUri, String source, String resourceBundleUri, int priority ) {
     this.id = id;
     this.overlayUri = overlayUri;
     this.source = source;
@@ -48,7 +47,7 @@ public class Overlay implements Serializable {
     return resourceBundleUri;
   }
 
-  public void setResourceBundleUri(String resourceBundleUri) {
+  public void setResourceBundleUri( String resourceBundleUri ) {
     this.resourceBundleUri = resourceBundleUri;
   }
 
@@ -56,7 +55,7 @@ public class Overlay implements Serializable {
     return source;
   }
 
-  public void setSource(String source) {
+  public void setSource( String source ) {
     this.source = source;
   }
 
@@ -64,7 +63,7 @@ public class Overlay implements Serializable {
     return overlayXml;
   }
 
-  public void setOverlayXml(String overlayXml) {
+  public void setOverlayXml( String overlayXml ) {
     this.overlayXml = overlayXml;
   }
 
@@ -72,7 +71,7 @@ public class Overlay implements Serializable {
     return overlayUri;
   }
 
-  public void setOverlayUri(String overlayUri) {
+  public void setOverlayUri( String overlayUri ) {
     this.overlayUri = overlayUri;
   }
 
@@ -80,15 +79,15 @@ public class Overlay implements Serializable {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId( String id ) {
     this.id = id;
   }
 
   public int getPriority() {
-      return priority;
+    return priority;
   }
 
-  public void setPriority(int priority) {
-      this.priority = priority;
+  public void setPriority( int priority ) {
+    this.priority = priority;
   }
 }

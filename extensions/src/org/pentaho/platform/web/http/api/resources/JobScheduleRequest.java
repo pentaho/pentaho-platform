@@ -1,29 +1,28 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 @XmlRootElement
 public class JobScheduleRequest implements Serializable {
@@ -86,14 +85,14 @@ public class JobScheduleRequest implements Serializable {
   ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
 
   long duration;
-  
+
   String timeZone;
 
   public String getInputFile() {
     return inputFile;
   }
 
-  public void setInputFile(String file) {
+  public void setInputFile( String file ) {
     this.inputFile = file;
   }
 
@@ -101,7 +100,7 @@ public class JobScheduleRequest implements Serializable {
     return outputFile;
   }
 
-  public void setOutputFile(String file) {
+  public void setOutputFile( String file ) {
     this.outputFile = file;
   }
 
@@ -109,10 +108,10 @@ public class JobScheduleRequest implements Serializable {
     return cronJobTrigger;
   }
 
-  public void setCronJobTrigger(CronJobTrigger jobTrigger) {
-    if (jobTrigger != null) {
-      setComplexJobTrigger(null);
-      setSimpleJobTrigger(null);
+  public void setCronJobTrigger( CronJobTrigger jobTrigger ) {
+    if ( jobTrigger != null ) {
+      setComplexJobTrigger( null );
+      setSimpleJobTrigger( null );
     }
     this.cronJobTrigger = jobTrigger;
   }
@@ -121,10 +120,10 @@ public class JobScheduleRequest implements Serializable {
     return complexJobTrigger;
   }
 
-  public void setComplexJobTrigger(ComplexJobTriggerProxy jobTrigger) {
-    if (jobTrigger != null) {
-      setCronJobTrigger(null);
-      setSimpleJobTrigger(null);
+  public void setComplexJobTrigger( ComplexJobTriggerProxy jobTrigger ) {
+    if ( jobTrigger != null ) {
+      setCronJobTrigger( null );
+      setSimpleJobTrigger( null );
     }
     this.complexJobTrigger = jobTrigger;
   }
@@ -133,10 +132,10 @@ public class JobScheduleRequest implements Serializable {
     return simpleJobTrigger;
   }
 
-  public void setSimpleJobTrigger(SimpleJobTrigger jobTrigger) {
-    if (jobTrigger != null) {
-      setCronJobTrigger(null);
-      setComplexJobTrigger(null);
+  public void setSimpleJobTrigger( SimpleJobTrigger jobTrigger ) {
+    if ( jobTrigger != null ) {
+      setCronJobTrigger( null );
+      setComplexJobTrigger( null );
     }
     this.simpleJobTrigger = jobTrigger;
   }
@@ -145,11 +144,11 @@ public class JobScheduleRequest implements Serializable {
     return jobParameters;
   }
 
-  public void setJobParameters(ArrayList<JobScheduleParam> jobParameters) {
-    if (jobParameters != this.jobParameters) {
+  public void setJobParameters( ArrayList<JobScheduleParam> jobParameters ) {
+    if ( jobParameters != this.jobParameters ) {
       this.jobParameters.clear();
-      if (jobParameters != null) {
-        this.jobParameters.addAll(jobParameters);
+      if ( jobParameters != null ) {
+        this.jobParameters.addAll( jobParameters );
       }
     }
   }
@@ -158,7 +157,7 @@ public class JobScheduleRequest implements Serializable {
     return jobName;
   }
 
-  public void setJobName(String jobName) {
+  public void setJobName( String jobName ) {
     this.jobName = jobName;
   }
 
@@ -166,7 +165,7 @@ public class JobScheduleRequest implements Serializable {
     return actionClass;
   }
 
-  public void setActionClass(String actionClass) {
+  public void setActionClass( String actionClass ) {
     this.actionClass = actionClass;
   }
 
@@ -174,7 +173,7 @@ public class JobScheduleRequest implements Serializable {
     return duration;
   }
 
-  public void setDuration(long duration) {
+  public void setDuration( long duration ) {
     this.duration = duration;
   }
 
@@ -182,7 +181,7 @@ public class JobScheduleRequest implements Serializable {
     return timeZone;
   }
 
-  public void setTimeZone(String timeZone) {
+  public void setTimeZone( String timeZone ) {
     this.timeZone = timeZone;
   }
 }

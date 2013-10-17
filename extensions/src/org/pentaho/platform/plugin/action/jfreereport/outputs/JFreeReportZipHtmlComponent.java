@@ -1,24 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.action.jfreereport.outputs;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;
 import org.pentaho.platform.plugin.action.messages.Messages;
@@ -35,6 +32,9 @@ import org.pentaho.reporting.libraries.repository.ContentLocation;
 import org.pentaho.reporting.libraries.repository.DefaultNameGenerator;
 import org.pentaho.reporting.libraries.repository.RepositoryUtilities;
 import org.pentaho.reporting.libraries.repository.zip.ZipRepository;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Creation-Date: 07.07.2006, 20:42:17
@@ -58,43 +58,43 @@ public class JFreeReportZipHtmlComponent extends AbstractGenerateStreamContentCo
   }
 
   @Override
-  protected boolean performExport(final MasterReport report, final OutputStream outputStream) {
+  protected boolean performExport( final MasterReport report, final OutputStream outputStream ) {
     try {
-      String dataDirectory = getInputStringValue(AbstractJFreeReportComponent.REPORTDIRECTORYHTML_DATADIR);
-      if (dataDirectory == null) {
+      String dataDirectory = getInputStringValue( AbstractJFreeReportComponent.REPORTDIRECTORYHTML_DATADIR );
+      if ( dataDirectory == null ) {
         dataDirectory = "data"; //$NON-NLS-1$
       }
 
       final ZipRepository zipRepository = new ZipRepository();
       final ContentLocation root = zipRepository.getRoot();
-      final ContentLocation data = RepositoryUtilities.createLocation(zipRepository, RepositoryUtilities.split(
-          dataDirectory, "/"));//$NON-NLS-1$
+      final ContentLocation data =
+          RepositoryUtilities.createLocation( zipRepository, RepositoryUtilities.split( dataDirectory, "/" ) ); //$NON-NLS-1$
 
       final FlowHtmlOutputProcessor outputProcessor = new FlowHtmlOutputProcessor();
 
-      final HtmlPrinter printer = new AllItemsHtmlPrinter(report.getResourceManager());
-      printer.setContentWriter(root, new DefaultNameGenerator(root, "report.html"));//$NON-NLS-1$
-      printer.setDataWriter(data, new DefaultNameGenerator(data, "content"));//$NON-NLS-1$
-      printer.setUrlRewriter(new SingleRepositoryURLRewriter());
-      outputProcessor.setPrinter(printer);
+      final HtmlPrinter printer = new AllItemsHtmlPrinter( report.getResourceManager() );
+      printer.setContentWriter( root, new DefaultNameGenerator( root, "report.html" ) ); //$NON-NLS-1$
+      printer.setDataWriter( data, new DefaultNameGenerator( data, "content" ) ); //$NON-NLS-1$
+      printer.setUrlRewriter( new SingleRepositoryURLRewriter() );
+      outputProcessor.setPrinter( printer );
 
-      final FlowReportProcessor sp = new FlowReportProcessor(report, outputProcessor);
+      final FlowReportProcessor sp = new FlowReportProcessor( report, outputProcessor );
       final int yieldRate = getYieldRate();
-      if (yieldRate > 0) {
-        sp.addReportProgressListener(new YieldReportListener(yieldRate));
+      if ( yieldRate > 0 ) {
+        sp.addReportProgressListener( new YieldReportListener( yieldRate ) );
       }
       sp.processReport();
-      zipRepository.write(outputStream);
+      zipRepository.write( outputStream );
       close();
       return true;
-    } catch (ReportProcessingException e) {
-      error(Messages.getInstance().getString("JFreeReportZipHtmlComponent.ERROR_0046_FAILED_TO_PROCESS_REPORT"), e); //$NON-NLS-1$
+    } catch ( ReportProcessingException e ) {
+      error( Messages.getInstance().getString( "JFreeReportZipHtmlComponent.ERROR_0046_FAILED_TO_PROCESS_REPORT" ), e ); //$NON-NLS-1$
       return false;
-    } catch (IOException e) {
-      error(Messages.getInstance().getString("JFreeReportZipHtmlComponent.ERROR_0046_FAILED_TO_PROCESS_REPORT"), e); //$NON-NLS-1$
+    } catch ( IOException e ) {
+      error( Messages.getInstance().getString( "JFreeReportZipHtmlComponent.ERROR_0046_FAILED_TO_PROCESS_REPORT" ), e ); //$NON-NLS-1$
       return false;
-    } catch (ContentIOException e) {
-      error(Messages.getInstance().getString("JFreeReportZipHtmlComponent.ERROR_0046_FAILED_TO_PROCESS_REPORT"), e); //$NON-NLS-1$
+    } catch ( ContentIOException e ) {
+      error( Messages.getInstance().getString( "JFreeReportZipHtmlComponent.ERROR_0046_FAILED_TO_PROCESS_REPORT" ), e ); //$NON-NLS-1$
       return false;
     }
   }

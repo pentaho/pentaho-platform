@@ -1,29 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.platform.plugin.action.jfreereport;
-
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Types;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +32,14 @@ import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Types;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Bill Seyler, Michael D'Amour
@@ -138,7 +138,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
 
   @Override
   public Log getLogger() {
-    return LogFactory.getLog(JFreeReportGeneratorComponent.class);
+    return LogFactory.getLog( JFreeReportGeneratorComponent.class );
   }
 
   @Override
@@ -150,7 +150,8 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
   @Override
   protected boolean validateAction() {
     /*
-     * String templatePath = getComponentSetting(TEMPLATE_PATH_PROP); if (templatePath == null) { error("Undefined Template Path"); return false; }
+     * String templatePath = getComponentSetting(TEMPLATE_PATH_PROP); if (templatePath == null) {
+     * error("Undefined Template Path"); return false; }
      */
     return true;
   }
@@ -164,21 +165,25 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     /*
      * The on-the-fly JFreeReport generator will expect the following: =============================================
      * 
-     * INPUT: Path (String) to Existing JFreeReport to use as "template" OutputStream to write generated report IPentahoResultSet List of Columns to "Group" List of column widths
+     * INPUT: Path (String) to Existing JFreeReport to use as "template" OutputStream to write generated report
+     * IPentahoResultSet List of Columns to "Group" List of column widths
      * 
      * OUTPUT: JFreeReport XML to provided Path or OutputStream
      * 
-     * ASSUMPTIONS: List of column widths - last provided item is to be repeated for all remaining columns Perform ItemSumFunction on all numeric columns per group and grand total Perform ItemSumFunction on calculated column per group and
-     * grand total Groups and Items will be removed from template (we will retain font/color data) =============================================
+     * ASSUMPTIONS: List of column widths - last provided item is to be repeated for all remaining columns Perform
+     * ItemSumFunction on all numeric columns per group and grand total Perform ItemSumFunction on calculated column per
+     * group and grand total Groups and Items will be removed from template (we will retain font/color data)
+     * =============================================
      * 
-     * public OnTheFlyJFreeReportGenerator(String path, IPentahoResultSet set, List groupLabels, List widths, OutputStream stream) ------ public void process()
+     * public OnTheFlyJFreeReportGenerator(String path, IPentahoResultSet set, List groupLabels, List widths,
+     * OutputStream stream) ------ public void process()
      */
 
     JFreeReportGenAction genAction = null;
 
-    if (!(getActionDefinition() instanceof JFreeReportGenAction)) {
-      error(Messages.getInstance().getErrorString(
-          "JFreeReportGeneratorComponent.ERROR_0001_UNKNOWN_ACTION_TYPE", getActionDefinition().getElement().asXML())); //$NON-NLS-1$
+    if ( !( getActionDefinition() instanceof JFreeReportGenAction ) ) {
+      error( Messages.getInstance().getErrorString(
+          "JFreeReportGeneratorComponent.ERROR_0001_UNKNOWN_ACTION_TYPE", getActionDefinition().getElement().asXML() ) ); //$NON-NLS-1$
       return false;
     } else {
       genAction = (JFreeReportGenAction) getActionDefinition();
@@ -188,15 +193,16 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
       String settingsFromActionSequence = null;
       try {
         settingsFromActionSequence = genAction.getComponentSettings().getStringValue();
-      } catch (Exception ex) {
+      } catch ( Exception ex ) {
+        //ignore
       }
-      if (settingsFromActionSequence != null) {
+      if ( settingsFromActionSequence != null ) {
         try {
-          Document settingsDoc = XmlDom4JHelper.getDocFromString(settingsFromActionSequence,
-              new PentahoEntityResolver());
+          Document settingsDoc =
+              XmlDom4JHelper.getDocFromString( settingsFromActionSequence, new PentahoEntityResolver() );
           componentNode = settingsDoc.getRootElement();
-        } catch (Exception e) {
-          error("Could not get settings from action sequence document", e); //$NON-NLS-1$
+        } catch ( Exception e ) {
+          error( "Could not get settings from action sequence document", e ); //$NON-NLS-1$
           return false;
         }
       } else {
@@ -204,330 +210,338 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
       }
       try {
         compPath = genAction.getTemplatePath().getStringValue();
-        path = PentahoSystem.getApplicationContext().getSolutionPath(compPath);
+        path = PentahoSystem.getApplicationContext().getSolutionPath( compPath );
         orientation = genAction.getOrientation().getStringValue();
         nullString = genAction.getNullString().getStringValue();
-        horizontalOffset = genAction.getHorizontalOffset().getIntValue(horizontalOffset);
+        horizontalOffset = genAction.getHorizontalOffset().getIntValue( horizontalOffset );
         reportName = genAction.getReportName().getStringValue();
-        createSubTotals = genAction.getCreateSubTotals().getBooleanValue(false);
-        createGrandTotals = genAction.getCreateGrandTotals().getBooleanValue(false);
-        createRowBanding = genAction.getCreateRowBanding().getBooleanValue(false);
-        createTotalColumn = genAction.getCreateTotalColumn().getBooleanValue(false);
+        createSubTotals = genAction.getCreateSubTotals().getBooleanValue( false );
+        createGrandTotals = genAction.getCreateGrandTotals().getBooleanValue( false );
+        createRowBanding = genAction.getCreateRowBanding().getBooleanValue( false );
+        createTotalColumn = genAction.getCreateTotalColumn().getBooleanValue( false );
         totalColumnName = genAction.getTotalColumnName().getStringValue();
-        totalColumnWidth = genAction.getTotalColumnWidth().getIntValue(totalColumnWidth);
+        totalColumnWidth = genAction.getTotalColumnWidth().getIntValue( totalColumnWidth );
         totalColumnFormat = genAction.getTotalColumnFormat().getStringValue();
         rowBandingColor = genAction.getRowBandingColor().getStringValue();
-        spacerWidth = genAction.getSpacerWidth().getIntValue(spacerWidth);
+        spacerWidth = genAction.getSpacerWidth().getIntValue( spacerWidth );
         columnHeaderBackgroundColor = genAction.getColumnHeaderBackgroundColor().getStringValue();
         columnHeaderForegroundColor = genAction.getColumnHeaderForegroundColor().getStringValue();
         columnHeaderFontFace = genAction.getColumnHeaderFontFace().getStringValue();
         columnHeaderFontSize = genAction.getColumnHeaderFontSize().getStringValue();
-        columnHeaderGap = genAction.getColumnHeaderGap().getIntValue(columnHeaderGap);
-      } catch (Exception e) {
+        columnHeaderGap = genAction.getColumnHeaderGap().getIntValue( columnHeaderGap );
+      } catch ( Exception e ) {
         e.printStackTrace();
       }
 
       // Get the group display labels
-      List groupLabelNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.GROUP_LABELS_PROP
-          + "/" + JFreeReportGeneratorComponent.GROUP_LABEL_PROP); //$NON-NLS-1$
-      if (groupLabelNodes != null) {
+      List groupLabelNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.GROUP_LABELS_PROP
+              + "/" + JFreeReportGeneratorComponent.GROUP_LABEL_PROP ); //$NON-NLS-1$
+      if ( groupLabelNodes != null ) {
         groupLabels = new String[groupLabelNodes.size()];
-        for (int i = 0; i < groupLabels.length; i++) {
-          groupLabels[i] = ((Node) groupLabelNodes.get(i)).getText();
+        for ( int i = 0; i < groupLabels.length; i++ ) {
+          groupLabels[i] = ( (Node) groupLabelNodes.get( i ) ).getText();
         }
       }
       // Get the grouped columns indices
-      List groupedColumnsIndicesNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.GROUPED_COLUMNS_PROP
-          + "/" + JFreeReportGeneratorComponent.GROUPED_COLUMN_INDICES_PROP); //$NON-NLS-1$
-      if (groupedColumnsIndicesNodes != null) {
+      List groupedColumnsIndicesNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.GROUPED_COLUMNS_PROP
+              + "/" + JFreeReportGeneratorComponent.GROUPED_COLUMN_INDICES_PROP ); //$NON-NLS-1$
+      if ( groupedColumnsIndicesNodes != null ) {
         groupIndices = new int[groupedColumnsIndicesNodes.size()];
-        for (int i = 0; i < groupIndices.length; i++) {
-          groupIndices[i] = Integer.parseInt(((Node) groupedColumnsIndicesNodes.get(i)).getText()) - 1;
+        for ( int i = 0; i < groupIndices.length; i++ ) {
+          groupIndices[i] = Integer.parseInt( ( (Node) groupedColumnsIndicesNodes.get( i ) ).getText() ) - 1;
           // I am zero based, this is not
         }
       }
       // get display names
-      List displayNameNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.COLUMN_NAMES_PROP
-          + "/" + JFreeReportGeneratorComponent.COLUMN_NAME_PROP); //$NON-NLS-1$
-      if (displayNameNodes != null) {
+      List displayNameNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.COLUMN_NAMES_PROP
+              + "/" + JFreeReportGeneratorComponent.COLUMN_NAME_PROP ); //$NON-NLS-1$
+      if ( displayNameNodes != null ) {
         displayNames = new String[displayNameNodes.size()];
-        for (int i = 0; i < displayNames.length; i++) {
-          displayNames[i] = ((Node) displayNameNodes.get(i)).getText();
+        for ( int i = 0; i < displayNames.length; i++ ) {
+          displayNames[i] = ( (Node) displayNameNodes.get( i ) ).getText();
         }
       }
       // get column alignments
-      List columnAlignmentNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.COLUMN_ALIGNMENTS_PROP
-          + "/" + JFreeReportGeneratorComponent.COLUMN_ALIGNMENT_PROP); //$NON-NLS-1$
-      if (columnAlignmentNodes != null) {
+      List columnAlignmentNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.COLUMN_ALIGNMENTS_PROP
+              + "/" + JFreeReportGeneratorComponent.COLUMN_ALIGNMENT_PROP ); //$NON-NLS-1$
+      if ( columnAlignmentNodes != null ) {
         columnAlignments = new String[columnAlignmentNodes.size()];
-        for (int i = 0; i < columnAlignments.length; i++) {
-          columnAlignments[i] = ((Node) columnAlignmentNodes.get(i)).getText();
+        for ( int i = 0; i < columnAlignments.length; i++ ) {
+          columnAlignments[i] = ( (Node) columnAlignmentNodes.get( i ) ).getText();
         }
       }
       // Get the column widths
-      List widthNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.COLUMN_WIDTHS_PROP
-          + "/" + JFreeReportGeneratorComponent.WIDTH_PROP); //$NON-NLS-1$
-      if (widthNodes != null) {
+      List widthNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.COLUMN_WIDTHS_PROP
+              + "/" + JFreeReportGeneratorComponent.WIDTH_PROP ); //$NON-NLS-1$
+      if ( widthNodes != null ) {
         widths = new int[widthNodes.size()];
-        for (int i = 0; i < widths.length; i++) {
-          widths[i] = Integer.valueOf(((Node) widthNodes.get(i)).getText()).intValue();
+        for ( int i = 0; i < widths.length; i++ ) {
+          widths[i] = Integer.valueOf( ( (Node) widthNodes.get( i ) ).getText() ).intValue();
         }
       }
       // Get the column item hides
-      List itemHideNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.ITEM_HIDES_PROP
-          + "/" + JFreeReportGeneratorComponent.ITEM_HIDE_PROP); //$NON-NLS-1$
-      if (itemHideNodes != null) {
+      List itemHideNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.ITEM_HIDES_PROP
+              + "/" + JFreeReportGeneratorComponent.ITEM_HIDE_PROP ); //$NON-NLS-1$
+      if ( itemHideNodes != null ) {
         itemHides = new boolean[itemHideNodes.size()];
-        for (int i = 0; i < itemHides.length; i++) {
-          itemHides[i] = Boolean.valueOf(((Node) itemHideNodes.get(i)).getText()).booleanValue();
+        for ( int i = 0; i < itemHides.length; i++ ) {
+          itemHides[i] = Boolean.valueOf( ( (Node) itemHideNodes.get( i ) ).getText() ).booleanValue();
         }
       }
       // Get the column formats
-      List formatNodes = componentNode.selectNodes(JFreeReportGeneratorComponent.COLUMN_FORMATS_PROP
-          + "/" + JFreeReportGeneratorComponent.FORMAT_PROP); //$NON-NLS-1$
-      if (formatNodes != null) {
+      List formatNodes =
+          componentNode.selectNodes( JFreeReportGeneratorComponent.COLUMN_FORMATS_PROP
+              + "/" + JFreeReportGeneratorComponent.FORMAT_PROP ); //$NON-NLS-1$
+      if ( formatNodes != null ) {
         formats = new String[formatNodes.size()];
-        for (int i = 0; i < formats.length; i++) {
-          formats[i] = ((Node) formatNodes.get(i)).getText();
+        for ( int i = 0; i < formats.length; i++ ) {
+          formats[i] = ( (Node) formatNodes.get( i ) ).getText();
         }
       }
     }
     String reportDefinition = process();
-    if (reportDefinition != null) {
-      if (genAction.getOutputReportDefinition() != null) {
-        genAction.getOutputReportDefinition().setValue(reportDefinition);
+    if ( reportDefinition != null ) {
+      if ( genAction.getOutputReportDefinition() != null ) {
+        genAction.getOutputReportDefinition().setValue( reportDefinition );
       } else {
-        // This is to support the old way where 
+        // This is to support the old way where
         // we did not check if report-definition existed in the output section
-        setOutputValue(JFreeReportGenAction.REPORT_DEFINITION, reportDefinition);
+        setOutputValue( JFreeReportGenAction.REPORT_DEFINITION, reportDefinition );
       }
     }
 
     return true;
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings( "deprecation" )
   public String process() {
     // CREATE report-spec.xml
     // USE passed in jfreeReportTemplate as "include" -- stuff in
     // report-spec
     // GENERATE JFreeReport from report-spec using code already written in
     // DesignerUtility
-    //  
+    //
     ByteArrayOutputStream outputStream = null;
     try {
       outputStream = new ByteArrayOutputStream();
-    } catch (Exception e) {
-      getLogger().error(e);
+    } catch ( Exception e ) {
+      getLogger().error( e );
     }
     ReportSpec reportSpec = new ReportSpec();
-    reportSpec.setReportName(reportName);
-    reportSpec.setHorizontalOffset(horizontalOffset);
-    reportSpec.setIncludeSrc(getPath());
-    reportSpec.setQuery("no query"); //$NON-NLS-1$
-    reportSpec.setReportSpecChoice(new ReportSpecChoice());
-    reportSpec.getReportSpecChoice().setJndiSource("SampleData"); //$NON-NLS-1$
-    reportSpec.setCalculateGrandTotals(createGrandTotals);
-    reportSpec.setTopMargin(10);
-    reportSpec.setBottomMargin(10);
-    reportSpec.setLeftMargin(10);
-    reportSpec.setRightMargin(10);
-    reportSpec.setUseRowBanding(createRowBanding);
-    reportSpec.setColumnHeaderGap(columnHeaderGap);
-    if (rowBandingColor != null) {
-      reportSpec.setRowBandingColor(rowBandingColor);
+    reportSpec.setReportName( reportName );
+    reportSpec.setHorizontalOffset( horizontalOffset );
+    reportSpec.setIncludeSrc( getPath() );
+    reportSpec.setQuery( "no query" ); //$NON-NLS-1$
+    reportSpec.setReportSpecChoice( new ReportSpecChoice() );
+    reportSpec.getReportSpecChoice().setJndiSource( "SampleData" ); //$NON-NLS-1$
+    reportSpec.setCalculateGrandTotals( createGrandTotals );
+    reportSpec.setTopMargin( 10 );
+    reportSpec.setBottomMargin( 10 );
+    reportSpec.setLeftMargin( 10 );
+    reportSpec.setRightMargin( 10 );
+    reportSpec.setUseRowBanding( createRowBanding );
+    reportSpec.setColumnHeaderGap( columnHeaderGap );
+    if ( rowBandingColor != null ) {
+      reportSpec.setRowBandingColor( rowBandingColor );
     }
-    if (columnHeaderBackgroundColor != null) {
-      reportSpec.setColumnHeaderBackgroundColor(columnHeaderBackgroundColor);
+    if ( columnHeaderBackgroundColor != null ) {
+      reportSpec.setColumnHeaderBackgroundColor( columnHeaderBackgroundColor );
     }
-    if (columnHeaderForegroundColor != null) {
-      reportSpec.setColumnHeaderFontColor(columnHeaderForegroundColor);
+    if ( columnHeaderForegroundColor != null ) {
+      reportSpec.setColumnHeaderFontColor( columnHeaderForegroundColor );
     }
-    if (columnHeaderFontFace != null) {
-      reportSpec.setColumnHeaderFontName(columnHeaderFontFace);
+    if ( columnHeaderFontFace != null ) {
+      reportSpec.setColumnHeaderFontName( columnHeaderFontFace );
     }
-    if (columnHeaderFontSize != null) {
-      reportSpec.setColumnHeaderFontSize(Integer.parseInt(columnHeaderFontSize));
+    if ( columnHeaderFontSize != null ) {
+      reportSpec.setColumnHeaderFontSize( Integer.parseInt( columnHeaderFontSize ) );
     }
-    reportSpec.setOrientation(orientation);
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
+    reportSpec.setOrientation( orientation );
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
     int totalWidth = reportSpec.getLeftMargin() + reportSpec.getRightMargin();
     List groupsList = new LinkedList();
     List details = new LinkedList();
     // leading spacer
-    if (spacerWidth > 0) {
+    if ( spacerWidth > 0 ) {
       Field spacer = new Field();
-      spacer.setName(""); //$NON-NLS-1$
-      spacer.setDisplayName(""); //$NON-NLS-1$
-      spacer.setType(Types.VARCHAR);
-      spacer.setFormat(""); //$NON-NLS-1$
-      spacer.setHorizontalAlignment("right"); //$NON-NLS-1$
-      spacer.setVerticalAlignment("middle"); //$NON-NLS-1$
-      spacer.setWidth(new BigDecimal(spacerWidth));
-      spacer.setWidthLocked(true);
+      spacer.setName( "" ); //$NON-NLS-1$
+      spacer.setDisplayName( "" ); //$NON-NLS-1$
+      spacer.setType( Types.VARCHAR );
+      spacer.setFormat( "" ); //$NON-NLS-1$
+      spacer.setHorizontalAlignment( "right" ); //$NON-NLS-1$
+      spacer.setVerticalAlignment( "middle" ); //$NON-NLS-1$
+      spacer.setWidth( new BigDecimal( spacerWidth ) );
+      spacer.setWidthLocked( true );
       totalWidth += spacerWidth;
-      spacer.setExpression("none"); //$NON-NLS-1$
-      spacer.setIsWidthPercent(false);
-      spacer.setIsDetail(true);
-      reportSpec.addField(spacer);
+      spacer.setExpression( "none" ); //$NON-NLS-1$
+      spacer.setIsWidthPercent( false );
+      spacer.setIsDetail( true );
+      reportSpec.addField( spacer );
     }
-    for (int i = 0; i < colHeaders.length; i++) {
+    for ( int i = 0; i < colHeaders.length; i++ ) {
       // System.out.println("header [" + i + "] = " + colHeaders[i]);
       Class typeClass = null;
-      for (int j = 0; j < resultSet.getRowCount(); j++) {
-        Object value = resultSet.getValueAt(j, i);
-        if ((value != null) && !value.toString().equals("")) { //$NON-NLS-1$
+      for ( int j = 0; j < resultSet.getRowCount(); j++ ) {
+        Object value = resultSet.getValueAt( j, i );
+        if ( ( value != null ) && !value.toString().equals( "" ) ) { //$NON-NLS-1$
           typeClass = value.getClass();
         }
       }
       String columnName = colHeaders[i].toString();
       Field f = new Field();
-      f.setName(columnName);
-      f.setNullString(getNullString());
-      if (isGroup(columnName)) {
-        f.setDisplayName(getGroupLabel(columnName, i));
-      } else if (i < displayNames.length) {
-        f.setDisplayName(displayNames[i]);
+      f.setName( columnName );
+      f.setNullString( getNullString() );
+      if ( isGroup( columnName ) ) {
+        f.setDisplayName( getGroupLabel( columnName, i ) );
+      } else if ( i < displayNames.length ) {
+        f.setDisplayName( displayNames[i] );
       } else {
-        f.setDisplayName(columnName);
+        f.setDisplayName( columnName );
       }
-      f.setIsWidthPercent(false);
-      f.setWidth(new BigDecimal(getWidth(columnName)));
-      f.setWidthLocked(true);
-      f.setIsDetail(!isGroup(columnName));
-      if (f.getIsDetail()) {
-        details.add(f);
+      f.setIsWidthPercent( false );
+      f.setWidth( new BigDecimal( getWidth( columnName ) ) );
+      f.setWidthLocked( true );
+      f.setIsDetail( !isGroup( columnName ) );
+      if ( f.getIsDetail() ) {
+        details.add( f );
       } else {
-        groupsList.add(f);
+        groupsList.add( f );
       }
-      f.setBackgroundColor("#FFFFFF"); //$NON-NLS-1$
-      f.setType(getType(typeClass));
-      if ((itemHides == null) || (itemHides.length == 0)) {
-        f.setUseItemHide(getType(typeClass) == Types.NUMERIC ? false : true);
+      f.setBackgroundColor( "#FFFFFF" ); //$NON-NLS-1$
+      f.setType( getType( typeClass ) );
+      if ( ( itemHides == null ) || ( itemHides.length == 0 ) ) {
+        f.setUseItemHide( getType( typeClass ) == Types.NUMERIC ? false : true );
       } else {
-        f.setUseItemHide(useItemHide(columnName));
+        f.setUseItemHide( useItemHide( columnName ) );
       }
-      f.setVerticalAlignment("middle"); //$NON-NLS-1$
-      f.setFormat(getColumnFormat(columnName));
-      String alignment = getColumnAlignment(columnName);
-      if (alignment != null) {
-        f.setHorizontalAlignment(alignment);
+      f.setVerticalAlignment( "middle" ); //$NON-NLS-1$
+      f.setFormat( getColumnFormat( columnName ) );
+      String alignment = getColumnAlignment( columnName );
+      if ( alignment != null ) {
+        f.setHorizontalAlignment( alignment );
       } else {
-        if (f.getIsDetail() && (f.getType() == Types.NUMERIC)) {
-          f.setHorizontalAlignment("right"); //$NON-NLS-1$
+        if ( f.getIsDetail() && ( f.getType() == Types.NUMERIC ) ) {
+          f.setHorizontalAlignment( "right" ); //$NON-NLS-1$
         }
       }
-      if (f.getIsDetail() && (f.getType() == Types.NUMERIC)) {
-        f.setExpression("sum"); //$NON-NLS-1$
+      if ( f.getIsDetail() && ( f.getType() == Types.NUMERIC ) ) {
+        f.setExpression( "sum" ); //$NON-NLS-1$
       } else {
-        f.setExpression("none"); //$NON-NLS-1$
+        f.setExpression( "none" ); //$NON-NLS-1$
       }
-      f.setCalculateGroupTotals(createSubTotals);
-      reportSpec.addField(f);
-      if ((spacerWidth > 0) && f.getIsDetail()) {
+      f.setCalculateGroupTotals( createSubTotals );
+      reportSpec.addField( f );
+      if ( ( spacerWidth > 0 ) && f.getIsDetail() ) {
         // spacer
         Field spacer = new Field();
-        spacer.setName(""); //$NON-NLS-1$
-        spacer.setDisplayName(""); //$NON-NLS-1$
-        spacer.setType(Types.VARCHAR);
-        spacer.setFormat(""); //$NON-NLS-1$
-        spacer.setHorizontalAlignment("right"); //$NON-NLS-1$
-        spacer.setVerticalAlignment("middle"); //$NON-NLS-1$
-        spacer.setWidth(new BigDecimal(spacerWidth));
-        spacer.setWidthLocked(true);
+        spacer.setName( "" ); //$NON-NLS-1$
+        spacer.setDisplayName( "" ); //$NON-NLS-1$
+        spacer.setType( Types.VARCHAR );
+        spacer.setFormat( "" ); //$NON-NLS-1$
+        spacer.setHorizontalAlignment( "right" ); //$NON-NLS-1$
+        spacer.setVerticalAlignment( "middle" ); //$NON-NLS-1$
+        spacer.setWidth( new BigDecimal( spacerWidth ) );
+        spacer.setWidthLocked( true );
         totalWidth += spacerWidth;
-        spacer.setExpression("none"); //$NON-NLS-1$
-        spacer.setIsWidthPercent(false);
-        spacer.setIsDetail(true);
-        reportSpec.addField(spacer);
+        spacer.setExpression( "none" ); //$NON-NLS-1$
+        spacer.setIsWidthPercent( false );
+        spacer.setIsDetail( true );
+        reportSpec.addField( spacer );
       }
     }
-    for (int i = 0; i < details.size(); i++) {
-      Field f = (Field) details.get(i);
+    for ( int i = 0; i < details.size(); i++ ) {
+      Field f = (Field) details.get( i );
       totalWidth += f.getWidth().intValue();
     }
-    if (createTotalColumn) {
+    if ( createTotalColumn ) {
       Field f = new Field();
-      f.setName("TOTAL_COLUMN"); //$NON-NLS-1$
-      f.setDisplayName(totalColumnName);
-      f.setType(Types.NUMERIC);
-      f.setFormat(totalColumnFormat);
-      f.setHorizontalAlignment("right"); //$NON-NLS-1$
-      f.setVerticalAlignment("middle"); //$NON-NLS-1$
-      f.setWidth(new BigDecimal(totalColumnWidth));
-      f.setWidthLocked(true);
-      f.setExpression("sum"); //$NON-NLS-1$
-      f.setIsWidthPercent(false);
-      f.setIsDetail(true);
-      reportSpec.addField(f);
+      f.setName( "TOTAL_COLUMN" ); //$NON-NLS-1$
+      f.setDisplayName( totalColumnName );
+      f.setType( Types.NUMERIC );
+      f.setFormat( totalColumnFormat );
+      f.setHorizontalAlignment( "right" ); //$NON-NLS-1$
+      f.setVerticalAlignment( "middle" ); //$NON-NLS-1$
+      f.setWidth( new BigDecimal( totalColumnWidth ) );
+      f.setWidthLocked( true );
+      f.setExpression( "sum" ); //$NON-NLS-1$
+      f.setIsWidthPercent( false );
+      f.setIsDetail( true );
+      reportSpec.addField( f );
       totalWidth += totalColumnWidth;
-      if (spacerWidth > 0) {
+      if ( spacerWidth > 0 ) {
         // spacer
         Field spacer = new Field();
-        spacer.setName(""); //$NON-NLS-1$
-        spacer.setDisplayName(""); //$NON-NLS-1$
-        spacer.setType(Types.VARCHAR);
-        spacer.setFormat(""); //$NON-NLS-1$
-        spacer.setHorizontalAlignment("right"); //$NON-NLS-1$
-        spacer.setVerticalAlignment("middle"); //$NON-NLS-1$
-        spacer.setWidth(new BigDecimal(spacerWidth));
-        spacer.setWidthLocked(true);
+        spacer.setName( "" ); //$NON-NLS-1$
+        spacer.setDisplayName( "" ); //$NON-NLS-1$
+        spacer.setType( Types.VARCHAR );
+        spacer.setFormat( "" ); //$NON-NLS-1$
+        spacer.setHorizontalAlignment( "right" ); //$NON-NLS-1$
+        spacer.setVerticalAlignment( "middle" ); //$NON-NLS-1$
+        spacer.setWidth( new BigDecimal( spacerWidth ) );
+        spacer.setWidthLocked( true );
         totalWidth += spacerWidth;
-        spacer.setExpression("none"); //$NON-NLS-1$
-        spacer.setIsWidthPercent(false);
-        spacer.setIsDetail(true);
-        reportSpec.addField(spacer);
+        spacer.setExpression( "none" ); //$NON-NLS-1$
+        spacer.setIsWidthPercent( false );
+        spacer.setIsDetail( true );
+        reportSpec.addField( spacer );
       }
     }
     try {
-      reportSpec.setUseCustomPageFormat(true);
+      reportSpec.setUseCustomPageFormat( true );
       int width = 612;
       int height = 792;
-      if (orientation.equalsIgnoreCase("landscape")) { //$NON-NLS-1$
+      if ( orientation.equalsIgnoreCase( "landscape" ) ) { //$NON-NLS-1$
         width = height;
         height = 612;
       }
       // w totalWidth
       // - = ------------
       // h scaledHeight
-      int scaledHeight = (height * totalWidth) / width;
-      if (orientation.equalsIgnoreCase("landscape")) { //$NON-NLS-1$
-        reportSpec.setCustomPageFormatHeight(totalWidth);
-        reportSpec.setCustomPageFormatWidth(scaledHeight);
-        ReportGenerationUtility.createJFreeReportXML(reportSpec, outputStream, scaledHeight, totalWidth,
-            createTotalColumn, totalColumnName, totalColumnWidth, spacerWidth);
+      int scaledHeight = ( height * totalWidth ) / width;
+      if ( orientation.equalsIgnoreCase( "landscape" ) ) { //$NON-NLS-1$
+        reportSpec.setCustomPageFormatHeight( totalWidth );
+        reportSpec.setCustomPageFormatWidth( scaledHeight );
+        ReportGenerationUtility.createJFreeReportXML( reportSpec, outputStream, scaledHeight, totalWidth,
+            createTotalColumn, totalColumnName, totalColumnWidth, spacerWidth );
       } else {
-        reportSpec.setCustomPageFormatHeight(scaledHeight);
-        reportSpec.setCustomPageFormatWidth(totalWidth);
-        ReportGenerationUtility.createJFreeReportXML(reportSpec, outputStream, totalWidth, scaledHeight,
-            createTotalColumn, totalColumnName, totalColumnWidth, spacerWidth);
+        reportSpec.setCustomPageFormatHeight( scaledHeight );
+        reportSpec.setCustomPageFormatWidth( totalWidth );
+        ReportGenerationUtility.createJFreeReportXML( reportSpec, outputStream, totalWidth, scaledHeight,
+            createTotalColumn, totalColumnName, totalColumnWidth, spacerWidth );
       }
-    } catch (Exception e) {
+    } catch ( Exception e ) {
+      //ignore
     }
-    return new String(outputStream.toByteArray());
+    return new String( outputStream.toByteArray() );
   }
 
-  public int getType(final Class typeClass) {
-    if (typeClass != null) {
-      if (typeClass.getName().equals(String.class.getName())) {
+  public int getType( final Class typeClass ) {
+    if ( typeClass != null ) {
+      if ( typeClass.getName().equals( String.class.getName() ) ) {
         return Types.VARCHAR;
-      } else if (typeClass.getName().equals(BigDecimal.class.getName())
-          || typeClass.getName().equals(Integer.class.getName())) {
+      } else if ( typeClass.getName().equals( BigDecimal.class.getName() )
+          || typeClass.getName().equals( Integer.class.getName() ) ) {
         return Types.NUMERIC;
-      } else if (typeClass.getName().equals(Date.class.getName())) {
+      } else if ( typeClass.getName().equals( Date.class.getName() ) ) {
         return Types.DATE;
       }
     }
     return Types.VARCHAR;
   }
 
-  public String getGroupLabel(final String columnName, final int index) {
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
-    for (int i = 0; i < colHeaders.length; i++) {
-      if (colHeaders[i].equals(columnName)) {
+  public String getGroupLabel( final String columnName, final int index ) {
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    for ( int i = 0; i < colHeaders.length; i++ ) {
+      if ( colHeaders[i].equals( columnName ) ) {
         // at this point we verified the column is in the metadata, but is the index a group?
-        for (int j = 0; j < getGroupIndices().length; j++) {
-          if (i == getGroupIndices()[j]) {
+        for ( int j = 0; j < getGroupIndices().length; j++ ) {
+          if ( i == getGroupIndices()[j] ) {
             return groupLabels[j];
           }
         }
@@ -536,13 +550,13 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     return displayNames[index];
   }
 
-  public boolean isGroup(final String columnName) {
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
-    for (int i = 0; i < colHeaders.length; i++) {
-      if (colHeaders[i].equals(columnName)) {
+  public boolean isGroup( final String columnName ) {
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    for ( int i = 0; i < colHeaders.length; i++ ) {
+      if ( colHeaders[i].equals( columnName ) ) {
         // at this point we verified the column is in the metadata, but is the index a group?
-        for (int j = 0; j < getGroupIndices().length; j++) {
-          if (i == getGroupIndices()[j]) {
+        for ( int j = 0; j < getGroupIndices().length; j++ ) {
+          if ( i == getGroupIndices()[j] ) {
             return true;
           }
         }
@@ -551,29 +565,31 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     return false;
   }
 
-  public String getColumnAlignment(final String columnName) {
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
-    for (int i = 0; i < colHeaders.length; i++) {
-      if (colHeaders[i].equals(columnName)) {
+  public String getColumnAlignment( final String columnName ) {
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    for ( int i = 0; i < colHeaders.length; i++ ) {
+      if ( colHeaders[i].equals( columnName ) ) {
         try {
           String alignment = getColumnAlignments()[getColumnAlignments().length - 1];
           alignment = getColumnAlignments()[i];
           return alignment;
-        } catch (Exception e) {
+        } catch ( Exception e ) {
+          //ignore
         }
       }
     }
     return null;
   }
 
-  public boolean useItemHide(final String columnName) {
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
-    for (int i = 0; i < colHeaders.length; i++) {
-      if (colHeaders[i].equals(columnName)) {
+  public boolean useItemHide( final String columnName ) {
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    for ( int i = 0; i < colHeaders.length; i++ ) {
+      if ( colHeaders[i].equals( columnName ) ) {
         boolean itemHide = getItemHides()[getItemHides().length - 1];
         try {
           itemHide = getItemHides()[i];
-        } catch (Exception e) {
+        } catch ( Exception e ) {
+          //ignore
         }
         return itemHide;
       }
@@ -581,14 +597,15 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     return false;
   }
 
-  public int getWidth(final String columnName) {
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
-    for (int i = 0; i < colHeaders.length; i++) {
-      if (colHeaders[i].equals(columnName)) {
+  public int getWidth( final String columnName ) {
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    for ( int i = 0; i < colHeaders.length; i++ ) {
+      if ( colHeaders[i].equals( columnName ) ) {
         int width = getWidths()[getWidths().length - 1];
         try {
           width = getWidths()[i];
-        } catch (Exception e) {
+        } catch ( Exception e ) {
+          //ignore
         }
         return width;
       }
@@ -596,15 +613,16 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     return 0;
   }
 
-  public String getColumnFormat(final String columnName) {
-    Object colHeaders[] = resultSet.getMetaData().getColumnHeaders()[0];
-    for (int i = 0; i < colHeaders.length; i++) {
-      if (colHeaders[i].equals(columnName)) {
+  public String getColumnFormat( final String columnName ) {
+    Object[] colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    for ( int i = 0; i < colHeaders.length; i++ ) {
+      if ( colHeaders[i].equals( columnName ) ) {
         String format = ""; //$NON-NLS-1$
         try {
           format = getFormats()[getFormats().length - 1];
           format = getFormats()[i];
-        } catch (Exception e) {
+        } catch ( Exception e ) {
+          //ignore
         }
         return format;
       }
@@ -614,8 +632,8 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
 
   public String getResultOutputName() {
     Set outputs = getOutputNames();
-    if ((outputs == null) || (outputs.size() == 0)) {
-      error("NO OUPUT DEFINED"); //$NON-NLS-1$
+    if ( ( outputs == null ) || ( outputs.size() == 0 ) ) {
+      error( "NO OUPUT DEFINED" ); //$NON-NLS-1$
       return null;
     }
     String outputName = (String) outputs.iterator().next();
@@ -639,7 +657,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
    * @param formats
    *          The formats to set.
    */
-  public void setFormats(final String[] formats) {
+  public void setFormats( final String[] formats ) {
     this.formats = formats;
   }
 
@@ -654,7 +672,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
    * @param groupLabels
    *          The groupLabels to set.
    */
-  public void setGroups(final String[] groupLabels) {
+  public void setGroups( final String[] groupLabels ) {
     this.groupLabels = groupLabels;
   }
 
@@ -669,7 +687,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
    * @param path
    *          The path to set.
    */
-  public void setPath(final String path) {
+  public void setPath( final String path ) {
     this.path = path;
   }
 
@@ -684,7 +702,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
    * @param widths
    *          The widths to set.
    */
-  public void setWidths(final int[] widths) {
+  public void setWidths( final int[] widths ) {
     this.widths = widths;
   }
 
@@ -699,7 +717,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
    * @param widths
    *          The item hides to set.
    */
-  public void setItemHides(final boolean[] itemHides) {
+  public void setItemHides( final boolean[] itemHides ) {
     this.itemHides = itemHides;
   }
 
@@ -714,7 +732,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
    * @param widths
    *          The widths to set.
    */
-  public void setColumnAlignments(final String[] columnAlignments) {
+  public void setColumnAlignments( final String[] columnAlignments ) {
     this.columnAlignments = columnAlignments;
   }
 
@@ -722,7 +740,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     return groupIndices;
   }
 
-  public void setGroupIndices(final int[] groupIndices) {
+  public void setGroupIndices( final int[] groupIndices ) {
     this.groupIndices = groupIndices;
   }
 
@@ -730,7 +748,7 @@ public class JFreeReportGeneratorComponent extends ComponentBase {
     return nullString;
   }
 
-  public void setNullString(final String nullString) {
+  public void setNullString( final String nullString ) {
     this.nullString = nullString;
   }
 }
