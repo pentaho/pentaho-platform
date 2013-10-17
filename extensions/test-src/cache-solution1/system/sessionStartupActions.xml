@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-"http://www.springframework.org/dtd/spring-beans.dtd">
+    "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <!-- 
 This is the spring configuration file that is used to wire session startup actions into the Pentaho
@@ -10,20 +10,20 @@ PentahoHttpSession, PentahoPortletSession, UserSession, & Standalone session.
 -->
 
 <beans>
-	<bean id="sessionStartupActionsList" class="java.util.ArrayList">
-		<constructor-arg>
-			<list>
-			
-				<!-- Start of PentahoHttpSession startup actions. -->
-				<!-- End of PentahoHttpSession startup actions. -->
-				
-				<!-- Start of PentahoPortletSession startup actions. -->
-				<!-- End of PentahoPortletSession startup actions. -->
-			
-				<!-- Start of UserSession startup actions. -->
-				<!-- End of UserSession startup actions. -->
-				
-			</list>
-		</constructor-arg>
-	</bean>
+  <bean id="sessionStartupActionsList" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+
+        <!-- Start of PentahoHttpSession startup actions. -->
+        <!-- End of PentahoHttpSession startup actions. -->
+
+        <!-- Start of PentahoPortletSession startup actions. -->
+        <!-- End of PentahoPortletSession startup actions. -->
+
+        <!-- Start of UserSession startup actions. -->
+        <!-- End of UserSession startup actions. -->
+
+      </list>
+    </constructor-arg>
+  </bean>
 </beans>
