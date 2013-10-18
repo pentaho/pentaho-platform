@@ -56,6 +56,7 @@ public class TinyHTTPd implements Runnable {
               Thread t = new Thread( new TinyHTTPd( client ) );
               t.start();
             } catch ( Exception e ) {
+              //ignored
             }
           }
         } catch ( Exception e ) {
@@ -72,7 +73,7 @@ public class TinyHTTPd implements Runnable {
     die = true;
   }
 
-  public static void main( String args[] ) {
+  public static void main( String[] args ) {
     startServer( "./resources/solutions", 6736 ); //$NON-NLS-1$
   }
 
@@ -83,8 +84,9 @@ public class TinyHTTPd implements Runnable {
       try {
         while ( true ) {
           String s = i.readLine();
-          if ( s.length() < 1 )
+          if ( s.length() < 1 ) {
             break;
+          }
           if ( s.startsWith( "GET" ) ) { //$NON-NLS-1$
             StringTokenizer t = new StringTokenizer( s, " " ); //$NON-NLS-1$
             t.nextToken();
@@ -118,6 +120,7 @@ public class TinyHTTPd implements Runnable {
       }
       o.close();
     } catch ( Exception e ) {
+      //ignored
     }
   }
 }

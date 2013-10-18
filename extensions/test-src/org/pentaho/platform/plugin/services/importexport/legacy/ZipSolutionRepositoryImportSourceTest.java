@@ -38,23 +38,27 @@ public class ZipSolutionRepositoryImportSourceTest extends TestCase {
       new ZipSolutionRepositoryImportSource( null, "UTF-8" );
       fail( "Null input stream should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       new ZipSolutionRepositoryImportSource( new ZipInputStream( new ByteArrayInputStream( "".getBytes() ) ), null );
       fail( "Null character set should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       new ZipSolutionRepositoryImportSource( new ZipInputStream( new ByteArrayInputStream( "".getBytes() ) ), "" );
       fail( "Empty character set should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     // Should work w/o error
     final ZipSolutionRepositoryImportSource inputSource =
-        new ZipSolutionRepositoryImportSource( new ZipInputStream( new ByteArrayInputStream( "".getBytes() ) ), "UTF-8" );
+        new ZipSolutionRepositoryImportSource( new ZipInputStream( new ByteArrayInputStream( "".getBytes() ) ),
+          "UTF-8" );
     assertEquals( 0, inputSource.getCount() ); // NOTE: initialize hasn't been called ... so the size would be 0
   }
 

@@ -38,7 +38,8 @@ public class PluginClassLoaderTest {
   @Before
   public void init() {
     // now load a class
-    pluginLoader = new PluginClassLoader( new File( "./test-res/PluginClassLoaderTest/" ), getClass().getClassLoader() );
+    pluginLoader = new PluginClassLoader( new File( "./test-res/PluginClassLoaderTest/" ),
+      getClass().getClassLoader() );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -110,7 +111,7 @@ public class PluginClassLoaderTest {
         pluginLoader.getResourceAsStream( "org/pentaho/test/platform/engine/services/TestClassForClassloader.class" );
     assertNotNull( "Could not find class TestClassForClassloader in jar file", in );
 
-    byte b[] = toBytes( in );
+    byte[] b = toBytes( in );
     String classBytes = new String( b );
     assertTrue( "method is missing", classBytes
         .contains( "org/pentaho/test/platform/engine/services/TestClassForClassloader" ) );
@@ -118,7 +119,7 @@ public class PluginClassLoaderTest {
 
   private byte[] toBytes( InputStream in ) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    byte b[] = new byte[2048];
+    byte[] b = new byte[2048];
     int n = in.read( b );
     while ( n != -1 ) {
       out.write( b, 0, n );
@@ -132,7 +133,7 @@ public class PluginClassLoaderTest {
     InputStream in = pluginLoader.getResourceAsStream( "test1.xml" );
     assertNotNull( "input stream is null", in );
 
-    byte b[] = toBytes( in );
+    byte[] b = toBytes( in );
     String xml = new String( b );
     assertTrue( "xml is wrong", xml.contains( "<test1>" ) );
   }
@@ -159,7 +160,7 @@ public class PluginClassLoaderTest {
     InputStream in = pluginLoader.getResourceAsStream( "org/pentaho/test/platform/engine/services/test.properties" );
     assertNotNull( "input stream is null", in );
 
-    byte b[] = toBytes( in );
+    byte[] b = toBytes( in );
     String classBytes = new String( b );
     assertTrue( "property is missing", classBytes.contains( "test_setting=test" ) );
 
@@ -170,7 +171,7 @@ public class PluginClassLoaderTest {
     InputStream in = pluginLoader.getResourceAsStream( "resources/plugin-classloader-test-inresourcesdir.properties" );
     assertNotNull( "input stream is null", in );
 
-    byte b[] = toBytes( in );
+    byte[] b = toBytes( in );
     String classBytes = new String( b );
     assertTrue( "property is missing", classBytes.contains( "name=" ) );
 
@@ -185,7 +186,7 @@ public class PluginClassLoaderTest {
     InputStream in = url.openStream();
     assertNotNull( "input stream is null", in );
 
-    byte b[] = toBytes( in );
+    byte[] b = toBytes( in );
     String xml = new String( b );
     assertTrue( "xml is wrong", xml.contains( "<test1>" ) );
 
@@ -198,7 +199,7 @@ public class PluginClassLoaderTest {
 
     assertNotNull( "input stream is null", in );
 
-    byte b[] = toBytes( in );
+    byte[] b = toBytes( in );
     String xml = new String( b );
     assertTrue( "xml is wrong", xml.contains( "TestClassForClassloader" ) );
 
@@ -224,7 +225,7 @@ public class PluginClassLoaderTest {
       InputStream in = url.openStream();
       assertNotNull( "input stream is null", in );
 
-      byte b[] = toBytes( in );
+      byte[] b = toBytes( in );
       String xml = new String( b );
       assertTrue( "xml is wrong", xml.contains( "<test1>" ) );
       count++;

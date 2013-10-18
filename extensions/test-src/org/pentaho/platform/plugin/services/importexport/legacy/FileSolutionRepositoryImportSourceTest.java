@@ -173,24 +173,28 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
       new FileSolutionRepositoryImportSource( tempFile, null, "UTF-8" );
       fail();
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       new FileSolutionRepositoryImportSource( tempFile, "", "UTF-8" );
       fail();
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       new FileSolutionRepositoryImportSource( tempFile, "filename.txt", null );
       fail();
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       new FileSolutionRepositoryImportSource( tempFile, "filename.txt", "" );
       fail();
     } catch ( Exception success ) {
+      //ignored
     }
 
     new FileSolutionRepositoryImportSource( tempFile, "UTF-8" );

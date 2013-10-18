@@ -85,7 +85,7 @@ import static junit.framework.Assert.*;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class MetadataRepositoryLifecycleManagerTest implements ApplicationContextAware {
   public static final String REPOSITORY_ADMIN_USERNAME = "pentahoRepoAdmin";

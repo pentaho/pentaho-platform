@@ -54,7 +54,7 @@ public class PublishTest extends BaseTest {
     String localeLanguage = "fr"; //$NON-NLS-1$
     String localeCountry = "FR"; //$NON-NLS-1$
     if ( localeLanguage != null && !"".equals( localeLanguage ) && localeCountry != null && !"".equals( localeCountry ) ) { //$NON-NLS-1$ //$NON-NLS-2$
-      Locale locales[] = Locale.getAvailableLocales();
+      Locale[] locales = Locale.getAvailableLocales();
       if ( locales != null ) {
         for ( int i = 0; i < locales.length; i++ ) {
           if ( locales[i].getLanguage().equals( localeLanguage ) && locales[i].getCountry().equals( localeCountry ) ) {

@@ -149,7 +149,8 @@ public class LocalizationServletTest {
   public void isMessageCachingEnabled() {
     LocalizationServlet ls = new LocalizationServlet();
 
-    assertTrue( ls.isMessageCachingEnabled( PentahoSystem.get( IPluginManager.class ), TestPluginProvider.TEST_PLUGIN ) );
+    assertTrue( ls.isMessageCachingEnabled( PentahoSystem.get( IPluginManager.class ),
+      TestPluginProvider.TEST_PLUGIN ) );
     assertFalse( ls.isMessageCachingEnabled( PentahoSystem.get( IPluginManager.class ),
         TestPluginProvider.TEST_PLUGIN_2 ) );
   }

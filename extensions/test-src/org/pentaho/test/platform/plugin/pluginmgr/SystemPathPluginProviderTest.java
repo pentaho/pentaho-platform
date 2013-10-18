@@ -68,8 +68,10 @@ public class SystemPathPluginProviderTest {
 
     // should successfully load good-plugin1 and good-plugin2 and not load bad-plugin. The fact
     // that bad-plugin does not load should not prevent the good ones from being loaded
-    assertTrue( "plugin1 was not found", CollectionUtils.exists( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) ) );
-    assertTrue( "plugin2 was not found", CollectionUtils.exists( plugins, new PluginNameMatcherPredicate( "Plugin 2" ) ) );
+    assertTrue( "plugin1 was not found", CollectionUtils.exists( plugins,
+      new PluginNameMatcherPredicate( "Plugin 1" ) ) );
+    assertTrue( "plugin2 was not found", CollectionUtils.exists( plugins,
+      new PluginNameMatcherPredicate( "Plugin 2" ) ) );
 
     // make sure that the bad plugin caused an error message to be logged
     assertEquals( "bad plugin did not log an error message", 1, PluginMessageLogger
@@ -113,7 +115,8 @@ public class SystemPathPluginProviderTest {
     List<IPlatformPlugin> plugins = provider.getPlugins( new StandaloneSession() );
 
     // first make sure Plugin 1 was loaded, otherwise our check for lifcycle class will never happen
-    assertTrue( "plugin1 was not found", CollectionUtils.exists( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) ) );
+    assertTrue( "plugin1 was not found", CollectionUtils.exists( plugins,
+      new PluginNameMatcherPredicate( "Plugin 1" ) ) );
 
     for ( IPlatformPlugin plugin : plugins ) {
       if ( plugin.getId().equals( "Plugin 1" ) ) {

@@ -61,6 +61,7 @@ public class MetadataTest extends BaseTest {
       OutputStream outputStream = getOutputStream( "MetadataTest.testViewList", ".xml" ); //$NON-NLS-1$//$NON-NLS-2$
       outputStream.write( doc.asXML().getBytes() );
     } catch ( IOException e ) {
+      //ignore
     }
     finishTest();
   }
@@ -84,6 +85,7 @@ public class MetadataTest extends BaseTest {
       OutputStream outputStream = getOutputStream( "MetadataTest.testLoadView", ".xml" ); //$NON-NLS-1$//$NON-NLS-2$
       outputStream.write( doc.asXML().getBytes() );
     } catch ( IOException e ) {
+      //ignore
     }
     finishTest();
   }
@@ -108,6 +110,7 @@ public class MetadataTest extends BaseTest {
       OutputStream outputStream = getOutputStream( "MetadataTest.testLoadView", ".xml" ); //$NON-NLS-1$//$NON-NLS-2$
       outputStream.write( doc.asXML().getBytes() );
     } catch ( IOException e ) {
+      //ignore
     }
     finishTest();
   }

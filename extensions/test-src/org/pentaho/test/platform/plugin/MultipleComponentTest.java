@@ -206,9 +206,7 @@ public class MultipleComponentTest extends BaseTest {
     IRuntimeContext context = run( "/test/platform/HelloWorld.xaction", parameterProvider, testName, HW_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() ); //$NON-NLS-1$
-    if ( context != null ) {
-      // do nothing...
-    }
+
     InputStream is = this.getInputStreamFromOutput( testName, HW_TEST_EXTN );
     assertNotNull( is ); // Did the test execute properly...
     String lookingFor = "\nHello World. (2B || !2B) That is the question\n"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -541,7 +539,8 @@ public class MultipleComponentTest extends BaseTest {
   public static void main( String[] args ) {
     MultipleComponentTest test = new MultipleComponentTest();
     try {
-      test.setUp();/*
+      test.setUp();
+      /*
                     * test.testHelloWorldComponent(); // test.testCrosstab(); test.testMiscExceptionClasses(); //
                     * test.testReportCharts(); // test.testDynamicSQLAndSecureFilter(); test.testPivotViewComponent();
                     * test.testSimpleRuntime(); test.testDataUtility(); test.testDataUtility1();

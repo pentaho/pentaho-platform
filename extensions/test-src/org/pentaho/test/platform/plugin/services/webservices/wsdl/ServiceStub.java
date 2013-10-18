@@ -28,7 +28,7 @@ package org.pentaho.test.platform.plugin.services.webservices.wsdl;
  *  StubServiceStub java implementation
  */
 
-@SuppressWarnings( { "all" } )
+@SuppressWarnings ( { "all" } )
 public class ServiceStub extends org.apache.axis2.client.Stub {
   protected org.apache.axis2.description.AxisOperation[] _operations;
 
@@ -57,42 +57,42 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     // creating the operations
     org.apache.axis2.description.AxisOperation __operation;
 
-    _operations = new org.apache.axis2.description.AxisOperation[5];
+    _operations = new org.apache.axis2.description.AxisOperation[ 5 ];
 
     __operation = new org.apache.axis2.description.OutInAxisOperation();
 
     __operation.setName( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "throwsError2" ) );
     _service.addOperation( __operation );
 
-    _operations[0] = __operation;
+    _operations[ 0 ] = __operation;
 
     __operation = new org.apache.axis2.description.OutInAxisOperation();
 
     __operation.setName( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "getString" ) );
     _service.addOperation( __operation );
 
-    _operations[1] = __operation;
+    _operations[ 1 ] = __operation;
 
     __operation = new org.apache.axis2.description.OutInAxisOperation();
 
     __operation.setName( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "getDetails" ) );
     _service.addOperation( __operation );
 
-    _operations[2] = __operation;
+    _operations[ 2 ] = __operation;
 
     __operation = new org.apache.axis2.description.OutOnlyAxisOperation();
 
     __operation.setName( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "setString" ) );
     _service.addOperation( __operation );
 
-    _operations[3] = __operation;
+    _operations[ 3 ] = __operation;
 
     __operation = new org.apache.axis2.description.OutOnlyAxisOperation();
 
     __operation.setName( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "throwsError1" ) );
     _service.addOperation( __operation );
 
-    _operations[4] = __operation;
+    _operations[ 4 ] = __operation;
 
   }
 
@@ -106,7 +106,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
    */
 
   public ServiceStub( org.apache.axis2.context.ConfigurationContext configurationContext,
-      java.lang.String targetEndpoint ) throws org.apache.axis2.AxisFault {
+                      java.lang.String targetEndpoint ) throws org.apache.axis2.AxisFault {
     this( configurationContext, targetEndpoint, false );
   }
 
@@ -114,7 +114,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
    * Constructor that takes in a configContext and useseperate listner
    */
   public ServiceStub( org.apache.axis2.context.ConfigurationContext configurationContext,
-      java.lang.String targetEndpoint, boolean useSeparateListener ) throws org.apache.axis2.AxisFault {
+                      java.lang.String targetEndpoint, boolean useSeparateListener ) throws org.apache.axis2.AxisFault {
     // To populate AxisService
     populateAxisService();
     populateFaults();
@@ -159,7 +159,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   /**
    * Auto generated method signature
-   * 
+   *
    * @see org.pentaho.test.platform.plugin.services.webservices.StubService#throwsError2
    */
 
@@ -167,17 +167,16 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   )
 
-  throws java.rmi.RemoteException
-
-  {
+    throws java.rmi.RemoteException {
     org.apache.axis2.context.MessageContext _messageContext = null;
     try {
-      org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient( _operations[0].getName() );
+      org.apache.axis2.client.OperationClient _operationClient =
+        _serviceClient.createClient( _operations[ 0 ].getName() );
       _operationClient.getOptions().setAction( "urn:throwsError2" );
       _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault( true );
 
       addPropertyToOperationClient( _operationClient,
-          org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
+        org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
 
       // create a message context
       _messageContext = new org.apache.axis2.context.MessageContext();
@@ -202,13 +201,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       _operationClient.execute( true );
 
       org.apache.axis2.context.MessageContext _returnMessageContext =
-          _operationClient.getMessageContext( org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE );
+        _operationClient.getMessageContext( org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE );
       org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
       java.lang.Object object =
-          fromOM( _returnEnv.getBody().getFirstElement(),
-              org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response.class,
-              getEnvelopeNamespaces( _returnEnv ) );
+        fromOM( _returnEnv.getBody().getFirstElement(),
+          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response.class,
+          getEnvelopeNamespaces( _returnEnv ) );
 
       return (org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response) object;
 
@@ -220,7 +219,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           // make the fault by reflection
           try {
             java.lang.String exceptionClassName =
-                (java.lang.String) faultExceptionClassNameMap.get( faultElt.getQName() );
+              (java.lang.String) faultExceptionClassNameMap.get( faultElt.getQName() );
             java.lang.Class exceptionClass = java.lang.Class.forName( exceptionClassName );
             java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
             // message class
@@ -228,7 +227,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
             java.lang.Class messageClass = java.lang.Class.forName( messageClassName );
             java.lang.Object messageObject = fromOM( faultElt, messageClass, null );
             java.lang.reflect.Method m =
-                exceptionClass.getMethod( "setFaultMessage", new java.lang.Class[] { messageClass } );
+              exceptionClass.getMethod( "setFaultMessage", new java.lang.Class[] { messageClass } );
             m.invoke( ex, new java.lang.Object[] { messageObject } );
 
             throw new java.rmi.RemoteException( ex.getMessage(), ex );
@@ -264,7 +263,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   /**
    * Auto generated method signature
-   * 
+   *
    * @see org.pentaho.test.platform.plugin.services.webservices.StubService#getString
    */
 
@@ -272,17 +271,16 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   )
 
-  throws java.rmi.RemoteException
-
-  {
+    throws java.rmi.RemoteException {
     org.apache.axis2.context.MessageContext _messageContext = null;
     try {
-      org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient( _operations[1].getName() );
+      org.apache.axis2.client.OperationClient _operationClient =
+        _serviceClient.createClient( _operations[ 1 ].getName() );
       _operationClient.getOptions().setAction( "urn:getString" );
       _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault( true );
 
       addPropertyToOperationClient( _operationClient,
-          org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
+        org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
 
       // create a message context
       _messageContext = new org.apache.axis2.context.MessageContext();
@@ -307,13 +305,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       _operationClient.execute( true );
 
       org.apache.axis2.context.MessageContext _returnMessageContext =
-          _operationClient.getMessageContext( org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE );
+        _operationClient.getMessageContext( org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE );
       org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
       java.lang.Object object =
-          fromOM( _returnEnv.getBody().getFirstElement(),
-              org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.class,
-              getEnvelopeNamespaces( _returnEnv ) );
+        fromOM( _returnEnv.getBody().getFirstElement(),
+          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.class,
+          getEnvelopeNamespaces( _returnEnv ) );
 
       return (org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse) object;
 
@@ -325,7 +323,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           // make the fault by reflection
           try {
             java.lang.String exceptionClassName =
-                (java.lang.String) faultExceptionClassNameMap.get( faultElt.getQName() );
+              (java.lang.String) faultExceptionClassNameMap.get( faultElt.getQName() );
             java.lang.Class exceptionClass = java.lang.Class.forName( exceptionClassName );
             java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
             // message class
@@ -333,7 +331,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
             java.lang.Class messageClass = java.lang.Class.forName( messageClassName );
             java.lang.Object messageObject = fromOM( faultElt, messageClass, null );
             java.lang.reflect.Method m =
-                exceptionClass.getMethod( "setFaultMessage", new java.lang.Class[] { messageClass } );
+              exceptionClass.getMethod( "setFaultMessage", new java.lang.Class[] { messageClass } );
             m.invoke( ex, new java.lang.Object[] { messageObject } );
 
             throw new java.rmi.RemoteException( ex.getMessage(), ex );
@@ -369,26 +367,25 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   /**
    * Auto generated method signature
-   * 
-   * @see org.pentaho.test.platform.plugin.services.webservices.StubService#getDetails
+   *
    * @param getDetails
+   * @see org.pentaho.test.platform.plugin.services.webservices.StubService#getDetails
    */
 
   public org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse getDetails(
 
-  org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails getDetails )
+    org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails getDetails )
 
-  throws java.rmi.RemoteException
-
-  {
+    throws java.rmi.RemoteException {
     org.apache.axis2.context.MessageContext _messageContext = null;
     try {
-      org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient( _operations[2].getName() );
+      org.apache.axis2.client.OperationClient _operationClient =
+        _serviceClient.createClient( _operations[ 2 ].getName() );
       _operationClient.getOptions().setAction( "urn:getDetails" );
       _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault( true );
 
       addPropertyToOperationClient( _operationClient,
-          org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
+        org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
 
       // create a message context
       _messageContext = new org.apache.axis2.context.MessageContext();
@@ -397,8 +394,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       org.apache.axiom.soap.SOAPEnvelope env = null;
 
       env =
-          toEnvelope( getFactory( _operationClient.getOptions().getSoapVersionURI() ), getDetails,
-              optimizeContent( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "getDetails" ) ) );
+        toEnvelope( getFactory( _operationClient.getOptions().getSoapVersionURI() ), getDetails,
+          optimizeContent( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "getDetails" ) ) );
 
       // adding SOAP soap_headers
       _serviceClient.addHeadersToEnvelope( env );
@@ -412,13 +409,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       _operationClient.execute( true );
 
       org.apache.axis2.context.MessageContext _returnMessageContext =
-          _operationClient.getMessageContext( org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE );
+        _operationClient.getMessageContext( org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE );
       org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
       java.lang.Object object =
-          fromOM( _returnEnv.getBody().getFirstElement(),
-              org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse.class,
-              getEnvelopeNamespaces( _returnEnv ) );
+        fromOM( _returnEnv.getBody().getFirstElement(),
+          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse.class,
+          getEnvelopeNamespaces( _returnEnv ) );
 
       return (org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse) object;
 
@@ -430,7 +427,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           // make the fault by reflection
           try {
             java.lang.String exceptionClassName =
-                (java.lang.String) faultExceptionClassNameMap.get( faultElt.getQName() );
+              (java.lang.String) faultExceptionClassNameMap.get( faultElt.getQName() );
             java.lang.Class exceptionClass = java.lang.Class.forName( exceptionClassName );
             java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
             // message class
@@ -438,7 +435,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
             java.lang.Class messageClass = java.lang.Class.forName( messageClassName );
             java.lang.Object messageObject = fromOM( faultElt, messageClass, null );
             java.lang.reflect.Method m =
-                exceptionClass.getMethod( "setFaultMessage", new java.lang.Class[] { messageClass } );
+              exceptionClass.getMethod( "setFaultMessage", new java.lang.Class[] { messageClass } );
             m.invoke( ex, new java.lang.Object[] { messageObject } );
 
             throw new java.rmi.RemoteException( ex.getMessage(), ex );
@@ -474,21 +471,19 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   /**
    * Auto generated method signature
-   * 
    */
   public void setString( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString setString
 
-  ) throws java.rmi.RemoteException
-
-  {
+  ) throws java.rmi.RemoteException {
     org.apache.axis2.context.MessageContext _messageContext = null;
 
-    org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient( _operations[3].getName() );
+    org.apache.axis2.client.OperationClient _operationClient =
+      _serviceClient.createClient( _operations[ 3 ].getName() );
     _operationClient.getOptions().setAction( "urn:setString" );
     _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault( true );
 
     addPropertyToOperationClient( _operationClient,
-        org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
+      org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
 
     org.apache.axiom.soap.SOAPEnvelope env = null;
     _messageContext = new org.apache.axis2.context.MessageContext();
@@ -496,8 +491,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     // Style is Doc.
 
     env =
-        toEnvelope( getFactory( _operationClient.getOptions().getSoapVersionURI() ), setString,
-            optimizeContent( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "setString" ) ) );
+      toEnvelope( getFactory( _operationClient.getOptions().getSoapVersionURI() ), setString,
+        optimizeContent( new javax.xml.namespace.QName( "http://test.webservices.pentaho.org", "setString" ) ) );
 
     // adding SOAP soap_headers
     _serviceClient.addHeadersToEnvelope( env );
@@ -517,21 +512,19 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
   /**
    * Auto generated method signature
-   * 
    */
   public void throwsError1(
 
-  ) throws java.rmi.RemoteException
-
-  {
+  ) throws java.rmi.RemoteException {
     org.apache.axis2.context.MessageContext _messageContext = null;
 
-    org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient( _operations[4].getName() );
+    org.apache.axis2.client.OperationClient _operationClient =
+      _serviceClient.createClient( _operations[ 4 ].getName() );
     _operationClient.getOptions().setAction( "urn:throwsError1" );
     _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault( true );
 
     addPropertyToOperationClient( _operationClient,
-        org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
+      org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&" );
 
     org.apache.axiom.soap.SOAPEnvelope env = null;
     _messageContext = new org.apache.axis2.context.MessageContext();
@@ -578,7 +571,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       return false;
     }
     for ( int i = 0; i < opNameArray.length; i++ ) {
-      if ( opName.equals( opNameArray[i] ) ) {
+      if ( opName.equals( opNameArray[ i ] ) ) {
         return true;
       }
     }
@@ -613,7 +606,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getAddress() {
@@ -622,9 +615,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          Address
+     *
+     * @param param Address
      */
     public void setAddress( java.lang.String param ) {
 
@@ -654,7 +646,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return int
      */
     public int getAge() {
@@ -663,9 +655,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          Age
+     *
+     * @param param Age
      */
     public void setAge( int param ) {
 
@@ -696,7 +687,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getName() {
@@ -705,9 +696,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          Name
+     *
+     * @param param Name
      */
     public void setName( java.lang.String param ) {
 
@@ -725,7 +715,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware( javax.xml.stream.XMLStreamReader reader ) {
@@ -733,8 +723,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
       try {
         isReaderMTOMAware =
-            java.lang.Boolean.TRUE
-                .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
+          java.lang.Boolean.TRUE
+            .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
       } catch ( java.lang.IllegalArgumentException e ) {
         isReaderMTOMAware = false;
       }
@@ -742,34 +732,35 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     /**
-     * 
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
      */
     public org.apache.axiom.om.OMElement getOMElement( final javax.xml.namespace.QName parentQName,
-        final org.apache.axiom.om.OMFactory factory ) throws org.apache.axis2.databinding.ADBException {
+                                                       final org.apache.axiom.om.OMFactory factory )
+      throws org.apache.axis2.databinding.ADBException {
 
       org.apache.axiom.om.OMDataSource dataSource =
-          new org.apache.axis2.databinding.ADBDataSource( this, parentQName ) {
+        new org.apache.axis2.databinding.ADBDataSource( this, parentQName ) {
 
-            public void serialize( org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
-              throws javax.xml.stream.XMLStreamException {
-              ComplexType.this.serialize( parentQName, factory, xmlWriter );
-            }
-          };
+          public void serialize( org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+            throws javax.xml.stream.XMLStreamException {
+            ComplexType.this.serialize( parentQName, factory, xmlWriter );
+          }
+        };
       return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl( parentQName, factory, dataSource );
 
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
       serialize( parentQName, factory, xmlWriter, false );
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter, boolean serializeType )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                           boolean serializeType )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
 
       java.lang.String prefix = null;
@@ -800,7 +791,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespacePrefix = registerPrefix( xmlWriter, "http://test.webservices.pentaho.org/xsd" );
         if ( ( namespacePrefix != null ) && ( namespacePrefix.trim().length() > 0 ) ) {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", namespacePrefix + ":ComplexType",
-              xmlWriter );
+            xmlWriter );
         } else {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "ComplexType", xmlWriter );
         }
@@ -910,7 +901,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute( java.lang.String prefix, java.lang.String namespace, java.lang.String attName,
-        java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                 java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
       if ( xmlWriter.getPrefix( namespace ) == null ) {
         xmlWriter.writeNamespace( prefix, namespace );
@@ -926,7 +917,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute( java.lang.String namespace, java.lang.String attName, java.lang.String attValue,
-        javax.xml.stream.XMLStreamWriter xmlWriter ) throws javax.xml.stream.XMLStreamException {
+                                 javax.xml.stream.XMLStreamWriter xmlWriter )
+      throws javax.xml.stream.XMLStreamException {
       if ( namespace.equals( "" ) ) {
         xmlWriter.writeAttribute( attName, attValue );
       } else {
@@ -939,7 +931,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute( java.lang.String namespace, java.lang.String attName,
-        javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                      javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
 
       java.lang.String attributeNamespace = qname.getNamespaceURI();
@@ -979,7 +971,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
         if ( prefix.trim().length() > 0 ) {
           xmlWriter.writeCharacters( prefix + ":"
-              + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
+            + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
         } else {
           // i.e this is the default namespace
           xmlWriter.writeCharacters( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
@@ -1004,7 +996,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           if ( i > 0 ) {
             stringToWrite.append( " " );
           }
-          namespaceURI = qnames[i].getNamespaceURI();
+          namespaceURI = qnames[ i ].getNamespaceURI();
           if ( namespaceURI != null ) {
             prefix = xmlWriter.getPrefix( namespaceURI );
             if ( ( prefix == null ) || ( prefix.length() == 0 ) ) {
@@ -1015,12 +1007,12 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             if ( prefix.trim().length() > 0 ) {
               stringToWrite.append( prefix ).append( ":" ).append(
-                  org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             } else {
-              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             }
           } else {
-            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
           }
         }
         xmlWriter.writeCharacters( stringToWrite.toString() );
@@ -1051,7 +1043,6 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
      */
     public javax.xml.stream.XMLStreamReader getPullParser( javax.xml.namespace.QName qName )
       throws org.apache.axis2.databinding.ADBException {
@@ -1063,7 +1054,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         elementList.add( new javax.xml.namespace.QName( "", "address" ) );
 
         elementList.add( localAddress == null ? null : org.apache.axis2.databinding.utils.ConverterUtil
-            .convertToString( localAddress ) );
+          .convertToString( localAddress ) );
       }
       if ( localAgeTracker ) {
         elementList.add( new javax.xml.namespace.QName( "", "age" ) );
@@ -1074,11 +1065,11 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         elementList.add( new javax.xml.namespace.QName( "", "name" ) );
 
         elementList.add( localName == null ? null : org.apache.axis2.databinding.utils.ConverterUtil
-            .convertToString( localName ) );
+          .convertToString( localName ) );
       }
 
       return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl( qName, elementList.toArray(),
-          attribList.toArray() );
+        attribList.toArray() );
 
     }
 
@@ -1103,12 +1094,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespaceuri = "";
         try {
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" ) != null ) {
             java.lang.String fullTypeName =
-                reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
+              reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
             if ( fullTypeName != null ) {
               java.lang.String nsPrefix = null;
               if ( fullTypeName.indexOf( ":" ) > -1 ) {
@@ -1134,8 +1126,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           reader.next();
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "address" ).equals( reader.getName() ) ) {
 
@@ -1155,12 +1148,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           } // End of if for expected property start element
 
-          else {
-
-          }
-
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "age" ).equals( reader.getName() ) ) {
 
@@ -1170,16 +1160,15 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             reader.next();
 
-          } // End of if for expected property start element
-
-          else {
+          } else {
 
             object.setAge( java.lang.Integer.MIN_VALUE );
 
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "name" ).equals( reader.getName() ) ) {
 
@@ -1197,18 +1186,17 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             reader.next();
 
-          } // End of if for expected property start element
-
-          else {
-
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() )
-            // A start element we are not expecting indicates a trailing invalid property
+          // A start element we are not expecting indicates a trailing invalid property
+          {
             throw new org.apache.axis2.databinding.ADBException( "Unexpected subelement " + reader.getLocalName() );
+          }
 
         } catch ( javax.xml.stream.XMLStreamException e ) {
           throw new java.lang.Exception( e );
@@ -1217,14 +1205,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         return object;
       }
 
-    }// end of factory class
+    } // end of factory class
 
   }
 
   public static class ExtensionMapper {
 
     public static java.lang.Object getTypeObject( java.lang.String namespaceURI, java.lang.String typeName,
-        javax.xml.stream.XMLStreamReader reader ) throws java.lang.Exception {
+                                                  javax.xml.stream.XMLStreamReader reader ) throws java.lang.Exception {
 
       if ( "http://test.webservices.pentaho.org/xsd".equals( namespaceURI ) && "ComplexType".equals( typeName ) ) {
 
@@ -1240,7 +1228,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   public static class GetDetailsResponse implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://webservice.pentaho.com", "getDetailsResponse", "ns2" );
+      "http://webservice.pentaho.com", "getDetailsResponse", "ns2" );
 
     private static java.lang.String generatePrefix( java.lang.String namespace ) {
       if ( namespace.equals( "http://webservice.pentaho.com" ) ) {
@@ -1263,7 +1251,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return ComplexType
      */
     public ComplexType get_return() {
@@ -1272,9 +1260,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          _return
+     *
+     * @param param _return
      */
     public void set_return( ComplexType param ) {
 
@@ -1292,7 +1279,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware( javax.xml.stream.XMLStreamReader reader ) {
@@ -1300,8 +1287,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
       try {
         isReaderMTOMAware =
-            java.lang.Boolean.TRUE
-                .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
+          java.lang.Boolean.TRUE
+            .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
       } catch ( java.lang.IllegalArgumentException e ) {
         isReaderMTOMAware = false;
       }
@@ -1309,13 +1296,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     /**
-     * 
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
      */
     public org.apache.axiom.om.OMElement getOMElement( final javax.xml.namespace.QName parentQName,
-        final org.apache.axiom.om.OMFactory factory ) throws org.apache.axis2.databinding.ADBException {
+                                                       final org.apache.axiom.om.OMFactory factory )
+      throws org.apache.axis2.databinding.ADBException {
 
       org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource( this, MY_QNAME ) {
 
@@ -1329,13 +1316,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
       serialize( parentQName, factory, xmlWriter, false );
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter, boolean serializeType )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                           boolean serializeType )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
 
       java.lang.String prefix = null;
@@ -1366,7 +1354,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespacePrefix = registerPrefix( xmlWriter, "http://webservice.pentaho.com" );
         if ( ( namespacePrefix != null ) && ( namespacePrefix.trim().length() > 0 ) ) {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", namespacePrefix
-              + ":getDetailsResponse", xmlWriter );
+            + ":getDetailsResponse", xmlWriter );
         } else {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "getDetailsResponse", xmlWriter );
         }
@@ -1410,7 +1398,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute( java.lang.String prefix, java.lang.String namespace, java.lang.String attName,
-        java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                 java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
       if ( xmlWriter.getPrefix( namespace ) == null ) {
         xmlWriter.writeNamespace( prefix, namespace );
@@ -1426,7 +1414,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute( java.lang.String namespace, java.lang.String attName, java.lang.String attValue,
-        javax.xml.stream.XMLStreamWriter xmlWriter ) throws javax.xml.stream.XMLStreamException {
+                                 javax.xml.stream.XMLStreamWriter xmlWriter )
+      throws javax.xml.stream.XMLStreamException {
       if ( namespace.equals( "" ) ) {
         xmlWriter.writeAttribute( attName, attValue );
       } else {
@@ -1439,7 +1428,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute( java.lang.String namespace, java.lang.String attName,
-        javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                      javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
 
       java.lang.String attributeNamespace = qname.getNamespaceURI();
@@ -1479,7 +1468,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
         if ( prefix.trim().length() > 0 ) {
           xmlWriter.writeCharacters( prefix + ":"
-              + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
+            + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
         } else {
           // i.e this is the default namespace
           xmlWriter.writeCharacters( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
@@ -1504,7 +1493,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           if ( i > 0 ) {
             stringToWrite.append( " " );
           }
-          namespaceURI = qnames[i].getNamespaceURI();
+          namespaceURI = qnames[ i ].getNamespaceURI();
           if ( namespaceURI != null ) {
             prefix = xmlWriter.getPrefix( namespaceURI );
             if ( ( prefix == null ) || ( prefix.length() == 0 ) ) {
@@ -1515,12 +1504,12 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             if ( prefix.trim().length() > 0 ) {
               stringToWrite.append( prefix ).append( ":" ).append(
-                  org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             } else {
-              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             }
           } else {
-            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
           }
         }
         xmlWriter.writeCharacters( stringToWrite.toString() );
@@ -1551,7 +1540,6 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
      */
     public javax.xml.stream.XMLStreamReader getPullParser( javax.xml.namespace.QName qName )
       throws org.apache.axis2.databinding.ADBException {
@@ -1566,7 +1554,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       }
 
       return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl( qName, elementList.toArray(),
-          attribList.toArray() );
+        attribList.toArray() );
 
     }
 
@@ -1591,12 +1579,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespaceuri = "";
         try {
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" ) != null ) {
             java.lang.String fullTypeName =
-                reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
+              reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
             if ( fullTypeName != null ) {
               java.lang.String nsPrefix = null;
               if ( fullTypeName.indexOf( ":" ) > -1 ) {
@@ -1622,8 +1611,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           reader.next();
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "return" ).equals( reader.getName() ) ) {
 
@@ -1640,18 +1630,17 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
               reader.next();
             }
-          } // End of if for expected property start element
-
-          else {
-
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() )
-            // A start element we are not expecting indicates a trailing invalid property
+          // A start element we are not expecting indicates a trailing invalid property
+          {
             throw new org.apache.axis2.databinding.ADBException( "Unexpected subelement " + reader.getLocalName() );
+          }
 
         } catch ( javax.xml.stream.XMLStreamException e ) {
           throw new java.lang.Exception( e );
@@ -1660,14 +1649,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         return object;
       }
 
-    }// end of factory class
+    } // end of factory class
 
   }
 
   public static class GetStringResponse implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://webservice.pentaho.com", "getStringResponse", "ns2" );
+      "http://webservice.pentaho.com", "getStringResponse", "ns2" );
 
     private static java.lang.String generatePrefix( java.lang.String namespace ) {
       if ( namespace.equals( "http://webservice.pentaho.com" ) ) {
@@ -1690,7 +1679,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String get_return() {
@@ -1699,9 +1688,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          _return
+     *
+     * @param param _return
      */
     public void set_return( java.lang.String param ) {
 
@@ -1719,7 +1707,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware( javax.xml.stream.XMLStreamReader reader ) {
@@ -1727,8 +1715,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
       try {
         isReaderMTOMAware =
-            java.lang.Boolean.TRUE
-                .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
+          java.lang.Boolean.TRUE
+            .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
       } catch ( java.lang.IllegalArgumentException e ) {
         isReaderMTOMAware = false;
       }
@@ -1736,13 +1724,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     /**
-     * 
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
      */
     public org.apache.axiom.om.OMElement getOMElement( final javax.xml.namespace.QName parentQName,
-        final org.apache.axiom.om.OMFactory factory ) throws org.apache.axis2.databinding.ADBException {
+                                                       final org.apache.axiom.om.OMFactory factory )
+      throws org.apache.axis2.databinding.ADBException {
 
       org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource( this, MY_QNAME ) {
 
@@ -1756,13 +1744,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
       serialize( parentQName, factory, xmlWriter, false );
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter, boolean serializeType )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                           boolean serializeType )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
 
       java.lang.String prefix = null;
@@ -1793,7 +1782,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespacePrefix = registerPrefix( xmlWriter, "http://webservice.pentaho.com" );
         if ( ( namespacePrefix != null ) && ( namespacePrefix.trim().length() > 0 ) ) {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", namespacePrefix
-              + ":getStringResponse", xmlWriter );
+            + ":getStringResponse", xmlWriter );
         } else {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "getStringResponse", xmlWriter );
         }
@@ -1840,7 +1829,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute( java.lang.String prefix, java.lang.String namespace, java.lang.String attName,
-        java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                 java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
       if ( xmlWriter.getPrefix( namespace ) == null ) {
         xmlWriter.writeNamespace( prefix, namespace );
@@ -1856,7 +1845,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute( java.lang.String namespace, java.lang.String attName, java.lang.String attValue,
-        javax.xml.stream.XMLStreamWriter xmlWriter ) throws javax.xml.stream.XMLStreamException {
+                                 javax.xml.stream.XMLStreamWriter xmlWriter )
+      throws javax.xml.stream.XMLStreamException {
       if ( namespace.equals( "" ) ) {
         xmlWriter.writeAttribute( attName, attValue );
       } else {
@@ -1869,7 +1859,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute( java.lang.String namespace, java.lang.String attName,
-        javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                      javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
 
       java.lang.String attributeNamespace = qname.getNamespaceURI();
@@ -1909,7 +1899,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
         if ( prefix.trim().length() > 0 ) {
           xmlWriter.writeCharacters( prefix + ":"
-              + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
+            + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
         } else {
           // i.e this is the default namespace
           xmlWriter.writeCharacters( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
@@ -1934,7 +1924,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           if ( i > 0 ) {
             stringToWrite.append( " " );
           }
-          namespaceURI = qnames[i].getNamespaceURI();
+          namespaceURI = qnames[ i ].getNamespaceURI();
           if ( namespaceURI != null ) {
             prefix = xmlWriter.getPrefix( namespaceURI );
             if ( ( prefix == null ) || ( prefix.length() == 0 ) ) {
@@ -1945,12 +1935,12 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             if ( prefix.trim().length() > 0 ) {
               stringToWrite.append( prefix ).append( ":" ).append(
-                  org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             } else {
-              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             }
           } else {
-            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
           }
         }
         xmlWriter.writeCharacters( stringToWrite.toString() );
@@ -1981,7 +1971,6 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
      */
     public javax.xml.stream.XMLStreamReader getPullParser( javax.xml.namespace.QName qName )
       throws org.apache.axis2.databinding.ADBException {
@@ -1993,11 +1982,11 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         elementList.add( new javax.xml.namespace.QName( "", "return" ) );
 
         elementList.add( local_return == null ? null : org.apache.axis2.databinding.utils.ConverterUtil
-            .convertToString( local_return ) );
+          .convertToString( local_return ) );
       }
 
       return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl( qName, elementList.toArray(),
-          attribList.toArray() );
+        attribList.toArray() );
 
     }
 
@@ -2022,12 +2011,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespaceuri = "";
         try {
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" ) != null ) {
             java.lang.String fullTypeName =
-                reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
+              reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
             if ( fullTypeName != null ) {
               java.lang.String nsPrefix = null;
               if ( fullTypeName.indexOf( ":" ) > -1 ) {
@@ -2053,8 +2043,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           reader.next();
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "return" ).equals( reader.getName() ) ) {
 
@@ -2072,18 +2063,17 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             reader.next();
 
-          } // End of if for expected property start element
-
-          else {
-
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() )
-            // A start element we are not expecting indicates a trailing invalid property
+          // A start element we are not expecting indicates a trailing invalid property
+          {
             throw new org.apache.axis2.databinding.ADBException( "Unexpected subelement " + reader.getLocalName() );
+          }
 
         } catch ( javax.xml.stream.XMLStreamException e ) {
           throw new java.lang.Exception( e );
@@ -2092,14 +2082,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         return object;
       }
 
-    }// end of factory class
+    } // end of factory class
 
   }
 
   public static class SetString implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://webservice.pentaho.com", "setString", "ns2" );
+      "http://webservice.pentaho.com", "setString", "ns2" );
 
     private static java.lang.String generatePrefix( java.lang.String namespace ) {
       if ( namespace.equals( "http://webservice.pentaho.com" ) ) {
@@ -2122,7 +2112,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getStr() {
@@ -2131,9 +2121,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          Str
+     *
+     * @param param Str
      */
     public void setStr( java.lang.String param ) {
 
@@ -2151,7 +2140,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware( javax.xml.stream.XMLStreamReader reader ) {
@@ -2159,8 +2148,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
       try {
         isReaderMTOMAware =
-            java.lang.Boolean.TRUE
-                .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
+          java.lang.Boolean.TRUE
+            .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
       } catch ( java.lang.IllegalArgumentException e ) {
         isReaderMTOMAware = false;
       }
@@ -2168,13 +2157,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     /**
-     * 
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
      */
     public org.apache.axiom.om.OMElement getOMElement( final javax.xml.namespace.QName parentQName,
-        final org.apache.axiom.om.OMFactory factory ) throws org.apache.axis2.databinding.ADBException {
+                                                       final org.apache.axiom.om.OMFactory factory )
+      throws org.apache.axis2.databinding.ADBException {
 
       org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource( this, MY_QNAME ) {
 
@@ -2188,13 +2177,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
       serialize( parentQName, factory, xmlWriter, false );
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter, boolean serializeType )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                           boolean serializeType )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
 
       java.lang.String prefix = null;
@@ -2225,7 +2215,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespacePrefix = registerPrefix( xmlWriter, "http://webservice.pentaho.com" );
         if ( ( namespacePrefix != null ) && ( namespacePrefix.trim().length() > 0 ) ) {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", namespacePrefix + ":setString",
-              xmlWriter );
+            xmlWriter );
         } else {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "setString", xmlWriter );
         }
@@ -2272,7 +2262,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute( java.lang.String prefix, java.lang.String namespace, java.lang.String attName,
-        java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                 java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
       if ( xmlWriter.getPrefix( namespace ) == null ) {
         xmlWriter.writeNamespace( prefix, namespace );
@@ -2288,7 +2278,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute( java.lang.String namespace, java.lang.String attName, java.lang.String attValue,
-        javax.xml.stream.XMLStreamWriter xmlWriter ) throws javax.xml.stream.XMLStreamException {
+                                 javax.xml.stream.XMLStreamWriter xmlWriter )
+      throws javax.xml.stream.XMLStreamException {
       if ( namespace.equals( "" ) ) {
         xmlWriter.writeAttribute( attName, attValue );
       } else {
@@ -2301,7 +2292,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute( java.lang.String namespace, java.lang.String attName,
-        javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                      javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
 
       java.lang.String attributeNamespace = qname.getNamespaceURI();
@@ -2341,7 +2332,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
         if ( prefix.trim().length() > 0 ) {
           xmlWriter.writeCharacters( prefix + ":"
-              + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
+            + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
         } else {
           // i.e this is the default namespace
           xmlWriter.writeCharacters( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
@@ -2366,7 +2357,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           if ( i > 0 ) {
             stringToWrite.append( " " );
           }
-          namespaceURI = qnames[i].getNamespaceURI();
+          namespaceURI = qnames[ i ].getNamespaceURI();
           if ( namespaceURI != null ) {
             prefix = xmlWriter.getPrefix( namespaceURI );
             if ( ( prefix == null ) || ( prefix.length() == 0 ) ) {
@@ -2377,12 +2368,12 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             if ( prefix.trim().length() > 0 ) {
               stringToWrite.append( prefix ).append( ":" ).append(
-                  org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             } else {
-              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             }
           } else {
-            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
           }
         }
         xmlWriter.writeCharacters( stringToWrite.toString() );
@@ -2413,7 +2404,6 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
      */
     public javax.xml.stream.XMLStreamReader getPullParser( javax.xml.namespace.QName qName )
       throws org.apache.axis2.databinding.ADBException {
@@ -2425,11 +2415,11 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         elementList.add( new javax.xml.namespace.QName( "", "str" ) );
 
         elementList.add( localStr == null ? null : org.apache.axis2.databinding.utils.ConverterUtil
-            .convertToString( localStr ) );
+          .convertToString( localStr ) );
       }
 
       return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl( qName, elementList.toArray(),
-          attribList.toArray() );
+        attribList.toArray() );
 
     }
 
@@ -2454,12 +2444,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespaceuri = "";
         try {
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" ) != null ) {
             java.lang.String fullTypeName =
-                reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
+              reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
             if ( fullTypeName != null ) {
               java.lang.String nsPrefix = null;
               if ( fullTypeName.indexOf( ":" ) > -1 ) {
@@ -2485,8 +2476,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           reader.next();
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "str" ).equals( reader.getName() ) ) {
 
@@ -2504,18 +2496,16 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             reader.next();
 
-          } // End of if for expected property start element
-
-          else {
-
+          }
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
+            reader.next();
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
-            reader.next();
-
           if ( reader.isStartElement() )
-            // A start element we are not expecting indicates a trailing invalid property
+          // A start element we are not expecting indicates a trailing invalid property
+          {
             throw new org.apache.axis2.databinding.ADBException( "Unexpected subelement " + reader.getLocalName() );
+          }
 
         } catch ( javax.xml.stream.XMLStreamException e ) {
           throw new java.lang.Exception( e );
@@ -2524,14 +2514,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         return object;
       }
 
-    }// end of factory class
+    } // end of factory class
 
   }
 
   public static class ThrowsError2Response implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://webservice.pentaho.com", "throwsError2Response", "ns2" );
+      "http://webservice.pentaho.com", "throwsError2Response", "ns2" );
 
     private static java.lang.String generatePrefix( java.lang.String namespace ) {
       if ( namespace.equals( "http://webservice.pentaho.com" ) ) {
@@ -2554,7 +2544,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String get_return() {
@@ -2563,9 +2553,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          _return
+     *
+     * @param param _return
      */
     public void set_return( java.lang.String param ) {
 
@@ -2583,7 +2572,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware( javax.xml.stream.XMLStreamReader reader ) {
@@ -2591,8 +2580,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
       try {
         isReaderMTOMAware =
-            java.lang.Boolean.TRUE
-                .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
+          java.lang.Boolean.TRUE
+            .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
       } catch ( java.lang.IllegalArgumentException e ) {
         isReaderMTOMAware = false;
       }
@@ -2600,13 +2589,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     /**
-     * 
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
      */
     public org.apache.axiom.om.OMElement getOMElement( final javax.xml.namespace.QName parentQName,
-        final org.apache.axiom.om.OMFactory factory ) throws org.apache.axis2.databinding.ADBException {
+                                                       final org.apache.axiom.om.OMFactory factory )
+      throws org.apache.axis2.databinding.ADBException {
 
       org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource( this, MY_QNAME ) {
 
@@ -2620,13 +2609,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
       serialize( parentQName, factory, xmlWriter, false );
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter, boolean serializeType )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                           boolean serializeType )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
 
       java.lang.String prefix = null;
@@ -2657,9 +2647,10 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespacePrefix = registerPrefix( xmlWriter, "http://webservice.pentaho.com" );
         if ( ( namespacePrefix != null ) && ( namespacePrefix.trim().length() > 0 ) ) {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", namespacePrefix
-              + ":throwsError2Response", xmlWriter );
+            + ":throwsError2Response", xmlWriter );
         } else {
-          writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "throwsError2Response", xmlWriter );
+          writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "throwsError2Response",
+            xmlWriter );
         }
 
       }
@@ -2704,7 +2695,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute( java.lang.String prefix, java.lang.String namespace, java.lang.String attName,
-        java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                 java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
       if ( xmlWriter.getPrefix( namespace ) == null ) {
         xmlWriter.writeNamespace( prefix, namespace );
@@ -2720,7 +2711,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute( java.lang.String namespace, java.lang.String attName, java.lang.String attValue,
-        javax.xml.stream.XMLStreamWriter xmlWriter ) throws javax.xml.stream.XMLStreamException {
+                                 javax.xml.stream.XMLStreamWriter xmlWriter )
+      throws javax.xml.stream.XMLStreamException {
       if ( namespace.equals( "" ) ) {
         xmlWriter.writeAttribute( attName, attValue );
       } else {
@@ -2733,7 +2725,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute( java.lang.String namespace, java.lang.String attName,
-        javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                      javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
 
       java.lang.String attributeNamespace = qname.getNamespaceURI();
@@ -2773,7 +2765,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
         if ( prefix.trim().length() > 0 ) {
           xmlWriter.writeCharacters( prefix + ":"
-              + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
+            + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
         } else {
           // i.e this is the default namespace
           xmlWriter.writeCharacters( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
@@ -2798,7 +2790,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           if ( i > 0 ) {
             stringToWrite.append( " " );
           }
-          namespaceURI = qnames[i].getNamespaceURI();
+          namespaceURI = qnames[ i ].getNamespaceURI();
           if ( namespaceURI != null ) {
             prefix = xmlWriter.getPrefix( namespaceURI );
             if ( ( prefix == null ) || ( prefix.length() == 0 ) ) {
@@ -2809,12 +2801,12 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             if ( prefix.trim().length() > 0 ) {
               stringToWrite.append( prefix ).append( ":" ).append(
-                  org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             } else {
-              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             }
           } else {
-            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
           }
         }
         xmlWriter.writeCharacters( stringToWrite.toString() );
@@ -2845,7 +2837,6 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
      */
     public javax.xml.stream.XMLStreamReader getPullParser( javax.xml.namespace.QName qName )
       throws org.apache.axis2.databinding.ADBException {
@@ -2857,11 +2848,11 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         elementList.add( new javax.xml.namespace.QName( "", "return" ) );
 
         elementList.add( local_return == null ? null : org.apache.axis2.databinding.utils.ConverterUtil
-            .convertToString( local_return ) );
+          .convertToString( local_return ) );
       }
 
       return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl( qName, elementList.toArray(),
-          attribList.toArray() );
+        attribList.toArray() );
 
     }
 
@@ -2886,12 +2877,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespaceuri = "";
         try {
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" ) != null ) {
             java.lang.String fullTypeName =
-                reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
+              reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
             if ( fullTypeName != null ) {
               java.lang.String nsPrefix = null;
               if ( fullTypeName.indexOf( ":" ) > -1 ) {
@@ -2917,8 +2909,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           reader.next();
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "return" ).equals( reader.getName() ) ) {
 
@@ -2936,18 +2929,16 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             reader.next();
 
-          } // End of if for expected property start element
-
-          else {
-
+          }
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
+            reader.next();
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
-            reader.next();
-
           if ( reader.isStartElement() )
-            // A start element we are not expecting indicates a trailing invalid property
+          // A start element we are not expecting indicates a trailing invalid property
+          {
             throw new org.apache.axis2.databinding.ADBException( "Unexpected subelement " + reader.getLocalName() );
+          }
 
         } catch ( javax.xml.stream.XMLStreamException e ) {
           throw new java.lang.Exception( e );
@@ -2956,14 +2947,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         return object;
       }
 
-    }// end of factory class
+    } // end of factory class
 
   }
 
   public static class GetDetails implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://webservice.pentaho.com", "getDetails", "ns2" );
+      "http://webservice.pentaho.com", "getDetails", "ns2" );
 
     private static java.lang.String generatePrefix( java.lang.String namespace ) {
       if ( namespace.equals( "http://webservice.pentaho.com" ) ) {
@@ -2986,7 +2977,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return ComplexType
      */
     public ComplexType getObject() {
@@ -2995,9 +2986,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * Auto generated setter method
-     * 
-     * @param param
-     *          Object
+     *
+     * @param param Object
      */
     public void setObject( ComplexType param ) {
 
@@ -3015,7 +3005,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware( javax.xml.stream.XMLStreamReader reader ) {
@@ -3023,8 +3013,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
       try {
         isReaderMTOMAware =
-            java.lang.Boolean.TRUE
-                .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
+          java.lang.Boolean.TRUE
+            .equals( reader.getProperty( org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE ) );
       } catch ( java.lang.IllegalArgumentException e ) {
         isReaderMTOMAware = false;
       }
@@ -3032,13 +3022,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     /**
-     * 
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
      */
     public org.apache.axiom.om.OMElement getOMElement( final javax.xml.namespace.QName parentQName,
-        final org.apache.axiom.om.OMFactory factory ) throws org.apache.axis2.databinding.ADBException {
+                                                       final org.apache.axiom.om.OMFactory factory )
+      throws org.apache.axis2.databinding.ADBException {
 
       org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource( this, MY_QNAME ) {
 
@@ -3052,13 +3042,14 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
       serialize( parentQName, factory, xmlWriter, false );
     }
 
     public void serialize( final javax.xml.namespace.QName parentQName, final org.apache.axiom.om.OMFactory factory,
-        org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter, boolean serializeType )
+                           org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                           boolean serializeType )
       throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
 
       java.lang.String prefix = null;
@@ -3089,7 +3080,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespacePrefix = registerPrefix( xmlWriter, "http://webservice.pentaho.com" );
         if ( ( namespacePrefix != null ) && ( namespacePrefix.trim().length() > 0 ) ) {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", namespacePrefix + ":getDetails",
-              xmlWriter );
+            xmlWriter );
         } else {
           writeAttribute( "xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "getDetails", xmlWriter );
         }
@@ -3133,7 +3124,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute( java.lang.String prefix, java.lang.String namespace, java.lang.String attName,
-        java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                 java.lang.String attValue, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
       if ( xmlWriter.getPrefix( namespace ) == null ) {
         xmlWriter.writeNamespace( prefix, namespace );
@@ -3149,7 +3140,8 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute( java.lang.String namespace, java.lang.String attName, java.lang.String attValue,
-        javax.xml.stream.XMLStreamWriter xmlWriter ) throws javax.xml.stream.XMLStreamException {
+                                 javax.xml.stream.XMLStreamWriter xmlWriter )
+      throws javax.xml.stream.XMLStreamException {
       if ( namespace.equals( "" ) ) {
         xmlWriter.writeAttribute( attName, attValue );
       } else {
@@ -3162,7 +3154,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute( java.lang.String namespace, java.lang.String attName,
-        javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
+                                      javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter )
       throws javax.xml.stream.XMLStreamException {
 
       java.lang.String attributeNamespace = qname.getNamespaceURI();
@@ -3202,7 +3194,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
         if ( prefix.trim().length() > 0 ) {
           xmlWriter.writeCharacters( prefix + ":"
-              + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
+            + org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
         } else {
           // i.e this is the default namespace
           xmlWriter.writeCharacters( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qname ) );
@@ -3227,7 +3219,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
           if ( i > 0 ) {
             stringToWrite.append( " " );
           }
-          namespaceURI = qnames[i].getNamespaceURI();
+          namespaceURI = qnames[ i ].getNamespaceURI();
           if ( namespaceURI != null ) {
             prefix = xmlWriter.getPrefix( namespaceURI );
             if ( ( prefix == null ) || ( prefix.length() == 0 ) ) {
@@ -3238,12 +3230,12 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
             if ( prefix.trim().length() > 0 ) {
               stringToWrite.append( prefix ).append( ":" ).append(
-                  org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             } else {
-              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+              stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
             }
           } else {
-            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[i] ) );
+            stringToWrite.append( org.apache.axis2.databinding.utils.ConverterUtil.convertToString( qnames[ i ] ) );
           }
         }
         xmlWriter.writeCharacters( stringToWrite.toString() );
@@ -3274,7 +3266,6 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
      */
     public javax.xml.stream.XMLStreamReader getPullParser( javax.xml.namespace.QName qName )
       throws org.apache.axis2.databinding.ADBException {
@@ -3289,7 +3280,7 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
       }
 
       return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl( qName, elementList.toArray(),
-          attribList.toArray() );
+        attribList.toArray() );
 
     }
 
@@ -3314,12 +3305,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         java.lang.String namespaceuri = "";
         try {
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" ) != null ) {
             java.lang.String fullTypeName =
-                reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
+              reader.getAttributeValue( "http://www.w3.org/2001/XMLSchema-instance", "type" );
             if ( fullTypeName != null ) {
               java.lang.String nsPrefix = null;
               if ( fullTypeName.indexOf( ":" ) > -1 ) {
@@ -3345,8 +3337,9 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
           reader.next();
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
             reader.next();
+          }
 
           if ( reader.isStartElement() && new javax.xml.namespace.QName( "", "object" ).equals( reader.getName() ) ) {
 
@@ -3363,18 +3356,16 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
 
               reader.next();
             }
-          } // End of if for expected property start element
-
-          else {
-
+          }
+          while ( !reader.isStartElement() && !reader.isEndElement() ) {
+            reader.next();
           }
 
-          while ( !reader.isStartElement() && !reader.isEndElement() )
-            reader.next();
-
           if ( reader.isStartElement() )
-            // A start element we are not expecting indicates a trailing invalid property
+          // A start element we are not expecting indicates a trailing invalid property
+          {
             throw new org.apache.axis2.databinding.ADBException( "Unexpected subelement " + reader.getLocalName() );
+          }
 
         } catch ( javax.xml.stream.XMLStreamException e ) {
           throw new java.lang.Exception( e );
@@ -3383,18 +3374,17 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
         return object;
       }
 
-    }// end of factory class
-
+    } // end of factory class
   }
 
   private org.apache.axiom.om.OMElement toOM(
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response param,
-      boolean optimizeContent ) throws org.apache.axis2.AxisFault {
+    org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response param,
+    boolean optimizeContent ) throws org.apache.axis2.AxisFault {
 
     try {
       return param.getOMElement(
-          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response.MY_QNAME,
-          org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
+        org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response.MY_QNAME,
+        org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
     }
@@ -3402,13 +3392,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   }
 
   private org.apache.axiom.om.OMElement toOM(
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse param,
-      boolean optimizeContent ) throws org.apache.axis2.AxisFault {
+    org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse param,
+    boolean optimizeContent ) throws org.apache.axis2.AxisFault {
 
     try {
       return param.getOMElement(
-          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.MY_QNAME,
-          org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
+        org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.MY_QNAME,
+        org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
     }
@@ -3416,13 +3406,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   }
 
   private org.apache.axiom.om.OMElement toOM(
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails param, boolean optimizeContent )
+    org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails param, boolean optimizeContent )
     throws org.apache.axis2.AxisFault {
 
     try {
       return param.getOMElement(
-          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails.MY_QNAME,
-          org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
+        org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails.MY_QNAME,
+        org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
     }
@@ -3430,13 +3420,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   }
 
   private org.apache.axiom.om.OMElement toOM(
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse param,
-      boolean optimizeContent ) throws org.apache.axis2.AxisFault {
+    org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse param,
+    boolean optimizeContent ) throws org.apache.axis2.AxisFault {
 
     try {
       return param.getOMElement(
-          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse.MY_QNAME,
-          org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
+        org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse.MY_QNAME,
+        org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
     }
@@ -3444,13 +3434,13 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   }
 
   private org.apache.axiom.om.OMElement toOM(
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString param, boolean optimizeContent )
+    org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString param, boolean optimizeContent )
     throws org.apache.axis2.AxisFault {
 
     try {
       return param.getOMElement(
-          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString.MY_QNAME,
-          org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
+        org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString.MY_QNAME,
+        org.apache.axiom.om.OMAbstractFactory.getOMFactory() );
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
     }
@@ -3458,15 +3448,17 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   }
 
   private org.apache.axiom.soap.SOAPEnvelope toEnvelope( org.apache.axiom.soap.SOAPFactory factory,
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails param, boolean optimizeContent )
+                                                         org.pentaho.test.platform.plugin.services.webservices.wsdl
+                                                           .ServiceStub.GetDetails param,
+                                                         boolean optimizeContent )
     throws org.apache.axis2.AxisFault {
 
     try {
 
       org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
       emptyEnvelope.getBody().addChild(
-          param.getOMElement(
-              org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails.MY_QNAME, factory ) );
+        param.getOMElement(
+          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails.MY_QNAME, factory ) );
       return emptyEnvelope;
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
@@ -3477,15 +3469,17 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   /* methods to provide back word compatibility */
 
   private org.apache.axiom.soap.SOAPEnvelope toEnvelope( org.apache.axiom.soap.SOAPFactory factory,
-      org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString param, boolean optimizeContent )
+                                                         org.pentaho.test.platform.plugin.services.webservices.wsdl
+                                                           .ServiceStub.SetString param,
+                                                         boolean optimizeContent )
     throws org.apache.axis2.AxisFault {
 
     try {
 
       org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
       emptyEnvelope.getBody().addChild(
-          param.getOMElement(
-              org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString.MY_QNAME, factory ) );
+        param.getOMElement(
+          org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString.MY_QNAME, factory ) );
       return emptyEnvelope;
     } catch ( org.apache.axis2.databinding.ADBException e ) {
       throw org.apache.axis2.AxisFault.makeFault( e );
@@ -3503,44 +3497,45 @@ public class ServiceStub extends org.apache.axis2.client.Stub {
   }
 
   private java.lang.Object fromOM( org.apache.axiom.om.OMElement param, java.lang.Class type,
-      java.util.Map extraNamespaces ) throws org.apache.axis2.AxisFault {
+                                   java.util.Map extraNamespaces ) throws org.apache.axis2.AxisFault {
 
     try {
 
       if ( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response.class
-          .equals( type ) ) {
+        .equals( type ) ) {
 
         return org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.ThrowsError2Response.Factory
-            .parse( param.getXMLStreamReaderWithoutCaching() );
+          .parse( param.getXMLStreamReaderWithoutCaching() );
 
       }
 
-      if ( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.class.equals( type ) ) {
+      if ( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.class
+        .equals( type ) ) {
 
         return org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetStringResponse.Factory
-            .parse( param.getXMLStreamReaderWithoutCaching() );
+          .parse( param.getXMLStreamReaderWithoutCaching() );
 
       }
 
       if ( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails.class.equals( type ) ) {
 
         return org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetails.Factory.parse( param
-            .getXMLStreamReaderWithoutCaching() );
+          .getXMLStreamReaderWithoutCaching() );
 
       }
 
       if ( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse.class
-          .equals( type ) ) {
+        .equals( type ) ) {
 
         return org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.GetDetailsResponse.Factory
-            .parse( param.getXMLStreamReaderWithoutCaching() );
+          .parse( param.getXMLStreamReaderWithoutCaching() );
 
       }
 
       if ( org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString.class.equals( type ) ) {
 
         return org.pentaho.test.platform.plugin.services.webservices.wsdl.ServiceStub.SetString.Factory.parse( param
-            .getXMLStreamReaderWithoutCaching() );
+          .getXMLStreamReaderWithoutCaching() );
 
       }
 

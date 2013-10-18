@@ -69,6 +69,7 @@ public class PreAuthenticatedSessionTest {
     try {
       Thread.sleep( 3000 );
     } catch ( InterruptedException e ) {
+      //ignored
     }
     assertFalse( holder.restoreSession( key ) );
 

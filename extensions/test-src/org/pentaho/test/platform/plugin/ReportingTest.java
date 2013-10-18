@@ -142,6 +142,7 @@ public class ReportingTest extends BaseTest {
     try {
       outputStream.write( content.getBytes() );
     } catch ( Exception e ) {
+      //ignore
     }
     finishTest();
   }

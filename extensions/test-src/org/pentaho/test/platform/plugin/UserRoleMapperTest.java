@@ -108,7 +108,6 @@ public class UserRoleMapperTest {
   @Test
   public void testReadRolesInSchema() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
-    ;
     Assert.assertNotNull( helper );
     MondrianCatalog mc = SecurityHelper.getInstance().runAsUser( "admin", new Callable<MondrianCatalog>() {
       @Override

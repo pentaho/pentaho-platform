@@ -50,7 +50,7 @@ public class ResultSetTest extends TestCase {
 
     MarshallableColumnNames colNames = result.getColumnNames();
     assertNotNull( colNames );
-    String cols[] = colNames.getColumnName();
+    String[] cols = colNames.getColumnName();
     assertNotNull( cols );
     assertEquals( 2, cols.length );
     assertEquals( "col1", cols[0] );
@@ -58,19 +58,19 @@ public class ResultSetTest extends TestCase {
 
     MarshallableColumnTypes colTypes = result.getColumnTypes();
     assertNotNull( colTypes );
-    String types[] = colTypes.getColumnType();
+    String[] types = colTypes.getColumnType();
     assertNotNull( types );
     assertEquals( 2, types.length );
     assertEquals( "string", types[0] );
     assertEquals( "integer", types[1] );
 
-    MarshallableRow rows[] = result.getRows();
+    MarshallableRow[] rows = result.getRows();
     assertNotNull( rows );
     assertEquals( 3, rows.length );
 
     MarshallableRow row = rows[0];
     assertNotNull( row );
-    String cells[] = row.getCell();
+    String[] cells = row.getCell();
     assertEquals( 2, cells.length );
     assertEquals( "a", cells[0] );
     assertEquals( "1", cells[1] );
