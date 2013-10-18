@@ -171,7 +171,7 @@ public class SubActionComponentTest extends BaseTest {
           throw new RuntimeException( ERROR_MSG );
         }
 
-        public synchronized void write( byte b[], int off, int len ) {
+        public synchronized void write( byte[] b, int off, int len ) {
           throw new RuntimeException( ERROR_MSG );
         }
       };

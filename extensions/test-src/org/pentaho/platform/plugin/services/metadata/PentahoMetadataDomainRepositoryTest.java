@@ -87,12 +87,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       createDomainRepository( null );
       fail( "An exception should be thrown" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       createDomainRepository( null, null, null, null );
       fail( "An exception should be thrown" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     final RepositoryUtils repositoryUtils = new RepositoryUtils( repository );
@@ -163,12 +165,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepository.getDomain( null );
       fail( "Null domainID should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       domainRepository.getDomain( "" );
       fail( "Empty domainID should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     assertNull( domainRepository.getDomain( "doesn't exist" ) );
@@ -190,8 +194,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertNotNull( testDomain2 );
     final List<LogicalModel> logicalModels = testDomain2.getLogicalModels();
     assertEquals( 2, logicalModels.size() );
-    assertTrue( "MODEL 1".equals( logicalModels.get( 0 ).getId() ) || "MODEL 1".equals( logicalModels.get( 1 ).getId() ) );
-    assertTrue( "MODEL 2".equals( logicalModels.get( 0 ).getId() ) || "MODEL 2".equals( logicalModels.get( 1 ).getId() ) );
+    assertTrue( "MODEL 1".equals( logicalModels.get( 0 ).getId() )
+      || "MODEL 1".equals( logicalModels.get( 1 ).getId() ) );
+    assertTrue( "MODEL 2".equals( logicalModels.get( 0 ).getId() )
+      || "MODEL 2".equals( logicalModels.get( 1 ).getId() ) );
   }
 
   /*
@@ -317,12 +323,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepository.removeDomain( null );
       fail( "should throw exception" );
     } catch ( IllegalArgumentException success ) {
+      //ignore
     }
 
     try {
       domainRepository.removeDomain( "" );
       fail( "should throw exception" );
     } catch ( IllegalArgumentException success ) {
+      //ignore
     }
 
     // Create a domain that starts with "steel-wheels" to try to mess up any of the following tests

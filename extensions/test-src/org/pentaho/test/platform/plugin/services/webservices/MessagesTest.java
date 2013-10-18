@@ -39,13 +39,17 @@ public class MessagesTest extends TestCase {
   public void testErrorMessages() {
 
     assertEquals(
-        "Wrong message returned", "test.ERROR_0001 - test error 1", Messages.getInstance().getErrorString( "test.ERROR_0001_TEST_ERROR1" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$			
+      "Wrong message returned", "test.ERROR_0001 - test error 1", Messages.getInstance()
+        .getErrorString( "test.ERROR_0001_TEST_ERROR1" ) );
     assertEquals(
-        "Wrong message returned", "test.ERROR_0002 - test error 2: A", Messages.getInstance().getErrorString( "test.ERROR_0002_TEST_ERROR2", "A" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$			
+        "Wrong message returned", "test.ERROR_0002 - test error 2: A", Messages.getInstance()
+        .getErrorString( "test.ERROR_0002_TEST_ERROR2", "A" ) );
     assertEquals(
-        "Wrong message returned", "test.ERROR_0003 - test error 3: A B", Messages.getInstance().getErrorString( "test.ERROR_0003_TEST_ERROR3", "A", "B" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$			
+        "Wrong message returned", "test.ERROR_0003 - test error 3: A B", Messages.getInstance()
+        .getErrorString( "test.ERROR_0003_TEST_ERROR3", "A", "B" ) );
     assertEquals(
-        "Wrong message returned", "test.ERROR_0004 - test error 4: A B C", Messages.getInstance().getErrorString( "test.ERROR_0004_TEST_ERROR4", "A", "B", "C" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+        "Wrong message returned", "test.ERROR_0004 - test error 4: A B C", Messages.getInstance()
+        .getErrorString( "test.ERROR_0004_TEST_ERROR4", "A", "B", "C" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 
   }
 

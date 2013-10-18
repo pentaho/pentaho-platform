@@ -46,7 +46,8 @@ public class XQueryTest extends BaseTest {
   public void testQuery1() throws Exception {
 
     XQConnection connection = new XQConnection();
-    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book" );
+    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH
+      + "/xquery/books.xml\")/bookstore/book" );
     assertNotNull( "result set is null", data );
 
     assertTrue( "result set is wrong type", data instanceof XQResultSet );
@@ -67,10 +68,11 @@ public class XQueryTest extends BaseTest {
 
   public void testGetDataRow() throws Exception {
     XQConnection connection = new XQConnection();
-    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book" );
+    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH
+      + "/xquery/books.xml\")/bookstore/book" );
     assertNotNull( "result set is null", data );
 
-    Object row[] = data.getDataRow( 1 );
+    Object[] row = data.getDataRow( 1 );
     assertEquals( "Harry Potter", row[0] );
     assertEquals( "J K. Rowling", row[1] );
     assertEquals( "2005", row[2] );
@@ -88,10 +90,11 @@ public class XQueryTest extends BaseTest {
 
   public void testGetDataColumn() throws Exception {
     XQConnection connection = new XQConnection();
-    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book" );
+    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH
+      + "/xquery/books.xml\")/bookstore/book" );
     assertNotNull( "result set is null", data );
 
-    Object col[] = data.getDataColumn( 2 );
+    Object[] col = data.getDataColumn( 2 );
     assertEquals( "row count is wrong", 4, col.length );
 
     assertEquals( "2005", col[0] );
@@ -107,7 +110,8 @@ public class XQueryTest extends BaseTest {
 
     XQConnection connection = new XQConnection();
     connection.setMaxRows( 2 );
-    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book" );
+    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH
+      + "/xquery/books.xml\")/bookstore/book" );
     assertNotNull( "result set is null", data );
 
     assertTrue( "result set is wrong type", data instanceof XQResultSet );
@@ -118,7 +122,7 @@ public class XQueryTest extends BaseTest {
     assertEquals( "column header is wrong", "year", data.getMetaData().getColumnHeaders()[0][2] );
     assertEquals( "column header is wrong", "price", data.getMetaData().getColumnHeaders()[0][3] );
 
-    Object row[] = data.next();
+    Object[] row = data.next();
     assertEquals( "Everyday Italian", row[0] );
     assertEquals( "Giada De Laurentiis", row[1] );
     assertEquals( "2005", row[2] );
@@ -137,7 +141,8 @@ public class XQueryTest extends BaseTest {
   public void testValueAt() throws Exception {
 
     XQConnection connection = new XQConnection();
-    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book" );
+    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH
+      + "/xquery/books.xml\")/bookstore/book" );
     assertNotNull( "result set is null", data );
 
     assertEquals( "2005", data.getValueAt( 0, 2 ) );
@@ -154,7 +159,8 @@ public class XQueryTest extends BaseTest {
   public void testPeek() throws Exception {
 
     XQConnection connection = new XQConnection();
-    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book" );
+    IPentahoResultSet data = connection.executeQuery( "doc(\"" + SOLUTION_PATH
+      + "/xquery/books.xml\")/bookstore/book" );
     assertNotNull( "result set is null", data );
 
     assertTrue( "result set is wrong type", data instanceof XQResultSet );
@@ -169,7 +175,7 @@ public class XQueryTest extends BaseTest {
 
     IPeekable peekable = (IPeekable) data;
 
-    Object row[] = peekable.peek();
+    Object[] row = peekable.peek();
     assertEquals( "Everyday Italian", row[0] );
     assertEquals( "Giada De Laurentiis", row[1] );
     assertEquals( "2005", row[2] );

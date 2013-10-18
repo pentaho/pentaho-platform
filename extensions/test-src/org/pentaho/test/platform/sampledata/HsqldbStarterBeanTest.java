@@ -169,7 +169,7 @@ public class HsqldbStarterBeanTest {
         ServerSocket sock = new ServerSocket( port );
         Assert.fail( "Port was available - server not really started" );
       } catch ( IOException expected ) {
-
+        //ignore
       }
       // OK, now, we can close...
       Assert.assertTrue( starterBean.stop() );

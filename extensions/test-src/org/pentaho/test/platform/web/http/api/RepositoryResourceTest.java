@@ -123,7 +123,7 @@ import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertRespon
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class RepositoryResourceTest extends JerseyTest implements ApplicationContextAware {
 
@@ -468,7 +468,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
     // get the output of the .xjunit file (should invoke the content generator)
     String textResponse = webResource.path( "repos/:public:test.xjunit/viewer" ).get( String.class );
-    assertEquals( "Content generator failed to provide correct output", "hello viewer content generator", textResponse );
+    assertEquals( "Content generator failed to provide correct output",
+      "hello viewer content generator", textResponse );
   }
 
   @Ignore
@@ -586,7 +587,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
     // get the output of the .xjunit file (should invoke the content generator)
     String textResponse = webResource.path( "repos/xjunit/viewer" ).get( String.class );
-    assertEquals( "Content generator failed to provide correct output", "hello viewer content generator", textResponse );
+    assertEquals( "Content generator failed to provide correct output",
+      "hello viewer content generator", textResponse );
   }
 
   @Ignore
@@ -692,6 +694,7 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
         try {
           responseContentItem.setMimeType( "text/plain" );
         } catch ( Throwable t ) {
+          //ignored
         }
         OutputStream outputStream = responseContentItem.getOutputStream( null );
         IOUtils.write( "hello viewer content generator", outputStream );
@@ -718,6 +721,7 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
         try {
           responseContentItem.setMimeType( "text/plain" );
         } catch ( Throwable t ) {
+          //ignored
         }
         OutputStream outputStream = responseContentItem.getOutputStream( null );
         IParameterProvider pathParams = parameterProviders.get( "path" );
@@ -833,10 +837,12 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
    *          username of user
    * @param tenantId
    *          tenant to which this user belongs
-   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   * @tenantAdmin true to add the tenant admin authority
+   * to the user's roles
    */
   protected void login( final String username, final ITenant tenant, String[] roles ) {
-    StandaloneSession pentahoSession = new StandaloneSession( tenantedUserNameUtils.getPrincipleId( tenant, username ) );
+    StandaloneSession pentahoSession = new StandaloneSession( tenantedUserNameUtils.getPrincipleId( tenant,
+      username ) );
     pentahoSession.setAuthenticated( tenant.getId(), tenantedUserNameUtils.getPrincipleId( tenant, username ) );
     PentahoSessionHolder.setSession( pentahoSession );
     pentahoSession.setAttribute( IPentahoSession.TENANT_ID_KEY, tenant.getId() );

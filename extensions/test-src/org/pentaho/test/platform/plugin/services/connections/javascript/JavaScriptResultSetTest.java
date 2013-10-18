@@ -176,7 +176,7 @@ public class JavaScriptResultSetTest extends BaseTest {
     data.addRow( new Object[] { "b", new Integer( 2 ) } );
     data.addRow( new Object[] { "c", new Integer( 3 ) } );
 
-    Object col[] = data.getDataColumn( 0 );
+    Object[] col = data.getDataColumn( 0 );
     assertEquals( 3, col.length );
     assertEquals( "a", col[0] );
     assertEquals( "b", col[1] );
@@ -201,7 +201,7 @@ public class JavaScriptResultSetTest extends BaseTest {
     data.addRow( new Object[] { "b", new Integer( 2 ) } );
     data.addRow( new Object[] { "c", new Integer( 3 ) } );
 
-    Object row[] = data.getDataRow( 0 );
+    Object[] row = data.getDataRow( 0 );
     assertEquals( 2, row.length );
     assertEquals( "a", row[0] );
     assertEquals( 1, row[1] );
@@ -227,7 +227,7 @@ public class JavaScriptResultSetTest extends BaseTest {
     data.addRow( new Object[] { "b", new Integer( 2 ) } );
     data.addRow( new Object[] { "c", new Integer( 3 ) } );
 
-    Object row[] = data.peek();
+    Object[] row = data.peek();
     assertEquals( "a", row[0] );
     assertEquals( 1, row[1] );
 

@@ -46,7 +46,7 @@ public class RhinoTest extends BaseTest {
       Scriptable scope = new RhinoScriptable();
       scope.getClassName();
       // Collect the arguments into a single string.
-      String args[] = { "var s=5;", "s++;", "s+=2;", "s = \'" + scope.getClassName() + "\'" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      String[] args = { "var s=5;", "s++;", "s+=2;", "s = \'" + scope.getClassName() + "\'" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
       String s = ""; //$NON-NLS-1$
       for ( int i = 0; i < args.length; i++ ) {
         s += args[i];

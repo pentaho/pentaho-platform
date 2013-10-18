@@ -71,7 +71,7 @@ public class GlobalOutputTest extends BaseTest {
       File file = new File( getSolutionPath() + "/samples/platform/SetGlobalOutputTest.xaction" );
       StringBuilder str = new StringBuilder();
       Reader reader = new FileReader( file );
-      char buffer[] = new char[4096];
+      char[] buffer = new char[4096];
       int n = reader.read( buffer );
       while ( n != -1 ) {
         str.append( buffer, 0, n );

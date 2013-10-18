@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 
 public class SampleServiceRun extends TestCase {
 
-  public static void main( String args[] ) throws Exception {
+  public static void main( String[] args ) throws Exception {
 
     ServiceStub.ComplexType complex = new ServiceStub.ComplexType();
     complex.setName( "fred" ); //$NON-NLS-1$

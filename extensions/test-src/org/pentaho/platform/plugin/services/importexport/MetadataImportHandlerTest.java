@@ -51,6 +51,7 @@ public class MetadataImportHandlerTest extends TestCase {
       new MetadataImportHandler( null );
       fail( "Invalid parameters should throw exception" );
     } catch ( IllegalArgumentException success ) {
+      //ignore
     }
 
     assertTrue( !StringUtils.isEmpty( new MetadataImportHandler( repository ).getName() ) );

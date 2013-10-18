@@ -56,8 +56,6 @@ public class HttpUtilTest extends BaseTest {
     System.out.println( "Content of the URL : " + urlContent ); //$NON-NLS-1$
     try {
       StringBuffer nsb = new StringBuffer();
-      if ( HttpUtil.getURLContent( url, nsb ) )
-        ;
       System.out.println( "String buffer has : " + nsb ); //$NON-NLS-1$
     } catch ( Exception e ) {
       e.printStackTrace();

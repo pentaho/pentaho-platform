@@ -144,22 +144,4 @@ public class SessionTest extends BaseTest {
 
     finishTest();
   }
-
-  public static void main( String[] args ) {
-    SessionTest test = new SessionTest();
-    test.setUp();
-    test.testPentahoHttpSession();
-    test.testStandAloneSession();
-    test.testUserSessionWithAuthentication();
-    test.testUserSessionWithOutAuthentication();
-    test.testPentahoHttpSessionListener();
-    test.testPentahoHttpSessionListener2();
-    try {
-
-    } finally {
-      test.tearDown();
-      BaseTest.shutdown();
-    }
-  }
-
 }

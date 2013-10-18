@@ -118,7 +118,8 @@ public class MetadataQueryComponentTest {
             + "</selection>"
             + "</selections>"
             + "<constraints>"
-            + "<constraint><operator>AND</operator><condition>LIKE([CATEGORY.LC_CUSTOMERNAME];[param:param1])</condition></constraint>"
+            + "<constraint><operator>AND</operator><condition>LIKE([CATEGORY.LC_CUSTOMERNAME];"
+            + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
     MetadataQueryComponent component = new MetadataQueryComponent();
@@ -129,7 +130,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 16, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -152,7 +153,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 5, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -170,14 +171,16 @@ public class MetadataQueryComponentTest {
   public void testMultiValuedParameters() {
     String mql =
         "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>"
-            + "<parameters><parameter name=\"param1\" type=\"STRING\" defaultValue=\"Alpha Cognac|ANG Resellers|&quot;American Souvenirs Inc|test|quoted&quot;\"/></parameters>"
+            + "<parameters><parameter name=\"param1\" type=\"STRING\" defaultValue=\"Alpha Cognac|"
+            + "ANG Resellers|&quot;American Souvenirs Inc|test|quoted&quot;\"/></parameters>"
             + "<selections><selection>"
             + "<view>CATEGORY</view>"
             + "<column>LC_CUSTOMERNAME</column>"
             + "</selection>"
             + "</selections>"
             + "<constraints>"
-            + "<constraint><operator>AND</operator><condition>EQUALS([CATEGORY.LC_CUSTOMERNAME];[param:param1])</condition></constraint>"
+            + "<constraint><operator>AND</operator><condition>EQUALS([CATEGORY.LC_CUSTOMERNAME];"
+            + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
     MetadataQueryComponent component = new MetadataQueryComponent();
@@ -188,7 +191,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 2, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -210,7 +213,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 4, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -232,7 +235,8 @@ public class MetadataQueryComponentTest {
             + "</selection>"
             + "</selections>"
             + "<constraints>"
-            + "<constraint><operator>AND</operator><condition>EQUALS([CATEGORY.LC_SALESREP];[param:param1])</condition></constraint>"
+            + "<constraint><operator>AND</operator><condition>EQUALS([CATEGORY.LC_SALESREP];"
+            + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
     component = new MetadataQueryComponent();
@@ -243,7 +247,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 15, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] + " [" + obj[1] + "]" );
       }
@@ -269,7 +273,8 @@ public class MetadataQueryComponentTest {
             + "</selection>"
             + "</selections>"
             + "<constraints>"
-            + "<constraint><operator>AND</operator><condition>LIKE([CATEGORY.LC_CUSTOMERNAME];[param:param1])</condition></constraint>"
+            + "<constraint><operator>AND</operator><condition>LIKE([CATEGORY.LC_CUSTOMERNAME];"
+            + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
     MetadataQueryComponent component = new MetadataQueryComponent();
@@ -283,7 +288,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 6, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -308,7 +313,8 @@ public class MetadataQueryComponentTest {
             + "</selection>"
             + "</selections>"
             + "<constraints>"
-            + "<constraint><operator>AND</operator><condition>LIKE([CATEGORY.LC_CUSTOMERNAME];[param:param1])</condition></constraint>"
+            + "<constraint><operator>AND</operator><condition>LIKE([CATEGORY.LC_CUSTOMERNAME];"
+            + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
     MetadataQueryComponent component = new MetadataQueryComponent();
@@ -322,7 +328,7 @@ public class MetadataQueryComponentTest {
     try {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 10, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -348,7 +354,7 @@ public class MetadataQueryComponentTest {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 1, rs.getColumnCount() );
       Assert.assertEquals( 122, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -381,7 +387,7 @@ public class MetadataQueryComponentTest {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 1, rs.getColumnCount() );
       Assert.assertEquals( 122, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -420,7 +426,7 @@ public class MetadataQueryComponentTest {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 1, rs.getColumnCount() );
       Assert.assertEquals( 122, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -451,7 +457,7 @@ public class MetadataQueryComponentTest {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 1, rs.getColumnCount() );
       Assert.assertEquals( 122, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -479,7 +485,7 @@ public class MetadataQueryComponentTest {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 1, rs.getColumnCount() );
       Assert.assertEquals( 10, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }
@@ -501,7 +507,7 @@ public class MetadataQueryComponentTest {
       Assert.assertNotNull( rs );
       Assert.assertEquals( 1, rs.getColumnCount() );
       Assert.assertEquals( 100, rs.getRowCount() );
-      Object obj[];
+      Object[] obj;
       while ( ( obj = rs.next() ) != null ) {
         System.out.println( obj[0] );
       }

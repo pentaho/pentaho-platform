@@ -48,12 +48,4 @@ public class NonPooledDatasourceServiceTest extends TestCase {
     }
 
   }
-
-  public static void main( String[] args ) {
-    NonPooledDatasourceServiceTest test = new NonPooledDatasourceServiceTest();
-    try {
-      test.testGetDatasource();
-    } finally {
-    }
-  }
 }

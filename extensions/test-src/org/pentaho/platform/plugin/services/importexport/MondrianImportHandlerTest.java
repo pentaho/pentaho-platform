@@ -51,6 +51,7 @@ public class MondrianImportHandlerTest extends TestCase {
       new MondrianImportHandler( null );
       fail( "Invalid parameters should throw exception" );
     } catch ( IllegalArgumentException success ) {
+      //ignore
     }
 
     assertTrue( !StringUtils.isEmpty( new MondrianImportHandler( repository ).getName() ) );

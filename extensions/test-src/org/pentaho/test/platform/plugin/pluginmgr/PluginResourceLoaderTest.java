@@ -184,7 +184,8 @@ public class PluginResourceLoaderTest {
     List<URL> urls = resLoader.findResources( pluginClass, "templates/*" );
     for ( URL url : urls ) {
       System.err.println( url.getPath() );
-      assertTrue( "Url does not contain templates dir in path: " + url.getPath(), url.getPath().contains( "templates" ) );
+      assertTrue( "Url does not contain templates dir in path: " + url.getPath(),
+        url.getPath().contains( "templates" ) );
     }
     boolean found = false;
     for ( URL url : urls ) {

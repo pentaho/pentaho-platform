@@ -73,32 +73,6 @@ public class HttpWebServiceTest extends BaseTestCase {
     // System.out.println(response.getOutputStreamContent());
   }
 
-  public void testDoPostWithBody() throws ServletException, IOException {
-    // MockHttpServletRequest request = new MockHttpServletRequest();
-    // MockHttpSession session = new MockHttpSession();
-    // request.setSession(session);
-    // StringBuffer buf = new StringBuffer();
-    // buf
-    // .append(
-    //						"<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">") //$NON-NLS-1$
-    //				.append("<SOAP-ENV:Body>"); //$NON-NLS-1$
-    //		buf.append("<parameters>"); //$NON-NLS-1$
-    //		buf.append("<action>securitydetails</action>").append( //$NON-NLS-1$
-    //				"<details>all</details>"); //$NON-NLS-1$
-    //		buf.append("</parameters>"); //$NON-NLS-1$
-    //		buf.append("</SOAP-ENV:Body>").append("</SOAP-ENV:Envelope>"); //$NON-NLS-1$ //$NON-NLS-2$
-    // request.setBodyContent(buf.toString());
-    // request.setContentLength(buf.toString().getBytes().length);
-    //		request.setContentType("text/xml"); //$NON-NLS-1$
-    // MockHttpServletResponse response = new MockHttpServletResponse();
-    // HttpWebService servlet = new HttpWebService();
-    // servlet.doGet(request, response);
-    //		assertTrue("missing or invalid SOAP wrapper elements", //$NON-NLS-1$
-    // isSoapValid(response.getOutputStreamContent()));
-    //		assertTrue("missing or invalid users, roles, or acls elements", //$NON-NLS-1$
-    // isBodyValid(response.getOutputStreamContent()));
-  }
-
   protected boolean isSoapValid( final String outputStreamContent ) {
     Document doc = null;
     try {

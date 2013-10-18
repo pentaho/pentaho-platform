@@ -17,17 +17,9 @@
 
 package org.pentaho.test.platform.plugin;
 
-import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
 
 import java.io.File;
-
-//import java.io.OutputStream;
-//
-//import org.pentaho.platform.api.engine.IRuntimeContext;
-//import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-//import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-//import org.pentaho.platform.plugin.services.messages.Messages;
 
 @SuppressWarnings( "nls" )
 public class SQLConnectionTest extends BaseTestCase {
@@ -59,12 +51,4 @@ public class SQLConnectionTest extends BaseTestCase {
     // have to have at least one test method to make JUnit happy
   }
 
-  public static void main( String[] args ) {
-    // SQLConnectionTest test = new SQLConnectionTest();
-    try {
-      // test.testSQLConnection();
-    } finally {
-      BaseTest.shutdown();
-    }
-  }
 }
