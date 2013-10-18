@@ -156,7 +156,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         String foundDataSourceInfo = cleanseDataSourceInfo(foundCatalog.getDataSourceInfo());
         String newDataSourceInfo = cleanseDataSourceInfo(catalog.getDataSourceInfo());
 
-        if (!foundDataSourceInfo.equals(newDataSourceInfo)) {
+        if (foundDataSourceInfo.equals(newDataSourceInfo) == false) {
           return false;
         }
 
@@ -464,7 +464,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     if (propertyList.get("overwrite") != null) { //$NON-NLS-1$
        propertyList.remove("overwrite"); //$NON-NLS-1$
     }
-    return propertyList.toString();
+    return (propertyList.get("DataSource") != null?propertyList.get("DataSource"):propertyList.toString());    
   }
 
   public String getDataSourcesConfig() {
@@ -537,7 +537,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
 
     if (fileLocationCatalogTest != null
-        && !definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName())) { //$NON-NLS-1$
+        && definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName()) 
+        && !overwrite) { //$NON-NLS-1$
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$ 
           Reason.XMLA_SCHEMA_NAME_EXISTS);
