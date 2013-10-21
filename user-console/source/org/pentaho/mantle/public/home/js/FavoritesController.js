@@ -1,21 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
-pen.define(["home/favorites"], function(Favorites) {
+pen.define(["home/favorites"], function (Favorites) {
 
   var local = {
     recents: undefined,
@@ -50,45 +50,45 @@ pen.define(["home/favorites"], function(Favorites) {
       spinContainer: "recentsSpinner",
       disabled: false,
 
-      _beforeLoad: function() {
+      _beforeLoad: function () {
         this.currentItems = undefined;
         this.favoritesList = undefined;
       },
 
-      isItemAFavorite: function(fullPath) {
-        if(!this.favoritesList) {
+      isItemAFavorite: function (fullPath) {
+        if (!this.favoritesList) {
           var now = new Date();
           var that = this;
           $.ajax({
             url: that.getUrlBase() + that.favoritesUrl + "?ts=" + now.getTime(),
             async: false,
-            success: function(result) {
+            success: function (result) {
               try {
                 that.favoritesList = JSON.parse(result);
-              } catch(err) {
+              } catch (err) {
                 that.favoritesList = [];
               }
             },
-            error: function(err) {
+            error: function (err) {
               console.log(that.i18nMap.error_could_not_get_favorites + " -- " + err);
             }
           });
         }
         var isFave = false;
-        $.each(this.favoritesList, function(idx, fave) {
-          if(fullPath == fave.fullPath) {
+        $.each(this.favoritesList, function (idx, fave) {
+          if (fullPath == fave.fullPath) {
             isFave = true;
             return false; // break the $.each loop
           }
         });
         return isFave;
       },
-      getFavorites: function() {
+      getFavorites: function () {
         return this.favoritesList ? this.favoritesList : [];
       }
     },
 
-    init: function(config) {
+    init: function (config) {
       this._registerCallbacks();
       this.i18nMap = config.i18nMap;
       this.favoritesConfig.disabled = config.favoritesDisabled;
@@ -98,56 +98,56 @@ pen.define(["home/favorites"], function(Favorites) {
       this.refreshAll();
     },
 
-    refreshAll: function() {
+    refreshAll: function () {
       this.loadFavorites();
       this.loadRecents();
     },
 
-    loadFavorites: function(/*Optional|Function*/callback) {
+    loadFavorites: function (/*Optional|Function*/callback) {
       this.favorites = new Favorites();
       $.extend(this.favorites, this.favoritesConfig);
       this.favorites.load(callback);
     },
 
-    loadRecents: function() {
+    loadRecents: function () {
       this.recents = new Favorites();
       $.extend(this.recents, this.recentsConfig);
       this.recents.load();
     },
 
-    clearRecents: function() {
+    clearRecents: function () {
       var recents = new Favorites();
       $.extend(recents, this.recentsConfig);
       recents.clear();
     },
-    clearFavorites: function() {
+    clearFavorites: function () {
       var favorites = new Favorites();
       $.extend(favorites, this.favoritesConfig);
       favorites.clear($.proxy(this.loadRecents, this));
     },
-    markRecentAsFavorite: function(fullPath, title) {
+    markRecentAsFavorite: function (fullPath, title) {
       this.recents.markFavorite(fullPath, title);
       this.favoritesActionSource = 'recents';
     },
-    unmarkRecentAsFavorite: function(fullPath) {
+    unmarkRecentAsFavorite: function (fullPath) {
       this.recents.unmarkFavorite(fullPath);
       this.favoritesActionSource = 'recents';
     },
-    unmarkFavorite: function(fullPath) {
+    unmarkFavorite: function (fullPath) {
       this.favorites.unmarkFavorite(fullPath);
       this.favoritesActionSource = 'favorites';
     },
 
-    onRecentsChanged: function() {
+    onRecentsChanged: function () {
       this.loadRecents();
     },
-    onFavoritesChanged: function() {
+    onFavoritesChanged: function () {
       this.loadFavorites($.proxy(this._possiblyReloadRecents, this));
     },
 
-    onFavoritesListRequestEvent: function(event) {
-      if(event.eventSubType == 'favoritesListRequest'){
-        if(window.parent.mantle_fireEvent){
+    onFavoritesListRequestEvent: function (event) {
+      if (event.eventSubType == 'favoritesListRequest') {
+        if (window.parent.mantle_fireEvent) {
           var response = {
             eventSubType: 'favoritesListResponse',
             stringParam: JSON.stringify(this.favorites.currentItems)
@@ -157,14 +157,14 @@ pen.define(["home/favorites"], function(Favorites) {
       }
     },
 
-    _possiblyReloadRecents: function() {
-      if(this.favoritesActionSource && this.favoritesActionSource == 'favorites') {
+    _possiblyReloadRecents: function () {
+      if (this.favoritesActionSource && this.favoritesActionSource == 'favorites') {
         var that = this;
         // check our recents, if they any are marked as favorite and not in the favorites list... refresh the recents
         var recentItems = this.recents.getCurrentItems();
-        $.each(recentItems, function(idx, recent) {
-          if(that.recents.isItemAFavorite(recent.fullPath)) {
-            if(that.favorites.indexOf(recent.fullPath) < 0) {
+        $.each(recentItems, function (idx, recent) {
+          if (that.recents.isItemAFavorite(recent.fullPath)) {
+            if (that.favorites.indexOf(recent.fullPath) < 0) {
               that.loadRecents();
               return false;
             }
@@ -178,8 +178,8 @@ pen.define(["home/favorites"], function(Favorites) {
       this.favoritesActionSource = undefined;
     },
 
-    _registerCallbacks: function() {
-      if(window.parent.mantle_addHandler) {
+    _registerCallbacks: function () {
+      if (window.parent.mantle_addHandler) {
         window.parent.mantle_addHandler("FavoritesChangedEvent", this.onFavoritesChanged.bind(this));
         window.parent.mantle_addHandler("RecentsChangedEvent", this.onRecentsChanged.bind(this));
 
@@ -189,10 +189,10 @@ pen.define(["home/favorites"], function(Favorites) {
 
     }
 
-};
+  };
 
 
-  var controller = function(config) {
+  var controller = function (config) {
     this.init(config);
   };
 

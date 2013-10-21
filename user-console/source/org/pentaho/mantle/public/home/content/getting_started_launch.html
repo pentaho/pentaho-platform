@@ -1,77 +1,81 @@
 <!DOCTYPE html>
 <html lang="en" class="bootstrap">
-	<head>
-		<meta charset="utf-8">
-		<title>Getting Started</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>Getting Started</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<!-- Le styles -->
-		<link href="../css/home.css" rel="stylesheet">
+  <!-- Le styles -->
+  <link href="../css/home.css" rel="stylesheet">
 
-		<!-- We need web context for requirejs and css -->
-		<script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
-		<script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
+  <!-- We need web context for requirejs and css -->
+  <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
+  <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
 
-		<script type="text/javascript">
-			pen.require(["common-ui/util/HandlebarsCompiler", 
-				"common-ui/util/ContextProvider"], function(HandlebarsCompiler, ContextProvider) {
+  <script type="text/javascript">
+    pen.require(["common-ui/util/HandlebarsCompiler",
+      "common-ui/util/ContextProvider"], function (HandlebarsCompiler, ContextProvider) {
 
-				// Define properties for loading context
-				var contextConfig = [{
-					path: "../properties/config",
-					post: function(context, loadedMap) {
-						context.config = loadedMap;
-					}
-				}, {
-					path: "../properties/messages",
-					post: function(context, loadedMap) {
-						context.i18n = loadedMap;
-					}
-				}];
+      // Define properties for loading context
+      var contextConfig = [
+        {
+          path: "../properties/config",
+          post: function (context, loadedMap) {
+            context.config = loadedMap;
+          }
+        },
+        {
+          path: "../properties/messages",
+          post: function (context, loadedMap) {
+            context.i18n = loadedMap;
+          }
+        }
+      ];
 
-				ContextProvider.get(function(context) {					
-					// Compile the scripts in page
-					HandlebarsCompiler.compileScripts(context, function(compiledContent, jElement) {						
-						jElement.parent().append($(compiledContent));
-					});
+      ContextProvider.get(function (context) {
+        // Compile the scripts in page
+        HandlebarsCompiler.compileScripts(context, function (compiledContent, jElement) {
+          jElement.parent().append($(compiledContent));
+        });
 
-					pen.require(["home/launch"], function(launchWidget) {
-						launchWidget.init();
-					});
+        pen.require(["home/launch"], function (launchWidget) {
+          launchWidget.init();
+        });
 
-				}, contextConfig);
-			});
-		</script>
-	</head>
+      }, contextConfig);
+    });
+  </script>
+</head>
 
-	<body id="launch-widget-body">
-		<div id="launch-widget-container" class="container-fluid main-container">
-			<div id="launch-widget-title-row" class="row-fluid">
-				<div id="launch-widget-title-row-span" class="span12">
-					<h3 id="launch-widget-title"></h3>
-					<div id="logo"></div>
-				</div>
-			</div>
-			<div id="launch-widget-row" class="row-fluid">
-				<div class="span12">
-					<script type="text/x-handlebars-template">
-			          <div id="launch-widget" class="well widget-panel">
+<body id="launch-widget-body">
+<div id="launch-widget-container" class="container-fluid main-container">
+  <div id="launch-widget-title-row" class="row-fluid">
+    <div id="launch-widget-title-row-span" class="span12">
+      <h3 id="launch-widget-title"></h3>
 
-			            <ul class="nav nav-tabs" id="tab-group">
-			                <li><a href="#tab1">{{i18n.getting_started_tab1}}</a></li>
-			                <li><a href="#tab2">{{i18n.getting_started_tab2}}</a></li>
-			                <li><a href="#tab3">{{i18n.getting_started_tab3}}</a></li>
-			            </ul>
-			 
-			            <div class="tab-content">
-			              <div class="tab-pane" id="tab1"></div>
-			              <div class="tab-pane" id="tab2"></div>
-			              <div class="tab-pane" id="tab3"></div>
-			            </div>
-			          </div>	          
-			        </script>
-		        </div>
-	        </div>
-	    </div>
-	</body>
+      <div id="logo"></div>
+    </div>
+  </div>
+  <div id="launch-widget-row" class="row-fluid">
+    <div class="span12">
+      <script type="text/x-handlebars-template">
+        <div id="launch-widget" class="well widget-panel">
+
+          <ul class="nav nav-tabs" id="tab-group">
+            <li><a href="#tab1">{{i18n.getting_started_tab1}}</a></li>
+            <li><a href="#tab2">{{i18n.getting_started_tab2}}</a></li>
+            <li><a href="#tab3">{{i18n.getting_started_tab3}}</a></li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane" id="tab1"></div>
+            <div class="tab-pane" id="tab2"></div>
+            <div class="tab-pane" id="tab3"></div>
+          </div>
+        </div>
+      </script>
+    </div>
+  </div>
+</div>
+</body>
 </html>

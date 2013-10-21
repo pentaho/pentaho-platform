@@ -1,33 +1,33 @@
 <div id="sample-details">
-	
-	<div id="sample-details-content" class="details-content">			
-		<div class="detail-title"></div>
-		<div class="detail-description"></div>
-		<div id="sample-button" class="button-container">
-			<div class="launch-link">
-				<button class="pentaho-button">{{{i18n.getting_started_samples_button_title}}}</button>
-			</div>
-		</div>
-		<div class="launch-link">
-			<div class="details-img sample-details-img"></div>
-		</div>
-	</div>
+
+  <div id="sample-details-content" class="details-content">
+    <div class="detail-title"></div>
+    <div class="detail-description"></div>
+    <div id="sample-button" class="button-container">
+      <div class="launch-link">
+        <button class="pentaho-button">{{{i18n.getting_started_samples_button_title}}}</button>
+      </div>
+    </div>
+    <div class="launch-link">
+      <div class="details-img sample-details-img"></div>
+    </div>
+  </div>
 </div>
 
 <div class="selector-column">
-	<div class="vertical-selector" id="sample-selector">
+  <div class="vertical-selector" id="sample-selector">
 
-		{{#each getting_started_samples}}
-			<div class="card sample-card" id="{{id}}">
-				<div class="card-img sample-card-img"></div>
-				<div class="card-title">
-					{{{title}}}
-				</div>
-				<div class="card-description">
-					{{description}}
-				</div>
-			</div>	
-		{{/each}}
+    {{#each getting_started_samples}}
+    <div class="card sample-card" id="{{id}}">
+      <div class="card-img sample-card-img"></div>
+      <div class="card-title">
+        {{{title}}}
+      </div>
+      <div class="card-description">
+        {{description}}
+      </div>
+    </div>
+    {{/each}}
 
-	</div>
+  </div>
 </div>

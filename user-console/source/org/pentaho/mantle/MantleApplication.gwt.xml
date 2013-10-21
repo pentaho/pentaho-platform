@@ -1,31 +1,31 @@
 <module rename-to="mantle">
-	<!-- Inherit the core Web Toolkit stuff. -->
-	<inherits name='com.google.gwt.user.User'/>
-	<inherits name='com.google.gwt.xml.XML'/>
-	<inherits name='com.google.gwt.gen2.Gen2'/>
-	<inherits name='com.google.gwt.gen2.table.ScrollTable'/>
-	
-	<inherits name='org.pentaho.ui.Xul'/>
-    <inherits name='org.pentaho.ui.xul.Gwt'/>
-    <inherits name='com.googlecode.gwtx.Java'/> 
-    <inherits name="com.google.gwt.json.JSON" />
-	
-	<inherits name='org.pentaho.platform.repository.usersettings.pojo.UserSettings'/>
-	<inherits name='org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective'/>
-    <inherits name='org.pentaho.gwt.widgets.Widgets'/>
-    <inherits name='org.pentaho.mantle.login.MantleLogin' />
-    <inherits name="org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService"/>
-    <inherits name='org.pentaho.gwt.widgets.client.filechooser.FileChooser'/>
-    <generate-with class="org.pentaho.mantle.rebind.CommandExecGenerator" > 
-        <when-type-assignable class="org.pentaho.mantle.client.commands.CommandExec"/> 
-    </generate-with>
-    <generate-with class="org.pentaho.mantle.rebind.EventBusUtilGenerator" > 
-        <when-type-assignable class="org.pentaho.mantle.client.events.EventBusUtil"/> 
-    </generate-with>
+  <!-- Inherit the core Web Toolkit stuff. -->
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name='com.google.gwt.xml.XML'/>
+  <inherits name='com.google.gwt.gen2.Gen2'/>
+  <inherits name='com.google.gwt.gen2.table.ScrollTable'/>
 
-    <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true" /> 
+  <inherits name='org.pentaho.ui.Xul'/>
+  <inherits name='org.pentaho.ui.xul.Gwt'/>
+  <inherits name='com.googlecode.gwtx.Java'/>
+  <inherits name="com.google.gwt.json.JSON"/>
 
-	<!-- Specify the app entry point class.                   -->
-	<entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>
-	
+  <inherits name='org.pentaho.platform.repository.usersettings.pojo.UserSettings'/>
+  <inherits name='org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective'/>
+  <inherits name='org.pentaho.gwt.widgets.Widgets'/>
+  <inherits name='org.pentaho.mantle.login.MantleLogin'/>
+  <inherits name="org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService"/>
+  <inherits name='org.pentaho.gwt.widgets.client.filechooser.FileChooser'/>
+  <generate-with class="org.pentaho.mantle.rebind.CommandExecGenerator">
+    <when-type-assignable class="org.pentaho.mantle.client.commands.CommandExec"/>
+  </generate-with>
+  <generate-with class="org.pentaho.mantle.rebind.EventBusUtilGenerator">
+    <when-type-assignable class="org.pentaho.mantle.client.events.EventBusUtil"/>
+  </generate-with>
+
+  <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true"/>
+
+  <!-- Specify the app entry point class.                   -->
+  <entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>
+
 </module>

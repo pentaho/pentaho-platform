@@ -47,6 +47,7 @@ button.btn-large.btn-block {
   margin-right: auto;
   margin-top: 80px;;
 }
+
 .ellipsis {
   overflow: hidden;
   white-space: nowrap;
@@ -60,6 +61,7 @@ button.btn-large.btn-block {
   height: 100%;
   display: table;
 }
+
 .empty-panel .centered {
   padding: 10px;
   display: table-cell;
@@ -79,14 +81,14 @@ button.btn-large.btn-block {
 
 .left {
   text-align: left;
-  vertical-align: middle; 
+  vertical-align: middle;
 }
 
 .empty-panel .pentaho-button {
   font-size: .9em;
 }
 
-#buttonWrapper button{
+#buttonWrapper button {
   white-space: nowrap;
 }
 
@@ -97,7 +99,7 @@ button.btn-large.btn-block {
 
 .card {
   display: table-cell;
-  cursor: pointer;  
+  cursor: pointer;
   text-align: center;
   min-width: 110px;
   padding: 5px;
@@ -105,7 +107,7 @@ button.btn-large.btn-block {
 }
 
 #launch-widget .horizontal-selector, #tutorial-selector.horizontal-selector {
-  overflow-x:inherit;
+  overflow-x: inherit;
 }
 
 .card-link, .card-description {
@@ -113,8 +115,8 @@ button.btn-large.btn-block {
 }
 
 .bg-img, .card-img, .details-img {
-  display:inline-block;
-  background-repeat: no-repeat;  
+  display: inline-block;
+  background-repeat: no-repeat;
 }
 
 .sample-card-img {
@@ -127,26 +129,26 @@ button.btn-large.btn-block {
   height: 200px;
 }
 
-.tutorial-card-img {  
+.tutorial-card-img {
   width: 89px;
-  height: 68px;  
+  height: 68px;
 }
 
 .tutorial-details-img {
   width: 245px;
   height: 163px;
-  background-size: 100%;  
+  background-size: 100%;
 }
 
 .welcome-img {
-  width:540px;
-  height:372px;
+  width: 540px;
+  height: 372px;
   background-image: url("../images/gettingStarted_welcome_graphic.png");
 }
 
 .welcome-img:hover {
-  width:540px;
-  height:372px;
+  width: 540px;
+  height: 372px;
   background-image: url("../images/gettingStarted_welcome_graphic_over.png");
 }
 
@@ -158,79 +160,90 @@ button.btn-large.btn-block {
   width: 100%;
   height: 600px;
 }
+
 /* Added by Brett   */
 .bootstrap .well .sidebar {
-	border: 0;
-	background: transparent;
+  border: 0;
+  background: transparent;
 }
 
 .bootstrap .nav-tabs {
   border-bottom: 1px solid #c1d7e1;
   background: #ffffff; /* Old browsers */
-  background: -moz-linear-gradient(top,  #ffffff 74%, #f4f4f4 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(74%,#ffffff), color-stop(100%,#f4f4f4)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #ffffff 74%,#f4f4f4 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #ffffff 74%,#f4f4f4 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #ffffff 74%,#f4f4f4 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #ffffff 74%,#f4f4f4 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f4f4f4',GradientType=0 ); /* IE6-9 */
+  background: -moz-linear-gradient(top, #ffffff 74%, #f4f4f4 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(74%, #ffffff), color-stop(100%, #f4f4f4)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #ffffff 74%, #f4f4f4 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #ffffff 74%, #f4f4f4 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #ffffff 74%, #f4f4f4 100%); /* IE10+ */
+  background: linear-gradient(to bottom, #ffffff 74%, #f4f4f4 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f4f4f4', GradientType=0); /* IE6-9 */
 }
-.detail-title{
+
+.detail-title {
   padding: 0 0 20px 0;
   font-size: 16px;
   color: #26363d;
 }
-.detail-description{
+
+.detail-description {
   padding: 0 0 20px 0;
   font-size: 14px;
   color: #26363d;
 }
+
 #getting-started .tab-content {
   position: relative;
 }
+
 .alert {
   text-align: center;
 }
 
-
 .file-xanalyzer {
   background: url("../images/analyzer.png");
 }
+
 .file-xdash {
   background: url("../images/dashboard.png");
 }
+
 .file-xcdf {
   background: url("../images/cdf.png");
 }
+
 .file-prpti {
   background: url("../images/pir.png");
 }
+
 .file-prpt {
   background: url("../images/prpt.png");
 }
+
 .file-xaction {
   background: url("../images/xaction.png");
 }
+
 .file-url {
   background: url("../images/url.png");
 }
+
 .file-html {
   background: url("../images/html.png");
 }
+
 .file-unknown {
   background: url("../images/generic.png");
 }
 
 .welcome-container {
-    height:1520px;
+  height: 1520px;
 }
 
 .welcome-frame {
-    height:99%;
-    width:110%;
-    border:0;
+  height: 99%;
+  width: 110%;
+  border: 0;
 }
-
 
 #getting-started-message-content #sub-messages {
   position: relative;
@@ -243,86 +256,108 @@ button.btn-large.btn-block {
 
 /* Sample Images Small */
 #sample-card1 .card-img {
-  background-image: url("../images/product_pivot_table_sm.png");  
+  background-image: url("../images/product_pivot_table_sm.png");
 }
+
 #sample-card2 .card-img {
-  background-image: url("../images/european_map_sm.png");  
+  background-image: url("../images/european_map_sm.png");
 }
+
 #sample-card3 .card-img {
-  background-image: url("../images/country_perf_heat_grid_sm.png");  
+  background-image: url("../images/country_perf_heat_grid_sm.png");
 }
+
 #sample-card4 .card-img {
-  background-image: url("../images/vendor_interactive_sm.png");  
+  background-image: url("../images/vendor_interactive_sm.png");
 }
+
 #sample-card5 .card-img {
-  background-image: url("../images/inventory_list_sm.png");  
+  background-image: url("../images/inventory_list_sm.png");
 }
+
 #sample-card6 .card-img {
-  background-image: url("../images/top_customers_sm.png");  
+  background-image: url("../images/top_customers_sm.png");
 }
+
 #sample-card7 .card-img {
-  background-image: url("../images/product_perf_dasb_sm.png");  
+  background-image: url("../images/product_perf_dasb_sm.png");
 }
+
 #sample-card8 .card-img {
-  background-image: url("../images/reg_sales_dashbaord_sm.png");  
+  background-image: url("../images/reg_sales_dashbaord_sm.png");
 }
 
 /* Sample Images Large */
 .sample-details-img#sample-img1 {
-  background-image: url("../images/product_pivot_table_lg.png");  
+  background-image: url("../images/product_pivot_table_lg.png");
 }
+
 .sample-details-img#sample-img2 {
-  background-image: url("../images/european_map_lg.png");  
+  background-image: url("../images/european_map_lg.png");
 }
+
 .sample-details-img#sample-img3 {
-  background-image: url("../images/country_perf_heat_grid_lg.png");  
+  background-image: url("../images/country_perf_heat_grid_lg.png");
 }
+
 .sample-details-img#sample-img4 {
-  background-image: url("../images/vendor_interactive_lg.png");  
+  background-image: url("../images/vendor_interactive_lg.png");
 }
+
 .sample-details-img#sample-img5 {
-  background-image: url("../images/inventory_list_lg.png");  
+  background-image: url("../images/inventory_list_lg.png");
 }
+
 .sample-details-img#sample-img6 {
-  background-image: url("../images/top_customers_lg.png");  
+  background-image: url("../images/top_customers_lg.png");
 }
+
 .sample-details-img#sample-img7 {
-  background-image: url("../images/product_perf_dasb_lg.png");  
+  background-image: url("../images/product_perf_dasb_lg.png");
 }
+
 .sample-details-img#sample-img8 {
-  background-image: url("../images/reg_sales_dashbaord_lg.png");  
+  background-image: url("../images/reg_sales_dashbaord_lg.png");
 }
 
 /* Tutorial Images Small */
 #tutorial-card1 .card-img {
-  background-image: url("../images/puc_sm.png");  
+  background-image: url("../images/puc_sm.png");
 }
+
 #tutorial-card2 .card-img {
-  background-image: url("../images/datasource_sm.png");  
+  background-image: url("../images/datasource_sm.png");
 }
+
 #tutorial-card3 .card-img {
-  background-image: url("../images/pir_sm.png");  
+  background-image: url("../images/pir_sm.png");
 }
+
 #tutorial-card4 .card-img {
-  background-image: url("../images/analysis_sm.png");  
+  background-image: url("../images/analysis_sm.png");
 }
+
 #tutorial-card5 .card-img {
-  background-image: url("../images/dasboard_sm.png");  
+  background-image: url("../images/dasboard_sm.png");
 }
 
 /* Tutorial Images Large */
 .tutorial-details-img#tutorial-img1 {
-  background-image: url("../images/puc_lg.png");  
+  background-image: url("../images/puc_lg.png");
 }
+
 .tutorial-details-img#tutorial-img2 {
-  background-image: url("../images/datasource_lg.png");  
+  background-image: url("../images/datasource_lg.png");
 }
+
 .tutorial-details-img#tutorial-img3 {
-  background-image: url("../images/pir_lg.png");  
+  background-image: url("../images/pir_lg.png");
 }
+
 .tutorial-details-img#tutorial-img4 {
-  background-image: url("../images/analysis_lg.png");  
+  background-image: url("../images/analysis_lg.png");
 }
+
 .tutorial-details-img#tutorial-img5 {
-  background-image: url("../images/dasboard_lg.png");  
+  background-image: url("../images/dasboard_lg.png");
 }

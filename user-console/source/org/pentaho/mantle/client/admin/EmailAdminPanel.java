@@ -1,23 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.mantle.client.admin;
-
-import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -29,6 +27,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.mantle.client.messages.Messages;
 
 public class EmailAdminPanel extends SimplePanel {
 
@@ -46,143 +45,143 @@ public class EmailAdminPanel extends SimplePanel {
   protected VerticalPanel authenticationPanel;
 
   public EmailAdminPanel() {
-    this.setWidth("100%");
-    this.setHeight("100%");
-    setWidget(createEmailPanel());
-    saveButton.setEnabled(true);
+    this.setWidth( "100%" );
+    this.setHeight( "100%" );
+    setWidget( createEmailPanel() );
+    saveButton.setEnabled( true );
   }
 
   private Widget createEmailPanel() {
     VerticalPanel mailPanel = new VerticalPanel();
 
-    Label mailServerLabel = new Label(Messages.getString("mailServer"));
-    mailServerLabel.setStyleName("pentaho-fieldgroup-major");
-    mailPanel.add(mailServerLabel);
-    
+    Label mailServerLabel = new Label( Messages.getString( "mailServer" ) );
+    mailServerLabel.setStyleName( "pentaho-fieldgroup-major" );
+    mailPanel.add( mailServerLabel );
+
     SimplePanel vSpacer = new SimplePanel();
-    vSpacer.setHeight("20px");
-    mailPanel.add(vSpacer);
-    
-    Label serverSettingsLabel = new Label(Messages.getString("serverSettings"));
-    serverSettingsLabel.setStyleName("pentaho-fieldgroup-minor");
-    mailPanel.add(serverSettingsLabel);
-    
-    vSpacer = new SimplePanel();
-    vSpacer.setHeight("20px");
-    mailPanel.add(vSpacer);
+    vSpacer.setHeight( "20px" );
+    mailPanel.add( vSpacer );
 
-    mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
+    Label serverSettingsLabel = new Label( Messages.getString( "serverSettings" ) );
+    serverSettingsLabel.setStyleName( "pentaho-fieldgroup-minor" );
+    mailPanel.add( serverSettingsLabel );
+
+    vSpacer = new SimplePanel();
+    vSpacer.setHeight( "20px" );
+    mailPanel.add( vSpacer );
+
+    mailPanel.add( new Label( Messages.getString( "smtpHost" ) + ":" ) );
     smtpHostTextBox = new TextBox();
-    smtpHostTextBox.setWidth("220px");
-    mailPanel.add(smtpHostTextBox);
+    smtpHostTextBox.setWidth( "220px" );
+    mailPanel.add( smtpHostTextBox );
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    mailPanel.add(vSpacer);
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
 
-    mailPanel.add(new Label(Messages.getString("port") + ":"));
+    mailPanel.add( new Label( Messages.getString( "port" ) + ":" ) );
     portTextBox = new TextBox();
-    portTextBox.setWidth("220px");
-    mailPanel.add(portTextBox);
+    portTextBox.setWidth( "220px" );
+    mailPanel.add( portTextBox );
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    mailPanel.add(vSpacer);
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
 
-    authenticationCheckBox = new CheckBox(Messages.getString("useAuthentication"));
-    mailPanel.add(authenticationCheckBox);
-    
+    authenticationCheckBox = new CheckBox( Messages.getString( "useAuthentication" ) );
+    mailPanel.add( authenticationCheckBox );
+
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    mailPanel.add(vSpacer);
-    
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
+
     authenticationPanel = new VerticalPanel();
-    mailPanel.add(authenticationPanel);
-    authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
+    mailPanel.add( authenticationPanel );
+    authenticationPanel.add( new Label( Messages.getString( "userName" ) + ":" ) );
     userNameTextBox = new TextBox();
-    userNameTextBox.setWidth("220px");
-    authenticationPanel.add(userNameTextBox);
+    userNameTextBox.setWidth( "220px" );
+    authenticationPanel.add( userNameTextBox );
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    authenticationPanel.add(vSpacer);
+    vSpacer.setHeight( "10px" );
+    authenticationPanel.add( vSpacer );
 
-    authenticationPanel.add(new Label(Messages.getString("password") + ":"));
+    authenticationPanel.add( new Label( Messages.getString( "password" ) + ":" ) );
     HorizontalPanel hPanel = new HorizontalPanel();
     passwordTextBox = new PasswordTextBox();
-    passwordTextBox.setWidth("220px");
-    hPanel.add(passwordTextBox);
+    passwordTextBox.setWidth( "220px" );
+    hPanel.add( passwordTextBox );
 
     SimplePanel hSpacer = new SimplePanel();
     hSpacer = new SimplePanel();
-    hSpacer.setWidth("15px");
-    hPanel.add(hSpacer);
+    hSpacer.setWidth( "15px" );
+    hPanel.add( hSpacer );
 
-    authenticationPanel.add(hPanel);
+    authenticationPanel.add( hPanel );
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    mailPanel.add(vSpacer);    
-    
-    mailPanel.add(new Label(Messages.getString("protocol") + ":"));
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
+
+    mailPanel.add( new Label( Messages.getString( "protocol" ) + ":" ) );
     protocolsListBox = new ListBox();
-    protocolsListBox.addItem(Messages.getString("smtp"));
-    protocolsListBox.addItem(Messages.getString("smtps"));
-    mailPanel.add(protocolsListBox);
+    protocolsListBox.addItem( Messages.getString( "smtp" ) );
+    protocolsListBox.addItem( Messages.getString( "smtps" ) );
+    mailPanel.add( protocolsListBox );
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    mailPanel.add(vSpacer);
-    
-    Label emailOrginLabel = new Label(Messages.getString("emailOriginLabel"));
-    mailPanel.add(emailOrginLabel);
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
+
+    Label emailOrginLabel = new Label( Messages.getString( "emailOriginLabel" ) );
+    mailPanel.add( emailOrginLabel );
     fromAddressTextBox = new TextBox();
-    fromAddressTextBox.setWidth("220px");
-    mailPanel.add(fromAddressTextBox);
+    fromAddressTextBox.setWidth( "220px" );
+    mailPanel.add( fromAddressTextBox );
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("10px");
-    mailPanel.add(vSpacer);
-    
-    useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
-    mailPanel.add(useStartTLSCheckBox);
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
 
-    useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
-    mailPanel.add(useSSLCheckBox);
+    useStartTLSCheckBox = new CheckBox( Messages.getString( "useStartTLS" ) );
+    mailPanel.add( useStartTLSCheckBox );
 
-    //debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
-    //mailPanel.add(debuggingCheckBox);
+    useSSLCheckBox = new CheckBox( Messages.getString( "useSSL" ) );
+    mailPanel.add( useSSLCheckBox );
+
+    // debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
+    // mailPanel.add(debuggingCheckBox);
 
     vSpacer = new SimplePanel();
-    vSpacer.setHeight("20px");
-    mailPanel.add(vSpacer);
+    vSpacer.setHeight( "20px" );
+    mailPanel.add( vSpacer );
 
     HorizontalPanel buttonsPanel = new HorizontalPanel();
-    mailPanel.add(buttonsPanel);
+    mailPanel.add( buttonsPanel );
 
-    testButton = new Button(Messages.getString("connectionTest.label"));
-    testButton.setStylePrimaryName("pentaho-button");
-    buttonsPanel.add(testButton);
+    testButton = new Button( Messages.getString( "connectionTest.label" ) );
+    testButton.setStylePrimaryName( "pentaho-button" );
+    buttonsPanel.add( testButton );
 
     hSpacer = new SimplePanel();
-    hSpacer.setWidth("10px");
-    buttonsPanel.add(hSpacer);
-    
-    saveButton = new Button(Messages.getString("save"));
-    saveButton.setStylePrimaryName("pentaho-button");
-    buttonsPanel.add(saveButton);
-    
+    hSpacer.setWidth( "10px" );
+    buttonsPanel.add( hSpacer );
+
+    saveButton = new Button( Messages.getString( "save" ) );
+    saveButton.setStylePrimaryName( "pentaho-button" );
+    buttonsPanel.add( saveButton );
+
     return mailPanel;
   }
 
-  protected boolean isPortValid(String portValue) {
+  protected boolean isPortValid( String portValue ) {
     boolean portValid = true;
     try {
-      Short port = Short.parseShort(portValue);
-      if (port == -1) {
+      Short port = Short.parseShort( portValue );
+      if ( port == -1 ) {
         portValid = false;
       }
-    } catch (Exception e) {
+    } catch ( Exception e ) {
       portValid = false;
     }
     return portValid;
