@@ -17,17 +17,17 @@
 
 package org.pentaho.platform.api.data;
 
-import java.util.Map;
-
 import org.pentaho.commons.connection.IDisposable;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IComponent;
 
+import java.util.Map;
+
 /**
  * The prepared component interface extends component, allowing components to go into a prepared state vs. execute
- * state. These components may place themselves as an output parameter, and then be used later in the action-sequence
- * for execution of prepared statements / etc.
+ * state. These components may place themselves as an output parameter, and then be used later in the
+ * action-sequence for execution of prepared statements / etc.
  * 
  * @author Will Gorman
  * 
@@ -61,8 +61,8 @@ public interface IPreparedComponent extends IComponent, IDisposable {
   public static final String PREPARED_OUTPUT_TYPE = "prepared_component"; //$NON-NLS-1$
 
   /**
-   * A placeholder for template strings and potential prepared lists, so template fields can be replaced on the fly vs.
-   * during initial setup of a prepared statement
+   * A placeholder for template strings and potential prepared lists, so template fields can be replaced on the fly
+   * vs. during initial setup of a prepared statement
    */
   public static final String PREPARE_LATER_PLACEHOLDER = "prepare-later-placeholder"; //$NON-NLS-1$
 
@@ -78,8 +78,8 @@ public interface IPreparedComponent extends IComponent, IDisposable {
   public IPentahoResultSet executePrepared( Map preparedParams );
 
   /**
-   * exposes the connection object for others to use. The connection object in a prepared component is not closed until
-   * parameters are disposed at the end of an action sequence execution.
+   * exposes the connection object for others to use. The connection object in a prepared component is not closed
+   * until parameters are disposed at the end of an action sequence execution.
    * 
    * Note: getConnection was already in use when naming this method.
    * 

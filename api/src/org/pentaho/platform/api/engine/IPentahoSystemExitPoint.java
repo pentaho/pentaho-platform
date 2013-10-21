@@ -18,10 +18,10 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * System Exit Point implementors are called with the action on a thread completes. This action gets invoked through the
- * PentahoSystem static method <code>systemExitPoint().</code> The exit point is mainly implemented to handle relational
- * object persistence through Hibernate, but other objects that need to setup and teardown objects and state could add
- * themselves to the ApplicationContext list of entry and exit point notifications.
+ * System Exit Point implementors are called with the action on a thread completes. This action gets invoked
+ * through the PentahoSystem static method <code>systemExitPoint().</code> The exit point is mainly implemented to
+ * handle relational object persistence through Hibernate, but other objects that need to setup and teardown
+ * objects and state could add themselves to the ApplicationContext list of entry and exit point notifications.
  * 
  */
 

@@ -26,11 +26,13 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
  */
 public class SampleRepositoryFileData implements IRepositoryFileData {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = 8243282317105073909L;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String sampleString;
 
@@ -38,7 +40,8 @@ public class SampleRepositoryFileData implements IRepositoryFileData {
 
   private int sampleInteger;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SampleRepositoryFileData( final String sampleString, final boolean sampleBoolean, final int sampleInteger ) {
     super();
@@ -47,7 +50,8 @@ public class SampleRepositoryFileData implements IRepositoryFileData {
     this.sampleInteger = sampleInteger;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getSampleString() {
     return sampleString;

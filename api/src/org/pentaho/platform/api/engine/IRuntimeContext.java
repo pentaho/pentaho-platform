@@ -17,6 +17,11 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.repository.IContentItem;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,15 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.pentaho.commons.connection.IPentahoStreamSource;
-import org.pentaho.platform.api.repository.IContentItem;
-
 /**
- * This interface defines methods and constants that are used during action execution to resolve parameters, inputs and
- * outputs, resources, and persist the runtime data. Think of the runtime context as working storage for the execution
- * of an action.
+ * This interface defines methods and constants that are used during action execution to resolve parameters, inputs
+ * and outputs, resources, and persist the runtime data. Think of the runtime context as working storage for the
+ * execution of an action.
  * 
  * @author James Dixon
  */
@@ -129,9 +129,9 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public static final int PROMPT_NOW = 2;
 
   /**
-   * Returns the unique context identifier. The handle is created during construction of the <code>RuntimeContext</code>
-   * object, and should be unique down to the date/time of construction. The default form of this as implemented in
-   * <tt>RuntimeContext</tt> includes context- plus the hashcode and the date/time.
+   * Returns the unique context identifier. The handle is created during construction of the
+   * <code>RuntimeContext</code> object, and should be unique down to the date/time of construction. The default
+   * form of this as implemented in <tt>RuntimeContext</tt> includes context- plus the hashcode and the date/time.
    * 
    * @return the unique handle.
    * @see RuntimeContext
@@ -160,8 +160,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public boolean isPromptPending();
 
   /**
-   * Returns the unique execution instance. This is typically a GUID that can be used to track the entire execution of
-   * an action sequence all the way from beginning to end.
+   * Returns the unique execution instance. This is typically a GUID that can be used to track the entire execution
+   * of an action sequence all the way from beginning to end.
    * 
    * @return unique instance Id
    */
@@ -265,8 +265,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public IActionParameter getOutputParameter( String name );
 
   /**
-   * Gets the named resource definition from the executing action sequence. Throws a <tt>NullPointerException</tt> if
-   * the resource is not found. This method never returns <code>null</code>
+   * Gets the named resource definition from the executing action sequence. Throws a <tt>NullPointerException</tt>
+   * if the resource is not found. This method never returns <code>null</code>
    * 
    * @param name
    *          The named resource to get
@@ -276,8 +276,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public IActionSequenceResource getResourceDefintion( String name );
 
   /**
-   * Gets the value of the specified input parameter. Throws a <tt>NullPointerException</tt> if the parameter is not
-   * found. This method never returns <code>null</code>
+   * Gets the value of the specified input parameter. Throws a <tt>NullPointerException</tt> if the parameter is
+   * not found. This method never returns <code>null</code>
    * 
    * @param name
    *          The named parameter to retrieve
@@ -287,8 +287,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public Object getInputParameterValue( String name );
 
   /**
-   * Gets the value of the specified input parameter as a <code>String</code>. Throws a <tt>NullPointerException</tt> if
-   * the parameter is not found. This method never returns <code>null</code>
+   * Gets the value of the specified input parameter as a <code>String</code>. Throws a
+   * <tt>NullPointerException</tt> if the parameter is not found. This method never returns <code>null</code>
    * 
    * @param name
    *          The named parameter to retrieve
@@ -348,8 +348,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public void setOutputValue( String name, Object output );
 
   /**
-   * Adds a parameter to the current inputs. A component can be use this to create parameters for internal use or for
-   * new outputs.
+   * Adds a parameter to the current inputs. A component can be use this to create parameters for internal use or
+   * for new outputs.
    * 
    * @param name
    *          The name of the temporary parameter
@@ -409,9 +409,9 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public Set getOutputNames();
 
   /**
-   * Does parameter substitution on the input string, searching for all parameter declarations in the input string, and
-   * substituting the value from the matching input parameter. In other words, it replaces {REGION} with the value of
-   * the input parameter called REGION.
+   * Does parameter substitution on the input string, searching for all parameter declarations in the input string,
+   * and substituting the value from the matching input parameter. In other words, it replaces {REGION} with the
+   * value of the input parameter called REGION.
    * 
    * @param format
    *          The string containing possible parameter references
@@ -420,9 +420,9 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public String applyInputsToFormat( String format );
 
   /**
-   * Does parameter substitution on the input string, searching for all parameter declarations in the input string, and
-   * substituting the value from the matching input parameter. In other words, it replaces {REGION} with the value of
-   * the input parameter called REGION.
+   * Does parameter substitution on the input string, searching for all parameter declarations in the input string,
+   * and substituting the value from the matching input parameter. In other words, it replaces {REGION} with the
+   * value of the input parameter called REGION.
    * 
    * @param format
    *          The string containing possible parameter references
@@ -449,8 +449,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public boolean feedbackAllowed();
 
   /**
-   * Interfaces to the current output handler to get the content item that is handling feedback (i.e. parameter input
-   * forms)
+   * Interfaces to the current output handler to get the content item that is handling feedback (i.e. parameter
+   * input forms)
    * 
    * @return the Content Item for user input
    * @see IContentItem
@@ -469,7 +469,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public IContentItem getOutputContentItem( String mimeType );
 
   /**
-   * Interfaces to the current output handler to get the named content item from this request's component execution.
+   * Interfaces to the current output handler to get the named content item from this request's component
+   * execution.
    * 
    * @param outputName
    *          the name of the output
@@ -480,8 +481,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public IContentItem getOutputContentItem( String outputName, String mimeType );
 
   /**
-   * Generates a parameter acquisition form for required parameters. This writes directly to the output stream provided
-   * by the output handler.
+   * Generates a parameter acquisition form for required parameters. This writes directly to the output stream
+   * provided by the output handler.
    * 
    * @throws ActionSequenceException
    * @see IOutputHandler
@@ -493,8 +494,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   /**
    * @deprecated
    * 
-   *             Adds a feedback parameter for prompts based on an Action Parameter. Uses the Selections defined in the
-   *             Action Parameter for the options and sets the default to the current value
+   *             Adds a feedback parameter for prompts based on an Action Parameter. Uses the Selections defined in
+   *             the Action Parameter for the options and sets the default to the current value
    * 
    * @param actionParam
    *          The Action Parameter to use as the model for the prompt
@@ -636,8 +637,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public String createNewInstance( boolean persisted );
 
   /**
-   * Creates a new runtime context that is a child of this instance and sets attributes of the runtime data from the
-   * parameter Map
+   * Creates a new runtime context that is a child of this instance and sets attributes of the runtime data from
+   * the parameter Map
    * 
    * @param persisted
    *          Should the runtime data be persisted
@@ -649,9 +650,9 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public String createNewInstance( boolean persisted, Map parameters );
 
   /**
-   * Creates a new runtime context that is a child of this instance and sets attributes of the runtime data from the
-   * parameter Map, and can optionally cause the new instance to be forcibly written to the underlying persistence
-   * mechanism.
+   * Creates a new runtime context that is a child of this instance and sets attributes of the runtime data from
+   * the parameter Map, and can optionally cause the new instance to be forcibly written to the underlying
+   * persistence mechanism.
    * 
    * @param persisted
    *          Should the runtime data be persisted
@@ -670,9 +671,9 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public void dispose( List exceptParameters );
 
   /**
-   * Sets the xsl file to be used to generate the parameter page for the current component. The parameter should be a
-   * full path from the solution root starting with a /, or it should be a path relative to the directory of the current
-   * action sequence.
+   * Sets the xsl file to be used to generate the parameter page for the current component. The parameter should be
+   * a full path from the solution root starting with a /, or it should be a path relative to the directory of the
+   * current action sequence.
    * 
    * @param xsl
    *          The name of the XSL file
@@ -680,8 +681,8 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public void setParameterXsl( String xsl );
 
   /**
-   * Sets the target window that the content will be displayed in. This name is used at the target in an Window.open()
-   * javascript call made when the submit button on the parameter page is clicked.
+   * Sets the target window that the content will be displayed in. This name is used at the target in an
+   * Window.open() javascript call made when the submit button on the parameter page is clicked.
    * 
    * @param target
    *          Window name
@@ -689,14 +690,15 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public void setParameterTarget( String target );
 
   /**
-   * Forces the immediate write of runtime data to underlying persistence mechanism. In the case of using Hibernate for
-   * the runtime data persistence, this works out to a call to HibernateUtil.flush().
+   * Forces the immediate write of runtime data to underlying persistence mechanism. In the case of using Hibernate
+   * for the runtime data persistence, this works out to a call to HibernateUtil.flush().
    */
   public void forceSaveRuntimeData();
 
   /**
-   * Gets the output type prefered by the handler. Values are defined in org.pentaho.platform.api.engine.IOutputHandler
-   * and are OUTPUT_TYPE_PARAMETERS, OUTPUT_TYPE_CONTENT, or OUTPUT_TYPE_DEFAULT
+   * Gets the output type prefered by the handler. Values are defined in
+   * org.pentaho.platform.api.engine.IOutputHandler and are OUTPUT_TYPE_PARAMETERS, OUTPUT_TYPE_CONTENT, or
+   * OUTPUT_TYPE_DEFAULT
    * 
    * @return Output type
    */

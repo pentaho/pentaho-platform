@@ -20,8 +20,8 @@ package org.pentaho.platform.api.engine;
 /**
  * The Logger is the main interface into the platform's logging subsystem.
  * <p>
- * Note: Documentation taken from <a href="http://logging.apache.org/log4j/docs/api/index.html" target="_blank">Log4j
- * Javadoc documentation.</a>
+ * Note: Documentation taken from <a href="http://logging.apache.org/log4j/docs/api/index.html"
+ * target="_blank">Log4j Javadoc documentation.</a>
  */
 public interface ILogger {
 
@@ -36,8 +36,8 @@ public interface ILogger {
   public static final int DEBUG = 2;
 
   /**
-   * The INFO level designates informational messages that highlight the progress of the application at coarse-grained
-   * level.
+   * The INFO level designates informational messages that highlight the progress of the application at
+   * coarse-grained level.
    */
   public static final int INFO = 3;
 

@@ -17,10 +17,10 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.pentaho.commons.connection.IPentahoResultSet;
+
 import java.util.List;
 import java.util.Map;
-
-import org.pentaho.commons.connection.IPentahoResultSet;
 
 /**
  * An <code>IActionParameter</code> represents one input or output in an <tt>IActionSequence</tt>. The
@@ -91,8 +91,8 @@ public interface IActionParameter {
   /**
    * Get the value for this ActionParameter as type String.
    * 
-   * @return the ActionParameter value as a String. getType() should be referenced first to be sure the value type is
-   *         TYPE_STRING.
+   * @return the ActionParameter value as a String. getType() should be referenced first to be sure the value type
+   *         is TYPE_STRING.
    */
   public String getStringValue();
 
@@ -115,7 +115,8 @@ public interface IActionParameter {
   /**
    * Get the value for this ActionParameter as a IPentahoResultSet
    * 
-   * @return the IPentahoResultSet getType() should be referenced first to be sure the value type is TYPE_RESULT_SET.
+   * @return the IPentahoResultSet getType() should be referenced first to be sure the value type is
+   *         TYPE_RESULT_SET.
    */
   public IPentahoResultSet getValueAsResultSet();
 
@@ -155,8 +156,8 @@ public interface IActionParameter {
   public boolean hasValue();
 
   /**
-   * Check to see if the value returned from thisActionParameter is indeed the default value instead of a value that was
-   * set.
+   * Check to see if the value returned from thisActionParameter is indeed the default value instead of a value
+   * that was set.
    * 
    * @return true if the parameter is using the default value, false otherwise
    */

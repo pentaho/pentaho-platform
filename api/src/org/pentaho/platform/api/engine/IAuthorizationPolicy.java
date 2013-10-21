@@ -23,9 +23,9 @@ import java.util.List;
  * An access control policy.
  * 
  * <p>
- * Reponsible for determining if access to a given action should be allowed or denied. A implementation could be one
- * based on roles, as is done in the Servlet specification. (In other words, if the policy has an association between
- * the given action and a role that has been granted to the user, then the decision will be to allow.)
+ * Reponsible for determining if access to a given action should be allowed or denied. A implementation could be
+ * one based on roles, as is done in the Servlet specification. (In other words, if the policy has an association
+ * between the given action and a role that has been granted to the user, then the decision will be to allow.)
  * </p>
  * 
  * @author mlowery

@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * This class presents an abstraction layer for accessing resources from within a platform plugin. The idea is you do
- * not need to know how to absolutely resolve the resources you need. For example: You don't need to know the absolute
- * path if your resources are on a file-system. All you need to know in order to obtain a resource is the relative path
- * to the resource. "Relative" means relative to the base location of your plugin. For a filesystem example, let's say
- * that your plugin is installed in "/home/user/plugins/myplugin" and you need the file
+ * This class presents an abstraction layer for accessing resources from within a platform plugin. The idea is you
+ * do not need to know how to absolutely resolve the resources you need. For example: You don't need to know the
+ * absolute path if your resources are on a file-system. All you need to know in order to obtain a resource is the
+ * relative path to the resource. "Relative" means relative to the base location of your plugin. For a filesystem
+ * example, let's say that your plugin is installed in "/home/user/plugins/myplugin" and you need the file
  * "/home/user/plugins/myplugin/html/my.html", you would ask this class for the resource "html/my.html"
  * 
  * @author aphillips
@@ -36,9 +36,9 @@ import java.util.ResourceBundle;
 public interface IPluginResourceLoader {
 
   /**
-   * Gets a plugin-related resource in the form of an array of bytes. The relevant plugin is inferred from pluginClass.
-   * An example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve relative
-   * paths as it knows where to look for plugin classes and resources.
+   * Gets a plugin-related resource in the form of an array of bytes. The relevant plugin is inferred from
+   * pluginClass. An example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to
+   * resolve relative paths as it knows where to look for plugin classes and resources.
    * 
    * @param pluginClass
    *          a class that is part of the plugin package, used to identify the plugin
@@ -50,8 +50,8 @@ public interface IPluginResourceLoader {
 
   /**
    * Gets a plugin-related resource in the form of a String. The relevant plugin is inferred from pluginClass. An
-   * example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve relative
-   * paths as it knows where to look for plugin classes and resources.
+   * example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve
+   * relative paths as it knows where to look for plugin classes and resources.
    * <p>
    * This method defaults the character encoding (how this default is chosen is up to the implementor).
    * 
@@ -68,8 +68,8 @@ public interface IPluginResourceLoader {
 
   /**
    * Gets a plugin-related resource in the form of a String. The relevant plugin is inferred from pluginClass. An
-   * example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve relative
-   * paths as it knows where to look for plugin classes and resources.
+   * example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve
+   * relative paths as it knows where to look for plugin classes and resources.
    * 
    * @param pluginClass
    *          a class that is part of the plugin package, used to identify the plugin
@@ -85,9 +85,9 @@ public interface IPluginResourceLoader {
     throws UnsupportedEncodingException;
 
   /**
-   * Gets a plugin-related resource in the form of an InputStream. The relevant plugin is inferred from pluginClass. An
-   * example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve relative
-   * paths as it knows where to look for plugin classes and resources.
+   * Gets a plugin-related resource in the form of an InputStream. The relevant plugin is inferred from
+   * pluginClass. An example of resource path is "resources/html/my.html". {@link IPluginResourceLoader} is able to
+   * resolve relative paths as it knows where to look for plugin classes and resources.
    * 
    * @param pluginClass
    *          a class that is part of the plugin package, used to identify the plugin
@@ -99,8 +99,8 @@ public interface IPluginResourceLoader {
 
   /**
    * Gets a plugin-related resource in the form of an InputStream. An example of resource path is
-   * "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve relative paths as it knows where to look
-   * for plugin classes and resources.
+   * "resources/html/my.html". {@link IPluginResourceLoader} is able to resolve relative paths as it knows where to
+   * look for plugin classes and resources.
    * 
    * @param classLoader
    *          the ClassLoader which was used to load a plugin
@@ -111,9 +111,9 @@ public interface IPluginResourceLoader {
   public InputStream getResourceAsStream( ClassLoader classLoader, String resourcePath );
 
   /**
-   * A searching method, yielding a list of plugin-related resources as URLs. This method allows advanced searching by
-   * using the namePattern argument. namePattern supports '?' and '*' characters, representing single and multiple
-   * wildcard characters respectively.
+   * A searching method, yielding a list of plugin-related resources as URLs. This method allows advanced searching
+   * by using the namePattern argument. namePattern supports '?' and '*' characters, representing single and
+   * multiple wildcard characters respectively.
    * 
    * @param pluginClass
    * @param namePattern
@@ -129,7 +129,8 @@ public interface IPluginResourceLoader {
 
   /**
    * Retrieves a localized resource bundle for the plugin represented by pluginClass. baseName is a fully qualified
-   * package name or relative path to a bundle name. For example, a baseName of "resources.messages" might represent:
+   * package name or relative path to a bundle name. For example, a baseName of "resources.messages" might
+   * represent:
    * <ul>
    * <li>(localized) class messages.class in the resources package
    * <li>(localized) messages.properties file in the resource package (of a jar)
@@ -150,8 +151,8 @@ public interface IPluginResourceLoader {
   public ResourceBundle getResourceBundle( Class<?> pluginClass, String baseName );
 
   /**
-   * Searches for the plugin setting with the specified key. The method returns <code>null</code> if the setting is not
-   * found.
+   * Searches for the plugin setting with the specified key. The method returns <code>null</code> if the setting is
+   * not found.
    * 
    * @param pluginClass
    *          a class that is part of the plugin package, used to identify the plugin

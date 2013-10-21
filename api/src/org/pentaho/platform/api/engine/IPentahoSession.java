@@ -22,8 +22,8 @@ import java.util.Locale;
 
 /**
  * Provides an overall representation of the concept of a session. Sessions are not necessarily user-based, but
- * typically wrap the HttpSession object and PortletSession object in a standard framework with methods that session
- * objects typically provide.
+ * typically wrap the HttpSession object and PortletSession object in a standard framework with methods that
+ * session objects typically provide.
  * 
  * @author jdixon
  * 
@@ -34,8 +34,8 @@ public interface IPentahoSession extends ILogger, IAuditable {
   public static final String TENANT_ID_KEY = "org.pentaho.tenantId"; //$NON-NLS-1$
 
   /**
-   * Gets the name for this session, for example if this is an authenticated HTTP or Portlet session the name will be
-   * the name of the user
+   * Gets the name for this session, for example if this is an authenticated HTTP or Portlet session the name will
+   * be the name of the user
    * 
    * @return Name for this session
    */
@@ -121,8 +121,9 @@ public interface IPentahoSession extends ILogger, IAuditable {
   public boolean isAuthenticated();
 
   /**
-   * Sets the name of the session and indicates that the session is authenticated. If this is a HTTP or Portlet session
-   * the name should be the name of the user that is logged in (e.g. using <code>request.getRemoteUser()</code> )
+   * Sets the name of the session and indicates that the session is authenticated. If this is a HTTP or Portlet
+   * session the name should be the name of the user that is logged in (e.g. using
+   * <code>request.getRemoteUser()</code> )
    * 
    * @param name
    *          The name of the session
@@ -135,7 +136,8 @@ public interface IPentahoSession extends ILogger, IAuditable {
   public void setNotAuthenticated();
 
   /**
-   * Toggles on an alert condition indicating that the background execution of a task has completed during this session.
+   * Toggles on an alert condition indicating that the background execution of a task has completed during this
+   * session.
    * 
    */
   public void setBackgroundExecutionAlert();

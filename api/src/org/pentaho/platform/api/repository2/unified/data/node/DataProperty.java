@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.api.repository2.unified.data.node;
 
-import java.util.Date;
-
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
+
+import java.util.Date;
 
 public class DataProperty {
 

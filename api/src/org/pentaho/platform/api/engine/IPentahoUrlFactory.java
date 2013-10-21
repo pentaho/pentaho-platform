@@ -18,8 +18,8 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * Provides an interface around getting a URL object which can be used to construct a URL managing the parameters that
- * need to be built up.
+ * Provides an interface around getting a URL object which can be used to construct a URL managing the parameters
+ * that need to be built up.
  * 
  * @author jdixon
  * 

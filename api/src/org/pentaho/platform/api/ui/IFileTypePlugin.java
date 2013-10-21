@@ -18,7 +18,8 @@
 package org.pentaho.platform.api.ui;
 
 /**
- * This interface defines a file type plugin, which specifies the behavior for viewing and editing specific file types
+ * This interface defines a file type plugin, which specifies the behavior for viewing and editing specific file
+ * types
  * 
  * @author Will Gorman (wgorman@pentaho.com)
  */

@@ -17,13 +17,13 @@
 
 package org.pentaho.platform.api.repository2.unified;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Immutable repository file. Use the {@link Builder} to create instances.
@@ -32,7 +32,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class RepositoryFile implements Comparable<RepositoryFile>, Serializable {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = -6955142003557786114L;
 
@@ -50,7 +51,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   public static final String FILE_DESCRIPTION = "file.description"; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private final String name;
 
@@ -117,8 +119,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final String description;
 
   /**
-   * The locale string with which locale-sensitive fields (like title) are populated. Used in {@link #equals(Object)}
-   * calculation to guarantee caching works correctly. Read-only.
+   * The locale string with which locale-sensitive fields (like title) are populated. Used in
+   * {@link #equals(Object)} calculation to guarantee caching works correctly. Read-only.
    */
   private final String locale;
 
@@ -129,8 +131,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final String originalParentFolderPath;
 
   /**
-   * The date this file was deleted. If this file has been deleted (but not permanently deleted), then this field will
-   * be non-null. Read-only.
+   * The date this file was deleted. If this file has been deleted (but not permanently deleted), then this field
+   * will be non-null. Read-only.
    */
   private final Date deletedDate;
 
@@ -139,7 +141,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   private final Map<String, Properties> localePropertiesMap;
 
-  // ~ Constructors ===================================================================================================
+  // ~ Constructors
+  // ===================================================================================================
 
   /*
    * This assumes all Serializables are immutable (because they are not defensively copied).
@@ -176,7 +179,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
         localePropertiesMap != null ? new HashMap<String, Properties>( localePropertiesMap ) : null;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getName() {
     return name;
@@ -258,8 +262,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   }
 
   /*
-   * public Map<String, String> getTitleMap() { // defensive copy return titleMap == null ? null : new HashMap<String,
-   * String>(titleMap); }
+   * public Map<String, String> getTitleMap() { // defensive copy return titleMap == null ? null : new
+   * HashMap<String, String>(titleMap); }
    * 
    * public Map<String, String> getDescriptionMap() { // defensive copy return descriptionMap == null ? null : new
    * HashMap<String, String>(descriptionMap); }

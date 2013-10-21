@@ -30,11 +30,13 @@ import java.util.List;
  */
 public class RepositoryFileAcl implements Serializable {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = 6661340152568187033L;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private final List<RepositoryFileAce> aces;
 
@@ -44,7 +46,8 @@ public class RepositoryFileAcl implements Serializable {
 
   private final boolean entriesInheriting;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public RepositoryFileAcl( Serializable id, RepositoryFileSid owner, boolean entriesInheriting,
       List<RepositoryFileAce> aces ) {
@@ -57,7 +60,8 @@ public class RepositoryFileAcl implements Serializable {
     this.aces = new ArrayList<RepositoryFileAce>( aces );
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   private void notNull( final Object obj ) {
     if ( obj == null ) {
@@ -137,7 +141,8 @@ public class RepositoryFileAcl implements Serializable {
         + aces + "]"; //$NON-NLS-1$
   }
 
-  // ~ Inner classes ===================================================================================================
+  // ~ Inner classes
+  // ===================================================================================================
 
   public static class Builder {
     private List<RepositoryFileAce> aces = new ArrayList<RepositoryFileAce>();

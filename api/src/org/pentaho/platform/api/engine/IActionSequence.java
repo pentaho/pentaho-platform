@@ -20,8 +20,9 @@ package org.pentaho.platform.api.engine;
 import java.util.List;
 
 /**
- * An ActionSequence is the functional object that wraps a SequenceDefinition for processing by the RuntimeContext. When
- * a request results in a RuntimeContext execution, it is the ActionSequence that the context is operazting on.
+ * An ActionSequence is the functional object that wraps a SequenceDefinition for processing by the RuntimeContext.
+ * When a request results in a RuntimeContext execution, it is the ActionSequence that the context is operazting
+ * on.
  * 
  */
 public interface IActionSequence extends ISequenceDefinition {

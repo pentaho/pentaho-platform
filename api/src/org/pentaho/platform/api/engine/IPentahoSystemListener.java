@@ -26,8 +26,8 @@ package org.pentaho.platform.api.engine;
 public interface IPentahoSystemListener {
 
   /**
-   * Notification of system startup. This event fires at the end of system initialization, after all system components
-   * have started successfully.
+   * Notification of system startup. This event fires at the end of system initialization, after all system
+   * components have started successfully.
    */
   public boolean startup( IPentahoSession session );
 

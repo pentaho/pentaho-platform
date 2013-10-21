@@ -21,15 +21,15 @@ package org.pentaho.platform.api.action;
  * Actions are the lightweight alternative to platform components (see
  * {@link org.pentaho.platform.api.engine.IComponent}). Actions participate in action sequences and can be provided
  * inputs and resources by the typical means, as defined in xaction solution files. The {@link IAction} family of
- * interfaces focuses on describing the *minimal* contract between the Pentaho BI Platform and an Action in the same way
- * that {@link org.pentaho.platform.api.engine.IComponent} describes a similar but more involved contract.
+ * interfaces focuses on describing the *minimal* contract between the Pentaho BI Platform and an Action in the
+ * same way that {@link org.pentaho.platform.api.engine.IComponent} describes a similar but more involved contract.
  * <p>
- * The Pentaho BI Platform expects Action objects to be Java bean API compliant with respect to setting inputs, setting
- * resources, and getting outputs. In other words, if your action needs takes a string input, the action definition in
- * the xaction solution file will specify this string input, and the Action framework will cause that value to be set
- * via a setter method on the Action object. You do not see parameter Maps and such in the Action API for this reason.
- * All inputs, output, and resources IO will involve Java bean reflection on your Action object to find the appropriate
- * IO methods.
+ * The Pentaho BI Platform expects Action objects to be Java bean API compliant with respect to setting inputs,
+ * setting resources, and getting outputs. In other words, if your action needs takes a string input, the action
+ * definition in the xaction solution file will specify this string input, and the Action framework will cause that
+ * value to be set via a setter method on the Action object. You do not see parameter Maps and such in the Action
+ * API for this reason. All inputs, output, and resources IO will involve Java bean reflection on your Action
+ * object to find the appropriate IO methods.
  * 
  * @see IStreamingAction
  * @see ILoggingAction

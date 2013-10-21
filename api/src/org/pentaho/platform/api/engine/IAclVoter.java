@@ -25,8 +25,8 @@ import org.springframework.security.acl.AclEntry;
 public interface IAclVoter {
 
   /**
-   * Determines whether the user (auth) has the requested authority (mask) based on the list of effective authorities
-   * from the holder.
+   * Determines whether the user (auth) has the requested authority (mask) based on the list of effective
+   * authorities from the holder.
    * 
    * @param auth
    * @param holder
@@ -80,11 +80,12 @@ public interface IAclVoter {
 
   /**
    * This returns the effective ACL for the piece of content for the given user. Ideally, this will look at all the
-   * effective ACLs returned for this user for this piece of content, and return an ACL that encapsulates all the users'
-   * access to that content. The returning PentahoAclEntry will represent the ACL that the user has to the content.
+   * effective ACLs returned for this user for this piece of content, and return an ACL that encapsulates all the
+   * users' access to that content. The returning PentahoAclEntry will represent the ACL that the user has to the
+   * content.
    * 
-   * This method should NEVER return <code>null</code>. If the user has no access to the object, it needs to return a
-   * PentahoAclEntry with nothing (mask of 0).
+   * This method should NEVER return <code>null</code>. If the user has no access to the object, it needs to return
+   * a PentahoAclEntry with nothing (mask of 0).
    * 
    * @param session
    * @param holder

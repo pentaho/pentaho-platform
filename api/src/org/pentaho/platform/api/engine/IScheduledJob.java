@@ -31,9 +31,9 @@ public interface IScheduledJob {
   public static final int STATE_COMPLETE = 2;
 
   /**
-   * A <code>ScheduledJob</code> arrives at the error state when the scheduler attempts to fire it, but cannot due to an
-   * error creating and executing its related job. Often this is due to the <code>Job</code>'s class not existing in the
-   * classpath. </p>
+   * A <code>ScheduledJob</code> arrives at the error state when the scheduler attempts to fire it, but cannot due
+   * to an error creating and executing its related job. Often this is due to the <code>Job</code>'s class not
+   * existing in the classpath. </p>
    * 
    * <p>
    * When the ScheduledJob is in the error state, the scheduler will make no attempts to fire it.

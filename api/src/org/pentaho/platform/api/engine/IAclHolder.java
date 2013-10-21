@@ -34,17 +34,17 @@ public interface IAclHolder {
   public static final int ACCESS_TYPE_ADMIN = 4;
 
   /**
-   * Returns the ACLs on the existing object. Never returns null. If you need to get the effective access controls, you
-   * may need to call getEffectiveAccessControls() which will chain up from this object if necessary to find the ACLs
-   * that control this object.
+   * Returns the ACLs on the existing object. Never returns null. If you need to get the effective access controls,
+   * you may need to call getEffectiveAccessControls() which will chain up from this object if necessary to find
+   * the ACLs that control this object.
    * 
    * @return List of ACLs for this object only.
    */
   public List<IPentahoAclEntry> getAccessControls();
 
   /**
-   * Sets the access controls on this specific object. Currently doesn't check whether the acls are the same as those
-   * assigned to the parent.
+   * Sets the access controls on this specific object. Currently doesn't check whether the acls are the same as
+   * those assigned to the parent.
    * 
    * @param acls
    */
@@ -59,8 +59,8 @@ public interface IAclHolder {
   public void resetAccessControls( List<IPentahoAclEntry> acls );
 
   /**
-   * Examines whether the existing object has ACLs. If not, it will return the parent's ACLs. All the way up to the top
-   * if necessary. This method should never return null.
+   * Examines whether the existing object has ACLs. If not, it will return the parent's ACLs. All the way up to the
+   * top if necessary. This method should never return null.
    * 
    * @return List containing all the AclEntry objects
    */

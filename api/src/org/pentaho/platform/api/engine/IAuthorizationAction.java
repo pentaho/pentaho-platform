@@ -19,7 +19,8 @@ package org.pentaho.platform.api.engine;
 
 /**
  * 
- * Represents a Logical Role name used by some IAuthorizationPolicy implementations. Also known as Action-Based Security
+ * Represents a Logical Role name used by some IAuthorizationPolicy implementations. Also known as Action-Based
+ * Security
  * 
  * User: nbaker Date: 3/19/13
  */

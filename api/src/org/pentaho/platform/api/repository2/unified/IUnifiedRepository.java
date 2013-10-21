@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.api.repository2.unified;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
+
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,11 +26,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.pentaho.platform.api.locale.IPentahoLocale;
-
 /**
- * Entry point into the unified repository. The finest grained object that can be read and written to this repository is
- * a {@link RepositoryFile}.
+ * Entry point into the unified repository. The finest grained object that can be read and written to this
+ * repository is a {@link RepositoryFile}.
  * 
  * @author mlowery
  */
@@ -50,13 +50,13 @@ public interface IUnifiedRepository {
    * @param path
    *          path to file
    * @param depth
-   *          0 fetches just file at path; positive integer n fetches node at path plus n levels of children; negative
-   *          integer fetches all children
+   *          0 fetches just file at path; positive integer n fetches node at path plus n levels of children;
+   *          negative integer fetches all children
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
-   *          (using the "|" character to represent logical OR) of these; filter does not apply to root node. Filter
-   *          segments can also filter the results to just Files or Folders by passing in one of the following: ( FILES
-   *          | FOLDERS | [default] FILES_FOLDERS )
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
+   *          disjunction (using the "|" character to represent logical OR) of these; filter does not apply to root
+   *          node. Filter segments can also filter the results to just Files or Folders by passing in one of the
+   *          following: ( FILES | FOLDERS | [default] FILES_FOLDERS )
    * @param showHidden
    *          is a boolean which identify whether to include the hidden files/folders in the list or not
    * @return file or {@code null} if the file does not exist or access is denied
@@ -84,9 +84,9 @@ public interface IUnifiedRepository {
   RepositoryFile getFileById( final Serializable fileId );
 
   /**
-   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized strings
-   * will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can show the maps
-   * for editing purposes.
+   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized
+   * strings will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can
+   * show the maps for editing purposes.
    * 
    * @param path
    *          path to file
@@ -97,9 +97,9 @@ public interface IUnifiedRepository {
   RepositoryFile getFile( final String path, final boolean loadLocaleMaps );
 
   /**
-   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized strings
-   * will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can show the maps
-   * for editing purposes.
+   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized
+   * strings will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can
+   * show the maps for editing purposes.
    * 
    * @param fileId
    *          file id
@@ -110,8 +110,8 @@ public interface IUnifiedRepository {
   RepositoryFile getFileById( final Serializable fileId, final boolean loadLocaleMaps );
 
   /**
-   * Like {@link #getFile(String, boolean)} except that the maps which are pulled back are slimmed down to only contain
-   * the localized strings
+   * Like {@link #getFile(String, boolean)} except that the maps which are pulled back are slimmed down to only
+   * contain the localized strings
    * 
    * @param path
    *          {@link String} of the path to the file
@@ -212,15 +212,16 @@ public interface IUnifiedRepository {
       final Serializable versionId, final Class<T> dataClass );
 
   /**
-   * Gets the data for multiple {@link RepositoryFile}s for read. Each {@link RepositoryFile} may or may not contain a
-   * version number. If a version number is omitted it is assumed the latest data for the {@link RepositoryFile} is
-   * being requested.
+   * Gets the data for multiple {@link RepositoryFile}s for read. Each {@link RepositoryFile} may or may not
+   * contain a version number. If a version number is omitted it is assumed the latest data for the
+   * {@link RepositoryFile} is being requested.
    * 
    * @param <T>
    *          Type of {@link IRepositoryFileData}
    * @param files
    *          Repository files to fetch data for. Only {@link RepositoryFile#getId()} and
-   *          {@link RepositoryFile#getVersionId()} are used to identify {@link IRepositoryFileData} objects to return.
+   *          {@link RepositoryFile#getVersionId()} are used to identify {@link IRepositoryFileData} objects to
+   *          return.
    * @param dataClass
    *          class that implements {@link IRepositoryFileData}
    * @return data
@@ -229,15 +230,16 @@ public interface IUnifiedRepository {
       final Class<T> dataClass );
 
   /**
-   * Gets the data for multiple {@link RepositoryFile}s for execute. Each {@link RepositoryFile} may or may not contain
-   * a version number. If a version number is omitted it is assumed the latest data for the {@link RepositoryFile} is
-   * being requested.
+   * Gets the data for multiple {@link RepositoryFile}s for execute. Each {@link RepositoryFile} may or may not
+   * contain a version number. If a version number is omitted it is assumed the latest data for the
+   * {@link RepositoryFile} is being requested.
    * 
    * @param <T>
    *          Type of {@link IRepositoryFileData}
    * @param files
    *          Repository files to fetch data for. Only {@link RepositoryFile#getId()} and
-   *          {@link RepositoryFile#getVersionId()} are used to identify {@link IRepositoryFileData} objects to return.
+   *          {@link RepositoryFile#getVersionId()} are used to identify {@link IRepositoryFileData} objects to
+   *          return.
    * @param dataClass
    *          class that implements {@link IRepositoryFileData}
    * @return data
@@ -334,8 +336,8 @@ public interface IUnifiedRepository {
    * @param folderId
    *          id of folder whose children to fetch
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
-   *          (using the "|" character to represent logical OR) of these
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
+   *          disjunction (using the "|" character to represent logical OR) of these
    * @return list of children (never {@code null})
    */
   List<RepositoryFile> getChildren( final Serializable folderId, final String filter );
@@ -393,13 +395,15 @@ public interface IUnifiedRepository {
    * @param fileId
    *          id of file or folder to copy
    * @param destAbsPath
-   *          path to destination; if only copying (without name change) then destAbsPath will be an existing folder
+   *          path to destination; if only copying (without name change) then destAbsPath will be an existing
+   *          folder
    * @param versionMessage
    *          optional version comment to be applied to destination parent folder
    */
   void copyFile( final Serializable fileId, final String destAbsPath, final String versionMessage );
 
-  // ~ Undelete methods ================================================================================================
+  // ~ Undelete methods
+  // ================================================================================================
 
   /**
    * Recovers a deleted file if it was not permanently deleted. File is recovered to its original folder.
@@ -426,8 +430,8 @@ public interface IUnifiedRepository {
    * @param origParentFolderPath
    *          path to original parent folder
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
-   *          (using the "|" character to represent logical OR) of these
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
+   *          disjunction (using the "|" character to represent logical OR) of these
    * @return list of deleted files
    */
   List<RepositoryFile> getDeletedFiles( final String origParentFolderPath, final String filter );
@@ -439,7 +443,8 @@ public interface IUnifiedRepository {
    */
   List<RepositoryFile> getDeletedFiles();
 
-  // ~ Lock methods ====================================================================================================
+  // ~ Lock methods
+  // ====================================================================================================
 
   /**
    * Returns {@code true} if the current user can unlock the file. This might be a function of access control.
@@ -468,7 +473,8 @@ public interface IUnifiedRepository {
    */
   void unlockFile( final Serializable fileId );
 
-  // ~ Access read/write methods =======================================================================================
+  // ~ Access read/write methods
+  // =======================================================================================
 
   /**
    * Returns ACL for file.
@@ -489,8 +495,8 @@ public interface IUnifiedRepository {
   RepositoryFileAcl updateAcl( final RepositoryFileAcl acl );
 
   /**
-   * Returns {@code true} if user has all permissions given. Note that {@code false} is returned when the path does not
-   * exist.
+   * Returns {@code true} if user has all permissions given. Note that {@code false} is returned when the path does
+   * not exist.
    * 
    * @param path
    *          path to file or folder
@@ -501,8 +507,8 @@ public interface IUnifiedRepository {
   boolean hasAccess( final String path, final EnumSet<RepositoryFilePermission> permissions );
 
   /**
-   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This method
-   * is equivalent to {@code getEffectiveAces(fileId, false)}.
+   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This
+   * method is equivalent to {@code getEffectiveAces(fileId, false)}.
    * 
    * @param fileId
    *          file id
@@ -511,20 +517,21 @@ public interface IUnifiedRepository {
   List<RepositoryFileAce> getEffectiveAces( final Serializable fileId );
 
   /**
-   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This method
-   * is equivalent to {@code getEffectiveAces(get_parent_id(fileId))}. Note that {@code get_parent_id} is not a real
-   * method.
+   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This
+   * method is equivalent to {@code getEffectiveAces(get_parent_id(fileId))}. Note that {@code get_parent_id} is
+   * not a real method.
    * 
    * @param fileId
    *          file id
    * @param forceEntriesInheriting
-   *          {@code true} to treat ACL as if {@code isEntriesInheriting} was true; this avoids having the caller fetch
-   *          the parent of ACL belonging to file with {@code fileId}; no change is persisted to the ACL
+   *          {@code true} to treat ACL as if {@code isEntriesInheriting} was true; this avoids having the caller
+   *          fetch the parent of ACL belonging to file with {@code fileId}; no change is persisted to the ACL
    * @return list of ACEs
    */
   List<RepositoryFileAce> getEffectiveAces( final Serializable fileId, final boolean forceEntriesInheriting );
 
-  // ~ Version methods =================================================================================================
+  // ~ Version methods
+  // =================================================================================================
 
   /**
    * Returns a version summary for the given file id and version id.
@@ -538,8 +545,8 @@ public interface IUnifiedRepository {
   VersionSummary getVersionSummary( Serializable fileId, Serializable versionId );
 
   /**
-   * Returns a version summary for every {@link RepositoryFile} provided. Each {@link RepositoryFile} may or may not
-   * contain a version number. If a version number is omitted it is assumed the latest version for the
+   * Returns a version summary for every {@link RepositoryFile} provided. Each {@link RepositoryFile} may or may
+   * not contain a version number. If a version number is omitted it is assumed the latest version for the
    * {@link RepositoryFile} is being requested.
    * 
    * @param files
@@ -550,8 +557,8 @@ public interface IUnifiedRepository {
   List<VersionSummary> getVersionSummaryInBatch( final List<RepositoryFile> files );
 
   /**
-   * Returns a list of version summary instances. The first version in the list is the root version. The last version in
-   * the list is the base version. Branching and merging are not supported so this is a simple list.
+   * Returns a list of version summary instances. The first version in the list is the root version. The last
+   * version in the list is the base version. Branching and merging are not supported so this is a simple list.
    * 
    * @param fileId
    *          file id
@@ -572,8 +579,8 @@ public interface IUnifiedRepository {
 
   /**
    * Makes a file, as it was at the given version, the latest version. Result should be the same as if the user had
-   * called {@link #updateFile(RepositoryFile, IRepositoryFileData, String)} with a file and data that matched the state
-   * of the file and data at the given version.
+   * called {@link #updateFile(RepositoryFile, IRepositoryFileData, String)} with a file and data that matched the
+   * state of the file and data at the given version.
    * 
    * @param fileId
    *          file id
@@ -617,13 +624,13 @@ public interface IUnifiedRepository {
 
   /**
    * Returns a list of characters which cannot be used in file/folder names. These characters must be escaped using
-   * percent-encoding. Callers may safely cache this value. Note that it is the responsibility of the implementation to
-   * guard against illegal permutations of non-reserved characters.
+   * percent-encoding. Callers may safely cache this value. Note that it is the responsibility of the
+   * implementation to guard against illegal permutations of non-reserved characters.
    * 
-   * <blockquote> A percent-encoded octet is encoded as a character triplet, consisting of the percent character "%"
-   * followed by the two hexadecimal digits representing that octet's numeric value. For example, "%20" is the
-   * percent-encoding for the binary octet "00100000" (ABNF: %x20), which in US-ASCII corresponds to the space character
-   * (SP). </blockquote>
+   * <blockquote> A percent-encoded octet is encoded as a character triplet, consisting of the percent character
+   * "%" followed by the two hexadecimal digits representing that octet's numeric value. For example, "%20" is the
+   * percent-encoding for the binary octet "00100000" (ABNF: %x20), which in US-ASCII corresponds to the space
+   * character (SP). </blockquote>
    * 
    * @return list of reserved characters
    */

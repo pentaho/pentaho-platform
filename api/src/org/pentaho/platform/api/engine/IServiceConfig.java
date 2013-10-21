@@ -50,8 +50,8 @@ public interface IServiceConfig {
   public Class<?> getServiceClass();
 
   /**
-   * Returns the localized title for this web service. This is shown on the services list page. Defaults to service id
-   * if not set.
+   * Returns the localized title for this web service. This is shown on the services list page. Defaults to service
+   * id if not set.
    * 
    * @return natural language name for the service
    */

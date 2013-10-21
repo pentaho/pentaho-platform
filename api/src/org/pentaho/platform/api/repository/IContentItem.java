@@ -17,19 +17,19 @@
 
 package org.pentaho.platform.api.repository;
 
+import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.engine.IMimeTypeListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.pentaho.commons.connection.IPentahoStreamSource;
-import org.pentaho.platform.api.engine.IMimeTypeListener;
-
 /**
  * 
  * Construction of a new ContentItem is managed by ContentLocation.newContentItem. This is because there is a
- * parent-child relationship between ContentLocations and content items. To avoid having a content item reach back into
- * it's parent to add itself to the children list, you instead call the content location to construct a content item. A
- * content item cannot exist without a content location.
+ * parent-child relationship between ContentLocations and content items. To avoid having a content item reach back
+ * into it's parent to add itself to the children list, you instead call the content location to construct a
+ * content item. A content item cannot exist without a content location.
  * 
  * @see ContentLocation
  * @author mbatchel
@@ -60,11 +60,11 @@ public interface IContentItem extends IMimeTypeListener {
   /**
    * The behavior of this method depends upon it's write mode (defined only at construction).
    * 
-   * If the write mode is WRITEMODE_KEEPVERSIONS, this method will create a new file on the disk, and add it to it's
-   * internal list of files, and return an output stream.
+   * If the write mode is WRITEMODE_KEEPVERSIONS, this method will create a new file on the disk, and add it to
+   * it's internal list of files, and return an output stream.
    * 
-   * If the write mode is WRITEMODE_OVERWRITE, this method will create an output stream and overwrite the existing file
-   * on the disk if it's found, or will create the file if it doesn't exist.
+   * If the write mode is WRITEMODE_OVERWRITE, this method will create an output stream and overwrite the existing
+   * file on the disk if it's found, or will create the file if it doesn't exist.
    * 
    * If the write mode is WRITEMODE_APPEND, this method will append to the existing file on disk (if it exists), or
    * create it if it doesn't exist.

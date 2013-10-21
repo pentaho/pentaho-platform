@@ -17,17 +17,18 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.dom4j.Node;
+
 import java.util.List;
 import java.util.Map;
 
-import org.dom4j.Node;
-
 /**
- * The ActionDefinition represents the definition and metadata for a single action execution, which is equivalent to one
- * execution of any given Component.
+ * The ActionDefinition represents the definition and metadata for a single action execution, which is equivalent
+ * to one execution of any given Component.
  * <p>
- * The ActionDefinition is derived from the solution's action sequence document. One ActionDefinition is handed to the
- * appropriate Component, and provides all the necessary inputs, outputs and resources for that Component to execute.
+ * The ActionDefinition is derived from the solution's action sequence document. One ActionDefinition is handed to
+ * the appropriate Component, and provides all the necessary inputs, outputs and resources for that Component to
+ * execute.
  */
 public interface ISolutionActionDefinition {
 
@@ -88,8 +89,8 @@ public interface ISolutionActionDefinition {
   public String getMappedResourceName( String name );
 
   /**
-   * Get the logging level for this ActionDefinition. The logging level may be set independently or may be inherited
-   * from a parent object's logging level.
+   * Get the logging level for this ActionDefinition. The logging level may be set independently or may be
+   * inherited from a parent object's logging level.
    * 
    * @return this ActionDefinition's logging level
    * @see org.pentaho.platform.api.engine.ILogger
@@ -106,8 +107,8 @@ public interface ISolutionActionDefinition {
   public List getPreExecuteAuditList();
 
   /**
-   * Returns the list of input and output parameters that will be audited after component execution. This list is handed
-   * off to the auditing subsystem as metadata.
+   * Returns the list of input and output parameters that will be audited after component execution. This list is
+   * handed off to the auditing subsystem as metadata.
    * 
    * @return <tt>List</tt> of parameters defined for post-execution auditing
    */
@@ -129,8 +130,8 @@ public interface ISolutionActionDefinition {
   public String getComponentName();
 
   /**
-   * Returns the Component definition portion of this ActionDefinition. The Component section typically describes that
-   * data and metadata that is relevant only to that particular component.
+   * Returns the Component definition portion of this ActionDefinition. The Component section typically describes
+   * that data and metadata that is relevant only to that particular component.
    * 
    * @return the Component definition section of the ActionDefinition
    */

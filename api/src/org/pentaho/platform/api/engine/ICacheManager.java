@@ -27,8 +27,9 @@ public interface ICacheManager extends ILogoutListener {
 
   /**
    * Stops the cache by calling the cacheProvider stop method. This method should be called either when the VM goes
-   * away, or when the web context goes away. This performs required cleanup in the underlying cache implementation. In
-   * some cases, failure to stop the cache will cause cached items saved to disk to be un-recoverable.
+   * away, or when the web context goes away. This performs required cleanup in the underlying cache
+   * implementation. In some cases, failure to stop the cache will cause cached items saved to disk to be
+   * un-recoverable.
    * 
    */
   public void cacheStop();
@@ -50,8 +51,8 @@ public interface ICacheManager extends ILogoutListener {
   /**
    * Puts an object in the session-specific cache. The session specified must have a valid session id.
    * <p>
-   * Take special care that, in a TestCase, you don't have multiple StandaloneSession objects with the same session key.
-   * Consider using <code>UUIDUtil</code> to generate a unique sessionId for each standalone session.
+   * Take special care that, in a TestCase, you don't have multiple StandaloneSession objects with the same session
+   * key. Consider using <code>UUIDUtil</code> to generate a unique sessionId for each standalone session.
    * 
    * @param session
    *          The users IPentahoSession
@@ -79,7 +80,8 @@ public interface ICacheManager extends ILogoutListener {
   public void removeFromSessionCache( IPentahoSession session, String key );
 
   /**
-   * Gets an object from the user session specific cache. If the object doesn't exist in the cache, null is returned.
+   * Gets an object from the user session specific cache. If the object doesn't exist in the cache, null is
+   * returned.
    * 
    * @param session
    *          The users IPentahoSession

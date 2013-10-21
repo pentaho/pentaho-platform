@@ -20,8 +20,8 @@ package org.pentaho.platform.api.engine;
 import java.util.Date;
 
 /**
- * Augments the parameter provider by adding settings for the parameters. Some parameter providers allow setting and
- * updating values.
+ * Augments the parameter provider by adding settings for the parameters. Some parameter providers allow setting
+ * and updating values.
  * 
  * @author jdixon
  */

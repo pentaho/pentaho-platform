@@ -20,8 +20,8 @@ package org.pentaho.platform.api.action;
 import java.util.Map;
 
 /**
- * Allows an Action to accept inputs from the action sequence that are unspecified by the Action itself. In other words,
- * if there is no bean property for a particular input, it will be passed to the Action through this API.
+ * Allows an Action to accept inputs from the action sequence that are unspecified by the Action itself. In other
+ * words, if there is no bean property for a particular input, it will be passed to the Action through this API.
  * 
  * @see IAction
  * @author aphillips
@@ -30,8 +30,8 @@ import java.util.Map;
 public interface IVarArgsAction extends IAction {
 
   /**
-   * Inputs from an action sequence that cannot be set on an Action by Java bean convention will be passed in through
-   * this map.
+   * Inputs from an action sequence that cannot be set on an Action by Java bean convention will be passed in
+   * through this map.
    * 
    * @param args
    *          a map of unspecified inputs

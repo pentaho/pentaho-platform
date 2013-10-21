@@ -23,8 +23,8 @@ import java.io.IOException;
 /**
  * Defines a set of methods to retrieve information about the application environment.
  * <p>
- * There is one context per server application (web application), so the class can be used as a place to share global
- * application data.
+ * There is one context per server application (web application), so the class can be used as a place to share
+ * global application data.
  * 
  * @version 1.0
  */
@@ -55,8 +55,8 @@ public interface IApplicationContext {
   /**
    * Retrieves the descriptive name of the platform application.
    * <p>
-   * The Pentaho server name should specified in the system settings configuration file, using the <code>name</code>
-   * element
+   * The Pentaho server name should specified in the system settings configuration file, using the
+   * <code>name</code> element
    * 
    * @return the descriptive server name as specified in the system settings, or
    *         "Pentaho Business Intelligence Platform" by default.
@@ -66,8 +66,8 @@ public interface IApplicationContext {
   /**
    * @deprecated Returns a URL to the server application, up to and including the context.
    *             <p>
-   *             The URL that is returned is derived from the server context, and thus will include the protocol, host
-   *             name, port, and application context root.
+   *             The URL that is returned is derived from the server context, and thus will include the protocol,
+   *             host name, port, and application context root.
    * 
    * @return the URL to the server application context root. Use getFullyQualifiedServerURL instead
    */
@@ -85,8 +85,8 @@ public interface IApplicationContext {
   public String getFullyQualifiedServerURL();
 
   /**
-   * Returns the path to the web application or standalone application. This is only used in a few places, like loading
-   * the portlet localization messages.
+   * Returns the path to the web application or standalone application. This is only used in a few places, like
+   * loading the portlet localization messages.
    * 
    * @param path
    *          a path to a location that exists relative to the application root directory
@@ -95,8 +95,8 @@ public interface IApplicationContext {
   public String getApplicationPath( String path );
 
   /**
-   * If there were any other properties set (for example, initParams in the servlet context), this will let you have
-   * access to all of those properties that are set.
+   * If there were any other properties set (for example, initParams in the servlet context), this will let you
+   * have access to all of those properties that are set.
    * 
    * @param key
    *          property Name
@@ -105,8 +105,8 @@ public interface IApplicationContext {
   public String getProperty( String key );
 
   /**
-   * If there were any other properties set (for example, initParams in the servlet context), this will let you have
-   * access to all of those properties that are set.
+   * If there were any other properties set (for example, initParams in the servlet context), this will let you
+   * have access to all of those properties that are set.
    * 
    * @param key
    *          property Name

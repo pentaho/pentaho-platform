@@ -34,12 +34,12 @@ import java.util.Map;
  * </code>
  * <p>
  * 
- * You will notice that the this way of serving up objects does not expose an API for scoping of objects. This behavior
- * is delegated to the particular {@link IPentahoObjectFactory} implementation, which means a factory implementation has
- * total freedom to be as simple or sophisticated at it wants without being required to handle object scoping. Any kind
- * of object binding/scoping or any other rules for the creation and management of objects is totally up the
- * implementation. Typically, a factory implementation would be made aware of it's rules for object creation by way of a
- * well-known object specification file, see {@link #init(String, Object)}
+ * You will notice that the this way of serving up objects does not expose an API for scoping of objects. This
+ * behavior is delegated to the particular {@link IPentahoObjectFactory} implementation, which means a factory
+ * implementation has total freedom to be as simple or sophisticated at it wants without being required to handle
+ * object scoping. Any kind of object binding/scoping or any other rules for the creation and management of objects
+ * is totally up the implementation. Typically, a factory implementation would be made aware of it's rules for
+ * object creation by way of a well-known object specification file, see {@link #init(String, Object)}
  * 
  * @author Aaron Phillips
  */
@@ -49,15 +49,15 @@ public interface IPentahoObjectFactory {
   public static final int DEFAULT_PRIORTIY = 20;
 
   /**
-   * Retrieves an instance of a Pentaho BI Server API interface using the simple interface name (interfaceClass name
-   * without the package) as the object key. If an appropriate implementation does not exist the factory implementation
-   * should create it.
+   * Retrieves an instance of a Pentaho BI Server API interface using the simple interface name (interfaceClass
+   * name without the package) as the object key. If an appropriate implementation does not exist the factory
+   * implementation should create it.
    * 
    * @param interfaceClass
    *          the type of object to retrieve (retrieved object will be returned as this type)
    * @param session
-   *          the Pentaho session object. Can be used to associate an object instance to a Pentaho session. Value will
-   *          be null if request to getObject does not originate in a session context.
+   *          the Pentaho session object. Can be used to associate an object instance to a Pentaho session. Value
+   *          will be null if request to getObject does not originate in a session context.
    * @return the implementation object typed to interfaceClass
    * @throws ObjectFactoryException
    *           if the object cannot be retrieved
@@ -73,8 +73,8 @@ public interface IPentahoObjectFactory {
    * @param key
    *          the object identifier, typically the interface name
    * @param session
-   *          the Pentaho session object. Can be used to associate an object instance to a Pentaho session. Value will
-   *          be null if request to getObject does not originate in a session context.
+   *          the Pentaho session object. Can be used to associate an object instance to a Pentaho session. Value
+   *          will be null if request to getObject does not originate in a session context.
    * @return the implementation object typed to interfaceClass
    * @throws ObjectFactoryException
    *           if the object cannot be retrieved
@@ -84,15 +84,15 @@ public interface IPentahoObjectFactory {
   public <T> T get( Class<T> interfaceClass, String key, final IPentahoSession session ) throws ObjectFactoryException;
 
   /**
-   * Retrieves an instance of a Pentaho BI Server API interface using the simple interface name (interfaceClass name
-   * without the package) as the object key. If an appropriate implementation does not exist the factory implementation
-   * should create it.
+   * Retrieves an instance of a Pentaho BI Server API interface using the simple interface name (interfaceClass
+   * name without the package) as the object key. If an appropriate implementation does not exist the factory
+   * implementation should create it.
    * 
    * @param interfaceClass
    *          the type of object to retrieve (retrieved object will be returned as this type)
    * @param session
-   *          the Pentaho session object. Can be used to associate an object instance to a Pentaho session. Value will
-   *          be null if request to getObject does not originate in a session context.
+   *          the Pentaho session object. Can be used to associate an object instance to a Pentaho session. Value
+   *          will be null if request to getObject does not originate in a session context.
    * @param properties
    *          Map of properties to filter matches in the ObjectFactory by
    * 
@@ -133,14 +133,15 @@ public interface IPentahoObjectFactory {
   public Class<?> getImplementingClass( String key );
 
   /**
-   * Initialize the factory with optional configuration file and runtime context. Calling this method should also reset
-   * any state the factory may be holding, such as object definitions.
+   * Initialize the factory with optional configuration file and runtime context. Calling this method should also
+   * reset any state the factory may be holding, such as object definitions.
    * 
    * @param configFile
    *          an object configuration definition file understandable by the factory implementation
    * @param context
-   *          a context object whereby the factory implementation can access runtime information, type of object varies
-   *          depending on the framework used by the factory and the environment in which the application is running.
+   *          a context object whereby the factory implementation can access runtime information, type of object
+   *          varies depending on the framework used by the factory and the environment in which the application is
+   *          running.
    */
   public void init( String configFile, Object context );
 

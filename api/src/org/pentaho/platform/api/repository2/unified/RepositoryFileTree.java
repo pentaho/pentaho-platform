@@ -28,19 +28,22 @@ import java.util.List;
  * 
  * <p>
  * * This is necessary since a {@code RepositoryFile} does not (by design) have a reference to its children. A
- * {@code RepositoryFile} is meant to be a lightweight object representing metadata about a file in isolation. It does
- * not have references to other {@code RepositoryFile} instances. The potential for misuse of a children field on
- * {@code RepositoryFile} was great enough to warrant the creation of {@code RepositoryFileTree}. This separation of
- * single file vs. tree is seen as a cleaner API with less confusion about when children is populated.
+ * {@code RepositoryFile} is meant to be a lightweight object representing metadata about a file in isolation. It
+ * does not have references to other {@code RepositoryFile} instances. The potential for misuse of a children field
+ * on {@code RepositoryFile} was great enough to warrant the creation of {@code RepositoryFileTree}. This
+ * separation of single file vs. tree is seen as a cleaner API with less confusion about when children is
+ * populated.
  * </p>
  * 
  * @author mlowery
  */
 public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Serializable {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private static final long serialVersionUID = 6282939978216638770L;
 
@@ -48,7 +51,8 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
 
   private final List<RepositoryFileTree> children;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public RepositoryFileTree( final RepositoryFile file, final List<RepositoryFileTree> children ) {
     super();
@@ -58,7 +62,8 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     this.children = children != null ? new ArrayList<RepositoryFileTree>( children ) : null;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   private void notNull( final Object obj ) {
     if ( obj == null ) {
@@ -147,7 +152,8 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     return buf.toString();
   }
 
-  // ~ Inner classes ===================================================================================================
+  // ~ Inner classes
+  // ===================================================================================================
 
   public static class Builder {
 

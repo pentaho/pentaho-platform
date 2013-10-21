@@ -23,8 +23,8 @@ import java.util.Map;
  * The SequenceDefinition represents the definition of several consecutive action definitions that comprise an
  * ActionSequence object, which is the runtime equivalent of an action sequence document.
  * <p>
- * A SequenceDefinition can contain one to many ActionDefinitions that, when executed by their constituent Components,
- * flow automatically from one ActionDefinition to the next.
+ * A SequenceDefinition can contain one to many ActionDefinitions that, when executed by their constituent
+ * Components, flow automatically from one ActionDefinition to the next.
  * 
  */
 public interface ISequenceDefinition {
@@ -65,8 +65,8 @@ public interface ISequenceDefinition {
   public static final String RESULT_TYPE_PROCESS = "process"; //$NON-NLS-1$
 
   /**
-   * Returns a Map of the input parameters that are defined to this SequenceDefinition. These inputs are part of the
-   * contract between this sequence definition and the platform subsystems, ie., the runtime context.
+   * Returns a Map of the input parameters that are defined to this SequenceDefinition. These inputs are part of
+   * the contract between this sequence definition and the platform subsystems, ie., the runtime context.
    * 
    * @return Map of input parameters. Parameters take the name-value form.
    */
@@ -75,9 +75,9 @@ public interface ISequenceDefinition {
 
   /**
    * Returns a Map of the input parameters that are defined to this SequenceDefinition for a specific parameter
-   * provider. For example the input named "REGION" may come from a request parameter named "regn" Calling this method
-   * passing in "request" for the parameterproviderName will return a map that includes an entry with the key "regn"
-   * mapped to the "REGION" IActionParameter.
+   * provider. For example the input named "REGION" may come from a request parameter named "regn" Calling this
+   * method passing in "request" for the parameterproviderName will return a map that includes an entry with the
+   * key "regn" mapped to the "REGION" IActionParameter.
    * 
    * @param parameterProviderName
    *          The name of the parameter provider e.g. "request", "session", "global"...
@@ -88,8 +88,8 @@ public interface ISequenceDefinition {
   public Map getInputDefinitionsForParameterProvider( String parameterProviderName );
 
   /**
-   * Returns a Map of the output parameters that are defined to this SequenceDefinition. These outputs are part of the
-   * contract between this sequence definition and the platform subsystems, ie., the runtime context.
+   * Returns a Map of the output parameters that are defined to this SequenceDefinition. These outputs are part of
+   * the contract between this sequence definition and the platform subsystems, ie., the runtime context.
    * 
    * @return Map of output parameters. Parameters take the name-value form.
    */
@@ -113,11 +113,11 @@ public interface ISequenceDefinition {
   public String getSequenceName();
 
   /**
-   * Returns the type of the overall result of executing the action sequence document that this SequenceDefinition came
-   * from. For example if the sequence results in the generation of a report the result type for the sequence should be
-   * RESULT_TYPE_REPORT. This property is used to select icons to show next to the sequence name when users navigate the
-   * available actions. Tif this returns RESULT_TYPE_NONE, empty string or null, the action sequence will not be visible
-   * to users as they navigate
+   * Returns the type of the overall result of executing the action sequence document that this SequenceDefinition
+   * came from. For example if the sequence results in the generation of a report the result type for the sequence
+   * should be RESULT_TYPE_REPORT. This property is used to select icons to show next to the sequence name when
+   * users navigate the available actions. Tif this returns RESULT_TYPE_NONE, empty string or null, the action
+   * sequence will not be visible to users as they navigate
    * 
    * @return the action sequence result type
    */
@@ -166,8 +166,8 @@ public interface ISequenceDefinition {
   public String getSolutionPath();
 
   /**
-   * Get the logging level for this SequenceDefinition. The logging level may be set independently or may be inherited
-   * from a parent object's logging level.
+   * Get the logging level for this SequenceDefinition. The logging level may be set independently or may be
+   * inherited from a parent object's logging level.
    * 
    * @return this SequenceDefinition's logging level
    * 

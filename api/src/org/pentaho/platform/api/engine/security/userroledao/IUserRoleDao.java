@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.api.engine.security.userroledao;
 
-import java.util.List;
-
 import org.pentaho.platform.api.mt.ITenant;
+
+import java.util.List;
 
 /**
  * Contract for data access objects that read and write users and roles.
@@ -29,7 +29,8 @@ import org.pentaho.platform.api.mt.ITenant;
 public interface IUserRoleDao {
 
   /**
-   * Creates user under a specified tenant. If the tenant is null then it will create the user under a default tenant.
+   * Creates user under a specified tenant. If the tenant is null then it will create the user under a default
+   * tenant.
    * 
    * @param tenant
    * @param username
@@ -44,8 +45,8 @@ public interface IUserRoleDao {
     throws AlreadyExistsException, UncategorizedUserRoleDaoException;
 
   /**
-   * Update the password of an existing user under a specified tenant. If the tenant is null then it will try to update
-   * the password of an existing user under a default tenant
+   * Update the password of an existing user under a specified tenant. If the tenant is null then it will try to
+   * update the password of an existing user under a default tenant
    * 
    * @param tenant
    * @param userName
@@ -57,8 +58,8 @@ public interface IUserRoleDao {
     UncategorizedUserRoleDaoException;
 
   /**
-   * Update the user description of an existing user under a speficied tenant. If the tenant is null then it will try to
-   * update the user description of an existing user under a default tenant
+   * Update the user description of an existing user under a speficied tenant. If the tenant is null then it will
+   * try to update the user description of an existing user under a default tenant
    * 
    * @param tenant
    * @param userName
@@ -79,8 +80,8 @@ public interface IUserRoleDao {
   void deleteUser( IPentahoUser user ) throws NotFoundException, UncategorizedUserRoleDaoException;
 
   /**
-   * Retrieve the user from a specified tenant of the repository. If the tenant is null then it will try to retrieve the
-   * user from a default tenant of the repository.
+   * Retrieve the user from a specified tenant of the repository. If the tenant is null then it will try to
+   * retrieve the user from a default tenant of the repository.
    * 
    * @param tenant
    * @param name
@@ -109,8 +110,8 @@ public interface IUserRoleDao {
 
   /**
    * Retrieve all the users from the specified tenant of a repository . If the tenant is null then it will try to
-   * retrieve all the users from the default tenant. If includeSubtenants is true, then it will retrieve all the users
-   * from the current specified tenant and its subtenants.
+   * retrieve all the users from the default tenant. If includeSubtenants is true, then it will retrieve all the
+   * users from the current specified tenant and its subtenants.
    * 
    * @param tenant
    * @param includeSubtenants
@@ -120,7 +121,8 @@ public interface IUserRoleDao {
   List<IPentahoUser> getUsers( ITenant tenant, boolean includeSubtenants ) throws UncategorizedUserRoleDaoException;
 
   /**
-   * Create a role under a specified tenant. If the tenant is null then this role will be created under a default tenant
+   * Create a role under a specified tenant. If the tenant is null then this role will be created under a default
+   * tenant
    * 
    * @param tenant
    * @param roleName
@@ -134,8 +136,8 @@ public interface IUserRoleDao {
     throws AlreadyExistsException, UncategorizedUserRoleDaoException;
 
   /**
-   * Update the role description of a given role under a specific tenant. If the tenant is null, then it will search for
-   * the role in the default tenant and update the description there
+   * Update the role description of a given role under a specific tenant. If the tenant is null, then it will
+   * search for the role in the default tenant and update the description there
    * 
    * @param tenant
    * @param roleName
@@ -156,8 +158,8 @@ public interface IUserRoleDao {
   void deleteRole( IPentahoRole role ) throws NotFoundException, UncategorizedUserRoleDaoException;
 
   /**
-   * Retrieves the role with a given name from the specified tenant. If the tenant is null, then it will retrieve the
-   * role from the default tenant
+   * Retrieves the role with a given name from the specified tenant. If the tenant is null, then it will retrieve
+   * the role from the default tenant
    * 
    * @param tenant
    * @param name
@@ -175,8 +177,8 @@ public interface IUserRoleDao {
   List<IPentahoRole> getRoles() throws UncategorizedUserRoleDaoException;
 
   /**
-   * Retrieve all the role from the specified tenant. If the tenant is null, then it will retrieve all the roles from
-   * the default tenant
+   * Retrieve all the role from the specified tenant. If the tenant is null, then it will retrieve all the roles
+   * from the default tenant
    * 
    * @param tenant
    * @return pentaho role list
@@ -185,8 +187,8 @@ public interface IUserRoleDao {
   List<IPentahoRole> getRoles( ITenant tenant ) throws UncategorizedUserRoleDaoException;
 
   /**
-   * Retrieve all the roles from the specified tenant. If the includeSubtenants is "true" then it will get all the role
-   * from the subtenants as well
+   * Retrieve all the roles from the specified tenant. If the includeSubtenants is "true" then it will get all the
+   * role from the subtenants as well
    * 
    * @param tenant
    * @param includeSubtenants
@@ -196,8 +198,8 @@ public interface IUserRoleDao {
   List<IPentahoRole> getRoles( ITenant tenant, boolean includeSubtenants ) throws UncategorizedUserRoleDaoException;
 
   /**
-   * Assign list of user names to a particular role in a specified tenant. If the tenant is null, then it will search
-   * for this role in a default tenant
+   * Assign list of user names to a particular role in a specified tenant. If the tenant is null, then it will
+   * search for this role in a default tenant
    * 
    * @param tenant
    * @param roleName
@@ -209,8 +211,8 @@ public interface IUserRoleDao {
     UncategorizedUserRoleDaoException;
 
   /**
-   * Assign a list of roles to a particular user in a specified tenant. If the tenant is null, then it will search for
-   * this user in a default tenant
+   * Assign a list of roles to a particular user in a specified tenant. If the tenant is null, then it will search
+   * for this user in a default tenant
    * 
    * @param tenant
    * @param userName
@@ -222,8 +224,8 @@ public interface IUserRoleDao {
     UncategorizedUserRoleDaoException;
 
   /**
-   * Retrieves the list of users associated to a particular role in a given tenant. If the tenant is null, then it will
-   * get role members in a default tenant
+   * Retrieves the list of users associated to a particular role in a given tenant. If the tenant is null, then it
+   * will get role members in a default tenant
    * 
    * @param tenant
    * @param roleName
@@ -233,8 +235,8 @@ public interface IUserRoleDao {
   List<IPentahoUser> getRoleMembers( ITenant tenant, String roleName ) throws UncategorizedUserRoleDaoException;
 
   /**
-   * Retrieves the list of roles associated to a particular user in a given tenant. If the tenant is null, then it will
-   * get user roles in a default tenant
+   * Retrieves the list of roles associated to a particular user in a given tenant. If the tenant is null, then it
+   * will get user roles in a default tenant
    * 
    * @param tenant
    * @param userName

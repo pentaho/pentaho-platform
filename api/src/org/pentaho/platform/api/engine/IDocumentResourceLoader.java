@@ -17,11 +17,10 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.io.InputStream;
+import org.xml.sax.EntityResolver;
 
 import javax.xml.transform.URIResolver;
-
-import org.xml.sax.EntityResolver;
+import java.io.InputStream;
 
 public interface IDocumentResourceLoader extends URIResolver, EntityResolver {
 

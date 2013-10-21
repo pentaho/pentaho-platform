@@ -37,8 +37,8 @@ public interface IContentGeneratorInfo {
   public String getType();
 
   /**
-   * @deprecated file info generators or solution file meta providers are now associated with content types, not content
-   *             generators. This method is not called from within the platform.
+   * @deprecated file info generators or solution file meta providers are now associated with content types, not
+   *             content generators. This method is not called from within the platform.
    */
   @Deprecated
   public String getFileInfoGeneratorClassname();

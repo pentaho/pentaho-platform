@@ -47,8 +47,9 @@ public interface IDBDatasourceService {
   public void clearDataSource( String dsName );
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name.
    * 
    * @param dsName
    *          The Datasource name
@@ -58,9 +59,9 @@ public interface IDBDatasourceService {
   public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException;
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name, and
-   * return the actual bound name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name, and return the actual bound name.
    * 
    * @param dsName
    *          The Datasource name (like SampleData)
@@ -70,8 +71,9 @@ public interface IDBDatasourceService {
   public String getDSBoundName( String dsName ) throws DBDatasourceServiceException;
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to extract just the regular name of a specified JNDI source.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to extract just the regular name of a specified JNDI
+   * source.
    * 
    * @param dsName
    *          The Datasource name (like "jdbc/SampleData")

@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This interface is implemented by bi-platform plugins, and is instantiated for each content request made to the plugin
- * system via the IPluginManager API. Once instantiated, the setter methods are first called and then createContent() is
- * called to generate the expected content.
+ * This interface is implemented by bi-platform plugins, and is instantiated for each content request made to the
+ * plugin system via the IPluginManager API. Once instantiated, the setter methods are first called and then
+ * createContent() is called to generate the expected content.
  */
 public interface IContentGenerator extends ILogger {
 
@@ -36,7 +36,8 @@ public interface IContentGenerator extends ILogger {
   public void createContent() throws Exception;
 
   /**
-   * called before createContent(), the IOutputHandler is the API that defines how to write content back to the client.
+   * called before createContent(), the IOutputHandler is the API that defines how to write content back to the
+   * client.
    * 
    * @param outputHandler
    */

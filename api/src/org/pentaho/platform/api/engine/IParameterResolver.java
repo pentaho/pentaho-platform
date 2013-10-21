@@ -22,9 +22,9 @@ import java.util.regex.Matcher;
 public interface IParameterResolver {
 
   /**
-   * Provides a way for components to inject their own replacements of parameter markers in the provided template. This
-   * currently exposes too much of the internals of TemplateUtil IMO, but without serious surgery on the TemplateUtil,
-   * this is about the only way to accomplish the task.
+   * Provides a way for components to inject their own replacements of parameter markers in the provided template.
+   * This currently exposes too much of the internals of TemplateUtil IMO, but without serious surgery on the
+   * TemplateUtil, this is about the only way to accomplish the task.
    * 
    * @param template
    *          The string containing replacement parameters
@@ -36,11 +36,12 @@ public interface IParameterResolver {
    *          The current start to copy from the template
    * @param result
    *          The final string with the parameter replacements inlined
-   * @return integer indicating the new copyStart to be used in the TemplateUtil in the event that the component handled
-   *         the parameter. If negative, then no processing was done in the component. Any value greater than or equal
-   *         to zero indicates processing happened in the component.
+   * @return integer indicating the new copyStart to be used in the TemplateUtil in the event that the component
+   *         handled the parameter. If negative, then no processing was done in the component. Any value greater
+   *         than or equal to zero indicates processing happened in the component.
    * 
-   *         TODO: Change this interface to make it easier to do things without exposing the internals of TemplateUtil.
+   *         TODO: Change this interface to make it easier to do things without exposing the internals of
+   *         TemplateUtil.
    */
   public int resolveParameter( String template, String parameterName, Matcher parameterMatcher, int copyStart,
       StringBuffer result );

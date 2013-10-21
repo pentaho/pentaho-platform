@@ -18,10 +18,10 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * This class subclasses IPentahoObjectFactory and adds methods that enables the implementation to allow objects to be
- * defined through public classes. The main use case for this is a system where the objects created by the factory are
- * defined in code via an API. Examples are when the Pentaho system is fully embedded into an application, and unit
- * tests.
+ * This class subclasses IPentahoObjectFactory and adds methods that enables the implementation to allow objects to
+ * be defined through public classes. The main use case for this is a system where the objects created by the
+ * factory are defined in code via an API. Examples are when the Pentaho system is fully embedded into an
+ * application, and unit tests.
  * 
  * @author jamesdixon
  * 

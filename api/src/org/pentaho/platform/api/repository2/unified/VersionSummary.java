@@ -30,11 +30,13 @@ import java.util.List;
  */
 public class VersionSummary implements Serializable {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = -6452375912236787125L;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   /**
    * The message the author left when he created this version.
@@ -62,8 +64,8 @@ public class VersionSummary implements Serializable {
   private final Serializable versionedFileId;
 
   /**
-   * {@code true} if this version is the result of a change that is purely access control related. Only applicable in
-   * implementations where changing access control creates a new revision.
+   * {@code true} if this version is the result of a change that is purely access control related. Only applicable
+   * in implementations where changing access control creates a new revision.
    */
   private final boolean aclOnlyChange;
 
@@ -72,7 +74,8 @@ public class VersionSummary implements Serializable {
    */
   private final List<String> labels;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public VersionSummary( final Serializable id, final Serializable versionedFileId, final boolean aclOnlyChange,
       final Date date, final String author, final String message, final List<String> labels ) {
@@ -91,7 +94,8 @@ public class VersionSummary implements Serializable {
     this.aclOnlyChange = aclOnlyChange;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getMessage() {
     return message;
