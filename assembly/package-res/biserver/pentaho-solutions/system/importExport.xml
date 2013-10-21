@@ -214,7 +214,8 @@
                 				<value>xdash</value>
                 				<value>prpt</value>
                 				<value>prpti</value>
-								<value>xanalyzer</value>								
+								<value>xanalyzer</value>
+                        <value>wcdf</wcdf>								
 		            		</list>
 	        			</constructor-arg>
 						<constructor-arg ref="approvedExtensionList"/>
