@@ -63,8 +63,8 @@ public interface ISolutionFile {
   public boolean isRoot();
 
   /**
-   * NOTE: This method is named 'retrieveParent' instead of 'getParent' because the generic ISolutionFile type is not a
-   * 'Hibernate' described type and one of the base classes (RepositoryFile) will fail dependency checking.
+   * NOTE: This method is named 'retrieveParent' instead of 'getParent' because the generic ISolutionFile type is
+   * not a 'Hibernate' described type and one of the base classes (RepositoryFile) will fail dependency checking.
    * 
    * @return The parent file for this ISolutionFile
    */

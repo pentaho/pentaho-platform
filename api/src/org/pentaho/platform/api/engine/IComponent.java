@@ -17,16 +17,17 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.List;
-import java.util.Map;
-
 import org.dom4j.Node;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * A Component is the smallest module in the platform architecture and represents a unit of work, or an action to be
- * performed. Different Component implementations provide new channels of functionality as well as multiple
- * implementations of similar features (.ie, the BIRT Reporting Component and the Jasper Reports Reporting Component).
+ * A Component is the smallest module in the platform architecture and represents a unit of work, or an action to
+ * be performed. Different Component implementations provide new channels of functionality as well as multiple
+ * implementations of similar features (.ie, the BIRT Reporting Component and the Jasper Reports Reporting
+ * Component).
  */
 public interface IComponent extends IAuditable, ILogger {
 
@@ -38,8 +39,8 @@ public interface IComponent extends IAuditable, ILogger {
   public boolean init();
 
   /**
-   * Validate that the Component has all the necessary inputs, outputs and resources it needs to execute successfully.
-   * Also may validate a schema here.
+   * Validate that the Component has all the necessary inputs, outputs and resources it needs to execute
+   * successfully. Also may validate a schema here.
    * 
    * @return one of IRuntimeContext validation conditions
    * @see org.pentaho.platform.api.engine.IRuntimeContext

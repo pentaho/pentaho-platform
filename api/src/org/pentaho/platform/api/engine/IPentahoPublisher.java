@@ -18,8 +18,8 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * Defines the interface for getting objects published in the platform. Publishers are defined in the pentaho.xml, and
- * show up on the console in the Publish jsp.
+ * Defines the interface for getting objects published in the platform. Publishers are defined in the pentaho.xml,
+ * and show up on the console in the Publish jsp.
  * 
  * @author mbatchel
  * @see SolutionPublisher
@@ -36,7 +36,8 @@ public interface IPentahoPublisher {
    *          The session of the requester
    * @param loggingLevel
    *          Log granularity level
-   * @return message indicating success or failure. This message is shown back to the user that requested the publish.
+   * @return message indicating success or failure. This message is shown back to the user that requested the
+   *         publish.
    */
   public String publish( IPentahoSession session, int loggingLevel );
 

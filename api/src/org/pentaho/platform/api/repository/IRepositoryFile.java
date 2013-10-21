@@ -17,20 +17,20 @@
 
 package org.pentaho.platform.api.repository;
 
-import java.util.List;
-import java.util.Set;
-
 import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.ISolutionFile;
+
+import java.util.List;
+import java.util.Set;
 
 public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
 
   public static final char SEPARATOR = '/';
 
   /**
-   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients should
-   * likely use resetAccessControls.
+   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients
+   * should likely use resetAccessControls.
    */
   @SuppressWarnings( "rawtypes" )
   public void setAccessControls( List acls );

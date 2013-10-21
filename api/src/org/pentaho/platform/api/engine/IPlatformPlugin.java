@@ -17,19 +17,19 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.ListableBeanFactory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 /**
- * This interface represents the contract for the specification of a plugin. A {@link IPluginProvider} is responsible
- * for serving these to requesting clients, such as the {@link IPluginManager}. The presence of an instance of an
- * {@link IPlatformPlugin} does not necessarily mean that the plugin is loaded. An implementations of this interface
- * represents merely a plugin configuration.
+ * This interface represents the contract for the specification of a plugin. A {@link IPluginProvider} is
+ * responsible for serving these to requesting clients, such as the {@link IPluginManager}. The presence of an
+ * instance of an {@link IPlatformPlugin} does not necessarily mean that the plugin is loaded. An implementations
+ * of this interface represents merely a plugin configuration.
  * 
  * @author jdixon
  */
@@ -105,8 +105,8 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   public String getLifecycleListenerClassname();
 
   /**
-   * Registers a lifecycle listener with this plugin. This listener will be notified when lifecycle events occur on this
-   * plugin.
+   * Registers a lifecycle listener with this plugin. This listener will be notified when lifecycle events occur on
+   * this plugin.
    * 
    * @param listener
    *          a lifecycle listener
@@ -135,11 +135,11 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   public void unLoaded() throws PluginLifecycleException;
 
   /**
-   * The storage mechanism for a plugin to know what ISolutionFileMetaProvider class should be used for a particular
-   * content type.
+   * The storage mechanism for a plugin to know what ISolutionFileMetaProvider class should be used for a
+   * particular content type.
    * 
-   * @return a map of content types (extensions) keys and ISolutionFileMetaProvider (or deprecated IFileInfoGenerator)
-   *         classnames for values
+   * @return a map of content types (extensions) keys and ISolutionFileMetaProvider (or deprecated
+   *         IFileInfoGenerator) classnames for values
    */
   public Map<String, String> getMetaProviderMap();
 

@@ -17,10 +17,10 @@
 
 package org.pentaho.platform.api.repository.datasource;
 
-import java.util.List;
-
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
+
+import java.util.List;
 
 /**
  * Service to manage JDBC datasources in the platform. is a {@link IDatabaseConnection}.

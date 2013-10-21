@@ -17,10 +17,10 @@
 
 package org.pentaho.platform.api.usersettings;
 
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+
+import java.util.List;
 
 public interface IUserSettingService extends IPentahoInitializer {
   public void deleteUserSettings();

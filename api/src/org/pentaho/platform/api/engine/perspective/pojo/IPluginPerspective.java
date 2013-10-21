@@ -17,10 +17,10 @@
 
 package org.pentaho.platform.api.engine.perspective.pojo;
 
+import org.pentaho.ui.xul.XulOverlay;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import org.pentaho.ui.xul.XulOverlay;
 
 public interface IPluginPerspective extends Serializable {
 

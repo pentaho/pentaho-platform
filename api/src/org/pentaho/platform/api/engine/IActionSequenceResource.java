@@ -17,14 +17,14 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+
 import java.io.InputStream;
 import java.util.Locale;
 
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-
 /**
- * The ActionResource interface represents one resource in an ActionSequence. Resources are elements in a solution that
- * exist outside of the action sequence document, such as images, icons, additional definition documents, etc.
+ * The ActionResource interface represents one resource in an ActionSequence. Resources are elements in a solution
+ * that exist outside of the action sequence document, such as images, icons, additional definition documents, etc.
  */
 public interface IActionSequenceResource {
 
@@ -67,8 +67,8 @@ public interface IActionSequenceResource {
   public String getName();
 
   /**
-   * Returns the mime type of the resource. Since resources are external, they can take on many different formats ie.,
-   * text/xml, image/jpg, etc.
+   * Returns the mime type of the resource. Since resources are external, they can take on many different formats
+   * ie., text/xml, image/jpg, etc.
    * 
    * @return the mime type of the resource
    */

@@ -17,18 +17,18 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.pentaho.ui.xul.XulOverlay;
+import org.springframework.beans.factory.ListableBeanFactory;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
-import org.pentaho.ui.xul.XulOverlay;
-import org.springframework.beans.factory.ListableBeanFactory;
-
 /**
  * The contract API between the platform and BIServer plugins. The plugin manager provides the ability to load and
  * register plugins as well as utility methods for getting particular extension implementations from the set of
- * registered plugins. It's object creation and management features are backed by a {@link ListableBeanFactory} For more
- * information on platform plugins, visit the wiki link below.
+ * registered plugins. It's object creation and management features are backed by a {@link ListableBeanFactory} For
+ * more information on platform plugins, visit the wiki link below.
  * 
  * @see <a href="http://wiki.pentaho.com/display/ServerDoc2x/BI+Platform+Plugins+in+V2">BI Platform Plugins</a>
  * @author jamesdixon
@@ -37,8 +37,9 @@ import org.springframework.beans.factory.ListableBeanFactory;
 public interface IPluginManager {
 
   /**
-   * Returns a set of the content types that the registered plugins can process. If the plugin is intended to handle the
-   * processing of a document in the solution repository the types need to match with the filename extension.
+   * Returns a set of the content types that the registered plugins can process. If the plugin is intended to
+   * handle the processing of a document in the solution repository the types need to match with the filename
+   * extension.
    * 
    * @return list of all the content types provided by plugins
    */
@@ -61,8 +62,8 @@ public interface IPluginManager {
     throws ObjectFactoryException;
 
   /**
-   * Causes the plug-in manager object to re-register all of the plug-ins that it knows about. A {@link IPluginProvider}
-   * may be invoked to discover plugins from various sources.
+   * Causes the plug-in manager object to re-register all of the plug-ins that it knows about. A
+   * {@link IPluginProvider} may be invoked to discover plugins from various sources.
    * 
    * @return true if no errors were encountered
    */
@@ -87,31 +88,31 @@ public interface IPluginManager {
    * 
    * @param beanId
    *          a unique identifier for a particular bean (cannot be null)
-   * @return an instance of the bean registered under beanId may generate an unchecked PluginBeanException if there was
-   *         a problem retrieving the bean instance
+   * @return an instance of the bean registered under beanId may generate an unchecked PluginBeanException if there
+   *         was a problem retrieving the bean instance
    */
   public Object getBean( String beanId ) throws PluginBeanException;
 
   /**
-   * Returns a {@link IContentGenerator} that can render the named perspective (e.g. 'viewer') of a resource of type
-   * <code>type</code> (e.g. 'prpt'). Essentially the same as
+   * Returns a {@link IContentGenerator} that can render the named perspective (e.g. 'viewer') of a resource of
+   * type <code>type</code> (e.g. 'prpt'). Essentially the same as
    * <code> (IContentGenerator)getBean(type+"/"+perspectiveName)</code>
    * 
    * @param type
    *          the type of resource to render
    * @param perspectiveName
-   *          specifies a distinct view of the resource. Can be <code>null</code> in which case the default perspective
-   *          'generatedContent' is implied.
-   * @return a list of suitable {@link IContentGenerator}s may generate an unchecked NoSuchBeanDefinitionException - if
-   *         there is no bean definition with the specified name may generate an unchecked BeansException - if the bean
-   *         could not be obtained
+   *          specifies a distinct view of the resource. Can be <code>null</code> in which case the default
+   *          perspective 'generatedContent' is implied.
+   * @return a list of suitable {@link IContentGenerator}s may generate an unchecked NoSuchBeanDefinitionException
+   *         - if there is no bean definition with the specified name may generate an unchecked BeansException - if
+   *         the bean could not be obtained
    */
   public IContentGenerator getContentGenerator( String type, String perspectiveName );
 
   /**
    * Returns a loaded class for the bean registered as beanId. The class will have been loaded by the proper
-   * classloader, so it indirectly provides the caller with it's classloader by class.getClassLoader(). This is often
-   * helpful since plugin bean classes are often not available through the caller's classloader.
+   * classloader, so it indirectly provides the caller with it's classloader by class.getClassLoader(). This is
+   * often helpful since plugin bean classes are often not available through the caller's classloader.
    * 
    * @param beanId
    *          a unique identifier for a particular bean (cannot be null)
@@ -122,8 +123,8 @@ public interface IPluginManager {
   public Class<?> loadClass( String beanId ) throws PluginBeanException;
 
   /**
-   * Returns true if a bean with id beanId has been registered with the plugin manager, i.e. you can get a bean instance
-   * by calling {@link #getBean(String)}
+   * Returns true if a bean with id beanId has been registered with the plugin manager, i.e. you can get a bean
+   * instance by calling {@link #getBean(String)}
    * 
    * @param beanId
    *          Cannot be null
@@ -141,8 +142,8 @@ public interface IPluginManager {
    * 
    * @param contentType
    *          a user-defined file-extension like suffix denoting a type of content
-   * @return the id of the plugin that handles requests to files of type <code>contentType</code> or <code>null</code>
-   *         if none were found
+   * @return the id of the plugin that handles requests to files of type <code>contentType</code> or
+   *         <code>null</code> if none were found
    */
   public String getPluginIdForType( String contentType );
 
@@ -151,8 +152,8 @@ public interface IPluginManager {
    * 
    * @param contentType
    *          a user-defined file-extension like suffix denoting a type of content. for example xaction, prpt
-   * @return the list of REST perspectives for files of type <code>contentType</code> or <code>null</code> if none were
-   *         found
+   * @return the list of REST perspectives for files of type <code>contentType</code> or <code>null</code> if none
+   *         were found
    */
   public List<String> getPluginRESTPerspectivesForType( String contentType );
 
@@ -189,15 +190,16 @@ public interface IPluginManager {
   public Object getPluginSetting( String pluginId, String key, String defaultValue );
 
   /**
-   * Returns the plugin that can handle a request for the resource at "path". A plugin is determined to be able to serve
-   * the request if it either a content generator or a static resource of the plugin is configured to handle the path.
-   * In other words, if a plugin has a static resource of "/my-plugin/resources", then a request to
+   * Returns the plugin that can handle a request for the resource at "path". A plugin is determined to be able to
+   * serve the request if it either a content generator or a static resource of the plugin is configured to handle
+   * the path. In other words, if a plugin has a static resource of "/my-plugin/resources", then a request to
    * "/my-plugin/resources/images/file.png" can be handled by the plugin. If ultimately, no plugin can handle the
    * resource path, <code>null</code> is returned.
    * 
-   * @deprecated This method may not work correctly for plugins in Sugar or later releases, in which a plugin does not
-   *             provide the URL by which to access the resource. Use {@link #isPublic(String, String)} if you want to
-   *             determine if a particular plugin dir is accessable through the plugin resources REST service.
+   * @deprecated This method may not work correctly for plugins in Sugar or later releases, in which a plugin does
+   *             not provide the URL by which to access the resource. Use {@link #isPublic(String, String)} if you
+   *             want to determine if a particular plugin dir is accessable through the plugin resources REST
+   *             service.
    * 
    * @param path
    *          the path to the plugin resource
@@ -208,8 +210,8 @@ public interface IPluginManager {
 
   /**
    * Returns the classloader instance that was assigned by the plugin manager to load all classes for the specified
-   * plugin. Used in combination with {@link #getServicePlugin(String)}, this method can provide you with a way to load
-   * resources from a plugin when all you have is a request URL/path, such as in a servlet environment.
+   * plugin. Used in combination with {@link #getServicePlugin(String)}, this method can provide you with a way to
+   * load resources from a plugin when all you have is a request URL/path, such as in a servlet environment.
    * 
    * @param pluginId
    *          the plugin for which we want to get the assigned classloader
@@ -227,15 +229,16 @@ public interface IPluginManager {
   public ListableBeanFactory getBeanFactory( String pluginId );
 
   /**
-   * returns true if the path is a reference to a potential static resource. Note that this does not guarantee that the
-   * resource exists, just that it maps to a static resource location.
+   * returns true if the path is a reference to a potential static resource. Note that this does not guarantee that
+   * the resource exists, just that it maps to a static resource location.
    * 
    * @param path
    *          static resource path
    * 
-   * @deprecated This method may not work correctly for plugins in Sugar or later releases, in which a plugin does not
-   *             provide the URL by which to access the resource. Use {@link #isPublic(String, String)} if you want to
-   *             determine if a particular plugin dir is accessable through the plugin resources REST service.
+   * @deprecated This method may not work correctly for plugins in Sugar or later releases, in which a plugin does
+   *             not provide the URL by which to access the resource. Use {@link #isPublic(String, String)} if you
+   *             want to determine if a particular plugin dir is accessable through the plugin resources REST
+   *             service.
    * 
    * @return true if path begins as a static resource
    */
@@ -243,8 +246,8 @@ public interface IPluginManager {
   public boolean isStaticResource( String path );
 
   /**
-   * Returns true if the resource specified by <code>path</code> is publicly available, meaning this resource can be
-   * accessed by HTTP GET requests
+   * Returns true if the resource specified by <code>path</code> is publicly available, meaning this resource can
+   * be accessed by HTTP GET requests
    * 
    * @param pluginId
    *          the id of the plugin to search for the dir
@@ -260,17 +263,18 @@ public interface IPluginManager {
    * @param path
    *          the path to the plugin resource
    * 
-   * @deprecated This method may not work correctly for plugins in Sugar or later releases, in which a plugin does not
-   *             provide the URL by which to access the resource. Use {@link #isPublic(String, String)} if you want to
-   *             determine if a particular plugin dir is accessable through the plugin resources REST service.
+   * @deprecated This method may not work correctly for plugins in Sugar or later releases, in which a plugin does
+   *             not provide the URL by which to access the resource. Use {@link #isPublic(String, String)} if you
+   *             want to determine if a particular plugin dir is accessable through the plugin resources REST
+   *             service.
    * @return the InputStream which may be used to read the plugin resource
    */
   @Deprecated
   public InputStream getStaticResource( String path );
 
   /**
-   * Lists the ids of available plugins. From the id, you can get lots of information about a plugin, such as the bean
-   * factory which gives you access to information on all specified beans for that plugin.
+   * Lists the ids of available plugins. From the id, you can get lots of information about a plugin, such as the
+   * bean factory which gives you access to information on all specified beans for that plugin.
    * 
    * @return list of plugin ids
    */

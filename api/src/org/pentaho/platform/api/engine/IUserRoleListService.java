@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.List;
-
 import org.pentaho.platform.api.mt.ITenant;
+
+import java.util.List;
 
 public interface IUserRoleListService {
 

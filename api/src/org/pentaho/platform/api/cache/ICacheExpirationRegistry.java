@@ -20,8 +20,8 @@ package org.pentaho.platform.api.cache;
 import java.util.List;
 
 /**
- * This interface defines the API for a registry of <code>ILastModifiedCacheItem</code>'s. All items in the registry
- * will have a last modified timestamp that can be used to determine if a cache item is up-to-date or not
+ * This interface defines the API for a registry of <code>ILastModifiedCacheItem</code>'s. All items in the
+ * registry will have a last modified timestamp that can be used to determine if a cache item is up-to-date or not
  * 
  * @author rfellows
  * @see org.pentaho.platform.api.cache.ILastModifiedCacheItem

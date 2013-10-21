@@ -83,8 +83,8 @@ public interface IParameterProvider {
    *          name of parameter to retrieve
    * @param defaultValue
    *          value to return if the named parameter can not be found
-   * @return value of requested parameter converted to an array if it wasn't already an array, or the defaultValue if
-   *         not found
+   * @return value of requested parameter converted to an array if it wasn't already an array, or the defaultValue
+   *         if not found
    */
   public Object[] getArrayParameter( String name, Object[] defaultValue );
 

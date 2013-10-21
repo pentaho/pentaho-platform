@@ -34,9 +34,9 @@ package org.pentaho.platform.api.repository2.unified;
  * Why no {@code APPEND}?
  * </p>
  * <p>
- * Some implementations of these bits may not be able to distinguish between a file create and update. In this case,
- * {@code APPEND} is useless. In the case of JCR, one might reasonably map APPEND to set_property and WRITE to add_node.
- * However, even an update on a file might involve the addition of a node.
+ * Some implementations of these bits may not be able to distinguish between a file create and update. In this
+ * case, {@code APPEND} is useless. In the case of JCR, one might reasonably map APPEND to set_property and WRITE
+ * to add_node. However, even an update on a file might involve the addition of a node.
  * </p>
  * 
  * <p>
@@ -50,8 +50,8 @@ package org.pentaho.platform.api.repository2.unified;
  * Why no {@code DELETE}?
  * </p>
  * <p>
- * {@code DELETE} mapped to jcr:removeNode which was also required for {@code WRITE}. So if you had {@code WRITE}, you
- * had {@code DELETE}, making {@code DELETE} redundant.
+ * {@code DELETE} mapped to jcr:removeNode which was also required for {@code WRITE}. So if you had {@code WRITE},
+ * you had {@code DELETE}, making {@code DELETE} redundant.
  * </p>
  * 
  * @author mlowery

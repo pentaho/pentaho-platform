@@ -21,8 +21,9 @@ package org.pentaho.platform.api.engine;
  * System Entry Point implementors get called upon entry to the system after they've been registered with the
  * ApplicationContext (<tt>IApplicationContext</tt>). The method is called when entries to the system call
  * <code>PentahoSystem.systemEntryPoint();</code> The purpose of the entry point is to setup the environment as
- * necessary to handle relational object persistence, starting transactions, initializing objects, or whatever needs to
- * take place when some action starts in the server. Example invocations include action execution, agent startup, etc.
+ * necessary to handle relational object persistence, starting transactions, initializing objects, or whatever
+ * needs to take place when some action starts in the server. Example invocations include action execution, agent
+ * startup, etc.
  * 
  */
 

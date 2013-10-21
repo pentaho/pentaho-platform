@@ -35,8 +35,8 @@ public interface IPluginLifecycleListener {
   public void init() throws PluginLifecycleException;
 
   /**
-   * Called after the plugin has been registered with the platform, i.e. all content generators, components, etc. have
-   * been loaded.
+   * Called after the plugin has been registered with the platform, i.e. all content generators, components, etc.
+   * have been loaded.
    * 
    * @throws PluginLifecycleException
    *           if an error occurred

@@ -44,9 +44,9 @@ public interface ISearchable {
   public String getSearchableTable();
 
   /**
-   * @return Returns the fully-package-qualified name of a named query in the Hibernate Schema that supports a full-text
-   *         search of all searchable columns. The parameter name for the search term in the query must be :searchTerm
-   *         or the query will fail.
+   * @return Returns the fully-package-qualified name of a named query in the Hibernate Schema that supports a
+   *         full-text search of all searchable columns. The parameter name for the search term in the query must
+   *         be :searchTerm or the query will fail.
    */
   public String getPhraseSearchQueryName();
 }

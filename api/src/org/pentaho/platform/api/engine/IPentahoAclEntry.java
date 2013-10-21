@@ -74,8 +74,8 @@ public interface IPentahoAclEntry extends BasicAclEntry {
   public static final int PERM_EXECUTE_SUBSCRIBE = IPentahoAclEntry.PERM_EXECUTE | IPentahoAclEntry.PERM_SUBSCRIBE;
 
   /**
-   * @deprecated Do not use this constant; instead use FULL_CONTROL for truly inclusive all access. Old ADMIN_ALL (ie,
-   *             WRITE) combination (31)
+   * @deprecated Do not use this constant; instead use FULL_CONTROL for truly inclusive all access. Old ADMIN_ALL
+   *             (ie, WRITE) combination (31)
    */
   @Deprecated
   public static final int PERM_ADMIN_ALL = IPentahoAclEntry.PERM_CREATE | IPentahoAclEntry.PERM_UPDATE

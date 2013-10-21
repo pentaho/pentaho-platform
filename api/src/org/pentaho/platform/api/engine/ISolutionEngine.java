@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Solution Engine handles loading and launching execution of solutions and action sequences. There is one solution
- * engine per request, which can launch one or more action sequences.
+ * The Solution Engine handles loading and launching execution of solutions and action sequences. There is one
+ * solution engine per request, which can launch one or more action sequences.
  */
 public interface ISolutionEngine extends ILogger {
 
@@ -155,8 +155,8 @@ public interface ISolutionEngine extends ILogger {
   public int getStatus();
 
   /**
-   * Initialize the SolutionEngine. This method should be called immediately after object construction, and if solution
-   * engines are re-used among different IPentahoSessions to bind the solution engine to the session.
+   * Initialize the SolutionEngine. This method should be called immediately after object construction, and if
+   * solution engines are re-used among different IPentahoSessions to bind the solution engine to the session.
    * 
    * @param session
    *          the session context for this SolutionEngine
@@ -171,9 +171,9 @@ public interface ISolutionEngine extends ILogger {
   public void setForcePrompt( boolean forcePrompt );
 
   /**
-   * Sets the xsl file to be used to generate the parameter page for the current component. The parameter should be a
-   * full path from the solution root starting with a /, or it should be a path relative to the directory of the current
-   * action sequence.
+   * Sets the xsl file to be used to generate the parameter page for the current component. The parameter should be
+   * a full path from the solution root starting with a /, or it should be a path relative to the directory of the
+   * current action sequence.
    * 
    * @param xsl
    *          The name of the XSL file

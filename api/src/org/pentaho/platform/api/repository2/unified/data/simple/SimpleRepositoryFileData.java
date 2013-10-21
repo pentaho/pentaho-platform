@@ -17,15 +17,15 @@
 
 package org.pentaho.platform.api.repository2.unified.data.simple;
 
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Arrays;
-
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 
 /**
  * A {@link IRepositoryFileData} that has an input stream, encoding, and optional MIME type.
@@ -34,11 +34,13 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
  */
 public class SimpleRepositoryFileData implements IRepositoryFileData {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = -1571991472814251230L;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private InputStream stream;
 
@@ -46,7 +48,8 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
 
   private String mimeType;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SimpleRepositoryFileData( final InputStream stream, final String encoding, final String mimeType ) {
     super();
@@ -55,7 +58,8 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
     this.mimeType = mimeType;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Returns a stream for reading the data in this file.

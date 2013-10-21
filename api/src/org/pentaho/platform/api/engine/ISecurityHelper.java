@@ -17,15 +17,15 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.concurrent.Callable;
-
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
+import java.util.concurrent.Callable;
+
 /**
- * Interface for a utility class with several methods that are used to either bind the <tt>Authentication</tt> to the
- * <tt>IPentahoSession</tt>, retrieve the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other various
- * helper functions.
+ * Interface for a utility class with several methods that are used to either bind the <tt>Authentication</tt> to
+ * the <tt>IPentahoSession</tt>, retrieve the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other
+ * various helper functions.
  * 
  * @author mbatchel
  */
@@ -35,9 +35,9 @@ public interface ISecurityHelper {
    * 
    * <p>
    * This will essentially create a session for this user, make that session the current session, and add the
-   * Authentication objects to the session and Spring context holder. WARNING: this method is irreversible!!! If you
-   * want execute a block of code as a surrogate user and have the orignal user resume after it is complete, you want
-   * {@link #runAsUser(String, java.util.concurrent.Callable)}.
+   * Authentication objects to the session and Spring context holder. WARNING: this method is irreversible!!! If
+   * you want execute a block of code as a surrogate user and have the orignal user resume after it is complete,
+   * you want {@link #runAsUser(String, java.util.concurrent.Callable)}.
    * </p>
    * 
    * <p>
@@ -60,9 +60,9 @@ public interface ISecurityHelper {
 
   /**
    * Utility method that allows you to run a block of code as the given user. Regardless of success or exception
-   * situation, the original session and authentication will be restored once your block of code is finished executing,
-   * i.e. the given user will apply only to your {@link java.util.concurrent.Callable}, then the system environment will
-   * return to the user present prior to you calling this method.
+   * situation, the original session and authentication will be restored once your block of code is finished
+   * executing, i.e. the given user will apply only to your {@link java.util.concurrent.Callable}, then the system
+   * environment will return to the user present prior to you calling this method.
    * 
    * @param <T>
    *          the return type of your operation, specify this type as <code>T</code>
@@ -80,9 +80,9 @@ public interface ISecurityHelper {
 
   /**
    * Utility method that allows you to run a block of code as the given user. Regardless of success or exception
-   * situation, the original session and authentication will be restored once your block of code is finished executing,
-   * i.e. the given user will apply only to your {@link java.util.concurrent.Callable}, then the system environment will
-   * return to the user present prior to you calling this method.
+   * situation, the original session and authentication will be restored once your block of code is finished
+   * executing, i.e. the given user will apply only to your {@link java.util.concurrent.Callable}, then the system
+   * environment will return to the user present prior to you calling this method.
    * 
    * @param <T>
    *          the return type of your operation, specify this type as <code>T</code>
@@ -106,8 +106,8 @@ public interface ISecurityHelper {
   boolean isPentahoAdministrator( IPentahoSession session );
 
   /**
-   * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted to
-   * the specified user.
+   * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted
+   * to the specified user.
    * 
    * @param session
    *          The users' IPentahoSession
@@ -127,8 +127,8 @@ public interface ISecurityHelper {
 
   /**
    * Utility method for hydrating a Spring Authentication object (Principal) given just a user name. Note: The
-   * {@link org.pentaho.platform.api.engine.IUserRoleListService} will be consulted for the roles associated with this
-   * user.
+   * {@link org.pentaho.platform.api.engine.IUserRoleListService} will be consulted for the roles associated with
+   * this user.
    * 
    * @param principalName
    *          the subject of this Authentication object

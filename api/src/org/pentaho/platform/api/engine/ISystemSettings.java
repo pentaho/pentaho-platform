@@ -17,22 +17,22 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.dom4j.Document;
+
 import java.util.List;
 import java.util.Properties;
 
-import org.dom4j.Document;
-
 /**
- * The SystemSettings manages the platform's overall configuration settings. These settings by default can be found in
- * the system tree in an xml file named "pentaho.xml."
+ * The SystemSettings manages the platform's overall configuration settings. These settings by default can be found
+ * in the system tree in an xml file named "pentaho.xml."
  */
 
 public interface ISystemSettings {
 
   /**
-   * Gets the name of the source of the system configurations. For system configurations that are stored in a file, it
-   * should return the filename. Other implementations should return a name that is relevant to the implementation
-   * (possibly a URL, or a database sql query, etc.) Often this will be pentaho.xml
+   * Gets the name of the source of the system configurations. For system configurations that are stored in a file,
+   * it should return the filename. Other implementations should return a name that is relevant to the
+   * implementation (possibly a URL, or a database sql query, etc.) Often this will be pentaho.xml
    * 
    * @return String containing a name that identifies the source of the system configuration
    */
@@ -85,8 +85,8 @@ public interface ISystemSettings {
   public List getSystemSettings( String settingSection );
 
   /**
-   * The SystemSettings object caches each settings document once it's read in. If the system gets a refresh event, this
-   * should be called to make sure that the system settings get refreshed.
+   * The SystemSettings object caches each settings document once it's read in. If the system gets a refresh event,
+   * this should be called to make sure that the system settings get refreshed.
    */
   public void resetSettingsCache();
 

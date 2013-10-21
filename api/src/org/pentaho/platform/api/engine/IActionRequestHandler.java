@@ -56,9 +56,9 @@ public interface IActionRequestHandler {
   public IRuntimeContext getRuntime( String requestHandle );
 
   /**
-   * As the execution happens, the action handler is responsible for storing a list of all the messages that occur in
-   * the case of component failure. This method returns that list. The items in the list are presented to the user as
-   * execution feedback.
+   * As the execution happens, the action handler is responsible for storing a list of all the messages that occur
+   * in the case of component failure. This method returns that list. The items in the list are presented to the
+   * user as execution feedback.
    * 
    * @return list of messages
    */

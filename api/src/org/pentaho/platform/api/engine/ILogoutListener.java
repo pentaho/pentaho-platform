@@ -18,8 +18,8 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * @author wseyler Interface for logoutout listeners. These get called to invalidate caches or other session based items
- *         and to perform any additional cleanup or actions required when a user goes away
+ * @author wseyler Interface for logoutout listeners. These get called to invalidate caches or other session based
+ *         items and to perform any additional cleanup or actions required when a user goes away
  */
 public interface ILogoutListener {
 

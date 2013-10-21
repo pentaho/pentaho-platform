@@ -17,10 +17,10 @@
 
 package org.pentaho.platform.api.repository;
 
-import java.util.Collection;
-
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.ISessionContainer;
+
+import java.util.Collection;
 
 public interface IRuntimeRepository extends ILogger, ISessionContainer {
 
@@ -46,8 +46,8 @@ public interface IRuntimeRepository extends ILogger, ISessionContainer {
    * @param parentType
    *          The parent type of the Runtime Element
    * @param transientOnly
-   *          Indicates whether this runtime element will be transient only (unsaved) or persistent. If true, then this
-   *          will be in memory only, and will not be persisted when it goes out of scope.
+   *          Indicates whether this runtime element will be transient only (unsaved) or persistent. If true, then
+   *          this will be in memory only, and will not be persisted when it goes out of scope.
    * @return The new Runtime element
    */
   public IRuntimeElement newRuntimeElement( String parentId, String parentType, boolean transientOnly );
@@ -62,8 +62,8 @@ public interface IRuntimeRepository extends ILogger, ISessionContainer {
    * @param solutionId
    *          The ID of the Solution this Runtime Element is associated with
    * @param transientOnly
-   *          Indicates whether this runtime element will be transient only (unsaved) or persistent. If true, then this
-   *          will be in memory only, and will not be persisted when it goes out of scope.
+   *          Indicates whether this runtime element will be transient only (unsaved) or persistent. If true, then
+   *          this will be in memory only, and will not be persisted when it goes out of scope.
    * @return The new Runtime element
    */
   public IRuntimeElement newRuntimeElement( String parId, String parType, String solutionId, boolean transientOnly );

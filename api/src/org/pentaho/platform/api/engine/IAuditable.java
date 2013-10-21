@@ -18,8 +18,9 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * Any subsystem that implements the IAuditable interface is candidate for auditing within the platform. This interface
- * outlines the necessary pieces of information that an object must be able to return in order to be auditable.
+ * Any subsystem that implements the IAuditable interface is candidate for auditing within the platform. This
+ * interface outlines the necessary pieces of information that an object must be able to return in order to be
+ * auditable.
  */
 public interface IAuditable {
 

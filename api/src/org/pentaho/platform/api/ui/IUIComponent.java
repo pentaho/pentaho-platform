@@ -17,12 +17,12 @@
 
 package org.pentaho.platform.api.ui;
 
+import org.pentaho.platform.api.engine.IActionRequestHandler;
+import org.pentaho.platform.api.engine.IPentahoSession;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-
-import org.pentaho.platform.api.engine.IActionRequestHandler;
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 public interface IUIComponent {
 
@@ -33,8 +33,9 @@ public interface IUIComponent {
   public boolean validate();
 
   /**
-   * Set the userSession member, generate a Log Id, set the requestHandler, and validate the component's configuration.
-   * NOTE: this method has several side effects not related to validation. could probably use some refactoring
+   * Set the userSession member, generate a Log Id, set the requestHandler, and validate the component's
+   * configuration. NOTE: this method has several side effects not related to validation. could probably use some
+   * refactoring
    * 
    * @param session
    * @param actionRequestHandler

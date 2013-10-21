@@ -30,8 +30,8 @@ import java.util.Set;
 public interface IConfiguredPojo {
 
   /**
-   * Returns a list of Strings that define system settings that a POJO component would like read for it. The strings are
-   * expected to be in the format of : folder/file{setting path} e.g.
+   * Returns a list of Strings that define system settings that a POJO component would like read for it. The
+   * strings are expected to be in the format of : folder/file{setting path} e.g.
    * "smtp-email/email_config.xml{email-smtp/properties/mail.smtp.host}"
    * 
    * @return List of configuration settings paths
@@ -39,8 +39,8 @@ public interface IConfiguredPojo {
   public Set<String> getConfigSettingsPaths();
 
   /**
-   * Sets the configuration settings that were requested via a call to getConfigSettingsPaths(). The keys of the map
-   * will be the Strings that were returned by the call to getConfigSettingsPaths. e.g.
+   * Sets the configuration settings that were requested via a call to getConfigSettingsPaths(). The keys of the
+   * map will be the Strings that were returned by the call to getConfigSettingsPaths. e.g.
    * "smtp-email/email_config.xml{email-smtp/properties/mail.smtp.host}" -> "myhost.com"
    * 
    * @param props

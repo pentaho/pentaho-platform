@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.api.engine.security.userroledao;
 
-import java.io.Serializable;
-
 import org.pentaho.platform.api.mt.ITenant;
+
+import java.io.Serializable;
 
 /**
  * A user of the Pentaho platform. Contains a set of roles for which this user is a member.

@@ -20,14 +20,14 @@ package org.pentaho.platform.api.engine;
 import java.math.BigDecimal;
 
 /**
- * An implementation of the IAuditEntry interface describes the method by which audit messages are recorded and what
- * destination storage they are recorded to.
+ * An implementation of the IAuditEntry interface describes the method by which audit messages are recorded and
+ * what destination storage they are recorded to.
  */
 public interface IAuditEntry {
 
   /**
-   * This method will save the information passed as parameters to the audit storage location. One call to this method
-   * represents one entry in the audit system.
+   * This method will save the information passed as parameters to the audit storage location. One call to this
+   * method represents one entry in the audit system.
    * 
    * @param jobId
    *          the id that ties together audit messages from the same execution

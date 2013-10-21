@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
+
+import java.util.Map;
 
 /**
  * This interface supports conditional execution of action sequence 'actions' blocks
@@ -44,7 +44,8 @@ public interface IConditionalExecution {
   /**
    * Uses current inputs, and the set script to "decide" whether to execute the current block of actions.
    * 
-   * Condition node example: <actions> <condition><![CDATA[chart_type == 'bar']]></condition> ... action definitions ...
+   * Condition node example: <actions> <condition><![CDATA[chart_type == 'bar']]></condition> ... action
+   * definitions ...
    * 
    * @param currentInputs
    * @param logger

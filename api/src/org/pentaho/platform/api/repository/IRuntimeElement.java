@@ -95,8 +95,8 @@ public interface IRuntimeElement {
   public String getStringProperty( String key, String defaultValue );
 
   /**
-   * Sets a string property in the Runtime Element. Special implementation note - Null values aren't supported in the
-   * Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
+   * Sets a string property in the Runtime Element. Special implementation note - Null values aren't supported in
+   * the Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
    * 
    * @param key
    *          The key of the property to set
@@ -126,8 +126,9 @@ public interface IRuntimeElement {
   public BigDecimal getBigDecimalProperty( String key, BigDecimal defaultValue );
 
   /**
-   * Sets a BigDecimal property in the Runtime Element. Special implementation note - Null values aren't supported in
-   * the Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
+   * Sets a BigDecimal property in the Runtime Element. Special implementation note - Null values aren't supported
+   * in the Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime
+   * Element.
    * 
    * @param key
    *          The key of the property to set
@@ -157,8 +158,8 @@ public interface IRuntimeElement {
   public Date getDateProperty( String key, Date defaultValue );
 
   /**
-   * Sets a Date property in the Runtime Element. Special implementation note - Null values aren't supported in the Map.
-   * So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
+   * Sets a Date property in the Runtime Element. Special implementation note - Null values aren't supported in the
+   * Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
    * 
    * @param key
    *          The key of the property to set
@@ -200,8 +201,8 @@ public interface IRuntimeElement {
   public void setLongProperty( String key, Long value );
 
   /**
-   * Sets a Long property in the Runtime Element. Special implementation note - Null values aren't supported in the Map.
-   * So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
+   * Sets a Long property in the Runtime Element. Special implementation note - Null values aren't supported in the
+   * Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
    * 
    * @param key
    *          The key of the property to set
@@ -221,8 +222,8 @@ public interface IRuntimeElement {
   public List getListProperty( String key );
 
   /**
-   * Gets a Map property from the Runtime Element Special implementation note - Null values aren't supported in the Map.
-   * So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
+   * Gets a Map property from the Runtime Element Special implementation note - Null values aren't supported in the
+   * Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
    * 
    * @param key
    *          The key of the property to get
@@ -243,8 +244,8 @@ public interface IRuntimeElement {
   public void setListProperty( String key, List value );
 
   /**
-   * Sets a Map Property in the Runtime Element Special implementation note - Null values aren't supported in the Map.
-   * So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
+   * Sets a Map Property in the Runtime Element Special implementation note - Null values aren't supported in the
+   * Map. So, if a null value is passed in, this implementation will remove the entry from the Runtime Element.
    * 
    * @param key
    *          The key of the property to set
@@ -291,8 +292,8 @@ public interface IRuntimeElement {
   public boolean getLoaded();
 
   /**
-   * Causes an immediate call to the underlying persistence mechanism's write-now method. For Hibernate, this results in
-   * a call to HibernateUtil.flush().
+   * Causes an immediate call to the underlying persistence mechanism's write-now method. For Hibernate, this
+   * results in a call to HibernateUtil.flush().
    */
   public void forceSave();
 

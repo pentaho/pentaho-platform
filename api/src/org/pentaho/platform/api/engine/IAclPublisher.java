@@ -20,9 +20,9 @@ package org.pentaho.platform.api.engine;
 public interface IAclPublisher {
 
   /**
-   * This publisher is used by the RDBMS Based Repository to publish default ACLs to objects being published for the
-   * first time. The publisher will need to iterate over all the children (see <code>IAclSolutionFile</code>) to set the
-   * default acls on the files in the solution.
+   * This publisher is used by the RDBMS Based Repository to publish default ACLs to objects being published for
+   * the first time. The publisher will need to iterate over all the children (see <code>IAclSolutionFile</code>)
+   * to set the default acls on the files in the solution.
    * 
    * @param rootFile
    *          The root of the solution.

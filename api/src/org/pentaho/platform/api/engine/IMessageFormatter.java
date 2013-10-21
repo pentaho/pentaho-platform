@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.List;
-
 import org.pentaho.commons.connection.IPentahoResultSet;
+
+import java.util.List;
 
 public interface IMessageFormatter {
 
@@ -27,9 +27,10 @@ public interface IMessageFormatter {
       final StringBuffer messageBuffer );
 
   /**
-   * If PentahoMessenger.getUserString("ERROR") returns the string: "Error: {0} ({1})" (which is the case for English)
-   * Find the substring before the first "{". In this case, that would be: "Error: ". Return the first string in the
-   * messages list that contains the string "Error: ". If no string in the list contains "Error: ", return null;
+   * If PentahoMessenger.getUserString("ERROR") returns the string: "Error: {0} ({1})" (which is the case for
+   * English) Find the substring before the first "{". In this case, that would be: "Error: ". Return the first
+   * string in the messages list that contains the string "Error: ". If no string in the list contains "Error: ",
+   * return null;
    * 
    * @param messages
    * @return

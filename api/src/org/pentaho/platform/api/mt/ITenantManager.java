@@ -17,19 +17,19 @@
 
 package org.pentaho.platform.api.mt;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-
 /**
  * @author wseyler
  * 
- *         This interface follows the following argument conventions: - parentPath is a fully qualified TENANT ONLY path
- *         that resolves to the parent of the tenant to be operated on - tenentPath is a fully qualified TENANT ONLY
- *         path that resolves to the tenant root folder. - tenantId is a internal UUID that uniquely identifies the
- *         tenant root folder
+ *         This interface follows the following argument conventions: - parentPath is a fully qualified TENANT ONLY
+ *         path that resolves to the parent of the tenant to be operated on - tenentPath is a fully qualified
+ *         TENANT ONLY path that resolves to the tenant root folder. - tenantId is a internal UUID that uniquely
+ *         identifies the tenant root folder
  */
 public interface ITenantManager {
   // ~ Constants
@@ -116,8 +116,8 @@ public interface ITenantManager {
    * 
    * @param parentTenant
    * @param descendantTenant
-   * @return boolean that is true if the parentTenant is the same as descendantTenant or the descendantTenant is the
-   *         descendant of the parent
+   * @return boolean that is true if the parentTenant is the same as descendantTenant or the descendantTenant is
+   *         the descendant of the parent
    */
   boolean isSubTenant( final ITenant parentTenant, final ITenant descendantTenant );
 
