@@ -1,21 +1,21 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
-pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
+pen.define(["common-ui/util/PentahoSpinner"], function (spin) {
 
   var local = {
     name: "favorites",
@@ -47,23 +47,23 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       wcdf: "wcdf"
     },
 
-    init: function() {
+    init: function () {
     },
 
     /**
      * register the Handlebars helper. can't do this on init since we allow post creation extension via $.extend().
      */
-    registerHelper: function() {
-      if(!this.helperRegistered) {
+    registerHelper: function () {
+      if (!this.helperRegistered) {
         var that = this;
-        Handlebars.registerHelper(this.template.itemIterator, function(context, options) {
+        Handlebars.registerHelper(this.template.itemIterator, function (context, options) {
           var ret = "";
           var isEmpty = that.isEmptyList(context);
-          for(var i=0, j=context.length; i<j; i++) {
+          for (var i = 0, j = context.length; i < j; i++) {
             var repositoryPath = context[i].fullPath;
-            if(repositoryPath) {
-              var extension = repositoryPath.substr( (repositoryPath.lastIndexOf('.') +1) );
-              if(extension && that.knownExtensions[extension]) {
+            if (repositoryPath) {
+              var extension = repositoryPath.substr((repositoryPath.lastIndexOf('.') + 1));
+              if (extension && that.knownExtensions[extension]) {
                 context[i][extension] = true;
               } else {
                 context[i].unknownType = true;
@@ -77,8 +77,8 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
           return ret;
         });
 
-        Handlebars.registerHelper("hasItems", function(context, options) {
-          if(that.isEmptyList(context)) {
+        Handlebars.registerHelper("hasItems", function (context, options) {
+          if (that.isEmptyList(context)) {
             return options.inverse(this);
           }
           return options.fn(this);
@@ -88,11 +88,11 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       }
     },
 
-    isEmptyList: function(context) {
+    isEmptyList: function (context) {
       return (context.length == 0 || (context.length == 1 && context[0].title == this.i18nMap.emptyList));
     },
 
-    load: function(/*Optional|Function*/callback) {
+    load: function (/*Optional|Function*/callback) {
       this._contentRefreshed = callback;
       this._beforeLoad();
       this.registerHelper();
@@ -100,55 +100,55 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       context.i18n = this.i18nMap;
 
       if (this.disabled) {
-    	  return;
+        return;
       }
-      
+
       var that = this;
-      this.getContent(function(items) {
+      this.getContent(function (items) {
         that.showList(items, context);
       });
     },
 
-    _beforeLoad: function() {
+    _beforeLoad: function () {
       this.currentItems = undefined;
     },
 
-    getUrlBase: function() {
-      if(!this.urlBase) {
+    getUrlBase: function () {
+      if (!this.urlBase) {
         this.urlBase = window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/home")) + "/";
       }
       return this.urlBase;
     },
 
-    getContent: function(/*Function*/ callback) {
+    getContent: function (/*Function*/ callback) {
       var now = new Date();
       var that = this;
       $.ajax({
         url: that.getUrlBase() + that.serviceUrl + "?ts=" + now.getTime(),
 
-        success: function(result) {
+        success: function (result) {
           callback(result)
-          if(that._contentRefreshed) {
+          if (that._contentRefreshed) {
             that._contentRefreshed();
           }
         },
 
-        error: function(err) {
+        error: function (err) {
           console.log(that.i18nMap["error_could_not_get" + that.name] + " - " + err);
         },
 
-        beforeSend: function() {
+        beforeSend: function () {
           that.showWaiting();
         }
 
       });
     },
 
-    _contentRefreshed: function() {
+    _contentRefreshed: function () {
 
     },
 
-    doClear: function(callback) {
+    doClear: function (callback) {
       var that = this;
       var context = {};
       context.i18n = that.i18nMap;
@@ -158,66 +158,72 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
         type: 'POST',
         data: [],
 
-        success: function(result) {
+        success: function (result) {
           that.showList(result, context);
-          if(callback) {
+          if (callback) {
             callback();
           }
         },
 
-        error: function(err) {
+        error: function (err) {
           console.log(that.i18nMap["error_could_not_clear_" + that.name] + " - " + err);
         },
 
-        beforeSend: function() {
+        beforeSend: function () {
           that.showWaiting()
         }
 
       });
     },
 
-    showWaiting: function() {
+    showWaiting: function () {
       var config = spin.getLargeConfig();
       config.color = "#BBB";
       this.spinner = new Spinner(config);
       var s = this.spinner.spin();
-      $("#"+ this.contentPanelId).html(s.el);
+      $("#" + this.contentPanelId).html(s.el);
     },
 
-    showList: function(items, context) {
-      if(!this.template.html) {
+    showList: function (items, context) {
+      if (!this.template.html) {
         this.template.html = $("#" + this.template.id).html();
       }
       var template = Handlebars.compile(this.template.html);
-      if(items.length > 0) {
+      if (items.length > 0) {
         try {
           context[this.name] = JSON.parse(items);
           context.isEmpty = context[this.name].length == 0;
           this.currentItems = context[this.name];
-          if(context.isEmpty) {
-            context[this.name] = [{title: this.i18nMap.emptyList}];
+          if (context.isEmpty) {
+            context[this.name] = [
+              {title: this.i18nMap.emptyList}
+            ];
             this.currentItems = [];
           }
-        } catch(err) {
-          context[this.name] = [{title: this.i18nMap.emptyList}];
+        } catch (err) {
+          context[this.name] = [
+            {title: this.i18nMap.emptyList}
+          ];
           context.isEmpty = true;
           this.currentItems = [];
         }
       } else {
-        context[this.name] = [{title: this.i18nMap.emptyList}];
+        context[this.name] = [
+          {title: this.i18nMap.emptyList}
+        ];
         context.isEmpty = true;
         this.currentItems = [];
       }
       var html = template(context);
       var that = this;
       // make sure the spinner is visible long enough for the user to see it
-      setTimeout(function() {
+      setTimeout(function () {
         that.spinner.stop();
         $("#" + that.displayContainerId).html(html);
       }, 100);
     },
 
-    clear: function(callback) {
+    clear: function (callback) {
       this.doClear(callback);
     },
 
@@ -226,42 +232,42 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
      * @param fullPath
      * @returns {boolean}
      */
-    isItemAFavorite: function(fullPath) {
+    isItemAFavorite: function (fullPath) {
       return true;
     },
 
-    getFavorites: function() {
+    getFavorites: function () {
       return this.getCurrentItems();
     },
 
-    getCurrentItems: function() {
+    getCurrentItems: function () {
       return this.currentItems;
     },
 
-    unmarkFavorite: function(fullPath) {
+    unmarkFavorite: function (fullPath) {
       //let mantle add the favorite
-      if(window.parent.mantle_removeFavorite) {
+      if (window.parent.mantle_removeFavorite) {
         window.parent.mantle_removeFavorite(fullPath);
       } else {
         console.log(this.i18nMap.error_could_not_unmark_favorite);
       }
     },
 
-    markFavorite: function(fullPath, title) {
+    markFavorite: function (fullPath, title) {
       //let mantle add the favorite
-      if(window.parent.mantle_addFavorite) {
+      if (window.parent.mantle_addFavorite) {
         window.parent.mantle_addFavorite(fullPath, title);
       } else {
         console.log(this.i18nMap.error_could_not_mark_favorite);
       }
     },
 
-    indexOf: function(fullPath) {
+    indexOf: function (fullPath) {
       var items = this.getCurrentItems();
       var index = -1;
-      if(items) {
-        $.each(items, function(idx, item) {
-          if(item.fullPath == fullPath) {
+      if (items) {
+        $.each(items, function (idx, item) {
+          if (item.fullPath == fullPath) {
             index = idx;
             return false;
           }
@@ -269,12 +275,12 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       }
       return index;
     },
-    indexOfFavorite: function(fullPath) {
+    indexOfFavorite: function (fullPath) {
       var items = this.getFavorites();
       var index = -1;
-      if(items) {
-        $.each(items, function(idx, item) {
-          if(item.fullPath == fullPath) {
+      if (items) {
+        $.each(items, function (idx, item) {
+          if (item.fullPath == fullPath) {
             index = idx;
             return false;
           }
@@ -284,7 +290,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
     }
   };
 
-  var favorite = function(){
+  var favorite = function () {
     this.init();
   }
   favorite.prototype = local;

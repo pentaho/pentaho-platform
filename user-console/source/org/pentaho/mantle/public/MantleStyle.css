@@ -1,19 +1,19 @@
-html{
+html {
   height: 100%;
   overflow: hidden;
   font-family: Veranda, Tahoma, Helvetica, Arial, sans-serif;
 }
 
-body{
+body {
   height: 100%;
 }
 
-.hidden{
-  display:none;
+.hidden {
+  display: none;
 }
 
-.alignleft{
-  left:0 !important;
+.alignleft {
+  left: 0 !important;
 }
 
 .workspaceHeading {
@@ -21,12 +21,14 @@ body{
   font-size: 24px;
   padding: 0px 0px 20px 0px;
 }
-.schedulerPerspective{
+
+.schedulerPerspective {
   padding: 40px 40px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+
 .schedulesHeading {
   border-width: 1px;
   border-bottom-style: solid;
@@ -56,7 +58,7 @@ body{
 }
 
 .reportParameterDisclosurePanel {
-  text-decoration:none;
+  text-decoration: none;
   cursor: pointer;
   cursor: hand;
 }
@@ -71,19 +73,19 @@ body{
 }
 
 .solutionDisclosureHeaderWidget {
-  text-decoration:none;
+  text-decoration: none;
   cursor: pointer;
   cursor: hand;
 }
 
 .solutionDisclosureHeaderWidgetHover {
-  text-decoration:none;
+  text-decoration: none;
   cursor: pointer;
   cursor: hand;
 }
 
 .solutionDisclosureWidget {
-  text-decoration:none;
+  text-decoration: none;
   margin-top: 3px;
   cursor: pointer;
   cursor: hand;
@@ -170,7 +172,6 @@ body{
   font-size: 13px;
 }
 
-
 .filesPanelMenuLabel {
   vertical-align: middle;
   line-height: 29px;
@@ -183,7 +184,6 @@ body{
   padding-left: 10px;
 }
 
-
 .mainToolbar {
   height: 46px;
 }
@@ -194,8 +194,6 @@ body{
 
 .puc-horizontal-split-panel {
 }
-
-
 
 .puc-horizontal-split-panel .gwt-SplitLayoutPanel-HDragger {
   cursor: w-resize;
@@ -212,9 +210,8 @@ body{
 }
 
 .IE .puc-horizontal-split-panel {
-    overflow: hidden;
+  overflow: hidden;
 }
-
 
 #loading {
   position: absolute;
@@ -234,9 +231,9 @@ body{
 
 #loading .loading-indicator img {
   background: white;
-  margin-right:8px;
-  float:left;
-  vertical-align:top;
+  margin-right: 8px;
+  float: left;
+  vertical-align: top;
 }
 
 .applicationShell {
@@ -270,15 +267,6 @@ code {
   font-size: small;
 }
 
-
-
-
-
-
-
-
-
-
 .backgroundContentAction {
   cursor: pointer;
   cursor: hand;
@@ -289,11 +277,11 @@ code {
   padding: 10px 10px 10px 10px;
 }
 
-
 .backgroundContentHeaderTableCell {
   padding: 8px;
 
 }
+
 .backgroundContentHeaderTableCellRight {
   padding: 8px;
 
@@ -315,30 +303,24 @@ code {
   padding: 0px 10px 0px 10px;
 }
 
-
-
-
-
-
-
 .gwt-BorderedPanel {
 }
 
 .gwt-Button {
-  height:22px;
+  height: 22px;
   margin: 0px 4px 2px 4px;
 }
 
 .gwt-Button:hover {
   margin: 0px 4px 2px 4px;
-  height:22px;
+  height: 22px;
   cursor: pointer;
   cursor: hand;
 }
 
 .gwt-Button:disabled {
   margin: 0px 4px 2px 4px;
-  height:22px;
+  height: 22px;
   cursor: default;
 }
 
@@ -373,7 +355,6 @@ code {
   font-size: 13px;
 }
 
-
 .menuBarAndLogoPanel {
 
 }
@@ -386,20 +367,21 @@ code {
 }
 
 #pucWrapper {
-	position: relative;
+  position: relative;
 }
 
 #pucContent {
-	position: absolute;	
-	left: 0;
-	right: 0;
-	bottom: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .pucContentDeck {
   height: 100%;
   width: 100%;
 }
+
 .IE .pucContentDeck {
   overflow: visible !important;
 }
@@ -422,7 +404,6 @@ code {
   padding-top: 0px;
 }
 
-
 .gwt-Tree .gwt-TreeItem {
   white-space: nowrap;
   cursor: pointer;
@@ -434,7 +415,6 @@ code {
   cursor: pointer;
   cursor: hand;
 }
-
 
 .gwt-StackPanel .gwt-StackPanelItem {
   padding: 5px 5px 5px 5px;
@@ -540,12 +520,14 @@ code {
   height: 34pt;
   width: 50%;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-line {
   height: 4px;
   width: 95%;
   top: 22pt;
   overflow: hidden;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-knob {
   top: 14pt;
   width: 11px;
@@ -553,52 +535,57 @@ code {
   z-index: 1;
   cursor: pointer;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-tick {
   top: 12pt;
   width: 1px;
   height: 8pt;
   overflow: hidden;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-label {
   top: 2pt;
   cursor: default;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-line-sliding {
   cursor: pointer;
 }
 
-.titledToolbar{
-  position:absolute;
-  width:100%;
+.titledToolbar {
+  position: absolute;
+  width: 100%;
 
 }
 
-.panelWithTitledToolbar{
+.panelWithTitledToolbar {
   height: 100%;
 }
 
-.files-list-panel{
-  position:absolute;
-  height:100% !important;
-  height:100% -29px;
-  width:100%;
-  overflow:auto;
+.files-list-panel {
+  position: absolute;
+  height: 100% !important;
+  height: 100% -29px;
+  width: 100%;
+  overflow: auto;
 }
-.files-toolbar{
-  width:100%;
-  height:29px;
-  position:absolute;
+
+.files-toolbar {
+  width: 100%;
+  height: 29px;
+  position: absolute;
   z-index: 10;
   overflow: hidden;
 }
 
-.folder-list-panel{
-  position:absolute;
-  height:100% !important;
-  height:100% -29px;
-  width:100%;
-  overflow:auto;
+.folder-list-panel {
+  position: absolute;
+  height: 100% !important;
+  height: 100% -29px;
+  width: 100%;
+  overflow: auto;
 }
+
 .puc-navigator-panel {
   padding: 6px 0px 0px 0px;
   overflow-x: visible;
@@ -608,50 +595,54 @@ code {
   position: absolute;
 }
 
-.gwt-PopupPanel{
-  z-index:100;
+.gwt-PopupPanel {
+  z-index: 100;
 }
 
-.mantle-toolbar-combo-button{
+.mantle-toolbar-combo-button {
   margin: 1px;
 }
 
-.mantle-toolbar-combo-button-hovering{
+.mantle-toolbar-combo-button-hovering {
   margin: 1px;
 }
 
-.mantle-toolbar-combo-button-disabled{
+.mantle-toolbar-combo-button-disabled {
   margin: 1px;
 }
 
-.filesPanelToolbar{
-  padding-right:3px;
+.filesPanelToolbar {
+  padding-right: 3px;
 }
-.fileItemDragProxy{
-  z-index:1500 !important;
+
+.fileItemDragProxy {
+  z-index: 1500 !important;
   width: 25px;
 }
-.validDrop{
+
+.validDrop {
 }
 
-.msg-Label{
+.msg-Label {
   font-size: 13px;
-  font-style:italic;
-  color:#737373;
+  font-style: italic;
+  color: #737373;
 }
 
 /* BISERVER-6181 - add padding to bottom of the file list panel*/
 .filter-list-panel-container {
   bottom: 14px !important; /* override the inline style that is set by gwt, simple padding doesn't work */
 }
+
 .IE .filter-list-panel-container {
   padding-bottom: 6px !important; /* ie setting the padding works */
 }
+
 /* end fix BISERVER-6181 */
 
 /* BISERVER-6442 */
-#previewResultsTable{
-  overflow:hidden;
+#previewResultsTable {
+  overflow: hidden;
   width: 525px;
 }
 
@@ -708,15 +699,11 @@ code {
   bottom: 0;
 }
 
-
-
-
-
-
 .schedule-editor-caption-panel {
   margin-top: 6px;
   padding: 5px;
 }
+
 .startLabel {
   padding-right: 1ex;
   white-space: nowrap;
@@ -729,6 +716,7 @@ code {
   white-space: nowrap;
   /*border:1px dotted red;*/
 }
+
 .endLabel {
   padding-left: 1ex;
   white-space: nowrap;
@@ -792,49 +780,52 @@ code {
 .scheduleCombo {
   margin-right: 5px;
 }
+
 /* end schedule editor ----------------------------------------------------------*/
 /* end recurrence dialog ----------------------------------------------------------*/
 
 .pentaho-schedule-create {
-	padding: 10px;
-	width: 100%;
+  padding: 10px;
+  width: 100%;
 }
 
 .timeZonePicker {
-  width: 100%; 
+  width: 100%;
 }
-
 
 #admin-users-panel,
 #admin-roles-panel,
 #admin-system-roles-panel {
-  padding:10px;
+  padding: 10px;
 }
 
 .users-roles-list {
   height: 432px;
   width: 200px;
 }
+
 .users-roles-selection-list {
   height: 317px;
   width: 200px;
 }
+
 #admin-roles-panel .users-roles-selection-list {
   height: 268px;
 }
+
 #admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
   height: 26px;
 }
 
-.IE .pentaho-dialog .dialogMiddleCenterInner .dialog-content{
+.IE .pentaho-dialog .dialogMiddleCenterInner .dialog-content {
   text-align: left;
 }
 
-.pentaho-dialog-small{
+.pentaho-dialog-small {
   width: 400px;
 }
 
-.pentaho-dialog-small .gwt-Label{
+.pentaho-dialog-small .gwt-Label {
   text-align: left;
 }
 
@@ -844,16 +835,16 @@ code {
 }
 
 #blockout-table .gwt-ScrollTable {
-  height: auto !important; 
+  height: auto !important;
 }
 
 #blockout-table .gwt-ScrollTable>div {
   position: inherit !important;
-  height: auto !important;  
+  height: auto !important;
 }
 
-#blockout-table .gwt-ScrollTable .dataWrapper{
-  height: auto !important; 
+#blockout-table .gwt-ScrollTable .dataWrapper {
+  height: auto !important;
 }
 
 .IE .schedulerPerspective-wrapper>table {

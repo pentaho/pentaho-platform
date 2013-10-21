@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.mantle.client.commands;
 
@@ -44,26 +44,26 @@ import java.util.List;
 
 /**
  * @author wseyler
- *
+ * 
  */
 public class PasteFilesCommand extends AbstractCommand {
   /**
    * 
    */
   private static final String NAME_NODE_TAG = "name"; //$NON-NLS-1$
-  
+
   RepositoryFile destinationFolder;
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
-  String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+  String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
   public PasteFilesCommand() {
   }
-  
+
   /**
    * @param RepositoryFile
    */
-  public PasteFilesCommand(RepositoryFile destinationFolder) {
+  public PasteFilesCommand( RepositoryFile destinationFolder ) {
     this.destinationFolder = destinationFolder;
   }
 
@@ -73,157 +73,165 @@ public class PasteFilesCommand extends AbstractCommand {
     return solutionPath;
   }
 
-  public void setSolutionPath(String solutionPath) {
+  public void setSolutionPath( String solutionPath ) {
     this.solutionPath = solutionPath;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
    */
   @Override
   protected void performOperation() {
-    if(this.getSolutionPath() != null){
+    if ( this.getSolutionPath() != null ) {
       SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-      sbp.getFile(this.getSolutionPath(), new SolutionFileHandler() {
+      sbp.getFile( this.getSolutionPath(), new SolutionFileHandler() {
         @Override
-        public void handle(RepositoryFile repositoryFile) {
+        public void handle( RepositoryFile repositoryFile ) {
           PasteFilesCommand.this.destinationFolder = repositoryFile;
-          performOperation(false);
+          performOperation( false );
         }
-      });
-    }
-    else{
-      performOperation(false);
+      } );
+    } else {
+      performOperation( false );
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation(boolean)
    */
   @Override
-  protected void performOperation(boolean feedback) {
+  protected void performOperation( boolean feedback ) {
     final SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     final List<RepositoryFile> pasteFiles = new ArrayList<RepositoryFile>();
-    for (FileItem fileItem : clipboardFileItems) {
-      pasteFiles.add(fileItem.getRepositoryFile());
+    for ( FileItem fileItem : clipboardFileItems ) {
+      pasteFiles.add( fileItem.getRepositoryFile() );
     }
-    if (pasteFiles != null && pasteFiles.size() > 0 && destinationFolder != null) {
-      String getChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
-      RequestBuilder childrenRequestBuilder = new RequestBuilder(RequestBuilder.GET, getChildrenUrl);
+    if ( pasteFiles != null && pasteFiles.size() > 0 && destinationFolder != null ) {
+      String getChildrenUrl =
+          contextURL
+              + "api/repo/files/" + SolutionBrowserPanel.pathToId( destinationFolder.getPath() ) + "/children?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
+      RequestBuilder childrenRequestBuilder = new RequestBuilder( RequestBuilder.GET, getChildrenUrl );
       try {
-        childrenRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-        childrenRequestBuilder.sendRequest(null, new RequestCallback() {
-  
+        childrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+        childrenRequestBuilder.sendRequest( null, new RequestCallback() {
+
           @Override
-          public void onError(Request getChildrenRequest, Throwable exception) {
-            Window.alert(exception.toString());
+          public void onError( Request getChildrenRequest, Throwable exception ) {
+            Window.alert( exception.toString() );
           }
-  
+
           @Override
-          public void onResponseReceived(Request getChildrenRequest, Response getChildrenResponse) {
-            if (getChildrenResponse.getStatusCode() >= 200 && getChildrenResponse.getStatusCode() < 300) {
+          public void onResponseReceived( Request getChildrenRequest, Response getChildrenResponse ) {
+            if ( getChildrenResponse.getStatusCode() >= 200 && getChildrenResponse.getStatusCode() < 300 ) {
               boolean promptForOptions = false;
-              Document children = XMLParser.parse(getChildrenResponse.getText());
-              NodeList childrenNameNodes = children.getElementsByTagName(NAME_NODE_TAG);
+              Document children = XMLParser.parse( getChildrenResponse.getText() );
+              NodeList childrenNameNodes = children.getElementsByTagName( NAME_NODE_TAG );
               List<String> childNames = new ArrayList<String>();
-              for (int i=0; i<childrenNameNodes.getLength(); i++) {
-                Node childNameNode = childrenNameNodes.item(i);
-                childNames.add(childNameNode.getFirstChild().getNodeValue());
+              for ( int i = 0; i < childrenNameNodes.getLength(); i++ ) {
+                Node childNameNode = childrenNameNodes.item( i );
+                childNames.add( childNameNode.getFirstChild().getNodeValue() );
               }
-              
-              for (RepositoryFile repositoryFileDto : pasteFiles) {
+
+              for ( RepositoryFile repositoryFileDto : pasteFiles ) {
                 String pasteFileParentPath = repositoryFileDto.getPath();
-                pasteFileParentPath = pasteFileParentPath.substring(0, pasteFileParentPath.lastIndexOf("/")); //$NON-NLS-1$
-                if (childNames.contains(repositoryFileDto.getName()) && !destinationFolder.getPath().equals(pasteFileParentPath)) {
+                pasteFileParentPath = pasteFileParentPath.substring( 0, pasteFileParentPath.lastIndexOf( "/" ) ); //$NON-NLS-1$
+                if ( childNames.contains( repositoryFileDto.getName() )
+                    && !destinationFolder.getPath().equals( pasteFileParentPath ) ) {
                   promptForOptions = true;
                   break;
                 }
               }
-              
-              if (promptForOptions) {
+
+              if ( promptForOptions ) {
                 final OverwritePromptDialog overwriteDialog = new OverwritePromptDialog();
                 final IDialogCallback callback = new IDialogCallback() {
                   public void cancelPressed() {
                     overwriteDialog.hide();
                   }
-  
+
                   public void okPressed() {
-                    performSave(clipBoard, overwriteDialog.getOverwriteMode());
+                    performSave( clipBoard, overwriteDialog.getOverwriteMode() );
                   }
                 };
-                overwriteDialog.setCallback(callback);
+                overwriteDialog.setCallback( callback );
                 overwriteDialog.center();
               } else {
-                performSave(clipBoard, 2);
+                performSave( clipBoard, 2 );
               }
             } else {
-              Window.alert(getChildrenResponse.getText());
+              Window.alert( getChildrenResponse.getText() );
             }
           }
-          
-        });
-      } catch (RequestException e) {
-        Window.alert(e.getLocalizedMessage());
+
+        } );
+      } catch ( RequestException e ) {
+        Window.alert( e.getLocalizedMessage() );
       }
     }
   }
-  
-  void performSave(final SolutionBrowserClipboard clipBoard, Integer overwriteMode) {
+
+  void performSave( final SolutionBrowserClipboard clipBoard, Integer overwriteMode ) {
 
     final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
-    event.setAction(this.getClass().getName());
+    event.setAction( this.getClass().getName() );
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     String temp = ""; //$NON-NLS-1$
-    for (FileItem fileItem : clipboardFileItems) {
+    for ( FileItem fileItem : clipboardFileItems ) {
       temp += fileItem.getRepositoryFile().getId() + ","; //$NON-NLS-1$
     }
     // remove trailing ","
-    temp = temp.substring(0, temp.length()-1);
+    temp = temp.substring( 0, temp.length() - 1 );
     final String filesList = temp;
-    
-    String pasteChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?mode=" + overwriteMode;  //$NON-NLS-1$//$NON-NLS-2$
-    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder(RequestBuilder.PUT, pasteChildrenUrl);
-    pasteChildrenRequestBuilder.setHeader("Content-Type", "text/plain");  //$NON-NLS-1$//$NON-NLS-2$
-    pasteChildrenRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+
+    String pasteChildrenUrl =
+        contextURL
+            + "api/repo/files/" + SolutionBrowserPanel.pathToId( destinationFolder.getPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
+    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, pasteChildrenUrl );
+    pasteChildrenRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
+    pasteChildrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
-      pasteChildrenRequestBuilder.sendRequest(filesList, new RequestCallback() {
+      pasteChildrenRequestBuilder.sendRequest( filesList, new RequestCallback() {
 
         @Override
-        public void onError(Request pasteChildrenRequest, Throwable exception) {
-          Window.alert(exception.getLocalizedMessage());
-          event.setMessage(exception.getLocalizedMessage());
-          EventBusUtil.EVENT_BUS.fireEvent(event);
+        public void onError( Request pasteChildrenRequest, Throwable exception ) {
+          Window.alert( exception.getLocalizedMessage() );
+          event.setMessage( exception.getLocalizedMessage() );
+          EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
         @Override
-        public void onResponseReceived(Request pasteChildrenRequest, Response pasteChildrenResponse) {
+        public void onResponseReceived( Request pasteChildrenRequest, Response pasteChildrenResponse ) {
           SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserClipboard.getInstance().getClipboardAction();
-          if (action == SolutionBrowserClipboard.ClipboardAction.CUT) {
+          if ( action == SolutionBrowserClipboard.ClipboardAction.CUT ) {
 
-            //Convert to a list of repository files for the delete permanent command to work properly
-            List<RepositoryFile>clipboardRepoFiles=new ArrayList<RepositoryFile>();
-              for (FileItem clipboardFileItem : clipboardFileItems) {
-                 clipboardRepoFiles.add(clipboardFileItem.getRepositoryFile());
-              }
-            new DeletePermanentFileCommand(clipboardRepoFiles).execute(false);
+            // Convert to a list of repository files for the delete permanent command to work properly
+            List<RepositoryFile> clipboardRepoFiles = new ArrayList<RepositoryFile>();
+            for ( FileItem clipboardFileItem : clipboardFileItems ) {
+              clipboardRepoFiles.add( clipboardFileItem.getRepositoryFile() );
+            }
+            new DeletePermanentFileCommand( clipboardRepoFiles ).execute( false );
             clipBoard.clear();
           }
 
-          event.setMessage("Success");
-          EventBusUtil.EVENT_BUS.fireEvent(event);
-          FileChooserDialog.setIsDirty(Boolean.TRUE);
+          event.setMessage( "Success" );
+          EventBusUtil.EVENT_BUS.fireEvent( event );
+          FileChooserDialog.setIsDirty( Boolean.TRUE );
         }
-        
-      });
-    } catch (RequestException e) {
-      Window.alert(e.getLocalizedMessage());
-      event.setMessage(e.getLocalizedMessage());
-      EventBusUtil.EVENT_BUS.fireEvent(event);
-    }        
+
+      } );
+    } catch ( RequestException e ) {
+      Window.alert( e.getLocalizedMessage() );
+      event.setMessage( e.getLocalizedMessage() );
+      EventBusUtil.EVENT_BUS.fireEvent( event );
+    }
 
   }
 }

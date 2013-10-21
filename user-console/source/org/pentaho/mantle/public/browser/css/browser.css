@@ -6,20 +6,20 @@
  * ******************************************************************************
  */
 
- #fileBrowser {
- 	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
- }
+#fileBrowser {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
- .main-container {
-	padding-top: 20px;
-	padding-bottom: 20px;
-	max-width: 1024px;
-	margin: 0 auto;
+.main-container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  max-width: 1024px;
+  margin: 0 auto;
 }
 
 .spinner {
@@ -28,116 +28,116 @@
   margin-top: 80px;
 }
 
- .fileBrowserColumn {
- 	height: 100%;
- 	position: relative;
- }
+.fileBrowserColumn {
+  height: 100%;
+  position: relative;
+}
 
- .fileBrowserColumn .header {
- 	border-bottom: solid 1px grey;
- 	margin-bottom: 10px;
+.fileBrowserColumn .header {
+  border-bottom: solid 1px grey;
+  margin-bottom: 10px;
 
- 	height: 20px;
- 	overflow: hidden;
+  height: 20px;
+  overflow: hidden;
 
- 	font-size: 13px;
- }
+  font-size: 13px;
+}
 
- .fileBrowserColumn .body {
- 	position: absolute;
- 	top: 69px; /* Matches .header style of padding-bottom 20px + margin !0px + height 20px + .bootstrap .well 19px*/
- 	bottom: 19px; /* .bootstrap .well padding-bottom of 19px */
- 	left: 19px; /* .bootstrap .well padding-left of 19px */
- 	right: 19px; /* .bootstrap .well padding-right of 19px */
+.fileBrowserColumn .body {
+  position: absolute;
+  top: 69px; /* Matches .header style of padding-bottom 20px + margin !0px + height 20px + .bootstrap .well 19px*/
+  bottom: 19px; /* .bootstrap .well padding-bottom of 19px */
+  left: 19px; /* .bootstrap .well padding-left of 19px */
+  right: 19px; /* .bootstrap .well padding-right of 19px */
 
- 	overflow: auto;
- }
+  overflow: auto;
+}
 
- .fileBrowserColumn .body.first > .folder {
- 	margin-left: 0px;
- }
+.fileBrowserColumn .body.first > .folder {
+  margin-left: 0px;
+}
 
- .fileBrowserColumn .body .separator {
- 	margin: 10px 0px;
- 	border-top: solid 1px grey;
- }
+.fileBrowserColumn .body .separator {
+  margin: 10px 0px;
+  border-top: solid 1px grey;
+}
 
- .fileBrowserColumn .body .folder {
- 	margin-left: 15px;
- 	margin-top: 2px;
- 	margin-bottom: 2px;
- }
+.fileBrowserColumn .body .folder {
+  margin-left: 15px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
 
- .fileBrowserColumn .body .folder .options {
- 	display: none;
-	height: 20px;
-	vertical-align: top;
-	cursor: pointer;
- }
+.fileBrowserColumn .body .folder .options {
+  display: none;
+  height: 20px;
+  vertical-align: top;
+  cursor: pointer;
+}
 
- .fileBrowserColumn .body .folder.first {
- 	margin-left: 0px;
- }
+.fileBrowserColumn .body .folder.first {
+  margin-left: 0px;
+}
 
 .fileBrowserColumn .body .folder .expandCollapse,
 .fileBrowserColumn .body .folder .icon,
 .fileBrowserColumn .body .folder .title {
-	display: inline-block;
-	height: 20px;
-	vertical-align: top;
-	cursor: pointer;
-} 
+  display: inline-block;
+  height: 20px;
+  vertical-align: top;
+  cursor: pointer;
+}
 
-.fileBrowserColumn .body .folder .expandCollapse{
-	width: 11px;	
+.fileBrowserColumn .body .folder .expandCollapse {
+  width: 11px;
 }
 
 .fileBrowserColumn .body .folder .icon {
-	width: 20px;	
-	margin-right: 4px;
+  width: 20px;
+  margin-right: 4px;
 }
 
 .fileBrowserColumn .body .folder .title {
 }
 
-.fileBrowserColumn .body .folder.selected > .element > .title{
+.fileBrowserColumn .body .folder.selected > .element > .title {
 }
 
-.fileBrowserColumn .body .folder.secondarySelected > .element > .title{
+.fileBrowserColumn .body .folder.secondarySelected > .element > .title {
 }
 
 .fileBrowserColumn .body div.folder > div.element > div.expandCollapse {
-	background: url("../resources/images/expandCollapse.png") no-repeat -1px 5px;
+  background: url("../resources/images/expandCollapse.png") no-repeat -1px 5px;
 }
 
 .fileBrowserColumn .body div.folder.open > div.element > div.expandCollapse {
-	background: url("../resources/images/expandCollapse.png") no-repeat -12px 5px;
+  background: url("../resources/images/expandCollapse.png") no-repeat -12px 5px;
 }
 
 .fileBrowserColumn .body div.folder.empty > div.element > div.expandCollapse,
 .fileBrowserColumn .body div.folder.open.empty > div.element > div.expandCollapse {
-	background: none;
+  background: none;
 }
 
-.fileBrowserColumn .body div.folder > div.element > div.icon, 
+.fileBrowserColumn .body div.folder > div.element > div.icon,
 .fileBrowserColumn .body div.folder.empty > div.element > div.icon,
 .fileBrowserColumn .body div.folder.open.empty > div.element > div.icon {
-	background: url("../resources/images/folder.png") no-repeat 4px 3px;
+  background: url("../resources/images/folder.png") no-repeat 4px 3px;
 }
 
 .fileBrowserColumn .body div.trash > div.element > div.icon,
 .fileBrowserColumn .body div.trash.empty > div.element > div.icon,
 .fileBrowserColumn .body div.trash.open.empty > div.element > div.icon {
-	background: url("../resources/images/trash.png") no-repeat -10px 3px;
+  background: url("../resources/images/trash.png") no-repeat -10px 3px;
 }
 
 .fileBrowserColumn .body div.folder.open > div.element > div.icon {
-	background: url("../resources/images/folder.png") no-repeat -16px 3px;
+  background: url("../resources/images/folder.png") no-repeat -16px 3px;
 }
 
-.fileBrowserColumn .body .file .icon{
-	width: 20px;
-	margin-right: 4px;
+.fileBrowserColumn .body .file .icon {
+  width: 20px;
+  margin-right: 4px;
 }
 
 .fileBrowserColumn .body .file.selected > .title {
@@ -145,52 +145,51 @@
 
 .fileBrowserColumn .body .file .icon,
 .fileBrowserColumn .body .file .title {
-	display: inline-block;
-	height: 20px;
-	vertical-align: top;
-	cursor: pointer;
-} 
+  display: inline-block;
+  height: 20px;
+  vertical-align: top;
+  cursor: pointer;
+}
 
 .fileBrowserColumn .body .file .icon {
 
-	background: no-repeat url("../../images/fileIcon.gif") 50% 50%;
+  background: no-repeat url("../../images/fileIcon.gif") 50% 50%;
 }
 
-.fileBrowserColumn .body .file .icon.trashFolder{
-	background: url("../resources/images/folder.png") no-repeat -16px 3px;
+.fileBrowserColumn .body .file .icon.trashFolder {
+  background: url("../resources/images/folder.png") no-repeat -16px 3px;
 }
 
-
-.fileBrowserColumn .body .file .icon.xaction{
-	background-image: url("../../../api/repos/xaction/resources/images/xaction_file_image.png");
+.fileBrowserColumn .body .file .icon.xaction {
+  background-image: url("../../../api/repos/xaction/resources/images/xaction_file_image.png");
 }
 
-.fileBrowserColumn .body .file .icon.xdash{
-	background-image: url("../../../api/repos/dashboards/resources/images/dashboardFileType.png");
+.fileBrowserColumn .body .file .icon.xdash {
+  background-image: url("../../../api/repos/dashboards/resources/images/dashboardFileType.png");
 }
 
-.fileBrowserColumn .body .file .icon.url{
-	background-image: url("../../../api/repos/url/resources/images/file_url.png");
+.fileBrowserColumn .body .file .icon.url {
+  background-image: url("../../../api/repos/url/resources/images/file_url.png");
 }
 
-.fileBrowserColumn .body .file .icon.ktr{
-	background-image: url("../../../content/pdi-platform-plugin/resources/images/transformation.png");
+.fileBrowserColumn .body .file .icon.ktr {
+  background-image: url("../../../content/pdi-platform-plugin/resources/images/transformation.png");
 }
 
-.fileBrowserColumn .body .file .icon.prpt{
-	background-image: url("../../../api/repos/reporting/reportviewer/images/prptFileType.png");
+.fileBrowserColumn .body .file .icon.prpt {
+  background-image: url("../../../api/repos/reporting/reportviewer/images/prptFileType.png");
 }
 
-.fileBrowserColumn .body .file .icon.prpti{
-	background-image: url("../../../api/repos/pentaho-interactive-reporting/resources/images/prptiFileType.png");
+.fileBrowserColumn .body .file .icon.prpti {
+  background-image: url("../../../api/repos/pentaho-interactive-reporting/resources/images/prptiFileType.png");
 }
 
-.fileBrowserColumn .body .file .icon.xanalyser{
-	background-image: url("../../../api/repos/xanalyzer/images/analysis_report_file_icon.png");
+.fileBrowserColumn .body .file .icon.xanalyser {
+  background-image: url("../../../api/repos/xanalyzer/images/analysis_report_file_icon.png");
 }
 
-.fileBrowserColumn .body .file .icon.xcdf{
-	background-image: url("../../../content/pentaho-cdf/resources/cdfFileType.png");
+.fileBrowserColumn .body .file .icon.xcdf {
+  background-image: url("../../../content/pentaho-cdf/resources/cdfFileType.png");
 }
 
 .fill-absolute {
@@ -202,7 +201,7 @@
 }
 
 .emptyFolder {
-	text-align: center;
-	padding: 20px;
-	color: #bbbbbb;
+  text-align: center;
+  padding: 20px;
+  color: #bbbbbb;
 }

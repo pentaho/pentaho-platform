@@ -1,24 +1,24 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.mantle.client.dialogs.scheduling;
 
-import java.util.Date;
-
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
@@ -27,8 +27,7 @@ import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.mantle.client.dialogs.scheduling.validators.ScheduleEditorValidator;
 
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.Date;
 
 /**
  * @author wseyler
@@ -44,11 +43,11 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
 
   ScheduleEditorValidator scheduleEditorValidator;
 
-  public ScheduleEditorWizardPanel(final AbstractWizardDialog.ScheduleDialogType type) {
+  public ScheduleEditorWizardPanel( final AbstractWizardDialog.ScheduleDialogType type ) {
     super();
 
-    scheduleEditor = new ScheduleEditor(type);
-    scheduleEditorValidator = new ScheduleEditorValidator(scheduleEditor);
+    scheduleEditor = new ScheduleEditor( type );
+    scheduleEditorValidator = new ScheduleEditorValidator( scheduleEditor );
     init();
     layout();
   }
@@ -58,20 +57,20 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
    */
   private void init() {
     ICallback<IChangeHandler> chHandler = new ICallback<IChangeHandler>() {
-      public void onHandle(IChangeHandler se) {
-        panelWidgetChanged(ScheduleEditorWizardPanel.this);
+      public void onHandle( IChangeHandler se ) {
+        panelWidgetChanged( ScheduleEditorWizardPanel.this );
       }
     };
-    scheduleEditor.setOnChangeHandler(chHandler);
+    scheduleEditor.setOnChangeHandler( chHandler );
   }
 
   /**
    * 
    */
   private void layout() {
-    this.addStyleName(PENTAHO_SCHEDULE);
-    this.add(scheduleEditor, CENTER);
-    panelWidgetChanged(null);
+    this.addStyleName( PENTAHO_SCHEDULE );
+    this.add( scheduleEditor, CENTER );
+    panelWidgetChanged( null );
   }
 
   /*
@@ -83,10 +82,11 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
     return MSGS.scheduleEdit();
   }
 
-  protected void panelWidgetChanged(Widget changedWidget) {
-    // System.out.println("Widget Changed: " + changedWidget + " can continue: " + scheduleEditorValidator.isValid());
-    this.setCanContinue(scheduleEditorValidator.isValid());
-    this.setCanFinish(scheduleEditorValidator.isValid());
+  protected void panelWidgetChanged( Widget changedWidget ) {
+    // System.out.println("Widget Changed: " + changedWidget + " can continue: " +
+    // scheduleEditorValidator.isValid());
+    this.setCanContinue( scheduleEditorValidator.isValid() );
+    this.setCanFinish( scheduleEditorValidator.isValid() );
   }
 
   public ScheduleEditor.ScheduleType getScheduleType() {
@@ -113,25 +113,25 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
   }
 
   public String getBlockoutStartTime() {
-    if (scheduleEditor.getStartTimePicker() != null) {
+    if ( scheduleEditor.getStartTimePicker() != null ) {
       return scheduleEditor.getStartTimePicker().getTime();
     }
     return null;
   }
 
   public String getBlockoutEndTime() {
-    if (scheduleEditor.getBlockoutEndTimePicker() != null) {
+    if ( scheduleEditor.getBlockoutEndTimePicker() != null ) {
       return scheduleEditor.getBlockoutEndTimePicker().getTime();
     }
     return null;
   }
-  
+
   public String getTimeZone() {
-    if (scheduleEditor.getTimeZonePicker() != null) {
+    if ( scheduleEditor.getTimeZonePicker() != null ) {
       ListBox tzPicker = scheduleEditor.getTimeZonePicker();
       int selIndex = tzPicker.getSelectedIndex();
-      if (selIndex != -1) { // Something is selected
-        return tzPicker.getValue(selIndex);
+      if ( selIndex != -1 ) { // Something is selected
+        return tzPicker.getValue( selIndex );
       }
       return null;
     }

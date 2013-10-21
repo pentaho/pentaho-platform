@@ -1,19 +1,19 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
 package org.pentaho.mantle.client.dialogs.scheduling.validators;
 
@@ -30,18 +30,18 @@ public class ScheduleEditorValidator implements IUiValidator {
 
   protected BlockoutValidator blockoutValidator;
 
-  public ScheduleEditorValidator(ScheduleEditor scheduleEditor) {
+  public ScheduleEditorValidator( ScheduleEditor scheduleEditor ) {
     this.scheduleEditor = scheduleEditor;
-    this.recurrenceEditorValidator = new RecurrenceEditorValidator(this.scheduleEditor.getRecurrenceEditor());
-    this.runOnceEditorValidator = new RunOnceEditorValidator(this.scheduleEditor.getRunOnceEditor());
-    this.cronEditorValidator = new CronEditorValidator(this.scheduleEditor.getCronEditor());
-    this.blockoutValidator = new BlockoutValidator(scheduleEditor);
+    this.recurrenceEditorValidator = new RecurrenceEditorValidator( this.scheduleEditor.getRecurrenceEditor() );
+    this.runOnceEditorValidator = new RunOnceEditorValidator( this.scheduleEditor.getRunOnceEditor() );
+    this.cronEditorValidator = new CronEditorValidator( this.scheduleEditor.getCronEditor() );
+    this.blockoutValidator = new BlockoutValidator( scheduleEditor );
   }
 
   public boolean isValid() {
     boolean isValid = true;
 
-    switch (scheduleEditor.getScheduleType()) {
+    switch ( scheduleEditor.getScheduleType() ) {
       case RUN_ONCE:
         isValid &= runOnceEditorValidator.isValid();
         break;
@@ -60,7 +60,7 @@ public class ScheduleEditorValidator implements IUiValidator {
       default:
     }
 
-    if (this.scheduleEditor.isBlockoutDialog()) {
+    if ( this.scheduleEditor.isBlockoutDialog() ) {
       isValid &= blockoutValidator.isValid();
     }
 

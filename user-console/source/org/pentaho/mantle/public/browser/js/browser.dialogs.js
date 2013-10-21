@@ -1,178 +1,178 @@
 /*!
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
-*/
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
- pen.define([
- 	"js/browser.dialogs.templates.js",
- 	"js/browser.utils.js", 	
-	"common-ui/bootstrap",
-	"common-ui/jquery-i18n",
-  	"common-ui/jquery"
-], function(DialogTemplates, BrowserUtils) {
+pen.define([
+  "js/browser.dialogs.templates.js",
+  "js/browser.utils.js",
+  "common-ui/bootstrap",
+  "common-ui/jquery-i18n",
+  "common-ui/jquery"
+], function (DialogTemplates, BrowserUtils) {
 
-	var dialogs = new Array();
+  var dialogs = new Array();
 
-	var $body = $(window.top.document).find("html body"),
-		$container = $body.find(".bootstrap.dialogs");
+  var $body = $(window.top.document).find("html body"),
+      $container = $body.find(".bootstrap.dialogs");
 
-	// Add container to body once
-	if ($container.length == 0) {		
-		$container = $("<div class='bootstrap dialogs'></div>");
-		$container.appendTo($body);	
-	}	
+  // Add container to body once
+  if ($container.length == 0) {
+    $container = $("<div class='bootstrap dialogs'></div>");
+    $container.appendTo($body);
+  }
 
-	var local = {
+  var local = {
 
-		$dialog: null,
-		
-		postShow: null,
+    $dialog: null,
 
-		postHide: null,
+    postShow: null,
 
-		isDragging: false,
+    postHide: null,
 
-		// 	config = { 					
-		// 		dialog.id: 				"id",				
-		// 		dialog.content.header: 	"string" or undefined,
-		// 		dialog.content.body: 	"string" or undefined,
-		// 		dialog.content.footer: 	"string" or undefined,
-		// 		dialog.close_btn: 		boolean (default true)
-		// 	}
+    isDragging: false,
 
-		init: function ( config, postShow, postHide ) {
-			var me = this;
-			
-			this.postShow = postShow;
-			this.postHide = postHide;
+    // 	config = {
+    // 		dialog.id: 				"id",
+    // 		dialog.content.header: 	"string" or undefined,
+    // 		dialog.content.body: 	"string" or undefined,
+    // 		dialog.content.footer: 	"string" or undefined,
+    // 		dialog.close_btn: 		boolean (default true)
+    // 	}
 
-			// Create dialog from content
-			this.$dialog = $(DialogTemplates.dialog(config));
-			this.$dialog.find(".footer .cancel").bind("click", function(){
-				me.hide.apply(me);
-			});
+    init: function (config, postShow, postHide) {
+      var me = this;
 
-			// Toggle close button
-			var closeBtn = this.$dialog.find(".dialog-close-button").bind("click", this.hide);
-			if (config.dialog.close_btn === false) {
-				closeBtn.detach();
-			}	
+      this.postShow = postShow;
+      this.postHide = postHide;
 
-			// Register this dialog and store in global dialogs			
-			dialogs.push(this);
+      // Create dialog from content
+      this.$dialog = $(DialogTemplates.dialog(config));
+      this.$dialog.find(".footer .cancel").bind("click", function () {
+        me.hide.apply(me);
+      });
 
-			// Re-center dialog
-			$(window).bind("resize", function(){
-				me._center();
-			})
+      // Toggle close button
+      var closeBtn = this.$dialog.find(".dialog-close-button").bind("click", this.hide);
+      if (config.dialog.close_btn === false) {
+        closeBtn.detach();
+      }
 
-			this.$dialog.find(".Caption")
-				.bind("mousedown", function(event) {
-					var mouseX = event.clientX;
-					var mouseY = event.clientY;
+      // Register this dialog and store in global dialogs
+      dialogs.push(this);
 
-					var dialogX = me.$dialog.position().left;
-					var dialogY = me.$dialog.position().top;
+      // Re-center dialog
+      $(window).bind("resize", function () {
+        me._center();
+      })
 
-					me.isDragging = true;
-					me.$dialog.unbind("mousemove");
+      this.$dialog.find(".Caption")
+          .bind("mousedown", function (event) {
+            var mouseX = event.clientX;
+            var mouseY = event.clientY;
 
-				    me.$dialog.bind("mousemove", function(event) {
-				        var newMouseX = event.clientX;
-						var newMouseY = event.clientY;
+            var dialogX = me.$dialog.position().left;
+            var dialogY = me.$dialog.position().top;
 
-				        if (me.isDragging) {
-				        	me.$dialog.css({
-				        		left: dialogX + (newMouseX - mouseX),
-				        		top: dialogY + (newMouseY - mouseY)
-				        	});
-				        }
-				    });
-				})
-				.mouseup(function() {
-				    this.isDragging = false;
-				    me.$dialog.unbind("mousemove");				    
-				});
+            me.isDragging = true;
+            me.$dialog.unbind("mousemove");
 
-			return this.$dialog;
-		},			
+            me.$dialog.bind("mousemove", function (event) {
+              var newMouseX = event.clientX;
+              var newMouseY = event.clientY;
 
-		show: function() {			
-			
-			// Hide all other dialogs before showing the next
-			for (index in dialogs) {
-				dialogs[index].hide();
-			}
+              if (me.isDragging) {
+                me.$dialog.css({
+                  left: dialogX + (newMouseX - mouseX),
+                  top: dialogY + (newMouseY - mouseY)
+                });
+              }
+            });
+          })
+          .mouseup(function () {
+            this.isDragging = false;
+            me.$dialog.unbind("mousemove");
+          });
 
-			this.$dialog.modal('show');				
-			this.$dialog.appendTo($container);    		
-    		this.$dialog.focus();
-    		$(".modal-backdrop").detach().appendTo($container);
+      return this.$dialog;
+    },
 
-    		// Center modal within container
-    		this._center();
+    show: function () {
 
-    		if (this.postShow) {
-    			this.postShow();
-    		}
+      // Hide all other dialogs before showing the next
+      for (index in dialogs) {
+        dialogs[index].hide();
+      }
 
-    		return this.$dialog;
-		},
+      this.$dialog.modal('show');
+      this.$dialog.appendTo($container);
+      this.$dialog.focus();
+      $(".modal-backdrop").detach().appendTo($container);
 
-		hide: function() {
-			this.$dialog.modal('hide');							
+      // Center modal within container
+      this._center();
 
-			this.isDragging = false;
+      if (this.postShow) {
+        this.postShow();
+      }
 
-			if (this.postHide) {
-				this.postHide();
-			}
-		},
+      return this.$dialog;
+    },
 
-		_center: function() {
-			var backdrop = $container.find(".modal-backdrop");
+    hide: function () {
+      this.$dialog.modal('hide');
 
-			this.$dialog.css({
-				"left": backdrop.width() / 2 - this.$dialog.width() / 2,
-				"top": backdrop.height() / 2 - this.$dialog.height() / 2
-			});
-		}
-	};
+      this.isDragging = false;
 
-	var Dialog = function(cfg, postShow, postHide, i18n) {
-		this.init(cfg, postShow, postHide);
-	    this.i18n=i18n;
-	}
+      if (this.postHide) {
+        this.postHide();
+      }
+    },
 
-	Dialog.buildCfg = function(id, header, body, footer, close_btn) {
-		var cfg = {};
-		
-		cfg.dialog = {};
-		cfg.dialog.id = id;
-		cfg.dialog.close_btn = close_btn;
+    _center: function () {
+      var backdrop = $container.find(".modal-backdrop");
 
-		cfg.dialog.content={};
-		cfg.dialog.content.header = header;
-		cfg.dialog.content.body = body;
-		cfg.dialog.content.footer = footer;
+      this.$dialog.css({
+        "left": backdrop.width() / 2 - this.$dialog.width() / 2,
+        "top": backdrop.height() / 2 - this.$dialog.height() / 2
+      });
+    }
+  };
 
-		return cfg;
-	};
+  var Dialog = function (cfg, postShow, postHide, i18n) {
+    this.init(cfg, postShow, postHide);
+    this.i18n = i18n;
+  }
 
-	Dialog.prototype = local;
+  Dialog.buildCfg = function (id, header, body, footer, close_btn) {
+    var cfg = {};
+
+    cfg.dialog = {};
+    cfg.dialog.id = id;
+    cfg.dialog.close_btn = close_btn;
+
+    cfg.dialog.content = {};
+    cfg.dialog.content.header = header;
+    cfg.dialog.content.body = body;
+    cfg.dialog.content.footer = footer;
+
+    return cfg;
+  };
+
+  Dialog.prototype = local;
 
 
-	return Dialog;
+  return Dialog;
 });
