@@ -18,35 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.jcr.Item;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.version.VersionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.JcrConstants;
@@ -70,6 +41,34 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.jcr.Item;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.Lock;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionManager;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Class of static methods where the real JCR work takes place.
  * 
@@ -80,9 +79,9 @@ public class JcrRepositoryFileUtils {
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileUtils.class );
 
   /**
-   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in a
-   * "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing '.' is
-   * legal. It is up to this implementation to prohibit permutations of legal characters.
+   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in
+   * a "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing
+   * '.' is legal. It is up to this implementation to prohibit permutations of legal characters.
    */
   private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
     '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
@@ -206,7 +205,8 @@ public class JcrRepositoryFileUtils {
     if ( isPentahoHierarchyNode( session, pentahoJcrConstants, node ) ) {
       if ( node.hasNode( pentahoJcrConstants.getPHO_LOCALES() ) ) {
         localePropertiesMap =
-            getLocalePropertiesMap( session, pentahoJcrConstants, node.getNode( pentahoJcrConstants.getPHO_LOCALES() ) );
+            getLocalePropertiesMap( session, pentahoJcrConstants, node.getNode( pentahoJcrConstants.
+              getPHO_LOCALES() ) );
 
         // [BISERVER-8337] localize title and description
         LocalePropertyResolver lpr = new LocalePropertyResolver( name );
@@ -224,7 +224,8 @@ public class JcrRepositoryFileUtils {
         }
       }
 
-      // BISERVER-8609 - Backwards compatibility. Fallback to the old data structure if title/description are not found
+      // BISERVER-8609 - Backwards compatibility. Fallback to the old data structure if title/description are not
+      // found
       if ( title == null && node.hasNode( pentahoJcrConstants.getPHO_TITLE() ) ) {
         title =
             getLocalizedString( session, pentahoJcrConstants, node.getNode( pentahoJcrConstants.getPHO_TITLE() ),
@@ -534,9 +535,9 @@ public class JcrRepositoryFileUtils {
   }
 
   public static Node
-    updateFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile file,
+  updateFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile file,
         final IRepositoryFileData content, final ITransformer<IRepositoryFileData> transformer )
-      throws RepositoryException {
+    throws RepositoryException {
 
     Node fileNode = session.getNodeByIdentifier( file.getId().toString() );
     // guard against using a file retrieved from a more lenient session inside a more strict session
@@ -734,7 +735,8 @@ public class JcrRepositoryFileUtils {
    */
   public static void checkoutNearestVersionableFileIfNecessary( final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId ) throws RepositoryException {
-    // file could be null meaning the caller is using null as the parent folder; that's OK; in this case the node in
+    // file could be null meaning the caller is using null as the parent folder; that's OK; in this case the node
+    // in
     // question would be the repository root node and that is never versioned
     if ( fileId != null ) {
       Node node = session.getNodeByIdentifier( fileId.toString() );
@@ -768,7 +770,8 @@ public class JcrRepositoryFileUtils {
   public static void checkinNearestVersionableFileIfNecessary( final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final String versionMessage,
       final Date versionDate, final boolean aclOnlyChange ) throws RepositoryException {
-    // file could be null meaning the caller is using null as the parent folder; that's OK; in this case the node in
+    // file could be null meaning the caller is using null as the parent folder; that's OK; in this case the node
+    // in
     // question would be the repository root node and that is never versioned
     if ( fileId != null ) {
       Node node = session.getNodeByIdentifier( fileId.toString() );
@@ -794,8 +797,8 @@ public class JcrRepositoryFileUtils {
     Assert.notNull( node );
     session.save();
     /*
-     * session.save must be called inside the versionable node block and outside to ensure user changes are made when a
-     * file is not versioned.
+     * session.save must be called inside the versionable node block and outside to ensure user changes are made
+     * when a file is not versioned.
      */
     Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, node );
 
@@ -860,7 +863,8 @@ public class JcrRepositoryFileUtils {
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     // guard against using a file retrieved from a more lenient session inside a more strict session
     Assert.notNull( fileNode );
-    // technically, the node can be locked when it is deleted; however, we want to avoid an orphaned lock token; delete
+    // technically, the node can be locked when it is deleted; however, we want to avoid an orphaned lock token;
+    // delete
     // it first
     if ( fileNode.isLocked() ) {
       Lock lock = session.getWorkspace().getLockManager().getLock( fileNode.getPath() );
@@ -882,8 +886,10 @@ public class JcrRepositoryFileUtils {
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     VersionHistory versionHistory = session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() );
     // get root version but don't include it in version summaries; from JSR-170 specification section 8.2.5:
-    // [root version] is a dummy version that serves as the starting point of the version graph. Like all version nodes,
-    // it has a subnode called jcr:frozenNode. But, in this case that frozen node does not contain any state information
+    // [root version] is a dummy version that serves as the starting point of the version graph. Like all version
+    // nodes,
+    // it has a subnode called jcr:frozenNode. But, in this case that frozen node does not contain any state
+    // information
     // about N
     Version version = versionHistory.getRootVersion();
     Version[] successors = version.getSuccessors();
@@ -959,7 +965,8 @@ public class JcrRepositoryFileUtils {
     return fileNode.getProperty( pentahoJcrConstants.getPHO_CONTENTTYPE() ).getString();
   }
 
-  public static Serializable getParentId( final Session session, final Serializable fileId ) throws RepositoryException {
+  public static Serializable getParentId( final Session session,
+                                          final Serializable fileId ) throws RepositoryException {
     Node node = session.getNodeByIdentifier( fileId.toString() );
     return node.getParent().getIdentifier();
   }
@@ -1036,7 +1043,8 @@ public class JcrRepositoryFileUtils {
       return null;
     }
     List<RepositoryFileTree> children;
-    // if depth is neither negative (indicating unlimited depth) nor positive (indicating at least one more level to go)
+    // if depth is neither negative (indicating unlimited depth) nor positive (indicating at least one more level
+    // to go)
     if ( depth != 0 ) {
       children = new ArrayList<RepositoryFileTree>();
       if ( isPentahoFolder( pentahoJcrConstants, fileNode ) ) {

@@ -18,32 +18,7 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.SOAPBinding;
-
+import com.sun.xml.ws.developer.JAXWSProperties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
@@ -83,8 +58,8 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
@@ -109,24 +84,46 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
- * Tests marshalling, unmarshalling, and {@code UnifiedRepositoryToWebServiceAdapter}. Do not test unified repository
- * logic in this class; just make sure args serialize back and forth correctly and that the adapter is translating to
- * the right calls.
+ * Tests marshalling, unmarshalling, and {@code UnifiedRepositoryToWebServiceAdapter}. Do not test unified
+ * repository logic in this class; just make sure args serialize back and forth correctly and that the adapter is
+ * translating to the right calls.
  * 
  * @author mlowery
  */
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationContextAware {
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private static final String USERNAME_SUZY = "suzy";
 
@@ -205,7 +202,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
   }
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultUnifiedRepositoryJaxwsWebServiceTest() throws Exception {
     super();
@@ -253,27 +251,27 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    
+
     logout();
   }
-  
+
   private void setAclManagement() {
-    testJcrTemplate.execute(new JcrCallback() {
+    testJcrTemplate.execute( new JcrCallback() {
       @Override
-      public Object doInJcr(Session session) throws IOException, RepositoryException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+      public Object doInJcr( Session session ) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         Workspace workspace = session.getWorkspace();
-        PrivilegeManager privilegeManager =((JackrabbitWorkspace) workspace).getPrivilegeManager();
+        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
         try {
-          privilegeManager.getPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE());
-        } catch(AccessControlException ace) {
-          privilegeManager.registerPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(),
-              false, new String[0]);
+          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
+        } catch ( AccessControlException ace ) {
+          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
+              new String[0] );
         }
         session.save();
         return null;
       }
-    });
+    } );
   }
 
   @Test
@@ -283,7 +281,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
   @Ignore
   public void testEverything() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
@@ -465,12 +464,12 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
   }
 
   /*
-   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null &&
-   * tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
+   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null
+   * && tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
    * role:userRoleDao.getRoles()) { userRoleDao.deleteRole(role); } for(IPentahoUser user:userRoleDao.getUsers()) {
-   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant)); logout(); }
-   * } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO Auto-generated catch block
-   * e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
+   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant));
+   * logout(); } } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO
+   * Auto-generated catch block e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
    */
   @After
   public void tearDown() throws Exception {

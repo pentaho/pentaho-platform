@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.fileio;
 
-import java.io.IOException;
-
 import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IContentOutputHandler;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
@@ -29,6 +27,8 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.MimeHelper;
+
+import java.io.IOException;
 
 public class RepositoryFileOutputHandler implements IOutputHandler {
 
@@ -88,7 +88,8 @@ public class RepositoryFileOutputHandler implements IOutputHandler {
       responseExpected = true;
     } else {
       IContentOutputHandler output = PentahoSystem.getOutputDestinationFromContentRef( contentName, session );
-      // If the output handler wasn't found with just the content name. Try to look it up with the output name as well.
+      // If the output handler wasn't found with just the content name. Try to look it up with the output name as
+      // well.
       // (This mirrors HttpOutputHandler's lookup logic)
       if ( output == null ) {
         output = PentahoSystem.getOutputDestinationFromContentRef( outputName + ":" + contentName, session ); //$NON-NLS-1$

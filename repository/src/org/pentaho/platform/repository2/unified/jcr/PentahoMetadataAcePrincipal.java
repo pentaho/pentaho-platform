@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 /**
  * Special principal used in ACEs that contains two pieces of metadata about the ACL as a whole:

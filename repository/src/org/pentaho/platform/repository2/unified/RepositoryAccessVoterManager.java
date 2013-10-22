@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoter;
@@ -30,6 +27,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RepositoryAccessVoterManager implements IRepositoryAccessVoterManager {
 

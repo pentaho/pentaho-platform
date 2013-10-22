@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.security.userroledao.jackrabbit;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.jcr.NamespaceException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
@@ -48,6 +41,12 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrSystemException;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.security.providers.dao.UserCache;
+
+import javax.jcr.NamespaceException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.util.List;
 
 public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
 
@@ -129,9 +128,9 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   }
 
   @Override
-  public IPentahoUser createUser( final ITenant tenant,
-      final String userName, final String password, final String description,
-      final String[] roles ) throws AlreadyExistsException, UncategorizedUserRoleDaoException {
+  public IPentahoUser createUser( final ITenant tenant, final String userName, final String password,
+      final String description, final String[] roles ) throws AlreadyExistsException,
+    UncategorizedUserRoleDaoException {
     final IPentahoUser user;
     try {
       user = (IPentahoUser) adminJcrTemplate.execute( new JcrCallback() {

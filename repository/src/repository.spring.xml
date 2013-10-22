@@ -6,14 +6,15 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
-    <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" lazy-init="false"/>
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer"
+        lazy-init="false"/>
 
 
-    <bean id="propertyPlaceholderConfigurerRepository"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
-        <property name="location" value="repository.spring.properties" />
-        <property name="placeholderPrefix" value="%{" />
-    </bean>
+  <bean id="propertyPlaceholderConfigurerRepository"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+    <property name="location" value="repository.spring.properties"/>
+    <property name="placeholderPrefix" value="%{"/>
+  </bean>
 
   <!--
     default-lazy-init makes all of the beans in this file lazy-init=true which means they are not instantiated until
@@ -21,7 +22,7 @@
     SpringSecurityLoginModule and SpringSecurityPrincipalProvider (pentaho-third-party-security project)
   -->
 
-  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
+  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton"/>
   <!-- An access decision manager used by the business objects. -->
   <bean id="businessAccessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
     <property name="allowIfAllAbstainDecisions" value="false"/>
@@ -119,16 +120,16 @@
     <constructor-arg>
       <util:map>
         <entry key="org.springframework.security.AccessDeniedException">
-          <bean class="org.pentaho.platform.repository2.unified.exception.AccessDeniedExceptionConverter" />
+          <bean class="org.pentaho.platform.repository2.unified.exception.AccessDeniedExceptionConverter"/>
         </entry>
         <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileExistsException">
-          <bean class="org.pentaho.platform.repository2.unified.exception.FileExistsExceptionConverter" />
+          <bean class="org.pentaho.platform.repository2.unified.exception.FileExistsExceptionConverter"/>
         </entry>
         <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException">
-          <bean class="org.pentaho.platform.repository2.unified.exception.ReferentialIntegrityExceptionConverter" />
+          <bean class="org.pentaho.platform.repository2.unified.exception.ReferentialIntegrityExceptionConverter"/>
         </entry>
         <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException">
-          <bean class="org.pentaho.platform.repository2.unified.exception.MalformedNameExceptionConverter" />
+          <bean class="org.pentaho.platform.repository2.unified.exception.MalformedNameExceptionConverter"/>
         </entry>
       </util:map>
     </constructor-arg>
@@ -143,7 +144,7 @@
       </list>
     </property>
   </bean>
-  
+
   <bean id="tenantMgrProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="ITenantManager"/>
     <property name="interceptorNames">
@@ -153,7 +154,7 @@
       </list>
     </property>
   </bean>
-  
+
   <bean id="tenantMgrTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="ITenantManager"/>
     <property name="interceptorNames">
@@ -162,7 +163,7 @@
       </list>
     </property>
   </bean>
-  
+
   <bean id="userRoleDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="userRoleDao"/>
     <property name="interceptorNames">
@@ -210,21 +211,21 @@
 
   <!-- The set of authorities that are considered system and cannot be removed -->
   <util:list id="singleTenantSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
-    <ref bean="singleTenantAuthenticatedAuthorityName" />
-    <ref bean="singleTenantAdminAuthorityName" />
-    <ref bean="singleTenantAnonymousAuthorityName" />
+    <ref bean="singleTenantAuthenticatedAuthorityName"/>
+    <ref bean="singleTenantAdminAuthorityName"/>
+    <ref bean="singleTenantAnonymousAuthorityName"/>
   </util:list>
 
   <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
-    <ref bean="singleTenantAuthenticatedAuthorityName" />
-    <ref bean="singleTenantAnonymousAuthorityName" />
+    <ref bean="singleTenantAuthenticatedAuthorityName"/>
+    <ref bean="singleTenantAnonymousAuthorityName"/>
   </util:list>
 
 
   <bean id="superAdminAuthorityName" class="java.lang.String">
     <constructor-arg value="%{superAdminAuthorityName}"/>
   </bean>
-  
+
   <bean id="superAdminUserName" class="java.lang.String">
     <constructor-arg value="%{superAdminUserName}"/>
   </bean>
@@ -236,11 +237,11 @@
   <bean id="systemTenantAdminPassword" class="java.lang.String">
     <constructor-arg value="%{systemTenantAdminPassword}"/>
   </bean>
-  
+
   <bean id="singleTenantAdminUserName" class="java.lang.String">
     <constructor-arg value="%{singleTenantAdminUserName}"/>
   </bean>
-  
+
   <!-- Used in code that doesn't use Spring's transaction interception. -->
   <!-- The code sets the propagation behavior to PROPAGATION_REQUIRES_NEW. -->
   <bean id="jcrTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
@@ -259,24 +260,25 @@
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>    
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>
   </bean>
- 
-  <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
-	<constructor-arg ref="repositoryFileDao"/>
-	<constructor-arg ref="repositoryFileAclDao"/>
-	<constructor-arg ref="jcrTransactionTemplate"/>
-	<constructor-arg ref="repositoryAdminUsername"/>
-	<constructor-arg ref="systemTenantAdminUserName"/>
+
+  <bean id="defaultBackingRepositoryLifecycleManager"
+        class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="systemTenantAdminUserName"/>
     <constructor-arg ref="systemTenantAdminPassword"/>
-	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
-	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-    <constructor-arg ref="singleTenantAnonymousAuthorityName" />
-    <constructor-arg ref="IPasswordService" />
-    <constructor-arg ref="adminJcrTemplate"/>	
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAnonymousAuthorityName"/>
+    <constructor-arg ref="IPasswordService"/>
+    <constructor-arg ref="adminJcrTemplate"/>
     <constructor-arg ref="pathConversionHelper"/>
-	<property name="tenantManager" ref="tenantMgrTxn"/>
-	<property name="userRoleDao" ref="userRoleDaoTxn"/>
+    <property name="tenantManager" ref="tenantMgrTxn"/>
+    <property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
 
   <bean id="metadataRepositoryLifecycleManager"
@@ -286,26 +288,27 @@
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-	<constructor-arg ref="tenantedUserNameUtils"/>    
+    <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="adminJcrTemplate"/>
-    <constructor-arg ref="pathConversionHelper"/> 
+    <constructor-arg ref="pathConversionHelper"/>
   </bean>
-  
-  <bean id="defaultUserRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
+
+  <bean id="defaultUserRepositoryLifecycleManager"
+        class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
     <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
-	<constructor-arg ref="IPasswordService" />
-	<constructor-arg ref="userRoleDaoTxn" />
-	<constructor-arg ref="singleTenantAdminUserName"/>
-	<constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="IPasswordService"/>
+    <constructor-arg ref="userRoleDaoTxn"/>
+    <constructor-arg ref="singleTenantAdminUserName"/>
+    <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="adminJcrTemplate"/>
-    <constructor-arg ref="pathConversionHelper"/>    
-	<property name="roleMappings" ref="role-mappings" />
-	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
-	<property name="singleTenantAdminPassword" ref="defaultAdminUserPassword" />
-	<property name="nonAdminPassword" ref="defaultNonAdminUserPassword" />
+    <constructor-arg ref="pathConversionHelper"/>
+    <property name="roleMappings" ref="role-mappings"/>
+    <property name="userRoleMappings" ref="defaultUserRoleMappings"/>
+    <property name="singleTenantAdminPassword" ref="defaultAdminUserPassword"/>
+    <property name="nonAdminPassword" ref="defaultNonAdminUserPassword"/>
   </bean>
-  
+
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>
@@ -313,7 +316,7 @@
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-  <constructor-arg ref="tenantedUserNameUtils"/>                
+    <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="adminJcrTemplate"/>
     <constructor-arg ref="pathConversionHelper"/>
   </bean>
@@ -329,13 +332,15 @@
       </list>
     </constructor-arg>
   </bean>
-  <bean id="tenantedRoleNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
-  	<property name="delimeter" value="_" />
+  <bean id="tenantedRoleNameUtils"
+        class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
+    <property name="delimeter" value="_"/>
   </bean>
-  
-  <bean id="tenantedUserNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
+
+  <bean id="tenantedUserNameUtils"
+        class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
   </bean>
-  
+
   <bean id="unifiedRepositoryTarget" class="org.pentaho.platform.repository2.unified.DefaultUnifiedRepository">
     <constructor-arg ref="repositoryFileDao"/>
     <constructor-arg ref="repositoryFileAclDao"/>
@@ -405,25 +410,25 @@
   </bean>
 
 
-  
   <!-- Jackrabbit repo automatically shut down when Spring application context closed (DisposableBean) -->
   <bean id="jcrRepository" class="org.springframework.extensions.jcr.jackrabbit.RepositoryFactoryBean">
     <property name="configuration" value="/jackrabbit/repository.xml"/>
     <property name="homeDir" value="/jackrabbit/repository"/>
   </bean>
 
-  <bean id="jcrAdminCredentialsStrategy" class="org.pentaho.platform.repository2.unified.jcr.sejcr.ConstantCredentialsStrategy">
-    <constructor-arg ref="repositoryAdminUsername" />
-    <constructor-arg ref="jcrPreAuthenticationToken" />
+  <bean id="jcrAdminCredentialsStrategy"
+        class="org.pentaho.platform.repository2.unified.jcr.sejcr.ConstantCredentialsStrategy">
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="jcrPreAuthenticationToken"/>
   </bean>
-  
+
   <bean id="jcrSessionFactory"
         class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
     <constructor-arg ref="jcrRepository"/>
     <constructor-arg>
       <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoSessionCredentialsStrategy">
         <constructor-arg ref="jcrPreAuthenticationToken"/>
-      <constructor-arg ref="tenantedUserNameUtils"/>
+        <constructor-arg ref="tenantedUserNameUtils"/>
       </bean>
     </constructor-arg>
     <constructor-arg ref="jcrAdminCredentialsStrategy"/>
@@ -437,18 +442,18 @@
     <!-- order matters! -->
     <property name="nodeTypeDefinitionProviders">
       <list>
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.InternalFolderNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocalizedStringNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.HierarchyNodeNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FileNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FolderNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LockTokenStorageNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.VersionableNtdProvider" />
-        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocaleNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.InternalFolderNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocalizedStringNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.HierarchyNodeNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FileNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FolderNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LockTokenStorageNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.VersionableNtdProvider"/>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocaleNtdProvider"/>
       </list>
     </property>
   </bean>
-  
+
   <bean id="jcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
     <property name="allowCreate" value="true"/>
@@ -456,9 +461,9 @@
   </bean>
 
   <bean id="repositoryAccessVoterManager"
-          class="org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager">
-      <constructor-arg ref="authorizationPolicy"/>
-      <constructor-arg ref="repositoryAdminUsername"/>
+        class="org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager">
+    <constructor-arg ref="authorizationPolicy"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
   </bean>
   <!--
   	The repository file dao implementation. 
@@ -475,8 +480,8 @@
     </constructor-arg>
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
-    <constructor-arg ref="defaultAclHandler" />
-    <constructor-arg ref="repositoryAccessVoterManager" />
+    <constructor-arg ref="defaultAclHandler"/>
+    <constructor-arg ref="repositoryAccessVoterManager"/>
   </bean>
 
   <util:list id="transformers">
@@ -486,13 +491,14 @@
   </util:list>
 
   <bean id="lockHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultLockHelper">
-  	<constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
   </bean>
   <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
 
-  <bean class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>
-    <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
-  
+  <bean
+      class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>
+  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler"/>
+
   <bean id="repositoryFileAclDao"
         class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao">
     <constructor-arg ref="jcrTemplate"/>
@@ -510,7 +516,8 @@
     <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
   </bean>
 
-  <bean id="roleBindingDaoTransactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+  <bean id="roleBindingDaoTransactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <property name="transactionManager" ref="jcrTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
@@ -520,8 +527,9 @@
       </value>
     </property>
   </bean>
-    
-  <bean id="roleAuthorizationPolicyRoleBindingDaoTarget" class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicyRoleBindingDao">
+
+  <bean id="roleAuthorizationPolicyRoleBindingDaoTarget"
+        class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicyRoleBindingDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg>
       <null/>
@@ -575,10 +583,10 @@
 
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
-	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </entry>
     <entry key-ref="superAdminAuthorityName">
-	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </entry>
   </util:map>
 
@@ -594,9 +602,9 @@
   </util:map>
 
   <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
-       <value>org.pentaho.repository.read</value>
-       <value>org.pentaho.repository.create</value>
-       <value>org.pentaho.scheduler.manage</value>
+    <value>org.pentaho.repository.read</value>
+    <value>org.pentaho.repository.create</value>
+    <value>org.pentaho.scheduler.manage</value>
   </util:list>
 
   <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -607,7 +615,7 @@
       </list>
     </property>
   </bean>
-  
+
   <bean id="roleAuthorizationPolicyRoleBindingDao" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
     <property name="interceptorNames">
@@ -645,12 +653,12 @@
   </bean>
 
 
-<bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
+  <bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
     <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
-  
+
 
   <bean id="tenantManagerMethodInterceptor"
         class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
@@ -673,14 +681,15 @@
         org.pentaho.platform.api.mt.ITenantManager.isSubTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
         org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.mt.ITenantManager.getTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
-        org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity        
-        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity        
+        org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
       </value>
     </property>
   </bean>
-  
 
-  <bean id="userRoleDaoTransactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+
+  <bean id="userRoleDaoTransactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <property name="transactionManager" ref="jcrAdminTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
@@ -702,8 +711,8 @@
       </value>
     </property>
   </bean>
-  
-  
+
+
   <bean id="userRoleDaoMethodInterceptor"
         class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
     <property name="validateConfigAttributes">
@@ -733,31 +742,34 @@
       </value>
     </property>
   </bean>
-  
-  <bean id="jcrAdminSessionHolderProvider" class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
+
+  <bean id="jcrAdminSessionHolderProvider"
+        class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
   </bean>
 
-  <bean id="jcrAdminSessionHolderProviderMgr" class="org.springframework.extensions.jcr.support.ListSessionHolderProviderManager">
-	<property name="providers">
-		<list>
-			<bean class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
-      </bean>
-		</list>
-	</property>
+  <bean id="jcrAdminSessionHolderProviderMgr"
+        class="org.springframework.extensions.jcr.support.ListSessionHolderProviderManager">
+    <property name="providers">
+      <list>
+        <bean class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
+        </bean>
+      </list>
+    </property>
   </bean>
 
-  <bean id="jcrAdminSessionFactory" class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
+  <bean id="jcrAdminSessionFactory"
+        class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
     <constructor-arg ref="jcrRepository"/>
     <constructor-arg ref="jcrAdminCredentialsStrategy"/>
     <property name="sessionHolderProviderManager">
       <ref bean="jcrAdminSessionHolderProviderMgr"/>
     </property>
   </bean>
-  
+
   <!-- IUserRoleDao implementation -->
   <bean id="userRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
-	<constructor-arg ref="tenantedUserNameUtils"/>            
-	<constructor-arg ref="tenantedRoleNameUtils"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>
 

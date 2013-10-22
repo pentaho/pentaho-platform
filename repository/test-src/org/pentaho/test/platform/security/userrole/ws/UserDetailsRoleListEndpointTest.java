@@ -17,17 +17,16 @@
 
 package org.pentaho.test.platform.security.userrole.ws;
 
-import java.net.URL;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.pentaho.platform.security.userrole.ws.DefaultUserRoleListWebService;
+import org.pentaho.platform.security.userrole.ws.IUserRoleListWebService;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.pentaho.platform.security.userrole.ws.DefaultUserRoleListWebService;
-import org.pentaho.platform.security.userrole.ws.IUserRoleListWebService;
+import java.net.URL;
 
 /**
  * This test wraps the regular unit test with a webservices endpoint, verifying the client conversion.

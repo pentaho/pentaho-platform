@@ -18,13 +18,12 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.List;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.springframework.util.StringUtils;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.springframework.util.StringUtils;
+import java.util.List;
 
 public class JcrRoleAuthorizationPolicyUtils {
 

@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.io.IOException;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -58,6 +51,12 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import java.io.IOException;
+
 /**
  * Default {@link IBackingRepositoryLifecycleManager} implementation.
  * <p/>
@@ -70,9 +69,11 @@ import org.springframework.util.Assert;
  */
 public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
   IUserRoleDao userRoleDao;
 
   ITenantManager tenantManager;
@@ -95,7 +96,8 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
 
   private IPasswordService passwordService;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultBackingRepositoryLifecycleManager( final IRepositoryFileDao contentDao,
       final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
@@ -121,7 +123,8 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
 
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   protected void initTransactionTemplate() {
     // a new transaction must be created (in order to run with the correct user privileges)
@@ -180,8 +183,8 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
   }
 
   /**
-   * @return the {@link IBackingRepositoryLifecycleManager} that this instance will use. If none has been specified, it
-   *         will default to getting the information from {@link PentahoSystem.get()}
+   * @return the {@link IBackingRepositoryLifecycleManager} that this instance will use. If none has been
+   *         specified, it will default to getting the information from {@link PentahoSystem.get()}
    */
   public ITenantManager getTenantManager() {
     // Check ... if we haven't been injected with a lifecycle manager, get one from PentahoSystem

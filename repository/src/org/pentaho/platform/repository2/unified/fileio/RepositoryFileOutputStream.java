@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.fileio;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;
 import org.pentaho.platform.api.repository2.unified.IStreamListener;
@@ -37,6 +27,16 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.web.MimeHelper;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class RepositoryFileOutputStream extends ByteArrayOutputStream implements ISourcesStreamEvents {
 
@@ -248,7 +248,8 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
             }
           }
 
-          file = new RepositoryFile.Builder( newFileName ).versioned( true ).build(); // Default versioned to true so
+          file = new RepositoryFile.Builder( newFileName ).versioned( true ).build(); // Default versioned to true
+                                                                                      // so
                                                                                       // that we're keeping history
           file = repository.createFile( parentFolder.getId(), file, payload, "New File" ); //$NON-NLS-1$
           path = file.getPath();

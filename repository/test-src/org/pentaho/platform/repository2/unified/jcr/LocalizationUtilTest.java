@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 /**
  * @author Rowell Belen

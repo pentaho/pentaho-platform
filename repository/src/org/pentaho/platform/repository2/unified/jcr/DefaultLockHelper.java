@@ -18,11 +18,13 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.springframework.util.Assert;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -32,34 +34,32 @@ import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockManager;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.springframework.util.Assert;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
- * Default implementation of {@link ILockHelper}. If user {@code suzy} in tenant {@code acme} locks a file with UUID
- * {@code abc} then this implementation will store the lock token {@code xyz} as
+ * Default implementation of {@link ILockHelper}. If user {@code suzy} in tenant {@code acme} locks a file with
+ * UUID {@code abc} then this implementation will store the lock token {@code xyz} as
  * {@code /pentaho/acme/home/suzy/.lockTokens/abc/xyz}. It is assumed that {@code /pentaho/acme/home/suzy} is never
  * versioned! Putting lock token storage beneath the user's home folder provides access control.
  * 
  * <p>
- * This implementation stores a lock owner, lock date, and lock message in the ownerInfo payload. See JCR 2.0 section
- * 17.3. If implemented as custom properties, then a versioned node would require a checkout and checkin to lock a file.
- * There is one caveat: implementations of JCR are free to ignore the ownerInfo payload. In that case, the
- * implementation sets the value. If that happens, we simply return that value as the lock owner and date and message
- * are null.
+ * This implementation stores a lock owner, lock date, and lock message in the ownerInfo payload. See JCR 2.0
+ * section 17.3. If implemented as custom properties, then a versioned node would require a checkout and checkin to
+ * lock a file. There is one caveat: implementations of JCR are free to ignore the ownerInfo payload. In that case,
+ * the implementation sets the value. If that happens, we simply return that value as the lock owner and date and
+ * message are null.
  * </p>
  * 
  * @author mlowery
  */
 public class DefaultLockHelper implements ILockHelper {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final String FOLDER_NAME_LOCK_TOKENS = ".lockTokens"; //$NON-NLS-1$
 
@@ -79,16 +79,19 @@ public class DefaultLockHelper implements ILockHelper {
 
   ITenantedPrincipleNameResolver userNameUtils;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultLockHelper( ITenantedPrincipleNameResolver userNameUtils ) {
     super();
     this.userNameUtils = userNameUtils;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Stores a lock token associated with the session's user.
@@ -104,12 +107,12 @@ public class DefaultLockHelper implements ILockHelper {
   }
 
   /**
-   * Returns all lock tokens belonging to the session's user. Lock tokens can then be added to the session by calling
-   * {@code Session.addLockToken(token)}.
+   * Returns all lock tokens belonging to the session's user. Lock tokens can then be added to the session by
+   * calling {@code Session.addLockToken(token)}.
    * 
    * <p>
-   * Callers should call {#link {@link #canUnlock(Session, PentahoJcrConstants, Lock)} if the token is being retrieved
-   * for the purpose of an unlock.
+   * Callers should call {#link {@link #canUnlock(Session, PentahoJcrConstants, Lock)} if the token is being
+   * retrieved for the purpose of an unlock.
    * </p>
    */
   protected String getLockToken( final Session session, final PentahoJcrConstants pentahoJcrConstants, final Lock lock )
@@ -121,8 +124,8 @@ public class DefaultLockHelper implements ILockHelper {
   }
 
   /**
-   * Removes a lock token so that it can never be associated with anyone's session again. (To be called after the file
-   * has been unlocked and therefore the token associated with the lock is unnecessary.)
+   * Removes a lock token so that it can never be associated with anyone's session again. (To be called after the
+   * file has been unlocked and therefore the token associated with the lock is unnecessary.)
    */
   public void removeLockToken( final Session session, final PentahoJcrConstants pentahoJcrConstants, final Lock lock )
     throws RepositoryException {

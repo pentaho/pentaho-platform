@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -31,10 +25,16 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 /**
- * A data access object for reading and writing {@code RepositoryFile} instances. The methods in this interface might
- * closely resemble those in {@link IUnifiedRepository} but this interface is not part of the public Pentaho API and can
- * evolve independently.
+ * A data access object for reading and writing {@code RepositoryFile} instances. The methods in this interface
+ * might closely resemble those in {@link IUnifiedRepository} but this interface is not part of the public Pentaho
+ * API and can evolve independently.
  * 
  * @author mlowery
  */
@@ -129,8 +129,8 @@ public interface IRepositoryFileDao {
 
   void setLocalePropertiesForFileByPath( final String relPath, final String locale, final Properties properties );
 
-  void setLocalePropertiesForFile( final RepositoryFile repositoryFile,
-      final String locale, final Properties properties );
+  void
+  setLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
 }

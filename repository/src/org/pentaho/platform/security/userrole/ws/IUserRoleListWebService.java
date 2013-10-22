@@ -25,12 +25,11 @@ package org.pentaho.platform.security.userrole.ws;
  * @author rmansoor
  */
 
-import java.util.List;
-
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.engine.security.userroledao.UserRoleInfo;
 import org.pentaho.platform.core.mt.Tenant;
+
+import javax.jws.WebService;
+import java.util.List;
 
 @WebService
 public interface IUserRoleListWebService {

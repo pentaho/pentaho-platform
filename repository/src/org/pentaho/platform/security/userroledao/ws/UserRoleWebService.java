@@ -17,14 +17,6 @@
 
 package org.pentaho.platform.security.userroledao.ws;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.jws.WebService;
-
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -33,6 +25,13 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.security.userroledao.messages.Messages;
+
+import javax.jws.WebService;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class implements a concrete form of IUserRoleDao, wrapping the underlying IUserRoleDao implementation.
@@ -83,7 +82,8 @@ public class UserRoleWebService implements IUserRoleWebService {
     return userRoleSecurityInfo;
   }
 
-  // ~ User/Role Methods ===============================================================================================
+  // ~ User/Role Methods
+  // ===============================================================================================
 
   @Override
   public boolean createUser( ProxyPentahoUser proxyUser ) throws UserRoleException {

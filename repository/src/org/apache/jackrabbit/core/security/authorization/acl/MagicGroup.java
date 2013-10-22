@@ -17,12 +17,12 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
+import org.apache.jackrabbit.core.security.principal.UnknownPrincipal;
+import org.pentaho.platform.repository2.unified.jcr.IPentahoInternalPrincipal;
+
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Enumeration;
-
-import org.apache.jackrabbit.core.security.principal.UnknownPrincipal;
-import org.pentaho.platform.repository2.unified.jcr.IPentahoInternalPrincipal;
 
 /**
  * {@code Group} that is used in magic ACEs, ACEs that are added on-the-fly and never persisted.

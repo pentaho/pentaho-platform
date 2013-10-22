@@ -13,18 +13,6 @@
 
 package org.pentaho.platform.repository2.mt;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,12 +48,24 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author wseyler
  * 
  */
 public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   /**
    * @author wseyler
@@ -75,7 +75,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
 
   protected static final Log logger = LogFactory.getLog( RepositoryTenantManager.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   /**
    * Repository super user.
@@ -169,7 +170,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
   /*
    * (non-Javadoc)
    * 
-   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#createTenant(java.lang.String, java.lang.String)
+   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#createTenant(java.lang.String,
+   * java.lang.String)
    */
   @Override
   public ITenant createTenant( final ITenant parentTenant, final String tenantName, final String tenantAdminRoleName,
@@ -181,8 +183,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         return null;
       }
     } else {
-      if ( repositoryFileDao
-          .getFileByAbsolutePath( parentTenant.getRootFolderAbsolutePath() + "/" + tenantName ) != null ) {
+      if ( repositoryFileDao.getFileByAbsolutePath( parentTenant.getRootFolderAbsolutePath() + "/" + tenantName )
+        != null ) {
         return null;
       }
     }
@@ -207,7 +209,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid( tenantAdminRoleId, Type.ROLE );
 
     this.jcrTemplate.save();
-    // If parent tenant is null then we assume we're creating the system tenant. In which case we'll give the system
+    // If parent tenant is null then we assume we're creating the system tenant. In which case we'll give the
+    // system
     // tenant admin permissions on the root folder.
     if ( parentTenant == null ) {
       repositoryFileAclDao.addAce( tenantRootFolder.getId(), tenantAdminRoleSid, EnumSet
@@ -330,8 +333,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     RepositoryFile rootFolder = repositoryFileDao.getFileByAbsolutePath( tenant.getRootFolderAbsolutePath() );
     if ( rootFolder != null ) {
       Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata( rootFolder.getId() );
-      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT )
-          || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT ) || !(Boolean) metadata.get(
+        ITenantManager.TENANT_ROOT ) ) {
         rootFolder = null;
       }
     }
@@ -395,7 +398,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
   /*
    * (non-Javadoc)
    * 
-   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#updateTentant(java.lang.String, java.util.Map)
+   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#updateTentant(java.lang.String,
+   * java.util.Map)
    */
   @Override
   public void updateTentant( String tenantPath, Map<String, Serializable> tenantInfo ) {

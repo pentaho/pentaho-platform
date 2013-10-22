@@ -18,17 +18,16 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class NodeRepositoryFileDataAdapter extends XmlAdapter<NodeRepositoryFileDataDto, NodeRepositoryFileData> {
 

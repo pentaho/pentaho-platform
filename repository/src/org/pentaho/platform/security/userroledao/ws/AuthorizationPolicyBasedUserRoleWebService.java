@@ -17,16 +17,16 @@
 
 package org.pentaho.platform.security.userroledao.ws;
 
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 
+import javax.jws.WebService;
+
 /**
- * Same as {@link UserRoleWebService} except that it uses task permissions to determine administrator status instead of
- * {@code ISecurityHelper.isPentahoAdministrator}.
+ * Same as {@link UserRoleWebService} except that it uses task permissions to determine administrator status
+ * instead of {@code ISecurityHelper.isPentahoAdministrator}.
  * 
  * @author Will Gorman (wgorman@pentaho.com)
  */

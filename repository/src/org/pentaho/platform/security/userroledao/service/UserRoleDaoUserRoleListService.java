@@ -17,10 +17,6 @@
 
 package org.pentaho.platform.security.userroledao.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -34,6 +30,10 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * An {@link IUserRoleListService} that delegates to an {@link IUserRoleDao}.
  * 
@@ -41,9 +41,11 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
  */
 public class UserRoleDaoUserRoleListService implements IUserRoleListService {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IUserRoleDao userRoleDao;
   private UserDetailsService userDetailsService;
@@ -52,7 +54,8 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   private String adminRole;
   private ITenantedPrincipleNameResolver usernamePrincipalResolver;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
   public UserRoleDaoUserRoleListService() {
     super();
   }
@@ -69,7 +72,8 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     this.adminRole = adminRole;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   private List<String> getAllRoles( List<IPentahoRole> roles ) {
     List<String> auths = new ArrayList<String>( roles.size() );

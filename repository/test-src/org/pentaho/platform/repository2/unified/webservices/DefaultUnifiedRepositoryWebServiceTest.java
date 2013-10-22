@@ -17,18 +17,17 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import junit.framework.TestCase;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
 /**
  * Test class for DefaultUnifiedRepositoryWebService
@@ -47,8 +46,9 @@ public class DefaultUnifiedRepositoryWebServiceTest extends TestCase {
   public void testFileMetadata() throws Exception {
     final RepositoryFile testfile =
         repository.createFile( repository.getFile( "/etc" ).getId(), new RepositoryFile.Builder( "testfile" ).build(),
-            new SimpleRepositoryFileData( new ByteArrayInputStream( "test".getBytes() ), "UTF-8", "text/plain" ), null );
-
+            new SimpleRepositoryFileData( new ByteArrayInputStream( "test".getBytes() ),
+              "UTF-8", "text/plain" ), null );
+    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository is setup correctly
       assertNotNull( testfile );
@@ -63,7 +63,7 @@ public class DefaultUnifiedRepositoryWebServiceTest extends TestCase {
     metadata.add( new StringKeyStringValueDto( "complex key?", "\"an even more 'complex' value\"! {and them some}" ) );
 
     repositoryWS.setFileMetadata( testfile.getId().toString(), metadata );
-
+    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository sees the metadata
       assertNotNull( testfile );
@@ -72,14 +72,16 @@ public class DefaultUnifiedRepositoryWebServiceTest extends TestCase {
       assertNotNull( fileMetadata );
       assertEquals( 2, fileMetadata.size() );
     }
-
+    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure we can get the same metadata back via the web service
       final List<StringKeyStringValueDto> fileMetadata = repositoryWS.getFileMetadata( testfile.getId().toString() );
       assertNotNull( fileMetadata );
       assertEquals( 2, fileMetadata.size() );
-      assertTrue( metadata.get( 0 ).equals( fileMetadata.get( 0 ) ) || metadata.get( 0 ).equals( fileMetadata.get( 1 ) ) );
-      assertTrue( metadata.get( 1 ).equals( fileMetadata.get( 0 ) ) || metadata.get( 1 ).equals( fileMetadata.get( 1 ) ) );
+      assertTrue( metadata.get( 0 ).equals( fileMetadata.get( 0 ) ) || metadata.get( 0 )
+        .equals( fileMetadata.get( 1 ) ) );
+      assertTrue( metadata.get( 1 ).equals( fileMetadata.get( 0 ) ) || metadata.get( 1 )
+        .equals( fileMetadata.get( 1 ) ) );
     }
   }
 

@@ -18,14 +18,6 @@
 
 package org.pentaho.platform.repository.runtime;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -35,6 +27,14 @@ import org.pentaho.platform.engine.core.system.PentahoBase;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.xml.XmlHelper;
+
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   private static final long serialVersionUID = 5024690844237335928L;
@@ -226,8 +226,8 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Uses the instanceId to distinguish equality. The instanceId will never be null, won't change, and is the primary
-   * key. Therefore, it's the perfect candidate for equals() and hashcode.
+   * Uses the instanceId to distinguish equality. The instanceId will never be null, won't change, and is the
+   * primary key. Therefore, it's the perfect candidate for equals() and hashcode.
    */
   @Override
   public boolean equals( final Object other ) {
@@ -346,8 +346,8 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Sets a property into the paramMap. Special implementation note - Null values aren't supported in the Map. So, if a
-   * null value is passed in, this implementation will remove the entry from the map.
+   * Sets a property into the paramMap. Special implementation note - Null values aren't supported in the Map. So,
+   * if a null value is passed in, this implementation will remove the entry from the map.
    * 
    * @param key
    *          The key into the map.
@@ -403,8 +403,8 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Sets the BigDecimal property in the paramMap. Special implementation note - Null values aren't supported in the
-   * Map. So, if a null value is passed in, this implementation will remove the entry from the map.
+   * Sets the BigDecimal property in the paramMap. Special implementation note - Null values aren't supported in
+   * the Map. So, if a null value is passed in, this implementation will remove the entry from the map.
    * 
    * @param key
    *          Key in the paramMap.
@@ -451,9 +451,9 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Sets a date property in the paramMap. If null comes in, it removes the value from the map. Special implementation
-   * note - Null values aren't supported in the Map. So, if a null value is passed in, this implementation will remove
-   * the entry from the map.
+   * Sets a date property in the paramMap. If null comes in, it removes the value from the map. Special
+   * implementation note - Null values aren't supported in the Map. So, if a null value is passed in, this
+   * implementation will remove the entry from the map.
    * 
    * @param key
    *          Key in the paramMap
@@ -503,9 +503,9 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Sets a long property in the paramMap. If null comes in, it removes the value from the map. Special implementation
-   * note - Null values aren't supported in the Map. So, if a null value is passed in, this implementation will remove
-   * the entry from the map.
+   * Sets a long property in the paramMap. If null comes in, it removes the value from the map. Special
+   * implementation note - Null values aren't supported in the Map. So, if a null value is passed in, this
+   * implementation will remove the entry from the map.
    * 
    * @param key
    *          Key in the paramMap
@@ -564,8 +564,8 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Sets a list property in the paramMap. Special implementation note - Null values aren't supported in the Map. So, if
-   * a null value is passed in, this implementation will remove the entry from the map.
+   * Sets a list property in the paramMap. Special implementation note - Null values aren't supported in the Map.
+   * So, if a null value is passed in, this implementation will remove the entry from the map.
    * 
    * @param key
    *          The key in the map.
@@ -585,8 +585,8 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Sets a map property in the paramMap. Special implementation note - Null values aren't supported in the Map. So, if
-   * a null value is passed in, this implementation will remove the entry from the map.
+   * Sets a map property in the paramMap. Special implementation note - Null values aren't supported in the Map.
+   * So, if a null value is passed in, this implementation will remove the entry from the map.
    * 
    * @param key
    *          The key in the map.
@@ -606,8 +606,8 @@ public class RuntimeElement extends PentahoBase implements IRuntimeElement {
   }
 
   /**
-   * Returns an XML representation of the RuntimeElement. Mainly for Debug/Test Cases to make sure that what goes in is
-   * what comes out during tests.
+   * Returns an XML representation of the RuntimeElement. Mainly for Debug/Test Cases to make sure that what goes
+   * in is what comes out during tests.
    * 
    * @return Returns an XML representation of the RuntimeElement
    */

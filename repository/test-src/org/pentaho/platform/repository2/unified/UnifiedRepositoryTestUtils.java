@@ -18,24 +18,6 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -54,11 +36,24 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.util.web.MimeHelper;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.doReturn;
+
 /**
  * Consider using {@code MockUnifiedRepository} instead.
  * <p>
- * Test utilities for {@code IUnifiedRepository}. Assists with two phases of mocking: stubbing and verification. Uses
- * the <a href="http://code.google.com/p/mockito/">Mockito</a> mocking framework.
+ * Test utilities for {@code IUnifiedRepository}. Assists with two phases of mocking: stubbing and verification.
+ * Uses the <a href="http://code.google.com/p/mockito/">Mockito</a> mocking framework.
  * 
  * <p>
  * Stubbing Examples:
@@ -180,8 +175,8 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * Stubs a {@code getChildren} call. {@code childrenNames} is zero or more file/folder names. A folder is indicated by
-   * a trailing forward slash.
+   * Stubs a {@code getChildren} call. {@code childrenNames} is zero or more file/folder names. A folder is
+   * indicated by a trailing forward slash.
    * 
    * <p>
    * Example:
@@ -191,7 +186,8 @@ public class UnifiedRepositoryTestUtils {
    * stubGetChildren( repo, &quot;/public&quot;, &quot;hello/&quot;, &quot;file1.txt&quot; );
    * </pre>
    */
-  public static void stubGetChildren( final IUnifiedRepository repo, final String path, final String... childrenNames ) {
+  public static void stubGetChildren( final IUnifiedRepository repo, final String path,
+                                      final String... childrenNames ) {
     List<RepositoryFile> children = new ArrayList<RepositoryFile>( childrenNames.length );
     for ( String childName : childrenNames ) {
       if ( childName.startsWith( RepositoryFile.SEPARATOR ) ) {
@@ -224,21 +220,22 @@ public class UnifiedRepositoryTestUtils {
     } catch ( UnsupportedEncodingException e ) {
       throw new RuntimeException();
     }
-    doReturn( new AutoResetSimpleRepositoryFileData( new ByteArrayInputStream( bytes ), encoding, getMimeType( path ) ) )
+    doReturn( new AutoResetSimpleRepositoryFileData( new ByteArrayInputStream( bytes ),
+      encoding, getMimeType( path ) ) )
         .when( repo ).getDataForRead( makeIdObject( path ), SimpleRepositoryFileData.class );
   }
 
   /**
-   * Stubs a {@code getFile} call with a return value of {@code null}. While the mock framework will do this by default,
-   * this method makes the stubbed call more explicit.
+   * Stubs a {@code getFile} call with a return value of {@code null}. While the mock framework will do this by
+   * default, this method makes the stubbed call more explicit.
    */
   public static void stubGetFileDoesNotExist( final IUnifiedRepository repo, final String path ) {
     doReturn( null ).when( repo ).getFile( path );
   }
 
   /**
-   * Stubs a {@code getDataForRead} call. The pairs specified will be used to construct a {@code NodeRepositoryFileData}
-   * .
+   * Stubs a {@code getDataForRead} call. The pairs specified will be used to construct a
+   * {@code NodeRepositoryFileData} .
    */
   public static void stubGetData( final IUnifiedRepository repo, final String path, final String rootNodeName,
       final PathPropertyPair... pairs ) {
@@ -293,19 +290,21 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * Stubs a {@code getTree} call. {@code rootPath} is the root of the tree to return. {@code paths} is zero or more
-   * paths, relative to {@code rootPath} (i.e. they must not begin with a forward slash). Intermediate folders are
-   * created automatically. To specify an empty folder, end the path with a forward slash.
+   * Stubs a {@code getTree} call. {@code rootPath} is the root of the tree to return. {@code paths} is zero or
+   * more paths, relative to {@code rootPath} (i.e. they must not begin with a forward slash). Intermediate folders
+   * are created automatically. To specify an empty folder, end the path with a forward slash.
    * 
    * <p>
    * Example:
    * </p>
    * 
    * <pre>
-   * stubGetTree( repo, &quot;/public&quot;, &quot;relUrlTest.url&quot;, &quot;hello/file.txt&quot;, &quot;hello/file2.txt&quot;, &quot;hello2/&quot; );
+   * stubGetTree( repo, &quot;/public&quot;, &quot;relUrlTest.url&quot;, &quot;hello/file.txt&quot;,
+   * &quot;hello/file2.txt&quot;, &quot;hello2/&quot; );
    * </pre>
    */
-  public static void stubGetTree( final IUnifiedRepository repo, final String rootPath, final String... paths ) {
+  public static void stubGetTree( final IUnifiedRepository repo, final String rootPath,
+                                  final String... paths ) {
     RepositoryFileTree.Builder root = new RepositoryFileTree.Builder( makeFolderObject( rootPath, true ) );
     for ( String path : paths ) {
       if ( path.startsWith( RepositoryFile.SEPARATOR ) ) {
@@ -334,7 +333,8 @@ public class UnifiedRepositoryTestUtils {
     }
     String reconstructedPath =
         root.getFile().getPath() + RepositoryFile.SEPARATOR
-            + StringUtils.join( Arrays.copyOfRange( pathSegments, 0, currentSegmentIdx + 1 ), RepositoryFile.SEPARATOR );
+            + StringUtils.join( Arrays.copyOfRange( pathSegments, 0, currentSegmentIdx + 1 ),
+              RepositoryFile.SEPARATOR );
     RepositoryFile file = null;
     if ( ( currentSegmentIdx < pathSegments.length - 1 )
         || ( currentSegmentIdx == pathSegments.length - 1 && leafIsFolder ) ) {
@@ -389,8 +389,8 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link NodeRepositoryFileData}. Use factory
-   * method to create.
+   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link NodeRepositoryFileData}. Use
+   * factory method to create.
    */
   private static class NodeRepositoryFileDataMatcher extends TypeSafeMatcher<NodeRepositoryFileData> {
 
@@ -441,8 +441,8 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link SimpleRepositoryFileData}. Use factory
-   * method to create.
+   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link SimpleRepositoryFileData}. Use
+   * factory method to create.
    */
   private static class SimpleRepositoryFileDataMatcher extends TypeSafeMatcher<SimpleRepositoryFileData> {
 
@@ -549,8 +549,8 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link RepositoryFileAcl}. Will only attempt
-   * to match non-null properties. Use factory method to create.
+   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link RepositoryFileAcl}. Will only
+   * attempt to match non-null properties. Use factory method to create.
    */
   private static class SelectiveRepositoryFileAclMatcher extends TypeSafeMatcher<RepositoryFileAcl> {
 
@@ -620,8 +620,8 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link RepositoryFile}. Will only attempt to
-   * match non-null properties. Use factory method to create.
+   * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matcher for {@link RepositoryFile}. Will only
+   * attempt to match non-null properties. Use factory method to create.
    */
   private static class SelectiveRepositoryFileMatcher extends TypeSafeMatcher<RepositoryFile> {
 
@@ -727,7 +727,7 @@ public class UnifiedRepositoryTestUtils {
    * @return matcher
    */
   public static <T> Matcher<SimpleRepositoryFileData>
-    hasData( final byte[] expectedBytes, final String expectedMimeType ) {
+  hasData( final byte[] expectedBytes, final String expectedMimeType ) {
     return new SimpleRepositoryFileDataMatcher( expectedBytes, null, expectedMimeType );
   }
 
@@ -769,7 +769,8 @@ public class UnifiedRepositoryTestUtils {
    * </p>
    * 
    * <pre>
-   * assertThat( repositoryFile, isLikeFile( new RepositoryFile.Builder( &quot;123&quot;, &quot;test.txt&quot; ).build() ) );
+   * assertThat( repositoryFile, isLikeFile( new RepositoryFile.Builder( &quot;123&quot;,
+   * &quot;test.txt&quot; ).build() ) );
    * </pre>
    * 
    * @param expectedFile
@@ -788,7 +789,8 @@ public class UnifiedRepositoryTestUtils {
    * </p>
    * 
    * <pre>
-   * assertThat( repositoryFileAcl, isLikeAcl( new RepositoryFileAcl.Builder( &quot;admin&quot;, RepositoryFileSid.Type.USER ).ace(
+   * assertThat( repositoryFileAcl, isLikeAcl( new RepositoryFileAcl.Builder( &quot;admin&quot;,
+   * RepositoryFileSid.Type.USER ).ace(
    *     &quot;suzy&quot;, RepositoryFileSid.Type.USER, RepositoryFilePermission.WRITE ).build() ), true );
    * </pre>
    * 
@@ -805,8 +807,8 @@ public class UnifiedRepositoryTestUtils {
   }
 
   /**
-   * Factory for {@code RepositoryFileAcl} matcher. Only attempts to match on non-null properties. Aces are tested using
-   * {@code containsAll(Collection)}.
+   * Factory for {@code RepositoryFileAcl} matcher. Only attempts to match on non-null properties. Aces are tested
+   * using {@code containsAll(Collection)}.
    * 
    * <p>
    * Example:
@@ -832,7 +834,8 @@ public class UnifiedRepositoryTestUtils {
    * </p>
    * 
    * <pre>
-   * assertThat( nodeRepositoryFileData, hasData( pathPropertyPair( &quot;/databaseMeta/HOST_NAME&quot;, &quot;localhost&quot; ) ) );
+   * assertThat( nodeRepositoryFileData, hasData( pathPropertyPair( &quot;/databaseMeta/HOST_NAME&quot;,
+   * &quot;localhost&quot; ) ) );
    * </pre>
    * 
    * @param pairs

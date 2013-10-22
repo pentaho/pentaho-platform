@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -52,6 +42,16 @@ import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValue
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryAdapter;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryDto;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Converts calls to {@link IUnifiedRepository} into {@link IUnifiedRepositoryWebService}. This is how client code
@@ -395,8 +395,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   }
 
   @Override
-  public RepositoryFileTree getTree( final String path,
-      final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
+                                     final boolean showHidden ) {
     return repositoryFileTreeAdapter.unmarshal( repoWebService.getTree( path, depth, filter, showHidden ) );
   }
 

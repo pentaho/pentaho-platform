@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.repository.solution.filebased;
 
-import java.util.Collection;
-
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemConfigBuilder;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.provider.FileProvider;
+
+import java.util.Collection;
 
 public class SolutionRepositoryVfs implements FileProvider {
 

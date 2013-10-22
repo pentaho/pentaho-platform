@@ -48,8 +48,8 @@ public class RepositoryUtils {
   }
 
   /**
-   * Returns the specified folder in the current repository. If it can not be found, it will optionally be created. The
-   * missing parent folders can also be created if needed
+   * Returns the specified folder in the current repository. If it can not be found, it will optionally be created.
+   * The missing parent folders can also be created if needed
    * 
    * @param path
    *          the full path to the requested folder in the repository
@@ -59,8 +59,8 @@ public class RepositoryUtils {
    *          {@code true} indicates that any missing parent folders will be created if they do not exist
    * @param versionMessage
    *          the message used if any folders are created
-   * @return the {@link RepositoryFile} of the request folders, or {@code null} if it does not exist and the parameters
-   *         do not allow for it to be created
+   * @return the {@link RepositoryFile} of the request folders, or {@code null} if it does not exist and the
+   *         parameters do not allow for it to be created
    */
   public RepositoryFile getFolder( final String path, final boolean createIfNotExist, final boolean createParents,
       final String versionMessage ) {
@@ -89,8 +89,8 @@ public class RepositoryUtils {
   }
 
   /**
-   * Returns the specified file from the current repository. If it can not be found, it will optionally be created. The
-   * missing parent folders can also be created if needed.
+   * Returns the specified file from the current repository. If it can not be found, it will optionally be created.
+   * The missing parent folders can also be created if needed.
    * 
    * @param path
    *          the full path to the requested file in the repository
@@ -102,8 +102,8 @@ public class RepositoryUtils {
    *          {@code true} indicates that any missing parent folders will be created if they do not exist
    * @param versionMessage
    *          the message used if the file or any folders are created
-   * @return the {@link RepositoryFile} of the request file, or {@code null} if it does not exist and the parameters do
-   *         not allow for it to be created
+   * @return the {@link RepositoryFile} of the request file, or {@code null} if it does not exist and the
+   *         parameters do not allow for it to be created
    */
   public RepositoryFile getFile( final String path, final IRepositoryFileData data, final boolean createIfNotExist,
       final boolean createParents, final String versionMessage ) {
@@ -123,8 +123,8 @@ public class RepositoryUtils {
 
   /**
    * Save the data to a file at the specified path. It will create the file it is doesn't exist (if
-   * {@code create == true}), it will overwrite the file it it does exist (if {@code overwrite == true}, and it will
-   * create any necessary parent directories (if {@code createParentDirs == true}
+   * {@code create == true}), it will overwrite the file it it does exist (if {@code overwrite == true}, and it
+   * will create any necessary parent directories (if {@code createParentDirs == true}
    * 
    * @param filePath
    * @param data

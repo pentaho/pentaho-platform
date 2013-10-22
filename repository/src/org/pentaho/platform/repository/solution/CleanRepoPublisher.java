@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.repository.solution;
 
-import java.util.HashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -28,6 +26,8 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.system.BasePublisher;
 import org.pentaho.platform.engine.services.solution.SolutionHelper;
 import org.pentaho.platform.repository.messages.Messages;
+
+import java.util.HashMap;
 
 public class CleanRepoPublisher extends BasePublisher {
 

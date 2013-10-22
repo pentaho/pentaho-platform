@@ -17,20 +17,6 @@
 
 package org.pentaho.test.platform.security.userroledao;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
@@ -81,6 +67,19 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit test for {@link UserRoleDaoUserDetailsService}.
  * 
@@ -88,7 +87,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class UserRoleDaoUserDetailsServiceTest implements ApplicationContextAware {
 
@@ -239,30 +238,30 @@ public class UserRoleDaoUserDetailsServiceTest implements ApplicationContextAwar
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     // Start the micro-platform
     mp.start();
-    
+
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
     startupCalled = true;
   }
-  
+
   private void setAclManagement() {
-    testJcrTemplate.execute(new JcrCallback() {
+    testJcrTemplate.execute( new JcrCallback() {
       @Override
-      public Object doInJcr(Session session) throws IOException, RepositoryException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+      public Object doInJcr( Session session ) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         Workspace workspace = session.getWorkspace();
-        PrivilegeManager privilegeManager =((JackrabbitWorkspace) workspace).getPrivilegeManager();
+        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
         try {
-          privilegeManager.getPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE());
-        } catch(AccessControlException ace) {
-          privilegeManager.registerPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(),
-              false, new String[0]);
+          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
+        } catch ( AccessControlException ace ) {
+          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
+              new String[0] );
         }
         session.save();
         return null;
       }
-    });
+    } );
   }
 
   private void cleanupUserAndRoles( String userName, ITenant tenant ) {
@@ -277,12 +276,12 @@ public class UserRoleDaoUserDetailsServiceTest implements ApplicationContextAwar
   }
 
   /*
-   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null &&
-   * tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
+   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null
+   * && tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
    * role:userRoleDao.getRoles()) { userRoleDao.deleteRole(role); } for(IPentahoUser user:userRoleDao.getUsers()) {
-   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant)); logout(); }
-   * } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO Auto-generated catch block
-   * e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
+   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant));
+   * logout(); } } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO
+   * Auto-generated catch block e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
    */
   @After
   public void tearDown() throws Exception {
@@ -389,7 +388,8 @@ public class UserRoleDaoUserDetailsServiceTest implements ApplicationContextAwar
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
@@ -439,7 +439,8 @@ public class UserRoleDaoUserDetailsServiceTest implements ApplicationContextAwar
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );

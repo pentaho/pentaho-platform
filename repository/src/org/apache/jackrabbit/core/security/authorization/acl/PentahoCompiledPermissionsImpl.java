@@ -17,17 +17,6 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlEntry;
-
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.core.ItemImpl;
 import org.apache.jackrabbit.core.ItemManager;
@@ -48,6 +37,16 @@ import org.apache.jackrabbit.core.security.authorization.PrivilegeRegistry;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.Path;
 import org.apache.jackrabbit.util.Text;
+
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.security.AccessControlEntry;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A copy-paste of {@code CompiledPermissionsImpl} modified with more lenient locking on cache to prevent deadlocks
@@ -100,9 +99,9 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     Iterator<AccessControlEntry> entries = entryCollector.collectEntries( n, filter ).iterator();
 
     /*
-     * Calculate privileges and permissions: Since the ACEs only define privileges on a node and do not allow to add
-     * additional restrictions, the permissions can be determined without taking the given target name or target item
-     * into account.
+     * Calculate privileges and permissions: Since the ACEs only define privileges on a node and do not allow to
+     * add additional restrictions, the permissions can be determined without taking the given target name or
+     * target item into account.
      */
     int allows = Permission.NONE;
     int denies = Permission.NONE;
@@ -119,8 +118,8 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
       ACLTemplate.Entry ace = (ACLTemplate.Entry) entries.next();
       /*
        * Determine if the ACE also takes effect on the parent: Some permissions (e.g. add-node or removal) must be
-       * determined from privileges defined for the parent. A 'local' entry defined on the target node never effects the
-       * parent. For inherited ACEs determine if the ACE matches the parent path.
+       * determined from privileges defined for the parent. A 'local' entry defined on the target node never
+       * effects the parent. For inherited ACEs determine if the ACE matches the parent path.
        */
       PrivilegeBits entryBits = ace.getPrivilegeBits();
       boolean isLocal = isExistingNode && ace.isLocal( nodeId );
@@ -263,9 +262,9 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
       canRead = result.grants( Permission.READ );
     } else {
       /*
-       * simplified evaluation focusing on READ permission. this allows to omit evaluation of parent node permissions
-       * that are required when calculating the complete set of permissions (see special treatment of remove, create or
-       * ac-specific permissions).
+       * simplified evaluation focusing on READ permission. this allows to omit evaluation of parent node
+       * permissions that are required when calculating the complete set of permissions (see special treatment of
+       * remove, create or ac-specific permissions).
        */
       for ( AccessControlEntry accessControlEntry : entryCollector.collectEntries( node, filter ) ) {
         ACLTemplate.Entry ace = (ACLTemplate.Entry) accessControlEntry;
@@ -285,7 +284,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   // ----------------------------------------< ACLModificationListener >---
   /**
    * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener#
-   * acModified(org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
+   *      acModified(org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
    */
   public void acModified( AccessControlModifications modifications ) {
     // ignore the details of the modifications and clear all caches.

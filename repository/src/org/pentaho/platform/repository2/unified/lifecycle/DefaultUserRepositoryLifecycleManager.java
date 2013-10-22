@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -35,6 +31,10 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultUserRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
 

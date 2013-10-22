@@ -33,19 +33,23 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
  */
 public class BackingRepositoryLifecycleManagerSystemListener implements IPentahoSystemListener {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( BackingRepositoryLifecycleManagerSystemListener.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public BackingRepositoryLifecycleManagerSystemListener() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   @Override
   public boolean startup( IPentahoSession session ) {

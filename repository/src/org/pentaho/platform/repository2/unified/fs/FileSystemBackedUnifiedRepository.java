@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.fs;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -36,6 +27,15 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   private FileSystemRepositoryFileDao repositoryFileDao;
@@ -243,8 +243,8 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     throw new UnsupportedOperationException();
   }
 
-  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(
-      List<RepositoryFile> files, Class<T> dataClass ) {
+  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( List<RepositoryFile> files,
+                                                                        Class<T> dataClass ) {
     throw new UnsupportedOperationException();
   }
 

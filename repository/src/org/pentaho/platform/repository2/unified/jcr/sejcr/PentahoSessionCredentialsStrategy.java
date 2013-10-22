@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import javax.jcr.Credentials;
-import javax.jcr.SimpleCredentials;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.util.Assert;
+
+import javax.jcr.Credentials;
+import javax.jcr.SimpleCredentials;
 
 /**
  * A {@link CredentialsStrategy} that creates credentials from the current {@link IPentahoSession}.
@@ -34,18 +34,21 @@ import org.springframework.util.Assert;
  */
 public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final String ATTR_PRE_AUTHENTICATION_TOKEN = "pre_authentication_token"; //$NON-NLS-1$
 
   private static final char[] PASSWORD = "ingnored".toCharArray(); //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String preAuthenticationToken;
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoSessionCredentialsStrategy( final String preAuthenticationToken,
       final ITenantedPrincipleNameResolver tenantedUserNameUtils ) {
@@ -55,7 +58,8 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
     this.tenantedUserNameUtils = tenantedUserNameUtils;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public Credentials getCredentials() {
     String userId = getUserId();

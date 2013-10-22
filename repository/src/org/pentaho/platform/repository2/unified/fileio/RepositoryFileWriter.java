@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.repository2.unified.fileio;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+
 import java.io.FileNotFoundException;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 public class RepositoryFileWriter extends OutputStreamWriter {
 

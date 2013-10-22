@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.repository2.unified.fs;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: kwalker Date: 8/23/13 Time: 8:44 AM

@@ -23,7 +23,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 public class DefaultClientRepositoryPathsStrategy implements IClientRepositoryPathsStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final String FOLDER_HOME = "home"; //$NON-NLS-1$
 
@@ -31,15 +32,18 @@ public class DefaultClientRepositoryPathsStrategy implements IClientRepositoryPa
 
   private static final String FOLDER_ETC = "etc"; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultClientRepositoryPathsStrategy() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getUserHomeFolderPath( final String username ) {
     return getHomeFolderPath() + RepositoryFile.SEPARATOR + getUserHomeFolderName( username );

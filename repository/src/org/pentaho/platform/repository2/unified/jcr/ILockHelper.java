@@ -18,17 +18,16 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Helper class that stores, retrieves, and removes lock tokens. In section 8.4.7 of the JSR-170 specification, it
- * states, "the user must additionally ensure that a reference to the lock token is preserved separately so that it can
- * later be attached to another session." This manual step is necessary when using open-scoped locks and this
+ * states, "the user must additionally ensure that a reference to the lock token is preserved separately so that it
+ * can later be attached to another session." This manual step is necessary when using open-scoped locks and this
  * implementation uses open-scoped locks exclusively.
  * 
  * @author mlowery
@@ -36,8 +35,9 @@ import javax.jcr.lock.Lock;
 public interface ILockHelper {
 
   /**
-   * Removes a lock token so that it can never be associated with anyone's session again. (To be called after the file
-   * has been unlocked (or the file is deleted) and therefore the token associated with the lock is unnecessary.)
+   * Removes a lock token so that it can never be associated with anyone's session again. (To be called after the
+   * file has been unlocked (or the file is deleted) and therefore the token associated with the lock is
+   * unnecessary.)
    * 
    * @param session
    *          session
@@ -52,8 +52,8 @@ public interface ILockHelper {
     throws RepositoryException;
 
   /**
-   * Returns {@code true} if user represented by session can potentially unlock the given lock. This can be a function
-   * of access control or some other mechanism.
+   * Returns {@code true} if user represented by session can potentially unlock the given lock. This can be a
+   * function of access control or some other mechanism.
    * 
    * @param session
    *          session

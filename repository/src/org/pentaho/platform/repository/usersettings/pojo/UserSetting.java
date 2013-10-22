@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.repository.usersettings.pojo;
 
-import java.io.Serializable;
-
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+
+import java.io.Serializable;
 
 public class UserSetting implements Serializable, IUserSetting {
 

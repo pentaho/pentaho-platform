@@ -18,18 +18,17 @@
 
 package org.pentaho.platform.repository2.unified.jcr.transform;
 
-import java.io.InputStream;
-import java.util.Calendar;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.util.StringUtils;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.InputStream;
+import java.util.Calendar;
 
 /**
  * An {@link ITransformer} that can read and write {@code nt:resource} nodes.
@@ -38,17 +37,21 @@ import org.springframework.util.StringUtils;
  */
 public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleRepositoryFileData> {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SimpleRepositoryFileDataTransformer() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}

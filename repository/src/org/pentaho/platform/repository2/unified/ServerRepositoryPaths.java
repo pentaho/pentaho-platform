@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.lang.reflect.Constructor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Class of static methods that return commonly needed absolute paths like "tenant root folder path."
@@ -32,7 +32,8 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
  */
 public class ServerRepositoryPaths {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( ServerRepositoryPaths.class );
 
@@ -48,15 +49,18 @@ public class ServerRepositoryPaths {
     initialize();
   }
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   private ServerRepositoryPaths() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public static String getPentahoRootFolderPath() {
     return strategy.getPentahoRootFolderPath();

@@ -18,20 +18,18 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
-import junit.framework.TestCase;
-
-import org.junit.Test;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class RepositoryFileTreeAdapterTest extends TestCase {
 
@@ -42,7 +40,7 @@ public class RepositoryFileTreeAdapterTest extends TestCase {
   public void testBIServer7777() throws Exception {
     // file tree with empty children
     RepositoryFile empty = new RepositoryFile.Builder( "empty" ).build();
-    RepositoryFileTree emptyDir = new RepositoryFileTree( empty, Collections.<RepositoryFileTree> emptyList() );
+    RepositoryFileTree emptyDir = new RepositoryFileTree( empty, Collections.<RepositoryFileTree>emptyList() );
     RepositoryFile root = new RepositoryFile.Builder( "rootDir" ).build();
     ArrayList<RepositoryFileTree> children = new ArrayList<RepositoryFileTree>( 1 );
     children.add( emptyDir );

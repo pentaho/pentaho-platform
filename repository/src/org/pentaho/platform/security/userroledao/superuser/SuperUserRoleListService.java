@@ -17,14 +17,14 @@
 
 package org.pentaho.platform.security.userroledao.superuser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.mt.ITenant;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An {@link IUserRoleListService} that delegates to an {@link IUserRoleDao}.
@@ -33,15 +33,18 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
  */
 public class SuperUserRoleListService implements IUserRoleListService {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private List<String> systemRoles;
   private List<String> roles;
   private List<String> users;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
   public SuperUserRoleListService() {
     super();
   }
@@ -55,7 +58,8 @@ public class SuperUserRoleListService implements IUserRoleListService {
     this.roles.add( role );
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   @Override
   public List<String> getAllRoles() {

@@ -38,11 +38,6 @@ package org.pentaho.platform.repository2.unified.jcr;
  * Time: 4:10 PM
  */
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -51,9 +46,14 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
 /**
- * This default acl handler sets the default security to Authenticated ALL for specific shared paths specified by a list
- * in the configuration, defaulting to just databases at this time.
+ * This default acl handler sets the default security to Authenticated ALL for specific shared paths specified by a
+ * list in the configuration, defaulting to just databases at this time.
  * 
  * @author Will Gorman (wgorman@pentaho.com)
  */

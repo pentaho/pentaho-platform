@@ -18,19 +18,18 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlList;
 import javax.jcr.security.Privilege;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class JcrAclMetadataStrategy implements IAclMetadataStrategy {
 

@@ -17,9 +17,8 @@
 
 package org.pentaho.platform.security.userroledao.ws;
 
-import java.util.List;
-
 import javax.jws.WebService;
+import java.util.List;
 
 /**
  * This webservice interface may be used in the platform to expose the management of users and roles, it is a

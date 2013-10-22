@@ -18,14 +18,13 @@
 
 package org.pentaho.platform.security.userrole.ws;
 
-import java.util.List;
-
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.UserRoleInfo;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import javax.jws.WebService;
+import java.util.List;
 
 /**
  * Implementation of {@link IUserRoleListWebService} that delegates to an {@link IUserRoleListService} instance.
@@ -37,13 +36,16 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
     targetNamespace = "http://www.pentaho.org/ws/1.0" )
 public class DefaultUserRoleListWebService implements IUserRoleListWebService {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IUserRoleListService userRoleListService;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   /**
    * No-arg constructor for when in Pentaho BI Server.
@@ -61,7 +63,8 @@ public class DefaultUserRoleListWebService implements IUserRoleListWebService {
     this.userRoleListService = userRoleListService;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   @Override
   public List<String> getAllRoles() {

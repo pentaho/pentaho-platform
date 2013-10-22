@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -29,6 +26,9 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * An authorization policy based on roles.
  * 
@@ -36,13 +36,16 @@ import org.springframework.util.Assert;
  */
 public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public RoleAuthorizationPolicy( final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao ) {
     super();
@@ -50,7 +53,8 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
     this.roleBindingDao = roleBindingDao;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}

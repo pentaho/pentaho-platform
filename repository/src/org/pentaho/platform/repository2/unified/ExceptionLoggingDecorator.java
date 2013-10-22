@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +34,16 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+
 /**
  * Decorates another {@code IUnifiedRepository} instance and logs exceptions if they occur. Also, a new non-chained
  * exception is thrown. (The root cause will not leave this class.)
@@ -52,17 +52,20 @@ import org.springframework.util.Assert;
  */
 public class ExceptionLoggingDecorator implements IUnifiedRepository {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( ExceptionLoggingDecorator.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private final IUnifiedRepository delegatee;
 
   private final Map<String, ExceptionConverter> exceptionConverterMap;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public ExceptionLoggingDecorator( final IUnifiedRepository delegatee,
       final Map<String, ExceptionConverter> exceptionConverterMap ) {
@@ -72,7 +75,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     this.exceptionConverterMap = exceptionConverterMap;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public boolean canUnlockFile( final Serializable fileId ) {
     return callLogThrow( new Callable<Boolean>() {
@@ -379,8 +383,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.copyFile", fileId, destAbsPath ) ); //$NON-NLS-1$
   }
 
-  public void restoreFileAtVersion( final Serializable fileId,
-      final Serializable versionId, final String versionMessage ) {
+  public void
+  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     callLogThrow( new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.restoreFileAtVersion( fileId, versionId, versionMessage );
@@ -424,8 +428,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.updateFile", file != null ? file.getId() : null ) ); //$NON-NLS-1$
   }
 
-  public RepositoryFileTree getTree( final String path,
-      final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth,
+                                     final String filter, final boolean showHidden ) {
     return callLogThrow( new Callable<RepositoryFileTree>() {
       public RepositoryFileTree call() throws Exception {
         return delegatee.getTree( path, depth, filter, showHidden );
@@ -452,8 +456,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   /**
-   * Calls the Callable and returns the value it returns. If an exception occurs, it is logged and a new non-chained
-   * exception is thrown.
+   * Calls the Callable and returns the value it returns. If an exception occurs, it is logged and a new
+   * non-chained exception is thrown.
    * 
    * @param <T>
    *          return type
@@ -616,8 +620,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   @Override
-  public void setLocalePropertiesForFileByPath( final String relPath,
-      final String locale, final Properties properties ) {
+  public void setLocalePropertiesForFileByPath( final String relPath, final String locale,
+                                                final Properties properties ) {
     callLogThrow( new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.setLocalePropertiesForFileByPath( relPath, locale, properties );

@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RepositoryFileAclAdapter extends XmlAdapter<RepositoryFileAclDto, RepositoryFileAcl> {
 

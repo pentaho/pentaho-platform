@@ -17,9 +17,9 @@
 
 package org.pentaho.platform.security.userroledao.ws;
 
-import java.io.Serializable;
-
 import org.pentaho.platform.core.mt.Tenant;
+
+import java.io.Serializable;
 
 public class ProxyPentahoRole implements Serializable, Cloneable {
 

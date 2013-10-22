@@ -18,17 +18,17 @@
 
 package org.pentaho.platform.repository.legacy.acl;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class LegacyRepositoryFile implements ISolutionFile, IAclHolder, Serializable {
 
@@ -121,14 +121,14 @@ public class LegacyRepositoryFile implements ISolutionFile, IAclHolder, Serializ
   }
 
   /**
-   * Chains up to find the access controls that are in force on this object. Could end up chaining all the way to the
-   * root.
+   * Chains up to find the access controls that are in force on this object. Could end up chaining all the way to
+   * the root.
    * 
    * <p>
-   * Note that (1) defining no access control entries of your own and (2) removing all of your access control entries is
-   * indistiguishable in the current design. In #1, we chain up because we inherit. But in #2, it might be expected that
-   * by explicitly removing all access control entries, the chaining up ends. That is not the case in the current
-   * design.
+   * Note that (1) defining no access control entries of your own and (2) removing all of your access control
+   * entries is indistiguishable in the current design. In #1, we chain up because we inherit. But in #2, it might
+   * be expected that by explicitly removing all access control entries, the chaining up ends. That is not the case
+   * in the current design.
    * </p>
    */
   @Override

@@ -18,6 +18,15 @@
 
 package org.pentaho.test.platform.repository.runtime;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.pentaho.platform.api.repository.IRuntimeRepository;
+import org.pentaho.platform.repository.hibernate.HibernateUtil;
+import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.repository.runtime.RuntimeElement;
+import org.pentaho.platform.repository.runtime.RuntimeRepository;
+import org.pentaho.test.platform.repository.RepositoryTestCase;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,16 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.pentaho.platform.api.repository.IRuntimeRepository;
-import org.pentaho.platform.repository.hibernate.HibernateUtil;
-import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.platform.repository.runtime.RuntimeElement;
-import org.pentaho.platform.repository.runtime.RuntimeRepository;
-import org.pentaho.test.platform.repository.RepositoryTestCase;
 
 //import java.io.OutputStream;
 
@@ -70,8 +69,8 @@ public class RuntimeRepositoryTest extends RepositoryTestCase {
   public RuntimeRepositoryTest( String arg0 ) {
     super( arg0 );
     Properties props = System.getProperties();
-    longString.append( props.getProperty( "java.home" ) ).append( props.getProperty( "sun.cpu.isalist" ) ). //$NON-NLS-1$ //$NON-NLS-2$
-        append( props.getProperty( "java.vm.version" ) ).append( props.getProperty( "user.home" ) ). //$NON-NLS-1$ //$NON-NLS-2$
+    longString.append( props.getProperty( "java.home" ) ).append( props.getProperty( "sun.cpu.isalist" ) ).//$NON-NLS-1$ //$NON-NLS-2$
+        append( props.getProperty( "java.vm.version" ) ).append( props.getProperty( "user.home" ) ).//$NON-NLS-1$ //$NON-NLS-2$
         append( props.getProperty( "java.class.path" ) ); //$NON-NLS-1$
   }
 

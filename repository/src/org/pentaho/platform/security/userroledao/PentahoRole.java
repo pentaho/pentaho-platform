@@ -33,14 +33,16 @@ import org.pentaho.platform.api.mt.ITenant;
  */
 public class PentahoRole implements IPentahoRole {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = 7280850318778455743L;
 
   private static final String FIELD_NAME = "name"; //$NON-NLS-1$
   private static final String FIELD_TENANT = "tenant"; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private ITenant tenant;
 
@@ -48,7 +50,8 @@ public class PentahoRole implements IPentahoRole {
 
   private String description;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   protected PentahoRole() {
     // constructor reserved for use by Hibernate
@@ -77,7 +80,8 @@ public class PentahoRole implements IPentahoRole {
     this.description = roleToCopy.getDescription();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getName() {
     return name;

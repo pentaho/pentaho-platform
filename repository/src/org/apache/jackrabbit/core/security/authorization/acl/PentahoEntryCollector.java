@@ -17,20 +17,6 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.security.Principal;
-import java.security.acl.Group;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.Privilege;
-import javax.jcr.version.VersionHistory;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
@@ -53,10 +39,23 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.Privilege;
+import javax.jcr.version.VersionHistory;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Copy-and-paste of {@code org.apache.jackrabbit.core.security.authorization.acl.EntryCollector} in Jackrabbit 2.4.0.
- * This class is in {@code org.apache.jackrabbit.core.security.authorization.acl} package due to the scope of
- * collaborating classes.
+ * Copy-and-paste of {@code org.apache.jackrabbit.core.security.authorization.acl.EntryCollector} in Jackrabbit
+ * 2.4.0. This class is in {@code org.apache.jackrabbit.core.security.authorization.acl} package due to the scope
+ * of collaborating classes.
  * 
  * <p>
  * Changes to original:
@@ -66,8 +65,8 @@ import org.springframework.util.Assert;
  * <li>{@code collectEntries()} copied from {@code EntryCollector} uses {@code entries.getNextId()} instead of
  * {@code node.getParentId()}</li>
  * <li>{@code filterEntries()} copied from {@code EntryCollector} as it was {@code static} and {@code private}.</li>
- * <li>No caching is done in the presence of dynamic ACEs. This may need to be revisited but due to the short lifetime
- * of the way we use Sessions, it may be acceptable.</li>
+ * <li>No caching is done in the presence of dynamic ACEs. This may need to be revisited but due to the short
+ * lifetime of the way we use Sessions, it may be acceptable.</li>
  * <li>Understands {@code AclMetadataPrincipal}.</li>
  * <li>Adds {@code MagicPrincipal}s on the fly.</li>
  * <li>If access decision on versionStorage, then find the associated file node and use that ACL.</li>
@@ -179,7 +178,8 @@ public class PentahoEntryCollector extends EntryCollector {
     NodeImpl currentNode = node;
     ACLTemplate acl;
 
-    // version history governed by ACL on "versionable" which could be the root if no version history exists for file;
+    // version history governed by ACL on "versionable" which could be the root if no version history exists for
+    // file;
     // if we do hit the root, then you get jcr:read for everyone which is acceptable
     if ( currentNode.getPath().startsWith( "/jcr:system/jcr:versionStorage" ) ) { //$NON-NLS-1$
       currentNode = getVersionable( currentNode );
@@ -216,7 +216,8 @@ public class PentahoEntryCollector extends EntryCollector {
         if ( ArrayUtils.contains( expandedPrivileges, removeChildNodesPrivilege )
             && !ArrayUtils.contains( expandedPrivileges, removeNodePrivilege ) ) {
           if ( !acl.addAccessControlEntry( entry.getPrincipal(), new Privilege[] { removeNodePrivilege } ) ) {
-            // we can never fail to add this entry because it means we may be giving more permission than the above two
+            // we can never fail to add this entry because it means we may be giving more permission than the above
+            // two
             throw new RuntimeException();
           }
           break;
@@ -239,8 +240,8 @@ public class PentahoEntryCollector extends EntryCollector {
   }
 
   /**
-   * Incoming node is in versionStorage. Find its associated versionable--the node associated with this version history
-   * node.
+   * Incoming node is in versionStorage. Find its associated versionable--the node associated with this version
+   * history node.
    */
   protected NodeImpl getVersionable( final NodeImpl node ) throws RepositoryException {
     NodeImpl currentNode = node;
@@ -250,8 +251,8 @@ public class PentahoEntryCollector extends EntryCollector {
     if ( rootID.equals( currentNode.getNodeId() ) ) {
       return currentNode;
     } else {
-      return (NodeImpl) systemSession
-          .getNodeByIdentifier( ( (VersionHistory) currentNode ).getVersionableIdentifier() );
+      return (NodeImpl) systemSession.getNodeByIdentifier( ( (VersionHistory) currentNode )
+        .getVersionableIdentifier() );
     }
   }
 
@@ -330,7 +331,8 @@ public class PentahoEntryCollector extends EntryCollector {
       if ( match ) {
         Principal principal =
             new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
-        // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later;
+        // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully
+        // later;
         // changed never persisted
         acl.addAccessControlEntry( principal, def.privileges );
       }
@@ -343,11 +345,12 @@ public class PentahoEntryCollector extends EntryCollector {
   }
 
   /**
-   * Selects (and modifies) ACEs containing JCR_ADD_CHILD_NODES or JCR_REMOVE_CHILD_NODES privileges from the given ACL.
+   * Selects (and modifies) ACEs containing JCR_ADD_CHILD_NODES or JCR_REMOVE_CHILD_NODES privileges from the given
+   * ACL.
    * 
    * <p>
-   * Modifications to this ACL are not persisted. ACEs must be created in the given ACL because the path embedded in the
-   * given ACL plays into authorization decisions using parentPrivs.
+   * Modifications to this ACL are not persisted. ACEs must be created in the given ACL because the path embedded
+   * in the given ACL plays into authorization decisions using parentPrivs.
    * </p>
    */
   protected List<AccessControlEntry> getRelevantAncestorAces( final ACLTemplate ancestorAcl )
@@ -372,7 +375,8 @@ public class PentahoEntryCollector extends EntryCollector {
       if ( ArrayUtils.contains( expandedPrivileges, removeChildNodesPrivilege ) ) {
         privs.add( removeChildNodesPrivilege );
       }
-      // remove all physical entries from the ACL. MagicAces will not be present in the ACL Entries, so we check before
+      // remove all physical entries from the ACL. MagicAces will not be present in the ACL Entries, so we check
+      // before
       // trying to remove
       if ( ancestorAcl.getEntries().contains( entry ) ) {
         ancestorAcl.removeAccessControlEntry( entry );
@@ -390,7 +394,8 @@ public class PentahoEntryCollector extends EntryCollector {
         if ( !ancestorAcl.addAccessControlEntry( entry.getPrincipal() instanceof Group ? new MagicGroup( entry
             .getPrincipal().getName() ) : new MagicPrincipal( entry.getPrincipal().getName() ), privs
             .toArray( new Privilege[privs.size()] ) ) ) {
-          // we can never fail to add this entry because it means we may be giving more permission than the above two
+          // we can never fail to add this entry because it means we may be giving more permission than the above
+          // two
           throw new RuntimeException();
         }
       }
@@ -414,7 +419,8 @@ public class PentahoEntryCollector extends EntryCollector {
       } else {
         magicPrincipal = new MagicPrincipal( JcrTenantUtils.getTenantedUser( ownerPrincipal.getName() ) );
       }
-      // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later;
+      // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully
+      // later;
       // changed never persisted
       acl.addAccessControlEntry( magicPrincipal, new Privilege[] { systemSession.getAccessControlManager()
           .privilegeFromName( "jcr:all" ) } ); //$NON-NLS-1$
@@ -428,8 +434,8 @@ public class PentahoEntryCollector extends EntryCollector {
   }
 
   /**
-   * Overridden since {@code collectEntries()} from {@code EntryCollector} called {@code node.getParentId()} instead of
-   * {@code entries.getNextId()}.
+   * Overridden since {@code collectEntries()} from {@code EntryCollector} called {@code node.getParentId()}
+   * instead of {@code entries.getNextId()}.
    */
   @Override
   protected List<AccessControlEntry> collectEntries( NodeImpl node, EntryFilter filter ) throws RepositoryException {

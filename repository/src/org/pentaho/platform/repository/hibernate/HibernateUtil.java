@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository.hibernate;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -54,6 +44,15 @@ import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.MessageUtil;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemExitPoint {
 
@@ -161,9 +160,9 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
 
       /*
        * configuration.addResource("org/pentaho/platform/repository/runtime/RuntimeElement.hbm.xml"); //$NON-NLS-1$
-       * configuration.addResource("org/pentaho/platform/repository/content/ContentLocation.hbm.xml");//$NON-NLS-1$
-       * configuration.addResource("org/pentaho/platform/repository/content/ContentItem.hbm.xml");//$NON-NLS-1$
-       * configuration.addResource("org/pentaho/platform/repository/content/ContentItemFile.hbm.xml");//$NON-NLS-1$
+       * configuration.addResource("org/pentaho/platform/repository/content/ContentLocation.hbm.xml"); //$NON-NLS-1$
+       * configuration.addResource("org/pentaho/platform/repository/content/ContentItem.hbm.xml"); //$NON-NLS-1$
+       * configuration.addResource("org/pentaho/platform/repository/content/ContentItemFile.hbm.xml"); //$NON-NLS-1$
        */
       if ( !HibernateUtil.hibernateManaged ) {
         HibernateUtil.log.info( Messages.getInstance().getString( "HIBUTIL.USER_HIBERNATEUNMANAGED" ) ); //$NON-NLS-1$
@@ -523,8 +522,8 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   /**
    * Register a Hibernate interceptor with the current thread.
    * <p>
-   * Every Session opened is opened with this interceptor after registration. Has no effect if the current Session of
-   * the thread is already open, effective on next close()/getSession().
+   * Every Session opened is opened with this interceptor after registration. Has no effect if the current Session
+   * of the thread is already open, effective on next close()/getSession().
    */
   public static void registerInterceptor( final Interceptor interceptor ) {
     HibernateUtil.threadInterceptor.set( interceptor );
@@ -538,26 +537,27 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   /**
    * Searches an ISearchable object for a search term. The search rules are as follows:
    * 
-   * If the searchType is ISearchable.SEARCH_TYPE_PHRASE, then the fields in the table are searched for the exact phrase
-   * given.
+   * If the searchType is ISearchable.SEARCH_TYPE_PHRASE, then the fields in the table are searched for the exact
+   * phrase given.
    * 
-   * If the searchType is ISearchable.SEARCH_TYPE_WORDS_AND or ..._OR, then the following happens: a- Each word in the
-   * searchTerm is extracted and put into a list of search terms. b- Each search term is surrounded by the SQL wildcard
-   * '%'. So each search term becomes %term%. c- A dynamic query is generated searching each of the columns for each
-   * search term d- The searchType is used to determine the connector between each search term. e- The AND will match
-   * only if all of the terms appear in a specific column - cross-column searching using ..._AND will NOT work. In other
-   * words, if your search term is "East Sales", and your search type is ..._AND, a row will be returned if one of the
-   * columns contains East and the same column contains Sales. A row will NOT be returned if one column only contains
-   * East, and another column only contains Sales. This type of functionality could be obtained using a view that
-   * concatenates all of the searchable columns together into one large column, but this would be costly and
-   * database-specific.
+   * If the searchType is ISearchable.SEARCH_TYPE_WORDS_AND or ..._OR, then the following happens: a- Each word in
+   * the searchTerm is extracted and put into a list of search terms. b- Each search term is surrounded by the SQL
+   * wildcard '%'. So each search term becomes %term%. c- A dynamic query is generated searching each of the
+   * columns for each search term d- The searchType is used to determine the connector between each search term. e-
+   * The AND will match only if all of the terms appear in a specific column - cross-column searching using ..._AND
+   * will NOT work. In other words, if your search term is "East Sales", and your search type is ..._AND, a row
+   * will be returned if one of the columns contains East and the same column contains Sales. A row will NOT be
+   * returned if one column only contains East, and another column only contains Sales. This type of functionality
+   * could be obtained using a view that concatenates all of the searchable columns together into one large column,
+   * but this would be costly and database-specific.
    * 
    * @param searchable
    *          ISearchable to search
    * @param searchTerm
    *          Search Term - see above for rules
    * @param searchType
-   *          One of: ISearchable.SEARCH_TYPE_PHRASE,ISearchable.SEARCH_TYPE_WORDS_AND, ISearchable.SEARCH_TYPE_WORDS_OR
+   *          One of: ISearchable.SEARCH_TYPE_PHRASE,ISearchable.SEARCH_TYPE_WORDS_AND,
+   *          ISearchable.SEARCH_TYPE_WORDS_OR
    * @return A list of objects from Hibernate that met the conditions specified.
    */
   public static List searchForTerm( final ISearchable searchable, final String searchTerm, final int searchType ) {
@@ -670,8 +670,8 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   }
 
   /**
-   * Evicts the object from the Hibernate cache. Call this if you don't believe you'll need this object in the cache.
-   * This is also good to call if you're doing semi-mass updates.
+   * Evicts the object from the Hibernate cache. Call this if you don't believe you'll need this object in the
+   * cache. This is also good to call if you're doing semi-mass updates.
    * 
    * @param obj
    */

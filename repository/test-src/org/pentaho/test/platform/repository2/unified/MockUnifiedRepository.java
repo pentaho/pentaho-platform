@@ -17,32 +17,6 @@
 
 package org.pentaho.test.platform.repository2.unified;
 
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -69,6 +43,32 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
+
 /**
  * Mock implementation of the {@link IUnifiedRepository} for unit testing.
  * 
@@ -78,9 +78,11 @@ import org.springframework.security.context.SecurityContextHolder;
 @SuppressWarnings( "nls" )
 public class MockUnifiedRepository implements IUnifiedRepository {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IdManager idManager = new IdManager();
 
@@ -98,7 +100,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   private static ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   /**
    * Creates a mock.
@@ -112,7 +115,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     this.currentUserProvider = currentUserProvider;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public static RepositoryFileSid everyone() {
     return new RepositoryFileSid( userNameUtils.getPrincipleId( null, "__everyone__" ), ROLE );
@@ -166,7 +170,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
+                                     final boolean showHidden ) {
     FileRecord r = root.getFileRecord( path );
     RepositoryFile rootFile = r.getFile();
     if ( !showHidden && rootFile.isHidden() ) {
@@ -721,7 +726,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public void
-    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     FrozenFileRecord restored =
         versionManager.restoreVersion( fileId, versionId, currentUserProvider.getUser(), versionMessage, new Date() );
     FileRecord fileRecord = idManager.getFileById( fileId );
@@ -760,7 +765,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return r.getMetadata();
   }
 
-  // ~ Helper classes ==================================================================================================
+  // ~ Helper classes
+  // ==================================================================================================
 
   @SuppressWarnings( "serial" )
   private class ReusableSimpleRepositoryFileData extends SimpleRepositoryFileData {
@@ -1395,8 +1401,10 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   // t(repo.getFile("/").getPath().equals("/"));
   // t(repo.getFile("/public").getId() != null);
   // t(repo.getFile("/public").getPath().equals("/public"));
-  // repo.createFile(repo.getFile("/public").getId(), new RepositoryFile.Builder("file.txt").versioned(true).build(),
-  // new SimpleRepositoryFileData(new ByteArrayInputStream("hello world".getBytes("UTF-8")), "UTF-8", "text/plain"),
+  // repo.createFile(repo.getFile("/public").getId(), new
+  // RepositoryFile.Builder("file.txt").versioned(true).build(),
+  // new SimpleRepositoryFileData(new ByteArrayInputStream("hello world".getBytes("UTF-8")), "UTF-8",
+  // "text/plain"),
   // "hello world");
   // t(repo.getFile("/public/file.txt").getId() != null);
   // t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 1);
@@ -1409,9 +1417,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   // t(repo.getFileAtVersion(sums.get(1).getVersionedFileId(), sums.get(1).getId()) != null);
   // SimpleRepositoryFileData d = repo.getDataForRead(repo.getFile("/public/file.txt").getId(),
   // SimpleRepositoryFileData.class);
-  // SimpleRepositoryFileData d0 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(), sums.get(0)
+  // SimpleRepositoryFileData d0 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(),
+  // sums.get(0)
   // .getId(), SimpleRepositoryFileData.class);
-  // SimpleRepositoryFileData d1 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(), sums.get(1)
+  // SimpleRepositoryFileData d1 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(),
+  // sums.get(1)
   // .getId(), SimpleRepositoryFileData.class);
   // t(Arrays.equals(IOUtils.toByteArray(d.getStream()), IOUtils.toByteArray(d1.getStream())));
   // t(Arrays.equals(IOUtils.toByteArray(d0.getStream()), "hello world".getBytes("UTF-8")));
@@ -1427,13 +1437,15 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   // t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 2);
   //
   // t(repo.getAcl(repo.getFile("/public/file.txt").getId()) != null);
-  // RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(repo.getAcl(repo.getFile("/public/file.txt").getId()))
+  // RepositoryFileAcl newAcl = new
+  // RepositoryFileAcl.Builder(repo.getAcl(repo.getFile("/public/file.txt").getId()))
   // .ace(new RepositoryFileSid("larry", USER), READ).build();
   // t(repo.updateAcl(newAcl).getId() != null);
   // t(repo.getAcl(repo.getFile("/public/file.txt").getId()).getAces().get(0).getSid()
   // .equals(new RepositoryFileSid("larry", USER)));
   //
-  // t(repo.createFolder(repo.getFile("/public").getId(), new RepositoryFile.Builder("testFolder").folder(true).build(),
+  // t(repo.createFolder(repo.getFile("/public").getId(), new
+  // RepositoryFile.Builder("testFolder").folder(true).build(),
   // null).getId() != null);
   //
   // t(repo.getChildren(repo.getFile("/public").getId()).size() == 2);

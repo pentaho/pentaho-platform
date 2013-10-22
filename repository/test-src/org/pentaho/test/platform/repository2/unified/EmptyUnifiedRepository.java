@@ -17,13 +17,6 @@
 
 package org.pentaho.test.platform.repository2.unified;
 
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -34,9 +27,16 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 /**
- * Creates a base implementation of IUnifiedRepository (all methods do default things like {@code return null}) so that
- * unit tests can use simple mock implementations that extend this class and only override what is needed vs.
+ * Creates a base implementation of IUnifiedRepository (all methods do default things like {@code return null}) so
+ * that unit tests can use simple mock implementations that extend this class and only override what is needed vs.
  * implementing all the methods just to use 2 of them
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
@@ -48,7 +48,8 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
+                                     final boolean showHidden ) {
     return null;
   }
 
@@ -240,7 +241,7 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public void
-    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
   }
 
   @Override

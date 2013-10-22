@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.repository.solution.dbbased;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
@@ -32,6 +26,12 @@ import org.pentaho.platform.api.repository.ISearchable;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
 import org.springframework.security.acl.basic.AclObjectIdentity;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @SuppressWarnings( "deprecation" )
 public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentity, IAclSolutionFile, ISolutionFile {
@@ -80,8 +80,8 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
     this( fileName, parent, data, System.currentTimeMillis() );
   }
 
-  public RepositoryFile( final String fileName,
-      final RepositoryFile parent, final byte[] data, final long lastModified ) {
+  public RepositoryFile( final String fileName, final RepositoryFile parent, final byte[] data,
+                         final long lastModified ) {
     this();
     this.fileId = UUIDUtil.getUUIDAsString();
 
@@ -129,8 +129,8 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
   }
 
   /**
-   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients should
-   * likely use resetAccessControls.
+   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients
+   * should likely use resetAccessControls.
    */
   public void setAccessControls( final List<IPentahoAclEntry> acls ) {
     this.accessControls = acls;
@@ -394,14 +394,14 @@ public class RepositoryFile implements ISearchable, Comparable, AclObjectIdentit
   }
 
   /**
-   * Chains up to find the access controls that are in force on this object. Could end up chaining all the way to the
-   * root.
+   * Chains up to find the access controls that are in force on this object. Could end up chaining all the way to
+   * the root.
    * 
    * <p>
-   * Note that (1) defining no access control entries of your own and (2) removing all of your access control entries is
-   * indistiguishable in the current design. In #1, we chain up because we inherit. But in #2, it might be expected that
-   * by explicitly removing all access control entries, the chaining up ends. That is not the case in the current
-   * design.
+   * Note that (1) defining no access control entries of your own and (2) removing all of your access control
+   * entries is indistiguishable in the current design. In #1, we chain up because we inherit. But in #2, it might
+   * be expected that by explicitly removing all access control entries, the chaining up ends. That is not the case
+   * in the current design.
    * </p>
    */
   public List<IPentahoAclEntry> getEffectiveAccessControls() {

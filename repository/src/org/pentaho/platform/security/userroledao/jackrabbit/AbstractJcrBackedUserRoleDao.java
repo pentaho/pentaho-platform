@@ -18,24 +18,6 @@
 
 package org.pentaho.platform.security.userroledao.jackrabbit;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.jcr.Credentials;
-import javax.jcr.NamespaceException;
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
@@ -77,6 +59,23 @@ import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.providers.dao.cache.NullUserCache;
+
+import javax.jcr.Credentials;
+import javax.jcr.NamespaceException;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
@@ -334,8 +333,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     tenantUserMgr.createUser( userId, password, new PrincipalImpl( userId ), "" ); //$NON-NLS-1$
     session.save();
     /**
-     * This call is absolutely necessary. setUserRolesForNewUser will never inspect what roles this user is a part of.
-     * Since this is a new user it will not be a part of new roles
+     * This call is absolutely necessary. setUserRolesForNewUser will never inspect what roles this user is a part
+     * of. Since this is a new user it will not be a part of new roles
      **/
     setUserRolesForNewUser( session, tenant, user, roles );
     setUserDescription( session, tenant, user, description );
@@ -367,7 +366,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       if ( jackrabbitUser != null
           && TenantUtils.isAccessibleTenant( tenantedUserNameUtils.getTenant( jackrabbitUser.getID() ) ) ) {
 
-        // [BISERVER-9215] Adding new user with same user name as a previously deleted user, defaults to all previous
+        // [BISERVER-9215] Adding new user with same user name as a previously deleted user, defaults to all
+        // previous
         // roles
         Iterator<Group> currentGroups = jackrabbitUser.memberOf();
         while ( currentGroups.hasNext() ) {
@@ -770,8 +770,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
   /**
-   * Checks to see if the removal of the received roles and users would cause the system to have no login associated
-   * with the Admin role. This check is to be made before any changes take place
+   * Checks to see if the removal of the received roles and users would cause the system to have no login
+   * associated with the Admin role. This check is to be made before any changes take place
    * 
    * @param deleteRoles
    *          Roles to be deleted separated with | char

@@ -18,24 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.jcr.Credentials;
-import javax.jcr.NamespaceRegistry;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.ValueFactory;
-import javax.jcr.Workspace;
-import javax.jcr.nodetype.NodeTypeDefinition;
-import javax.jcr.nodetype.NodeTypeManager;
-import javax.jcr.observation.ObservationManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -50,11 +32,28 @@ import org.springframework.extensions.jcr.SessionHolderProviderManager;
 import org.springframework.extensions.jcr.support.GenericSessionHolderProvider;
 import org.springframework.util.Assert;
 
+import javax.jcr.Credentials;
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.ValueFactory;
+import javax.jcr.Workspace;
+import javax.jcr.nodetype.NodeTypeDefinition;
+import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.observation.ObservationManager;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * Copy-and-paste of {@link JcrSessionFactory} except that this implementation delegates to a
  * {@link CredentialsStrategy} implementation for getting a {@link Credentials} instance. Also has fixes from <a
- * href="http://jira.springframework.org/browse/SEJCR-18">SEJCR-18</a>. Also getBareSession changed to getAdminSession
- * and runs as Jackrabbit admin.
+ * href="http://jira.springframework.org/browse/SEJCR-18">SEJCR-18</a>. Also getBareSession changed to
+ * getAdminSession and runs as Jackrabbit admin.
  * 
  * @author mlowery
  */
@@ -205,8 +204,8 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
   /**
-   * Hook for un-registering node types on the underlying repository. Since this process is not covered by the spec,
-   * each implementation requires its own subclass. By default, this method doesn't do anything.
+   * Hook for un-registering node types on the underlying repository. Since this process is not covered by the
+   * spec, each implementation requires its own subclass. By default, this method doesn't do anything.
    */
   protected void unregisterNodeTypes() throws Exception {
     // do nothing
@@ -351,8 +350,8 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
   /**
-   * Hook for adding listeners to the newly returned session. We have to treat exceptions manually and can't rely on the
-   * template.
+   * Hook for adding listeners to the newly returned session. We have to treat exceptions manually and can't rely
+   * on the template.
    * 
    * @param session
    *          JCR session
@@ -521,9 +520,9 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
   /**
-   * Indicate if the given namespace registrations will be kept (the default) when the application context closes down
-   * or if they will be unregistered. If unregistered, the namespace mappings that were overriden are registered back to
-   * the repository.
+   * Indicate if the given namespace registrations will be kept (the default) when the application context closes
+   * down or if they will be unregistered. If unregistered, the namespace mappings that were overriden are
+   * registered back to the repository.
    * 
    * @see #forceNamespacesRegistration
    * @param keepNamespaces
@@ -537,8 +536,8 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * Indicate if the given namespace registrations will override the namespace already registered in the repository
    * under the same prefix. This will cause unregistration for the namespaces that will be modified.
    * <p/>
-   * However, depending on the {@link #setKeepNewNamespaces(boolean)} setting, the old namespaces can be registered back
-   * once the application context is destroyed. False by default.
+   * However, depending on the {@link #setKeepNewNamespaces(boolean)} setting, the old namespaces can be registered
+   * back once the application context is destroyed. False by default.
    * 
    * @param forceNamespacesRegistration
    *          The forceNamespacesRegistration to set.
@@ -548,9 +547,9 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
   /**
-   * Indicate if the given namespace registrations will skip already registered namespaces or not. If true (default),
-   * the new namespace will not be registered and the old namespace kept in place. If not skipped, registration of new
-   * namespaces will fail if there are already namespace registered under the same prefix.
+   * Indicate if the given namespace registrations will skip already registered namespaces or not. If true
+   * (default), the new namespace will not be registered and the old namespace kept in place. If not skipped,
+   * registration of new namespaces will fail if there are already namespace registered under the same prefix.
    * <p/>
    * This flag is required for JCR implementations which do not support namespace unregistration which render the
    * {@link #setForceNamespacesRegistration(boolean)} method useless (as namespace registration cannot be forced).

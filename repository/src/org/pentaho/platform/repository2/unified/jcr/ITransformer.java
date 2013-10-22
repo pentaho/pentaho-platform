@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 
 /**
  * A pluggable method for reading and writing {@link IRepositoryFileData} implementations.
@@ -34,15 +34,15 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 public interface ITransformer<T extends IRepositoryFileData> {
 
   /**
-   * Returns {@code true} if this transformer can read data for files with the given content type and return the data in
-   * the given form.
+   * Returns {@code true} if this transformer can read data for files with the given content type and return the
+   * data in the given form.
    * 
    * @param contentType
    *          content type to check
    * @param clazz
    *          class to check
-   * @return {@code true} if this transformer can read data for files with the given content type and return the data in
-   *         the given form
+   * @return {@code true} if this transformer can read data for files with the given content type and return the
+   *         data in the given form
    */
   boolean canRead( final String contentType, final Class<? extends IRepositoryFileData> clazz );
 
@@ -56,8 +56,8 @@ public interface ITransformer<T extends IRepositoryFileData> {
   boolean canWrite( final Class<? extends IRepositoryFileData> clazz );
 
   /**
-   * Returns the content type string for this transformer. This gets set on the file and allows the file's data to be
-   * read regardless of the requested data class.
+   * Returns the content type string for this transformer. This gets set on the file and allows the file's data to
+   * be read regardless of the requested data class.
    * 
    * @return content type
    */

@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.repository;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.repository.RepositoryObjectType;
@@ -37,6 +33,10 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
@@ -56,7 +56,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
   }
 
   public JcrBackedDatasourceMgmtService( IUnifiedRepository repository,
-      IDatabaseDialectService databaseDialectService ) {
+                                         IDatabaseDialectService databaseDialectService ) {
     super();
     this.repository = repository;
     cachedReservedChars = repository.getReservedChars();

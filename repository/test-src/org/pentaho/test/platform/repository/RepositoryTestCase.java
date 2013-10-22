@@ -18,13 +18,13 @@
 
 package org.pentaho.test.platform.repository;
 
-import java.io.File;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.File;
 
 @SuppressWarnings( "nls" )
 public class RepositoryTestCase extends BaseTest {

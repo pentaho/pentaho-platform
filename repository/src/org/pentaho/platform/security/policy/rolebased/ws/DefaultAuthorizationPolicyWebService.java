@@ -18,16 +18,16 @@
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
-import java.util.List;
-
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 
+import javax.jws.WebService;
+import java.util.List;
+
 /**
- * Implementation of {@link IAuthorizationPolicyWebService} that delegates to an {@link IAuthorizationPolicy} instance.
+ * Implementation of {@link IAuthorizationPolicyWebService} that delegates to an {@link IAuthorizationPolicy}
+ * instance.
  * 
  * @author mlowery
  */
@@ -36,13 +36,16 @@ import org.pentaho.platform.security.policy.rolebased.messages.Messages;
     targetNamespace = "http://www.pentaho.org/ws/1.0" )
 public class DefaultAuthorizationPolicyWebService implements IAuthorizationPolicyWebService {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IAuthorizationPolicy policy;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   /**
    * No-arg constructor for when in Pentaho BI Server.
@@ -61,7 +64,8 @@ public class DefaultAuthorizationPolicyWebService implements IAuthorizationPolic
     this.policy = policy;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public List<String> getAllowedActions( final String actionNamespace ) {
     return policy.getAllowedActions( actionNamespace );
