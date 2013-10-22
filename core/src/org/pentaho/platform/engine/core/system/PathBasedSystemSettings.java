@@ -18,21 +18,21 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 /**
- * Behavior is identical to <code>SystemSettings</code> except that the settings for <code>PentahoSystem</code> can live
- * in an arbitrary location in the file system (i.e. the file does not have to exist in the <repository>/system). The
- * location of the file used to initialize <code>PentahoSystem</code> is specified by the <code>System</code> property
- * whose key is <code>SYSTEM_CFG_PATH_KEY</code>. If this key does not exist in the <code>System</code> properties, then
- * this class falls back on the behavior of SystemSettings (i.e. it gets the system settings from
- * <repository>/system/pentaho.xml).
+ * Behavior is identical to <code>SystemSettings</code> except that the settings for <code>PentahoSystem</code> can
+ * live in an arbitrary location in the file system (i.e. the file does not have to exist in the
+ * <repository>/system). The location of the file used to initialize <code>PentahoSystem</code> is specified by the
+ * <code>System</code> property whose key is <code>SYSTEM_CFG_PATH_KEY</code>. If this key does not exist in the
+ * <code>System</code> properties, then this class falls back on the behavior of SystemSettings (i.e. it gets the
+ * system settings from <repository>/system/pentaho.xml).
  * 
  * @author Steven Barkdull
  * 
@@ -48,8 +48,8 @@ public class PathBasedSystemSettings extends SystemSettings {
   public static final String SYSTEM_CFG_PATH_KEY = "PENTAHO_SYS_CFG_PATH"; //$NON-NLS-1$
 
   /**
-   * the path to the file containing settings information for <code>PentahoSystem</code>. if this is null, the system
-   * settings will be in <repository>/system/pentaho.xml
+   * the path to the file containing settings information for <code>PentahoSystem</code>. if this is null, the
+   * system settings will be in <repository>/system/pentaho.xml
    */
   private String systemCfgPath;
 

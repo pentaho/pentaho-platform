@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -43,6 +39,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.SolutionHelper;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 @SuppressWarnings( "rawtypes" )
 public class PMDUIComponent extends XmlComponent {

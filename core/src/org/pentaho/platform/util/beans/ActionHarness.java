@@ -17,19 +17,20 @@
 
 package org.pentaho.platform.util.beans;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IVarArgsAction;
 import org.pentaho.platform.util.messages.Messages;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * A utility for consistent interaction with {@link IAction}s. Based on {@link BeanUtil}, but with logic specific to
- * {@link IAction} beans. One such behavior is the setting of pass-through properties to an {@link IVarArgsAction}. Note
- * that all the setValue and setValues methods will properly handle {@link IVarArgsAction}s if the bean is of this type.
+ * A utility for consistent interaction with {@link IAction}s. Based on {@link BeanUtil}, but with logic specific
+ * to {@link IAction} beans. One such behavior is the setting of pass-through properties to an
+ * {@link IVarArgsAction}. Note that all the setValue and setValues methods will properly handle
+ * {@link IVarArgsAction}s if the bean is of this type.
  * 
  * @author aphillips
  */
@@ -52,8 +53,8 @@ public class ActionHarness extends BeanUtil {
   }
 
   /**
-   * Performs same function as the super, with the added feature of granting undeclared properties to the action bean if
-   * it is a {@link IVarArgsAction}.
+   * Performs same function as the super, with the added feature of granting undeclared properties to the action
+   * bean if it is a {@link IVarArgsAction}.
    * <p>
    * {@inheritDoc}
    */

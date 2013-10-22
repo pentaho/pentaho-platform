@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.util.List;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +28,8 @@ import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourc
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.HttpUtil;
+
+import java.util.List;
 
 public class HtmlComponent extends BaseUIComponent {
 

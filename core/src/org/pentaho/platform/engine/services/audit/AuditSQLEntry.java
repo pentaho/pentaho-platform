@@ -18,19 +18,19 @@
 
 package org.pentaho.platform.engine.services.audit;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-
 import org.pentaho.platform.api.engine.AuditException;
 import org.pentaho.platform.api.engine.IAuditEntry;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.logging.Logger;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 
 /**
  * @author mbatchel
@@ -40,8 +40,8 @@ public class AuditSQLEntry implements IAuditEntry {
   private static AuditConnection audc;
 
   /**
-   * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can move
-   * this initialization into a one liner for each setting in the class construction.
+   * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can
+   * move this initialization into a one liner for each setting in the class construction.
    * 
    * The logic needs to be that if the config file does not exist, we can fall over to the pentaho.xml file for the
    * attribute value (for backward compatibility).
@@ -70,8 +70,8 @@ public class AuditSQLEntry implements IAuditEntry {
   }
 
   /**
-   * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can move
-   * this initialization into a one liner for each setting in the class construction.
+   * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can
+   * move this initialization into a one liner for each setting in the class construction.
    * 
    * The logic needs to be that if the config file does not exist, we can fall over to the pentaho.xml file for the
    * attribute value (for backward compatibility).

@@ -18,18 +18,18 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.ApplicationContext;
-
 /**
- * A Registry for published Spring beans. Also allows for looking up the names of all beans registered for a given type
- * in the given Spring bean factory
+ * A Registry for published Spring beans. Also allows for looking up the names of all beans registered for a given
+ * type in the given Spring bean factory
  * 
  * User: nbaker Date: 3/27/13
  */

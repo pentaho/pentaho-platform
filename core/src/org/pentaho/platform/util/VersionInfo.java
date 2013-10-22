@@ -59,8 +59,8 @@ public class VersionInfo {
   private String versionBuild;
 
   /**
-   * Boolean indicating if this was retrieved from the manifest (indicating that it is running from a build) or from
-   * class files (indicating it is running from compiled class files).
+   * Boolean indicating if this was retrieved from the manifest (indicating that it is running from a build) or
+   * from class files (indicating it is running from compiled class files).
    */
   private boolean fromManifest;
 

@@ -17,8 +17,6 @@
 
 package org.pentaho.commons.util.repository;
 
-import java.util.List;
-
 import org.pentaho.commons.util.repository.exception.ConstraintViolationException;
 import org.pentaho.commons.util.repository.exception.FolderNotValidException;
 import org.pentaho.commons.util.repository.exception.InvalidArgumentException;
@@ -36,6 +34,8 @@ import org.pentaho.commons.util.repository.type.ContentStream;
 import org.pentaho.commons.util.repository.type.ReturnVersion;
 import org.pentaho.commons.util.repository.type.UnfileNonfolderObjects;
 import org.pentaho.commons.util.repository.type.VersioningState;
+
+import java.util.List;
 
 public interface IObjectService {
 

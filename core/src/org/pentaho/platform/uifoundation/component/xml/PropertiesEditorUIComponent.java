@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
+
+import java.util.List;
 
 public class PropertiesEditorUIComponent extends XmlComponent {
 

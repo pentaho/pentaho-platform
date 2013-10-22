@@ -17,14 +17,14 @@
 
 package org.pentaho.platform.util.xml.dom4j;
 
-import java.util.HashMap;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.util.HashMap;
 
 public class DataGrid {
 

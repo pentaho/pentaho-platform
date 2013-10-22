@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -43,6 +33,16 @@ import org.pentaho.commons.connection.PentahoDataTransmuter;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class represents the definition of a dashboard dial. It holds:
@@ -63,12 +63,12 @@ import org.pentaho.platform.util.messages.LocaleHelper;
  * <p/>
  * This class does not generate an image of the dial, it just defines the properties of the dial.
  * <p/>
- * Dial definitions are stored in xml documents in the solution folders with *.dial.xml extensions. These definition
- * files store XML representations of all the settings here. Typically the value to be displayed is provided at runtime
- * by a query or business rule, but the value can also read from the definition file.
+ * Dial definitions are stored in xml documents in the solution folders with *.dial.xml extensions. These
+ * definition files store XML representations of all the settings here. Typically the value to be displayed is
+ * provided at runtime by a query or business rule, but the value can also read from the definition file.
  * <p/>
- * The definitions are read by org.pentaho.core.ui.component.DashboardWidgetComponent objects, which create instances of
- * this object and set the properties defined here.
+ * The definitions are read by org.pentaho.core.ui.component.DashboardWidgetComponent objects, which create
+ * instances of this object and set the properties defined here.
  * <p/>
  * The DashboardWidgetComponent objects pass this, now populated, object to
  * 
@@ -131,11 +131,11 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
   }
 
   /**
-   * TODO PROBLEM HERE! If you use this constructor, the XML schema for the chart attributes is different than if you
-   * use the constructor with the arguments public DialWidgetDefinition( Document document, double value, int width, int
-   * height, IPentahoSession session). This constructor expects the chart attribute nodes to be children of the
-   * <chart-attributes> node, whereas the latter constructor expects the attributes to be children of a <dial> node.
-   * This does not help us with our parity situation, and should be deprecated and reconciled.
+   * TODO PROBLEM HERE! If you use this constructor, the XML schema for the chart attributes is different than if
+   * you use the constructor with the arguments public DialWidgetDefinition( Document document, double value, int
+   * width, int height, IPentahoSession session). This constructor expects the chart attribute nodes to be children
+   * of the <chart-attributes> node, whereas the latter constructor expects the attributes to be children of a
+   * <dial> node. This does not help us with our parity situation, and should be deprecated and reconciled.
    * 
    * @param data
    * @param byRow
@@ -335,7 +335,8 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
 
     // set any intervals that are defined in the document
 
-    // A list of interval nodes should not be allowed to exist as a child of the main XML element (for XML schema to
+    // A list of interval nodes should not be allowed to exist as a child of the main XML element (for XML schema
+    // to
     // be well constructed and validate the XML .
     // We have deprecated <interval> as a child of the main node , and now require an <intervals> parent node
     // under which <intervals> can exist.
@@ -404,7 +405,8 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
 
     // get the chart subtitles
 
-    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema to
+    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema
+    // to
     // be well constructed and validate the XML .
     // We have deprecated <subtitle> as a child of the main node , and now require a <subtitles> parent node
     // under which <subtitle> can exist.
@@ -481,43 +483,41 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
     Node node = attributes.selectSingleNode( "range-limited" ); //$NON-NLS-1$
     rangeLimited = ( node == null ) || ( "true".equalsIgnoreCase( node.getText() ) ); //$NON-NLS-1$
 
-    if ( !rangeLimited ) {
-    } else {
-      max = 0.1;
-      double absValue = Math.abs( value );
-      // based on the current value, to to select some sensible min and
-      // max values
-      while ( max < absValue ) {
+    max = 0.1;
+    double absValue = Math.abs( value );
+    // based on the current value, to to select some sensible min and
+    // max values
+    while ( max < absValue ) {
+      max *= 2;
+      if ( max < absValue ) {
+        min *= 2.5;
+        max *= 2.5;
+      }
+      if ( max < absValue ) {
+        min *= 2;
         max *= 2;
-        if ( max < absValue ) {
-          min *= 2.5;
-          max *= 2.5;
-        }
-        if ( max < absValue ) {
-          min *= 2;
-          max *= 2;
-        }
       }
-      if ( value > 0 ) {
-        min = 0;
-      } else {
-        min = -max;
-      }
-      setMaximum( max );
-      setMinimum( min );
     }
+    if ( value > 0 ) {
+      min = 0;
+    } else {
+      min = -max;
+    }
+    setMaximum( max );
+    setMinimum( min );
   }
 
   /**
-   * Add an interval (MeterInterval) to the dial definition. The interval defines a range and how it should be painted.
+   * Add an interval (MeterInterval) to the dial definition. The interval defines a range and how it should be
+   * painted.
    * <p/>
    * The dial images here have three intervals. The lowest interval has a minimum of 0 and a maximum of 30.
    * <p/>
    * Intervals have a color. In this image the lowest interval color is set to red. <br/>
    * <img src="doc-files/DialWidgetDefinition-5.png">
    * <p/>
-   * Intervals have a text color. In this image the lowest interval text color is set to red. This affects the outer
-   * rim, the interval value text <br/>
+   * Intervals have a text color. In this image the lowest interval text color is set to red. This affects the
+   * outer rim, the interval value text <br/>
    * <img src="doc-files/DialWidgetDefinition-6.png">
    * 
    * @param interval
@@ -636,7 +636,8 @@ public class DialWidgetDefinition extends WidgetDefinition implements ChartDefin
   }
 
   /**
-   * Sets the shape to be used for the dial. This affects the area of dial outside the range that the needle covers.
+   * Sets the shape to be used for the dial. This affects the area of dial outside the range that the needle
+   * covers.
    * <table>
    * <tr>
    * <td><center>CIRCLE</center></td>

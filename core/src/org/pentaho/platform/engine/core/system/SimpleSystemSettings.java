@@ -18,6 +18,9 @@
 
 package org.pentaho.platform.engine.core.system;
 
+import org.dom4j.Document;
+import org.pentaho.platform.api.engine.ISystemSettings;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.dom4j.Document;
-import org.pentaho.platform.api.engine.ISystemSettings;
 
 public class SimpleSystemSettings implements ISystemSettings {
 

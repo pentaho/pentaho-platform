@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.pentaho.actionsequence.dom.IActionInput;
 import org.pentaho.actionsequence.dom.IActionOutput;
 import org.pentaho.actionsequence.dom.IActionResource;
@@ -34,6 +30,10 @@ import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ActionSequenceParameterMgr implements IActionParameterMgr {
 

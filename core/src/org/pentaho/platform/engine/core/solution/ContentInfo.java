@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.solution;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginOperation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContentInfo implements IContentInfo {
 

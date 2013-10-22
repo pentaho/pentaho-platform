@@ -17,15 +17,14 @@
 
 package org.pentaho.platform.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-
 import org.pentaho.platform.api.engine.IDocumentResourceLoader;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class JarEntityResolver implements IDocumentResourceLoader {
 
@@ -55,6 +54,7 @@ public class JarEntityResolver implements IDocumentResourceLoader {
         return source;
       }
     } catch ( Exception e ) {
+      //ignored
     }
     return null;
   }
@@ -65,6 +65,7 @@ public class JarEntityResolver implements IDocumentResourceLoader {
       StreamSource xslSrc = new StreamSource( xslIS );
       return xslSrc;
     } catch ( Exception e ) {
+      //ignored
     }
     return null;
 
@@ -76,6 +77,7 @@ public class JarEntityResolver implements IDocumentResourceLoader {
       InputStream xslIS = getClass().getClassLoader().getResourceAsStream( name );
       return xslIS;
     } catch ( Exception e ) {
+      //ignored
     }
     return null;
   }

@@ -17,14 +17,14 @@
 
 package org.pentaho.platform.util.logging;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.util.messages.Messages;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Logger {
 

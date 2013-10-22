@@ -18,15 +18,15 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Font;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.List;
-
 import org.dom4j.Node;
 import org.jfree.chart.axis.ValueAxis;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IPentahoSession;
+
+import java.awt.Font;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
 
 public class BarLineChartDefinition extends CategoryDatasetChartDefinition {
 
@@ -85,7 +85,8 @@ public class BarLineChartDefinition extends CategoryDatasetChartDefinition {
     setBarSeries( chartAttributes.selectSingleNode( BarLineChartDefinition.BAR_SERIES_NODE_NAME ) );
     setLineSeries( chartAttributes.selectSingleNode( BarLineChartDefinition.LINE_SERIES_NODE_NAME ) );
     setLinesRangeTitle( chartAttributes.selectSingleNode( BarLineChartDefinition.LINES_RANGE_TITLE_NODE_NAME ) );
-    setLinesRangeTitleFont( chartAttributes.selectSingleNode( BarLineChartDefinition.LINES_RANGE_TITLE_FONT_NODE_NAME ) );
+    setLinesRangeTitleFont( chartAttributes.selectSingleNode( BarLineChartDefinition
+      .LINES_RANGE_TITLE_FONT_NODE_NAME ) );
     setLinesRangeTickFormat( chartAttributes
         .selectSingleNode( BarLineChartDefinition.LINES_RANGE_TICK_FORMAT_NODE_NAME ) );
     setLinesRangeTickFont( chartAttributes.selectSingleNode( BarLineChartDefinition.LINES_RANGE_TICK_FONT_NODE_NAME ) );

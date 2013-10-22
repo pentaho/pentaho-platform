@@ -42,21 +42,25 @@ import org.springframework.util.Assert;
  */
 public class PentahoSessionStartupAuthenticationSuccessListener implements ApplicationListener, Ordered {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( PentahoSessionStartupAuthenticationSuccessListener.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private int order = 150;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoSessionStartupAuthenticationSuccessListener() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public void onApplicationEvent( final ApplicationEvent event ) {
     if ( event instanceof InteractiveAuthenticationSuccessEvent ) {

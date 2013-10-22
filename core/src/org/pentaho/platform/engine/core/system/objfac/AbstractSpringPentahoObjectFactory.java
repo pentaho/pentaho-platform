@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.core.system.objfac;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
@@ -39,20 +32,27 @@ import org.pentaho.platform.engine.core.system.objfac.spring.SpringPentahoObject
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Framework for Spring-based object factories. Subclasses are required only to implement the init method, which is
  * responsible for setting the {@link ApplicationContext}.
  * <p>
- * A note on creation and management of objects: Object creation and scoping is handled by Spring with one exception: in
- * the case of a {@link StandaloneSession}. Spring's session scope relates a bean to an javax.servlet.http.HttpSession,
- * and as such it does not know about custom sessions. The correct approach to solve this problem is to write a custom
- * Spring scope (called something like "pentahosession"). Unfortunately, we cannot implement a custom scope to handle
- * the {@link StandaloneSession} because the custom scope would not be able to access it. There is currently no way to
- * statically obtain a reference to a pentaho session. So we are left with using custom logic in this factory to execute
- * a different non-Spring logic path when the IPentahoSession is of type StandaloneSession.
+ * A note on creation and management of objects: Object creation and scoping is handled by Spring with one
+ * exception: in the case of a {@link StandaloneSession}. Spring's session scope relates a bean to an
+ * javax.servlet.http.HttpSession, and as such it does not know about custom sessions. The correct approach to
+ * solve this problem is to write a custom Spring scope (called something like "pentahosession"). Unfortunately, we
+ * cannot implement a custom scope to handle the {@link StandaloneSession} because the custom scope would not be
+ * able to access it. There is currently no way to statically obtain a reference to a pentaho session. So we are
+ * left with using custom logic in this factory to execute a different non-Spring logic path when the
+ * IPentahoSession is of type StandaloneSession.
  * <p>
  * 
  * @see IPentahoObjectFactory
@@ -186,6 +186,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       if ( props != null && props.size() > 0 ) {
 
         Iterator<BeanDefinitionNamePair> iterator = beanDefs.iterator();
+        //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
         outer: while ( iterator.hasNext() ) {
           BeanDefinition def = iterator.next().definition;
           for ( Map.Entry<String, String> prop : props.entrySet() ) {
@@ -241,8 +242,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   }
 
   private <T> T
-    retreiveObject( Class<T> interfaceClass, String key, IPentahoSession session, Map<String, String> props )
-      throws ObjectFactoryException {
+  retreiveObject( Class<T> interfaceClass, String key, IPentahoSession session, Map<String, String> props )
+    throws ObjectFactoryException {
     // cannot access logger here since this object factory provides the logger
     logger
         .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -323,6 +324,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         if ( properties != null && properties.size() > 0 ) {
 
           Iterator<BeanDefinitionNamePair> iterator = beanDefs.iterator();
+          //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
           outer: while ( iterator.hasNext() ) {
             BeanDefinitionNamePair entry = iterator.next();
             BeanDefinition def = entry.definition;
@@ -447,7 +449,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
           } catch ( NoSuchBeanDefinitionException e ) {
             // If we end up here, then the bean is present in a parent beanFactory and bean definitions are not
             // available.
-            // we could instanceof ConfigurableListableBeanFactory the parent, but this is a good place to stop. The
+            // we could instanceof ConfigurableListableBeanFactory the parent, but this is a good place to stop.
+            // The
             // parent applicationContext is likely already added to the AggregateObjectFactory.
             logger.debug( "Unable to find bean definition for name:" + name
                 + " it likely exists in a parent BeanFactory" );
@@ -463,6 +466,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     if ( properties != null && properties.size() > 0 ) {
 
       Iterator<BeanDefinitionNamePair> iterator = refs.iterator();
+      //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
       outer: while ( iterator.hasNext() ) {
         BeanDefinitionNamePair entry = iterator.next();
         BeanDefinition def = entry.definition;
@@ -516,6 +520,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     if ( properties != null && properties.size() > 0 ) {
 
       Iterator<BeanDefinitionNamePair> iterator = refs.iterator();
+      //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
       outer: while ( iterator.hasNext() ) {
         BeanDefinitionNamePair entry = iterator.next();
         BeanDefinition def = entry.definition;
@@ -552,7 +557,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
    */
   protected class BeanDefinitionPriorityComparitor implements Comparator<BeanDefinitionNamePair> {
     @Override
-    public int compare( BeanDefinitionNamePair beanDefinitionNamePair, BeanDefinitionNamePair beanDefinitionNamePair1 ) {
+    public int compare( BeanDefinitionNamePair beanDefinitionNamePair,
+                        BeanDefinitionNamePair beanDefinitionNamePair1 ) {
       int pri1 = computePriority( beanDefinitionNamePair.definition );
       int pri2 = computePriority( beanDefinitionNamePair1.definition );
 

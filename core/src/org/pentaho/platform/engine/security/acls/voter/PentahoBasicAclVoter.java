@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.engine.security.acls.voter;
 
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
@@ -31,9 +29,11 @@ import org.springframework.security.acl.AclEntry;
 import org.springframework.security.acl.basic.BasicAclEntry;
 import org.springframework.security.acl.basic.GrantedAuthorityEffectiveAclsResolver;
 
+import java.util.List;
+
 /**
- * Standard basic ACL Voter. This voter simply aggregates all the applicable access controls on an object when asked for
- * the effective ACL.
+ * Standard basic ACL Voter. This voter simply aggregates all the applicable access controls on an object when
+ * asked for the effective ACL.
  * <p>
  * For example, if the user (sally) belongs to the following roles:
  * 
@@ -70,8 +70,8 @@ import org.springframework.security.acl.basic.GrantedAuthorityEffectiveAclsResol
  *   </table>
  * </pre>
  * 
- * With voter, sally would have Execute permissions on this object because this voter simply aggregates all applicable
- * access controls.
+ * With voter, sally would have Execute permissions on this object because this voter simply aggregates all
+ * applicable access controls.
  * <p>
  * 
  * @author mbatchel

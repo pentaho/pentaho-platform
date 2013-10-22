@@ -18,18 +18,6 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
-
 import org.apache.commons.collections.list.UnmodifiableList;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -68,6 +56,18 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
 
 public class PentahoSystem {
 
@@ -231,7 +231,7 @@ public class PentahoSystem {
       // Read the files that are permitted to have ACLs on them from
       // the pentaho.xml.
       //
-      String aclFiles = PentahoSystem.getSystemSetting( "acl-files", "xaction,url" );//$NON-NLS-1$ //$NON-NLS-2$
+      String aclFiles = PentahoSystem.getSystemSetting( "acl-files", "xaction,url" ); //$NON-NLS-1$ //$NON-NLS-2$
       StringTokenizer st = new StringTokenizer( aclFiles, "," ); //$NON-NLS-1$
       String extn;
       while ( st.hasMoreElements() ) {
@@ -395,8 +395,8 @@ public class PentahoSystem {
 
   /**
    * Using data in the systemSettings (this data typically originates in the pentaho.xml file), initialize 3 System
-   * properties to explicitly identify the Transformer, SAX, and DOM factory implementations. (i.e. Crimson, Xerces,
-   * Xalan, Saxon, etc.)
+   * properties to explicitly identify the Transformer, SAX, and DOM factory implementations. (i.e. Crimson,
+   * Xerces, Xalan, Saxon, etc.)
    * 
    * For background on the purpose of this method, take a look at the notes/URLs below:
    * 
@@ -409,20 +409,20 @@ public class PentahoSystem {
    * compatible implementation?
    * 
    * The JAXP 1.1 API allows applications to plug in different JAXP compatible implementations of parsers or XSLT
-   * processors. For example, when an application wants to create a new JAXP DocumentBuilderFactory instance, it calls
-   * the staic method DocumentBuilderFactory.newInstance(). This causes a search for the name of a concrete subclass of
-   * DocumentBuilderFactory using the following order: - The value of a system property like
+   * processors. For example, when an application wants to create a new JAXP DocumentBuilderFactory instance, it
+   * calls the staic method DocumentBuilderFactory.newInstance(). This causes a search for the name of a concrete
+   * subclass of DocumentBuilderFactory using the following order: - The value of a system property like
    * javax.xml.parsers.DocumentBuilderFactory if it exists and is accessible. - The contents of the file
-   * $JAVA_HOME/jre/lib/jaxp.properties if it exists. - The Jar Service Provider mechanism specified in the Jar File
-   * Specification. A jar file can have a resource (i.e. an embedded file) such as
-   * META-INF/javax/xml/parsers/DocumentBuilderFactory containing the name of the concrete class to instantiate. - The
-   * fallback platform default implementation.
+   * $JAVA_HOME/jre/lib/jaxp.properties if it exists. - The Jar Service Provider mechanism specified in the Jar
+   * File Specification. A jar file can have a resource (i.e. an embedded file) such as
+   * META-INF/javax/xml/parsers/DocumentBuilderFactory containing the name of the concrete class to instantiate. -
+   * The fallback platform default implementation.
    * 
-   * Of the above ways to specify an implementation, perhaps the most useful is the jar service provider mechanism. To
-   * use this mechanism, place the implementation jar file on your classpath. For example, to use Xerces 1.4.4 instead
-   * of the version of Crimson which is bundled with JDK 1.4 (Java Development Kit version 1.4), place xerces.jar in
-   * your classpath. This mechanism also works with older versions of the JDK which do not bundle JAXP. If you are using
-   * JDK 1.4 and above, see the following question for potential problems. see
+   * Of the above ways to specify an implementation, perhaps the most useful is the jar service provider mechanism.
+   * To use this mechanism, place the implementation jar file on your classpath. For example, to use Xerces 1.4.4
+   * instead of the version of Crimson which is bundled with JDK 1.4 (Java Development Kit version 1.4), place
+   * xerces.jar in your classpath. This mechanism also works with older versions of the JDK which do not bundle
+   * JAXP. If you are using JDK 1.4 and above, see the following question for potential problems. see
    * http://java.sun.com/j2se/1.3/docs/guide/jar/jar.html#Service%20Provider
    * 
    */
@@ -469,49 +469,49 @@ public class PentahoSystem {
     List<String> rtn = new ArrayList<String>();
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_SETTINGS_FAILED ) ) {
       rtn.add( Messages.getInstance().getString(
-          "PentahoSystem.USER_INITIALIZATION_SYSTEM_SETTINGS_FAILED", PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY ) );//$NON-NLS-1$
+          "PentahoSystem.USER_INITIALIZATION_SYSTEM_SETTINGS_FAILED", PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY ) ); //$NON-NLS-1$
       List<String> l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_SETTINGS_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
       }
     }
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_PUBLISHERS_FAILED ) ) {
-      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_PUBLISHERS_FAILED" ) );//$NON-NLS-1$
+      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_PUBLISHERS_FAILED" ) ); //$NON-NLS-1$
       List l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_PUBLISHERS_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
       }
     }
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_OBJECTS_FAILED ) ) {
-      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_OBJECTS_FAILED" ) );//$NON-NLS-1$
+      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_OBJECTS_FAILED" ) ); //$NON-NLS-1$
       List<String> l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_OBJECTS_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
       }
     }
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_AUDIT_FAILED ) ) {
-      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_AUDIT_FAILED" ) );//$NON-NLS-1$
+      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_AUDIT_FAILED" ) ); //$NON-NLS-1$
       List l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_AUDIT_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
       }
     }
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_LISTENERS_FAILED ) ) {
-      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_LISTENERS_FAILED" ) );//$NON-NLS-1$
+      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_LISTENERS_FAILED" ) ); //$NON-NLS-1$
       List l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_LISTENERS_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
       }
     }
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_PENTAHOXML_FAILED ) ) {
-      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_PENTAHOXML_FAILED" ) );//$NON-NLS-1$
+      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_PENTAHOXML_FAILED" ) ); //$NON-NLS-1$
       List l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_PENTAHOXML_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
       }
     }
     if ( PentahoSystem.hasFailed( PentahoSystem.SYSTEM_OTHER_FAILED ) ) {
-      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_OTHER_FAILED" ) );//$NON-NLS-1$
+      rtn.add( Messages.getInstance().getString( "PentahoSystem.USER_INITIALIZATION_SYSTEM_OTHER_FAILED" ) ); //$NON-NLS-1$
       List l = PentahoSystem.getAdditionalInitializationFailureMessages( PentahoSystem.SYSTEM_OTHER_FAILED );
       if ( l != null ) {
         rtn.addAll( l );
@@ -559,8 +559,8 @@ public class PentahoSystem {
   }
 
   /**
-   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by using the
-   * name of the <code>interfaceClass</code> as the object key in
+   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by
+   * using the name of the <code>interfaceClass</code> as the object key in
    * {@link PentahoSystem#get(Class, String, IPentahoSession)}. NOTE: session will be derived for you by using
    * PentahoSessionHolder, so a session must already have been bound to the thread local in PentahoSessionHolder in
    * order for you to be able to access session-bound objects.
@@ -570,13 +570,14 @@ public class PentahoSystem {
   }
 
   /**
-   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by using the
-   * name of the <code>interfaceClass</code> as the object key in {@link PentahoSystem#get(Class, IPentahoSession, Map)}
-   * . NOTE: session will be derived for you by using PentahoSessionHolder, so a session must already have been bound to
-   * the thread local in PentahoSessionHolder in order for you to be able to access session-bound objects.
+   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by
+   * using the name of the <code>interfaceClass</code> as the object key in
+   * {@link PentahoSystem#get(Class, IPentahoSession, Map)} . NOTE: session will be derived for you by using
+   * PentahoSessionHolder, so a session must already have been bound to the thread local in PentahoSessionHolder in
+   * order for you to be able to access session-bound objects.
    */
   public static <T> T
-    get( Class<T> interfaceClass, final IPentahoSession session, final Map<String, String> properties ) {
+  get( Class<T> interfaceClass, final IPentahoSession session, final Map<String, String> properties ) {
     try {
       if ( !aggObjectFactory.objectDefined( interfaceClass ) ) {
         // this may not be a failure case, but we should log a warning in case the object is truly required
@@ -596,28 +597,30 @@ public class PentahoSystem {
   }
 
   /**
-   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by using the
-   * name of the <code>interfaceClass</code> as the object key in {@link PentahoSystem#getAll(Class, IPentahoSession)}.
-   * NOTE: session will be derived for you by using PentahoSessionHolder, so a session must already have been bound to
-   * the thread local in PentahoSessionHolder in order for you to be able to access session-bound objects.
+   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by
+   * using the name of the <code>interfaceClass</code> as the object key in
+   * {@link PentahoSystem#getAll(Class, IPentahoSession)}. NOTE: session will be derived for you by using
+   * PentahoSessionHolder, so a session must already have been bound to the thread local in PentahoSessionHolder in
+   * order for you to be able to access session-bound objects.
    */
   public static <T> List<T> getAll( Class<T> interfaceClass ) {
     return getAll( interfaceClass, PentahoSessionHolder.getSession(), null );
   }
 
   /**
-   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by using the
-   * name of the <code>interfaceClass</code> as the object key in {@link PentahoSystem#getAll(Class, IPentahoSession)}.
-   * NOTE: session will be derived for you by using PentahoSessionHolder, so a session must already have been bound to
-   * the thread local in PentahoSessionHolder in order for you to be able to access session-bound objects.
+   * A convenience method for retrieving Pentaho system objects from the object factory. Looks up an object by
+   * using the name of the <code>interfaceClass</code> as the object key in
+   * {@link PentahoSystem#getAll(Class, IPentahoSession)}. NOTE: session will be derived for you by using
+   * PentahoSessionHolder, so a session must already have been bound to the thread local in PentahoSessionHolder in
+   * order for you to be able to access session-bound objects.
    */
   public static <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession session ) {
     return getAll( interfaceClass, session, null );
   }
 
   /**
-   * Retrieves objects from the object factory registered to the PentahoSystem implementing or extending the given Class
-   * literal
+   * Retrieves objects from the object factory registered to the PentahoSystem implementing or extending the given
+   * Class literal
    */
   public static <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession session, Map<String, String> props ) {
     try {
@@ -639,8 +642,8 @@ public class PentahoSystem {
   }
 
   /**
-   * A convenience method for retrieving Pentaho system objects from the object factory implementing or extending the
-   * given Class literal
+   * A convenience method for retrieving Pentaho system objects from the object factory implementing or extending
+   * the given Class literal
    * 
    * {@link PentahoSystem#get(Class, String, IPentahoSession)}.
    */
@@ -652,11 +655,11 @@ public class PentahoSystem {
   /**
    * A convenience method for retrieving Pentaho system objects from the object factory. Returns an instance of a
    * configured object of the Pentaho system. This method will return <code>null</code> if the object could not be
-   * retrieved for any reason. If the object is defined but for some reason can not be retrieved, an error message will
-   * be logged.
+   * retrieved for any reason. If the object is defined but for some reason can not be retrieved, an error message
+   * will be logged.
    * 
-   * @return An instance of the requested object or <code>null</code> if either the object was not configured or it was
-   *         configured but there was a problem retrieving it.
+   * @return An instance of the requested object or <code>null</code> if either the object was not configured or it
+   *         was configured but there was a problem retrieving it.
    * 
    * @see PentahoSystem#getObjectFactory()
    * @see IPentahoObjectFactory#get(Class, String, IPentahoSession)
@@ -819,8 +822,9 @@ public class PentahoSystem {
               }
             }
           }
-        } catch(Throwable th) {
-          Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getString("PentahoSystem.WARN_UNABLE_TO_EXECUTE_SESSION_ACTION", th.getLocalizedMessage()), th ); //$NON-NLS-1$
+        } catch ( Throwable th ) {
+          Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getString(
+              "PentahoSystem.WARN_UNABLE_TO_EXECUTE_SESSION_ACTION", th.getLocalizedMessage() ), th ); //$NON-NLS-1$
         } finally {
           if ( context != null ) {
             context.dispose();
@@ -915,8 +919,9 @@ public class PentahoSystem {
               }
             }
           }
-        } catch(Throwable th) {
-          Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getString("PentahoSystem.WARN_UNABLE_TO_EXECUTE_GLOBAL_ACTION", th.getLocalizedMessage()), th ); //$NON-NLS-1$
+        } catch ( Throwable th ) {
+          Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getString(
+              "PentahoSystem.WARN_UNABLE_TO_EXECUTE_GLOBAL_ACTION", th.getLocalizedMessage() ), th ); //$NON-NLS-1$
         } finally {
           if ( context != null ) {
             context.dispose();
@@ -1062,7 +1067,7 @@ public class PentahoSystem {
             publisherNode.addElement( "class" ).setText( publisher.getClass().getName() ); //$NON-NLS-1$
 
           } catch ( Throwable e ) {
-
+            //ignore
           }
         }
       }
@@ -1262,8 +1267,8 @@ public class PentahoSystem {
   // End of transitional methods.
 
   /**
-   * Make sure all required objects exist in the object factory. If not, throw an exception. If any optional objects are
-   * missing, simply log it to the logger.
+   * Make sure all required objects exist in the object factory. If not, throw an exception. If any optional
+   * objects are missing, simply log it to the logger.
    * 
    * @throws PentahoSystemException
    *           if a required object is missing.

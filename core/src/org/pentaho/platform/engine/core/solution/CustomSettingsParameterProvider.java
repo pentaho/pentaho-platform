@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.solution;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 public class CustomSettingsParameterProvider extends BaseParameterProvider {
 

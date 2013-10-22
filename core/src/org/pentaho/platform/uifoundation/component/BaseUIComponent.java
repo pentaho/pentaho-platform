@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.api.engine.IActionRequestHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -34,11 +29,16 @@ import org.pentaho.platform.engine.services.PentahoMessenger;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * @author James Dixon
  * 
- *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
- *         Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
+ *         Style - Code Templates
  */
 public abstract class BaseUIComponent extends PentahoMessenger implements IUIComponent {
 
@@ -228,8 +228,9 @@ public abstract class BaseUIComponent extends PentahoMessenger implements IUICom
   public abstract boolean validate();
 
   /**
-   * Set the userSession member, generate a Log Id, set the requestHandler, and validate the component's configuration.
-   * NOTE: this method has several side effects not related to validation. could probably use some refactoring
+   * Set the userSession member, generate a Log Id, set the requestHandler, and validate the component's
+   * configuration. NOTE: this method has several side effects not related to validation. could probably use some
+   * refactoring
    * 
    * @param session
    * @param actionRequestHandler

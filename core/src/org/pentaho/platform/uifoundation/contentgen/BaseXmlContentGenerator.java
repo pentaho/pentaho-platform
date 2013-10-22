@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.uifoundation.contentgen;
 
-import java.io.OutputStream;
-
 import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -28,6 +26,8 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
 import org.pentaho.platform.uifoundation.messages.Messages;
+
+import java.io.OutputStream;
 
 public abstract class BaseXmlContentGenerator extends BaseContentGenerator {
 

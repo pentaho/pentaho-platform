@@ -17,18 +17,17 @@
 
 package org.pentaho.platform.util;
 
+import org.pentaho.platform.util.messages.LocaleHelper;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.messages.LocaleHelper;
-
 /**
- * Provides a utility for calculating relative dates. The class calculates a date based upon an expression. The syntax
- * of the expression is given below.
+ * Provides a utility for calculating relative dates. The class calculates a date based upon an expression. The
+ * syntax of the expression is given below.
  * <p>
  * <b>Date Expression</b><br>
  * 
@@ -43,8 +42,8 @@ import org.pentaho.platform.util.messages.LocaleHelper;
  * </pre>
  * 
  * The <tt>OPERAND</tt> specifies the positive or negative offset to the date. The <tt>unit</tt> inidcates the
- * <i>unit</i> of the date to manipulate. The optional position indicates the relative position for the specified unit:
- * <i>S</i> for start and <i>E</i> for end. The following are the valid unit values.
+ * <i>unit</i> of the date to manipulate. The optional position indicates the relative position for the specified
+ * unit: <i>S</i> for start and <i>E</i> for end. The following are the valid unit values.
  * 
  * <pre>
  *       Y        Year
@@ -88,9 +87,9 @@ public class DateMath {
   private static final char UNIT_SECOND = 's';
 
   /**
-   * Calculates a date, returning the formatted string version of the calculated date. The method is a short cut for
-   * {@link #calculateDate(Calendar,String,Locale) calculateDate(null,expressionWithFormat,null)}. If the date format is
-   * omitted, the short format for the {@link PentahoSystem#getLocale()} is used.
+   * Calculates a date, returning the formatted string version of the calculated date. The method is a short cut
+   * for {@link #calculateDate(Calendar,String,Locale) calculateDate(null,expressionWithFormat,null)}. If the date
+   * format is omitted, the short format for the {@link PentahoSystem#getLocale()} is used.
    * 
    * @param expressionWithFormat
    *          the relative date expression with optional format specification.
@@ -103,8 +102,8 @@ public class DateMath {
   }
 
   /**
-   * Calculates a date, returning the formatted string version of the calculated date. The method is a short cut for
-   * {@link #calculateDate(Calendar,String,Locale) calculateDate(date,expressionWithFormat,null)}.
+   * Calculates a date, returning the formatted string version of the calculated date. The method is a short cut
+   * for {@link #calculateDate(Calendar,String,Locale) calculateDate(date,expressionWithFormat,null)}.
    * 
    * @param date
    *          the target date against the expression will be applied.
@@ -132,7 +131,7 @@ public class DateMath {
    *           if <tt>expressionWithFormat</tt> is invalid.
    */
   public static String
-    calculateDateString( final Calendar date, final String expressionWithFormat, final Locale locale ) {
+  calculateDateString( final Calendar date, final String expressionWithFormat, final Locale locale ) {
     int index = expressionWithFormat.indexOf( ';' );
     String expression;
     String pattern = null;
@@ -164,8 +163,8 @@ public class DateMath {
   }
 
   /**
-   * Calculates the date specified by the expression, relative to the current date/time. The method is a short cut for
-   * {@link #calculate(Calendar, String) calculate(null,expression)}.
+   * Calculates the date specified by the expression, relative to the current date/time. The method is a short cut
+   * for {@link #calculate(Calendar, String) calculate(null,expression)}.
    * 
    * @param expression
    *          the date expression as described above.
@@ -181,8 +180,8 @@ public class DateMath {
    * Calculates the date specified by the expression, relative to the indicated date/time.
    * 
    * @param date
-   *          the target date against the expression is evaluated. If <tt>null</tt>, the current date/time is used. If
-   *          not <tt>null</tt>, the object is manipulated by the expression.
+   *          the target date against the expression is evaluated. If <tt>null</tt>, the current date/time is used.
+   *          If not <tt>null</tt>, the object is manipulated by the expression.
    * @param expression
    *          the date expression as described above.
    * @return The calculated date. This will be <tt>date</tt> if <tt>date</tt> is not <tt>null</tt>.
@@ -211,8 +210,8 @@ public class DateMath {
    * Parses and executes a single expression, one without subexpressions.
    * 
    * @param date
-   *          the target date against the expression is evaluated. If <tt>null</tt>, the current date/time is used. If
-   *          not <tt>null</tt>, the object is manipulated by the expression.
+   *          the target date against the expression is evaluated. If <tt>null</tt>, the current date/time is used.
+   *          If not <tt>null</tt>, the object is manipulated by the expression.
    * @param expression
    *          the date expression as described above.
    * @return The calculated date. This will be <tt>date</tt> if <tt>date</tt> is not <tt>null</tt>.
@@ -266,11 +265,11 @@ public class DateMath {
    * Calculates the relative date based upon the values of the BNF non-terminals above.
    * 
    * @param date
-   *          the target date against the expression is evaluated. If <tt>null</tt>, the current date/time is used. If
-   *          not <tt>null</tt>, the object is manipulated by the expression.
+   *          the target date against the expression is evaluated. If <tt>null</tt>, the current date/time is used.
+   *          If not <tt>null</tt>, the object is manipulated by the expression.
    * @param operation
-   *          the value of the operation. Currently, this is the sign on the operand. However, in the future, it could
-   *          be some value to indicate a relative or specific value.
+   *          the value of the operation. Currently, this is the sign on the operand. However, in the future, it
+   *          could be some value to indicate a relative or specific value.
    * @param operand
    *          the value of the NUM token.
    * @param unit

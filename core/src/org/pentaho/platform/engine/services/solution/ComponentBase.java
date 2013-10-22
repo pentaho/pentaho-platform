@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-
 import org.dom4j.Node;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 import org.pentaho.commons.connection.IPentahoStreamSource;
@@ -46,6 +36,16 @@ import org.pentaho.platform.engine.services.PentahoMessenger;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameter;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
 
 /**
  */
@@ -125,13 +125,13 @@ public abstract class ComponentBase extends PentahoMessenger implements ICompone
   }
 
   /**
-   * Return the xml Node containing the component's definition. If <code>process</code> is true, visit every child node
-   * in the tree, and if the child node's text is an action parameter convert it to it's value. (See doc for
+   * Return the xml Node containing the component's definition. If <code>process</code> is true, visit every child
+   * node in the tree, and if the child node's text is an action parameter convert it to it's value. (See doc for
    * applyInputsToFormat())
    * 
    * @param process
-   *          if true, if the node's text represents a parameter, convert the parameter to it's value, and assign the
-   *          value to the node's text.
+   *          if true, if the node's text represents a parameter, convert the parameter to it's value, and assign
+   *          the value to the node's text.
    * 
    * @return Node containing this component's definition.
    */
@@ -595,6 +595,7 @@ public abstract class ComponentBase extends PentahoMessenger implements ICompone
       try {
         return feedbackContentItem.getOutputStream( getActionName() );
       } catch ( Exception e ) {
+        //ignored
       }
     }
     return null;
@@ -645,8 +646,10 @@ public abstract class ComponentBase extends PentahoMessenger implements ICompone
     runtimeContext.promptNeeded();
   }
 
-  public void createFeedbackParameter( final String fieldName, final String displayName, final String hint,
-      final Object defaultValues, final List values, final Map dispNames, final String displayStyle, boolean optional ) {
+  public void createFeedbackParameter( final String fieldName, final String displayName,
+                                       final String hint,
+      final Object defaultValues, final List values, final Map dispNames, final String displayStyle,
+      boolean optional ) {
     runtimeContext.createFeedbackParameter( fieldName, displayName, hint, defaultValues, values, dispNames,
         displayStyle, optional );
     if ( !optional ) {

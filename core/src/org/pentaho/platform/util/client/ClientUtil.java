@@ -17,9 +17,6 @@
 
 package org.pentaho.platform.util.client;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -29,11 +26,14 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class ClientUtil {
 
   /**
-   * Returns an instance of an HttpClient. Only one is created per ConnectionServiceClient so all calls should be made
-   * synchronously.
+   * Returns an instance of an HttpClient. Only one is created per ConnectionServiceClient so all calls should be
+   * made synchronously.
    * 
    * @return The HTTP client to be used for web service calls
    */

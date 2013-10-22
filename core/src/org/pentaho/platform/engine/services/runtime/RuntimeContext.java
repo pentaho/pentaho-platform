@@ -25,28 +25,6 @@
 
 package org.pentaho.platform.engine.services.runtime;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -112,11 +90,33 @@ import org.pentaho.platform.util.xml.XForm;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author James Dixon
  * 
- *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
- *         Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
+ *         Style - Code Templates
  */
 @SuppressWarnings( "deprecation" )
 public class RuntimeContext extends PentahoMessenger implements IRuntimeContext {
@@ -128,7 +128,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
 
   private IRuntimeElement runtimeData;
 
-  // private int loggingLevel = UNKNOWN;
   private static final String LOG_NAME = "RUNTIME"; //$NON-NLS-1$
 
   private static final String PLUGIN_BUNDLE_NAME = "org.pentaho.platform.engine.services.runtime.plugins"; //$NON-NLS-1$
@@ -140,8 +139,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   private IPentahoSession session;
 
   protected ISolutionEngine solutionEngine;
-
-  // private int errorLevel = IRuntimeContext.RUNTIME_CONTEXT_RESOLVE_OK;
 
   protected StringBuffer xformHeader;
 
@@ -209,8 +206,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   }
 
   /*
-   * public RuntimeContext( IApplicationContext applicationContext, String solutionName ) { this( null, solutionName,
-   * applicationContext, null, null, null, null ); }
+   * public RuntimeContext( IApplicationContext applicationContext, String solutionName ) { this( null,
+   * solutionName, applicationContext, null, null, null, null ); }
    */
   public RuntimeContext( final String instanceId, final ISolutionEngine solutionEngine, final String solutionName,
       final IRuntimeElement runtimeData, final IPentahoSession session, final IOutputHandler outputHandler,
@@ -285,8 +282,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     IRuntimeElement childRuntimeData = createChild( persisted );
     if ( childRuntimeData != null ) {
       childInstanceId = childRuntimeData.getInstanceId();
-      // } else {
-      //      warn(Messages.getInstance().getString("RuntimeContext.ERROR_0027_COULD_NOT_CREATE_CHILD")); //$NON-NLS-1$
     }
     return childInstanceId;
   }
@@ -322,8 +317,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       if ( forceImmediateWrite ) {
         childRuntimeData.forceSave();
       }
-      // } else {
-      //      warn(Messages.getInstance().getString("RuntimeContext.ERROR_0027_COULD_NOT_CREATE_CHILD")); //$NON-NLS-1$
     }
     return childInstanceId;
   }
@@ -400,9 +393,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         setOutputValue( outputName, contentItem );
         return contentItem;
       }
-
     } catch ( Exception e ) {
-
+      //ignored
     }
     return null;
   }
@@ -586,17 +578,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     if ( locObj != null ) {
       if ( locObj instanceof IContentItem ) { // At this point we have an IContentItem so why do anything else?
         dataSource = ( (IContentItem) locObj ).getDataSource();
-      } else {
-        // String location = locObj.toString();
-        //
-        // // get an output stream to hand to the caller
-        // IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class, session);
-        // unifiedRepository.getFile(location);
-        //
-        // IContentItem contentItem = contentRepository.getContentItemByPath(location);
-        // if (contentItem != null) {
-        // dataSource = contentItem.getDataSource();
-        // }
       }
     }
     // This will return null if the locObj is null
@@ -653,102 +634,11 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           is.close();
         }
       } catch ( IOException e ) {
+        //ignored
       }
     }
     return knownComponents;
   }
-
-  /*
-   * public static Map createComponentClassMap() { HashMap ccm = new HashMap(); // map the short names
-   * ccm.put("ContentOutputComponent", "org.pentaho.plugin.core.ContentOutputComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("ContentRepositoryCleaner", "org.pentaho.plugin.core.ContentRepositoryCleaner"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("HelloWorldComponent", "org.pentaho.plugin.core.HelloWorldComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("ResultSetCompareComponent", "org.pentaho.plugin.core.ResultSetCompareComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("ResultSetExportComponent",
-   * "org.pentaho.plugin.core.ResultSetExportComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("ResultSetFlattenerComponent", "org.pentaho.plugin.core.ResultSetFlattenerComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("SecureFilterComponent", "org.pentaho.plugin.core.SecureFilterComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("SubActionComponent", "org.pentaho.plugin.core.SubActionComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("TemplateComponent", "org.pentaho.plugin.core.TemplateComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("BIRTReportComponent", "org.pentaho.plugin.eclipsebirt.BIRTReportComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("EmailComponent", "org.pentaho.plugin.email.EmailComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("JasperReportsComponent", "org.pentaho.plugin.jasperreports.JasperReportsComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("JavascriptRule", "org.pentaho.plugin.javascript.JavascriptRule"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("ChartComponent", "org.pentaho.plugin.jfreechart.ChartComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("JFreeReportComponent", "org.pentaho.plugin.jfreereport.JFreeReportComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("JFreeReportGeneratorComponent",
-   * "org.pentaho.plugin.jfreereport.JFreeReportGeneratorComponent");//$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("ReportWizardSpecComponent", "org.pentaho.plugin.jfreereport.ReportWizardSpecComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("KettleComponent", "org.pentaho.plugin.kettle.KettleComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("MDXDataComponent", "org.pentaho.plugin.mdx.MDXDataComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("MDXLookupRule", "org.pentaho.plugin.mdx.MDXLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("XMLALookupRule", "org.pentaho.plugin.xmla.XMLALookupRule"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("HQLLookupRule", "org.pentaho.plugin.hql.HQLLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("ReceiptAuditComponent", "org.pentaho.plugin.misc.ReceiptAuditComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("TestComponent", "org.pentaho.plugin.misc.TestComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("UtilityComponent", "org.pentaho.plugin.misc.UtilityComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("MondrianModelComponent", "org.pentaho.plugin.olap.MondrianModelComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("PivotViewComponent", "org.pentaho.plugin.olap.PivotViewComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("PrintComponent", "org.pentaho.plugin.print.PrintComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("JobSchedulerComponent", "org.pentaho.plugin.quartz.JobSchedulerComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("SchedulerAdminComponent", "org.pentaho.plugin.quartz.SchedulerAdminComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("SharkWorkflowComponent", "org.pentaho.plugin.shark.SharkWorkflowComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("SQLDataComponent", "org.pentaho.plugin.sql.SQLDataComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("SQLLookupRule", "org.pentaho.plugin.sql.SQLLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("SQLExecute",
-   * "org.pentaho.plugin.sql.SQLExecute"); //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("XQueryLookupRule",
-   * "org.pentaho.plugin.xquery.XQueryLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("ResultSetCrosstabComponent",
-   * "org.pentaho.plugin.core.ResultSetCrosstabComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("MQLRelationalDataComponent", "org.pentaho.plugin.mql.MQLRelationalDataComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$
-   * 
-   * // map the old names ccm.put("org.pentaho.component.ContentOutputComponent",
-   * "!org.pentaho.plugin.core.ContentOutputComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.ContentRepositoryCleaner", "!org.pentaho.plugin.core.ContentRepositoryCleaner");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.HelloWorldComponent",
-   * "!org.pentaho.plugin.core.HelloWorldComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.ResultSetCompareComponent", "!org.pentaho.plugin.core.ResultSetCompareComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.ResultSetExportComponent",
-   * "!org.pentaho.plugin.core.ResultSetExportComponent"); //$NON-NLS-1$ //$NON-NLS-2$ ccm .put(
-   * "org.pentaho.component.ResultSetFlattenerComponent", "!org.pentaho.plugin.core.ResultSetFlattenerComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.SecureFilterComponent",
-   * "!org.pentaho.plugin.core.SecureFilterComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.SubActionComponent", "!org.pentaho.plugin.core.SubActionComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.component.TemplateComponent", "!org.pentaho.plugin.core.TemplateComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.birt.BIRTReportComponent",
-   * "!org.pentaho.plugin.eclipsebirt.BIRTReportComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.EmailComponent", "!org.pentaho.plugin.email.EmailComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.jasper.JasperReportsComponent",
-   * "!org.pentaho.plugin.jasperreports.JasperReportsComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.JavascriptRule", "!org.pentaho.plugin.javascript.JavascriptRule"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.component.ChartComponent", "!org.pentaho.plugin.jfreechart.ChartComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.jfree.JFreeReportComponent",
-   * "!org.pentaho.plugin.jfreereport.JFreeReportComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.kettle.KettleComponent", "!org.pentaho.plugin.kettle.KettleComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.component.MDXDataComponent", "!org.pentaho.plugin.mdx.MDXDataComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.MDXLookupRule",
-   * "!org.pentaho.plugin.mdx.MDXLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.ReceiptAuditComponent", "!org.pentaho.plugin.misc.ReceiptAuditComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.TestComponent",
-   * "!org.pentaho.plugin.misc.TestComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.UtilityComponent", "!org.pentaho.plugin.misc.UtilityComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.component.MondrianModelComponent",
-   * "!org.pentaho.plugin.olap.MondrianModelComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.PivotViewComponent", "!org.pentaho.plugin.olap.PivotViewComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.component.PrintComponent", "!org.pentaho.plugin.print.PrintComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.JobSchedulerComponent",
-   * "!org.pentaho.plugin.quartz.JobSchedulerComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.SchedulerAdminComponent", "!org.pentaho.plugin.quartz.SchedulerAdminComponent");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.SharkWorkflowComponent",
-   * "!org.pentaho.plugin.shark.SharkWorkflowComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * ccm.put("org.pentaho.component.SQLDataComponent", "!org.pentaho.plugin.sql.SQLDataComponent"); //$NON-NLS-1$
-   * //$NON-NLS-2$ ccm.put("org.pentaho.component.SQLLookupRule", "!org.pentaho.plugin.sql.SQLLookupRule");
-   * //$NON-NLS-1$ //$NON-NLS-2$ ccm.put("org.pentaho.component.XQueryLookupRule",
-   * "!org.pentaho.plugin.xquery.XQueryLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$ ccm .put(
-   * "com.pentaho.component.JFreeReportGeneratorComponent",
-   * "!org.pentaho.plugin.jfreereport.JFreeReportGeneratorComponent"); //$NON-NLS-1$ //$NON-NLS-2$
-   * 
-   * return ccm; }
-   */
 
   protected void setCurrentComponent( final String componentClassName ) {
     currentComponent = componentClassName;
@@ -787,22 +677,10 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     Element componentDefinition = (Element) actionDefinition.getComponentSection();
     setCurrentComponent( componentClassName );
     setCurrentActionDef( actionDefinition );
-    /*
-     * String instanceId, String actionName, String processId, Node componentDefinition, IRuntimeContext runtimeContext,
-     * IPentahoSession sessionContext, int loggingLevel
-     */
 
     IComponent component = null;
     Class componentClass = null;
     Object componentTmp = null;
-    /*
-     * Class[] paramClasses = new Class[] { String.class, String.class, String.class, Node.class, IRuntimeContext.class,
-     * IPentahoSession.class, int.class, List.class }; Integer logLevel = new Integer(getLoggingLevel()); Object[]
-     * paramArgs = new Object[] { instanceId, getActionName(), processId, componentDefinition, this, session, logLevel,
-     * getMessages() }; Constructor componentConstructor; componentClass = Class.forName(componentClassName);
-     * componentConstructor = componentClass.getConstructor(paramClasses); component = (IComponent)
-     * componentConstructor.newInstance(paramArgs);
-     */
 
     // Explicitly using the short name instead of the fully layed out class name
     if ( ( pluginManager != null ) && ( pluginManager.isBeanRegistered( componentAlias ) ) ) {
@@ -839,10 +717,9 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     component.setProcessId( currentProcessId );
 
     // This next conditional is used to allow components to use the new action sequence dom commons project. The
-    // ActionFactory
-    // should return an object that wraps the action definition element to be processed by the component. The component
-    // can
-    // then use the wrappers API to access the action definition rather than make explicit references to the dom nodes.
+    // ActionFactory should return an object that wraps the action definition element to be processed by the component.
+    // The component can then use the wrappers API to access the action definition rather than make explicit references
+    // to the dom nodes.
     if ( component instanceof IParameterResolver ) {
       component.setActionDefinition( ActionFactory.getActionDefinition( (Element) actionDefinition.getNode(),
           new ActionSequenceParameterMgr( this, currentSession, (IParameterResolver) component ) ) );
@@ -918,7 +795,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       executeSequence( actionSequence, doneListener, execListener, async );
 
       if ( this.feedbackAllowed()
-          && ( ( promptStatus != IRuntimeContext.PROMPT_NO ) || ( xformBody.length() > 0 ) || ( parameterTemplate != null ) ) ) {
+          && ( ( promptStatus != IRuntimeContext.PROMPT_NO ) || ( xformBody.length() > 0 )
+        || ( parameterTemplate != null ) ) ) {
         sendFeedbackForm();
       }
 
@@ -1014,7 +892,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     if ( loopList instanceof List ) {
       executeLoop( loopParm, (List) loopList, sequence, doneListener, execListener, async );
       if ( loopParm != null ) {
-        addInputParameter( loopParm.getName(), loopParm ); // replace the loop param in case the last loop muggled it
+        addInputParameter( loopParm.getName(), loopParm ); // replace the loop param in case the last loop muggled
+                                                           // it
       }
     } else if ( loopList instanceof IPentahoResultSet ) {
       executeLoop( loopParm, (IPentahoResultSet) loopList, sequence, doneListener, execListener, async, peekOnly );
@@ -1229,14 +1108,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     List auditPre = actionDefinition.getPreExecuteAuditList();
     audit( auditPre );
 
-    // resolve the resources
-    // Param Manager resolves them at create time
-
-    if ( async ) {
-      // TODO handle threading
-      // create the thread if necessary
-    }
-
     // initialize the component
     IComponent component = actionDefinition.getComponent();
 
@@ -1253,8 +1124,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       initResult = component.init();
       /*
        * We need to catch checked and unchecked exceptions here so we can create an ActionSequeceException with
-       * contextual information, including the root cause. Allowing unchecked exceptions to pass through would prevent
-       * valuable feedback in the log or response.
+       * contextual information, including the root cause. Allowing unchecked exceptions to pass through would
+       * prevent valuable feedback in the log or response.
        */
     } catch ( Throwable t ) {
       throw new ActionInitializationException( Messages.getInstance().getErrorString(
@@ -1320,10 +1191,10 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       }
       /*
        * We need to catch checked and unchecked exceptions here so we can create an ActionSequeceException with
-       * contextual information, including the root cause. Allowing unchecked exceptions to pass through would prevent
-       * valuable feedback in the log or response. Once the IComponent API changes to throw ActionSequenceException from
-       * execute(), we may want to handle those specially here by allowing them to pass through without a wrapping
-       * exception.
+       * contextual information, including the root cause. Allowing unchecked exceptions to pass through would
+       * prevent valuable feedback in the log or response. Once the IComponent API changes to throw
+       * ActionSequenceException from execute(), we may want to handle those specially here by allowing them to
+       * pass through without a wrapping exception.
        */
     } catch ( Throwable e ) {
       status = IRuntimeContext.RUNTIME_STATUS_FAILURE;
@@ -1426,10 +1297,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           }
         } else if ( "content".equals( actionParameter.getType() ) ) { //$NON-NLS-1$
           variableValue = ""; //$NON-NLS-1$
-        } else {
-          // If the input to a component doesn't have a value, that is not necessarily an error.
-          // It is up to the component to decide if this is unacceptable either during validation or
-          // execution.
         }
       } else {
         actionParameter.setValue( variableValue );
@@ -1609,7 +1476,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     try {
       org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
       reader.setEntityResolver( new SolutionURIResolver() );
-      document = reader.read( actionResource.getInputStream( RepositoryFilePermission.READ, LocaleHelper.getLocale() ) );
+      document = reader.read( actionResource.getInputStream(
+        RepositoryFilePermission.READ, LocaleHelper.getLocale() ) );
     } catch ( Throwable t ) {
       // XML document can't be read. We'll just return a null document.
     }
@@ -1796,7 +1664,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         parameters.put( "actionUrl", this.getUrlFactory().getActionUrlBuilder().getUrl() ); //$NON-NLS-1$
         parameters.put( "displayUrl", this.getUrlFactory().getDisplayUrlBuilder().getUrl() ); //$NON-NLS-1$
         // Uncomment this line for troubleshooting the XSL.
-        // System .out.println( document.asXML() );
         StringBuffer content =
             XmlHelper.transformXml( parameterXsl, getSolutionPath(), document.asXML(), parameters, resolver );
 
@@ -1813,8 +1680,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       }
       /*
        * We need to catch checked and unchecked exceptions here so we can create an ActionSequeceException with
-       * contextual information, including the root cause. Allowing unchecked exceptions to pass through would prevent
-       * valuable feedback in the log or response.
+       * contextual information, including the root cause. Allowing unchecked exceptions to pass through would
+       * prevent valuable feedback in the log or response.
        */
     } catch ( Throwable e ) {
       throw new ActionSequencePromptException( Messages.getInstance().getErrorString(
@@ -1853,15 +1720,16 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     }
   }
 
+  //CHECKSTYLE IGNORE Indentation FOR NEXT 2 LINES
   public void
-    createFeedbackParameter( final ISelectionMapper selMap, final String fieldName, final Object defaultValues ) {
+  createFeedbackParameter( final ISelectionMapper selMap, final String fieldName,
+                             final Object defaultValues ) {
     createFeedbackParameter( selMap, fieldName, defaultValues, false );
   }
 
   public void createFeedbackParameter( final ISelectionMapper selMap, final String fieldName,
       final Object defaultValues, final boolean optional ) {
     if ( selMap != null ) {
-      // TODO support help hints
       createFeedbackParameter(
           fieldName,
           selMap.getSelectionDisplayName(),
@@ -1882,7 +1750,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           values, dispNames, displayStyle, optional, true );
     }
 
-    // If there is a "PRO_EDIT_SUBSCRIPTION" param provider, then we must be editing a subscription so use its values
+    // If there is a "PRO_EDIT_SUBSCRIPTION" param provider, then we must be editing a subscription so use its
+    // values
     IParameterProvider parameterProvider = (IParameterProvider) parameterProviders.get( "PRO_EDIT_SUBSCRIPTION" ); //$NON-NLS-1$
     if ( parameterProvider != null ) {
       defaultValues = parameterProvider.getParameter( paramManager.getActualRequestParameterName( fieldName ) );
@@ -2006,7 +1875,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   public void createFeedbackParameter( String fieldName, final String displayName, String hint, Object defaultValue,
       final boolean visible, final boolean optional ) {
 
-    // If there is a "PRO_EDIT_SUBSCRIPTION" param provider, then we must be editing a subscription so use its values
+    // If there is a "PRO_EDIT_SUBSCRIPTION" param provider, then we must be editing a subscription so use its
+    // values
     IParameterProvider parameterProvider = (IParameterProvider) parameterProviders.get( "PRO_EDIT_SUBSCRIPTION" ); //$NON-NLS-1$
     if ( parameterProvider != null ) {
       Object newValue = parameterProvider.getParameter( paramManager.getActualRequestParameterName( fieldName ) );
@@ -2038,15 +1908,12 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       if ( visible ) {
         xformBody.append( Messages.getInstance().getString(
             "RuntimeContext.CODE_XFORM_CONTROL_LABEL_START", displayName ) ); //$NON-NLS-1$
-        // xformBody.append( "<tr><td class=\"portlet-font\">").append(
-        // displayName ).append("</td><td class=\"portlet-font\">"
-        // );//$NON-NLS-1$ //$NON-NLS-2$
       }
       XForm
-          .createXFormControl( fieldName, defaultValue, RuntimeContext.PARAMETER_FORM, xformHeader, xformBody, visible );
+          .createXFormControl( fieldName, defaultValue, RuntimeContext.PARAMETER_FORM,
+            xformHeader, xformBody, visible );
       if ( visible ) {
         xformBody.append( Messages.getInstance().getString( "RuntimeContext.CODE_XFORM_CONTROL_LABEL_END" ) ); //$NON-NLS-1$
-        // xformBody.append( "</td></tr>" ); //$NON-NLS-1$
       }
     } else if ( parameterTemplate != null ) {
       StringBuffer body = new StringBuffer();
@@ -2083,8 +1950,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           if ( defaultValue instanceof Object[] ) {
             setObjectArrayParameters( fieldName, (Object[]) defaultValue );
           } else {
-            // String value = URLEncoder.encode(defaultValue, "UTF-8" );
-            // //$NON-NLS-1$
             String value = defaultValue.toString().replaceAll( "&", "&amp;" ); //$NON-NLS-1$//$NON-NLS-2$
             value = value.replaceAll( "\"", "''" ); //$NON-NLS-1$ //$NON-NLS-2$
             xformBody.append( "<input type=\"hidden\" name=\"" + fieldName + "\" value=\"" + value + "\"></input>" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -2120,8 +1985,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   }
 
   /**
-   * Forces the immediate write of runtime data to underlying persistence mechanism. In the case of using Hibernate for
-   * the runtime data persistence, this works out to a call to HibernateUtil.flush().
+   * Forces the immediate write of runtime data to underlying persistence mechanism. In the case of using Hibernate
+   * for the runtime data persistence, this works out to a call to HibernateUtil.flush().
    */
   public void forceSaveRuntimeData() {
     if ( runtimeData != null ) {
@@ -2130,8 +1995,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
   }
 
   /**
-   * Gets the output type preferred by the handler. Values are defined in org.pentaho.core.solution.IOutputHander and
-   * are OUTPUT_TYPE_PARAMETERS, OUTPUT_TYPE_CONTENT, or OUTPUT_TYPE_DEFAULT
+   * Gets the output type preferred by the handler. Values are defined in org.pentaho.core.solution.IOutputHander
+   * and are OUTPUT_TYPE_PARAMETERS, OUTPUT_TYPE_CONTENT, or OUTPUT_TYPE_DEFAULT
    * 
    * @return Output type
    */

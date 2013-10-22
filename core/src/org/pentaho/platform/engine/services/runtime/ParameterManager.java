@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.engine.services.runtime;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +30,12 @@ import org.pentaho.platform.api.engine.ISolutionActionDefinition;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameter;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameterSource;
 import org.pentaho.platform.engine.services.messages.Messages;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ParameterManager implements IParameterManager {
 
@@ -264,7 +264,8 @@ public class ParameterManager implements IParameterManager {
       // If we already have a parameter with this name, set the value and reuse the definition.
       IActionParameter param = (IActionParameter) allParams.get( key );
       if ( param != null ) {
-        if ( param != outputParam ) { // This is a trap for catching temp params that didn't get deleted at the end of
+        if ( param != outputParam ) { // This is a trap for catching temp params that didn't get deleted at the end
+                                      // of
                                       // the last loop
           param.dispose();
           param.setValue( outputParam.getValue() );
@@ -333,10 +334,11 @@ public class ParameterManager implements IParameterManager {
      * This method solves the problem that exists when generating an xForm based on the parameter definition. The
      * parameter definition looks like this:
      * 
-     * <REGION type="string"> <default-value></default-value> <sources> <request>regn</request> </sources> </REGION>
+     * <REGION type="string"> <default-value></default-value> <sources> <request>regn</request> </sources>
+     * </REGION>
      * 
-     * In the above definition, the parameter name is REGION, but we'll be looking for the variable regn in the request.
-     * Before this fix, the XForm would generate code that puts REGION on the request, not regn.
+     * In the above definition, the parameter name is REGION, but we'll be looking for the variable regn in the
+     * request. Before this fix, the XForm would generate code that puts REGION on the request, not regn.
      * 
      * MB
      */

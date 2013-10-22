@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.uifoundation.contentgen;
 
-import java.util.ArrayList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoConnection;
@@ -28,6 +26,8 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
 import org.pentaho.platform.uifoundation.chart.CategoryDatasetChartComponent;
 import org.pentaho.platform.uifoundation.chart.JFreeChartEngine;
+
+import java.util.ArrayList;
 
 public class ChartContentGenerator extends BaseXmlContentGenerator {
 

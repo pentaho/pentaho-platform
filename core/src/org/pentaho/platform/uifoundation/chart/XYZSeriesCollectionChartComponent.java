@@ -18,14 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -45,6 +37,14 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class XYZSeriesCollectionChartComponent extends AbstractJFreeChartComponent {
   private static final long serialVersionUID = -6268840271596447555L;
@@ -73,8 +73,6 @@ public class XYZSeriesCollectionChartComponent extends AbstractJFreeChartCompone
   public Dataset createChart( final Document doc ) {
     if ( actionPath != null ) { // if we have a solution then get the values
       values = getActionData();
-    } else {
-      // TODO support other methods of getting data
     }
 
     if ( values == null ) {

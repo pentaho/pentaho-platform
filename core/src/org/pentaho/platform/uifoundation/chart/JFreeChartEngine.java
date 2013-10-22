@@ -18,31 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.awt.TexturePaint;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
-import javax.imageio.ImageIO;
-
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.logging.Log;
@@ -118,6 +93,30 @@ import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.w3c.dom.Document;
 
+import javax.imageio.ImageIO;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Stroke;
+import java.awt.TexturePaint;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+
 public class JFreeChartEngine {
 
   protected static final Log log = LogFactory.getLog( JFreeChartEngine.class );
@@ -187,8 +186,8 @@ public class JFreeChartEngine {
   // end new chart type
 
   /**
-   * Creates a JFreeChart object from a dial definition object. All of the settings for the dial image are defined by
-   * the dial definition.
+   * Creates a JFreeChart object from a dial definition object. All of the settings for the dial image are defined
+   * by the dial definition.
    * 
    * @param widget
    *          The dial definition object.
@@ -359,7 +358,8 @@ public class JFreeChartEngine {
 
   }
 
-  private static JFreeChart createTimeSeriesCollectionChart( final TimeSeriesCollectionChartDefinition chartDefinition ) {
+  private static JFreeChart createTimeSeriesCollectionChart( final
+                                                             TimeSeriesCollectionChartDefinition chartDefinition ) {
     JFreeChart chart = null;
     // TODO Make the following accessible from the chartDefinition
     String domainAxisLabel = null;
@@ -425,9 +425,9 @@ public class JFreeChartEngine {
   }
 
   /*
-   * The only type of chart this method will produce is a stacked XY area chart with a time series dimension. This is
-   * because the dataset that jFreeChart expects is different than the regular TimeSeriesCOllection. More lipstick on
-   * this homely pig.
+   * The only type of chart this method will produce is a stacked XY area chart with a time series dimension. This
+   * is because the dataset that jFreeChart expects is different than the regular TimeSeriesCOllection. More
+   * lipstick on this homely pig.
    */
   private static JFreeChart createStackedTimeSeriesChart( final TimeTableXYDatasetChartDefinition chartDefinition ) {
     JFreeChart chart = null;
@@ -749,7 +749,8 @@ public class JFreeChartEngine {
             rangeAxis.setUpperBound( xyzSeriesCollectionChartDefintion.getRangeMaximum() );
           }
           if ( xyzSeriesCollectionChartDefintion.getRangeTickFormat() != null ) {
-            ( (NumberAxis) rangeAxis ).setNumberFormatOverride( xyzSeriesCollectionChartDefintion.getRangeTickFormat() );
+            ( (NumberAxis) rangeAxis ).setNumberFormatOverride(
+              xyzSeriesCollectionChartDefintion.getRangeTickFormat() );
           }
           if ( xyzSeriesCollectionChartDefintion.getRangeTickFont() != null ) {
             rangeAxis.setTickLabelFont( xyzSeriesCollectionChartDefintion.getRangeTickFont() );
@@ -1187,8 +1188,8 @@ public class JFreeChartEngine {
   }
 
   /**
-   * Create an image file using dataset object. This method takes a dataset object, e.g. a DialWidgetDefinition, creates
-   * a JFreeChart object from it, and then creates an image file.
+   * Create an image file using dataset object. This method takes a dataset object, e.g. a DialWidgetDefinition,
+   * creates a JFreeChart object from it, and then creates an image file.
    * 
    * @param dataset
    *          The
@@ -1216,8 +1217,8 @@ public class JFreeChartEngine {
   }
 
   /**
-   * Create an image file using dataset object. This method takes a dataset object, e.g. a DialWidgetDefinition, creates
-   * a JFreeChart object from it, and then creates an image file.
+   * Create an image file using dataset object. This method takes a dataset object, e.g. a DialWidgetDefinition,
+   * creates a JFreeChart object from it, and then creates an image file.
    * 
    * @param dataset
    *          The
@@ -1253,8 +1254,8 @@ public class JFreeChartEngine {
   }
 
   /**
-   * Create a chart-object using dataset object. This method takes a dataset object, e.g. a DialWidgetDefinition, and
-   * creates and returns a JFreeChart object from it.
+   * Create a chart-object using dataset object. This method takes a dataset object, e.g. a DialWidgetDefinition,
+   * and creates and returns a JFreeChart object from it.
    * 
    * @param dataset
    *          The dataset
@@ -1468,14 +1469,14 @@ public class JFreeChartEngine {
    *          of the chart
    * @param height
    *          of the chart
-   * @return Paint object defined by the node / public static Paint getGradientPaint( Node node,int width, int height )
-   *         {
+   * @return Paint object defined by the node / public static Paint getGradientPaint( Node node,int width, int
+   *         height ) {
    * 
    *         if( node == null ) { return null; } Color
    *         firstColor=getColor((node.selectSingleNode("first-color")).getText().toString()); //$NON-NLS-1$ Color
-   *         secondColor=getColor((node.selectSingleNode("second-color")).getText().toString()); //$NON-NLS-1$ boolean
-   *         cyclic=true; if((node.selectSingleNode("cyclic")).getText().trim().equals("false")) { //$NON-NLS-1$
-   *         //$NON-NLS-2$ cyclic=false; } return new
+   *         secondColor=getColor((node.selectSingleNode("second-color")).getText().toString()); //$NON-NLS-1$
+   *         boolean cyclic=true; if((node.selectSingleNode("cyclic")).getText().trim().equals("false")) {
+   *         //$NON-NLS-1$ //$NON-NLS-2$ cyclic=false; } return new
    *         GradientPaint(0,0,firstColor,width-(width/2),height,secondColor,cyclic); }
    */
   /**
@@ -1487,21 +1488,22 @@ public class JFreeChartEngine {
    *          of the chart
    * @param height
    *          of the chart
-   * @return Paint object defined by the node / public static Paint getTexturePaint( Node node, int width, int height )
-   *         {
+   * @return Paint object defined by the node / public static Paint getTexturePaint( Node node, int width, int
+   *         height ) {
    * 
-   *         if( node == null ) { return null; } int rectWidth=width; int rectHeight=height; int x=0; int y=0; // Get
-   *         Image try{ Node imageNode = node.selectSingleNode( "background-image" ); //$NON-NLS-1$ if( imageNode !=
-   *         null ) { String imageName = imageNode.getText().toString(); String fileName =
-   *         PentahoSystem.getApplicationContext().getSolutionPath( imageName ); int offset = fileName.lastIndexOf( "."
-   *         ); //$NON-NLS-1$ String type = offset == -1 ? "jpg" : fileName.substring(offset + 1); //$NON-NLS-1$
+   *         if( node == null ) { return null; } int rectWidth=width; int rectHeight=height; int x=0; int y=0; //
+   *         Get Image try{ Node imageNode = node.selectSingleNode( "background-image" ); //$NON-NLS-1$ if(
+   *         imageNode != null ) { String imageName = imageNode.getText().toString(); String fileName =
+   *         PentahoSystem.getApplicationContext().getSolutionPath( imageName ); int offset = fileName.lastIndexOf(
+   *         "." ); //$NON-NLS-1$ String type = offset == -1 ? "jpg" : fileName.substring(offset + 1);
+   *         //$NON-NLS-1$
    * 
    *         BufferedImage image = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB);
    * 
    *         ImageIO.write(image, type, new File( fileName ));
    * 
-   *         Node rectangle= node.selectSingleNode("rectangle"); //$NON-NLS-1$ if( rectangle != null ) { Node tmpNode =
-   *         rectangle.selectSingleNode("width"); //$NON-NLS-1$ if( tmpNode != null ) {
+   *         Node rectangle= node.selectSingleNode("rectangle"); //$NON-NLS-1$ if( rectangle != null ) { Node
+   *         tmpNode = rectangle.selectSingleNode("width"); //$NON-NLS-1$ if( tmpNode != null ) {
    *         rectWidth=Integer.parseInt(tmpNode.getText().toString().trim()); //$NON-NLS-1$ } tmpNode =
    *         rectangle.selectSingleNode("height"); //$NON-NLS-1$ if( tmpNode != null ) {
    *         rectHeight=Integer.parseInt(tmpNode.getText().toString().trim()); //$NON-NLS-1$ } tmpNode =
@@ -1721,8 +1723,8 @@ public class JFreeChartEngine {
   }
 
   /*
-   * Two methods for the BarLineChart - Determine if a column of the data set is part of the defined bar or line char
-   * columns
+   * Two methods for the BarLineChart - Determine if a column of the data set is part of the defined bar or line
+   * char columns
    */
   public static boolean isBarColumn( final String[] barColumns, final String columnName ) {
     boolean bIsBarColumn = false;

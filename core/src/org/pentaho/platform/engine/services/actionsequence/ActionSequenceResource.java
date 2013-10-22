@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Locale;
-
 import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -34,6 +27,13 @@ import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.HttpUtil;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Locale;
 
 public class ActionSequenceResource implements org.pentaho.platform.api.engine.IActionSequenceResource {
 
@@ -47,7 +47,8 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
 
   private static IUnifiedRepository repository;
 
-  public ActionSequenceResource( final String name, final int sourceType, final String mimeType, final String address ) {
+  public ActionSequenceResource( final String name, final int sourceType,
+                                 final String mimeType, final String address ) {
 
     this.name = name;
     this.mimeType = mimeType;
@@ -225,6 +226,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
           inputStream =
               getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
         } catch ( UnifiedRepositoryException ure ) {
+          //ignored
         }
       } else {
         String extension = FilenameUtils.getExtension( filePath );
@@ -244,6 +246,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
             }
           } catch ( UnifiedRepositoryException ure ) {
+            //ignored
           }
         }
         if ( inputStream == null ) {
@@ -254,6 +257,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
             }
           } catch ( UnifiedRepositoryException ure ) {
+            //ignored
           }
         }
         if ( inputStream == null ) {
@@ -264,6 +268,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
             }
           } catch ( UnifiedRepositoryException ure ) {
+            //ignored
           }
         }
         if ( inputStream == null ) {
@@ -274,6 +279,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
             }
           } catch ( UnifiedRepositoryException ure ) {
+            //ignored
           }
         }
       }

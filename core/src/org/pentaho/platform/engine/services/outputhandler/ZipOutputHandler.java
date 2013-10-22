@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.services.outputhandler;
 
+import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.engine.core.output.SimpleContentItem;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-
-import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.engine.core.output.SimpleContentItem;
 
 public class ZipOutputHandler extends BaseOutputHandler {
 

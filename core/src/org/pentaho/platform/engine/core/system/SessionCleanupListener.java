@@ -25,8 +25,8 @@ import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 
 /**
- * This class is responsible for making sure the thread local that hangs on to the current session gets cleared when a
- * system exit point happens.
+ * This class is responsible for making sure the thread local that hangs on to the current session gets cleared
+ * when a system exit point happens.
  * 
  * @deprecated this is now handled by HttpSessionPentahoSessionIntegrationFilter
  */

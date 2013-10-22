@@ -18,17 +18,17 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.api.util.ITempFileDeleter;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 public class StandaloneApplicationContext implements IApplicationContext {
 
@@ -45,7 +45,8 @@ public class StandaloneApplicationContext implements IApplicationContext {
 
   private final List<IPentahoSystemExitPoint> exitPointsList = new ArrayList<IPentahoSystemExitPoint>();
 
-  public StandaloneApplicationContext( final String solutionRootPath, final String applicationPath, final Object context ) {
+  public StandaloneApplicationContext( final String solutionRootPath, final String applicationPath,
+                                       final Object context ) {
     this( solutionRootPath, applicationPath );
     this.context = context;
   }

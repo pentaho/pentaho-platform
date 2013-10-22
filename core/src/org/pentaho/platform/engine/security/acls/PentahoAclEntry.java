@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.security.acls;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
@@ -35,9 +28,16 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acl.basic.AbstractBasicAclEntry;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Base Pentaho Access Control entry. Subclassed <tt>AbstractBasicAclEntry</tt> from Spring Security project. Provides
- * known access controls.
+ * Base Pentaho Access Control entry. Subclassed <tt>AbstractBasicAclEntry</tt> from Spring Security project.
+ * Provides known access controls.
  * 
  * @author mbatchel
  */
@@ -132,7 +132,9 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
           try {
             powerOfTwo = Math.log( field.getInt( null ) ) / Math.log( 2 );
           } catch ( IllegalArgumentException e ) {
+            //ignore
           } catch ( IllegalAccessException e ) {
+            //ignore
           }
           // if log calculation results in an integer
           if ( powerOfTwo == (int) powerOfTwo ) {
@@ -201,8 +203,8 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
   }
 
   /**
-   * As implemented, this method says that all permission combinations are valid. (Well not all. FULL_CONTROL must stand
-   * alone. It cannot be combined with other bits.)
+   * As implemented, this method says that all permission combinations are valid. (Well not all. FULL_CONTROL must
+   * stand alone. It cannot be combined with other bits.)
    * 
    * <ol>
    * <li>Find the permission value (call it p) that is the highest power of two.</li>
@@ -271,16 +273,16 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
   }
 
   /**
-   * @return Returns the validPermissionsNameMap. This method is generally useful for UI work as it returns a Map of
-   *         Permission atomic values (as Integer objects) keyed by a human readable permission name.
+   * @return Returns the validPermissionsNameMap. This method is generally useful for UI work as it returns a Map
+   *         of Permission atomic values (as Integer objects) keyed by a human readable permission name.
    */
   public static Map getValidPermissionsNameMap() {
     return PentahoAclEntry.getValidPermissionsNameMap( PentahoAclEntry.PERMISSIONS_LIST_SOLUTIONS );
   }
 
   /**
-   * @return Returns the validPermissionsNameMap. This method is generally useful for UI work as it returns a Map of
-   *         Permission atomic values (as Integer objects) keyed by a human readable permission name.
+   * @return Returns the validPermissionsNameMap. This method is generally useful for UI work as it returns a Map
+   *         of Permission atomic values (as Integer objects) keyed by a human readable permission name.
    * @param permissionsListType
    *          - The permissions list for solutions is different than that for other UIs
    */

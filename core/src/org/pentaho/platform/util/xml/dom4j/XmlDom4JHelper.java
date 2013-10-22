@@ -17,27 +17,6 @@
 
 package org.pentaho.platform.util.xml.dom4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -51,19 +30,40 @@ import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.util.messages.Messages;
 import org.xml.sax.EntityResolver;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 // TODO sbarkdull, exernalize strings, comment methods
 
 /**
- * A set of static methods to help in with: * the construction of XML DOM Documents (org.dom4j.Document) from files,
- * streams, and Strings * in the creation of XML DOM Documents as the result of an XSLT transform * persisting of XML
- * DOM documents to the file system or a <code>Writer</code>. * the encoding of a String of Xml text
+ * A set of static methods to help in with: * the construction of XML DOM Documents (org.dom4j.Document) from
+ * files, streams, and Strings * in the creation of XML DOM Documents as the result of an XSLT transform *
+ * persisting of XML DOM documents to the file system or a <code>Writer</code>. * the encoding of a String of Xml
+ * text
  * 
- * Design notes: This class should never have any dependencies (i.e. imports) on anything on org.pentaho or com.pentaho
- * or their decendant packages. In general, methods in the class should not attempt to handle exceptions, but should let
- * the exceptions propogate to the caller to be handled there. Please do not use european-reuse in this class. One of
- * the primary design goals for this class was to construct it in a way that it could be used without change outside of
- * the Pentaho platform. Related XML-helper type code that is dependant on the platform should be moved "up" to
- * XmlHelper.
+ * Design notes: This class should never have any dependencies (i.e. imports) on anything on org.pentaho or
+ * com.pentaho or their decendant packages. In general, methods in the class should not attempt to handle
+ * exceptions, but should let the exceptions propogate to the caller to be handled there. Please do not use
+ * european-reuse in this class. One of the primary design goals for this class was to construct it in a way that
+ * it could be used without change outside of the Pentaho platform. Related XML-helper type code that is dependant
+ * on the platform should be moved "up" to XmlHelper.
  */
 public class XmlDom4JHelper {
 
@@ -119,7 +119,8 @@ public class XmlDom4JHelper {
   }
 
   /**
-   * Create a <code>Document</code> from the contents of an input stream, where the input stream contains valid XML.
+   * Create a <code>Document</code> from the contents of an input stream, where the input stream contains valid
+   * XML.
    * 
    * @param inStream
    * @return
@@ -137,7 +138,8 @@ public class XmlDom4JHelper {
   }
 
   /**
-   * Create a <code>Document</code> from the contents of an input stream, where the input stream contains valid XML.
+   * Create a <code>Document</code> from the contents of an input stream, where the input stream contains valid
+   * XML.
    * 
    * @param inStream
    * @return
@@ -267,11 +269,12 @@ public class XmlDom4JHelper {
    * @param outputStream
    *          the output stream
    * @param encoding
-   *          String specifying the character encoding. Can be null, in which case the default encoding will be used.
-   *          See http://java.sun.com/j2se/1.5.0/docs/api/java/io/OutputStreamWriter.html
+   *          String specifying the character encoding. Can be null, in which case the default encoding will be
+   *          used. See http://java.sun.com/j2se/1.5.0/docs/api/java/io/OutputStreamWriter.html
    * @throws IOException
    */
-  public static void saveDom( final Document doc, final OutputStream outputStream, String encoding ) throws IOException {
+  public static void saveDom( final Document doc, final OutputStream outputStream,
+                              String encoding ) throws IOException {
     saveDom( doc, outputStream, encoding, false );
   }
 
@@ -321,6 +324,7 @@ public class XmlDom4JHelper {
     try {
       return Long.parseLong( valueStr );
     } catch ( Exception ignored ) {
+      //ignore
     }
     return defaultValue;
   }
@@ -333,6 +337,7 @@ public class XmlDom4JHelper {
     try {
       return Double.parseDouble( valueStr );
     } catch ( Exception ignored ) {
+      //ignore
     }
     return defaultValue;
   }

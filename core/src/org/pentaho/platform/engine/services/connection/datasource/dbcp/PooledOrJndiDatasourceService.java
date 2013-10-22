@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.database.model.DatabaseAccessType;
@@ -29,15 +26,16 @@ import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
+import javax.sql.DataSource;
+
 public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 
   private static final Log log = LogFactory.getLog( PooledOrJndiDatasourceService.class );
-  
+
   public PooledOrJndiDatasourceService() {
   }
 
@@ -62,8 +60,9 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
       }
     } catch ( DatasourceMgmtServiceException daoe ) {
       daoe.printStackTrace();
-      log.debug(Messages.getInstance().getErrorString(
-      "PooledOrJndiDatasourceService.DEBUG_0001_UNABLE_TO_FIND_DATASOURCE_IN_REPOSITORY",daoe.getLocalizedMessage()), daoe);
+      log.debug( Messages.getInstance().getErrorString(
+          "PooledOrJndiDatasourceService.DEBUG_0001_UNABLE_TO_FIND_DATASOURCE_IN_REPOSITORY",
+          daoe.getLocalizedMessage() ), daoe );
       try {
         return getJndiDataSource( datasource );
       } catch ( DBDatasourceServiceException dse ) {
@@ -93,8 +92,9 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
   }
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name.
    * 
    * @param dsName
    *          The Datasource name

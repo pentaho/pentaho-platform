@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import org.apache.commons.lang.ClassUtils;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -33,17 +29,21 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /**
  * 
  * Parses the publish tag of a bean. Exposing the bean to the PentahoSystem as an implementation of the given type.
- * Beans can be published by a given type, as all implemented interfaces, as all inherited classes, a combination of all
- * classes and interfaces, or by default as the class of the bean itself.
+ * Beans can be published by a given type, as all implemented interfaces, as all inherited classes, a combination
+ * of all classes and interfaces, or by default as the class of the bean itself.
  * 
  * Attributes embedded in the publish tag become available to the PentahoSystem to allow for querying of registered
  * implementations. An attribute of "priority" is used to determine the order of registered implementations.
  * 
- * <pen:bean class="com.foo.Clazz"> <pen:publish as-type="[ INTERFACES | CLASSES | ALL | Classname ]> <pen:attributes>
- * <pen:attr key="priority" value="50"/> </pen:attributes> </pen:publish> </pen:bean>
+ * <pen:bean class="com.foo.Clazz"> <pen:publish as-type="[ INTERFACES | CLASSES | ALL | Classname ]>
+ * <pen:attributes> <pen:attr key="priority" value="50"/> </pen:attributes> </pen:publish> </pen:bean>
  * 
  * User: nbaker Date: 3/27/13
  */
@@ -171,6 +171,7 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
     try {
       return loader.loadClass( beanClassName );
     } catch ( ClassNotFoundException e ) {
+      //ignored
     }
     return null;
   }

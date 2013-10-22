@@ -18,15 +18,15 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.pentaho.platform.api.engine.ISolutionAttributeContributor;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ISolutionFilter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SolutionReposHelper {
 
@@ -154,7 +154,8 @@ public class SolutionReposHelper {
   }
 
   public static void processSolutionTree( final Element parentNode, final ISolutionFile targetFile,
-      final ISolutionFilter solutionFilter, final ISolutionAttributeContributor contributor, final int actionOperation ) {
+      final ISolutionFilter solutionFilter, final ISolutionAttributeContributor contributor,
+      final int actionOperation ) {
     ISolutionFilter sFilter = solutionFilter == null ? DEFAULT_FILTER : solutionFilter;
     if ( targetFile != null ) {
       if ( sFilter.keepFile( targetFile, actionOperation ) ) {
@@ -208,7 +209,8 @@ public class SolutionReposHelper {
   }
 
   public static void processSolutionStructure( final Element parentNode, final ISolutionFile targetFile,
-      final ISolutionFilter solutionFilter, final ISolutionAttributeContributor contributor, final int actionOperation ) {
+      final ISolutionFilter solutionFilter, final ISolutionAttributeContributor contributor,
+      final int actionOperation ) {
     ISolutionFilter sFilter = solutionFilter == null ? DEFAULT_FILTER : solutionFilter;
     if ( targetFile.isDirectory() ) {
       if ( !SolutionReposHelper.ignoreDirectories.contains( targetFile.getFileName() )

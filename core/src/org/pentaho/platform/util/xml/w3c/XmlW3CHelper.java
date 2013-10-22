@@ -17,13 +17,13 @@
 
 package org.pentaho.platform.util.xml.w3c;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.Messages;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class XmlW3CHelper {
 

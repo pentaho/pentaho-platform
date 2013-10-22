@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamSource;
-
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IDocumentResourceLoader;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -36,6 +26,15 @@ import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourc
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.xml.sax.InputSource;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.stream.StreamSource;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class SolutionURIResolver implements URIResolver, IDocumentResourceLoader {
 

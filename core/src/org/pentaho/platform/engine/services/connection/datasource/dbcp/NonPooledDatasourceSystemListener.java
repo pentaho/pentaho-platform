@@ -37,8 +37,9 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
      * if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
      * cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE); } } List<DatabaseMeta> datasources =
      * datasourceMgmtSvc.getDatasources(); for (DatabaseMeta datasource : datasources) { Logger.debug(this,
-     * "(storing DataSource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$ + datasource.getName() +
-     * "\")"); //$NON-NLS-1$ cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource.getName(),
+     * "(storing DataSource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$ +
+     * datasource.getName() + "\")"); //$NON-NLS-1$
+     * cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource.getName(),
      * PooledDatasourceHelper.convert(datasource)); } Logger.debug(this,
      * "NonPooledDatasourceSystemListener: done with init"); //$NON-NLS-1$
      */

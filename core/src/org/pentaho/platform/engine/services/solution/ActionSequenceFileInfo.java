@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.InputStream;
-
 import org.dom4j.Document;
 import org.pentaho.platform.api.engine.IActionSequence;
 import org.pentaho.platform.api.engine.IFileInfo;
@@ -32,6 +30,8 @@ import org.pentaho.platform.engine.services.actionsequence.SequenceDefinition;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.InputStream;
 
 public class ActionSequenceFileInfo implements ISolutionFileMetaProvider {
 

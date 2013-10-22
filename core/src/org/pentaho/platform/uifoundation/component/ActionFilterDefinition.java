@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.dom4j.Element;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IActionParameter;
@@ -34,6 +29,11 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 
@@ -48,8 +48,8 @@ public class ActionFilterDefinition extends FilterDefinition {
 
   /**
    * 
-   * If the <data-output> element is present in the xml file, its text specifies the name of the output parameter in the
-   * runtime context containing the result set.
+   * If the <data-output> element is present in the xml file, its text specifies the name of the output parameter
+   * in the runtime context containing the result set.
    * 
    * However, the <data-output> element is not required. If this element is not in the xml file, then the first
    * parameter in the runtime context's output of type "resultset" contains the result set.

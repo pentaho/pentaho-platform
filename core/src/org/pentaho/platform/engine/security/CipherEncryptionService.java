@@ -38,20 +38,19 @@ package org.pentaho.platform.engine.security;
  * @author mbatchelor
  */
 
-import java.security.spec.AlgorithmParameterSpec;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
-
 import org.apache.commons.codec.binary.Base64;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.api.util.PasswordServiceException;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.beans.factory.InitializingBean;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import java.security.spec.AlgorithmParameterSpec;
 
 public class CipherEncryptionService implements IPasswordService, InitializingBean {
 

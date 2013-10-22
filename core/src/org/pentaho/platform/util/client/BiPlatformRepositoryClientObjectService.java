@@ -17,8 +17,6 @@
 
 package org.pentaho.platform.util.client;
 
-import java.util.List;
-
 import org.dom4j.Document;
 import org.pentaho.commons.util.repository.IObjectService;
 import org.pentaho.commons.util.repository.exception.ConstraintViolationException;
@@ -38,6 +36,8 @@ import org.pentaho.commons.util.repository.type.ContentStream;
 import org.pentaho.commons.util.repository.type.ReturnVersion;
 import org.pentaho.commons.util.repository.type.UnfileNonfolderObjects;
 import org.pentaho.commons.util.repository.type.VersioningState;
+
+import java.util.List;
 
 public class BiPlatformRepositoryClientObjectService implements IObjectService {
 
@@ -99,8 +99,8 @@ public class BiPlatformRepositoryClientObjectService implements IObjectService {
   }
 
   public CmisObject
-    getProperties( String arg0, String arg1, ReturnVersion arg2, String arg3, boolean arg4, boolean arg5 )
-      throws OperationNotSupportedException {
+  getProperties( String arg0, String arg1, ReturnVersion arg2, String arg3, boolean arg4, boolean arg5 )
+    throws OperationNotSupportedException {
     throw new OperationNotSupportedException();
   }
 

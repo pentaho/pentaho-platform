@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.engine.services.audit;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -31,6 +25,11 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
  * @author mbatchel
@@ -49,8 +48,8 @@ public class AuditConnection {
   private static final String auditConfigFile = "audit_sql.xml"; //$NON-NLS-1$
 
   /**
-   * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can move
-   * this initialization into a one liner for each setting in the class construction.
+   * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can
+   * move this initialization into a one liner for each setting in the class construction.
    * 
    * The logic needs to be that if the config file does not exist, we can fall over to the pentaho.xml file for the
    * attribute value (for backward compatibility).
@@ -181,6 +180,7 @@ public class AuditConnection {
         try {
           con.clearWarnings();
         } catch ( SQLException ex ) {
+          //ignored
         }
         return con;
       } catch ( SQLException ex ) {

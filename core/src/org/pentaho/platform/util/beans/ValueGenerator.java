@@ -26,10 +26,10 @@ package org.pentaho.platform.util.beans;
 public interface ValueGenerator {
 
   /**
-   * Calls back when the bean utility has verified that it can set the bean property. You are asked for the value to set
-   * here and not earlier on because we want to delay any processing necessary to derive this value until the last
-   * possible moment. Sometimes deriving the value can be costly, there is no sense requiring the value prior to simple
-   * checks happening first.
+   * Calls back when the bean utility has verified that it can set the bean property. You are asked for the value
+   * to set here and not earlier on because we want to delay any processing necessary to derive this value until
+   * the last possible moment. Sometimes deriving the value can be costly, there is no sense requiring the value
+   * prior to simple checks happening first.
    * 
    * @param name
    *          the property name for the requested value

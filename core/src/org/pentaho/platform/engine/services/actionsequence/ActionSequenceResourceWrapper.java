@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
+import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.engine.IActionSequenceResource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.pentaho.commons.connection.IPentahoStreamSource;
-import org.pentaho.platform.api.engine.IActionSequenceResource;
 
 public final class ActionSequenceResourceWrapper implements IPentahoStreamSource {
   private InputStream inputStream;

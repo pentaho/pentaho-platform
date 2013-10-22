@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.core.solution;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.util.ParameterHelper;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 public abstract class BaseParameterProvider implements IParameterProvider {
 

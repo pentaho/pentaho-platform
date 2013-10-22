@@ -25,27 +25,31 @@ import org.pentaho.platform.api.engine.IPentahoRequestContextHolderStrategy;
  * A {@code static} field-based implementation of {@link IPentahoRequestContextHolderStrategy}.
  * 
  * <p>
- * This means that all instances in the JVM share the same {@code IPentahoRequestContext}. This is generally useful with
- * rich clients, such as Swing.
+ * This means that all instances in the JVM share the same {@code IPentahoRequestContext}. This is generally useful
+ * with rich clients, such as Swing.
  * </p>
  * 
  * @author rmansoor
  */
 public class GlobalPentahoRequestContextHolderStrategy implements IPentahoRequestContextHolderStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private static IPentahoRequestContext requestContext;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public GlobalPentahoRequestContextHolderStrategy() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public IPentahoRequestContext getRequestContext() {
     return requestContext;

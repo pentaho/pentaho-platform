@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.InputStream;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IFileInfo;
@@ -28,6 +26,8 @@ import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ISolutionFileMetaProvider;
 import org.pentaho.platform.engine.core.solution.FileInfo;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.InputStream;
 
 /**
  * A generic meta adapter for the state files created by SolutionRepoLoadContentGenerator and read by

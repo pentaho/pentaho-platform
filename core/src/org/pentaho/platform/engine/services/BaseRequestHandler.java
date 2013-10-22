@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IActionCompleteListener;
 import org.pentaho.platform.api.engine.IActionRequestHandler;
 import org.pentaho.platform.api.engine.ICreateFeedbackParameterCallback;
@@ -35,6 +31,10 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class BaseRequestHandler implements IActionRequestHandler, IActionCompleteListener {
 

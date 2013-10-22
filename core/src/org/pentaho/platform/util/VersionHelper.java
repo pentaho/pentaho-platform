@@ -17,11 +17,11 @@
 
 package org.pentaho.platform.util;
 
+import org.pentaho.platform.api.util.IVersionHelper;
+
 import java.util.ResourceBundle;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import org.pentaho.platform.api.util.IVersionHelper;
 
 public class VersionHelper implements IVersionHelper {
 
@@ -69,7 +69,8 @@ public class VersionHelper implements IVersionHelper {
   }
 
   /**
-   * Extracts the version information data from the manifest's attributes and puts them into a VersionInfo instance.
+   * Extracts the version information data from the manifest's attributes and puts them into a VersionInfo
+   * instance.
    * 
    * @param manifest
    *          the manifest information
@@ -86,8 +87,8 @@ public class VersionHelper implements IVersionHelper {
   }
 
   /**
-   * Extracts the version information data from the <code>build-res/version.properties</code> file found in the source
-   * directory.
+   * Extracts the version information data from the <code>build-res/version.properties</code> file found in the
+   * source directory.
    * 
    * @return the version information from the <code>build-res/version.properties</code> file
    */

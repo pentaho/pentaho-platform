@@ -17,16 +17,16 @@
 
 package org.pentaho.platform.util.versionchecker;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.List;
 
 public class PentahoVersionCheckReflectHelper {
 

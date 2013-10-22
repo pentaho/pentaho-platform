@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.util.messages;
 
+import org.pentaho.platform.util.logging.Logger;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -25,8 +27,6 @@ import java.nio.charset.CharsetDecoder;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
-
-import org.pentaho.platform.util.logging.Logger;
 
 public class LocaleHelper {
 
@@ -63,8 +63,8 @@ public class LocaleHelper {
   }
 
   /**
-   * BISERVER-9863 Check if override locale string contains language and country. If so, instantiate Locale with two
-   * parameters for language and country, instead of just language
+   * BISERVER-9863 Check if override locale string contains language and country. If so, instantiate Locale with
+   * two parameters for language and country, instead of just language
    * 
    * @param localeOverride
    */
@@ -133,8 +133,8 @@ public class LocaleHelper {
   }
 
   /**
-   * This method is called to convert strings from ISO-8859-1 (post/get parameters for example) into the default system
-   * locale.
+   * This method is called to convert strings from ISO-8859-1 (post/get parameters for example) into the default
+   * system locale.
    * 
    * @param isoString
    * @return Re-encoded string
@@ -225,6 +225,7 @@ public class LocaleHelper {
       decoder.decode( ByteBuffer.wrap( stringBytes ) );
       return true;
     } catch ( CharacterCodingException ignored ) {
+      //ignored
     }
     return false;
   }
@@ -322,6 +323,7 @@ public class LocaleHelper {
         closeMatch = idx;
       }
     }
+    //CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
     if ( exactMatch != -1 ) {
       // do nothing we have an exact match
     } else if ( closeMatch != -1 ) {

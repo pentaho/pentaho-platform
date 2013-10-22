@@ -17,8 +17,6 @@
 
 package org.pentaho.commons.util.repository;
 
-import java.util.List;
-
 import org.pentaho.commons.util.repository.exception.ConstraintViolationException;
 import org.pentaho.commons.util.repository.exception.FilterNotValidException;
 import org.pentaho.commons.util.repository.exception.FolderNotValidException;
@@ -30,6 +28,8 @@ import org.pentaho.commons.util.repository.exception.RuntimeException;
 import org.pentaho.commons.util.repository.exception.UpdateConflictException;
 import org.pentaho.commons.util.repository.type.CmisObject;
 import org.pentaho.commons.util.repository.type.TypesOfFileableObjects;
+
+import java.util.List;
 
 public interface INavigationService {
 

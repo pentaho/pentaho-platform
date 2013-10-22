@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IExecutionListener;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -42,6 +35,13 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.BaseRequestHandler;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 // TODO sbarkdull, ton's of opportunity here for some refactoring to get rid of european reuse
 
 public class SolutionHelper {
@@ -54,8 +54,8 @@ public class SolutionHelper {
    * @param description
    *          An identifier for this process. This is used for auditing and logging purposes only.
    * @param userId
-   *          The user (or user agent) that is requesting this execution. This is used for auditing and logging and also
-   *          can be used in action sequences (for example to filter data)
+   *          The user (or user agent) that is requesting this execution. This is used for auditing and logging and
+   *          also can be used in action sequences (for example to filter data)
    * @param actionSequence
    *          Path to the action sequence file
    * @param parameters
@@ -78,8 +78,8 @@ public class SolutionHelper {
    * @param description
    *          An identifier for this process. This is used for auditing and logging purposes only.
    * @param session
-   *          The user session that is requesting this execution. This is used for auditing and logging and also can be
-   *          used in action sequences (for example to filter data)
+   *          The user session that is requesting this execution. This is used for auditing and logging and also
+   *          can be used in action sequences (for example to filter data)
    * @param actionSequence
    *          Path to the action sequence file
    * @param parameters
@@ -101,8 +101,8 @@ public class SolutionHelper {
    * @param description
    *          An identifier for this process. This is used for auditing and logging purposes only.
    * @param session
-   *          The user session that is requesting this execution. This is used for auditing and logging and also can be
-   *          used in action sequences (for example to filter data)
+   *          The user session that is requesting this execution. This is used for auditing and logging and also
+   *          can be used in action sequences (for example to filter data)
    * @param actionSequence
    *          Path to the action sequence file
    * @param parameters
@@ -114,7 +114,7 @@ public class SolutionHelper {
    * @return
    */
   public static ISolutionEngine
-    execute( final String description, final IPentahoSession session, final String actionSequence,
+  execute( final String description, final IPentahoSession session, final String actionSequence,
         final Map parameters, final OutputStream outputStream, final boolean collateMessages ) {
     return SolutionHelper.execute( description, session, actionSequence, parameters, outputStream, null,
         collateMessages );
@@ -135,8 +135,8 @@ public class SolutionHelper {
    * @param description
    *          An identifier for this process. This is used for auditing and logging purposes only.
    * @param session
-   *          The user session that is requesting this execution. This is used for auditing and logging and also can be
-   *          used in action sequences (for example to filter data)
+   *          The user session that is requesting this execution. This is used for auditing and logging and also
+   *          can be used in action sequences (for example to filter data)
    * @param actionSequence
    *          Path to the action sequence file
    * @param parameters
@@ -200,7 +200,8 @@ public class SolutionHelper {
         // Modifications by Ezequiel Cuellar
         // Old code.
         // outputHandler = new SimpleOutputHandler(outputStream, false);
-        // New code. Without setting the allowFeedback parameter to true it is assumed that SubActionComponent instances
+        // New code. Without setting the allowFeedback parameter to true it is assumed that SubActionComponent
+        // instances
         // are never capable of returning feedback which may not always be the case.
         outputHandler = new SimpleOutputHandler( outputStream, true );
         outputHandler.setOutputPreference( IOutputHandler.OUTPUT_TYPE_DEFAULT );

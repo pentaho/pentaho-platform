@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -28,6 +25,9 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.engine.core.system.PentahoBase;
+
+import java.util.List;
+import java.util.Map;
 
 public abstract class BaseContentGenerator extends PentahoBase implements IContentGenerator {
 

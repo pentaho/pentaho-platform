@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.util.Locale;
-
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.messages.Messages;
+
+import java.util.Locale;
 
 public abstract class BaseSession extends PentahoBase implements IPentahoSession {
 
@@ -72,8 +72,6 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
       } else {
         removeAttribute( TENANT_ID_KEY );
       }
-    } else {
-      // TODO audit this
     }
   }
 

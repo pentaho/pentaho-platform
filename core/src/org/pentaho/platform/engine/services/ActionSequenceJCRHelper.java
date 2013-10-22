@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -46,6 +37,15 @@ import org.pentaho.platform.engine.services.actionsequence.SequenceDefinition;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * @author wseyler
@@ -78,8 +78,8 @@ public class ActionSequenceJCRHelper {
   /**
    * This legacy method ignores the requested actionOperation and defines read as the permission.
    * 
-   * @deprecated use getActionSequence(String actionPath, int loggingLevel, RepositoryFilePermission actionOperation)
-   *             instead.
+   * @deprecated use getActionSequence(String actionPath, int loggingLevel, RepositoryFilePermission
+   *             actionOperation) instead.
    */
   @Deprecated
   public IActionSequence getActionSequence( String actionPath, int loggingLevel, int actionOperation ) {
@@ -108,7 +108,7 @@ public class ActionSequenceJCRHelper {
 
     Document document = null;
     SimpleRepositoryFileData data = null;
-    if(file != null) {
+    if ( file != null ) {
       data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
       if ( data != null ) {
         try {

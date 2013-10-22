@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -55,6 +45,16 @@ import org.pentaho.platform.uifoundation.chart.WidgetDefinition;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class WidgetGridComponent extends XmlComponent {
 
@@ -229,8 +229,6 @@ public class WidgetGridComponent extends XmlComponent {
     IPentahoResultSet resultSet = null;
     if ( solution != null ) {
       resultSet = getActionData();
-    } else {
-      // TODO support other methods of getting data
     }
 
     // create the widget to use
@@ -308,6 +306,7 @@ public class WidgetGridComponent extends XmlComponent {
         value = Double.parseDouble( row[valueColumnNo].toString() );
         createDial( value, name, root, widgetDefinition );
       } catch ( Exception e ) {
+        //ignore
       }
 
       row = resultSet.next();

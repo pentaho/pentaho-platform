@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.core.audit;
 
-import java.math.BigDecimal;
-
 import org.pentaho.platform.api.engine.AuditException;
 import org.pentaho.platform.api.engine.IAuditEntry;
+
+import java.math.BigDecimal;
 
 public class NullAuditEntry implements IAuditEntry {
 

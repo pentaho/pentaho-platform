@@ -18,15 +18,15 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Spring implementation of {@link IPentahoObjectReference}

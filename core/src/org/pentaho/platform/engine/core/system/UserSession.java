@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.util.Locale;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
+
+import java.util.Locale;
 
 public class UserSession extends StandaloneSession {
 

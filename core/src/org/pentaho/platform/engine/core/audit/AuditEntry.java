@@ -18,20 +18,20 @@
 
 package org.pentaho.platform.engine.core.audit;
 
+import org.pentaho.platform.api.engine.AuditException;
+import org.pentaho.platform.api.engine.IAuditEntry;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.pentaho.platform.api.engine.AuditException;
-import org.pentaho.platform.api.engine.IAuditEntry;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-
 /**
  * @author mbatchel
  * 
- *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
- *         Code Templates TODO merge this into AuditHelper
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
+ *         Style - Code Templates TODO merge this into AuditHelper
  */
 public class AuditEntry {
 

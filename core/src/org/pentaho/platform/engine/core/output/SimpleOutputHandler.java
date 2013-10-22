@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.engine.core.output;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentOutputHandler;
@@ -33,6 +27,12 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author aaron
@@ -64,8 +64,8 @@ public class SimpleOutputHandler implements IOutputHandler {
    * Creates a {@link SimpleContentItem} copy of an {@link IContentItem}
    * 
    * @param contentItem
-   *          provides the underlying outputStream this outputhandler manages. Feedback will also be written to this
-   *          contentItem's output stream if allowFeedback is true
+   *          provides the underlying outputStream this outputhandler manages. Feedback will also be written to
+   *          this contentItem's output stream if allowFeedback is true
    * @param allowFeedback
    */
   public SimpleOutputHandler( final IContentItem contentItem, final boolean allowFeedback ) {
@@ -90,8 +90,8 @@ public class SimpleOutputHandler implements IOutputHandler {
    * Creates a SimpleContentItem from an OutputStream.
    * 
    * @param outputStream
-   *          the underlying outputStream this outputhandler manages. Feedback will be written to this output stream if
-   *          allowFeedback is true
+   *          the underlying outputStream this outputhandler manages. Feedback will be written to this output
+   *          stream if allowFeedback is true
    * @param allowFeedback
    */
   public SimpleOutputHandler( final OutputStream outputStream, final boolean allowFeedback ) {
@@ -108,7 +108,8 @@ public class SimpleOutputHandler implements IOutputHandler {
   /*
    * (non-Javadoc)
    * 
-   * @see org.pentaho.platform.api.engine.IOutputHandler#setSession(org.pentaho.platform.api.engine.IPentahoSession)
+   * @see
+   * org.pentaho.platform.api.engine.IOutputHandler#setSession(org.pentaho.platform.api.engine.IPentahoSession)
    */
   public void setSession( final IPentahoSession session ) {
     this.session = session;
@@ -183,8 +184,8 @@ public class SimpleOutputHandler implements IOutputHandler {
     if ( allowFeedback ) {
       contentGenerated = true;
       /*
-       * if someone is requesting a feedbackContentItem, we can assume they tend to write feedback back to the client,
-       * so we set the flag here
+       * if someone is requesting a feedbackContentItem, we can assume they tend to write feedback back to the
+       * client, so we set the flag here
        */
       responseExpected = true;
       return feedbackContent;
@@ -208,7 +209,8 @@ public class SimpleOutputHandler implements IOutputHandler {
       return outputs.get( key );
     } else {
       IContentOutputHandler output = PentahoSystem.getOutputDestinationFromContentRef( contentName, session );
-      // If the output handler wasn't found with just the content name. Try to look it up with the output name as well.
+      // If the output handler wasn't found with just the content name. Try to look it up with the output name as
+      // well.
       // (This mirrors HttpOutputHandler's lookup logic)
       if ( output == null ) {
         output = PentahoSystem.getOutputDestinationFromContentRef( outputName + ":" + contentName, session ); //$NON-NLS-1$
@@ -226,8 +228,8 @@ public class SimpleOutputHandler implements IOutputHandler {
    * (non-Javadoc)
    * 
    * @see
-   * org.pentaho.platform.api.engine.IOutputHandler#setContentItem(org.pentaho.platform.api.repository.IContentItem,
-   * java.lang.String, java.lang.String)
+   * org.pentaho.platform.api.engine.IOutputHandler#setContentItem(org.pentaho.platform.api.repository.IContentItem
+   * , java.lang.String, java.lang.String)
    */
   public void setContentItem( final IContentItem content, final String objectName, final String contentName ) {
     mimeType = content.getMimeType();
@@ -238,8 +240,8 @@ public class SimpleOutputHandler implements IOutputHandler {
    * 
    * @see org.pentaho.platform.api.engine.IOutputHandler#setOutput(java.lang.String, java.lang.Object)
    * 
-   * This implementation tries to write the data in "value" to the response outputstream managed by this output handler,
-   * or if "value" is null, adds it to a responseAttributes map for later retrieval.
+   * This implementation tries to write the data in "value" to the response outputstream managed by this output
+   * handler, or if "value" is null, adds it to a responseAttributes map for later retrieval.
    */
   public void setOutput( final String name, final Object value ) throws IOException {
     if ( value == null ) {
@@ -275,6 +277,7 @@ public class SimpleOutputHandler implements IOutputHandler {
               try {
                 inStr.close();
               } catch ( Exception ignored ) {
+                //ignore
               }
             }
             contentGenerated = true;
@@ -304,9 +307,8 @@ public class SimpleOutputHandler implements IOutputHandler {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.pentaho.platform.api.engine.IOutputHandler#setMimeTypeListener(org.pentaho.platform.api.engine.IMimeTypeListener
-   * )
+   * @see org.pentaho.platform.api.engine.IOutputHandler#setMimeTypeListener(org.pentaho.platform.api.engine.
+   * IMimeTypeListener )
    */
   public void setMimeTypeListener( final IMimeTypeListener mimeTypeListener ) {
     this.mimeTypeListener = mimeTypeListener;

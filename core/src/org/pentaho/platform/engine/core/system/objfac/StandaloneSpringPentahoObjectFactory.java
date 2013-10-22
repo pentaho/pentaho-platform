@@ -18,22 +18,21 @@
 
 package org.pentaho.platform.engine.core.system.objfac;
 
-import java.io.File;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 
+import java.io.File;
+
 /**
- * This factory implementation creates and uses a self-contained Spring {@link ApplicationContext} which is not tied to
- * or accesible by any other parts of the application.
+ * This factory implementation creates and uses a self-contained Spring {@link ApplicationContext} which is not
+ * tied to or accesible by any other parts of the application.
  * 
  * @author Aaron Phillips
  * @see AbstractSpringPentahoObjectFactory
@@ -49,8 +48,8 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
   }
 
   /**
-   * Initializes this object factory by creating a self-contained Spring {@link ApplicationContext} if one is not passed
-   * in.
+   * Initializes this object factory by creating a self-contained Spring {@link ApplicationContext} if one is not
+   * passed in.
    * 
    * @param configFile
    *          the Spring bean definition XML file

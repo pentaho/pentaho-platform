@@ -17,13 +17,13 @@
 
 package org.pentaho.platform.util.versionchecker;
 
-import java.util.Map;
-
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.versionchecker.IVersionCheckDataProvider;
+
+import java.util.Map;
 
 public class PentahoVersionCheckDataProvider implements IVersionCheckDataProvider {
 
@@ -69,8 +69,8 @@ public class PentahoVersionCheckDataProvider implements IVersionCheckDataProvide
   }
 
   /**
-   * Returns the base url for the connection to the pentaho version checking server. Currently, there is no reason to
-   * use anything other than the default.
+   * Returns the base url for the connection to the pentaho version checking server. Currently, there is no reason
+   * to use anything other than the default.
    */
   public String getBaseURL() {
     return null;
