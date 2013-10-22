@@ -18,18 +18,16 @@
 
 package org.pentaho.platform.engine.core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
-import java.util.Hashtable;
-import java.util.Map;
-
 import org.jmock.Mockery;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+
+import java.util.Hashtable;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings( "nls" )
 public class PentahoSessionHolderTest {
@@ -44,7 +42,8 @@ public class PentahoSessionHolderTest {
 
     StandaloneSession session = new StandaloneSession();
     PentahoSessionHolder.setSession( session );
-    assertSame( "StandaloneSession was not set as the thread-bound session", session, PentahoSessionHolder.getSession() );
+    assertSame( "StandaloneSession was not set as the thread-bound session", session,
+      PentahoSessionHolder.getSession() );
 
     PentahoSessionHolder.removeSession();
     assertNull( "session should be null after a remove", PentahoSessionHolder.getSession() );

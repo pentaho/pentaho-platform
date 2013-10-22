@@ -19,7 +19,6 @@
 package org.pentaho.platform.util;
 
 import junit.framework.TestCase;
-
 import org.codehaus.jettison.json.JSONException;
 import org.junit.Test;
 
@@ -28,31 +27,43 @@ public class JSONComparitorTest extends TestCase {
   public static void testJSONComparator() {
     // A JSON string that could be returned by ModelSerializer
     String json1 =
-        "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\","
+        + "\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
     // Same as json1 except this string has the order of some entries switched.
     String json2 =
-        "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@value\":\"myvalue1\",\"@operator\":\"=\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],"
+        + "\"conds\":[{\"condition\":{\"@value\":\"myvalue1\",\"@operator\":\"=\"}},"
+        + "{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
     // Same as json1 except cols array is removed
     String json3 =
-        "{\"MQLQuery\":{\"cols\":{\"Column\":{\"id\":\"mycolumn\"}},\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":{\"Column\":{\"id\":\"mycolumn\"}},\"conds\":[{\"condition\":{\"@operator\":\"=\","
+        + "\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
     // Change element value
     String json4 =
-        "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumnx\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumnx\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\","
+        + "\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
     // Reverse cols/conditions
     String json5 =
-        "{\"MQLQuery\":{\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}],\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}]}}";
+      "{\"MQLQuery\":{\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},"
+        + "{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}],"
+        + "\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}]}}";
     // Array order of conditions
     String json6 =
-        "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}},{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"in\","
+        + "\"@value\":\"myvalue2\"}},{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}}]}}";
     // Change label name
     String json7 =
-        "{\"MQLQuery\":{\"cols\":[{\"Columnx\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":[{\"Columnx\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\","
+        + "\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
     // omit @Operator Element
     String json8 =
-        "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}}";
+      "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],"
+        + "\"conds\":[{\"condition\":{\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\","
+        + "\"@value\":\"myvalue2\"}}]}}";
     // Malformed JSON
     String json9 =
-        "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\",\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}";
+      "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\","
+        + "\"@value\":\"myvalue1\"}},{\"condition\":{\"@operator\":\"in\",\"@value\":\"myvalue2\"}}]}";
 
     try {
       assertTrue( "Equals Test", JSONComparitor.jsonEqual( json1, json1, null ) );

@@ -18,14 +18,8 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -36,6 +30,11 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 @SuppressWarnings( "nls" )
 public class SystemSettingsTest extends TestCase {
@@ -168,17 +167,6 @@ public class SystemSettingsTest extends TestCase {
 
     // assertEquals( version, versionMsg );
     // assertEquals( build, buildMsg );
-
-  }
-
-  public static void main( final String[] args ) {
-    SystemSettingsTest test = new SystemSettingsTest();
-    try {
-      test.testASetUp();
-      test.testVersion();
-      test.testPublishers();
-    } finally {
-    }
 
   }
 

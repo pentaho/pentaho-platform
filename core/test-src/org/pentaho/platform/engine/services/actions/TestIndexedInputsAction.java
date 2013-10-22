@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services.actions;
 
+import org.pentaho.platform.api.action.IAction;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.pentaho.platform.api.action.IAction;
 
 @SuppressWarnings( "nls" )
 public class TestIndexedInputsAction implements IAction {
@@ -53,8 +53,8 @@ public class TestIndexedInputsAction implements IAction {
   }
 
   /**
-   * We must specify a getter method for the indexed "message" property so it will be an conformant JavaBean property.
-   * BeanUtils requires indexed properties to also be JavaBean spec.
+   * We must specify a getter method for the indexed "message" property so it will be an conformant JavaBean
+   * property. BeanUtils requires indexed properties to also be JavaBean spec.
    */
   public String getMessages() {
     throw new UnsupportedOperationException( "This should never be called" );

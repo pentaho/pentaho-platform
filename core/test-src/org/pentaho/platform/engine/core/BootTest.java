@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.engine.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
@@ -36,6 +27,11 @@ import org.pentaho.platform.api.engine.ISessionStartupAction;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings( { "all" } )
 public class BootTest {

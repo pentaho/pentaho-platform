@@ -18,14 +18,14 @@
 
 package org.pentaho.test.platform.engine.core;
 
+import org.pentaho.platform.engine.core.system.SystemSettings;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pentaho.platform.engine.core.system.SystemSettings;
-
 /**
- * This settings class allows you to initialize the MicroPlatform with the xml based SystemSettings class, and bootstrap
- * successfully.
+ * This settings class allows you to initialize the MicroPlatform with the xml based SystemSettings class, and
+ * bootstrap successfully.
  * 
  * @author GMoran
  * 

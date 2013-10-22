@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.OutputStream;
-
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.OutputStream;
 
 @SuppressWarnings( "nls" )
 public class AuditHelperTest extends BaseTest {
@@ -70,21 +70,6 @@ public class AuditHelperTest extends BaseTest {
         .audit( "342323", "admin", "ViewAction", "String", null, "Type", "This is a message", "Values", 34, this ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
     assertTrue( true );
     finishTest();
-  }
-
-  public static void main( String[] args ) {
-    AuditHelperTest test = new AuditHelperTest();
-    test.setUp();
-    test.testAuditFailures();
-    test.testAuditFailures2();
-    test.testAuditFailures3();
-    test.testAuditFailures4();
-    try {
-
-    } finally {
-      test.tearDown();
-      BaseTest.shutdown();
-    }
   }
 
 }

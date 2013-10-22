@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @SuppressWarnings( { "all" } )
 public class MultiOutputTest extends BaseTest {

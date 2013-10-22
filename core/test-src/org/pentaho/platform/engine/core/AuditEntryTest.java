@@ -18,10 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.math.BigDecimal;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IAuditEntry;
 import org.pentaho.platform.engine.core.audit.AuditEntry;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
@@ -31,6 +28,8 @@ import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
+
+import java.math.BigDecimal;
 
 @SuppressWarnings( { "all" } )
 public class AuditEntryTest extends TestCase {

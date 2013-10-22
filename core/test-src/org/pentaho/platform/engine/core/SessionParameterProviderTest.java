@@ -19,7 +19,6 @@
 package org.pentaho.platform.engine.core;
 
 import junit.framework.TestCase;
-
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 

@@ -18,14 +18,13 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.util.Properties;
-import java.util.regex.Matcher;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IParameterResolver;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.util.DateMath;
+
+import java.util.Properties;
+import java.util.regex.Matcher;
 
 @SuppressWarnings( { "all" } )
 public class TemplateUtilTest extends TestCase implements IParameterResolver {

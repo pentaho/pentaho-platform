@@ -18,14 +18,13 @@
 
 package org.pentaho.platform.util;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import org.pentaho.platform.util.messages.LocaleHelper;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.pentaho.platform.util.messages.LocaleHelper;
 
 public class LocaleHelperTest extends TestCase {
 
@@ -143,17 +142,6 @@ public class LocaleHelperTest extends TestCase {
 
     // reset override to not break other tests
     LocaleHelper.setLocaleOverride( null );
-  }
-
-  public static void main( final String[] args ) {
-    LocaleHelperTest test = new LocaleHelperTest();
-    System.err.println( "hi!!" );
-    test.testLocaleHelper();
-    test.testEncoding();
-    try {
-
-    } finally {
-    }
   }
 
 }

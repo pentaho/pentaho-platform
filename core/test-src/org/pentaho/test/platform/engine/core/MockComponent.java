@@ -17,14 +17,14 @@
 
 package org.pentaho.test.platform.engine.core;
 
-import java.util.List;
-import java.util.Map;
-
 import org.dom4j.Node;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 import org.pentaho.platform.api.engine.IComponent;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
+
+import java.util.List;
+import java.util.Map;
 
 public class MockComponent implements IComponent {
 

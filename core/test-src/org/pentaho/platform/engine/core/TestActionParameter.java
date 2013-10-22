@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IActionParameter;
+
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class TestActionParameter implements IActionParameter {

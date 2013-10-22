@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.util;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 public class ParameterHelperTest extends TestCase {
 
@@ -41,14 +41,6 @@ public class ParameterHelperTest extends TestCase {
     String str = ParameterHelper.parameterToString( "New String", "Default String" ); //$NON-NLS-1$ //$NON-NLS-2$
     Assert.assertEquals( str, "New String" ); //$NON-NLS-1$
 
-  }
-
-  public static void main( final String[] args ) {
-    ParameterHelperTest test = new ParameterHelperTest();
-    try {
-      test.testUtil();
-    } finally {
-    }
   }
 
 }

@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IActionCompleteListener;
 import org.pentaho.platform.api.engine.ICreateFeedbackParameterCallback;
 import org.pentaho.platform.api.engine.IExecutionListener;
@@ -30,6 +27,9 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
+
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class TestSolutionEngine implements ISolutionEngine {

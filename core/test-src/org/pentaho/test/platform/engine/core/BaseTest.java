@@ -18,13 +18,6 @@
 
 package org.pentaho.test.platform.engine.core;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IActionCompleteListener;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -48,6 +41,13 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
+
+import java.io.File;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A Base class for platform integration tests. Uses Spring to populate required PentahoSystem dependencies (admin
@@ -115,7 +115,8 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
       pentahoObjectFactory.init( null, springApplicationContext );
       PentahoSystem.registerObjectFactory( pentahoObjectFactory );
 
-      // force Spring to inject PentahoSystem, there has got to be a better way than this, perhaps an alternate way of
+      // force Spring to inject PentahoSystem, there has got to be a better way than this, perhaps an alternate way
+      // of
       // initting spring's app context
       springApplicationContext.getBean( "pentahoSystemProxy" ); //$NON-NLS-1$
 
@@ -130,8 +131,8 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
   private ApplicationContext getSpringApplicationContext() {
 
     String[] fns =
-        {
-          "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+    {
+      "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
@@ -172,11 +173,11 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   protected void startTest() {
     /*
-     * Made this green-code because it wasn't currently being used for anything. But, it could come in handy at some
-     * point. MB
+     * Made this green-code because it wasn't currently being used for anything. But, it could come in handy at
+     * some point. MB
      * 
-     * Throwable th = new Throwable("Test"); //$NON-NLS-1$ StackTraceElement[] st = th.getStackTrace(); String name =
-     * st[1].getClassName() + "." + st[1].getMethodName(); //$NON-NLS-1$ String description =
+     * Throwable th = new Throwable("Test"); //$NON-NLS-1$ StackTraceElement[] st = th.getStackTrace(); String name
+     * = st[1].getClassName() + "." + st[1].getMethodName(); //$NON-NLS-1$ String description =
      * Messages.getInstance().getString(name + ".USER_DESCRIPTION"); //$NON-NLS-1$
      */
   }

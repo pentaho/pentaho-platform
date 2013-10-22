@@ -17,15 +17,14 @@
 
 package org.pentaho.test.platform.engine.security;
 
-import java.util.concurrent.Callable;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+
+import java.util.concurrent.Callable;
 
 /**
  * Test class that validates if ISecurityHelper.runAsAnonymous() method holds an AnonymousAuthenticationToken User:

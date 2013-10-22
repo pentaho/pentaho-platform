@@ -19,7 +19,6 @@
 package org.pentaho.platform.engine.core;
 
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -85,6 +84,7 @@ public class StandaloneObjectFactoryTest extends TestCase {
       factory.getImplementingClass( "bogus" );
       fail( "exception was expected" );
     } catch ( RuntimeException e ) {
+      //ignored
     }
   }
 

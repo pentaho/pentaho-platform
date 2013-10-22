@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.services.audit.AuditConnection;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @SuppressWarnings( "nls" )
 public class AuditConnectionTest extends BaseTest {
@@ -95,18 +94,4 @@ public class AuditConnectionTest extends BaseTest {
       finishTest();
     }
   }
-
-  public static void main( String[] args ) {
-    AuditConnectionTest test = new AuditConnectionTest();
-    test.setUp();
-    test.testAuditConnection();
-    test.testAuditConnectionNoConfigFile();
-    try {
-
-    } finally {
-      test.tearDown();
-      BaseTest.shutdown();
-    }
-  }
-
 }

@@ -18,16 +18,16 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
 
 @SuppressWarnings( "nls" )
 public class ServiceTestHelper {

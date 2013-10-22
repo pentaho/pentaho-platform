@@ -18,14 +18,7 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import junit.framework.Assert;
-
 import org.dom4j.Document;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IActionSequence;
@@ -38,6 +31,12 @@ import org.pentaho.platform.engine.services.actionsequence.SequenceDefinition;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings( { "all" } )
 public class IsOutputParameterTest extends BaseTest {

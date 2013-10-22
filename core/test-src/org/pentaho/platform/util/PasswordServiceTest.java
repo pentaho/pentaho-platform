@@ -19,7 +19,6 @@
 package org.pentaho.platform.util;
 
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.api.util.PasswordServiceException;
 
@@ -39,11 +38,4 @@ public class PasswordServiceTest extends TestCase {
     }
   }
 
-  public static void main( String[] args ) {
-    PasswordServiceTest test = new PasswordServiceTest();
-    try {
-      test.testPasswordService();
-    } finally {
-    }
-  }
 }

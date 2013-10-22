@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IAcceptsRuntimeInputs;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IProducesRuntimeOutputs;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class TestPojo5 implements IAcceptsRuntimeInputs, IProducesRuntimeOutputs {

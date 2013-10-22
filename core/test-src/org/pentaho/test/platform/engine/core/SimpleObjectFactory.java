@@ -17,15 +17,15 @@
 
 package org.pentaho.test.platform.engine.core;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings( "nls" )
 /**
@@ -112,7 +112,8 @@ public class SimpleObjectFactory implements IPentahoObjectFactory {
   }
 
   @Override
-  public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession ) {
+  public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass,
+                                                                   IPentahoSession curSession ) {
     return null; // To change body of implemented methods use File | Settings | File Templates.
   }
 

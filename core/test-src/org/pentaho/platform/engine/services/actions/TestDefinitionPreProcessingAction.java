@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.services.actions;
 
-import java.util.List;
-
 import org.pentaho.platform.api.action.ActionPreProcessingException;
 import org.pentaho.platform.api.action.IDefinitionAwareAction;
 import org.pentaho.platform.api.action.IPreProcessingAction;
+
+import java.util.List;
 
 @SuppressWarnings( "nls" )
 public class TestDefinitionPreProcessingAction implements IDefinitionAwareAction, IPreProcessingAction {

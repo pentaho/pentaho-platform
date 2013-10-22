@@ -17,11 +17,11 @@
 
 package org.pentaho.platform.util;
 
-import java.util.Calendar;
-import java.util.Locale;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 public class DateMathTest extends TestCase {
 
@@ -44,13 +44,5 @@ public class DateMathTest extends TestCase {
     System.out.println( "Calendar Date with 0:ME as format " + dateString ); //$NON-NLS-1$        
 
     Assert.assertTrue( true );
-  }
-
-  public static void main( final String[] args ) {
-    DateMathTest test = new DateMathTest();
-    try {
-      test.testDateMethods();
-    } finally {
-    }
   }
 }
