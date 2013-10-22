@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.engine.core;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
@@ -34,6 +28,12 @@ import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import java.util.Collections;
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * User: nbaker Date: 3/3/13

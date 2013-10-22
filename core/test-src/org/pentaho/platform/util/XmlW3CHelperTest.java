@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.util;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
 
 public class XmlW3CHelperTest extends TestCase {
 
@@ -63,16 +62,7 @@ public class XmlW3CHelperTest extends TestCase {
       XmlW3CHelper.getDomFromString( null );
       Assert.assertTrue( true );
     } catch ( Exception expected ) {
+      //ignored
     }
   }
-
-  public static void main( final String[] args ) throws IOException {
-    XmlW3CHelperTest test = new XmlW3CHelperTest();
-    try {
-      test.testXmlW3C();
-      test.testXmlW3CError();
-    } finally {
-    }
-  }
-
 }

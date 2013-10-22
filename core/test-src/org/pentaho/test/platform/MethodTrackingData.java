@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Simple class used to collect method call information during unit testing. It can be used with mock objects to track
- * which methods have been invoked and can hold information about the parameters provided. </p> Example: <code>
+ * Simple class used to collect method call information during unit testing. It can be used with mock objects to
+ * track which methods have been invoked and can hold information about the parameters provided. </p> Example:
+ * <code>
  *   class MockClass extends ClassUnderTest {
  *      private List<MethodTrackingData> methods = new List<MethodTrackingData>();
  * 
@@ -55,8 +56,8 @@ public class MethodTrackingData {
   }
 
   /**
-   * Adds parameter information about the method call. This method should be used once per parameter or other piece of
-   * information that should be tracked.
+   * Adds parameter information about the method call. This method should be used once per parameter or other piece
+   * of information that should be tracked.
    * 
    * @param paramName
    *          the name of the parameter at method invocation
@@ -77,7 +78,8 @@ public class MethodTrackingData {
   }
 
   /**
-   * @return the map which contains the information about the parameters that were provided when the method was invoked
+   * @return the map which contains the information about the parameters that were provided when the method was
+   *         invoked
    */
   public Map<String, Object> getParameters() {
     return parameters;

@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -35,6 +29,12 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class PojoComponentTest extends BaseTest {
@@ -320,8 +320,8 @@ public class PojoComponentTest extends BaseTest {
   }
 
   /**
-   * Test that unused parameters being passed in do not impact the running of the PojoComponent. A warning is written to
-   * the log for user feedback on execution.
+   * Test that unused parameters being passed in do not impact the running of the PojoComponent. A warning is
+   * written to the log for user feedback on execution.
    */
   public void testUnusedInput() {
     startTest();

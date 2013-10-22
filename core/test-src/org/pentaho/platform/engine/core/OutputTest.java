@@ -18,17 +18,16 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.engine.core.output.BufferedContentItem;
 import org.pentaho.platform.engine.core.output.MultiContentItem;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 @SuppressWarnings( { "all" } )
 public class OutputTest extends TestCase {

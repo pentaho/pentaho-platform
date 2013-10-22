@@ -18,10 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.io.File;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.engine.core.solution.CustomSettingsParameterProvider;
 import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
@@ -30,6 +27,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+
+import java.io.File;
 
 @SuppressWarnings( { "all" } )
 public class SettingsParameterProviderTest extends TestCase {

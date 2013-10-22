@@ -17,10 +17,10 @@
 
 package org.pentaho.platform.util;
 
-import java.awt.Color;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import java.awt.Color;
 
 public class ColorHelperTest extends TestCase {
 

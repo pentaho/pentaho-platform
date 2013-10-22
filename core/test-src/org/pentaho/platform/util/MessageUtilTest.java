@@ -18,12 +18,11 @@
 
 package org.pentaho.platform.util;
 
-import java.util.ResourceBundle;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.util.messages.MessageUtil;
+
+import java.util.ResourceBundle;
 
 public class MessageUtilTest extends TestCase {
 
@@ -54,14 +53,6 @@ public class MessageUtilTest extends TestCase {
         .println( "String with five arguments  " + MessageUtil.getString( resourceBundle, "arg1", "arg2", "arg3", "arg4", "arg5" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 
     Assert.assertTrue( true );
-  }
-
-  public static void main( final String[] args ) {
-    MessageUtilTest test = new MessageUtilTest();
-    try {
-      test.testMessageUtil();
-    } finally {
-    }
   }
 
 }

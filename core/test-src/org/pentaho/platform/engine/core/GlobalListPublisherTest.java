@@ -18,13 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IRuntimeContext;
@@ -38,6 +32,11 @@ import org.pentaho.platform.engine.core.system.SessionStartupAction;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class GlobalListPublisherTest extends TestCase {
@@ -76,7 +75,8 @@ public class GlobalListPublisherTest extends TestCase {
     engine.executeCount = 0;
     GlobalListsPublisher globals = new GlobalListsPublisher();
     assertEquals( Messages.getInstance().getString( "GlobalListsPublisher.USER_SYSTEM_SETTINGS" ), globals.getName() );
-    assertEquals( Messages.getInstance().getString( "GlobalListsPublisher.USER_DESCRIPTION" ), globals.getDescription() );
+    assertEquals( Messages.getInstance().getString( "GlobalListsPublisher.USER_DESCRIPTION" )
+      , globals.getDescription() );
     assertTrue( !globals.getName().startsWith( "!" ) );
     assertTrue( !globals.getDescription().startsWith( "!" ) );
     assertNotNull( globals.getLogger() );

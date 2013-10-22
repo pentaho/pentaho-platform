@@ -18,13 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -35,6 +29,11 @@ import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObj
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @SuppressWarnings( { "all" } )
 public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
@@ -54,7 +53,7 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
       factory.get( BadObject.class, null );
       assertFalse( true );
     } catch ( ObjectFactoryException e ) {
-
+      //ignored
     }
 
     GoodObject goodObject1 = factory.get( GoodObject.class, session );

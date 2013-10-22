@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.OutputStream;
-
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.engine.services.solution.SimpleContentGenerator;
+
+import java.io.OutputStream;
 
 public class MockContentGenerator extends SimpleContentGenerator {
 

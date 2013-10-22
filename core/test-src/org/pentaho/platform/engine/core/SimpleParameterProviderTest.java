@@ -18,17 +18,16 @@
 
 package org.pentaho.platform.engine.core;
 
+import junit.framework.TestCase;
+import org.pentaho.commons.connection.memory.MemoryResultSet;
+import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.pentaho.commons.connection.memory.MemoryResultSet;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 
 @SuppressWarnings( { "all" } )
 public class SimpleParameterProviderTest extends TestCase {

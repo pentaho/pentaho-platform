@@ -18,12 +18,6 @@
 
 package org.pentaho.test.platform.engine.services;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -33,9 +27,16 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ContentGeneratorUtil {
   /**
-   * Convenience method for executing a content generator and getting back it's output as a string. Useful for testing.
+   * Convenience method for executing a content generator and getting back it's output as a string. Useful for
+   * testing.
    * 
    * @param cg
    *          the content generator to execute

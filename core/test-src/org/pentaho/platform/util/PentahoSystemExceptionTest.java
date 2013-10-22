@@ -19,7 +19,6 @@ package org.pentaho.platform.util;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.PentahoSystemException;
 
 public class PentahoSystemExceptionTest extends TestCase {
@@ -56,14 +55,4 @@ public class PentahoSystemExceptionTest extends TestCase {
 
   }
 
-  public static void main( final String[] args ) {
-    PentahoSystemExceptionTest test = new PentahoSystemExceptionTest();
-    try {
-      test.testPentahoSystemException1();
-      test.testPentahoSystemException2();
-      test.testPentahoSystemException3();
-      test.testPentahoSystemException4();
-    } finally {
-    }
-  }
 }

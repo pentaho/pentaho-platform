@@ -19,7 +19,6 @@ package org.pentaho.platform.util;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.logging.SimpleLogger;
@@ -133,13 +132,4 @@ public class LogTest extends TestCase {
     Assert.assertTrue( true );
   }
 
-  public static void main( final String[] args ) {
-    LogTest test = new LogTest();
-    try {
-      test.testLogger();
-      test.testSimpleLogger();
-
-    } finally {
-    }
-  }
 }

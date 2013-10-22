@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services;
 
+import org.pentaho.platform.api.engine.IActionSequenceResource;
+
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.pentaho.platform.api.engine.IActionSequenceResource;
 
 @SuppressWarnings( { "all" } )
 public class TestPojo2 {

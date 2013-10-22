@@ -18,32 +18,11 @@
 
 package org.pentaho.platform.engine.services.actions;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.engine.ActionSequenceException;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -61,26 +40,39 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.ServiceTestHelper;
 import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
-import org.pentaho.platform.engine.services.solution.ActionDelegate;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.core.PluginManagerAdapter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
 /**
- * This JUnit test verifies the proper functioning of IActions as surrogate components. Let's not fool ourselves, these
- * are not really unit tests, rather they are integration tests created at as low altitude as possible to verify the
- * correct functioning of the ActionDelegate and proper execution of IAction. It would be too complex and probably
- * uselessly fragile to write real unit tests for the ActionDelegate.
+ * This JUnit test verifies the proper functioning of IActions as surrogate components. Let's not fool ourselves,
+ * these are not really unit tests, rather they are integration tests created at as low altitude as possible to
+ * verify the correct functioning of the ActionDelegate and proper execution of IAction. It would be too complex
+ * and probably uselessly fragile to write real unit tests for the ActionDelegate.
  * <p>
  * ActionDelegate is the class that bridges the heavy IComponent layer with the lightweight IAction. Essentially it
- * brokers and manages IActions, so it is the actual unit under test with respect to this set of JUnit tests. A test
- * IAction, TestAction, is used to verify that ActionDelegate is working properly.
+ * brokers and manages IActions, so it is the actual unit under test with respect to this set of JUnit tests. A
+ * test IAction, TestAction, is used to verify that ActionDelegate is working properly.
  * <p>
- * NOTE: the only way to get around having to define a repository here (which is out of scope of this project) and still
- * be able to test action sequence resources is to use only embedded resources in your test xactions. It is also very
- * important that ActionDelegate use the getInputStream API in actionsequence-dom to fetch resources, rather than
- * getDataSource (which does not support embedded resources).
+ * NOTE: the only way to get around having to define a repository here (which is out of scope of this project) and
+ * still be able to test action sequence resources is to use only embedded resources in your test xactions. It is
+ * also very important that ActionDelegate use the getInputStream API in actionsequence-dom to fetch resources,
+ * rather than getDataSource (which does not support embedded resources).
  * 
  * @see ActionDelegate
  * @see IAction
@@ -214,12 +206,13 @@ public class ActionDelegateTest {
         + "]", action.getBadEmbeddedNumber() );
 
     /*
-     * Elements with only a text node and no sub-elements are treated by ASD as normal inputs. However, if an element in
-     * the component-definition has sub-elements, ASD will not return it as an input, so this test will verify that
-     * current behavior -- that a bean property for a complex element will not be set.
+     * Elements with only a text node and no sub-elements are treated by ASD as normal inputs. However, if an
+     * element in the component-definition has sub-elements, ASD will not return it as an input, so this test will
+     * verify that current behavior -- that a bean property for a complex element will not be set.
      */
     assertNull(
-        "complex input (input with sub-elements) \"complexInputWithSubEelements\" is not currently supported as an input to an Action",
+        "complex input (input with sub-elements) \"complexInputWithSubEelements\""
+          + " is not currently supported as an input to an Action",
         action.getComplexInputWithSubEelements() );
   }
 
@@ -237,8 +230,8 @@ public class ActionDelegateTest {
   }
 
   /**
-   * Here we are testing that actions can handle the old convention of using dashes instead of camelCase, for action
-   * sequence inputs and outputs.
+   * Here we are testing that actions can handle the old convention of using dashes instead of camelCase, for
+   * action sequence inputs and outputs.
    * 
    * @throws ActionSequenceException
    */
@@ -320,12 +313,12 @@ public class ActionDelegateTest {
   }
 
   /**
-   * Tests destination-less content outputs to make sure an Outputstream is still created and provided to the action
-   * bean.
+   * Tests destination-less content outputs to make sure an Outputstream is still created and provided to the
+   * action bean.
    * <p>
-   * This test implies the following code snippets return non-null results for datasource and contentItem. What this
-   * means to an action bean is it will be handed an outputstream for any output of type content that it declares as an
-   * output, regardless of the fact that it may have a public counterpart with a destination. <code>
+   * This test implies the following code snippets return non-null results for datasource and contentItem. What
+   * this means to an action bean is it will be handed an outputstream for any output of type content that it
+   * declares as an output, regardless of the fact that it may have a public counterpart with a destination. <code>
    * IPentahoStreamSource datasource = runtimeContext.getDataSource(actionInput.getName());
    * </code> or <code>
    * IActionParameter actionParameter = paramManager.getCurrentInput(parameterName);
@@ -350,8 +343,8 @@ public class ActionDelegateTest {
   }
 
   /*
-   * Here we specify an content type output with coming from the "request" destination, which is unsupported by current
-   * IOutputHandler implementations.
+   * Here we specify an content type output with coming from the "request" destination, which is unsupported by
+   * current IOutputHandler implementations.
    */
   @Test( expected = ActionSequenceException.class )
   public void testUnsupportedContentOutput() throws PlatformInitializationException, FileNotFoundException,
@@ -409,7 +402,7 @@ public class ActionDelegateTest {
   }
 
   private static boolean
-    assertMapsEquivalent( String comment, Map<String, String> expected, Map<String, String> actual ) {
+  assertMapsEquivalent( String comment, Map<String, String> expected, Map<String, String> actual ) {
     for ( Map.Entry<String, String> entry : expected.entrySet() ) {
       String expectedKey = entry.getKey();
       String expectedVal = entry.getValue();

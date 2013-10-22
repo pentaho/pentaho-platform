@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.util;
 
-import java.util.Iterator;
-
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+
+import java.util.Iterator;
 
 /**
  * Static methods to test two JSON strings, object or arrays for equivalence.

@@ -18,11 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.output.BufferedContentItem;
@@ -31,6 +27,9 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 
 @SuppressWarnings( { "all" } )
 public class SimpleOutputHandlerTest extends TestCase {

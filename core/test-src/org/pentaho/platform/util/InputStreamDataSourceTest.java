@@ -18,12 +18,11 @@
 
 package org.pentaho.platform.util;
 
-import java.io.InputStream;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.commons.connection.InputStreamDataSource;
+
+import java.io.InputStream;
 
 public class InputStreamDataSourceTest extends TestCase {
 

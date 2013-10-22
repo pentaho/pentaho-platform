@@ -17,23 +17,8 @@
 
 package org.pentaho.platform.util;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -44,6 +29,19 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
+
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class XmlHelperTest extends TestCase {
@@ -76,8 +74,8 @@ public class XmlHelperTest extends TestCase {
   }
 
   /**
-   * Load an XML file into a dom4j.Document, convert that document to a string, load that string into a w3c.Document,
-   * and turn it back into a string.
+   * Load an XML file into a dom4j.Document, convert that document to a string, load that string into a
+   * w3c.Document, and turn it back into a string.
    * 
    * @throws FileNotFoundException
    * @throws TransformerConfigurationException

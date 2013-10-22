@@ -18,6 +18,10 @@
 
 package org.pentaho.platform.engine.services;
 
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.BaseDatasourceService;
+
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Array;
 import java.sql.Blob;
@@ -39,11 +43,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
-
-import javax.sql.DataSource;
-
-import org.pentaho.platform.api.data.DBDatasourceServiceException;
-import org.pentaho.platform.engine.services.connection.datasource.dbcp.BaseDatasourceService;
 
 /**
  * Produces {@link MockDataSource}s
@@ -261,7 +260,8 @@ public class MockDataSourceService extends BaseDatasourceService {
     }
 
     @Override
-    public CallableStatement prepareCall( String sql, int resultSetType, int resultSetConcurrency ) throws SQLException {
+    public CallableStatement prepareCall( String sql, int resultSetType, int resultSetConcurrency )
+      throws SQLException {
 
       return null;
     }

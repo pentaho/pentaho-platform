@@ -17,14 +17,13 @@
 
 package org.pentaho.platform.util;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class CleanXmlHelperTest extends TestCase {
 
@@ -56,24 +55,6 @@ public class CleanXmlHelperTest extends TestCase {
       Assert.assertTrue( "Shouldn't have thrown exception here", false ); //$NON-NLS-1$      
     }
 
-    try {
-      // JD - what is this testing?
-      /*
-       * InputStream fis = resourceClass.getResourceAsStream("/test/xml/query_without_connection.xaction");
-       * //$NON-NLS-1$ Document doc = XmlDom4JHelper.getDocFromStream(fis); XmlDom4JHelper.saveDomToFile(doc, new
-       * File(PentahoSystem
-       * .getApplicationContext().getSolutionPath("test/analysis/copy_query_without_connection.xaction")), null);
-       * //$NON-NLS-1$ XmlDom4JHelper.saveDomToFile(doc,
-       * PentahoSystem.getApplicationContext().getSolutionPath("test/analysis/copy1_query_without_connection.xaction"),
-       * null);//$NON-NLS-1$ FileWriter writer = new FileWriter(PentahoSystem.getApplicationContext().getSolutionPath(
-       * "test/analysis/copy2_query_without_connection.xaction")); //$NON-NLS-1$ XmlDom4JHelper.saveDomToWriter(doc,
-       * writer); assertTrue("DOM is saved to a file", true); //$NON-NLS-1$
-       */
-    } catch ( Exception ex ) {
-      // should throw exception
-      System.out.println( "should throw exception. " + ex.getMessage() ); //$NON-NLS-1$
-    }
-
     for ( String element : winXmls ) {
       String enc = XmlHelper.getEncoding( element );
       System.out.println( "xml: " + element + " enc: " + enc ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -94,13 +75,5 @@ public class CleanXmlHelperTest extends TestCase {
       Assert.assertTrue( enc == null );
     }
 
-  }
-
-  public static void main( final String[] args ) {
-    CleanXmlHelperTest test = new CleanXmlHelperTest();
-    try {
-      test.testGetEncoding();
-    } finally {
-    }
   }
 }

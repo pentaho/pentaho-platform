@@ -18,20 +18,7 @@
 
 package org.pentaho.test.platform.engine.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -47,6 +34,18 @@ import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public abstract class BaseTestCase extends TestCase {
   public static final String SOLUTION_PATH = "test-src/solution"; //$NON-NLS-1$
@@ -122,7 +121,7 @@ public abstract class BaseTestCase extends TestCase {
           PentahoSystem.getApplicationContext().getFileOutputPath( solnPath + "/test/tmp/" + testName + extension ); //$NON-NLS-1$
       outputStream = new FileOutputStream( path );
     } catch ( FileNotFoundException e ) {
-
+      //ignored
     }
     return outputStream;
   }

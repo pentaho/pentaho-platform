@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.util.UUIDUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TestCipherEncryptionService {
 

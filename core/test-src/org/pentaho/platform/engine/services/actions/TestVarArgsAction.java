@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.engine.services.actions;
 
-import java.util.Map;
-
 import org.pentaho.platform.api.action.IVarArgsAction;
+
+import java.util.Map;
 
 @SuppressWarnings( "nls" )
 public class TestVarArgsAction implements IVarArgsAction {

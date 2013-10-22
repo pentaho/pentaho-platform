@@ -18,10 +18,7 @@
 
 package org.pentaho.platform.util.bean;
 
-import java.util.Map;
-
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.action.IAction;
@@ -29,6 +26,8 @@ import org.pentaho.platform.api.action.IVarArgsAction;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.beans.BeanUtil.EagerFailingCallback;
 import org.pentaho.platform.util.beans.PropertyNameFormatter;
+
+import java.util.Map;
 
 @SuppressWarnings( "nls" )
 public class ActionHarnessTest {

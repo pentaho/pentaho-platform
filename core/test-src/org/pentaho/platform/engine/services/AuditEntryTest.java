@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.math.BigDecimal;
-
 import org.pentaho.platform.engine.core.audit.AuditEntry;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.math.BigDecimal;
 
 @SuppressWarnings( "nls" )
 public class AuditEntryTest extends BaseTest {
@@ -46,18 +46,6 @@ public class AuditEntryTest extends BaseTest {
 
     assertTrue( true );
     finishTest();
-  }
-
-  public static void main( String[] args ) {
-    AuditEntryTest test = new AuditEntryTest();
-    test.setUp();
-    test.testAuditEntry();
-    try {
-
-    } finally {
-      test.tearDown();
-      BaseTest.shutdown();
-    }
   }
 
 }

@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.services.actions;
 
+import org.pentaho.platform.api.action.IStreamingAction;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-
-import org.pentaho.platform.api.action.IStreamingAction;
 
 @SuppressWarnings( "nls" )
 public class TestAllIOAction implements IStreamingAction {

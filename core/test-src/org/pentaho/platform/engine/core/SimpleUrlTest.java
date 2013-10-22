@@ -20,7 +20,6 @@ package org.pentaho.platform.engine.core;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.util.web.SimpleUrl;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 
@@ -36,14 +35,6 @@ public class SimpleUrlTest extends TestCase {
     url.setParameter( "action", "doSomething" ); //$NON-NLS-1$  //$NON-NLS-2$
     Assert.assertEquals( url.getUrl(), baseUrl + "&action=doSomething" ); //$NON-NLS-1$
 
-  }
-
-  public static void main( final String[] args ) {
-    SimpleUrlTest test = new SimpleUrlTest();
-    try {
-      test.testSimpleUrl();
-    } finally {
-    }
   }
 
 }
