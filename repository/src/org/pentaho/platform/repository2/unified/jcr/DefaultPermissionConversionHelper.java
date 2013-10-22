@@ -18,15 +18,8 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.security.Privilege;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IPentahoJCRPrivilege;
@@ -34,8 +27,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao.IPermissionConversionHelper;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.security.Privilege;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Default {@link IPermissionConversionHelper} implementation.
@@ -44,17 +42,20 @@ import com.google.common.collect.Multimap;
  */
 public class DefaultPermissionConversionHelper implements IPermissionConversionHelper {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( DefaultPermissionConversionHelper.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   protected Multimap<RepositoryFilePermission, String> permissionEnumToPrivilegeNamesMap;
 
   protected Multimap<String, RepositoryFilePermission> privilegeNameToPermissionEnumsMap;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultPermissionConversionHelper( final Session session ) {
     super();
@@ -62,7 +63,8 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
 
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public Privilege[] pentahoPermissionsToPrivileges( final Session session,
       final EnumSet<RepositoryFilePermission> permissions ) throws RepositoryException {

@@ -17,23 +17,6 @@
 
 package org.pentaho.test.platform.repository2.mt;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
@@ -63,8 +46,8 @@ import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
@@ -87,13 +70,25 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
 /**
  * 
  * @author mlowery
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class RepositoryTenantManagerTest implements ApplicationContextAware {
 
@@ -348,31 +343,31 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
 
     // Start the micro-platform
     mp.start();
-    
+
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
-    
+
     startupCalled = true;
   }
-  
+
   private void setAclManagement() {
-    testJcrTemplate.execute(new JcrCallback() {
+    testJcrTemplate.execute( new JcrCallback() {
       @Override
-      public Object doInJcr(Session session) throws IOException, RepositoryException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+      public Object doInJcr( Session session ) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         Workspace workspace = session.getWorkspace();
-        PrivilegeManager privilegeManager =((JackrabbitWorkspace) workspace).getPrivilegeManager();
+        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
         try {
-          privilegeManager.getPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE());
-        } catch(AccessControlException ace) {
-          privilegeManager.registerPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(),
-              false, new String[0]);
+          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
+        } catch ( AccessControlException ace ) {
+          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
+              new String[0] );
         }
         session.save();
         return null;
       }
-    });
+    } );
   }
 
   @After
@@ -511,7 +506,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     assertNotNull( systemTenant );
     assertTrue( systemTenant.isEnabled() );
 
@@ -544,7 +540,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     assertTenantNotNull( systemTenant );
     ITenant tenantRoot =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName,
@@ -569,7 +566,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     assertTenantNotNull( systemTenant );
     assertTrue( systemTenant.isEnabled() );
     ITenant tenantRoot =
@@ -589,7 +587,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
@@ -647,7 +646,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant tenantRoot =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
@@ -684,7 +684,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
@@ -840,7 +841,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     tenantManager.deleteTenant( subTenant1_2 );
     logout();
 
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     tenantManager.deleteTenant( mainTenant_1 );
     tenantManager.deleteTenant( mainTenant_2 );
     logout();

@@ -18,15 +18,15 @@
 
 package org.pentaho.platform.repository2.unified.fileio;
 
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 
 public class RepositoryFileReader extends InputStreamReader {
 

@@ -18,13 +18,12 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import java.util.List;
-
-import javax.jws.WebService;
-
 import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+
+import javax.jws.WebService;
+import java.util.List;
 
 @WebService
 public interface IUnifiedRepositoryJaxwsWebService extends IUnifiedRepositoryWebService {

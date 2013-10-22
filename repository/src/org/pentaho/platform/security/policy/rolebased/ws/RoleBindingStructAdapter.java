@@ -18,17 +18,16 @@
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.util.messages.Messages;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Converts {@code RoleBindingStruct} into JAXB-safe object and vice-versa.
@@ -37,19 +36,23 @@ import org.pentaho.platform.util.messages.Messages;
  */
 public class RoleBindingStructAdapter extends XmlAdapter<JaxbSafeRoleBindingStruct, RoleBindingStruct> {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( RoleBindingStructAdapter.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public RoleBindingStructAdapter() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   @Override
   public JaxbSafeRoleBindingStruct marshal( final RoleBindingStruct v ) throws Exception {

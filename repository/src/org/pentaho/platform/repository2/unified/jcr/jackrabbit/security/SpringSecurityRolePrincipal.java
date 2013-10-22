@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
+import org.springframework.security.GrantedAuthority;
+
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Enumeration;
-
-import org.springframework.security.GrantedAuthority;
 
 /**
  * In Spring Security, there are users and roles. This class represents a Spring Security role. This class is the
@@ -30,22 +30,25 @@ import org.springframework.security.GrantedAuthority;
  * required as no {@link Group} implementations were found that could re-used.
  * 
  * <p>
- * Why Group and not Principal? Group is more like a Spring Security role in that there can be "members" that have that
- * role assigned. On the client side, there is code that tests to see if the principal is a group and if so creates a
- * Spring Security role.
+ * Why Group and not Principal? Group is more like a Spring Security role in that there can be "members" that have
+ * that role assigned. On the client side, there is code that tests to see if the principal is a group and if so
+ * creates a Spring Security role.
  * </p>
  * 
  * @author mlowery
  */
 public class SpringSecurityRolePrincipal implements Group {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String name;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SpringSecurityRolePrincipal( final String name ) {
     super();
@@ -56,7 +59,8 @@ public class SpringSecurityRolePrincipal implements Group {
     this( authority.getAuthority() );
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getName() {
     return name;

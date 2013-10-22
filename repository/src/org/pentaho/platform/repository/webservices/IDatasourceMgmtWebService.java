@@ -18,9 +18,8 @@
 
 package org.pentaho.platform.repository.webservices;
 
-import java.util.List;
-
 import javax.jws.WebService;
+import java.util.List;
 
 @WebService
 public interface IDatasourceMgmtWebService {

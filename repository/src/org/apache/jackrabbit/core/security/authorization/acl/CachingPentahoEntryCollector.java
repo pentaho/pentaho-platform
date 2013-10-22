@@ -17,13 +17,6 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.jcr.RepositoryException;
-
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.cache.GrowingLRUMap;
@@ -35,9 +28,15 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.RepositoryException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
- * <code>CachingEntryCollector</code> extends <code>PentahoEntryCollector</code> by keeping a cache of ACEs per access
- * controlled nodeId.
+ * <code>CachingEntryCollector</code> extends <code>PentahoEntryCollector</code> by keeping a cache of ACEs per
+ * access controlled nodeId.
  * 
  * This class is a copy of the one in trunk of Jackrabbit. Backported here for performance reasons.
  * 
@@ -50,8 +49,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   private static final Logger log = LoggerFactory.getLogger( CachingEntryCollector.class );
 
   /**
-   * Cache to look up the list of access control entries defined at a given nodeID (key). The map only contains an entry
-   * if the corresponding Node is access controlled.
+   * Cache to look up the list of access control entries defined at a given nodeID (key). The map only contains an
+   * entry if the corresponding Node is access controlled.
    */
   private final Map<IPentahoSession, EntryCache> cacheBySession = Collections
       .synchronizedMap( new LRUMap<IPentahoSession, EntryCache>( 128, 512 ) );
@@ -170,8 +169,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant blocks the current thread if a concurrent
-   * update for the same node id takes place
+   * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant blocks the current thread if a
+   * concurrent update for the same node id takes place
    */
   private Entries throttledUpdateCache( NodeImpl node ) throws RepositoryException {
     NodeId id = node.getNodeId();
@@ -208,7 +207,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * Find the next access control ancestor in the hierarchy 'null' indicates that there is no ac-controlled ancestor.
+   * Find the next access control ancestor in the hierarchy 'null' indicates that there is no ac-controlled
+   * ancestor.
    * 
    * @param node
    *          The target node for which the cache needs to be updated.
@@ -358,9 +358,9 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * A cache to lookup the ACEs defined on a given (access controlled) node. The internal map uses the ID of the node as
-   * key while the value consists of {@Entries} objects that not only provide the ACEs defined for that node
-   * but also the ID of the next access controlled parent node.
+   * A cache to lookup the ACEs defined on a given (access controlled) node. The internal map uses the ID of the
+   * node as key while the value consists of {@Entries} objects that not only provide the ACEs defined
+   * for that node but also the ID of the next access controlled parent node.
    */
   private class EntryCache {
 

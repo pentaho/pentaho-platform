@@ -18,18 +18,19 @@
 
 package org.pentaho.platform.repository2.unified.jcr.transform;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepositoryFileData;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
 public class SampleRepositoryFileDataTransformer implements ITransformer<SampleRepositoryFileData> {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final String PROPERTY_NAME_SAMPLE_STRING = "sampleString"; //$NON-NLS-1$
 
@@ -37,15 +38,18 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
 
   private static final String PROPERTY_NAME_SAMPLE_INTEGER = "sampleInteger"; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SampleRepositoryFileDataTransformer() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}

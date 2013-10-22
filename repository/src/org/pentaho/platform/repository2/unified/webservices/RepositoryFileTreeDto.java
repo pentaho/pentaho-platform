@@ -18,12 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RepositoryFileTreeDto implements Serializable {

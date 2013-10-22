@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
 
 /**
  * @author Rowell Belen

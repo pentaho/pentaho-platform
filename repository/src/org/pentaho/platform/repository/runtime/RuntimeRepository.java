@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.repository.runtime;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -35,6 +32,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
+
+import java.util.Collection;
+import java.util.List;
 
 public class RuntimeRepository extends PentahoBase implements IRuntimeRepository, IPentahoInitializer {
 
@@ -127,8 +127,8 @@ public class RuntimeRepository extends PentahoBase implements IRuntimeRepository
         session.save( re );
       } catch ( HibernateException ex ) {
         error( Messages.getInstance().getErrorString( "RTREPO.ERROR_0002_SAVING_ELEMENT" ), ex ); //$NON-NLS-1$
-        throw new RepositoryException( Messages.getInstance()
-            .getErrorString( "RTREPO.ERROR_0002_SAVING_ELEMENT" ), ex );
+        throw new RepositoryException( Messages.getInstance().getErrorString( "RTREPO.ERROR_0002_SAVING_ELEMENT" ),
+          ex );
       }
     }
     return re;

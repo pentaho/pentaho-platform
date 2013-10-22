@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.repository.webservices;
 
+import org.pentaho.database.model.DatabaseAccessType;
+import org.pentaho.database.model.PartitionDatabaseMeta;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.pentaho.database.model.DatabaseAccessType;
-import org.pentaho.database.model.PartitionDatabaseMeta;
 
 public class DatabaseConnectionDto {
 

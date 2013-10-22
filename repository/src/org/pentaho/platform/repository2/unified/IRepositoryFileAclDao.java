@@ -18,19 +18,19 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+
 /**
- * A data access object for reading and writing {@code RepositoryFileAcl} instances. The methods in this interface might
- * closely resemble those in {@link IUnifiedRepository} but this interface is not part of the public Pentaho API and can
- * evolve independently.
+ * A data access object for reading and writing {@code RepositoryFileAcl} instances. The methods in this interface
+ * might closely resemble those in {@link IUnifiedRepository} but this interface is not part of the public Pentaho
+ * API and can evolve independently.
  * 
  * @author mlowery
  */
@@ -42,8 +42,8 @@ public interface IRepositoryFileAclDao {
    * @param fileId
    *          file id
    * @param forceEntriesInheriting
-   *          {@code true} to treat ACL as if {@code isEntriesInheriting} was true; this avoids having the caller fetch
-   *          the parent of ACL belonging to file with {@code fileId}; no change is persisted to the ACL
+   *          {@code true} to treat ACL as if {@code isEntriesInheriting} was true; this avoids having the caller
+   *          fetch the parent of ACL belonging to file with {@code fileId}; no change is persisted to the ACL
    * @return list of ACEs
    */
   List<RepositoryFileAce> getEffectiveAces( final Serializable fileId, final boolean forceEntriesInheriting );
@@ -90,8 +90,8 @@ public interface IRepositoryFileAclDao {
   RepositoryFileAcl createAcl( final Serializable fileId, final RepositoryFileAcl acl );
 
   /**
-   * Adds ACE to end of ACL. ACL should already have been created. {@link #updateAcl(RepositoryFileAcl)} should not need
-   * to be called after this method returns.
+   * Adds ACE to end of ACL. ACL should already have been created. {@link #updateAcl(RepositoryFileAcl)} should not
+   * need to be called after this method returns.
    * 
    * @param fileId
    *          file id

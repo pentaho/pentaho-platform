@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.text.MessageFormat;
-
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths.IServerRepositoryPathsStrategy;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+
+import java.text.MessageFormat;
 
 /**
  * Default {@link IServerRepositoryPathsStrategy} implementation. Uses MessageFormat patterns.
@@ -33,7 +33,8 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
  */
 public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPathsStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final String FOLDER_ROOT = "pentaho"; //$NON-NLS-1$
 
@@ -41,7 +42,8 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
 
   private static final String PATH_ROOT = RepositoryFile.SEPARATOR + FOLDER_ROOT;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private final String PATTERN_TENANT_HOME_PATH = "{0}" + ClientRepositoryPaths.getHomeFolderPath(); //$NON-NLS-1$
 
@@ -49,13 +51,15 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
 
   private final String PATTERN_TENANT_ETC_PATH = "{0}" + RepositoryFile.SEPARATOR + FOLDER_ETC; //$NON-NLS-1$
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultServerRepositoryPathsStrategy() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getPentahoRootFolderPath() {
     return PATH_ROOT;

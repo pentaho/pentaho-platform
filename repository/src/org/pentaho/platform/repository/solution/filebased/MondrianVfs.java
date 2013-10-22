@@ -13,8 +13,6 @@
 
 package org.pentaho.platform.repository.solution.filebased;
 
-import java.util.Collection;
-
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemConfigBuilder;
@@ -23,13 +21,15 @@ import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.provider.FileProvider;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
+import java.util.Collection;
+
 /**
  * @author Ezequiel Cuellar
  */
 public class MondrianVfs implements FileProvider {
 
-  public FileObject createFileSystem( String arg0,
-      FileObject arg1, FileSystemOptions arg2 ) throws FileSystemException {
+  public FileObject createFileSystem( String arg0, FileObject arg1,
+                                      FileSystemOptions arg2 ) throws FileSystemException {
     // TODO Auto-generated method stub
     return null;
   }

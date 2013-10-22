@@ -18,15 +18,15 @@
 
 package org.pentaho.platform.repository2.unified.exception;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryReferentialIntegrityException;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.ExceptionLoggingDecorator.ExceptionConverter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class ReferentialIntegrityExceptionConverter implements ExceptionConverter {
 

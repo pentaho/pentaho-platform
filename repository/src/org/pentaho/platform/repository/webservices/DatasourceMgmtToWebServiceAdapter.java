@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.repository.webservices;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatasourceMgmtToWebServiceAdapter implements IDatasourceMgmtService {
 

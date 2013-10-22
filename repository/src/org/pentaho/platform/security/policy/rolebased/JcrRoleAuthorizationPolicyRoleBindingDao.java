@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
@@ -36,6 +27,14 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link IRoleAuthorizationPolicyRoleBindingDao} implementation that uses JCR. Storage is done using nodes and
@@ -59,22 +58,25 @@ import org.springframework.util.Assert;
  * </p>
  * 
  * <p>
- * Note: This code runs as the repository superuser. Ideally this would run as the tenant admin but such a named user
- * doesn't exist for us to run as. Now that the repo uses IAuthorizationPolicy for access control, this code MUST
- * continue to run as the repository superuser. This is one reason not to implement this on top of PUR.
+ * Note: This code runs as the repository superuser. Ideally this would run as the tenant admin but such a named
+ * user doesn't exist for us to run as. Now that the repo uses IAuthorizationPolicy for access control, this code
+ * MUST continue to run as the repository superuser. This is one reason not to implement this on top of PUR.
  * </p>
  * 
  * @author mlowery
  */
 public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedRoleBindingDao {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private JcrTemplate jcrTemplate;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public JcrRoleAuthorizationPolicyRoleBindingDao( final JcrTemplate jcrTemplate, final List<String> logicalRoleNames,
       final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
@@ -86,7 +88,8 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
     this.jcrTemplate = jcrTemplate;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}
@@ -123,8 +126,8 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
   }
 
   @Override
-  public void setRoleBindings( final ITenant tenant,
-      final String runtimeRoleName, final List<String> logicalRoleNames ) {
+  public void setRoleBindings( final ITenant tenant, final String runtimeRoleName,
+                               final List<String> logicalRoleNames ) {
     ITenant tempTenant = tenant;
     if ( tenant == null ) {
       tempTenant = JcrTenantUtils.getTenant( runtimeRoleName, false );

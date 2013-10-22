@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import javax.jcr.Session;
-
 import org.springframework.extensions.jcr.JcrConstants;
+
+import javax.jcr.Session;
 
 /**
  * Pentaho JCR constants. The {@code get* } methods automatically prepend the appropriate namespace prefix.
@@ -29,7 +29,8 @@ import org.springframework.extensions.jcr.JcrConstants;
  */
 public class PentahoJcrConstants extends JcrConstants {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   /**
    * Pentaho item name namespace.
@@ -107,9 +108,11 @@ public class PentahoJcrConstants extends JcrConstants {
    */
   private static final String PHO_ROOTLOCALE = "rootLocale"; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoJcrConstants( final Session session ) {
     super( session );
@@ -119,7 +122,8 @@ public class PentahoJcrConstants extends JcrConstants {
     super( session, cache );
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getPHO_NT_PENTAHOFILE() {
     return resolveName( PHO_NT_NS, PHO_NT_PENTAHOFILE );

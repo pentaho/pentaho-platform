@@ -18,14 +18,12 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.util.List;
-import java.util.Properties;
-
-import javax.jws.WebService;
-
+import com.google.gwt.user.client.rpc.RemoteService;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 
-import com.google.gwt.user.client.rpc.RemoteService;
+import javax.jws.WebService;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * JAX-WS-safe version of {@code IUnifiedRepositoryService}.
@@ -55,8 +53,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   RepositoryFileDto createFileWithAcl( final String parentFolderId, final RepositoryFileDto file,
       final NodeRepositoryFileDataDto data, final RepositoryFileAclDto acl, final String versionMessage );
 
-  RepositoryFileDto createFolder( final String parentFolderId,
-      final RepositoryFileDto file, final String versionMessage );
+  RepositoryFileDto
+  createFolder( final String parentFolderId, final RepositoryFileDto file, final String versionMessage );
 
   RepositoryFileDto updateFolder( final RepositoryFileDto file, final String versionMessage );
 
@@ -102,8 +100,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   List<RepositoryFileAclAceDto> getEffectiveAces( final String fileId );
 
-  List<RepositoryFileAclAceDto> getEffectiveAcesWithForceFlag( final String fileId,
-      final boolean forceEntriesInheriting );
+  List<RepositoryFileAclAceDto>
+  getEffectiveAcesWithForceFlag( final String fileId, final boolean forceEntriesInheriting );
 
   NodeRepositoryFileDataDto getDataAsNodeForReadAtVersion( final String fileId, final String versionId );
 

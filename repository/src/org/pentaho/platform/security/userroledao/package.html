@@ -5,13 +5,13 @@
 <body>
 
 Defines a data access object (DAO) for create, retrieve, update, and delete (CRUD) operations on users and roles. This
-DAO is needed in two places: (1) the Pentaho Administration Console for changing users and roles and (2) the Pentaho BI Platform 
-for authentication. 
+DAO is needed in two places: (1) the Pentaho Administration Console for changing users and roles and (2) the Pentaho BI Platform
+for authentication.
 
 One implementation of IUserRoleDao is based on Hibernate. It uses Spring's HibernateDaoSupport.
 
-This package should not be confused with org.pentaho.platform.plugin.services.security.userrole which contains 
-implementations of IUserRoleListService. IUserRoleListService is primarily used for UIs that need to present 
+This package should not be confused with org.pentaho.platform.plugin.services.security.userrole which contains
+implementations of IUserRoleListService. IUserRoleListService is primarily used for UIs that need to present
 security-related information for reading only. Such a UI is the Permission interface in the legacy Pentaho BI Platform.
 
 <h2>Related Documentation</h2>

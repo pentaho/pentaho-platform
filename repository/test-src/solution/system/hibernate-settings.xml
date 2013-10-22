@@ -12,7 +12,7 @@
   * system/hibernate/oracle10g.hibernate.cfg.xml
   *
   -->
-    <config-file>system/hibernate/hsql.hibernate.cfg.xml</config-file>
+  <config-file>system/hibernate/hsql.hibernate.cfg.xml</config-file>
 
   <!--
   *
@@ -27,5 +27,5 @@
     <managed>false</managed>
   -->
 
-    <managed>false</managed>
+  <managed>false</managed>
 </settings>

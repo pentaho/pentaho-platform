@@ -18,9 +18,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders;
 
-import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.MIX;
-import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.PHO;
-import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.PHO_MIX;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProvider;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -31,7 +29,7 @@ import javax.jcr.nodetype.NodeTypeTemplate;
 import javax.jcr.nodetype.PropertyDefinitionTemplate;
 import javax.jcr.version.OnParentVersionAction;
 
-import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProvider;
+import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.*;
 // Equivalent CND:
 // [pho_mix:pentahoVersionable] > mix:simpleVersionable
 //     mixin

@@ -18,9 +18,8 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @XmlRootElement
 public class StringKeyStringValueDto implements Serializable {

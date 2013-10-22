@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.exception;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 /**
  * An exception that occurs when a file is attempted to be deleted and another file is referring to it.

@@ -48,8 +48,8 @@ public class ProxyPentahoUserRoleHelper {
   }
 
   /**
-   * Synchronizes <code>user</code> with fields from <code>proxyUser</code>. The roles set of given <code>user</code> is
-   * unmodified.
+   * Synchronizes <code>user</code> with fields from <code>proxyUser</code>. The roles set of given
+   * <code>user</code> is unmodified.
    */
   public static IPentahoUser syncUsers( IPentahoUser user, ProxyPentahoUser proxyUser ) {
     IPentahoUser syncedUser = user;
@@ -70,8 +70,8 @@ public class ProxyPentahoUserRoleHelper {
   }
 
   /**
-   * Synchronizes <code>role</code> with fields from <code>proxyRole</code>. The users set of given <code>role</code> is
-   * unmodified.
+   * Synchronizes <code>role</code> with fields from <code>proxyRole</code>. The users set of given
+   * <code>role</code> is unmodified.
    */
   public static IPentahoRole syncRoles( IPentahoRole role, ProxyPentahoRole proxyRole ) {
     IPentahoRole syncedRole = role;

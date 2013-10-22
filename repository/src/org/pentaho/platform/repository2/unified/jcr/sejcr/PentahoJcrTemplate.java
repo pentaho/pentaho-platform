@@ -18,18 +18,17 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import java.io.IOException;
-import java.security.AccessControlException;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactoryUtils;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.security.AccessControlException;
 
 /**
  * Copy of superclass' execute with better exception conversions.
@@ -38,15 +37,18 @@ import org.springframework.extensions.jcr.SessionFactoryUtils;
  */
 public class PentahoJcrTemplate extends JcrTemplate {
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoJcrTemplate() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Copy of superclass' execute with pentahoConvertJcrAccessException substitutions.

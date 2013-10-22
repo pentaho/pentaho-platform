@@ -18,21 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.jackrabbit.api.security.principal.PrincipalIterator;
 import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
@@ -50,9 +35,23 @@ import org.pentaho.platform.repository2.unified.jcr.sejcr.ConstantCredentialsStr
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 /**
- * PrincipalProvider for unit test purposes. Has admin and the other Pentaho users. In addition, it has the Jackrabbit
- * principals "everyone", "admin", and "anonymous".
+ * PrincipalProvider for unit test purposes. Has admin and the other Pentaho users. In addition, it has the
+ * Jackrabbit principals "everyone", "admin", and "anonymous".
  * 
  * <p>
  * Some parts copied from SimplePrincipalProvider.
@@ -63,7 +62,8 @@ import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameRes
 @SuppressWarnings( "nls" )
 public class TestPrincipalProvider implements PrincipalProvider {
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private Map<String, Principal> principals = new HashMap<String, Principal>();
 
@@ -100,7 +100,8 @@ public class TestPrincipalProvider implements PrincipalProvider {
   public static Repository repository;
   Session session;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public TestPrincipalProvider() {
     this( true );
@@ -111,7 +112,8 @@ public class TestPrincipalProvider implements PrincipalProvider {
     this.primeWithSampleUsers = primeWithSampleUsers;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}
@@ -267,8 +269,8 @@ public class TestPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never
-   * called.
+   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
+   * never called.
    * </p>
    */
   @Override
@@ -280,8 +282,8 @@ public class TestPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never
-   * called.
+   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
+   * never called.
    * </p>
    */
   @Override
@@ -293,8 +295,8 @@ public class TestPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never
-   * called.
+   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
+   * never called.
    * </p>
    */
   @Override

@@ -18,10 +18,9 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Rowell Belen

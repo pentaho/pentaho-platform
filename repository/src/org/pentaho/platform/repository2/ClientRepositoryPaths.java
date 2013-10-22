@@ -18,15 +18,16 @@
 
 package org.pentaho.platform.repository2;
 
-import java.lang.reflect.Constructor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository.IClientRepositoryPathsStrategy;
 
+import java.lang.reflect.Constructor;
+
 public class ClientRepositoryPaths {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( ClientRepositoryPaths.class );
 
@@ -42,15 +43,18 @@ public class ClientRepositoryPaths {
     initialize();
   }
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   private ClientRepositoryPaths() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public static String getPublicFolderName() {
     return strategy.getPublicFolderName();

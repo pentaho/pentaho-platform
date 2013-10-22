@@ -18,12 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Converts {@code RepositoryFileTree} into JAXB-safe object and vice-versa.

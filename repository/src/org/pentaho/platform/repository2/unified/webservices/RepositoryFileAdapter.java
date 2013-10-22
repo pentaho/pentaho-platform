@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 
 /**
  * Converts {@code RepositoryFile} into JAXB-safe object and vice-versa.

@@ -18,19 +18,18 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.xml.bind.annotation.XmlMimeType;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.xml.bind.annotation.XmlMimeType;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 
 /**
  * This class exists for one purpose: to be able to apply the XmlMimeType annotation.

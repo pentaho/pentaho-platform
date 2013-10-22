@@ -18,13 +18,12 @@
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
-import java.util.List;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
 import javax.jws.WebService;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import java.util.List;
 
 /**
  * JAX-WS-safe version of {@link IRoleAuthorizationPolicyRoleBindingDao}. In this case, nothing is different but it
@@ -39,7 +38,8 @@ public interface IRoleAuthorizationPolicyRoleBindingDaoWebService {
   RoleBindingStruct getRoleBindingStruct( final String locale );
 
   /**
-   * Gets a struct-like object that contains everything known by this DAO. This is a batch operation provided for UIs.
+   * Gets a struct-like object that contains everything known by this DAO. This is a batch operation provided for
+   * UIs.
    * 
    * @param locale
    *          locale, possibly {@code null}
@@ -59,12 +59,12 @@ public interface IRoleAuthorizationPolicyRoleBindingDaoWebService {
    */
   void setRoleBindings( final String runtimeRoleName, final List<String> logicalRolesNames );
 
-  void setRoleBindingsForTenant( final Tenant tenant,
-      final String runtimeRoleName, final List<String> logicalRolesNames );
+  void
+  setRoleBindingsForTenant( final Tenant tenant, final String runtimeRoleName, final List<String> logicalRolesNames );
 
   /**
-   * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not match
-   * the size of the returned list. This is a convenience method. The same result could be obtained from
+   * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not
+   * match the size of the returned list. This is a convenience method. The same result could be obtained from
    * {@link #getRoleBindingStruct()}.
    * 
    * @param runtimeRoleNames

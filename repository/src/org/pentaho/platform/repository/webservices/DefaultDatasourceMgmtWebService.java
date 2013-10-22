@@ -18,17 +18,16 @@
 
 package org.pentaho.platform.repository.webservices;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jws.WebService;
-
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository.datasource.NonExistingDatasourceException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import javax.jws.WebService;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebService( endpointInterface = "org.pentaho.platform.repository.webservices.IDatasourceMgmtWebService",
     serviceName = "datasourceMgmtService", portName = "datasourceMgmtServicePort",
@@ -77,8 +76,8 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
   @Override
   public DatabaseConnectionDto getDatasourceByName( String name ) {
     try {
-      return databaseConnectionAdapter
-          .marshal( (DatabaseConnection) datasourceMgmtService.getDatasourceByName( name ) );
+      return databaseConnectionAdapter.marshal( (DatabaseConnection) datasourceMgmtService
+        .getDatasourceByName( name ) );
     } catch ( Exception e ) {
       return null;
     }
@@ -141,8 +140,8 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
   @Override
   public String updateDatasourceById( String id, DatabaseConnectionDto databaseConnection ) {
     try {
-      return datasourceMgmtService
-          .updateDatasourceById( id, databaseConnectionAdapter.unmarshal( databaseConnection ) );
+      return datasourceMgmtService.updateDatasourceById( id,
+        databaseConnectionAdapter.unmarshal( databaseConnection ) );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
     }

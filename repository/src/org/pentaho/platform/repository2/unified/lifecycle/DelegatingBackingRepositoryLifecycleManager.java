@@ -18,27 +18,30 @@
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.List;
-
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 /**
- * An {@link IBackingRepositoryLifecycleManager} that does nothing itself but instead delegates to an ordered collection
- * of other {@link IBackingRepositoryLifecycleManager} instances.
+ * An {@link IBackingRepositoryLifecycleManager} that does nothing itself but instead delegates to an ordered
+ * collection of other {@link IBackingRepositoryLifecycleManager} instances.
  * 
  * @author mlowery
  */
 public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private List<IBackingRepositoryLifecycleManager> managers;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DelegatingBackingRepositoryLifecycleManager( final List<IBackingRepositoryLifecycleManager> managers ) {
     super();
@@ -46,7 +49,8 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
     this.managers = managers;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public void newTenant() {
     for ( IBackingRepositoryLifecycleManager manager : managers ) {

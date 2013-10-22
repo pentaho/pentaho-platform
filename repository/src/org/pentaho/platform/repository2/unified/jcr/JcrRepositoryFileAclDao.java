@@ -18,26 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.AccessControlList;
-import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
-import javax.jcr.security.Privilege;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.mt.ITenant;
@@ -56,14 +36,33 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+
 /**
  * Jackrabbit-based implementation of {@link IRepositoryFileAclDao}.
  * <p/>
  * <p>
  * All mutating public methods require checkout and checkin calls since the act of simply calling
  * {@code AccessControlManager.getApplicablePolicies()} (as is done in
- * {@link #toAcl(Session, PentahoJcrConstants, Serializable)}) will query that the node is allowed to have the "access
- * controlled" mixin type added. If the node is checked in, this query will return false. See Jackrabbit's
+ * {@link #toAcl(Session, PentahoJcrConstants, Serializable)}) will query that the node is allowed to have the
+ * "access controlled" mixin type added. If the node is checked in, this query will return false. See Jackrabbit's
  * {@code ItemValidator.hasCondition()}.
  * </p>
  * 
@@ -71,11 +70,13 @@ import org.springframework.util.Assert;
  */
 public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileAclDao.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private JcrTemplate jcrTemplate;
 
@@ -83,7 +84,8 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   private String tenantAdminAuthorityName;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public JcrRepositoryFileAclDao( final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,
       String tenantAdminAuthorityName ) {
@@ -93,7 +95,8 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     this.tenantAdminAuthorityName = tenantAdminAuthorityName;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}
@@ -249,7 +252,8 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     }
     logger.debug( String.format( "principal class [%s]", principal.getClass().getName() ) ); //$NON-NLS-1$
     Privilege[] privileges = acEntry.getPrivileges();
-    return new RepositoryFileAce( sid, permissionConversionHelper.privilegesToPentahoPermissions( session, privileges ) );
+    return new RepositoryFileAce( sid, permissionConversionHelper
+      .privilegesToPentahoPermissions( session, privileges ) );
   }
 
   /**

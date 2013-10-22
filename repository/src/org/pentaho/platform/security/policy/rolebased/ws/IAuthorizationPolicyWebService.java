@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+
+import javax.jws.WebService;
 
 /**
  * JAX-WS-safe version of {@link IAuthorizationPolicy}. In this case, nothing is different but it keeps JAX-WS

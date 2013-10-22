@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jcr.Session;
-
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,32 +44,41 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
+import javax.jcr.Session;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * A Jackrabbit {@code PrincipalProvider} that delegates to a Pentaho {@link UserDetailsService}.
  * 
  * <p>
- * A {@code java.security.Principal} represents a user. A {@code java.security.acl.Group} represents a group. In Spring
- * Security, a group is called a role or authority or granted authority. Arguments to the method
+ * A {@code java.security.Principal} represents a user. A {@code java.security.acl.Group} represents a group. In
+ * Spring Security, a group is called a role or authority or granted authority. Arguments to the method
  * {@link #providePrincipal(String)} can either be a Principal or Group. In other words,
  * {@link #providePrincipal(String)} might be called with an argument of a Spring Security granted authority. This
- * happens when access control entries (ACEs) grant access to roles and the system needs to verify the role is known.
+ * happens when access control entries (ACEs) grant access to roles and the system needs to verify the role is
+ * known.
  * </p>
  * 
  * <p>
- * Jackrabbit assumes a unified space of all user and role names. The PrincipalProvider is responsible for determining
- * the type of a principal/group from its name.
+ * Jackrabbit assumes a unified space of all user and role names. The PrincipalProvider is responsible for
+ * determining the type of a principal/group from its name.
  * </p>
  * 
  * <p>
- * This implementation caches users and roles, but not passwords. Optionally, this implementation can take advantage of
- * a Spring Security UserCache. If available, it will use said cache for role membership lookups. Also note that the
- * removal of a role or user from the system will not be noticed by this implementation. (A restart of Jackrabbit is
- * required.)
+ * This implementation caches users and roles, but not passwords. Optionally, this implementation can take
+ * advantage of a Spring Security UserCache. If available, it will use said cache for role membership lookups. Also
+ * note that the removal of a role or user from the system will not be noticed by this implementation. (A restart
+ * of Jackrabbit is required.)
  * </p>
  * 
  * <p>
- * There are users and roles that are never expected to be in any backing store. By default, these are "everyone" (a
- * role), "anonymous" (a user), "administrators" (a role), and "admin" (a user).
+ * There are users and roles that are never expected to be in any backing store. By default, these are "everyone"
+ * (a role), "anonymous" (a user), "administrators" (a role), and "admin" (a user).
  * </p>
  * 
  * <p>
@@ -185,8 +185,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Attempts to load user using given {@code principalName} using a Pentaho {@code UserDetailsService}. If it fails to
-   * find user, it returns a {@link Group} which will be caught by {@code SpringSecurityLoginModule}.
+   * Attempts to load user using given {@code principalName} using a Pentaho {@code UserDetailsService}. If it
+   * fails to find user, it returns a {@link Group} which will be caught by {@code SpringSecurityLoginModule}.
    * </p>
    */
   public synchronized Principal getPrincipal( final String principalName ) {
@@ -398,8 +398,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never
-   * called.
+   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
+   * never called.
    * </p>
    */
   public PrincipalIterator findPrincipals( final String simpleFilter ) {
@@ -410,8 +410,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never
-   * called.
+   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
+   * never called.
    * </p>
    */
   public PrincipalIterator findPrincipals( final String simpleFilter, final int searchType ) {
@@ -422,8 +422,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never
-   * called.
+   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
+   * never called.
    * </p>
    */
   public PrincipalIterator getPrincipals( final int searchType ) {

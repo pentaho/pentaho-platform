@@ -17,12 +17,6 @@
 
 package org.pentaho.test.platform.security.acls;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPermissionMask;
@@ -33,6 +27,12 @@ import org.pentaho.platform.engine.security.SpringSecurityPermissionMgr;
 import org.pentaho.platform.engine.security.acls.AclPublisher;
 import org.pentaho.platform.repository.solution.dbbased.RepositoryFile;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.File;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings( "nls" )
 public class TestAclPublisher extends BaseTest {
@@ -78,20 +78,17 @@ public class TestAclPublisher extends BaseTest {
   }
 
   public static RepositoryFile getPopulatedSolution() {
-    RepositoryFile root = new RepositoryFile( "root", null, null );//$NON-NLS-1$
+    RepositoryFile root = new RepositoryFile( "root", null, null ); //$NON-NLS-1$
     final int topFolderCount = 3;
     final int subFolderCount = 3;
     final int filesPerFolder = 4;
-    final byte[] fileData = "This is file data".getBytes();//$NON-NLS-1$
+    final byte[] fileData = "This is file data".getBytes(); //$NON-NLS-1$
     for ( int i = 0; i < topFolderCount; i++ ) {
       RepositoryFile topFolder = new RepositoryFile( "topFolder" + i, root, null ); //$NON-NLS-1$
       for ( int j = 0; j < subFolderCount; j++ ) {
         RepositoryFile subFolder = new RepositoryFile( "subFolder" + j, topFolder, null ); //$NON-NLS-1$
         for ( int k = 0; k < filesPerFolder; k++ ) {
           RepositoryFile aFile = new RepositoryFile( "aFile" + k, subFolder, fileData ); //$NON-NLS-1$
-          if ( aFile == null ) {
-            // Ignored - it won't be.
-          }
         }
       }
     }

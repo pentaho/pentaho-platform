@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.repository.legacy.acl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -33,6 +30,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccessVoterToLegacyAcl implements IRepositoryAccessVoter {
 

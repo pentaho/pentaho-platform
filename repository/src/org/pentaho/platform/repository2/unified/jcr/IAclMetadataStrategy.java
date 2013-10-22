@@ -18,12 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.List;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlList;
+import java.util.List;
 
 public interface IAclMetadataStrategy {
 

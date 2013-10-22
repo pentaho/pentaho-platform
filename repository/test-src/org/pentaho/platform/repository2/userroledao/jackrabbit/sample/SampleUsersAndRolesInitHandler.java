@@ -25,19 +25,23 @@ import org.pentaho.platform.core.mt.Tenant;
 
 public class SampleUsersAndRolesInitHandler {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IUserRoleDao userRoleDao;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SampleUsersAndRolesInitHandler() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public void handleInit() {
 
@@ -56,6 +60,7 @@ public class SampleUsersAndRolesInitHandler {
         userRoleDao.createUser( getSampleTenant(), "tiffany", "password", null, new String[] { "Report Author" } );
       }
     } catch ( UncategorizedUserRoleDaoException e ) {
+      //ignored
     }
   }
 

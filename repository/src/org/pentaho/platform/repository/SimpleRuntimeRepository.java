@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.repository;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -32,6 +29,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.runtime.SimpleRuntimeElement;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 

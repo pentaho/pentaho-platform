@@ -18,19 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jcr.Credentials;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.LoginException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.security.authentication.AbstractLoginModule;
@@ -41,40 +28,56 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
+import javax.jcr.Credentials;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
- * A Jackrabbit {@code LoginModule} that delegates to a Spring Security {@link AuthenticationManager}. Also, adds more
- * checks to the pre-authentication scenario.
+ * A Jackrabbit {@code LoginModule} that delegates to a Spring Security {@link AuthenticationManager}. Also, adds
+ * more checks to the pre-authentication scenario.
  * 
  * @author mlowery
  */
 public class SpringSecurityLoginModule extends AbstractLoginModule {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( SpringSecurityLoginModule.class );
 
   /**
-   * Comma separated list of known tokens. If a Credentials instance has a preauthentication token, it must match one of
-   * the values in this list. Ideally, there is a token per application. In this way, other applications are unaffected
-   * should a token have to be blacklisted.
+   * Comma separated list of known tokens. If a Credentials instance has a preauthentication token, it must match
+   * one of the values in this list. Ideally, there is a token per application. In this way, other applications are
+   * unaffected should a token have to be blacklisted.
    */
   private static final String KEY_PRE_AUTHENTICATION_TOKENS = "preAuthenticationTokens"; //$NON-NLS-1$
 
   private static final String PRE_AUTHENTICATION_TOKEN_SEPARATOR = ","; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private AuthenticationManager authenticationManager;
 
   private static Set<String> preAuthenticationTokens = new HashSet<String>();
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SpringSecurityLoginModule() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}
@@ -117,8 +120,8 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
   /**
    * {@inheritDoc}
    * 
-   * Creates a {@code UsernamePasswordAuthenticationToken} from the given {@code principal} and {@code credentials} and
-   * passes to Spring Security {@code AuthenticationManager}.
+   * Creates a {@code UsernamePasswordAuthenticationToken} from the given {@code principal} and {@code credentials}
+   * and passes to Spring Security {@code AuthenticationManager}.
    */
   @Override
   protected Authentication getAuthentication( final Principal principal, final Credentials credentials )
@@ -165,8 +168,8 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
    * {@inheritDoc}
    * 
    * <p>
-   * Implementation copied from {@link org.apache.jackrabbit.core.security.simple.SimpleLoginModule}. Delegates to a
-   * {@code PrincipalProvider}.
+   * Implementation copied from {@link org.apache.jackrabbit.core.security.simple.SimpleLoginModule}. Delegates to
+   * a {@code PrincipalProvider}.
    * </p>
    */
   @Override

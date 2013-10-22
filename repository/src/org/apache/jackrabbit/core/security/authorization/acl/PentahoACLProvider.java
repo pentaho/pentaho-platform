@@ -17,19 +17,6 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.AccessControlList;
-import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.Privilege;
-
 import org.apache.jackrabbit.api.security.principal.PrincipalManager;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
@@ -39,6 +26,18 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.Privilege;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Customization of {@link ACLProvider}.
@@ -77,8 +76,8 @@ public class PentahoACLProvider extends ACLProvider {
   }
 
   /**
-   * Adds ACE so that everyone can read access control. This allows Jackrabbit's default collectAcls to work without
-   * change. Otherwise, you have to be an admin to call acMgr.getEffectivePolicies.
+   * Adds ACE so that everyone can read access control. This allows Jackrabbit's default collectAcls to work
+   * without change. Otherwise, you have to be an admin to call acMgr.getEffectivePolicies.
    */
   protected void updateRootAcl( SessionImpl systemSession, ACLEditor editor ) throws RepositoryException {
     String rootPath = session.getRootNode().getPath();

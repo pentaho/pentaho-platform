@@ -18,15 +18,7 @@
 
 package org.pentaho.platform.repository.webservices;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
-
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
@@ -42,6 +34,13 @@ import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+
+import java.util.List;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
 
 @SuppressWarnings( "nls" )
 public class DatasourceMgmtToWebServiceAdapterTest extends TestCase {
@@ -80,7 +79,7 @@ public class DatasourceMgmtToWebServiceAdapterTest extends TestCase {
                 new GrantedAuthority[0] ) );
     repository.createFolder( repository.getFile( "/etc" ).getId(), new RepositoryFile.Builder( FOLDER_PDI ).folder(
         true ).build(), new RepositoryFileAcl.Builder( MockUnifiedRepository.root() ).ace(
-        MockUnifiedRepository.everyone(), READ, WRITE ).build(), null );
+          MockUnifiedRepository.everyone(), READ, WRITE ).build(), null );
     repository.createFolder( repository.getFile( "/etc/pdi" ).getId(), new RepositoryFile.Builder( FOLDER_DATABASES )
         .folder( true ).build(), null );
     SecurityContextHolder.getContext().setAuthentication(

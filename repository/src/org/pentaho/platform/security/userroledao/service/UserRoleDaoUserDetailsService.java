@@ -17,10 +17,6 @@
 
 package org.pentaho.platform.security.userroledao.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -41,6 +37,10 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A <code>UserDetailsService</code> that delegates to an {@link IUserRoleDao} to load users by username.
  * 
@@ -48,9 +48,11 @@ import org.springframework.util.Assert;
  */
 public class UserRoleDaoUserDetailsService implements UserDetailsService {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String rolePrefix = "ROLE_"; //$NON-NLS-1$
 
@@ -63,9 +65,11 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
 
   private String defaultRoleString;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException, DataAccessException {
     final boolean ACCOUNT_NON_EXPIRED = true;
@@ -140,8 +144,8 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
   /**
    * Allows a default role prefix to be specified. If this is set to a non-empty value, then it is automatically
    * prepended to any roles read in from the db. This may for example be used to add the <code>ROLE_</code> prefix
-   * expected to exist in role names (by default) by some other Spring Security framework classes, in the case that the
-   * prefix is not already present in the db.
+   * expected to exist in role names (by default) by some other Spring Security framework classes, in the case that
+   * the prefix is not already present in the db.
    * 
    * @param rolePrefix
    *          the new prefix

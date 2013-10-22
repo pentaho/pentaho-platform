@@ -18,22 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
-import javax.jcr.util.TraversingItemVisitor;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -46,6 +30,21 @@ import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
+import javax.jcr.util.TraversingItemVisitor;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Creates an export of the JCR in various formats.
@@ -84,21 +83,22 @@ import org.springframework.transaction.support.TransactionTemplate;
  * </ol>
  * 
  * <p>
- * Uses PentahoSystem instead of Spring injection since its collaborators are not yet instantiated when this class is
- * instantiated.
+ * Uses PentahoSystem instead of Spring injection since its collaborators are not yet instantiated when this class
+ * is instantiated.
  * </p>
  * 
  * @author mlowery
  */
 public class JcrRepositoryDumpToFile {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( JcrRepositoryDumpToFile.class );
 
   /**
-   * Exports the repository using a custom TraversingItemVisitor. (It is human-readable output that is not meant to be
-   * parsed.)
+   * Exports the repository using a custom TraversingItemVisitor. (It is human-readable output that is not meant to
+   * be parsed.)
    */
   public static final String PROP_DUMP_TO_FILE = "pentaho.repository.dumpToFile"; //$NON-NLS-1$
 
@@ -122,11 +122,14 @@ public class JcrRepositoryDumpToFile {
   String filename;
   Mode mode;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public JcrRepositoryDumpToFile( final JcrTemplate jcrTemplate, TransactionTemplate txnTemplate,
       String repositoryAdminUsername, String filename, Mode mode ) {

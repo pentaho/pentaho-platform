@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository2.mt;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -51,6 +41,15 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.springframework.util.Assert;
+
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRepositoryTenantManager implements ITenantManager {
 
@@ -164,8 +163,8 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
     RepositoryFile rootFolder = repositoryFileDao.getFileByAbsolutePath( tenant.getRootFolderAbsolutePath() );
     if ( rootFolder != null ) {
       Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata( rootFolder.getId() );
-      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT )
-          || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT ) || !(Boolean)
+        metadata.get( ITenantManager.TENANT_ROOT ) ) {
         rootFolder = null;
       }
     }
@@ -179,7 +178,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
     if ( rootFolder != null ) {
       Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata( session, rootFolder.getId() );
       if ( !metadata.containsKey( ITenantManager.TENANT_ROOT )
-          || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+        || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         rootFolder = null;
       }
     }
@@ -203,7 +202,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
     for ( RepositoryFile repoFile : allChildren ) {
       Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata( session, repoFile.getId() );
       if ( metadata.containsKey( ITenantManager.TENANT_ROOT )
-          && (Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+        && (Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         Tenant tenant = new Tenant( repoFile.getPath(), isTenantEnabled( session, repoFile.getId() ) );
         if ( includeDisabledTenants || tenant.isEnabled() ) {
           children.add( new Tenant( repoFile.getPath(), isTenantEnabled( session, repoFile.getId() ) ) );
@@ -363,7 +362,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
   @Override
   public RepositoryFile getUserHomeFolder( ITenant theTenant, String username ) {
-    return repositoryFileDao
-        .getFileByAbsolutePath( ServerRepositoryPaths.getUserHomeFolderPath( theTenant, username ) );
+    return repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths
+      .getUserHomeFolderPath( theTenant, username ) );
   }
 }

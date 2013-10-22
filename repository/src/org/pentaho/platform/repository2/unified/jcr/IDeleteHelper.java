@@ -18,16 +18,16 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.Serializable;
-import java.util.List;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * Handles delete, undelete, and permanent delete. Handles listing deleted files and purging some or all deleted files.
+ * Handles delete, undelete, and permanent delete. Handles listing deleted files and purging some or all deleted
+ * files.
  * 
  * @author mlowery
  */
@@ -80,8 +80,8 @@ public interface IDeleteHelper {
     throws RepositoryException;
 
   /**
-   * Returns the absolute path of the original parent folder. Can be used by caller to checkout parent folder before
-   * calling {@link #undeleteFile(Session, PentahoJcrConstants, Serializable)}.
+   * Returns the absolute path of the original parent folder. Can be used by caller to checkout parent folder
+   * before calling {@link #undeleteFile(Session, PentahoJcrConstants, Serializable)}.
    * 
    * @param fileId
    *          file id of deleted file

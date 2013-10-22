@@ -18,15 +18,15 @@
 
 package org.pentaho.platform.repository2.unified.fs;
 
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
+
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
 
 public class FileSystemFileAclDao implements IRepositoryFileAclDao {
 

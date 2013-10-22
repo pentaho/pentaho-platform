@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.repository.webservices;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto, DatabaseConnection> {
 

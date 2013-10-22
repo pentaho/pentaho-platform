@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.repository;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -30,9 +26,14 @@ import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
+
 public class DatabaseHelper {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final String PROP_INDEX_TBS = "INDEX_TBS"; //$NON-NLS-1$
 
@@ -150,8 +151,8 @@ public class DatabaseHelper {
       databaseConnection.setId( id.toString() );
     }
     String accessType = getString( rootNode, PROP_CONTYPE );
-    databaseConnection
-      .setAccessType( accessType != null ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
+    databaseConnection.setAccessType( accessType != null
+      ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( getString( rootNode, PROP_HOST_NAME ) );
     databaseConnection.setDatabaseName( getString( rootNode, PROP_DATABASE_NAME ) );
     databaseConnection.setDatabasePort( getString( rootNode, PROP_PORT ) );

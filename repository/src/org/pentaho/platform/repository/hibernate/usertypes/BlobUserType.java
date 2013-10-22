@@ -24,13 +24,6 @@
 
 package org.pentaho.platform.repository.hibernate.usertypes;
 
-import java.io.InputStream;
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -40,6 +33,13 @@ import org.hibernate.util.EqualsHelper;
 import org.hibernate.util.SerializationHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
+
+import java.io.InputStream;
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
 public class BlobUserType implements UserType {
   private static final Log log = LogFactory.getLog( BlobUserType.class );

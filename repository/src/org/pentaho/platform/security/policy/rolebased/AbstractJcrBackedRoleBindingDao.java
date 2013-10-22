@@ -18,27 +18,7 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.jcr.NamespaceException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-
+import com.google.common.collect.HashMultimap;
 import org.apache.commons.collections.map.LRUMap;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
@@ -51,7 +31,25 @@ import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.HashMultimap;
+import javax.jcr.NamespaceException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
 
 public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizationPolicyRoleBindingDao {
 

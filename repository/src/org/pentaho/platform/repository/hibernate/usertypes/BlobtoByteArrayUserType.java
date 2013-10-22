@@ -24,19 +24,19 @@
 
 package org.pentaho.platform.repository.hibernate.usertypes;
 
-import java.io.Serializable;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.type.SerializationException;
 import org.hibernate.usertype.UserType;
 import org.pentaho.platform.repository.messages.Messages;
+
+import java.io.Serializable;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
 public class BlobtoByteArrayUserType implements UserType {
   private static final Log log = LogFactory.getLog( BlobtoByteArrayUserType.class );

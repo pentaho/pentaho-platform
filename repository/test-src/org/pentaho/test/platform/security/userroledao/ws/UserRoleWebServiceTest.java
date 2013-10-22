@@ -17,13 +17,6 @@
 
 package org.pentaho.test.platform.security.userroledao.ws;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +45,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.acl.AclEntry;
 import org.springframework.security.providers.encoding.PasswordEncoder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings( "nls" )
 public class UserRoleWebServiceTest {

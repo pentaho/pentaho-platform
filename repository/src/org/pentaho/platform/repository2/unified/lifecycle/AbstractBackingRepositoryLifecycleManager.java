@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
@@ -44,16 +35,26 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * Contains some common functionality.
  */
 public abstract class AbstractBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   protected static final Log logger = LogFactory.getLog( DefaultBackingRepositoryLifecycleManager.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   protected TransactionTemplate txnTemplate;
 
@@ -61,7 +62,8 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   protected IPathConversionHelper pathConversionHelper;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public AbstractBackingRepositoryLifecycleManager( final TransactionTemplate txnTemplate,
       final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper ) {

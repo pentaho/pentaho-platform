@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -38,6 +28,15 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+
+import javax.jws.WebService;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -63,7 +62,8 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   protected VersionSummaryAdapter versionSummaryAdapter = new VersionSummaryAdapter();
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   /**
    * No-arg constructor for when in Pentaho BI Server.

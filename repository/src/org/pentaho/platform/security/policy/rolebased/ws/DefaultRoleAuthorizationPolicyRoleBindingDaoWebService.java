@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
-import java.util.List;
-
-import javax.jws.WebService;
-
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
+
+import javax.jws.WebService;
+import java.util.List;
 
 /**
  * Implementation of {@link IRoleAuthorizationPolicyRoleBindingDaoWebService} that delegates to an
@@ -35,19 +34,22 @@ import org.pentaho.platform.security.policy.rolebased.messages.Messages;
  * @author mlowery
  */
 @WebService(
-    endpointInterface =
-      "org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService",
+    endpointInterface = "org.pentaho.platform.security.policy.rolebased.ws."
+      + "IRoleAuthorizationPolicyRoleBindingDaoWebService",
     serviceName = "roleBindingDao", portName = "roleBindingDaoPort", targetNamespace = "http://www.pentaho.org/ws/1.0" )
 public class DefaultRoleAuthorizationPolicyRoleBindingDaoWebService implements
     IRoleAuthorizationPolicyRoleBindingDaoWebService {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   /**
    * No-arg constructor for when in Pentaho BI Server.
@@ -67,7 +69,8 @@ public class DefaultRoleAuthorizationPolicyRoleBindingDaoWebService implements
     this.roleBindingDao = roleBindingDao;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   @Override
   public RoleBindingStruct getRoleBindingStruct( final String locale ) {

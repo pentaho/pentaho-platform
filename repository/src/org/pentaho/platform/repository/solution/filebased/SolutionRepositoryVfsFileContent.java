@@ -18,17 +18,17 @@
 
 package org.pentaho.platform.repository.solution.filebased;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.cert.Certificate;
-import java.util.Map;
-
 import org.apache.commons.vfs.FileContent;
 import org.apache.commons.vfs.FileContentInfo;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.RandomAccessContent;
 import org.apache.commons.vfs.util.RandomAccessMode;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.cert.Certificate;
+import java.util.Map;
 
 public class SolutionRepositoryVfsFileContent implements FileContent {
 

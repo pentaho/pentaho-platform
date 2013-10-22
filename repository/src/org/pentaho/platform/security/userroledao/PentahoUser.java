@@ -32,7 +32,8 @@ import org.pentaho.platform.api.mt.ITenant;
  */
 public class PentahoUser implements IPentahoUser {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = 3647003745944124252L;
 
@@ -48,7 +49,8 @@ public class PentahoUser implements IPentahoUser {
 
   private static final String FIELD_DESCRIPTION = "description"; //$NON-NLS-1$
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String username;
 
@@ -60,7 +62,8 @@ public class PentahoUser implements IPentahoUser {
 
   private boolean enabled = true;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   protected PentahoUser() {
     // constructor reserved for use by Hibernate
@@ -94,7 +97,8 @@ public class PentahoUser implements IPentahoUser {
     this.enabled = userToCopy.isEnabled();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getUsername() {
     return username;

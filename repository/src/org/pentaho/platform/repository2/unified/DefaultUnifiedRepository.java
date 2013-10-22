@@ -18,14 +18,6 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -39,6 +31,14 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * Default implementation of {@link IUnifiedRepository}. Delegates to {@link IRepositoryFileDao} and
  * {@link IRepositoryFileAclDao}.
@@ -47,15 +47,18 @@ import org.springframework.util.Assert;
  */
 public class DefaultUnifiedRepository implements IUnifiedRepository {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private IRepositoryFileDao repositoryFileDao;
 
   private IRepositoryFileAclDao repositoryFileAclDao;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public DefaultUnifiedRepository( final IRepositoryFileDao contentDao, final IRepositoryFileAclDao aclDao ) {
     super();
@@ -65,7 +68,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     this.repositoryFileAclDao = aclDao;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}
@@ -197,8 +201,9 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    * <p/>
    * <p>
-   * Delegates to {@link #getStreamForRead(RepositoryFile)} but assumes that some external system (e.g. Spring Security)
-   * is protecting this method with different authorization rules than {@link #getStreamForRead(RepositoryFile)}.
+   * Delegates to {@link #getStreamForRead(RepositoryFile)} but assumes that some external system (e.g. Spring
+   * Security) is protecting this method with different authorization rules than
+   * {@link #getStreamForRead(RepositoryFile)}.
    * </p>
    * <p/>
    * <p>
@@ -441,8 +446,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public void restoreFileAtVersion( final Serializable fileId,
-      final Serializable versionId, final String versionMessage ) {
+  public void
+  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     Assert.notNull( fileId );
     Assert.notNull( versionId );
     repositoryFileDao.restoreFileAtVersion( fileId, versionId, versionMessage );
@@ -459,8 +464,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public RepositoryFileTree getTree( final String path,
-      final int depth, final String filter, final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
+                                     final boolean showHidden ) {
     Assert.hasText( path );
     return repositoryFileDao.getTree( path, depth, filter, showHidden );
   }

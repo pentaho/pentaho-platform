@@ -18,8 +18,10 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.Calendar;
-import java.util.Date;
+import org.apache.jackrabbit.core.SessionImpl;
+import org.springframework.extensions.jcr.JcrCallback;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.util.Assert;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -32,11 +34,8 @@ import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
-
-import org.apache.jackrabbit.core.SessionImpl;
-import org.springframework.extensions.jcr.JcrCallback;
-import org.springframework.extensions.jcr.JcrTemplate;
-import org.springframework.util.Assert;
+import java.util.Calendar;
+import java.util.Date;
 
 public class SimpleJcrTestUtils {
 
@@ -135,7 +134,8 @@ public class SimpleJcrTestUtils {
     } );
   }
 
-  public static boolean hasPrivileges( final JcrTemplate jcrTemplate, final String absPath, final String... privNames ) {
+  public static boolean hasPrivileges( final JcrTemplate jcrTemplate, final String absPath,
+                                       final String... privNames ) {
     return (Boolean) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
         Assert.notEmpty( privNames );

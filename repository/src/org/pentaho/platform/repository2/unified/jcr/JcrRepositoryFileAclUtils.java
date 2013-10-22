@@ -18,26 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.AccessControlList;
-import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
-import javax.jcr.security.Privilege;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.security.user.Group;
@@ -52,6 +32,25 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao.IPer
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityRolePrincipal;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityUserPrincipal;
 
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * ACL utilities.
  * 
@@ -63,7 +62,8 @@ import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSe
  */
 public class JcrRepositoryFileAclUtils {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileAclUtils.class );
 
@@ -79,15 +79,18 @@ public class JcrRepositoryFileAclUtils {
     initialize();
   }
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   private JcrRepositoryFileAclUtils() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   private static void initialize() {
     if ( ( strategyName == null ) || "".equals( strategyName ) ) { //$NON-NLS-1$
@@ -169,9 +172,10 @@ public class JcrRepositoryFileAclUtils {
   }
 
   public static void
-    addPermission( final Session session, final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId,
-        final RepositoryFileSid recipient, final EnumSet<RepositoryFilePermission> permissions )
-      throws RepositoryException {
+  addPermission( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+                   final Serializable fileId,
+      final RepositoryFileSid recipient, final EnumSet<RepositoryFilePermission> permissions )
+    throws RepositoryException {
     addAce( session, pentahoJcrConstants, fileId, recipient, permissions );
   }
 
@@ -196,7 +200,8 @@ public class JcrRepositoryFileAclUtils {
     throws RepositoryException {
     RepositoryFileSid newRecipient = recipient;
     if ( JcrTenantUtils.getUserNameUtils().getTenant( recipient.getName() ) == null ) {
-      newRecipient = new RepositoryFileSid( JcrTenantUtils.getTenantedUser( recipient.getName() ), recipient.getType() );
+      newRecipient = new RepositoryFileSid( JcrTenantUtils.getTenantedUser( recipient.getName() ),
+        recipient.getType() );
     }
     RepositoryFileAcl acl = getAcl( session, pentahoJcrConstants, id );
     RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder( acl ).ace( newRecipient, permission ).build();
@@ -245,7 +250,7 @@ public class JcrRepositoryFileAclUtils {
   public static void updateAcl( final Session session, final RepositoryFileAcl acl ) throws RepositoryException {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants, acl.getId() );
-    internalUpdateAcl(session, pentahoJcrConstants, acl.getId(), acl);
+    internalUpdateAcl( session, pentahoJcrConstants, acl.getId(), acl );
     JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, acl.getId(), null,
         null, true );
   }
@@ -333,7 +338,8 @@ public class JcrRepositoryFileAclUtils {
     }
     Privilege[] privileges = acEntry.getPrivileges();
     IPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper( session );
-    return new RepositoryFileAce( sid, permissionConversionHelper.privilegesToPentahoPermissions( session, privileges ) );
+    return new RepositoryFileAce( sid, permissionConversionHelper.privilegesToPentahoPermissions( session,
+      privileges ) );
   }
 
 }

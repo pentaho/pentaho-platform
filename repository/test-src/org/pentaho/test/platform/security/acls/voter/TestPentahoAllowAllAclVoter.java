@@ -17,9 +17,6 @@
 
 package org.pentaho.test.platform.security.acls.voter;
 
-import java.io.File;
-import java.util.concurrent.Callable;
-
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -28,6 +25,9 @@ import org.pentaho.platform.engine.security.acls.voter.PentahoAllowAllAclVoter;
 import org.pentaho.platform.repository.solution.dbbased.RepositoryFile;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.springframework.security.GrantedAuthorityImpl;
+
+import java.io.File;
+import java.util.concurrent.Callable;
 
 @SuppressWarnings( "nls" )
 public class TestPentahoAllowAllAclVoter extends BaseTest {
@@ -57,7 +57,7 @@ public class TestPentahoAllowAllAclVoter extends BaseTest {
 
       @Override
       public Void call() throws Exception {
-        RepositoryFile testFile = new RepositoryFile( "Test Folder", null, null );//$NON-NLS-1$
+        RepositoryFile testFile = new RepositoryFile( "Test Folder", null, null ); //$NON-NLS-1$
         // RepositoryFile has no acls on it. Nobody should be able to access it.
         // But, we're using an allowAll voter.
         PentahoAllowAllAclVoter voter = new PentahoAllowAllAclVoter();
@@ -65,7 +65,7 @@ public class TestPentahoAllowAllAclVoter extends BaseTest {
         IPentahoAclEntry entry = voter.getEffectiveAcl( PentahoSessionHolder.getSession(), testFile );
         assertEquals( ( (PentahoAclEntry) entry ).getMask(), IPentahoAclEntry.PERM_FULL_CONTROL );
         assertTrue( voter.isPentahoAdministrator( PentahoSessionHolder.getSession() ) );
-        assertTrue( voter.isGranted( PentahoSessionHolder.getSession(), new GrantedAuthorityImpl( "ROLE_ANYTHING" ) ) );//$NON-NLS-1$
+        assertTrue( voter.isGranted( PentahoSessionHolder.getSession(), new GrantedAuthorityImpl( "ROLE_ANYTHING" ) ) ); //$NON-NLS-1$
 
         return null;
       }

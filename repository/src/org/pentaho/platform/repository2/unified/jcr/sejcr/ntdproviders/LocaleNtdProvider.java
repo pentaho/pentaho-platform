@@ -18,10 +18,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders;
 
-import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.NT;
-import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.PHO_NT;
-
-import java.util.Locale;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProvider;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
@@ -30,8 +27,10 @@ import javax.jcr.nodetype.NodeTypeDefinition;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.NodeTypeTemplate;
 import javax.jcr.version.OnParentVersionAction;
+import java.util.Locale;
 
-import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProvider;
+import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.NT;
+import static org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.NodeTypeDefinitionProviderUtils.PHO_NT;
 
 // Equivalent CND:
 // [pho_nt:locale]

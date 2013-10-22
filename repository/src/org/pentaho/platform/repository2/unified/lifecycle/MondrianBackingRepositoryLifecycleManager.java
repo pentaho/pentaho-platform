@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.io.Serializable;
-
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -37,6 +35,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+
 /**
  * Initializes folders used by Pentaho Mondrian.
  * 
@@ -44,9 +44,11 @@ import org.springframework.util.Assert;
  */
 public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
   protected String repositoryAdminUsername;
 
   protected String tenantAuthenticatedAuthorityNamePattern;
@@ -56,7 +58,8 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
   protected IRepositoryFileDao repositoryFileDao;
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   private static final String FOLDER_MONDRIAN = "mondrian"; //$NON-NLS-1$
 
@@ -79,7 +82,8 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
     this.userNameUtils = userNameUtils;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   protected void createEtcMondrianFolder( final ITenant tenant ) {
     txnTemplate.execute( new TransactionCallbackWithoutResult() {

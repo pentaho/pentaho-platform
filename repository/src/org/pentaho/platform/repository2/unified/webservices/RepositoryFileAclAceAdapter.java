@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class RepositoryFileAclAceAdapter extends XmlAdapter<RepositoryFileAclAceDto, RepositoryFileAce> {
 
@@ -51,7 +50,7 @@ public class RepositoryFileAclAceAdapter extends XmlAdapter<RepositoryFileAclAce
   public static RepositoryFileAce toAce( RepositoryFileAclAceDto v ) {
     return new RepositoryFileAce(
         new RepositoryFileSid( v.recipient, RepositoryFileSid.Type.values()[v.recipientType] ),
-          toPerms( v.permissions ) );
+      toPerms( v.permissions ) );
   }
 
   public static List<Integer> toIntPerms( EnumSet<RepositoryFilePermission> perms ) {

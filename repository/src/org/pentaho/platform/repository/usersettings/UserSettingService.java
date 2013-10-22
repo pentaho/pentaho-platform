@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.repository.usersettings;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
@@ -35,6 +28,13 @@ import org.pentaho.platform.repository.usersettings.pojo.UserSetting;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 public class UserSettingService implements IUserSettingService {
 

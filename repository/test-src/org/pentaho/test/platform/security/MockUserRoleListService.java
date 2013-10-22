@@ -17,15 +17,15 @@
 
 package org.pentaho.test.platform.security;
 
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.mt.ITenant;
 
 public class MockUserRoleListService implements IUserRoleListService {
 

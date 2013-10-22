@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class VersionSummaryAdapter extends XmlAdapter<VersionSummaryDto, VersionSummary> {
 

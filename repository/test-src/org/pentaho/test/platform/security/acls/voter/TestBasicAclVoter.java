@@ -17,11 +17,6 @@
 
 package org.pentaho.test.platform.security.acls.voter;
 
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPermissionMask;
 import org.pentaho.platform.api.engine.IPermissionRecipient;
@@ -35,6 +30,11 @@ import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter;
 import org.pentaho.platform.repository.solution.dbbased.RepositoryFile;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 @SuppressWarnings( "nls" )
 public class TestBasicAclVoter extends BaseTest {
@@ -63,7 +63,7 @@ public class TestBasicAclVoter extends BaseTest {
 
       @Override
       public Void call() throws Exception {
-        RepositoryFile testFile = new RepositoryFile( "Test Folder", null, null );//$NON-NLS-1$
+        RepositoryFile testFile = new RepositoryFile( "Test Folder", null, null ); //$NON-NLS-1$
         Map<IPermissionRecipient, IPermissionMask> perms = new LinkedHashMap<IPermissionRecipient, IPermissionMask>();
         perms.put( new SimpleUser( "suzy" ), new SimplePermissionMask( IPentahoAclEntry.PERM_EXECUTE ) );
         perms.put( new SimpleRole( "ROLE_POWER_USER" ), new SimplePermissionMask( IPentahoAclEntry.PERM_SUBSCRIBE ) );
@@ -71,7 +71,8 @@ public class TestBasicAclVoter extends BaseTest {
         PentahoBasicAclVoter voter = new PentahoBasicAclVoter();
         assertTrue( voter.hasAccess( PentahoSessionHolder.getSession(), testFile, IPentahoAclEntry.PERM_EXECUTE ) );
         assertTrue( voter.hasAccess( PentahoSessionHolder.getSession(), testFile, IPentahoAclEntry.PERM_SUBSCRIBE ) );
-        assertTrue( voter.hasAccess( PentahoSessionHolder.getSession(), testFile, IPentahoAclEntry.PERM_ADMINISTRATION ) );
+        assertTrue( voter.hasAccess( PentahoSessionHolder.getSession(), testFile,
+          IPentahoAclEntry.PERM_ADMINISTRATION ) );
         PentahoAclEntry entry = voter.getEffectiveAcl( PentahoSessionHolder.getSession(), testFile );
         assertNotNull( entry );
         assertEquals( entry.printPermissionsBlock(), "XSCUDP" ); //$NON-NLS-1$    

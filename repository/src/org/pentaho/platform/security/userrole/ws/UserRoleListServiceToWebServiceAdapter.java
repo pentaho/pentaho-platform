@@ -18,16 +18,16 @@
 
 package org.pentaho.platform.security.userrole.ws;
 
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.UserRoleInfo;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.core.mt.Tenant;
 
+import java.util.List;
+
 /**
- * Converts calls to {@link IUserRoleListService} into {@link IUserRoleListWebService}. This is how client code remains
- * unaware of server code location.
+ * Converts calls to {@link IUserRoleListService} into {@link IUserRoleListWebService}. This is how client code
+ * remains unaware of server code location.
  * 
  * @author rmansoor
  */

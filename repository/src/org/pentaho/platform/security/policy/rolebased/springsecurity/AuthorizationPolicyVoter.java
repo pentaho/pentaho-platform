@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.security.policy.rolebased.springsecurity;
 
-import java.util.Iterator;
-
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.vote.AccessDecisionVoter;
 import org.springframework.util.Assert;
+
+import java.util.Iterator;
 
 /**
  * An {@link AccessDecisionVoter} that delegates to an {@link IAuthorizationPolicy} instance.
@@ -34,15 +34,18 @@ import org.springframework.util.Assert;
  */
 public class AuthorizationPolicyVoter implements AccessDecisionVoter {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String prefix;
 
   private IAuthorizationPolicy policy;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public AuthorizationPolicyVoter( final IAuthorizationPolicy policy, final String prefix ) {
     super();
@@ -52,7 +55,8 @@ public class AuthorizationPolicyVoter implements AccessDecisionVoter {
     this.prefix = prefix;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public boolean supports( final ConfigAttribute attribute ) {
     if ( ( attribute.getAttribute() != null ) && attribute.getAttribute().startsWith( prefix ) ) {

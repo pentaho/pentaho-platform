@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.repository2.userroledao.jackrabbit.security;
 
-import javax.jcr.SimpleCredentials;
-
 import org.apache.commons.lang.Validate;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.pentaho.platform.engine.security.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.providers.encoding.PasswordEncoder;
+
+import javax.jcr.SimpleCredentials;
 
 /**
  * Default password encoder for the BI Server.
@@ -35,12 +35,13 @@ import org.springframework.security.providers.encoding.PasswordEncoder;
  * </p>
  * 
  * <p>
- * This class is instantiated by Pentaho Admin Console so there should not be a dependency on classes to which PAC will
- * not have access.
+ * This class is instantiated by Pentaho Admin Console so there should not be a dependency on classes to which PAC
+ * will not have access.
  * </p>
  * 
  * <p>
- * This implementation of password encoding is completely independent of any datasource connection password encoding.
+ * This implementation of password encoding is completely independent of any datasource connection password
+ * encoding.
  * </p>
  * 
  * @author mlowery

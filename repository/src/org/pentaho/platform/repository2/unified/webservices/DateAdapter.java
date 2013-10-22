@@ -18,12 +18,11 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.util.Date;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.Date;
 
 public class DateAdapter extends XmlAdapter<String, Date> {
   private static final String DF = "MM/dd/yyyy HH:mm:ss";

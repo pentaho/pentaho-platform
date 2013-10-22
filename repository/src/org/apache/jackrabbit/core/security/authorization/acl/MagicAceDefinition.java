@@ -17,9 +17,8 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.util.Arrays;
-
 import javax.jcr.security.Privilege;
+import java.util.Arrays;
 
 /**
  * A configuration entry that defines a "magic ACE" rule. This is the object representation of rules that reside in

@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import static org.junit.Assert.assertEquals;
-
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -36,6 +26,15 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWebService;
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Service;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * To run this, put Metro JARs in your classpath.
@@ -65,7 +64,8 @@ public class AuthorizationPolicyClient {
     ( (BindingProvider) policy ).getRequestContext().put( BindingProvider.PASSWORD_PROPERTY, "password" );
     // accept cookies to maintain session on server
     ( (BindingProvider) policy ).getRequestContext().put( BindingProvider.SESSION_MAINTAIN_PROPERTY, true );
-    ( (BindingProvider) roleBindingDaoWebService ).getRequestContext().put( BindingProvider.USERNAME_PROPERTY, "admin" );
+    ( (BindingProvider) roleBindingDaoWebService ).getRequestContext()
+      .put( BindingProvider.USERNAME_PROPERTY, "admin" );
     ( (BindingProvider) roleBindingDaoWebService ).getRequestContext().put( BindingProvider.PASSWORD_PROPERTY,
         "password" );
     // accept cookies to maintain session on server
