@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.services.metadata;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
@@ -28,6 +25,9 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.BasePublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MetadataPublisher extends BasePublisher {
 

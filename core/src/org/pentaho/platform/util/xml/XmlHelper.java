@@ -17,6 +17,22 @@
 
 package org.pentaho.platform.util.xml;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IDocumentResourceLoader;
+import org.pentaho.platform.util.FileHelper;
+import org.pentaho.platform.util.logging.Logger;
+import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.messages.Messages;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -38,27 +54,10 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IDocumentResourceLoader;
-import org.pentaho.platform.util.FileHelper;
-import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.util.messages.Messages;
-
 /**
  * A set of static methods for performing various operations on DOM Documents and XML text (in the form of streams,
- * Strings, and files). The operations include creating DOM Documents (dom4j) transforming DOM Documents creating XML
- * from Objects, Lists and Maps creating Lists or Maps from XML getting an XML node's text
+ * Strings, and files). The operations include creating DOM Documents (dom4j) transforming DOM Documents creating
+ * XML from Objects, Lists and Maps creating Lists or Maps from XML getting an XML node's text
  * 
  * @author mbatchel/jdixon
  * 
@@ -238,9 +237,9 @@ public class XmlHelper {
    *          String containing the xml
    * @param defaultEncoding
    *          Encoding to use if there is no encoding in the xml document
-   * @return String containing the character encoding in the xml processing instruction, or defaultEncoding if there is
-   *         no encoding in the xml document. If defaultEncoding is also null, then it returns the value in
-   *         LocaleHelper.getSystemEncoding(). if it exists, else the system encoding.
+   * @return String containing the character encoding in the xml processing instruction, or defaultEncoding if
+   *         there is no encoding in the xml document. If defaultEncoding is also null, then it returns the value
+   *         in LocaleHelper.getSystemEncoding(). if it exists, else the system encoding.
    */
   public static String getEncoding( final String xml, final String defaultEncoding ) {
     String enc = XmlHelper.getEncoding( xml );
@@ -248,10 +247,10 @@ public class XmlHelper {
   }
 
   /**
-   * WARNING: if the <param>inStream</param> instance does not support mark/reset, when this method returns, subsequent
-   * reads on <param>inStream</param> will be 256 bytes into the stream. This may not be the expected behavior.
-   * FileInputStreams are an example of an InputStream that does not support mark/reset. InputStreams that do support
-   * mark/reset will be reset to the beginning of the stream when this method returns.
+   * WARNING: if the <param>inStream</param> instance does not support mark/reset, when this method returns,
+   * subsequent reads on <param>inStream</param> will be 256 bytes into the stream. This may not be the expected
+   * behavior. FileInputStreams are an example of an InputStream that does not support mark/reset. InputStreams
+   * that do support mark/reset will be reset to the beginning of the stream when this method returns.
    * 
    * @param inStream
    * @return
@@ -281,8 +280,8 @@ public class XmlHelper {
   }
 
   /**
-   * Use the transform specified by xslName and transform the document specified by docInStrm, and return the resulting
-   * document.
+   * Use the transform specified by xslName and transform the document specified by docInStrm, and return the
+   * resulting document.
    * 
    * @param xslName
    *          String containing the name of a file in the repository containing the xsl transform
@@ -318,8 +317,8 @@ public class XmlHelper {
   }
 
   /**
-   * Use the transform specified by xslPath and xslName and transform the document specified by docInStrm, and return
-   * the resulting document.
+   * Use the transform specified by xslPath and xslName and transform the document specified by docInStrm, and
+   * return the resulting document.
    * 
    * @param xslSrc
    *          StreamSrc containing the xsl transform
@@ -449,8 +448,8 @@ public class XmlHelper {
   }
 
   /**
-   * Get the File object corresponding to the path, filename (xslName), and locale. The path is relative to the solution
-   * path.
+   * Get the File object corresponding to the path, filename (xslName), and locale. The path is relative to the
+   * solution path.
    * 
    * @param path
    * @param xslName
@@ -489,7 +488,8 @@ public class XmlHelper {
 
     String fileName = fullPath;
     int dotIndex = fileName.indexOf( '.' );
-    String baseName = dotIndex == -1 ? fileName : fileName.substring( 0, dotIndex ); // These two lines fix an index out
+    String baseName = dotIndex == -1 ? fileName : fileName.substring( 0, dotIndex ); // These two lines fix an
+                                                                                     // index out
                                                                                      // of bounds
     String extension = dotIndex == -1 ? "" : fileName.substring( dotIndex ); // Exception that occurs when a filename has no extension //$NON-NLS-1$
 
@@ -517,8 +517,8 @@ public class XmlHelper {
    * 
    * @param version
    * @param encoding
-   * @return String Xml Processing instruction text with the specified version (usually 1.0) and encoding (for instance,
-   *         UTF-8)
+   * @return String Xml Processing instruction text with the specified version (usually 1.0) and encoding (for
+   *         instance, UTF-8)
    */
   public static String createXmlProcessingInstruction( final String version, final String encoding ) {
     return "<?xml version=\"" + version + "\" encoding = \"" + encoding + "\" ?>"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$

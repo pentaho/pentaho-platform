@@ -17,14 +17,12 @@
 
 package org.pentaho.platform.util.beans;
 
-import org.pentaho.platform.api.engine.ActionExecutionException;
-
 /**
  * This interface is used in conjunction with
  * {@link BeanUtil#setValue(Object, String, ValueSetCallback, PropertyNameFormatter...)} to give the developer full
- * control of how to handle various events that occur during the attempt to set a value on a Java Bean. Using a callback
- * allows us to always employ the same logic when syncing data to a bean (since that are loads of different ways to do
- * this just in commons-beanutils).
+ * control of how to handle various events that occur during the attempt to set a value on a Java Bean. Using a
+ * callback allows us to always employ the same logic when syncing data to a bean (since that are loads of
+ * different ways to do this just in commons-beanutils).
  * 
  * @author aphillips
  * @see BeanUtil#setValue(Object, String, ValueSetCallback, PropertyNameFormatter...)
@@ -40,8 +38,8 @@ public interface ValueSetErrorCallback {
    * @param value
    *          the value that the bean utility attempted to set on the bean
    * @param beanPropertyType
-   *          the type of the bean property on which we tried to set the value. This may not be the same type as that of
-   *          the value.
+   *          the type of the bean property on which we tried to set the value. This may not be the same type as
+   *          that of the value.
    * @param cause
    *          the reason for the failure
    * @throws ActionExecutionException

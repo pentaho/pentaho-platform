@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.engine.security.acls.voter;
 
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -28,6 +26,8 @@ import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.acl.AclEntry;
+
+import java.util.List;
 
 @SuppressWarnings( "deprecation" )
 public class PentahoAllowAllAclVoter extends AbstractPentahoAclVoter {

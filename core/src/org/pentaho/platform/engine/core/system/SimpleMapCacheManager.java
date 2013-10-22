@@ -18,6 +18,11 @@
 
 package org.pentaho.platform.engine.core.system;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IPentahoSession;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,11 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 /**
  * 

@@ -33,8 +33,8 @@ import org.springframework.security.event.authentication.AuthenticationSuccessEv
 import org.springframework.util.Assert;
 
 /**
- * Synchronizes the Pentaho session's principal with the Spring Security {@code Authentication}. This listener fires
- * either on interactive or non-interactive logins.
+ * Synchronizes the Pentaho session's principal with the Spring Security {@code Authentication}. This listener
+ * fires either on interactive or non-interactive logins.
  * 
  * <p>
  * Replaces functionality from SecurityStartupFilter.
@@ -44,21 +44,25 @@ import org.springframework.util.Assert;
  */
 public class PentahoAuthenticationSuccessListener implements ApplicationListener, Ordered {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( PentahoAuthenticationSuccessListener.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private int order = 100;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoAuthenticationSuccessListener() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public void onApplicationEvent( final ApplicationEvent event ) {
     if ( event instanceof AuthenticationSuccessEvent ) {

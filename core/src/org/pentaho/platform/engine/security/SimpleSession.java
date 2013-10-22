@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.security.Principal;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPermissionRecipient;
+
+import java.security.Principal;
 
 public class SimpleSession implements IPermissionRecipient {
 

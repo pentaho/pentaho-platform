@@ -31,22 +31,27 @@ import org.pentaho.platform.engine.core.messages.Messages;
  */
 public class InheritableThreadLocalPentahoRequestContextHolderStrategy implements IPentahoRequestContextHolderStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  private static final Log logger = LogFactory.getLog( InheritableThreadLocalPentahoRequestContextHolderStrategy.class );
+  private static final Log logger = LogFactory.getLog(
+    InheritableThreadLocalPentahoRequestContextHolderStrategy.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private static final ThreadLocal<IPentahoRequestContext> perThreadRequestContext =
       new InheritableThreadLocal<IPentahoRequestContext>();
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public InheritableThreadLocalPentahoRequestContextHolderStrategy() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Sets an IPentahoRequestContext for the current thread
@@ -72,8 +77,8 @@ public class InheritableThreadLocalPentahoRequestContextHolderStrategy implement
   }
 
   /**
-   * Removes the IPentahoRequestContext for the current thread. It is important that the framework calls this to prevent
-   * request context bleed- through between requests as threads are re-used by the server.
+   * Removes the IPentahoRequestContext for the current thread. It is important that the framework calls this to
+   * prevent request context bleed- through between requests as threads are re-used by the server.
    */
   public void removeRequestContext() {
     IPentahoRequestContext requestContext = perThreadRequestContext.get();

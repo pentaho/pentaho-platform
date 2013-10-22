@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.engine.core.solution;
 
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.util.web.HttpUtil;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.util.web.HttpUtil;
 
 public class SimpleParameterProvider extends BaseParameterProvider implements IParameterProvider {
 
@@ -128,8 +128,9 @@ public class SimpleParameterProvider extends BaseParameterProvider implements IP
   }
 
   /**
-   * Looks for ADDITIONAL_PARAMS in the paramMap, if it finds a parameter by that name, it assumes that it is a query
-   * string, it parses the query string, and adds the components of the query string to this class's parameter map.
+   * Looks for ADDITIONAL_PARAMS in the paramMap, if it finds a parameter by that name, it assumes that it is a
+   * query string, it parses the query string, and adds the components of the query string to this class's
+   * parameter map.
    * 
    * @param paramMap
    */

@@ -18,18 +18,18 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 public class SecurityParameterProvider implements IParameterProvider {
 

@@ -17,14 +17,14 @@
 
 package org.pentaho.platform.util;
 
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.messages.Messages;
 import org.safehaus.uuid.UUID;
 import org.safehaus.uuid.UUIDGenerator;
+
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 public class UUIDUtil {
   private static final Log log = LogFactory.getLog( UUIDUtil.class );

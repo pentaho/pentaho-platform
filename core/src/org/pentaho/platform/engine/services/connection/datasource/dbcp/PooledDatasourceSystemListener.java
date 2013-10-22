@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.pool.ObjectPool;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
@@ -36,70 +32,83 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
+import javax.sql.DataSource;
+import java.util.List;
+
 public class PooledDatasourceSystemListener implements IPentahoSystemListener {
   public static final String DATASOURCE_REGION = "DATASOURCE"; //$NON-NLS-1$
 
-  public boolean startup(final IPentahoSession session) {
+  public boolean startup( final IPentahoSession session ) {
     try {
-      ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
-      Logger.debug(this, "PooledDatasourceSystemListener: called for startup"); //$NON-NLS-1$
-      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,session);
-      if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_POOL)) {
-        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_POOL);
+      ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+      Logger.debug( this, "PooledDatasourceSystemListener: called for startup" ); //$NON-NLS-1$
+      IDatasourceMgmtService datasourceMgmtSvc =
+          (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get( IDatasourceMgmtService.class, session );
+      if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_POOL ) ) {
+        cacheManager.addCacheRegion( IDBDatasourceService.JDBC_POOL );
       }
-      if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
-        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE);
+      if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
+        cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
       }
       List<IDatabaseConnection> databaseConnections = datasourceMgmtSvc.getDatasources();
-      for (IDatabaseConnection databaseConnection : databaseConnections) {
+      for ( IDatabaseConnection databaseConnection : databaseConnections ) {
         try {
-          Logger.debug(this, "  Setting up pooled Data Source - " + databaseConnection); //$NON-NLS-1$
-          final DataSource ds = PooledDatasourceHelper.setupPooledDataSource(databaseConnection);
-          Logger.debug(this, "(storing DataSource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
-              + databaseConnection.getName() + "\")"); //$NON-NLS-1$
-          cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), ds);
-        } catch (DBDatasourceServiceException dse) {
+          Logger.debug( this, "  Setting up pooled Data Source - " + databaseConnection ); //$NON-NLS-1$
+          final DataSource ds = PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
+          Logger.debug( this, "(storing DataSource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
+              + databaseConnection.getName() + "\")" ); //$NON-NLS-1$
+          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), ds );
+        } catch ( DBDatasourceServiceException dse ) {
           // Skip this datasource pooling
-          Logger.error(this, Messages.getInstance().getErrorString("PooledDatasourceSystemListener.ERROR_0003_UNABLE_TO_POOL_DATASOURCE",databaseConnection.getName(), dse.getMessage())); //$NON-NLS-1$
+          Logger
+              .error(
+                this,
+                Messages
+                  .getInstance()
+                  .getErrorString(
+                    "PooledDatasourceSystemListener.ERROR_0003_UNABLE_TO_POOL_DATASOURCE", databaseConnection.getName(),
+                    dse.getMessage() ) ); //$NON-NLS-1$
           continue;
         }
-       }
-      Logger.debug(this, "PooledDatasourceSystemListener: done with init"); //$NON-NLS-1$
+      }
+      Logger.debug( this, "PooledDatasourceSystemListener: done with init" ); //$NON-NLS-1$
       return true;
-    } catch (ObjectFactoryException objface) {
-      Logger.error(this, Messages.getInstance().getErrorString("PooledDatasourceSystemListener.ERROR_0001_UNABLE_TO_INSTANTIATE_OBJECT"), objface); //$NON-NLS-1$
+    } catch ( ObjectFactoryException objface ) {
+      Logger.error( this, Messages.getInstance().getErrorString(
+          "PooledDatasourceSystemListener.ERROR_0001_UNABLE_TO_INSTANTIATE_OBJECT" ), objface ); //$NON-NLS-1$
       return false;
-    } catch (DatasourceMgmtServiceException dmse) {
-      Logger.error(this, Messages.getInstance().getErrorString("PooledDatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE"), dmse); //$NON-NLS-1$
+    } catch ( DatasourceMgmtServiceException dmse ) {
+      Logger.error( this, Messages.getInstance().getErrorString(
+          "PooledDatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), dmse ); //$NON-NLS-1$
       return false;
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public void shutdown() {
-    ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
+    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
     // Extracting pools from the cache
     List<ObjectPool> objectPools = null;
-    objectPools = (List<ObjectPool>) cacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_POOL);
+    objectPools = (List<ObjectPool>) cacheManager.getAllValuesFromRegionCache( IDBDatasourceService.JDBC_POOL );
 
-    Logger.debug(this, "PooledDatasourceSystemListener: called for shutdown"); //$NON-NLS-1$
+    Logger.debug( this, "PooledDatasourceSystemListener: called for shutdown" ); //$NON-NLS-1$
     // Clearing all pools
     try {
-      if (objectPools != null) {
-        for (ObjectPool objectPool : objectPools) {
-          if (null != objectPool) {
+      if ( objectPools != null ) {
+        for ( ObjectPool objectPool : objectPools ) {
+          if ( null != objectPool ) {
             objectPool.clear();
           }
         }
       }
-    } catch (Throwable ignored) {
-      Logger.error(this, "Failed to clear connection pool: " + ignored.getMessage(), ignored); //$NON-NLS-1$
+    } catch ( Throwable ignored ) {
+      Logger.error( this, "Failed to clear connection pool: " + ignored.getMessage(), ignored ); //$NON-NLS-1$
     }
     // Cleaning cache for pools and datasources
-    cacheManager.removeRegionCache(IDBDatasourceService.JDBC_POOL);
-    cacheManager.removeRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
+    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_POOL );
+    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
 
-    Logger.debug(this, "PooledDatasourceSystemListener: completed shutdown"); //$NON-NLS-1$
+    Logger.debug( this, "PooledDatasourceSystemListener: completed shutdown" ); //$NON-NLS-1$
     return;
   }
 

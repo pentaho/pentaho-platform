@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.security.acls;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.dom4j.Element;
 import org.pentaho.platform.api.engine.IAclPublisher;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
@@ -39,6 +32,13 @@ import org.pentaho.platform.engine.security.SimpleUser;
 import org.pentaho.platform.engine.security.SpringSecurityPermissionMgr;
 import org.pentaho.platform.engine.security.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class AclPublisher implements IAclPublisher {
 
@@ -74,8 +74,8 @@ public class AclPublisher implements IAclPublisher {
   private Map<IPermissionRecipient, IPermissionMask> defaultAcls = Collections.EMPTY_MAP;
 
   /**
-   * Constructor that allows overriding the source of the default access control list. This constructor is mainly used
-   * from test cases.
+   * Constructor that allows overriding the source of the default access control list. This constructor is mainly
+   * used from test cases.
    * 
    * @param defAcls
    */
@@ -84,24 +84,27 @@ public class AclPublisher implements IAclPublisher {
   }
 
   /**
-   * Default constructor. This constructor reads the default access controls from the pentaho.xml. The pentaho.xml needs
-   * to have a section similar to the following: <br>
+   * Default constructor. This constructor reads the default access controls from the pentaho.xml. The pentaho.xml
+   * needs to have a section similar to the following: <br>
    * <br>
    * &nbsp;&nbsp;&lt;acl-publisher&gt;<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;&lt;!--<br>
-   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;These acls are used when publishing from the file system. Every folder<br>
+   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;These acls are used when publishing from the file system. Every
+   * folder<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gets these ACLS. Authenticated is a "default" role that everyone<br>
-   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gets when they're authenticated (be sure to setup your bean xml properly<br>
+   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gets when they're authenticated (be sure to setup your bean xml
+   * properly<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for this to work).<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;--&gt;<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;&lt;default-acls&gt;<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="Admin" acl="7" /&gt; &lt;!-- Admin users get all
    * authorities --&gt;<br>
-   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="cto" acl="7" /&gt; &lt;!-- CTO gets everything --&gt;<br>
-   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="dev" acl="6" /&gt; &lt;!-- Dev gets execute/subscribe
+   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="cto" acl="7" /&gt; &lt;!-- CTO gets everything
    * --&gt;<br>
-   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="Authenticated" acl="2" /&gt; &lt;!-- Authenticated
-   * users get execute only --&gt;<br>
+   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="dev" acl="6" /&gt; &lt;!-- Dev gets
+   * execute/subscribe --&gt;<br>
+   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;acl-entry role="Authenticated" acl="2" /&gt; &lt;!--
+   * Authenticated users get execute only --&gt;<br>
    * &nbsp;&nbsp;&nbsp;&nbsp;&lt;/default-acls&gt;<br>
    * &nbsp;&nbsp;&lt;/acl-publisher&gt;<br>
    * 
@@ -182,9 +185,9 @@ public class AclPublisher implements IAclPublisher {
   }
 
   /**
-   * This method is called from the RDBMS repository publish method when publishing a file-based solution to the RDBMS
-   * repository. This implementation recurses through all the children of the specified <tt>IAclSolutionFile</tt>, and
-   * applies the default access controls only to the
+   * This method is called from the RDBMS repository publish method when publishing a file-based solution to the
+   * RDBMS repository. This implementation recurses through all the children of the specified
+   * <tt>IAclSolutionFile</tt>, and applies the default access controls only to the
    * 
    * @param rootFile
    * 

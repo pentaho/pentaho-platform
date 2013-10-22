@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
@@ -44,6 +34,16 @@ import org.pentaho.commons.connection.PentahoDataTransmuter;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.uifoundation.messages.Messages;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Paint;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 // ESCA-JAVA0136:
 // ESCA-JAVA0100:
@@ -252,7 +252,8 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
 
     // get the chart subtitles
 
-    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema to
+    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema
+    // to
     // be well constructed and validate the XML .
     // We have deprecated <subtitle> as a child of the main node , and now require a <subtitles> parent node
     // under which <subtitle> can exist.
@@ -315,34 +316,44 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
     setTitleFont( chartAttributes.selectSingleNode( ChartDefinition.TITLE_FONT_NODE_NAME ) );
 
     // set the domain title
-    setDomainTitle( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.DOMAIN_TITLE_NODE_NAME ) );
+    setDomainTitle( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .DOMAIN_TITLE_NODE_NAME ) );
 
     // set the domain font
-    setDomainTitleFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.DOMAIN_TITLE_FONT_NODE_NAME ) );
+    setDomainTitleFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .DOMAIN_TITLE_FONT_NODE_NAME ) );
 
     // set the range minimum
-    setRangeMinimum( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_MINIMUM_NODE_NAME ) );
+    setRangeMinimum( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_MINIMUM_NODE_NAME ) );
 
     // set the range minimum
-    setRangeMaximum( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_MAXIMUM_NODE_NAME ) );
+    setRangeMaximum( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_MAXIMUM_NODE_NAME ) );
 
     // set the range tick units
-    setRangeTickUnits( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_TICK_UNITS_NODE_NAME ) );
+    setRangeTickUnits( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_TICK_UNITS_NODE_NAME ) );
 
     // the the range tick label number format
-    setDomainTickFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.DOMAIN_TICK_FONT_NODE_NAME ) );
+    setDomainTickFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .DOMAIN_TICK_FONT_NODE_NAME ) );
 
     // set the range title
-    setRangeTitle( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_TITLE_NODE_NAME ) );
+    setRangeTitle( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_TITLE_NODE_NAME ) );
 
     // the the range font
-    setRangeTitleFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_TITLE_FONT_NODE_NAME ) );
+    setRangeTitleFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_TITLE_FONT_NODE_NAME ) );
 
     // the the range tick label number format
-    setRangeTickFormat( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_TICK_FORMAT_NODE_NAME ) );
+    setRangeTickFormat( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_TICK_FORMAT_NODE_NAME ) );
 
     // the the range ticklabel font
-    setRangeTickFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition.RANGE_TICK_FONT_NODE_NAME ) );
+    setRangeTickFont( chartAttributes.selectSingleNode( CategoryDatasetChartDefinition
+      .RANGE_TICK_FONT_NODE_NAME ) );
 
     // set the line style
     setLineStyle( chartAttributes.selectSingleNode( ChartDefinition.LINE_STYLE_NODE_NAME ) );
@@ -417,7 +428,8 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
           }
           double currentValue = currentNumber.doubleValue();
           double newValue = ( (Number) rowData[column] ).doubleValue();
-          if ( rowHeaders != null && row < rowHeaders.length && columnHeaders != null && column < columnHeaders.length ) {
+          if ( rowHeaders != null && row < rowHeaders.length && columnHeaders
+            != null && column < columnHeaders.length ) {
             setValue( new Double( currentValue + newValue ), rowHeaders[row], columnHeaders[column] );
           }
         } else if ( includeNullCategories && rowData[column] == null ) {
@@ -430,7 +442,8 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
           } catch ( UnknownKeyException uke ) { // else we just set it
             currentNumber = null;
           }
-          if ( rowHeaders != null && row < rowHeaders.length && columnHeaders != null && column < columnHeaders.length ) {
+          if ( rowHeaders != null && row < rowHeaders.length && columnHeaders
+            != null && column < columnHeaders.length ) {
             setValue( currentNumber, rowHeaders[row], columnHeaders[column] );
           }
         }
@@ -489,7 +502,8 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
   }
 
   /**
-   * @deprecated use JFreeChartEngine.getChartType(typeStr), which has all of the chart name options for conversion.
+   * @deprecated use JFreeChartEngine.getChartType(typeStr), which has all of the chart name options for
+   *             conversion.
    * 
    * @param typeStr
    * @return

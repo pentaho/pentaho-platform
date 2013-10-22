@@ -23,16 +23,6 @@ package org.pentaho.platform.uifoundation.chart;
  *
  */
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
@@ -44,6 +34,16 @@ import org.jfree.ui.RectangleEdge;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.uifoundation.messages.Messages;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Paint;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implements ChartDefinition {
 
@@ -271,7 +271,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
     // get the chart subtitles
 
-    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema to
+    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema
+    // to
     // be well constructed and validate the XML .
     // We have deprecated <subtitle> as a child of the main node , and now require a <subtitles> parent node
     // under which <subtitle> can exist.
@@ -343,7 +344,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
         .selectSingleNode( XYZSeriesCollectionChartDefinition.DOMAIN_TITLE_FONT_NODE_NAME ) );
 
     // set the domain tick font
-    setDomainTickFont( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.DOMAIN_TICK_FONT_NODE_NAME ) );
+    setDomainTickFont( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .DOMAIN_TICK_FONT_NODE_NAME ) );
 
     // the the domain tick label number format
     setDomainTickFormat( chartAttributes
@@ -354,29 +356,36 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
         .selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_INCLUDES_ZERO_NODE_NAME ) );
 
     // set the range title
-    setRangeTitle( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_TITLE_NODE_NAME ) );
+    setRangeTitle( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .RANGE_TITLE_NODE_NAME ) );
 
     // the the range font
-    setRangeTitleFont( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_TITLE_FONT_NODE_NAME ) );
+    setRangeTitleFont( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .RANGE_TITLE_FONT_NODE_NAME ) );
 
     // the the range font
-    setRangeTickFont( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_TICK_FONT_NODE_NAME ) );
+    setRangeTickFont( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .RANGE_TICK_FONT_NODE_NAME ) );
 
     // the the range tick label number format
     setRangeTickFormat( chartAttributes
         .selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_TICK_FORMAT_NODE_NAME ) );
 
     // set the domain minimum
-    setDomainMinimum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.DOMAIN_MINIMUM_NODE_NAME ) );
+    setDomainMinimum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .DOMAIN_MINIMUM_NODE_NAME ) );
 
     // set the domain minimum
-    setDomainMaximum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.DOMAIN_MAXIMUM_NODE_NAME ) );
+    setDomainMaximum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .DOMAIN_MAXIMUM_NODE_NAME ) );
 
     // set the range minimum
-    setRangeMinimum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_MINIMUM_NODE_NAME ) );
+    setRangeMinimum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .RANGE_MINIMUM_NODE_NAME ) );
 
     // set the range minimum
-    setRangeMaximum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_MAXIMUM_NODE_NAME ) );
+    setRangeMaximum( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .RANGE_MAXIMUM_NODE_NAME ) );
 
     // set we want domain to include zero
     setDomainIncludesZero( chartAttributes
@@ -395,26 +404,31 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
         .selectSingleNode( XYZSeriesCollectionChartDefinition.RANGE_STICKY_ZERO_NODE_NAME ) );
 
     // set the maximum bubble size
-    setMaxBubbleSize( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.MAX_BUBBLE_SIZE_NODE_NAME ) );
+    setMaxBubbleSize( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .MAX_BUBBLE_SIZE_NODE_NAME ) );
 
     // set the bubble label content
     setBubbleLabelContent( chartAttributes
         .selectSingleNode( XYZSeriesCollectionChartDefinition.BUBBLE_LABEL_CONTENT_NODE_NAME ) );
 
     // set the bubble label's x value format
-    setXFormat( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.BUBBLE_LABEL_X_FORMAT_NODE_NAME ) );
+    setXFormat( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .BUBBLE_LABEL_X_FORMAT_NODE_NAME ) );
 
     // set the bubble label's y value format
-    setYFormat( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.BUBBLE_LABEL_Y_FORMAT_NODE_NAME ) );
+    setYFormat( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .BUBBLE_LABEL_Y_FORMAT_NODE_NAME ) );
 
     // set the bubble label's z value format
-    setZFormat( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition.BUBBLE_LABEL_Z_FORMAT_NODE_NAME ) );
+    setZFormat( chartAttributes.selectSingleNode( XYZSeriesCollectionChartDefinition
+      .BUBBLE_LABEL_Z_FORMAT_NODE_NAME ) );
 
     // set legend font
     setLegendFont( chartAttributes.selectSingleNode( ChartDefinition.LEGEND_FONT_NODE_NAME ) );
 
     // set legend border visible
-    setLegendBorderVisible( chartAttributes.selectSingleNode( ChartDefinition.DISPLAY_LEGEND_BORDER_NODE_NAME ) );
+    setLegendBorderVisible( chartAttributes.selectSingleNode( ChartDefinition
+      .DISPLAY_LEGEND_BORDER_NODE_NAME ) );
 
   }
 
@@ -430,7 +444,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
     while ( rowData != null ) {
       double[][] series = new double[3][1];
       if ( rowData.length >= 4 ) {
-        if ( ( rowData[1] instanceof Number ) && ( rowData[2] instanceof Number ) && ( rowData[3] instanceof Number ) ) {
+        if ( ( rowData[1] instanceof Number ) && ( rowData[2] instanceof Number )
+          && ( rowData[3] instanceof Number ) ) {
           seriesName = rowData[0].toString();
           double zValue = ( (Number) rowData[3] ).doubleValue();
           if ( zValue > maxZValue ) {
@@ -1319,8 +1334,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
   /**
    * @param bubbleLabelContent
-   *          Definition of the bubble labels' content. e.g. "{0}: ({1}, {2}, {3})" {0} = series name {1} = x value {2}
-   *          = y value {3} = z value
+   *          Definition of the bubble labels' content. e.g. "{0}: ({1}, {2}, {3})" {0} = series name {1} = x value
+   *          {2} = y value {3} = z value
    */
   public void setBubbleLabelContent( final String bubblelabelContent ) {
     this.bubbleLabelContent = bubblelabelContent;
@@ -1332,7 +1347,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
   /**
    * @param bubbleLabelContent
-   *          Definition of the bubble labels' x value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %"
+   *          Definition of the bubble labels' x value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or
+   *          "##0.00 %"
    */
   public void setXFormat( final Node bubblelabelXFormat ) {
     if ( bubblelabelXFormat != null ) {
@@ -1352,7 +1368,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
   /**
    * @param bubbleLabelContent
-   *          Definition of the bubble labels' y value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %"
+   *          Definition of the bubble labels' y value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or
+   *          "##0.00 %"
    */
   public void setYFormat( final Node bubblelabelYFormat ) {
     if ( bubblelabelYFormat != null ) {
@@ -1372,7 +1389,8 @@ public class XYZSeriesCollectionChartDefinition extends DefaultXYZDataset implem
 
   /**
    * @param bubbleLabelContent
-   *          Definition of the bubble labels' z value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %"
+   *          Definition of the bubble labels' z value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or
+   *          "##0.00 %"
    */
   public void setZFormat( final Node bubblelabelZFormat ) {
     if ( bubblelabelZFormat != null ) {

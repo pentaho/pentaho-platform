@@ -17,16 +17,16 @@
 
 package org.pentaho.platform.util;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.util.messages.Messages;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.util.messages.Messages;
 
 public class FileHelper {
 
@@ -94,7 +94,8 @@ public class FileHelper {
   }
 
   /**
-   * Convenience method to close a Reader and handle (log and throw away) any exceptions. Helps keep code uncluttered.
+   * Convenience method to close a Reader and handle (log and throw away) any exceptions. Helps keep code
+   * uncluttered.
    * 
    * @param rdr
    *          InputSReadertream to be closed

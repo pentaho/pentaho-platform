@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import java.util.Map;
-
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.FactoryBean;
+
+import java.util.Map;
 
 /**
  * Obtains a reference to the requested bean from the PentahoSystem

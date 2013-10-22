@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoResultSet;
@@ -42,6 +32,16 @@ import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.component.xml.XmlComponent;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 // ESCA-JAVA0100:
 // ESCA-JAVA0136:

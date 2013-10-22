@@ -18,12 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -42,17 +36,23 @@ import org.pentaho.platform.uifoundation.component.xml.XmlComponent;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+
 /**
  * This class is a Pentaho user interface component.
  * <p/>
  * It generates dial images that can be embedded into JSPs, portals or other HTML supporting user interface.
  * <p/>
  * <ol>
- * <li>The creating object sets the width, height, the type of the dial, and the name of the dial.xml file that contains
- * the definition of the dial.</li>
- * <li>This class creates an instance of a DialWidgetDefinition using the specified XML definition file. The XML files
- * are located in the solution folders and have .dial.xml extenstions. The dial XML files define the attributes that
- * define how the dial looks.</li>
+ * <li>The creating object sets the width, height, the type of the dial, and the name of the dial.xml file that
+ * contains the definition of the dial.</li>
+ * <li>This class creates an instance of a DialWidgetDefinition using the specified XML definition file. The XML
+ * files are located in the solution folders and have .dial.xml extenstions. The dial XML files define the
+ * attributes that define how the dial looks.</li>
  * <li>It uses the JFreeChartEngine to create an image of the dial.</li>
  * <li>Once the image has been created this class creates an XML document describing the dial
  * <li>It uses an XSL to tranforms the XML description into HTML.
@@ -217,15 +217,15 @@ public class DashboardWidgetComponent extends XmlComponent {
      * else if( type == TYPE_THERMOMETER ) { // load the XML document that defines the thermometer
      * 
      * ActionResource resource = new ActionResource( title, IActionResource.SOLUTION_FILE_RESOURCE, "text/xml",
-     * //$NON-NLS-1$ PentahoSystem.getApplicationContext().getSolutionPath( definitionPath ) ); //$NON-NLS-1$ Document
-     * thermometerDefinition = null; try { thermometerDefinition = PentahoSystem.getResourceAsDocument( resource ); }
-     * catch (IOException e) {} // create a dial definition from the XML definition widget = createThermometer(
-     * thermometerDefinition );
+     * //$NON-NLS-1$ PentahoSystem.getApplicationContext().getSolutionPath( definitionPath ) ); //$NON-NLS-1$
+     * Document thermometerDefinition = null; try { thermometerDefinition = PentahoSystem.getResourceAsDocument(
+     * resource ); } catch (IOException e) {} // create a dial definition from the XML definition widget =
+     * createThermometer( thermometerDefinition );
      * 
-     * if( widget != null ) { // set the value to be displayed on the dial widget.setValue( new Double(value) ); // Set
-     * the XSL file to be used to generate the HTML setXsl( "text/html", "DialWidget.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
-     * } else { error( Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE") ); //$NON-NLS-1$ return
-     * null; } }
+     * if( widget != null ) { // set the value to be displayed on the dial widget.setValue( new Double(value) ); //
+     * Set the XSL file to be used to generate the HTML setXsl( "text/html", "DialWidget.xsl" ); //$NON-NLS-1$
+     * //$NON-NLS-2$ } else { error( Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE") );
+     * //$NON-NLS-1$ return null; } }
      */
     if ( widget == null ) {
       error( Messages.getInstance().getString( "Widget.ERROR_0001_COULD_NOT_CREATE" ) ); //$NON-NLS-1$

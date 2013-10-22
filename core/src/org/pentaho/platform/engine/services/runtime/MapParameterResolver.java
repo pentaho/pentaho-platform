@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.engine.services.runtime;
 
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoMetaData;
@@ -31,6 +26,11 @@ import org.pentaho.platform.api.engine.IParameterResolver;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.services.PentahoMessenger;
 import org.pentaho.platform.engine.services.messages.Messages;
+
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 
 /**
  * This is a utility class that implements the IParameterResolver and resolves parameters based on a lookup map

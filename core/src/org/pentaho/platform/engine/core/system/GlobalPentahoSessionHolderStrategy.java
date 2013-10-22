@@ -24,27 +24,31 @@ import org.pentaho.platform.api.engine.IPentahoSession;
  * A {@code static} field-based implementation of {@link IPentahoSessionHolderStrategy}.
  * 
  * <p>
- * This means that all instances in the JVM share the same {@code IPentahoSession}. This is generally useful with rich
- * clients, such as Swing.
+ * This means that all instances in the JVM share the same {@code IPentahoSession}. This is generally useful with
+ * rich clients, such as Swing.
  * </p>
  * 
  * @author mlowery
  */
 public class GlobalPentahoSessionHolderStrategy implements IPentahoSessionHolderStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private static IPentahoSession session;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public GlobalPentahoSessionHolderStrategy() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public IPentahoSession getSession() {
     return session;

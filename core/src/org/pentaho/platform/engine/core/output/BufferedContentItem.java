@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.output;
 
+import org.pentaho.platform.api.engine.IContentListener;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-
-import org.pentaho.platform.api.engine.IContentListener;
 
 public class BufferedContentItem extends SimpleContentItem {
 

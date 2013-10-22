@@ -17,26 +17,25 @@
 
 package org.pentaho.platform.util.beans;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.text.MessageFormat;
-import java.util.Map;
-
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.util.messages.Messages;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
+import java.util.Map;
+
 /**
- * Utility methods for processing Java Beans in a consistent manner across all Pentaho projects. This is not an attempt
- * to duplicate the behavior of commons-beanutils, rather, a central spot for common operations on beans so we can
- * ensure that same bean property binding functionality and logic anytime we need to work with Java Beans.
+ * Utility methods for processing Java Beans in a consistent manner across all Pentaho projects. This is not an
+ * attempt to duplicate the behavior of commons-beanutils, rather, a central spot for common operations on beans so
+ * we can ensure that same bean property binding functionality and logic anytime we need to work with Java Beans.
  * <p>
- * This utility is especially important in dealing with Pentaho Action beans {@link IAction}s. See {@link ActionHarness}
- * for an IAction-specific flavor of this utility.
+ * This utility is especially important in dealing with Pentaho Action beans {@link IAction}s. See
+ * {@link ActionHarness} for an IAction-specific flavor of this utility.
  * 
  * @author aphillips
  * 
@@ -95,9 +94,9 @@ public class BeanUtil {
   }
 
   /**
-   * Returns <code>true</code> if a bean property can be written to (i.e. there is an accessible and appropriately typed
-   * setter method on the bean). Note: this method will check for both scalar (normal) and indexed properties before
-   * returning <code>false</code>.
+   * Returns <code>true</code> if a bean property can be written to (i.e. there is an accessible and appropriately
+   * typed setter method on the bean). Note: this method will check for both scalar (normal) and indexed properties
+   * before returning <code>false</code>.
    * 
    * @param propertyName
    *          the name of the bean property to check for write-ability
@@ -114,8 +113,8 @@ public class BeanUtil {
    * @param propertyName
    *          the bean property to set
    * @param value
-   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will be
-   *          derived by calling {@link ValueGenerator#getValue(String)}
+   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will
+   *          be derived by calling {@link ValueGenerator#getValue(String)}
    * 
    * @throws Exception
    *           if there was a problem setting the value on the bean
@@ -132,10 +131,11 @@ public class BeanUtil {
    * @param propertyName
    *          the bean property to set
    * @param value
-   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will be
-   *          derived by calling {@link ValueGenerator#getValue(String)}
+   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will
+   *          be derived by calling {@link ValueGenerator#getValue(String)}
    * @param callback
-   *          a structure that alerts the caller of any error states and enables the caller to fail, log, proceed, etc
+   *          a structure that alerts the caller of any error states and enables the caller to fail, log, proceed,
+   *          etc
    * 
    * @throws Exception
    *           if there was a problem setting the value on the bean
@@ -149,23 +149,24 @@ public class BeanUtil {
   /**
    * Set a bean property with a given value, allowing the caller to respond to various error states that may be
    * encountered during the attempt to set the value on the bean. This method also allows the caller to specify
-   * formatters that will modify the property name to match what the bean expects as the true name of the property. This
-   * can be helpful when you are trying to map parameters from a source that follows a convention that is not Java Bean
-   * spec compliant.
+   * formatters that will modify the property name to match what the bean expects as the true name of the property.
+   * This can be helpful when you are trying to map parameters from a source that follows a convention that is not
+   * Java Bean spec compliant.
    * 
    * @param propertyName
    *          the bean property to set
    * @param value
-   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will be
-   *          derived by calling {@link ValueGenerator#getValue(String)}. Note: if value is <code>null</code>, we
-   *          consciously bypass the set operation altogether since it leads to indeterminate behavior, i.e. it may fail
-   *          or succeed.
+   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will
+   *          be derived by calling {@link ValueGenerator#getValue(String)}. Note: if value is <code>null</code>,
+   *          we consciously bypass the set operation altogether since it leads to indeterminate behavior, i.e. it
+   *          may fail or succeed.
    * @param callback
-   *          a structure that alerts the caller of any error states and enables the caller to fail, log, proceed, etc
+   *          a structure that alerts the caller of any error states and enables the caller to fail, log, proceed,
+   *          etc
    * @param formatters
-   *          a list of objects that can be used to modify the given property name prior to performing any operations on
-   *          the bean itself. This new formatted property name will be used to identify the bean property. bean lookup
-   *          and value setting
+   *          a list of objects that can be used to modify the given property name prior to performing any
+   *          operations on the bean itself. This new formatted property name will be used to identify the bean
+   *          property. bean lookup and value setting
    * 
    * @throws Exception
    *           when something goes wrong (controlled by the callback object)
@@ -180,23 +181,24 @@ public class BeanUtil {
   /**
    * Set a bean property with a given value, allowing the caller to respond to various error states that may be
    * encountered during the attempt to set the value on the bean. This method also allows the caller to specify
-   * formatters that will modify the property name to match what the bean expects as the true name of the property. This
-   * can be helpful when you are trying to map parameters from a source that follows a convention that is not Java Bean
-   * spec compliant.
+   * formatters that will modify the property name to match what the bean expects as the true name of the property.
+   * This can be helpful when you are trying to map parameters from a source that follows a convention that is not
+   * Java Bean spec compliant.
    * 
    * @param propertyName
    *          the bean property to set
    * @param value
-   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will be
-   *          derived by calling {@link ValueGenerator#getValue(String)}. Note: if value is <code>null</code>, we
-   *          consciously bypass the set operation altogether since it leads to indeterminate behavior, i.e. it may fail
-   *          or succeed.
+   *          the value to set on the bean. If value is an instance of {@link ValueGenerator}, then the value will
+   *          be derived by calling {@link ValueGenerator#getValue(String)}. Note: if value is <code>null</code>,
+   *          we consciously bypass the set operation altogether since it leads to indeterminate behavior, i.e. it
+   *          may fail or succeed.
    * @param callback
-   *          a structure that alerts the caller of any error states and enables the caller to fail, log, proceed, etc
+   *          a structure that alerts the caller of any error states and enables the caller to fail, log, proceed,
+   *          etc
    * @param formatters
-   *          a list of objects that can be used to modify the given property name prior to performing any operations on
-   *          the bean itself. This new formatted property name will be used to identify the bean property. bean lookup
-   *          and value setting
+   *          a list of objects that can be used to modify the given property name prior to performing any
+   *          operations on the bean itself. This new formatted property name will be used to identify the bean
+   *          property. bean lookup and value setting
    * 
    * @throws Exception
    *           when something goes wrong (controlled by the callback object)
@@ -225,12 +227,15 @@ public class BeanUtil {
       propertyName = formatter.format( propertyName );
     }
 
-    // here we check if we can set the input value on the bean. There are three ways that bean utils will go about this
+    // here we check if we can set the input value on the bean. There are three ways that bean utils will go about
+    // this
     // 1. use a simple property setter method
     // .. in the case of an indexed property there are two methods:
-    // 2. if there is an indexed setter method bean utils will that (note: a simple getter is required as well though it
+    // 2. if there is an indexed setter method bean utils will that (note: a simple getter is required as well
+    // though it
     // will not be invoked)
-    // 3. if there is an array-based getter like List<String> getNames(), bean utils will insert the new value into the
+    // 3. if there is an array-based getter like List<String> getNames(), bean utils will insert the new value into
+    // the
     // array reference
     // it gets from the array getter.
     if ( isWriteable( propertyName ) ) {
@@ -258,11 +263,12 @@ public class BeanUtil {
   }
 
   /**
-   * Sets a number of bean properties based on given property-value map, where the key of the map is the bean property
-   * and the value is the value to which to set that property.
+   * Sets a number of bean properties based on given property-value map, where the key of the map is the bean
+   * property and the value is the value to which to set that property.
    * 
    * @param propValueMap
-   *          a map whose keys are property names and whose values are to be set on the associated property of the bean
+   *          a map whose keys are property names and whose values are to be set on the associated property of the
+   *          bean
    * @throws Exception
    *           if there was a problem setting the value on the bean
    */

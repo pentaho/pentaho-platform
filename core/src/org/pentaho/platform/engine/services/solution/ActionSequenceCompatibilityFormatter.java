@@ -25,10 +25,10 @@ import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.beans.PropertyNameFormatter;
 
 /**
- * This formatter exists to make old-style action sequence inputs, outputs and resource names work with bean utils which
- * adheres to the Java bean spec. All action definition inputs outputs and resources should be named in camel case and
- * dash characters "-" should be avoided. This method will convert a dash-style arg name into camel case and print a
- * warning, or just return the original name if there are no dashes found.
+ * This formatter exists to make old-style action sequence inputs, outputs and resource names work with bean utils
+ * which adheres to the Java bean spec. All action definition inputs outputs and resources should be named in camel
+ * case and dash characters "-" should be avoided. This method will convert a dash-style arg name into camel case
+ * and print a warning, or just return the original name if there are no dashes found.
  * 
  * @author aphillips
  * @param name

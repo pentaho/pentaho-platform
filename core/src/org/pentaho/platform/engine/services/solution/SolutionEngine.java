@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +50,10 @@ import org.pentaho.platform.engine.services.runtime.SimpleRuntimeElement;
 import org.pentaho.platform.util.JVMParameterProvider;
 import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SolutionEngine extends PentahoMessenger implements ISolutionEngine, IPentahoInitializer {
 
@@ -262,8 +262,8 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
     }
 
     /*
-     * IRuntimeElement runtimeData; if (instanceId == null) { // we need to create runtime data for this execution try {
-     * runtimeRepository.setLoggingLevel(loggingLevel); runtimeData =
+     * IRuntimeElement runtimeData; if (instanceId == null) { // we need to create runtime data for this execution
+     * try { runtimeRepository.setLoggingLevel(loggingLevel); runtimeData =
      * runtimeRepository.newRuntimeElement(session.getId(), IParameterProvider.SCOPE_SESSION, !persisted);
      * createRuntime(runtimeData, solutionName, outputHandler, processId, urlFactory);
      * runtime.setLoggingLevel(loggingLevel); instanceId = runtime.getInstanceId(); genLogIdFromInfo(instanceId,
@@ -363,8 +363,10 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
       // This next line is a bit of a workaround, to make up for a deficiency in the SolutionEngine api.
       // What would be nice is to have the exception that is being caught here actually be thrown out of this
       // method. However, the ISolutionEngine interface that this class implements doesn't allow exceptions to be
-      // thrown from this method. Since we can't change the signature of public API's with a minor release we need a
-      // workaround. We've created an new error method in PentahoMessenger that takes the exception and stuffs it in
+      // thrown from this method. Since we can't change the signature of public API's with a minor release we need
+      // a
+      // workaround. We've created an new error method in PentahoMessenger that takes the exception and stuffs it
+      // in
       // the messages list maintained within PentahoMessenger. Callers of this method that want to know if an
       // ActionSequenceException occurred should first call getStatus(). If the status does not
       // indicate success then call getMessages() and check if there is an exception in the list of messages.
@@ -402,7 +404,7 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
               "", this, PentahoSystem.getApplicationContext(), loggingLevel ); //$NON-NLS-1$
       return ( actionSequence );
     } catch ( Exception e ) {
-
+      //ignore
     }
     return null;
   }

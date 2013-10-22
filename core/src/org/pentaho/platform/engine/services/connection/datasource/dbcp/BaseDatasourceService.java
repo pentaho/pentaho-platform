@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 public abstract class BaseDatasourceService implements IDBDatasourceService {
   ICacheManager cacheManager;
@@ -87,6 +87,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
           return rtn;
         }
       } catch ( NamingException ignored ) {
+        //ignored
       }
       try {
         // Tomcat
@@ -97,6 +98,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
           return rtn;
         }
       } catch ( NamingException ignored ) {
+        //ignored
       }
       try {
         // Others?
@@ -107,6 +109,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
           return rtn;
         }
       } catch ( NamingException ignored ) {
+        //ignored
       }
       if ( firstNe != null ) {
         throw new DBDatasourceServiceException( firstNe );
@@ -118,9 +121,9 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
   }
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name, and
-   * return the actual bound name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name, and return the actual bound name.
    * 
    * @param dsName
    *          The Datasource name (like SampleData)
@@ -150,6 +153,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
           return rtn;
         }
       } catch ( NamingException ignored ) {
+        //ignored
       }
       try {
         // Tomcat
@@ -159,6 +163,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
           return rtn;
         }
       } catch ( NamingException ignored ) {
+        //ignored
       }
       try {
         // Others?
@@ -168,6 +173,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
           return rtn;
         }
       } catch ( NamingException ignored ) {
+        //ignored
       }
       if ( firstNe != null ) {
         throw new DBDatasourceServiceException( firstNe );
@@ -179,8 +185,9 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
   }
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to extract just the regular name of a specified JNDI source.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to extract just the regular name of a specified JNDI
+   * source.
    * 
    * @param dsName
    *          The Datasource name (like "jdbc/SampleData")

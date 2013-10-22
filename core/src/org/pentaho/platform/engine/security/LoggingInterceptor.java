@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +25,9 @@ import org.pentaho.platform.engine.security.messages.Messages;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.ThrowsAdvice;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Logger that uses AOP to log debugging information.
@@ -59,7 +59,8 @@ public class LoggingInterceptor implements MethodBeforeAdvice, AfterReturningAdv
     }
   }
 
-  public void afterThrowing( final Method method, final Object[] args, final Object target, final Throwable exception ) {
+  public void afterThrowing( final Method method, final Object[] args,
+                             final Object target, final Throwable exception ) {
     Log logger = LogFactory.getLog( target.getClass() );
     if ( logger.isDebugEnabled() ) {
       logger.debug( Messages.getInstance().getString( "LoggingInterceptor.DEBUG_EXCEPTION_IN_METHOD" ) ); //$NON-NLS-1$

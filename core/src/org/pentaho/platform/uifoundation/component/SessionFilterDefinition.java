@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.util.Map;
-
 import org.dom4j.Element;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.util.Map;
 
 /**
  * 

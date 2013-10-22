@@ -23,15 +23,16 @@ import java.util.ResourceBundle;
 public class MessageUtil {
 
   /**
-   * Get a formatted error message. The message consists of two parts. The first part is the error numeric Id associated
-   * with the key used to identify the message in the resource file. For instance, suppose the error key is
-   * MyClass.ERROR_0068_TEST_ERROR. The first part of the error msg would be "0068". The second part of the returned
-   * string is simply the <code>msg</code> parameter.
+   * Get a formatted error message. The message consists of two parts. The first part is the error numeric Id
+   * associated with the key used to identify the message in the resource file. For instance, suppose the error key
+   * is MyClass.ERROR_0068_TEST_ERROR. The first part of the error msg would be "0068". The second part of the
+   * returned string is simply the <code>msg</code> parameter.
    * 
    * Currently the format is: error key - error msg For instance: "0068 - A test error message."
    * 
    * @param key
-   *          String containing the key that was used to obtain the <code>msg</code> parameter from the resource file.
+   *          String containing the key that was used to obtain the <code>msg</code> parameter from the resource
+   *          file.
    * @param msg
    *          String containing the message that was obtained from the resource file using the <code>key</code>
    *          parameter.

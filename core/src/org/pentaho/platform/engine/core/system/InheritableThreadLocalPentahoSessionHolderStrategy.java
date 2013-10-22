@@ -30,21 +30,25 @@ import org.pentaho.platform.engine.core.messages.Messages;
  */
 public class InheritableThreadLocalPentahoSessionHolderStrategy implements IPentahoSessionHolderStrategy {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( InheritableThreadLocalPentahoSessionHolderStrategy.class );
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private static final ThreadLocal<IPentahoSession> perThreadSession = new InheritableThreadLocal<IPentahoSession>();
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public InheritableThreadLocalPentahoSessionHolderStrategy() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Sets an IPentahoSession for the current thread
@@ -63,11 +67,14 @@ public class InheritableThreadLocalPentahoSessionHolderStrategy implements IPent
   public IPentahoSession getSession() {
     IPentahoSession sess = perThreadSession.get();
     if ( sess == null ) {
-      // In a perfect world, the platform should never be in a state where session is null, but we are not there yet.
+      // In a perfect world, the platform should never be in a state where session is null, but we are not there
+      // yet.
       // Not all places
-      // that instance sessions use the PentahoSessionHolder yet, so we will not make a fuss here if session is null.
+      // that instance sessions use the PentahoSessionHolder yet, so we will not make a fuss here if session is
+      // null.
       // When PentahoSessionHolder
-      // is fully integrated with all sessions, then we should probably throw an exception here since in that case a
+      // is fully integrated with all sessions, then we should probably throw an exception here since in that case
+      // a
       // null session means
       // the system is in an illegal state.
       logger.debug( Messages.getInstance().getString(

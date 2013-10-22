@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.io.Serializable;
-import java.text.MessageFormat;
-
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.util.logging.Logger;
+
+import java.io.Serializable;
+import java.text.MessageFormat;
 
 public abstract class PentahoBase implements ILogger, Serializable {
 

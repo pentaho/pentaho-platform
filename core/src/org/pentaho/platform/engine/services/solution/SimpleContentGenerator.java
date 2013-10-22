@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.OutputStream;
-import java.security.InvalidParameterException;
-
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
+
+import java.io.OutputStream;
+import java.security.InvalidParameterException;
 
 public abstract class SimpleContentGenerator extends BaseContentGenerator {
 

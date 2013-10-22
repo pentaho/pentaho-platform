@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.core.system.boot;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
@@ -35,15 +31,21 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is designed to help embedded deployments start the Pentaho system. {@link PentahoSystemBoot} is a
- * self-contained and very easy to configure platform initializer which does not impose the use of configuration files
- * on your filesystem. A booter instance gives you the flexibility to configure and run the platform entirely in memory.
+ * self-contained and very easy to configure platform initializer which does not impose the use of configuration
+ * files on your filesystem. A booter instance gives you the flexibility to configure and run the platform entirely
+ * in memory.
  * <p>
  * In general you will want to
  * <ol>
  * <li>Construct a {@link PentahoSystemBoot}
- * <li>define the system objects that your system requires, by using one of the {@link #define(Class, Class)} variants
+ * <li>define the system objects that your system requires, by using one of the {@link #define(Class, Class)}
+ * variants
  * <li>(optionally) initialize the Pentaho system for processing requests by calling {@link #start()}
  * </ol>
  * An extremely minimal platform might be configured like this:
@@ -93,8 +95,8 @@ public class PentahoSystemBoot {
   }
 
   /**
-   * Creates a minimal ready-to-run platform with a specified solution path. Use this constructor if your system needs
-   * to access system or other solution files from a particular directory.
+   * Creates a minimal ready-to-run platform with a specified solution path. Use this constructor if your system
+   * needs to access system or other solution files from a particular directory.
    * 
    * @param solutionPath
    *          full path to the pentaho_solutions folder
@@ -111,7 +113,8 @@ public class PentahoSystemBoot {
     configure( solutionPath, null, factory );
   }
 
-  public PentahoSystemBoot( String solutionPath, String fullyQualifiedServerUrl, IPentahoDefinableObjectFactory factory ) {
+  public PentahoSystemBoot( String solutionPath, String fullyQualifiedServerUrl,
+                            IPentahoDefinableObjectFactory factory ) {
     configure( solutionPath, fullyQualifiedServerUrl, factory );
   }
 
@@ -123,8 +126,8 @@ public class PentahoSystemBoot {
    * <li>fullyQualifiedServerUrl = "http://localhost:8080/pentaho/"
    * <li>factory = a new StandaloneObjectFactory instance
    * </ul>
-   * Override this method to create a different set of defaults or use the 'setter' methods to override defaults in a
-   * more fine-grained manner
+   * Override this method to create a different set of defaults or use the 'setter' methods to override defaults in
+   * a more fine-grained manner
    */
   protected void configure( String userFilePath, String userFullyQualifiedServerUrl,
       IPentahoDefinableObjectFactory userFactory ) {
@@ -150,8 +153,8 @@ public class PentahoSystemBoot {
   }
 
   /**
-   * Sets the file path to be used to find configuration and content files If this is not set the current directory (.)
-   * is used.
+   * Sets the file path to be used to find configuration and content files If this is not set the current directory
+   * (.) is used.
    * 
    * @param filePath
    */
@@ -169,8 +172,8 @@ public class PentahoSystemBoot {
   }
 
   /**
-   * Override this method if you want to change the type and state of the application context used to initialize the
-   * system.
+   * Override this method if you want to change the type and state of the application context used to initialize
+   * the system.
    * 
    * @return an application context for system initialization
    */
@@ -272,8 +275,8 @@ public class PentahoSystemBoot {
   }
 
   /**
-   * Returns the list of lifecycle listeners that will be used. These objects will be notified when the Pentaho platform
-   * starts and stops.
+   * Returns the list of lifecycle listeners that will be used. These objects will be notified when the Pentaho
+   * platform starts and stops.
    * 
    * @return
    */
@@ -282,8 +285,8 @@ public class PentahoSystemBoot {
   }
 
   /**
-   * Returns the list of lifecycle listeners that will be used. These objects will be notified when the Pentaho platform
-   * starts and stops.
+   * Returns the list of lifecycle listeners that will be used. These objects will be notified when the Pentaho
+   * platform starts and stops.
    * 
    * @return
    */

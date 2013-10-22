@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.DataUtilities;
@@ -41,6 +37,10 @@ import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * This class provides wrapper functions to make it easier to execute action sequences and generate a widget.
@@ -255,6 +255,7 @@ public class ChartHelper {
                 IPentahoResultSet results = connection.executeQuery( query );
                 chartComponent.setValues( results );
               } finally {
+                boolean ignored = true;
               }
 
               chartComponent.setUrlTemplate( urlDrillTemplate );
@@ -305,8 +306,8 @@ public class ChartHelper {
   }
 
   /**
-   * doPieChart generates the images and html necessary to render pie charts. It provides a simple wrapper around the
-   * class org.pentaho.ui.component.charting.PieDatasetChartComponent
+   * doPieChart generates the images and html necessary to render pie charts. It provides a simple wrapper around
+   * the class org.pentaho.ui.component.charting.PieDatasetChartComponent
    * 
    * @param solutionName
    *          the solution name
@@ -330,7 +331,7 @@ public class ChartHelper {
    */
   @Deprecated
   public static boolean
-    doPieChart( final String actionPath, final IParameterProvider parameterProvider, final StringBuffer outputStream,
+  doPieChart( final String actionPath, final IParameterProvider parameterProvider, final StringBuffer outputStream,
         final IPentahoSession userSession, final ArrayList messages, final ILogger logger ) {
 
     boolean result = true;

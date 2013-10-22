@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -34,9 +29,14 @@ import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourc
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * This class provides a user interface that lets users select items from lists or radio buttons. The selections are
- * used by other components to filter queries used to populate data.
+ * This class provides a user interface that lets users select items from lists or radio buttons. The selections
+ * are used by other components to filter queries used to populate data.
  * 
  * @author James Dixon
  */

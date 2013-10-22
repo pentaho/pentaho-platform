@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.dao.DataAccessException;
@@ -31,6 +28,9 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A subclass of {@link JdbcDaoImpl} that allows the addition of a default role to all authenticated users.
  * 
@@ -38,9 +38,11 @@ import org.springframework.util.Assert;
  */
 public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   /**
    * A default role which will be assigned to all authenticated users if set
@@ -49,7 +51,8 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
 
   private IAuthenticationRoleMapper roleMapper;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   ITenantedPrincipleNameResolver userNameUtils;
 
@@ -58,7 +61,8 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
     this.userNameUtils = userNameUtils;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   @Override
   public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException, DataAccessException {

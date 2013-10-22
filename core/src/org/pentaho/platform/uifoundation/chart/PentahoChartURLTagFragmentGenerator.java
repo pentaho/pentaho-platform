@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.util.Date;
-
 import org.jfree.chart.imagemap.StandardURLTagFragmentGenerator;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
+
+import java.util.Date;
 
 public class PentahoChartURLTagFragmentGenerator extends StandardURLTagFragmentGenerator {
 
@@ -106,7 +106,8 @@ public class PentahoChartURLTagFragmentGenerator extends StandardURLTagFragmentG
       value = retrieveValue( PentahoChartURLTagFragmentGenerator.CATEGORY_TAG, urlText );
 
       if ( value != null ) {
-        urlTemplate = TemplateUtil.applyTemplate( urlTemplate, parameterName, value ); // <paramName> replacement value
+        urlTemplate = TemplateUtil.applyTemplate( urlTemplate, parameterName, value ); // <paramName> replacement
+                                                                                       // value
       }
 
       // Do we have a 'series=' as part of the urlText in? If so, grab the value from the urlText
@@ -117,7 +118,8 @@ public class PentahoChartURLTagFragmentGenerator extends StandardURLTagFragmentG
         if ( ( dataset instanceof CategoryDatasetChartDefinition )
             || ( dataset instanceof XYZSeriesCollectionChartDefinition ) ) {
 
-          urlTemplate = TemplateUtil.applyTemplate( urlTemplate, seriesName, value ); // <series-name> replacement value
+          urlTemplate = TemplateUtil.applyTemplate( urlTemplate, seriesName, value ); // <series-name> replacement
+                                                                                      // value
 
         } else if ( dataset instanceof XYDataset ) {
 
@@ -141,7 +143,8 @@ public class PentahoChartURLTagFragmentGenerator extends StandardURLTagFragmentG
             x = ( xNum instanceof Long ) ? new Date( (Long) xNum ) : xNum;
 
             urlTemplate = TemplateUtil.applyTemplate( urlTemplate, parameterName, x.toString() ); // <paramName>
-                                                                                                  // replacement value
+                                                                                                  // replacement
+                                                                                                  // value
 
             // This value is NEW. We have never returned more than 2 parameters in the url-template.
             // A logical extension for x/y plots is to return the series, the x value and the y value.
@@ -150,9 +153,11 @@ public class PentahoChartURLTagFragmentGenerator extends StandardURLTagFragmentG
             Number yNum = set.getY( val, itemVal );
             y = ( yNum instanceof Long ) ? new Date( (Long) yNum ) : yNum;
 
-            urlTemplate = TemplateUtil.applyTemplate( urlTemplate, "ITEM", y.toString() ); // {ITEM} replacement value,
+            urlTemplate = TemplateUtil.applyTemplate( urlTemplate, "ITEM", y.toString() ); // {ITEM} replacement
+                                                                                           // value,
                                                                                            // in the
-                                                                                           // url-template. There is no
+                                                                                           // url-template. There
+                                                                                           // is no
                                                                                            // parameter
                                                                                            // plumbed for this.
           }

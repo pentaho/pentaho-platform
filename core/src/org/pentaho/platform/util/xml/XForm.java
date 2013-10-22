@@ -17,17 +17,16 @@
 
 package org.pentaho.platform.util.xml;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.transform.TransformerException;
-
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IDocumentResourceLoader;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import javax.xml.transform.TransformerException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class XForm {
 
@@ -67,8 +66,8 @@ public class XForm {
   }
 
   /**
-   * Using html4.xsl, wrap the XForm String in xFormSnippet in a &lt;pho:snippet&gt;, and transform the wrapped XSL into
-   * an HTML form snippet.
+   * Using html4.xsl, wrap the XForm String in xFormSnippet in a &lt;pho:snippet&gt;, and transform the wrapped XSL
+   * into an HTML form snippet.
    * 
    * @param xFormSnippet
    *          The xml snippet being transformed.

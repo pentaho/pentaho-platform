@@ -18,17 +18,6 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +31,17 @@ import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourc
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.engine.services.runtime.ParameterManager.ReturnParameter;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 public class MessageFormatter implements IMessageFormatter {
 
@@ -61,9 +61,10 @@ public class MessageFormatter implements IMessageFormatter {
   }
 
   /**
-   * If PentahoMessenger.getUserString("ERROR") returns the string: "Error: {0} ({1})" (which is the case for English)
-   * Find the substring before the first "{". In this case, that would be: "Error: ". Return the first string in the
-   * messages list that contains the string "Error: ". If no string in the list contains "Error: ", return null;
+   * If PentahoMessenger.getUserString("ERROR") returns the string: "Error: {0} ({1})" (which is the case for
+   * English) Find the substring before the first "{". In this case, that would be: "Error: ". Return the first
+   * string in the messages list that contains the string "Error: ". If no string in the list contains "Error: ",
+   * return null;
    * 
    * @param messages
    * @return
@@ -126,8 +127,6 @@ public class MessageFormatter implements IMessageFormatter {
             .append( "&nbsp;&nbsp;" + Messages.getInstance().getString( "MessageFormatter.USER_SERVER_VERSION", versionHelper.getVersionInformation( PentahoSystem.class ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
       }
       messageBuffer.append( "</body></html>" ); //$NON-NLS-1$
-    } else {
-      // TODO support other mime types
     }
   }
 
@@ -180,13 +179,15 @@ public class MessageFormatter implements IMessageFormatter {
         e.printStackTrace();
       }
 
-      // NOTE: StringUtils.replace is used here instead of String.replaceAll because since the latter uses regex, the
+      // NOTE: StringUtils.replace is used here instead of String.replaceAll because since the latter uses regex,
+      // the
       // replacment
       // text can cause exceptions if '$' or other special characters are present. We cannot guarantee that the
       // replacement
       // text does not have these characters, so a non-regex replacer was used.
 
-      // TODO: there is a bit of extraneous String object creation here. If performance becomes an issue, there are more
+      // TODO: there is a bit of extraneous String object creation here. If performance becomes an issue, there are
+      // more
       // efficient
       // ways of doing mass replacements of text, such as using StringBuilder.replace
 
@@ -412,6 +413,7 @@ public class MessageFormatter implements IMessageFormatter {
         } else {
           // Temporary fix for BISERVER-3348
           ReturnParameter rpm = (ReturnParameter) context.getParameterManager().getReturnParameters().get( outputName );
+          //CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
           if ( ( rpm != null ) && ( "response".equalsIgnoreCase( rpm.destinationName ) ) //$NON-NLS-1$
               && ( "header".equalsIgnoreCase( rpm.destinationParameter ) ) ) { //$NON-NLS-1$
             // we don't want to output response header parameters to the browser...
@@ -494,6 +496,7 @@ public class MessageFormatter implements IMessageFormatter {
         } else {
           // Temporary fix for BISERVER-3348
           ReturnParameter rpm = (ReturnParameter) context.getParameterManager().getReturnParameters().get( outputName );
+          //CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
           if ( ( rpm != null ) && ( "response".equalsIgnoreCase( rpm.destinationName ) ) //$NON-NLS-1$
               && ( "header".equalsIgnoreCase( rpm.destinationParameter ) ) ) { //$NON-NLS-1$
             // we don't want to output response header parameters to the browser...

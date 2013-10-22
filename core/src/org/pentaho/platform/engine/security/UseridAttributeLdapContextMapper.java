@@ -25,10 +25,10 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
 
 /**
- * The purpose of this class is to provide a means of normalizing user ids in case-insensitive LDAP environments. This
- * was successfully tested with MS Active Directory, but should also work with any other directory that is case
- * insensitive. The problem being addressed is well stated in BISERVER-5994. This mapper gets used in place of the
- * default LdapUserDetailsMapper in the applicationContext-spring-security-ldap.xml
+ * The purpose of this class is to provide a means of normalizing user ids in case-insensitive LDAP environments.
+ * This was successfully tested with MS Active Directory, but should also work with any other directory that is
+ * case insensitive. The problem being addressed is well stated in BISERVER-5994. This mapper gets used in place of
+ * the default LdapUserDetailsMapper in the applicationContext-spring-security-ldap.xml
  * 
  * To install this class, you need to do the following:
  * <ol>
@@ -43,8 +43,8 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
  * </pre>
  * 
  * <li>Below the close of the definition of the <code>daoAuthenticationProvider</code> bean, create the
- * <code>ldapContextMapper</code> bean as shown - make sure you update the property name to match your environment. The
- * default is <code>samAccountName</code></li>
+ * <code>ldapContextMapper</code> bean as shown - make sure you update the property name to match your environment.
+ * The default is <code>samAccountName</code></li>
  * 
  * <pre>
  *   &lt;bean id="ldapContextMapper" class="org.pentaho.platform.engine.security.UseridAttributeLdapContextMapper"&gt;

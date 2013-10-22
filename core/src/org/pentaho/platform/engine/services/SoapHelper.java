@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -33,6 +28,11 @@ import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class SoapHelper {
 

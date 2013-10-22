@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Font;
-
 import org.jfree.data.general.DefaultValueDataset;
+
+import java.awt.Font;
 
 public abstract class WidgetDefinition extends DefaultValueDataset {
 

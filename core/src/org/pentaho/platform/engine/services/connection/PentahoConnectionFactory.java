@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.engine.services.connection;
 
-import java.util.Properties;
-
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -29,11 +27,13 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
+import java.util.Properties;
+
 /**
  * @author wseyler
  * 
- *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
- *         Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
+ *         Style - Code Templates
  */
 public class PentahoConnectionFactory {
 
@@ -47,8 +47,8 @@ public class PentahoConnectionFactory {
   public static IPentahoConnection getConnection( final String datasourceType, final IPentahoSession session,
       final ILogger logger ) {
     /*
-     * TODO - This is where the "connection factory" action occurs. Based on if the datasourceType, location, username,
-     * or password have changed then we create a new one.
+     * TODO - This is where the "connection factory" action occurs. Based on if the datasourceType, location,
+     * username, or password have changed then we create a new one.
      */
     return getConnection( datasourceType, (Properties) null, session, logger );
   }
@@ -57,8 +57,8 @@ public class PentahoConnectionFactory {
    * @param datasourceType
    *          valid type is defined as SQL_DATASOURCE or MDX_DATASOURCE
    * @param connectStr
-   *          - In the case of SQL_DATASOURCE, the name of the JNDI connection to use. Or in the case of MDX_DATASOURCE
-   *          a properly formatted connection String.
+   *          - In the case of SQL_DATASOURCE, the name of the JNDI connection to use. Or in the case of
+   *          MDX_DATASOURCE a properly formatted connection String.
    * @return a connection object that can be queried against.
    */
   public static IPentahoConnection getConnection( final String datasourceType, final String connectStr,
@@ -73,8 +73,8 @@ public class PentahoConnectionFactory {
    * @param datasourceType
    *          valid types are defined as SQL_DATASOURCE, MDX_DATASOURCE and XML_DATASOURCE
    * @param location
-   *          - A string specfic to the location and type of datasource. For an SQL instance it would be the URL string
-   *          required by the implementing driver.
+   *          - A string specfic to the location and type of datasource. For an SQL instance it would be the URL
+   *          string required by the implementing driver.
    * @param userName
    * @param password
    * @return a connection object that can be queried against.
@@ -111,8 +111,8 @@ public class PentahoConnectionFactory {
   public static IPentahoConnection getConnection( final String datasourceType, Properties properties,
       final IPentahoSession session, final ILogger logger ) {
     /*
-     * TODO - This is where the "connection factory" action occurs. Based on if the datasourceType, location, username,
-     * or password have changed then we create a new one.
+     * TODO - This is where the "connection factory" action occurs. Based on if the datasourceType, location,
+     * username, or password have changed then we create a new one.
      */
     String key = CONNECTION_PREFIX + datasourceType;
     IPentahoConnection connection = null;

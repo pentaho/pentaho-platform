@@ -18,16 +18,16 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.dom4j.Element;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 

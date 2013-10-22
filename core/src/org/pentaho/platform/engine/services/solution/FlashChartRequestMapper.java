@@ -18,16 +18,16 @@
 
 package org.pentaho.platform.engine.services.solution;
 
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.util.ParameterHelper;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.util.ParameterHelper;
 
 public class FlashChartRequestMapper extends SimpleParameterProvider {
 

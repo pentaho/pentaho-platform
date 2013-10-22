@@ -26,9 +26,9 @@ import org.springframework.security.acl.basic.BasicAclEntry;
 import org.springframework.security.userdetails.UserDetails;
 
 /**
- * Extends the PentahoBasicAclVoter class, and overrides the getEffectiveAcls method to stipulate that if the current
- * user occurrs in the access control list, that whatever access controls are listed for that user, those are the only
- * ones returned.
+ * Extends the PentahoBasicAclVoter class, and overrides the getEffectiveAcls method to stipulate that if the
+ * current user occurrs in the access control list, that whatever access controls are listed for that user, those
+ * are the only ones returned.
  * <p>
  * For example, if the user (sally) belongs to the following roles:
  * 
@@ -65,9 +65,9 @@ import org.springframework.security.userdetails.UserDetails;
  *   </table>
  * </pre>
  * 
- * With the standard <tt>PentahoBasicAclVoter</tt>, sally would have Execute permissions on this object because that
- * voter will simply aggregate all applicable access controls. With this voter, the returned access controls for sally
- * will be <tt>PentahoAclEntry.NOTHING</tt>.
+ * With the standard <tt>PentahoBasicAclVoter</tt>, sally would have Execute permissions on this object because
+ * that voter will simply aggregate all applicable access controls. With this voter, the returned access controls
+ * for sally will be <tt>PentahoAclEntry.NOTHING</tt>.
  * 
  * 
  * @author mbatchel

@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
-
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
@@ -35,6 +31,10 @@ import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
 import org.jfree.ui.RectangleEdge;
+
+import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author klosei

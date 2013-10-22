@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.pentaho.platform.api.engine.ILogger;
@@ -36,11 +31,17 @@ import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.util.xml.XForm;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 /**
- * This class stores the defintion of filters that are used by FilterComponent to generate content for user interfaces.
+ * This class stores the defintion of filters that are used by FilterComponent to generate content for user
+ * interfaces.
  * 
- * This object supports mulitple filters. It stores information about the sources of the values for each filters. It
- * generates an XForm snippet to represent the selections.
+ * This object supports mulitple filters. It stores information about the sources of the values for each filters.
+ * It generates an XForm snippet to represent the selections.
  * 
  * @author James Dixon
  * 
@@ -93,7 +94,9 @@ public class FilterPanel {
       Iterator filtersIterator = filterList.iterator();
       while ( filtersIterator.hasNext() ) {
         FilterDefinition filterDefinition = (FilterDefinition) filtersIterator.next();
-        if ( filterDefinition.populate( parameterProviders, (String[]) defaultValues.get( filterDefinition.getName() ) ) ) {
+        if ( filterDefinition.populate( parameterProviders, (String[]) defaultValues
+          .get( filterDefinition.getName() ) ) ) {
+          boolean ignore = true;
         } else {
           fail++;
         }

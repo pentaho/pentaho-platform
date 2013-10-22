@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -31,6 +27,10 @@ import org.pentaho.platform.api.engine.ISequenceDefinition;
 import org.pentaho.platform.api.engine.ISolutionActionDefinition;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ActionDefinition implements ISolutionActionDefinition {
 

@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.core.output;
 
+import org.pentaho.platform.api.repository.IContentItem;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.pentaho.platform.api.repository.IContentItem;
 
 public class MultiContentItem extends SimpleContentItem {
 

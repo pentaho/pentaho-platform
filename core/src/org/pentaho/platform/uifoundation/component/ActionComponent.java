@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -33,6 +29,10 @@ import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.List;
 
 public class ActionComponent extends BaseUIComponent {
 

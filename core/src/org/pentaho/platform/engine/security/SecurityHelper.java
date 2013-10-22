@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.util.concurrent.Callable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclHolder;
@@ -29,7 +27,6 @@ import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.ISolutionFile;
-import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -46,10 +43,12 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 
+import java.util.concurrent.Callable;
+
 /**
  * A utility class with several methods that are used to either bind the <tt>Authentication</tt> to the
- * <tt>IPentahoSession</tt>, retrieve the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other various
- * helper functions.
+ * <tt>IPentahoSession</tt>, retrieve the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other
+ * various helper functions.
  * 
  * @author mbatchel
  * 
@@ -86,9 +85,9 @@ public class SecurityHelper implements ISecurityHelper {
    * 
    * <p>
    * This will essentially create a session for this user, make that session the current session, and add the
-   * Authentication objects to the session and Spring context holder. WARNING: this method is irreversible!!! If you
-   * want execute a block of code as a surrogate user and have the orignal user resume after it is complete, you want
-   * {@link #runAsUser(String, Callable)}.
+   * Authentication objects to the session and Spring context holder. WARNING: this method is irreversible!!! If
+   * you want execute a block of code as a surrogate user and have the orignal user resume after it is complete,
+   * you want {@link #runAsUser(String, Callable)}.
    * </p>
    * 
    * <p>
@@ -135,9 +134,9 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Utility method that allows you to run a block of code as the given user. Regardless of success or exception
-   * situation, the original session and authentication will be restored once your block of code is finished executing,
-   * i.e. the given user will apply only to your {@link Callable}, then the system environment will return to the user
-   * present prior to you calling this method.
+   * situation, the original session and authentication will be restored once your block of code is finished
+   * executing, i.e. the given user will apply only to your {@link Callable}, then the system environment will
+   * return to the user present prior to you calling this method.
    * 
    * @param <T>
    *          the return type of your operation, specify this type as <code>T</code>
@@ -156,8 +155,8 @@ public class SecurityHelper implements ISecurityHelper {
 
   @Override
   public <T> T
-    runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
-      throws Exception {
+  runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
+    throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
@@ -179,9 +178,9 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Utility method that allows you to run a block of code as the given user. Regardless of success or exception
-   * situation, the original session and authentication will be restored once your block of code is finished executing,
-   * i.e. the given user will apply only to your {@link Callable}, then the system environment will return to the user
-   * present prior to you calling this method.
+   * situation, the original session and authentication will be restored once your block of code is finished
+   * executing, i.e. the given user will apply only to your {@link Callable}, then the system environment will
+   * return to the user present prior to you calling this method.
    * 
    * @param <T>
    *          the return type of your operation, specify this type as <code>T</code>
@@ -230,8 +229,8 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   /**
-   * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted to
-   * the specified user.
+   * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted
+   * to the specified user.
    * 
    * @param session
    *          The users' IPentahoSession

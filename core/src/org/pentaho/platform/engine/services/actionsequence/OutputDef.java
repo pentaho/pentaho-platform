@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
+import org.pentaho.platform.api.engine.IOutputDef;
+
 import java.io.OutputStream;
 import java.util.List;
-
-import org.pentaho.platform.api.engine.IOutputDef;
 
 public class OutputDef implements IOutputDef {
 

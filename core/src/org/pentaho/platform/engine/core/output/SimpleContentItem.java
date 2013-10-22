@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.engine.core.output;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.repository.ContentException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.util.UUIDUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class SimpleContentItem implements IContentItem {
 

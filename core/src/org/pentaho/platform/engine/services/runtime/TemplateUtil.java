@@ -18,18 +18,6 @@
 
 package org.pentaho.platform.engine.services.runtime;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoMetaData;
@@ -43,6 +31,17 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.DateMath;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TemplateUtil {
 
@@ -112,22 +111,22 @@ public class TemplateUtil {
   }
 
   public static String
-    applyTemplate( final String template, final Properties inputs, final IParameterResolver resolver ) {
+  applyTemplate( final String template, final Properties inputs, final IParameterResolver resolver ) {
     return TemplateUtil.applyTemplate( template, inputs, TemplateUtil.parameterExpressionPattern, resolver );
   }
 
   /**
    * Processes a template by processing the parameters declared in the template. The parameters to be replaced are
-   * enclosed in curly brackets. Parameters can be the input values (as specified by the name of the input value) or
-   * date expressions. Parameters that can not be processed are left in the template.
+   * enclosed in curly brackets. Parameters can be the input values (as specified by the name of the input value)
+   * or date expressions. Parameters that can not be processed are left in the template.
    * 
    * @param template
    *          the template specification.
    * @param input
    *          the input values communicated as a {@link java.util.Properties}.
    * @param locale
-   *          the locale to use for the formatting of date expression. If <tt>null</tt>, the locale for the thread is
-   *          used. If no locale for the thread, then the default locale is used.
+   *          the locale to use for the formatting of date expression. If <tt>null</tt>, the locale for the thread
+   *          is used. If no locale for the thread, then the default locale is used.
    * @throws IllegalArgumentException
    *           if a date expression is illegal
    * @see DateMath#calculateDateString(Calendar, String)
@@ -261,8 +260,6 @@ public class TemplateUtil {
         }
         partsList.add( part );
         lastEnd = parameterMatcher.end();
-      } else {
-        // don't support this yet
       }
     }
     if ( PentahoSystem.debug ) {
@@ -437,10 +434,10 @@ public class TemplateUtil {
   }
 
   /**
-   * Acts as a facade for a {@link IRuntimeContext} to access the input values as from a {@link java.util.Properties
-   * Properties}. The class only overrides the {@link #getProperty(String)} method, as its is the only method used in
-   * {@link TemplateComponent#applyTemplate(String, IRuntimeContext) TemplateComponent.applyTemplate(String,
-   * IRuntimeContext)}.
+   * Acts as a facade for a {@link IRuntimeContext} to access the input values as from a
+   * {@link java.util.Properties Properties}. The class only overrides the {@link #getProperty(String)} method, as
+   * its is the only method used in {@link TemplateComponent#applyTemplate(String, IRuntimeContext)
+   * TemplateComponent.applyTemplate(String, IRuntimeContext)}.
    */
   private static class InputProperties extends Properties {
     private static final long serialVersionUID = 1L;

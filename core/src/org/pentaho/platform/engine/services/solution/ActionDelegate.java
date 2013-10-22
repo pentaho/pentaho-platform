@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +36,6 @@ import org.pentaho.platform.api.action.ISessionAwareAction;
 import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.engine.ActionExecutionException;
 import org.pentaho.platform.api.engine.ActionValidationException;
-import org.pentaho.platform.api.engine.IComponent;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
@@ -56,9 +48,16 @@ import org.pentaho.platform.util.beans.ValueGenerator;
 import org.pentaho.platform.util.beans.ValueSetErrorCallback;
 import org.pentaho.platform.util.web.MimeHelper;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * The purpose of the {@link ActionDelegate} is to represent an action object (which implements {@link IAction}) as an
- * {@link IComponent}.
+ * The purpose of the {@link ActionDelegate} is to represent an action object (which implements {@link IAction}) as
+ * an {@link IComponent}.
  * 
  * @see IAction
  */
@@ -97,9 +96,9 @@ public class ActionDelegate extends ComponentBase {
 
   /**
    * This method will tell you if an output in the action definition references an output stream that has a
-   * global/public destination, such as "response", or "content". An action definition output is considered thusly, if
-   * it has a counterpart of the same name in the action sequence outputs AND that output is of type "content" AND it
-   * has declared one or more destinations.
+   * global/public destination, such as "response", or "content". An action definition output is considered thusly,
+   * if it has a counterpart of the same name in the action sequence outputs AND that output is of type "content"
+   * AND it has declared one or more destinations.
    * 
    * @param contentOutput
    *          the action definition output to check
@@ -111,7 +110,8 @@ public class ActionDelegate extends ComponentBase {
     if ( publicOutput == null ) {
       return false;
     }
-    return ( publicOutput.getType().equals( ActionSequenceDocument.CONTENT_TYPE ) && publicOutput.getDestinations().length > 0 );
+    return ( publicOutput.getType().equals( ActionSequenceDocument.CONTENT_TYPE )
+      && publicOutput.getDestinations().length > 0 );
   }
 
   /**
@@ -187,9 +187,6 @@ public class ActionDelegate extends ComponentBase {
         if ( !( contentItem instanceof SimpleContentItem ) ) {
           // this is a special output for streaming actions and does not require a bean accessor
           output.setValue( contentItem );
-        } else {
-          // warn(SimpleContentItem.class.getSimpleName() +
-          // " is for testing purposes only and should not be used in production.");
         }
       } else if ( actionHarness.isReadable( outputName ) ) {
         Object outputVal = actionHarness.getValue( outputName );
@@ -271,14 +268,16 @@ public class ActionDelegate extends ComponentBase {
       }
 
       if ( contentItem == null ) {
-        // this is the best I can do here to point users to a tangible problem without unwrapping code in RuntimeEngine
+        // this is the best I can do here to point users to a tangible problem without unwrapping code in
+        // RuntimeEngine
         // - AP
         throw new ActionValidationException( Messages.getInstance().getErrorString(
             "ActionDelegate.ERROR_0003_OUTPUT_STREAM_NOT_AVAILABLE_1", //$NON-NLS-1$
             curActionOutput.getPublicName() ) );
       }
 
-      // this will be a MultiOutputStream in the case where there is more than one destination for the content output
+      // this will be a MultiOutputStream in the case where there is more than one destination for the content
+      // output
       OutputStream contentOutputStream = contentItem.getOutputStream( getActionName() );
       if ( contentOutputStream == null ) {
         throw new ActionExecutionException( Messages.getInstance().getErrorString(

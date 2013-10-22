@@ -42,7 +42,8 @@ public class BiPlatformRepositoryClient {
   }
 
   /**
-   * Connects to a BI server and gets the repository index document. This can be called again to refresh the document
+   * Connects to a BI server and gets the repository index document. This can be called again to refresh the
+   * document
    */
   public void connect() throws ServiceException {
     GetMethod callMethod = new GetMethod( serverUri + "/SolutionRepositoryService?component=getSolutionRepositoryDoc" ); //$NON-NLS-1$

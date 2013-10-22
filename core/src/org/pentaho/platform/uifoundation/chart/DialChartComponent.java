@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -40,6 +35,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.uifoundation.messages.Messages;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DialChartComponent extends AbstractJFreeChartComponent {
   private static final long serialVersionUID = -6268840271596447555L;
@@ -61,7 +61,8 @@ public class DialChartComponent extends AbstractJFreeChartComponent {
     super( chartType, definitionPath, width, height, urlFactory, messages );
   }
 
-  public DialChartComponent( final String definitionPath, final IPentahoUrlFactory urlFactory, final ArrayList messages ) {
+  public DialChartComponent( final String definitionPath, final IPentahoUrlFactory urlFactory,
+                             final ArrayList messages ) {
     super( definitionPath, urlFactory, messages );
   }
 

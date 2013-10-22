@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.dom4j.Element;
 import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
@@ -33,9 +29,13 @@ import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.XForm;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * TODO sbarkdull, may be worth breaking into 4 separate classes, one for each of the ITEM_SOURCE_*'s of course they
- * would all implement the same interface or abstr class A factory class would look at the xml, and create the
+ * TODO sbarkdull, may be worth breaking into 4 separate classes, one for each of the ITEM_SOURCE_*'s of course
+ * they would all implement the same interface or abstr class A factory class would look at the xml, and create the
  * appropriate instance/type
  * 
  * @author unknow, probably James Dixon
@@ -53,31 +53,31 @@ public abstract class FilterDefinition {
   private String elementName;
 
   /**
-   * a resultSet containing the text and values for the items to be displayed in the filter panel's control. The result
-   * set may be a scoped variable, in which case it is retrieved by the key specified in the <global-attribute> or
-   * <session-attribute> element in the filter panel definition file. Or, it is the output of the action sequence, in
-   * which case it is retrieved from the action sequence's output specified by the name of the <data-output> element of
-   * the filter panel definition file.
+   * a resultSet containing the text and values for the items to be displayed in the filter panel's control. The
+   * result set may be a scoped variable, in which case it is retrieved by the key specified in the
+   * <global-attribute> or <session-attribute> element in the filter panel definition file. Or, it is the output of
+   * the action sequence, in which case it is retrieved from the action sequence's output specified by the name of
+   * the <data-output> element of the filter panel definition file.
    */
   private IPentahoResultSet resultSet;
 
   /**
    * 
-   * the type of the control in the filter panel, identified by the element <type> in the filter panel definition file.
-   * Valid values are: radio,list,list-multi,check-multi,check-multi-scroll,check-multi-scroll-2-column,
+   * the type of the control in the filter panel, identified by the element <type> in the filter panel definition
+   * file. Valid values are: radio,list,list-multi,check-multi,check-multi-scroll,check-multi-scroll-2-column,
    * check-multi-scroll-3-column,check-multi-scroll-4-column
    */
   private int type;
 
   /**
-   * name of the column to retrieve the names of the items placed in the filter panel's control related to the member
-   * variable nameColumnNo
+   * name of the column to retrieve the names of the items placed in the filter panel's control related to the
+   * member variable nameColumnNo
    */
   protected String descriptionItem;
 
   /**
-   * name of the column to retrieve the values of the items placed in the filter panel's control related to the member
-   * variable valueColumnNo
+   * name of the column to retrieve the values of the items placed in the filter panel's control related to the
+   * member variable valueColumnNo
    */
   protected String valueItem;
 
@@ -92,14 +92,14 @@ public abstract class FilterDefinition {
   protected IPentahoSession session;
 
   /**
-   * index of the column to retrieve the names of the items placed in the filter panel's control related to the member
-   * variable descriptionItem
+   * index of the column to retrieve the names of the items placed in the filter panel's control related to the
+   * member variable descriptionItem
    */
   private int nameColumnNo = -1;
 
   /**
-   * index of the column to retrieve the values of the items placed in the filter panel's control related to the member
-   * variable valueItem
+   * index of the column to retrieve the values of the items placed in the filter panel's control related to the
+   * member variable valueItem
    */
   private int valueColumnNo = -1;
 
@@ -228,8 +228,8 @@ public abstract class FilterDefinition {
 
   // sbarkdull: doesn't appear to be used anywhere, temporarily removing it from the public interface
   /*
-   * private boolean isValid(String[] value, Map parameterProviders) { if (resultSet == null && parameterProviders !=
-   * null) { populate(parameterProviders, value); } return isValid(value);
+   * private boolean isValid(String[] value, Map parameterProviders) { if (resultSet == null && parameterProviders
+   * != null) { populate(parameterProviders, value); } return isValid(value);
    * 
    * }
    */
@@ -260,13 +260,14 @@ public abstract class FilterDefinition {
    * 
    * @throws ComponentException
    *           if this.nameColumnNo is -1, this.valueColumnNo is -1, or the this.resultSet is null. nameColumnNo is
-   *           likely to be -1 if this.descriptionItem does not correlate with the value of the <data-display> element
-   *           in the filter panel definition file and the name of a column in the resultSet. valueColumnNo is likely to
-   *           be -1 if this.valueItem does not correlate with the value of the <data-value> element in the filter panel
-   *           definition file and the name of a column in the resultSet. resultSet is likely to be null if a result-set
-   *           was not placed in session or global scope under the key identified by the <global-attribute> or
-   *           <session-attribute> element in the filter panel definition file, or if the action sequence identified by
-   *           <data-action> element in the filter panel definition file failed to return a result set
+   *           likely to be -1 if this.descriptionItem does not correlate with the value of the <data-display>
+   *           element in the filter panel definition file and the name of a column in the resultSet. valueColumnNo
+   *           is likely to be -1 if this.valueItem does not correlate with the value of the <data-value> element
+   *           in the filter panel definition file and the name of a column in the resultSet. resultSet is likely
+   *           to be null if a result-set was not placed in session or global scope under the key identified by the
+   *           <global-attribute> or <session-attribute> element in the filter panel definition file, or if the
+   *           action sequence identified by <data-action> element in the filter panel definition file failed to
+   *           return a result set
    */
   public void getXForm( final StringBuffer xformHeader, final StringBuffer xformBody ) throws ComponentException {
 
@@ -291,8 +292,6 @@ public abstract class FilterDefinition {
         // we did not find the specified name column
         throw new ComponentException( Messages.getInstance().getErrorString(
             "FilterDefinition.ERROR_0002_VALUE_COLUMN_MISSING", valueItem ) ); //$NON-NLS-1$
-      } else {
-        // all is well with the world, you may proceed
       }
 
       Object[] row = null;

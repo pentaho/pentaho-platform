@@ -18,6 +18,12 @@
 
 package org.pentaho.platform.engine.services.audit;
 
+import org.pentaho.platform.api.engine.AuditException;
+import org.pentaho.platform.api.engine.IAuditEntry;
+import org.pentaho.platform.engine.core.messages.Messages;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.logging.Logger;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,17 +33,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.pentaho.platform.api.engine.AuditException;
-import org.pentaho.platform.api.engine.IAuditEntry;
-import org.pentaho.platform.engine.core.messages.Messages;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.logging.Logger;
-
 /**
  * @author mbatchel
  * 
- *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
- *         Code Templates
+ *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
+ *         Style - Code Templates
  */
 public class AuditFileEntry implements IAuditEntry {
   private static final String auditDirPath = "system/logs/audit"; //$NON-NLS-1$

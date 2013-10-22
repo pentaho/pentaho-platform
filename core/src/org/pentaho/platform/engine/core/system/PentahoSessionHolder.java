@@ -18,19 +18,19 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.lang.reflect.Constructor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 
+import java.lang.reflect.Constructor;
+
 /**
- * Stores the IPentahoSession session object for the current thread so that a web service bean can get to it without
- * requiring it to be passed to its methods.
+ * Stores the IPentahoSession session object for the current thread so that a web service bean can get to it
+ * without requiring it to be passed to its methods.
  * 
  * <p>
- * Configure using system property {@code pentaho.sessionHolder.strategy} or {@link #setStrategyName(String)}. Valid
- * values are: {@code MODE_INHERITABLETHREADLOCAL} and {@code MODE_GLOBAL}.
+ * Configure using system property {@code pentaho.sessionHolder.strategy} or {@link #setStrategyName(String)}.
+ * Valid values are: {@code MODE_INHERITABLETHREADLOCAL} and {@code MODE_GLOBAL}.
  * </p>
  * 
  * <p>
@@ -42,7 +42,8 @@ import org.pentaho.platform.api.engine.IPentahoSession;
  */
 public class PentahoSessionHolder {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( PentahoSessionHolder.class );
 
@@ -60,15 +61,18 @@ public class PentahoSessionHolder {
     initialize();
   }
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoSessionHolder() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Sets an IPentahoSession for the current thread

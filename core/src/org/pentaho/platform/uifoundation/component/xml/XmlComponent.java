@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.util.List;
-
-import javax.xml.transform.TransformerException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -31,6 +27,9 @@ import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.uifoundation.component.BaseUIComponent;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.XmlHelper;
+
+import javax.xml.transform.TransformerException;
+import java.util.List;
 
 public abstract class XmlComponent extends BaseUIComponent implements IXMLComponent {
   /**

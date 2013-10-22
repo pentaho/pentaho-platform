@@ -18,10 +18,6 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
@@ -40,6 +36,9 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
+
+import javax.sql.DataSource;
+import java.util.Map;
 
 public class PooledDatasourceHelper {
 
@@ -125,8 +124,8 @@ public class PooledDatasourceHelper {
       pool.setTestOnBorrow( testOnBorrow );
       pool.setTestWhileIdle( testWhileIdle );
       /*
-       * ConnectionFactory creates connections on behalf of the pool. Here, we use the DriverManagerConnectionFactory
-       * because that essentially uses DriverManager as the source of connections.
+       * ConnectionFactory creates connections on behalf of the pool. Here, we use the
+       * DriverManagerConnectionFactory because that essentially uses DriverManager as the source of connections.
        */
       ConnectionFactory factory =
           new DriverManagerConnectionFactory( url, databaseConnection.getUsername(), databaseConnection.getPassword() );
@@ -141,7 +140,7 @@ public class PooledDatasourceHelper {
           validQuery, // String (validation query)
           false, // boolean (default to read-only?)
           true // boolean (default to auto-commit statements?)
-          );
+      );
 
       /*
        * initialize the pool to X connections
@@ -158,8 +157,8 @@ public class PooledDatasourceHelper {
       Logger.debug( PooledDatasourceHelper.class,
           "Pool now has " + pool.getNumActive() + " active/" + pool.getNumIdle() + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       /*
-       * All of this is wrapped in a DataSource, which client code should already know how to handle (since it's the
-       * same class of object they'd fetch via the container's JNDI tree
+       * All of this is wrapped in a DataSource, which client code should already know how to handle (since it's
+       * the same class of object they'd fetch via the container's JNDI tree
        */
       poolingDataSource.setPool( pool );
 

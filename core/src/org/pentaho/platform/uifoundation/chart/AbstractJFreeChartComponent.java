@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -30,6 +27,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractJFreeChartComponent extends AbstractChartComponent {
 

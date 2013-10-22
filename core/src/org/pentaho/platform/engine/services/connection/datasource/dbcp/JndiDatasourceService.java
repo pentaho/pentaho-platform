@@ -18,16 +18,17 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import javax.sql.DataSource;
-
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.engine.services.messages.Messages;
+
+import javax.sql.DataSource;
 
 public class JndiDatasourceService extends BaseDatasourceService {
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name.
    * 
    * @param dsName
    *          The Datasource name

@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.util.Comparator;
-
 import org.pentaho.platform.util.StringUtil;
+
+import java.util.Comparator;
 
 /**
  * Class that compares solution paths used for sorting. It takes into account the path depth and sorts the parent

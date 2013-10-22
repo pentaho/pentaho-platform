@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ISessionContainer;
 import org.pentaho.platform.engine.core.messages.Messages;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
 
 public class StandaloneSession extends BaseSession {
 

@@ -17,12 +17,12 @@
 
 package org.pentaho.platform.util;
 
+import org.pentaho.platform.api.engine.IParameterProvider;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
-
-import org.pentaho.platform.api.engine.IParameterProvider;
 
 public class JVMParameterProvider implements IParameterProvider {
 

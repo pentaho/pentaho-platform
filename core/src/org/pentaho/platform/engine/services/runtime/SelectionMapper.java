@@ -18,23 +18,23 @@
 
 package org.pentaho.platform.engine.services.runtime;
 
+import org.pentaho.commons.connection.IPentahoMetaData;
+import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.platform.api.engine.IActionParameter;
+import org.pentaho.platform.api.engine.ISelectionMapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.pentaho.commons.connection.IPentahoMetaData;
-import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.platform.api.engine.IActionParameter;
-import org.pentaho.platform.api.engine.ISelectionMapper;
-
 public class SelectionMapper implements ISelectionMapper {
 
   /**
-   * Creates a SelectionMapper based on an IPentahoResultSet. If the result set has 1 column, the values and display
-   * names will come from that column. If it has more than 1 column, the first column will be used for the values and
-   * the second will be used for the display names
+   * Creates a SelectionMapper based on an IPentahoResultSet. If the result set has 1 column, the values and
+   * display names will come from that column. If it has more than 1 column, the first column will be used for the
+   * values and the second will be used for the display names
    * 
    * @param resultSet
    *          The result set to get the data from
@@ -48,8 +48,8 @@ public class SelectionMapper implements ISelectionMapper {
   }
 
   /**
-   * Creates a SelectionMapper based on an IPentahoResultSet. The columns to use for the values and display names are
-   * passed in as column names.
+   * Creates a SelectionMapper based on an IPentahoResultSet. The columns to use for the values and display names
+   * are passed in as column names.
    * 
    * @param resultSet
    *          The result set to get the data from
@@ -92,8 +92,8 @@ public class SelectionMapper implements ISelectionMapper {
   }
 
   /**
-   * Creates a SelectionMapper based on an IPentahoResultSet. The index of the column to use for the values and display
-   * names are passed in. The index is 1 based so the first (left most) column is 1.
+   * Creates a SelectionMapper based on an IPentahoResultSet. The index of the column to use for the values and
+   * display names are passed in. The index is 1 based so the first (left most) column is 1.
    * 
    * @param resultSet
    *          The result set to get the data from
@@ -144,8 +144,8 @@ public class SelectionMapper implements ISelectionMapper {
   }
 
   /**
-   * Creates a SelectionMapper based on an IActionParameter. The columns to use for the values and display names are
-   * passed in as column names.
+   * Creates a SelectionMapper based on an IActionParameter. The columns to use for the values and display names
+   * are passed in as column names.
    * 
    * @param actionParam
    *          The ActionParameter to get the data from
@@ -165,7 +165,8 @@ public class SelectionMapper implements ISelectionMapper {
 
     Object value = actionParam.getValue();
     if ( value instanceof IPentahoResultSet ) {
-      return ( SelectionMapper.create( (IPentahoResultSet) value, valueColName, dispColName, displayName, displayStyle ) );
+      return ( SelectionMapper.create( (IPentahoResultSet) value, valueColName, dispColName,
+        displayName, displayStyle ) );
     } else if ( "property-map-list".equals( actionParam.getType() ) ) { //$NON-NLS-1$
       return ( SelectionMapper.createFromPropMapList( (List) value, valueColName, dispColName, displayName,
           displayStyle ) );
@@ -177,8 +178,8 @@ public class SelectionMapper implements ISelectionMapper {
   }
 
   /**
-   * Creates a SelectionMapper based on a pentaho property map list. The index of the column to use for the values and
-   * display names are passed in. The index is 1 based so the first (left most) column is 1.
+   * Creates a SelectionMapper based on a pentaho property map list. The index of the column to use for the values
+   * and display names are passed in. The index is 1 based so the first (left most) column is 1.
    * 
    * @param resultSet
    *          The result set to get the data from
@@ -211,6 +212,7 @@ public class SelectionMapper implements ISelectionMapper {
           dispMap.put( val, disp );
         }
       } catch ( Exception ignore ) {
+        //ignore
       }
     }
 
@@ -223,7 +225,8 @@ public class SelectionMapper implements ISelectionMapper {
 
   String displayName, displayStyle;
 
-  private SelectionMapper( final List selValues, final Map selNames, final String displayName, final String displayStyle ) {
+  private SelectionMapper( final List selValues, final Map selNames,
+                           final String displayName, final String displayStyle ) {
     this.displayName = ( displayName != null ) ? displayName : ""; //$NON-NLS-1$
     this.selNames = selNames;
     this.selValues = ( selValues != null ) ? selValues : new ArrayList();

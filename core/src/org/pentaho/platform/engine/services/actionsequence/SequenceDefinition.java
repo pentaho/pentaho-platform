@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.io.FilenameUtils;
 import org.dom4j.Document;
@@ -41,6 +36,11 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class SequenceDefinition implements ISequenceDefinition {
 
@@ -338,7 +338,8 @@ public class SequenceDefinition implements ISequenceDefinition {
                 if ( parentDir.length() == 0 ) {
                   parentDir = RepositoryFile.SEPARATOR;
                 }
-                resourceLocation = FilenameUtils.separatorsToUnix( FilenameUtils.concat( parentDir, resourceLocation ) );
+                resourceLocation = FilenameUtils.separatorsToUnix( FilenameUtils.concat( parentDir,
+                  resourceLocation ) );
               }
             }
             resource = new ActionSequenceResource( resourceName, resourceType, resourceMimeType, resourceLocation );
@@ -436,6 +437,7 @@ public class SequenceDefinition implements ISequenceDefinition {
       try {
         return ( new Long( rootNode.getText() ) );
       } catch ( Exception e ) {
+        //ignore
       }
       return ( null );
     } else if ( "result-set".equals( dataType ) ) { //$NON-NLS-1$

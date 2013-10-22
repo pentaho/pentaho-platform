@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.FactoryBean;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Obtains references registered in the PentahoSystem for the given class, exposed as an ordered list by priority

@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.services.actionsequence;
 
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IActionSequence;
 import org.pentaho.platform.api.engine.IConditionalExecution;
 import org.pentaho.platform.api.engine.ISequenceDefinition;
+
+import java.util.List;
+import java.util.Map;
 
 public class ActionSequence implements IActionSequence {
   private ISequenceDefinition sequenceDefinition;

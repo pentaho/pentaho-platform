@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -29,6 +26,8 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
+
+import javax.sql.DataSource;
 
 public class PooledDatasourceService extends BaseDatasourceService {
 
@@ -74,8 +73,9 @@ public class PooledDatasourceService extends BaseDatasourceService {
   }
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name.
    * 
    * @param dsName
    *          The Datasource name
@@ -96,9 +96,9 @@ public class PooledDatasourceService extends BaseDatasourceService {
   }
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to hide all the lookups that may be required to find a jndi name, and
-   * return the actual bound name.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
+   * jndi name, and return the actual bound name.
    * 
    * @param dsName
    *          The Datasource name (like SampleData)
@@ -110,8 +110,9 @@ public class PooledDatasourceService extends BaseDatasourceService {
   }
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous way to
-   * look up a datasource. This method is intended to extract just the regular name of a specified JNDI source.
+   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
+   * way to look up a datasource. This method is intended to extract just the regular name of a specified JNDI
+   * source.
    * 
    * @param dsName
    *          The Datasource name (like "jdbc/SampleData")

@@ -18,6 +18,15 @@
 
 package org.pentaho.platform.engine.core.system;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Node;
+import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.engine.core.messages.Messages;
+import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,20 +39,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Node;
-import org.pentaho.platform.api.engine.ISystemSettings;
-import org.pentaho.platform.engine.core.messages.Messages;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-
 /**
- * Provides system settings data for system configuration files located in the system folder of the repository. System
- * settings for </code>PentahoSystem</code> are hardcoded to exist in <repository>/system/pentaho.xml. Provides a
- * settings cache so that settings are read from the file once, and the associated DOM document is cached in memory for
- * future lookups.
+ * Provides system settings data for system configuration files located in the system folder of the repository.
+ * System settings for </code>PentahoSystem</code> are hardcoded to exist in <repository>/system/pentaho.xml.
+ * Provides a settings cache so that settings are read from the file once, and the associated DOM document is
+ * cached in memory for future lookups.
  * 
  * @author unknown
  * 
@@ -117,9 +117,9 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
   }
 
   /**
-   * Get the DOM document initialized by the file specified in the <code>actionPath</code> parameter. If this is the
-   * first time the document associated with <code>actionPath</code> has been requested, cache the DOM document. If this
-   * is not the first time the document has been requested, return the document from the cache.
+   * Get the DOM document initialized by the file specified in the <code>actionPath</code> parameter. If this is
+   * the first time the document associated with <code>actionPath</code> has been requested, cache the DOM
+   * document. If this is not the first time the document has been requested, return the document from the cache.
    */
   public Document getSystemSettingsDocument( final String actionPath ) {
     // S logId =
@@ -145,8 +145,8 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
   }
 
   /**
-   * Get a <code>File</code> object that references a file in the system folder of the repository. The <code>path</code>
-   * parameter is relative to the system folder in the repository.
+   * Get a <code>File</code> object that references a file in the system folder of the repository. The
+   * <code>path</code> parameter is relative to the system folder in the repository.
    * 
    * @param path
    *          String containing the path of a file relative to the system folder in the repository

@@ -17,13 +17,6 @@
 
 package org.pentaho.platform.util.client;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.StringTokenizer;
-
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -51,6 +44,13 @@ import org.pentaho.commons.util.repository.type.PropertyString;
 import org.pentaho.commons.util.repository.type.TypesOfFileableObjects;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class BiPlatformRepositoryClientNavigationService implements INavigationService {
 
@@ -130,10 +130,6 @@ public class BiPlatformRepositoryClientNavigationService implements INavigationS
     propList.add( new PropertyString( CmisObject.NAME, name ) );
     propList.add( new PropertyString( CmisObject.LOCALIZEDNAME, localizedName ) );
     propList.add( new PropertyBoolean( CmisObject.VISIBLE, visible ) );
-
-    if ( depth > 0 ) {
-      // add child objects
-    }
 
     object.setProperties( properties );
     return object;

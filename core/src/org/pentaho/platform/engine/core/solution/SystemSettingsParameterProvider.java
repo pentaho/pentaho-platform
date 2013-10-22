@@ -18,11 +18,11 @@
 
 package org.pentaho.platform.engine.core.solution;
 
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 public class SystemSettingsParameterProvider extends BaseParameterProvider {
 

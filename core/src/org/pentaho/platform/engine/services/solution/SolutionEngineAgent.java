@@ -18,11 +18,6 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -35,6 +30,11 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SolutionEngineAgent {
 

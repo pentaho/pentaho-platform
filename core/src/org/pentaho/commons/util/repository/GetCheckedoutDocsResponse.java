@@ -17,9 +17,9 @@
 
 package org.pentaho.commons.util.repository;
 
-import java.util.List;
-
 import org.pentaho.commons.util.repository.type.CmisObject;
+
+import java.util.List;
 
 public class GetCheckedoutDocsResponse {
 

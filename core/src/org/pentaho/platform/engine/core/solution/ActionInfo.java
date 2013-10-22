@@ -25,11 +25,11 @@ import org.pentaho.platform.api.util.PentahoCheckedChainedException;
 public class ActionInfo {
 
   /**
-   * TODO the method PentahoSystem.parseActionString() should be converted into a ctor for this class, and then removed.
-   * Callers should be adjusted. ActionResource.getLocationInSolution should be refactored into a method in this class,
-   * and callers adjusted. In general, the solutionName, path and actionName should likely be abstracted into an opaque
-   * class that can be passed around, instead of passing around 3 strings, and manually combining and parsing them in
-   * many places.
+   * TODO the method PentahoSystem.parseActionString() should be converted into a ctor for this class, and then
+   * removed. Callers should be adjusted. ActionResource.getLocationInSolution should be refactored into a method
+   * in this class, and callers adjusted. In general, the solutionName, path and actionName should likely be
+   * abstracted into an opaque class that can be passed around, instead of passing around 3 strings, and manually
+   * combining and parsing them in many places.
    * 
    * @author Steven Barkdull
    * 

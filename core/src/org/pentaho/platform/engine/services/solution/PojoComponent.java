@@ -18,6 +18,25 @@
 
 package org.pentaho.platform.engine.services.solution;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.engine.IActionParameter;
+import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.engine.core.output.SimpleContentItem;
+import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.services.messages.Messages;
+import org.pentaho.platform.util.messages.LocaleHelper;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.GenericSignatureFormatError;
@@ -32,40 +51,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.commons.connection.IPentahoStreamSource;
-import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.api.engine.IActionParameter;
-import org.pentaho.platform.api.engine.IActionSequenceResource;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.engine.core.output.SimpleContentItem;
-import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.services.messages.Messages;
-import org.pentaho.platform.util.messages.LocaleHelper;
-
 /**
- * This class interfaces with a plain old Java object and makes it available as a component within the Pentaho platform.
+ * This class interfaces with a plain old Java object and makes it available as a component within the Pentaho
+ * platform.
  * 
- * Resources and Input Parameters are set on a Pojo via setters. Any public setter is available to both, without bias.
- * The setters are called individually for Resources and Input Parameters and as such may be called for each one should
- * a parameter exist in both forms. Resources are processed first, followed by Input Parameters giving Input Parameters
- * the power to override.
+ * Resources and Input Parameters are set on a Pojo via setters. Any public setter is available to both, without
+ * bias. The setters are called individually for Resources and Input Parameters and as such may be called for each
+ * one should a parameter exist in both forms. Resources are processed first, followed by Input Parameters giving
+ * Input Parameters the power to override.
  * 
  * All public getters are exposed through the PojoComponent for consumption as Output Parameters within an Action
  * Sequence.
  * 
  * There exist special methods which may be defined on a Pojo (No interface needed) in order to better facilitate
- * integration to the platform. They are as follows: configure validate execute done getOutputs setResources setInputs
- * setLogger setSession setOutputStream / getMimeType
+ * integration to the platform. They are as follows: configure validate execute done getOutputs setResources
+ * setInputs setLogger setSession setOutputStream / getMimeType
  * 
  * @author jamesdixon
  * @deprecated Pojo components are deprecated, use {@link IAction}
@@ -353,6 +353,7 @@ public class PojoComponent extends ComponentBase {
               callMethod( method, value );
             }
           }
+          //CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
         } else {
           // BISERVER-2715 we should ignore this as the resource might be meant for another component
         }
@@ -438,11 +439,10 @@ public class PojoComponent extends ComponentBase {
     if ( runtimeOutputsMethod != null ) {
       outputMap = (Map<String, Object>) runtimeOutputsMethod.invoke( pojo, new Object[] {} );
     }
-    if ( outputMap.size() > 0 ) {
-    }
     it = outputNames.iterator();
     while ( it.hasNext() ) {
       String name = (String) it.next();
+      //CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
       if ( name.equals( "outputstream" ) ) { //$NON-NLS-1$
         // we should be done
       } else {

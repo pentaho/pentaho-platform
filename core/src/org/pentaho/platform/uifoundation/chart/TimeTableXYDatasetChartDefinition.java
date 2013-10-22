@@ -18,17 +18,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
@@ -50,6 +39,17 @@ import org.jfree.ui.RectangleEdge;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.uifoundation.messages.Messages;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Paint;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /*
  * The only type of chart this method will produce is a stacked XY area chart with a time series dimension.
@@ -210,7 +210,8 @@ public class TimeTableXYDatasetChartDefinition extends TimeTableXYDataset implem
     }
     // get the chart subtitles
 
-    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema to
+    // A list of <subtitle> nodes should not be allowed to exist as a child of the main XML element (for XML schema
+    // to
     // be well constructed and validate the XML .
     // We have deprecated <subtitle> as a child of the main node , and now require a <subtitles> parent node
     // under which <subtitle> can exist.

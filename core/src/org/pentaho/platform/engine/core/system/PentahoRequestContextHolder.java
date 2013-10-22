@@ -18,20 +18,20 @@
 
 package org.pentaho.platform.engine.core.system;
 
-import java.lang.reflect.Constructor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoRequestContextHolderStrategy;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Stores the IPentahoRequestContext object for the current thread so that a web service bean can get to it without
  * requiring it to be passed to its methods.
  * 
  * <p>
- * Configure using system property {@code pentaho.requuestContextHolder.strategy} or {@link #setStrategyName(String)}.
- * Valid values are: {@code MODE_INHERITABLETHREADLOCAL} and {@code MODE_GLOBAL}.
+ * Configure using system property {@code pentaho.requuestContextHolder.strategy} or
+ * {@link #setStrategyName(String)}. Valid values are: {@code MODE_INHERITABLETHREADLOCAL} and {@code MODE_GLOBAL}.
  * </p>
  * 
  * <p>
@@ -42,7 +42,8 @@ import org.pentaho.platform.api.engine.IPentahoRequestContextHolderStrategy;
  **/
 public class PentahoRequestContextHolder {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog( PentahoRequestContextHolder.class );
 
@@ -60,15 +61,18 @@ public class PentahoRequestContextHolder {
     initialize();
   }
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public PentahoRequestContextHolder() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * Sets an IPentahoRequestContext for the current thread
@@ -97,8 +101,8 @@ public class PentahoRequestContextHolder {
   }
 
   /**
-   * Removes the IPentahoRequestContext for the current thread. It is important that the framework calls this to prevent
-   * RequestContext bleed- through between requests as threads are re-used by the server.
+   * Removes the IPentahoRequestContext for the current thread. It is important that the framework calls this to
+   * prevent RequestContext bleed- through between requests as threads are re-used by the server.
    */
   public static void removeRequestContext() {
     strategy.removeRequestContext();

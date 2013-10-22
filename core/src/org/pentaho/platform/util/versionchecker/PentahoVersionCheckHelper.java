@@ -17,17 +17,17 @@
 
 package org.pentaho.platform.util.versionchecker;
 
-import java.util.ArrayList;
-
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.versionchecker.IVersionCheckDataProvider;
 import org.pentaho.versionchecker.IVersionCheckErrorHandler;
 import org.pentaho.versionchecker.IVersionCheckResultHandler;
 import org.pentaho.versionchecker.VersionChecker;
 
+import java.util.ArrayList;
+
 /**
- * Avoid loading this class without reflection, so if someone deletes the versionchecker.jar, there will be no class
- * loading exceptions
+ * Avoid loading this class without reflection, so if someone deletes the versionchecker.jar, there will be no
+ * class loading exceptions
  * 
  * @author Will Gorman
  * 

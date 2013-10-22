@@ -18,14 +18,13 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp.tenantaware;
 
-import java.text.MessageFormat;
-
-import javax.sql.DataSource;
-
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
+
+import javax.sql.DataSource;
+import java.text.MessageFormat;
 
 /**
  * This class provides the foundation for combining a users' tenant ID with the datasource name being requested at
@@ -38,8 +37,8 @@ import org.springframework.beans.factory.InitializingBean;
  * For example: User=admin, Tenant=ABC_COMPANY Requested Datasource: Customers Actual Returned Datasource:
  * ABC_COMPANY-Datasource
  * 
- * When admin runs a report that uses the datasource Customers, subclassers will use the tenant-ID and the datasource
- * name to fulfill the request -
+ * When admin runs a report that uses the datasource Customers, subclassers will use the tenant-ID and the
+ * datasource name to fulfill the request -
  * 
  * @author mbatchelor
  * 
@@ -70,7 +69,8 @@ public abstract class AbstractTenantAwareDatasourceService extends PooledOrJndiD
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
             "TenantAwareDatasourceService.ERROR_0002_TENANT_ID_REQUIRED" ) );
       }
-      return super.getDataSource( dsName ); // If no tenant ID found and it's not required, get originally requested
+      return super.getDataSource( dsName ); // If no tenant ID found and it's not required, get originally
+                                            // requested
                                             // datasource
     } else {
       return super.getDataSource( MessageFormat.format( getDatasourceNameFormat(), tenantId, dsName ) ); // Get the
@@ -80,7 +80,8 @@ public abstract class AbstractTenantAwareDatasourceService extends PooledOrJndiD
   }
 
   /**
-   * This abstract method must be implemented by subclasses - this should return a string containing the tenant's ID.
+   * This abstract method must be implemented by subclasses - this should return a string containing the tenant's
+   * ID.
    * 
    * @return String ID of the Tenant
    */

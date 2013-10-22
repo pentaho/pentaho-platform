@@ -18,9 +18,6 @@
 
 package org.pentaho.platform.uifoundation.component.xml;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -35,6 +32,9 @@ import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.xml.XForm;
+
+import java.io.File;
+import java.util.List;
 
 public class InputFormComponent extends XmlComponent {
 
@@ -77,11 +77,6 @@ public class InputFormComponent extends XmlComponent {
   @Override
   public boolean validate() {
     boolean ok = true;
-    if ( instanceId == null ) {
-      // error( "Instance id not specified" );
-      // out.write( "instance id not provided" );
-      // ok = false;
-    }
 
     if ( solution == null ) {
       error( Messages.getInstance().getString( "InputForm.ERROR_0001_SOLUTION_NOT_SPECIFIED" ) ); //$NON-NLS-1$

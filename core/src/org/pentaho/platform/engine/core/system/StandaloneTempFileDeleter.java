@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.engine.core.system;
 
+import org.pentaho.platform.api.util.ITempFileDeleter;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.pentaho.platform.api.util.ITempFileDeleter;
 
 public class StandaloneTempFileDeleter implements ITempFileDeleter {
 

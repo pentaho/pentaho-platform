@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
+import org.jfree.ui.RectangleEdge;
+
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Paint;
 import java.util.List;
-
-import org.jfree.ui.RectangleEdge;
 
 public interface ChartDefinition {
 

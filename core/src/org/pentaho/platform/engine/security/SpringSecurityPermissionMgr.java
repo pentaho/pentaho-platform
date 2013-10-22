@@ -18,13 +18,6 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPermissionMask;
@@ -32,6 +25,13 @@ import org.pentaho.platform.api.engine.IPermissionMgr;
 import org.pentaho.platform.api.engine.IPermissionRecipient;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.springframework.security.GrantedAuthorityImpl;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class SpringSecurityPermissionMgr implements IPermissionMgr {
 
