@@ -794,6 +794,8 @@ public class PentahoSystem {
               }
             }
           }
+        } catch(Throwable th) {
+          Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getString("PentahoSystem.WARN_UNABLE_TO_EXECUTE_SESSION_ACTION", th.getLocalizedMessage()), th ); //$NON-NLS-1$
         } finally {
           if (context != null) {
             context.dispose();
@@ -888,6 +890,8 @@ public class PentahoSystem {
               }
             }
           }
+        } catch(Throwable th) {
+          Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getString("PentahoSystem.WARN_UNABLE_TO_EXECUTE_GLOBAL_ACTION", th.getLocalizedMessage()), th ); //$NON-NLS-1$
         } finally {
           if (context != null) {
             context.dispose();
