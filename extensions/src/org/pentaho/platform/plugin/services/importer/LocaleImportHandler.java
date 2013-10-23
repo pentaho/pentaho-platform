@@ -17,7 +17,9 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -162,7 +164,21 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
         String localeChildName = extractFileName( localeChild.getName() );
         String localeChildExtension = extractExtension( localeChild.getName() );
 
-        if ( localeFileName.startsWith( localeChildName ) && artifacts.contains( localeChildExtension ) ) {
+        // [BISERVER-10444] locale is not being applied to correct file extension (report1.prpt.locale vs. report1.xaction.locale)
+        boolean localeFileNameAlsoContainsFileExtension = checkIfLocaleFileNameAlsoContainsAFileExtension(localeFileName);
+        
+        if( localeFileNameAlsoContainsFileExtension ){
+          //FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
+          //FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
+          String localeFileExtension = FilenameUtils.getExtension( FilenameUtils.getBaseName( localeFileName ) );
+          
+          if ( extractFileName( localeFileName ).startsWith( localeChildName ) 
+              && localeFileExtension.equalsIgnoreCase( localeChildExtension ) && artifacts.contains( localeChildExtension ) ) {
+            localeParent = localeChild;
+            break;
+          }
+          
+        } else if ( localeFileName.startsWith( localeChildName ) && artifacts.contains( localeChildExtension ) ) {
           localeParent = localeChild;
           break;
         }
@@ -190,5 +206,16 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       return name;
     }
     return name.substring( 0, idx );
+  }
+  
+  private boolean checkIfLocaleFileNameAlsoContainsAFileExtension( String locale ){
+    
+    //ex: report1.prpt.locale    
+    if( !StringUtils.isEmpty( locale ) ){
+      //FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
+      //FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
+      return !StringUtils.isEmpty( FilenameUtils.getExtension( FilenameUtils.getBaseName( locale ) ) );
+    }
+    return false;
   }
 }
