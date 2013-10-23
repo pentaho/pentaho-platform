@@ -110,25 +110,26 @@ public class ActionSequenceJCRHelper {
     
     Document document = null;
     SimpleRepositoryFileData data = null;
-      
-    data = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
-    if (data != null) {
-      try {
-          document = XmlDom4JHelper.getDocFromStream(data.getStream());
-      } catch (Throwable t) {
-        logger.error(Messages.getInstance().getErrorString("ActionSequenceJCRHelper.ERROR_0017_INVALID_XML_DOCUMENT", documentPath), t); //$NON-NLS-1$
+    if(file != null) {
+      data = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
+      if (data != null) {
+        try {
+            document = XmlDom4JHelper.getDocFromStream(data.getStream());
+        } catch (Throwable t) {
+          logger.error(Messages.getInstance().getErrorString("ActionSequenceJCRHelper.ERROR_0017_INVALID_XML_DOCUMENT", documentPath), t); //$NON-NLS-1$
+          return null;
+        }
+      } else {
+        logger.error(Messages.getInstance().getErrorString("ActionSequenceJCRHelper.ERROR_0019_NO_DATA_IN_FILE", file.getName())); //$NON-NLS-1$
         return null;
       }
-    } else {
-      logger.error(Messages.getInstance().getErrorString("ActionSequenceJCRHelper.ERROR_0019_NO_DATA_IN_FILE", file.getName())); //$NON-NLS-1$
-      return null;
+      if ((document == null) && (file != null) && (data != null)) {
+        // the document exists but cannot be parsed
+        logger.error(Messages.getInstance().getErrorString("ActionSequenceJCRHelper.ERROR_0009_INVALID_DOCUMENT", documentPath)); //$NON-NLS-1$
+        return null;
+      }
+      localizeDoc(document, file);
     }
-    if ((document == null) && (file != null) && (data != null)) {
-      // the document exists but cannot be parsed
-      logger.error(Messages.getInstance().getErrorString("ActionSequenceJCRHelper.ERROR_0009_INVALID_DOCUMENT", documentPath)); //$NON-NLS-1$
-      return null;
-    }
-    localizeDoc(document, file);
 
     return document;
   }
