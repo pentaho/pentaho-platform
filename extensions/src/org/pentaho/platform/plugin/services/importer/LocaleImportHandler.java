@@ -171,14 +171,15 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
           //FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
           //FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
           String localeFileExtension = FilenameUtils.getExtension( FilenameUtils.getBaseName( localeFileName ) );
+          String localeFileNameWithoutExtensions = FilenameUtils.getBaseName( FilenameUtils.getBaseName( localeFileName ) );
           
-          if ( extractFileName( localeFileName ).startsWith( localeChildName ) 
+          if ( localeFileNameWithoutExtensions.equals( localeChildName ) 
               && localeFileExtension.equalsIgnoreCase( localeChildExtension ) && artifacts.contains( localeChildExtension ) ) {
             localeParent = localeChild;
             break;
           }
           
-        } else if ( localeFileName.startsWith( localeChildName ) && artifacts.contains( localeChildExtension ) ) {
+        } else if ( extractFileName( localeFileName ).equals( localeChildName ) && artifacts.contains( localeChildExtension ) ) {
           localeParent = localeChild;
           break;
         }
