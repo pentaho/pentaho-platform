@@ -42,6 +42,7 @@ import java.util.TimeZone;
 import static javax.ws.rs.core.MediaType.*;
 
 /**
+ * This resource manages  blockout shedules in the platform
  * @author wseyler
  * 
  */
@@ -66,6 +67,10 @@ public class BlockoutResource extends AbstractJaxRSResource {
     schedulerResource = new SchedulerResource();
   }
 
+  /**
+   * Retrieves all blockout jobs in the system
+   * @return list of <code> Job </code> 
+   */
   @GET
   @Path( "/blockoutjobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -73,6 +78,10 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return manager.getBlockOutJobs();
   }
 
+  /**
+   * Determines whether there are any blockouts in the system
+   * @return  true if the system has any blockouts
+   */
   @GET
   @Path( "/hasblockouts" )
   @Produces( { TEXT_PLAIN } )
@@ -81,7 +90,12 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return Response.ok( ( jobs != null && jobs.size() > 0 ) ? Boolean.TRUE.toString() : Boolean.FALSE.toString() )
         .build();
   }
-
+  /**
+   * Creates a new blockout schedule
+   * @param request <code> JobScheduleRequest </code>
+   * @return
+   * @throws IOException
+   */
   @POST
   @Path( "/add" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
@@ -93,6 +107,13 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return schedulerResource.createJob( request );
   }
 
+  /**
+   * Updates a selected blockout schedule
+   * @param jobId (ID of the blockout schedule to be updated)
+   * @param request <code> JobScheduleRequest </code>
+   * @return
+   * @throws IOException
+   */
   @POST
   @Path( "/update" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
@@ -106,6 +127,11 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return response;
   }
 
+  /**
+   * Checks if the selected blockout schedule will be fired
+   * @param request <code> JobScheduleRequest </code>
+   * @return
+   */
   @GET
   @Path( "/willFire" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
@@ -122,6 +148,10 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return Response.ok( willFire.toString() ).build();
   }
 
+  /**
+   * Checks if the selected blockout schedule should be fired now
+   * @return
+   */
   @GET
   @Path( "/shouldFireNow" )
   @Produces( { TEXT_PLAIN } )
@@ -130,6 +160,15 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return Response.ok( result.toString() ).build();
   }
 
+  /**
+   * Check the status of the selected blockout schedule. The status will display whether it is completely blocked
+   * or partially blocked
+   * 
+   * @param request
+   * @return <code> BlockStatusProxy </code>
+   * @throws UnifiedRepositoryException
+   * @throws SchedulerException
+   */
   @POST
   @Path( "/blockstatus" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )

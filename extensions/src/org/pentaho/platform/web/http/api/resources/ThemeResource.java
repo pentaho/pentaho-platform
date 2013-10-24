@@ -36,6 +36,11 @@ import java.util.List;
 
 import static javax.ws.rs.core.MediaType.*;
 
+/**
+ * Resource manages themes for the platform
+ * 
+ *
+ */
 @Path( "/theme" )
 public class ThemeResource extends AbstractJaxRSResource {
 
@@ -46,6 +51,11 @@ public class ThemeResource extends AbstractJaxRSResource {
     return PentahoSessionHolder.getSession();
   }
 
+  /**
+   * List the current supported themes in the platform
+   * 
+   * @return list of themes
+   */
   @GET
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -62,6 +72,14 @@ public class ThemeResource extends AbstractJaxRSResource {
     return themes;
   }
 
+  /**
+   * Set the current theme to the one provided in this request
+   * 
+   * 
+   * @param theme (theme to be changed to)
+   * 
+   * @return
+   */
   @POST
   @Path( "/set" )
   @Consumes( { WILDCARD } )
@@ -73,6 +91,11 @@ public class ThemeResource extends AbstractJaxRSResource {
     return getActiveTheme();
   }
 
+  /**
+   * Return the name of the active theme
+   * 
+   * @return active theme
+   */
   @GET
   @Path( "/active" )
   @Produces( "text/plain" )

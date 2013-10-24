@@ -47,6 +47,11 @@ import java.util.StringTokenizer;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
+/**
+ * This resource is responsible to managing the user console 
+ * 
+ *
+ */
 @Path( "/mantle/" )
 public class UserConsoleResource extends AbstractJaxRSResource {
 
@@ -59,18 +64,33 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return PentahoSessionHolder.getSession();
   }
 
+  /**
+   * Returns whether the current user is an administrator
+   * 
+   * @return "true" or "false"
+   */
   @GET
   @Path( "/isAdministrator" )
   public Response isAdministrator() {
     return Response.ok( "" + ( SecurityHelper.getInstance().isPentahoAdministrator( getPentahoSession() ) ) ).build();
   }
 
+  /**
+   * Returns whether the user is authenticated or not
+   * 
+   * @return "true" or "false"
+   */
   @GET
   @Path( "/isAuthenticated" )
   public Response isAuthenticated() {
     return Response.ok( "" + ( getPentahoSession() != null && getPentahoSession().isAuthenticated() ) ).build();
   }
 
+  /**
+   * Returns the list of admin related settings 
+   * 
+   * @return list of settings
+   */
   @GET
   @Path( "/getAdminContent" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -112,6 +132,11 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return settings;
   }
 
+  /**
+   * Return the current user console settings
+   * 
+   * @return current settings
+   */
   @GET
   @Path( "/settings" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -169,7 +194,11 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return settings;
   }
 
-  // For New Analysis View
+  /**
+   * Return the list of mondrian cubes in the platform
+   * 
+   * @return list of cubes
+   */
   @GET
   @Path( "/cubes" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -188,6 +217,13 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return cubes;
   }
 
+  /**
+   * Apply the selected locale to the user console
+   * 
+   * @param locale (user console's locale) 
+   * 
+   * @return
+   */
   @POST
   @Path( "/locale" )
   public Response setLocaleOverride( String locale ) {
@@ -200,6 +236,11 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return getLocale();
   }
 
+  /**
+   * Return the server side locale
+   * 
+   * @return server's locale
+   */
   @GET
   @Path( "/locale" )
   public Response getLocale() {

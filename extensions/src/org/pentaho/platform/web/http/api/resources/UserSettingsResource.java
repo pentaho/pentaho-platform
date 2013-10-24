@@ -34,6 +34,11 @@ import java.util.ArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
+/**
+ * This resource manages the user settings of the platform
+ * 
+ *
+ */
 @Path( "/user-settings" )
 public class UserSettingsResource extends AbstractJaxRSResource {
 
@@ -44,6 +49,11 @@ public class UserSettingsResource extends AbstractJaxRSResource {
     return PentahoSessionHolder.getSession();
   }
 
+  /**
+   * Retrieve the global settings and the user settings for the current user
+   * 
+   * @return list of settings for the platform
+   */
   @GET
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -64,6 +74,13 @@ public class UserSettingsResource extends AbstractJaxRSResource {
     return null;
   }
 
+  /**
+   * Retrieve a particular user setting for the current user
+   * 
+   * @param setting (Name of the setting)
+   * 
+   * @return value of the setting for the user
+   */
   @GET
   @Path( "{setting : .+}" )
   public Response getUserSetting( @PathParam( "setting" ) String setting ) {
@@ -72,6 +89,14 @@ public class UserSettingsResource extends AbstractJaxRSResource {
     return Response.ok( userSetting != null ? userSetting.getSettingValue() : null ).build();
   }
 
+  /**
+   * Save the value of a particular setting for the current user
+   * 
+   * @param setting  (Setting name)
+   * @param settingValue   (Value of the setting)
+   * 
+   * @return 
+   */
   @POST
   @Path( "{setting : .+}" )
   public Response setUserSetting( @PathParam( "setting" ) String setting, String settingValue ) {

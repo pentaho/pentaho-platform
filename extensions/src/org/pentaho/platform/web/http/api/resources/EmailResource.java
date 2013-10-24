@@ -29,7 +29,6 @@ import org.pentaho.platform.plugin.services.email.EmailService;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -39,6 +38,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+/**
+ * Configures and manage the Email configuration in the platform
+ * @author rmansoor
+ *
+ */
 
 @org.codehaus.enunciate.XmlTransient
 @Path( "/emailconfig/" )
@@ -89,6 +94,11 @@ public class EmailResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Delete the stored email configuration from the platform.
+   * @param emailConfiguration <code> EmailConfiguration </code> 
+   * @return
+   */
   @GET
   @Path( "/resetEmailConfig" )
   @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
@@ -103,9 +113,14 @@ public class EmailResource extends AbstractJaxRSResource {
     } else {
       return Response.status( UNAUTHORIZED ).build();
     }
-
   }
 
+  
+  /**
+   * Stores the email configuration in the platform
+   * @param emailConfiguration <code> EmailConfiguration </code>
+   * @return
+   */
   @PUT
   @Path( "/setEmailConfig" )
   @Consumes( { MediaType.APPLICATION_JSON } )
@@ -124,6 +139,10 @@ public class EmailResource extends AbstractJaxRSResource {
 
   }
 
+  /**
+   * Retrieves the email configuration
+   * @return emailConfiguration <code> EmailConfiguration </code>
+   */
   @GET
   @Path( "/getEmailConfig" )
   @Produces( { MediaType.APPLICATION_JSON } )
@@ -139,6 +158,12 @@ public class EmailResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Process the current email configuration
+   * @param emailConfiguration <code> EmailConfiguration </code>
+   * @return
+   * @throws Exception
+   */
   @PUT
   @Path( "/sendEmailTest" )
   @Consumes( { MediaType.APPLICATION_JSON } )
@@ -150,7 +175,10 @@ public class EmailResource extends AbstractJaxRSResource {
       return Response.status( UNAUTHORIZED ).build();
     }
   }
-
+  /**
+   * Checks whether the current email configuration is valid
+   * @return ("true" or "false")
+   */
   @GET
   @Path( "/isValid" )
   @Produces( { MediaType.TEXT_PLAIN } )

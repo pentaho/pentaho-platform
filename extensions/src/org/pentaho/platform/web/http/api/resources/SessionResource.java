@@ -33,13 +33,24 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 @Path( "/session/" )
 public class SessionResource extends AbstractJaxRSResource {
 
+  /**
+   * Returns the current user's workspace folder path
+   * 
+   * @return workspace folder path
+   */
   @GET
   @Path( "/userWorkspaceDir" )
   @Produces( TEXT_PLAIN )
   public String doGetCurrentUserDir() {
     return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) + "/workspace";
   }
-
+  
+  /**
+   * Returns the workspace folder path for the selected user.
+   * 
+   * @param user (user name)
+   * @return workspace folder path
+   */
   @GET
   @Path( "/workspaceDirForUser" )
   @Produces( TEXT_PLAIN )

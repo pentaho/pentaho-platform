@@ -214,7 +214,12 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return doService( contextId, resourceId );
   }
 
-  @Path( "/executableTypes" )
+  /**
+   * Retrieves the list of supported content type in the platform
+   * 
+   * @return list of <code> ExecutableFileTypeDto </code>
+   */
+  @Path("/executableTypes")
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getExecutableTypes() {

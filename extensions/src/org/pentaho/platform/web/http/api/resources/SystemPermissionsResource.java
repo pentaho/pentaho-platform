@@ -35,6 +35,13 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Path( "/legacy/permissions" )
 public class SystemPermissionsResource extends AbstractJaxRSResource {
 
+  /**
+   * Return the legacy permissions (These permissions are 4.8x related) 
+   *
+   * @return list of permissions
+   * @throws Exception
+   */
+
   @GET
   @Produces( { MediaType.APPLICATION_XML } )
   public Response getLegacyPermissions() throws Exception {

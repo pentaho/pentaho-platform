@@ -127,6 +127,15 @@ public class PluginResource {
     return inputStream;
   }
 
+  /**
+   * Retrieve the file from the selected plugin. This file is a static file (i.e javascript, html, css etc)
+   * 
+   * @param pluginId (Plugin ID of the selected Plugin)
+   * @param path (Path of the file being retrieved. This is a colon separated path to the plugin file. This
+   *        is usually a static file like a javascript, image or html 
+   * @return 
+   * @throws IOException
+   */
   @GET
   @Path( "/files/{path : .+}" )
   @Produces( WILDCARD )

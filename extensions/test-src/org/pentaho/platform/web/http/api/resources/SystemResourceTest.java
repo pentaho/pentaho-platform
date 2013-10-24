@@ -130,7 +130,7 @@ public class SystemResourceTest {
     String[] fns =
     {
       "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml",
-      "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      "systemListeners.xml", "pentahoSystemConfig.xml", "repository.spring.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );

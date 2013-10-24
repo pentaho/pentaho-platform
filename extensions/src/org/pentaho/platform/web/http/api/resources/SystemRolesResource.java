@@ -35,6 +35,13 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Path( "/roles" )
 public class SystemRolesResource extends AbstractJaxRSResource {
 
+  /**
+   * Returns the roles in the platform
+   * 
+   * @return list of roles
+   * 
+   * @throws Exception
+   */
   @GET
   @Produces( { MediaType.APPLICATION_XML } )
   public Response getRoles() throws Exception {

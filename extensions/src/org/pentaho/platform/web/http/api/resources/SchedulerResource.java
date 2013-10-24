@@ -86,9 +86,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public SchedulerResource() {
   }
 
-  // ///////
-  // CREATE
-  // should this be changed to a PUT?
+
+  /**
+   * Create a new job/schedule
+   * 
+   * @param scheduleRequest <code> JobScheduleRequest </code>
+   * @return
+   * @throws IOException
+   */
   @POST
   @Path( "/job" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
@@ -182,6 +187,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return true;
   }
 
+  /**
+   * Execute a selected job/schedule
+   * 
+   * @param jobRequest <code> JobScheduleRequest </code>
+   * @return
+   */
   @POST
   @Path( "/triggerNow" )
   @Produces( "text/plain" )
@@ -204,6 +215,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Return the content cleaner job/schedule
+   * 
+   * @return <code> Job </code>
+   */
   @GET
   @Path( "/getContentCleanerJob" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -234,6 +250,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Retrieve the all the job(s) visible to the current users
+   * 
+   * @param asCronString  (Cron string) 
+   * 
+   * @return list of <code> Job </code>
+   */
   @GET
   @Path( "/jobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
@@ -265,6 +288,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return false;
   }
 
+  /**
+   * Checks whether the current user has authority to schedule any content in the platform and the selected report
+   * is schedule able
+   * 
+   * @param id (Repository file ID of the report that is being scheduled
+   * @return ("true" or "false")
+   */
   @GET
   @Path( "/isScheduleAllowed" )
   @Produces( TEXT_PLAIN )
@@ -280,6 +310,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return "" + canSchedule; //$NON-NLS-1$
   }
 
+  /**
+   * Checks whether the current user has authority to schedule any content in the platform
+   * @return ("true" or "false")
+   */
   @GET
   @Path( "/canSchedule" )
   @Produces( TEXT_PLAIN )
@@ -288,6 +322,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
+  /**
+   * Returns the state of the scheduler (Schedule could be either paused or normal)
+   * @return status of the scheduler
+   */
   @GET
   @Path( "/state" )
   @Produces( "text/plain" )
@@ -299,6 +337,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * If the scheduler is in the PAUSE state, this will resume the scheduler
+   * 
+   * @return
+   */
   @POST
   @Path( "/start" )
   @Produces( "text/plain" )
@@ -313,6 +356,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * If the schedule in the state of "NORMAL", this will "PAUSE" the scheduler
+   * 
+   * @return
+   */
   @POST
   @Path( "/pause" )
   @Produces( "text/plain" )
@@ -327,6 +375,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Shuts down the scheduler
+   * 
+   * @return
+   */
   @POST
   @Path( "/shutdown" )
   @Produces( "text/plain" )
@@ -341,6 +394,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Checks the state of the selected job/schedule.
+   * 
+   * @param jobRequest <code> JobRequest </code>
+   * @return state of the job/schedule
+   */
   @POST
   @Path( "/jobState" )
   @Produces( "text/plain" )
@@ -361,6 +420,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Pause the selected job/schedule
+   * 
+   * @param jobRequest  <code> JobRequest </code>
+   * @return
+   */
   @POST
   @Path( "/pauseJob" )
   @Produces( "text/plain" )
@@ -383,6 +448,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Resume the selected job/schedule
+   * @param jobRequest   <code> JobRequest </code>
+   * @return
+   */
   @POST
   @Path( "/resumeJob" )
   @Produces( "text/plain" )
@@ -405,6 +475,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Delete the selected job/schedule from the platform
+   * 
+   * @param jobRequest  <code> JobRequest </code>
+   * @return
+   */
   @DELETE
   @Path( "/removeJob" )
   @Produces( "text/plain" )
@@ -427,6 +503,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Return the information regarding a specific job, identified by ID
+   * 
+   * @param jobId
+   * @param asCronString
+   * @return
+   */
   @GET
   @Path( "/jobinfo" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )

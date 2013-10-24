@@ -27,7 +27,6 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -37,9 +36,20 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
-@Path( "/system/refresh" )
+/**
+ * This resource is responsible for refreshing  different system components (metadata, mondrian etc.) 
+ * 
+ * @author rmansoor
+ *
+ */
+@Path("/system/refresh")
 public class SystemRefreshResource extends AbstractJaxRSResource {
 
+  /**
+   * 
+   * 
+   * @return
+   */
   @GET
   @Path( "/globalActions" )
   @Produces( TEXT_PLAIN )
