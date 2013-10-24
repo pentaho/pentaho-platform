@@ -35,6 +35,13 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Path( "/users" )
 public class SystemUsersResource extends AbstractJaxRSResource {
 
+  /**
+   * Returns the list of users in the platform
+   * 
+   * @return list of users
+   * 
+   * @throws Exception
+   */
   @GET
   @Produces( { MediaType.APPLICATION_XML } )
   public Response getUsers() throws Exception {

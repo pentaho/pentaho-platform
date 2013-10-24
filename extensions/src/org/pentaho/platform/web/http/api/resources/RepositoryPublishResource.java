@@ -55,9 +55,18 @@ public class RepositoryPublishResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
-  // ///////
-  // PUBLISH
-  // Create or overwrite a file from stream
+  
+  /**
+   * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
+   * is set to true
+   *  
+   * @param pathId (colon separated path for the repository file)
+   * @param fileContents (input stream containing the data)
+   * @param fileInfo (information about the file being imported)
+   * @param overwriteFile (flag to determine whether to overwrite the existing file in the repository or not)
+   * 
+   * @return 
+   */
   @POST
   @Path( "/publishfile" )
   @Consumes( { MediaType.MULTIPART_FORM_DATA } )

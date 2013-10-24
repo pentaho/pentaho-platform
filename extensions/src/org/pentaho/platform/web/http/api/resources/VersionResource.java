@@ -33,11 +33,21 @@ import java.util.List;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
+/**
+ * This resource manages version checking capability of the platform
+ * 
+ *
+ */
 @Path( "/version" )
 public class VersionResource extends AbstractJaxRSResource {
 
   protected static final Log logger = LogFactory.getLog( VersionResource.class );
 
+  /**
+   * Returns the current version of the platform
+   * 
+   * @return platform's version
+   */
   @GET
   @Path( "/show" )
   @Produces( TEXT_PLAIN )
@@ -46,6 +56,11 @@ public class VersionResource extends AbstractJaxRSResource {
     return Response.ok( versionInfo.getVersionNumber() ).type( MediaType.TEXT_PLAIN ).build();
   }
 
+  /**
+   * Return software update document to the user
+   * 
+   * @return software update document
+   */
   @GET
   @Path( "/softwareUpdates" )
   @Produces( TEXT_PLAIN )

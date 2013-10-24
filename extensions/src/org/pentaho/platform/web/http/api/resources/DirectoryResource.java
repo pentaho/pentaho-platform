@@ -32,8 +32,7 @@ import java.net.URLDecoder;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
- * A class that can manipulate directories
- * 
+ * This resource manages directories in the repository
  * @author wseyler
  * 
  */
@@ -50,6 +49,14 @@ public class DirectoryResource extends AbstractJaxRSResource {
     repoWs = new DefaultUnifiedRepositoryWebService();
   }
 
+  /**
+   * Creates a new folder with the specified name  
+   * Example: (:public:admin:test). It will create folder public --> admin --> test.
+   * If folder already exists then it skips to the next folder to be created.
+   *  
+   * @param pathId (colon seperated path to the repository file)
+   * @return 
+   */
   @PUT
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )

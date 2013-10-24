@@ -146,8 +146,12 @@ public class FileResource extends AbstractJaxRSResource {
     return path;
   }
 
-  // ///////
-  // DELETE
+
+  /**
+   * Moves the list of files to the user's trash folder
+   * @param params List of the files to be deleted
+   * @return
+   */
   @PUT
   @Path( "/delete" )
   @Consumes( { WILDCARD } )
@@ -164,6 +168,11 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Permanently deletes the selected list of files from the repository
+   * @param params list of files to be deleted
+   * @return
+   */
   @PUT
   @Path( "/deletepermanent" )
   @Consumes( { WILDCARD } )
@@ -180,6 +189,11 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Restore the selected list of files from the user's trash folder to their original location
+   * @param params list of files to be restored
+   * @return
+   */
   @PUT
   @Path( "/restore" )
   @Consumes( { WILDCARD } )
@@ -196,9 +210,13 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  // ///////
-  // CREATE
-
+  /**
+   * Creates a new file with the provided contents at a given path
+   * @param pathId (colon separated path for the repository file)
+   * @param fileContents (content of the file)
+   * @return
+   * @throws IOException
+   */
   @PUT
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )
@@ -211,6 +229,14 @@ public class FileResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Copy selected list of files to a new specified location
+   * 
+   * @param pathId (colon separated path for the repository file)
+   * @param mode    (MODE_OVERWITE or MODE_NO_OVERWRITE)
+   * @param params  (List of files to be copied) 
+   * @return
+   */
   @PUT
   @Path( "{pathId : .+}/children" )
   @Consumes( { TEXT_PLAIN } )
@@ -415,6 +441,12 @@ public class FileResource extends AbstractJaxRSResource {
     return response;
   }
 
+  /**
+   * Determines whether a selected file supports parameters or not
+   * @param pathId (colon separated path for the repository file)
+   * @return ("true" or "false")
+   * @throws FileNotFoundException
+   */
   @GET
   @Path( "{pathId : .+}/parameterizable" )
   @Produces( TEXT_PLAIN )
@@ -481,12 +513,16 @@ public class FileResource extends AbstractJaxRSResource {
     return Boolean.toString( hasParameters );
   }
 
+
   /**
-   * Compatibility endpoint for browsers since you can't specify Accepts headers in browsers Added path param
-   * withManifest to indicate that manifest containing ACL and metadata should be included
+   * Download the selected file from the repository.  In order to download file from the repository, the user
+   * needs to have Publish action
    * 
-   * @param pathId
+   * @param pathId (colon separated path for the repository file)
+   * @param strWithManifest (download file with manifest)
+   * 
    * @return
+
    * @throws FileNotFoundException
    */
   @GET
@@ -570,6 +606,13 @@ public class FileResource extends AbstractJaxRSResource {
 
   }
 
+  /**
+   * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
+   * document
+   * @param pathId (colon separated path for the repository file)
+   * @return
+   * @throws FileNotFoundException
+   */
   @GET
   @Path( "{pathId : .+}/inline" )
   @Produces( WILDCARD )
@@ -631,6 +674,13 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
   }
+  
+  /**
+   * Save the acls of the selected file to the repository
+   * @param pathId (colon separated path for the repository file)
+   * @param acl  Acl of the repository file <code> RepositoryFileAclDto </code>
+   * @return
+   */
 
   @PUT
   @Path( "{pathId : .+}/acl" )
@@ -642,6 +692,12 @@ public class FileResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Store content creator of the selected repository file
+   * @param pathId (colon separated path for the repository file)
+   * @param contentCreator <code> RepositoryFileDto </code>
+   * @return
+   */
   @PUT
   @Path( "{pathId : .+}/creator" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
@@ -657,9 +713,12 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  // ///////
-  // LOCALES
-
+  /**
+   * Retrieves the list of locale map for the selected repository file 
+   * 
+   * @param pathId (colon separated path for the repository file)
+   * @return
+   */
   @GET
   @Path( "{pathId : .+}/locales" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -675,6 +734,13 @@ public class FileResource extends AbstractJaxRSResource {
     return availableLocales;
   }
 
+  /**
+   * Retrieve the list of locale properties for a given locale
+   * 
+   * @param pathId (colon separated path for the repository file)
+   * @param locale 
+   * @return
+   */
   @GET
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -693,6 +759,13 @@ public class FileResource extends AbstractJaxRSResource {
     return keyValueList;
   }
 
+  /**
+   * Save list of locale properties for a given locale
+   * @param pathId (colon separated path for the repository file)
+   * @param locale
+   * @param properties list of <code> StringKeyStringValueDto </code>
+   * @return
+   */
   @PUT
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -714,6 +787,12 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Delete the locale for the selected file and locale
+   * @param pathId (colon separated path for the repository file)
+   * @param locale
+   * @return
+   */
   @PUT
   @Path( "{pathId : .+}/deleteLocale" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -728,8 +807,6 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  // ///////
-  // PROPERTIES
 
   @GET
   @Path( "/properties" )
@@ -738,6 +815,13 @@ public class FileResource extends AbstractJaxRSResource {
     return getRepoWs().getFile( PATH_SEPARATOR );
   }
 
+  /**
+   * Checks whether the current user has permissions to the selected files
+   * 
+   * @param pathId (colon separated path for the repository file)
+   * @param permissions (list of permissions to be checked)
+   * @return
+   */
   @GET
   @Path( "{pathId : .+}/canAccessMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -754,6 +838,12 @@ public class FileResource extends AbstractJaxRSResource {
     return permMap;
   }
 
+  /**
+   * Check whether the current user has specific permission on the selected repository file 
+   * @param pathId (colon separated path for the repository file)
+   * @param permissions 
+   * @return
+   */
   @GET
   @Path( "{pathId : .+}/canAccess" )
   @Produces( TEXT_PLAIN )
@@ -789,6 +879,11 @@ public class FileResource extends AbstractJaxRSResource {
     return getRepoWs().hasAccess( idToPath( pathId ), permissionList ) ? "true" : "false";
   }
 
+  /**
+   * Checks whether the current user can administer the platform
+   * 
+   * @return ("true" or "false")
+   */
   @GET
   @Path( "/canAdminister" )
   @Produces( TEXT_PLAIN )
@@ -797,13 +892,23 @@ public class FileResource extends AbstractJaxRSResource {
         && getPolicy().isAllowed( AdministerSecurityAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
+ /**
+   * Checks whether the current user can create content in the repository
+   * 
+   * @return
+   */
   @GET
-  @Path( "/canCreate" )
-  @Produces( TEXT_PLAIN )
+  @Path("/canCreate")
+  @Produces(TEXT_PLAIN)
   public String doGetCanCreate() {
-    return getPolicy().isAllowed( RepositoryCreateAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+        return getPolicy().isAllowed(RepositoryCreateAction.NAME)? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
-
+  
+  /**
+   * Retrieves the acls of the selected repository file
+   * @param pathId (colon separated path for the repository file)
+   * @return <code> RepositoryFileAclDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/acl" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -817,6 +922,11 @@ public class FileResource extends AbstractJaxRSResource {
     return fileAcl;
   }
 
+  /**
+   * Retrieves the properties of a selected repository file
+   * @param pathId (colon separated path for the repository file)
+   * @return  file properties object <code> RepositoryFileDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -824,6 +934,11 @@ public class FileResource extends AbstractJaxRSResource {
     return getRepoWs().getFile( idToPath( pathId ) );
   }
 
+  /**
+   * Retrieves the file by creator id
+   * @param pathId (colon separated path for the repository file)
+   * @return  file properties object <code> RepositoryFileDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/creator" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -841,7 +956,12 @@ public class FileResource extends AbstractJaxRSResource {
       return null;
     }
   }
-
+  
+  /**
+   * Retrieve the list of executed contents for a selected content from the repository.
+   * @param pathId (colon separated path for the repository file)
+   * @return list of <code> RepositoryFileDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/generatedContent" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -869,6 +989,13 @@ public class FileResource extends AbstractJaxRSResource {
     return content;
   }
 
+  /**
+   * Retrieve the executed contents for a selected repository file and a given user
+   * 
+   * @param pathId (colon separated path for the repository file)
+   * @param user (user of the platform)
+   * @return list of <code> RepositoryFileDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/generatedContentForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -897,6 +1024,12 @@ public class FileResource extends AbstractJaxRSResource {
     return content;
   }
 
+  /**
+   * Retrieve the list of execute content by lineage id. 
+   * 
+   * @param lineageId
+   * @return list of <code> RepositoryFileDto </code>
+   */
   @GET
   @Path( "/generatedContentForSchedule" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -919,9 +1052,14 @@ public class FileResource extends AbstractJaxRSResource {
     return content;
   }
 
-  // ///////
-  // BROWSE
-
+  /**
+   * Retrieve the list of files from root of the repository.  
+   * 
+   * @param depth (how many level should the search go)
+   * @param filter (filter to be applied for search)
+   * @param showHidden (include or exclude hidden files from the file list)
+   * @return list of files <code> RepositoryFileTreeDto </code>
+   */
   @GET
   @Path( "/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -930,6 +1068,15 @@ public class FileResource extends AbstractJaxRSResource {
     return doGetChildren( PATH_SEPARATOR, depth, filter, showHidden );
   }
 
+  /**
+   * Retrieve the children of the selected repository file.  This is a recursive search with a selected level
+   * depth and filter  
+   * 
+   * @param depth (how many level should the search go)
+   * @param filter (filter to be applied for search)
+   * @param showHidden (include or exclude hidden files from the file list)
+   * @return list of files <code> RepositoryFileTreeDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -977,6 +1124,11 @@ public class FileResource extends AbstractJaxRSResource {
     return tree;
   }
 
+  /**
+   * Retrieve the list of files in the user's trash folder
+   * 
+   * @return list of <code> RepositoryFileDto </code>
+   */
   @GET
   @Path( "/deleted" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -984,6 +1136,12 @@ public class FileResource extends AbstractJaxRSResource {
     return getRepoWs().getDeletedFiles();
   }
 
+  /**
+   * Retrieve the metadata of the selected repository file. 
+   * 
+   * @param pathId (colon separated path for the repository file)
+   * @return list of <code> StringKeyStringValueDto </code>
+   */
   @GET
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_JSON } )
@@ -1021,6 +1179,13 @@ public class FileResource extends AbstractJaxRSResource {
     return list;
   }
 
+  /**
+   * Rename the name of the selected file
+   * 
+   * @param pathId (colon separated path for the repository file) 
+   * @param newName (New name of the file)
+   * @return
+   */
   @PUT
   @Path( "{pathId : .+}/rename" )
   @Consumes( { WILDCARD } )
@@ -1072,11 +1237,11 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Even though the hidden flag is a property of the file node itself, and not the metadata child, it is considered
-   * metadata from PUC and is included in the setMetadata call
+   * Store the metadata of the selected fle. Even though the hidden flag is a property of the file node itself,
+   * and not the metadata child, it is considered metadata from PUC and is included in the setMetadata call
    * 
-   * @param pathId
-   * @param metadata
+   * @param pathId (colon separated path for the repository file)
+   * @param metadata (list of name value pair of metadata)
    * @return
    */
   @PUT

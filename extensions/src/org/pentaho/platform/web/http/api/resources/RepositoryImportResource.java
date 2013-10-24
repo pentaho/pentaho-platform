@@ -49,6 +49,8 @@ import java.io.InputStream;
 public class RepositoryImportResource {
 
   /**
+   * Attempts to import all files from the zip file. A log file is produced at the end of import
+
    * @param uploadDir
    *          : JCR Directory to which the zip structure or single file will be uploaded to.
    * @param fileIS

@@ -49,6 +49,11 @@ import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.*;
 
+/**
+ *  UserRoleDao manage pentaho security user and roles in the platform.
+ * 
+ *
+ */
 @Path( "/userroledao/" )
 public class UserRoleDaoResource extends AbstractJaxRSResource {
 
@@ -79,6 +84,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   }
 
+  /**
+   * Returns the list of users in the platform's repository
+   * 
+   * @return list of users in the platform
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -88,6 +100,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return new UserListWrapper( roleDao.getUsers() );
   }
 
+  /**
+   * Returns the list of roles in the platform's repository
+   * 
+   * @return list of roles in the platform
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -97,6 +116,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return new RoleListWrapper( roleDao.getRoles() );
   }
 
+  /**
+   * Retrieves a selected user's roles
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userName (user name)
+   * @return list of roles fir the selected user
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/userRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -107,6 +135,16 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return new RoleListWrapper( roleDao.getUserRoles( getTenant( tenantPath ), userName ) );
   }
 
+  /**
+   * Retrieves list of users for the selected role
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param roleName (role name)
+   * 
+   * @return list of users for the selected role
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/roleMembers" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -117,6 +155,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return new UserListWrapper( roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) );
   }
 
+  /**
+   * Associates selected role(s) to a user
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userName (username)
+   * @param roleNames (pipe (|) separated list of role names)
+   * 
+   * @return 
+   */
   @PUT
   @Path( "/assignRoleToUser" )
   @Consumes( { WILDCARD } )
@@ -136,6 +183,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Remove selected roles(s) from a selected user
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userName (username)
+   * @param roleNames (pipe (|) separated list of role names)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/removeRoleFromUser" )
   @Consumes( { WILDCARD } )
@@ -159,6 +215,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Associate all roles to the selected user
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userName (username)
+   *
+   * @return
+   */
   @PUT
   @Path( "/assignAllRolesToUser" )
   @Consumes( { WILDCARD } )
@@ -174,6 +238,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Remove all roles from the selected user
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userName (username)
+   *
+   * @return
+   */
   @PUT
   @Path( "/removeAllRolesFromUser" )
   @Consumes( { WILDCARD } )
@@ -189,6 +261,16 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Associate list of users to the selected role
+   *
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userNames (list of pipe(|) separated user names 
+   * @param roleName (role name)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/assignUserToRole" )
   @Consumes( { WILDCARD } )
@@ -208,6 +290,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Remove user(s) from a particular role
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param userNames (list of pipe(|) separated user names 
+   * @param roleName (role name)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/removeUserFromRole" )
   @Consumes( { WILDCARD } )
@@ -231,6 +322,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Associates all user to a particular role
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param roleName (role name)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/assignAllUsersToRole" )
   @Consumes( { WILDCARD } )
@@ -246,6 +345,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Removes all users from a particular role
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param roleName (role name)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/removeAllUsersFromRole" )
   @Consumes( { WILDCARD } )
@@ -261,6 +368,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Create a new user with provided information.
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param user (user information <code> User </code>)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/createUser" )
   @Consumes( { WILDCARD } )
@@ -285,6 +400,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Create a new role with the provided information
+   * 
+   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
+   * @param roleName (name of the new role)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/createRole" )
   @Consumes( { WILDCARD } )
@@ -295,6 +418,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Delete role(s) from the platform
+   * 
+   * @param roleNames (list of pipe (|) separated role names)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/deleteRoles" )
   @Consumes( { WILDCARD } )
@@ -315,6 +445,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Delete user(s) from the platform
+   * 
+   * @param userNames (list of pipe (|) separated user names)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/deleteUsers" )
   @Consumes( { WILDCARD } )
@@ -335,6 +472,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Update the password of a selected user
+   * 
+   * @param user (user information <code> User </code>)
+   * 
+   * @return
+   */
   @PUT
   @Path( "/updatePassword" )
   @Consumes( { WILDCARD } )
@@ -362,6 +506,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
+  /**
+   * Retrieve the list of logical roles in the platform
+   * 
+   * @param locale (locale) 
+   * 
+   * @return
+   */
   @GET
   @Path( "/logicalRoleMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -379,6 +530,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return systemRolesMap;
   }
 
+  /**
+   * Associate a particular runtime role to list of logical role in the repository
+   * 
+   * @param roleAssignments (logical to runtime role assignments)
+   * 
+   * @return
+   */
   @PUT
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   @Path( "/roleAssignments" )

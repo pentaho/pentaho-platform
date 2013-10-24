@@ -113,6 +113,8 @@ public class SystemResource extends AbstractJaxRSResource {
   }
 
   /**
+   * Returns a list of TimeZones ensuring that the server (default) timezone is at the top of the list (0th element)
+   * 
    * @return a list of TimeZones ensuring that the server (default) timezone is at the top of the list (0th element)
    */
   @GET

@@ -51,6 +51,12 @@ public class PluginManagerResource {
   public PluginManagerResource() {
   }
 
+  /**
+   * Retrieve the list of XUL overlays for the provided id
+   * 
+   * @param id
+   * @return list of <code> Overlay </code>
+   */
   @GET
   @Path( "/overlays" )
   @Produces( { APPLICATION_JSON } )
@@ -70,6 +76,11 @@ public class PluginManagerResource {
     return result;
   }
 
+  /**
+   * Retrieve the list of plugin perspective in the platform
+   * 
+   * @return list of <code> PluginPerspective </code>
+   */
   @GET
   @Path( "/perspectives" )
   @Produces( { APPLICATION_JSON } )
@@ -103,6 +114,11 @@ public class PluginManagerResource {
     return perspectives;
   }
 
+  /**
+   * Retrieve the list of registered plugin IDs
+   * 
+   * @return list of ids
+   */
   @GET
   @Path( "/ids" )
   @Produces( { APPLICATION_JSON } )
@@ -116,6 +132,13 @@ public class PluginManagerResource {
     }
   }
 
+  /**
+   * Retrieve the plugins setting with a provided setting name. This will search the plugins's settings.xml and return
+   * the selected setting
+   * @param pluginId (Plugin ID for the setting being searched)
+   * @param settingName (Setting name of a selected plugin)
+   * @return Value of the setting
+   */
   @GET
   @Path( "/{pluginId}/setting/{settingName}" )
   @Produces( { APPLICATION_JSON } )
@@ -125,6 +148,12 @@ public class PluginManagerResource {
     return (String) pluginManager.getPluginSetting( pluginId, settingName, null );
   }
 
+  /**
+   * Retrieve the list of setting of a selected setting name from all registered plugins. 
+   * 
+   * @param settingName (name of the plugin setting)
+   * @return list of <code> Setting </code>
+   */
   @GET
   @Path( "/settings/{settingName}" )
   @Produces( { APPLICATION_JSON } )

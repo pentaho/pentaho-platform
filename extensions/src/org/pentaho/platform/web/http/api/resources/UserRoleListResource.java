@@ -39,6 +39,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
+/**
+ * UserRoleList resource manage platform's implementation <code> IUserRoleListService </code>
+ * 
+ *
+ */
 @Path( "/userrolelist/" )
 public class UserRoleListResource extends AbstractJaxRSResource {
 
@@ -60,6 +65,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     this.extraRoles = extraRoles;
   }
 
+  /**
+   * Returns the list of users in the platform
+   * 
+   * @return list of users
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/permission-users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -67,6 +79,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return getUsers();
   }
 
+  /**
+   * Returns the list of roles in the platform. 
+   * 
+   * @return list of roles
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/permission-roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -86,6 +105,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new RoleListWrapper( allRoles );
   }
 
+  /**
+   * Returns the list of users in the platform
+   * 
+   * @return list of users 
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -94,6 +120,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new UserListWrapper( service.getAllUsers() );
   }
 
+  /**
+   * Returns list of roles in the platform
+   * 
+   * @return list of roles
+   *
+   * @throws Exception
+   */
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -102,6 +135,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new RoleListWrapper( userRoleListService.getAllRoles() );
   }
 
+  /**
+   * Returns all role in the platform. This include extra roles which are (Anonymous and Authenticated)
+   * 
+   * @return list of roles
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -112,6 +152,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new RoleListWrapper( roles );
   }
 
+  /**
+   * Returns roles identified as "system roles" from the repository 
+   * 
+   * 
+   * @return system roles
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/systemRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -119,6 +167,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new RoleListWrapper( systemRoles );
   }
 
+  /**
+   * Returns roles identified as "extra roles" from the repository
+   * 
+   * @return extra roles
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/extraRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -126,6 +181,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new RoleListWrapper( extraRoles );
   }
 
+  /**
+   * Returns roles for a given user
+   * 
+   * @param user
+   * @return list of roles
+   * @throws Exception
+   */
   @GET
   @Path( "/getRolesForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -142,6 +204,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Returns all the users that are part of a given role
+   * 
+   * @param role
+   * @return list of users
+   * 
+   * @throws Exception
+   */
   @GET
   @Path( "/getUsersInRole" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )

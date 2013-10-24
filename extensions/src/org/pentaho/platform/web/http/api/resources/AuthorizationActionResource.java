@@ -30,7 +30,12 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-@Path( "/authorization/action" )
+/**
+ * Resource deals with the Authorization Action in the platform. 
+ * @author rmansoor
+ *
+ */
+@Path("/authorization/action")
 public class AuthorizationActionResource {
 
   @SuppressWarnings( "serial" )
@@ -54,7 +59,12 @@ public class AuthorizationActionResource {
 
     this.authActionList = authActionList;
   }
-
+  
+  /**
+   * Validates if a current user is authorized to perform a specific action
+   * @param authAction Authorization Action to be validated
+   * @return "true" or "false"
+   */
   @GET
   @Path( "/isauthorized" )
   @Produces( { MediaType.TEXT_PLAIN } )
