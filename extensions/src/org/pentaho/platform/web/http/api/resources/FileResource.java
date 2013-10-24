@@ -515,18 +515,14 @@ public class FileResource extends AbstractJaxRSResource {
 
 
   /**
-<<<<<<< Updated upstream
-   * Compatibility endpoint for browsers since you can't specify Accepts headers in browsers Added path param
-   * withManifest to indicate that manifest containing ACL and metadata should be included
-   * 
-   * @param pathId
-=======
    * Download the selected file from the repository.  In order to download file from the repository, the user
    * needs to have Publish action
+   * 
    * @param pathId (colon separated path for the repository file)
    * @param strWithManifest (download file with manifest)
->>>>>>> Stashed changes
+   * 
    * @return
+
    * @throws FileNotFoundException
    */
   @GET
