@@ -6,7 +6,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
 
   <!-- ======================== FILTER CHAIN ======================= -->
   <!--
@@ -30,11 +30,7 @@
   <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
     <property name="providers">
       <list>
-        <pen:bean class="org.springframework.security.providers.AuthenticationProvider">
-          <pen:attributes>
-            <pen:attr key="providerName" value="${security.provider}"/>
-          </pen:attributes>
-        </pen:bean>
+        <pen:bean class="org.springframework.security.providers.AuthenticationProvider"/>
         <ref local="anonymousAuthenticationProvider" />
       </list>
     </property>
