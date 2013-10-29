@@ -186,7 +186,7 @@ public class IFrameTabPanel extends VerticalPanel {
       super.onAttach();
       attachEventListeners( frame.getElement(), this );
     }
-
+    
     public native void removeEventListeners( Element ele )
     /*-{
         var wind = ele.contentWindow;
@@ -195,12 +195,6 @@ public class IFrameTabPanel extends VerticalPanel {
         wind.onmousemove = null;          
         wind.onunload = null;
         $wnd.watchWindow = null; 
-        try {
-          $wnd.purge(ele.contentDocument.body);
-        } catch (ignoredxss) {}
-        try {
-          $wnd.removeChildrenFromNode(ele.contentDocument.body);     
-        } catch (ignoredxss) {}
     }-*/;
 
     public native void attachEventListeners( Element ele, CustomFrame frame )
