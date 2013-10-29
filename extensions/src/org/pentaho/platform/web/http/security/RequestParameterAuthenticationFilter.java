@@ -17,11 +17,13 @@
 
 package org.pentaho.platform.web.http.security;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -130,24 +132,36 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
     byte[] bytes = IOUtils.toByteArray(in);
     // Do something with Bytes.
 
-    final BufferedInputStream newStream = new BufferedInputStream(new ByteArrayInputStream(bytes));
-    final Map parameterMap = request.getParameterMap();
+    final InputStream newStream = new ByteArrayInputStream( bytes );
 
-    HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(httpRequest){
+    final Map<?, ?> parameterMap = request.getParameterMap();
+
+    HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper( httpRequest ) {
+      private final AtomicBoolean getInputStreamCalled = new AtomicBoolean( false );
 
       @Override
-      public Map getParameterMap() {
+      public Map<?, ?> getParameterMap() {
         return parameterMap;
       }
 
       @Override
       public ServletInputStream getInputStream() throws IOException {
-        return new ServletInputStream(){
+        if ( getInputStreamCalled.getAndSet( true )) {
+          // Will throw correct exception as we've already called this method
+          return super.getInputStream();
+        }
+        return new ServletInputStream() {
+          
           @Override
           public int read() throws IOException {
             return newStream.read();
           }
         };
+      }
+
+      @Override
+      public BufferedReader getReader() throws IOException {
+        return new BufferedReader( new InputStreamReader( getInputStream() ) );
       }
     };
 
