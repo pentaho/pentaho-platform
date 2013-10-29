@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A Jackrabbit {@code PrincipalProvider} that delegates to a Pentaho {@link UserDetailsService}.
- * 
+ *
  * <p>
  * A {@code java.security.Principal} represents a user. A {@code java.security.acl.Group} represents a group. In
  * Spring Security, a group is called a role or authority or granted authority. Arguments to the method
@@ -63,29 +63,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * happens when access control entries (ACEs) grant access to roles and the system needs to verify the role is
  * known.
  * </p>
- * 
+ *
  * <p>
  * Jackrabbit assumes a unified space of all user and role names. The PrincipalProvider is responsible for
  * determining the type of a principal/group from its name.
  * </p>
- * 
+ *
  * <p>
  * This implementation caches users and roles, but not passwords. Optionally, this implementation can take
  * advantage of a Spring Security UserCache. If available, it will use said cache for role membership lookups. Also
  * note that the removal of a role or user from the system will not be noticed by this implementation. (A restart
  * of Jackrabbit is required.)
  * </p>
- * 
+ *
  * <p>
  * There are users and roles that are never expected to be in any backing store. By default, these are "everyone"
  * (a role), "anonymous" (a user), "administrators" (a role), and "admin" (a user).
  * </p>
- * 
+ *
  * <p>
  * This implementation never returns null from {@link #getPrincipal(String)}. As a result, a
  * {@code NoSuchPrincipalException} is never thrown. See the method for details.
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class SpringSecurityPrincipalProvider implements PrincipalProvider {
@@ -151,9 +151,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     if ( logger.isTraceEnabled() ) {
       logger.trace( String.format( "using anonymousId [%s]", anonymousId ) ); //$NON-NLS-1$
     }
-    if ( PentahoSystem.getInitializedOK() ) {
-      userDetailsService = PentahoSystem.get( UserDetailsService.class );
-    }
 
     initialized.set( true );
   }
@@ -183,7 +180,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>
    * Attempts to load user using given {@code principalName} using a Pentaho {@code UserDetailsService}. If it
    * fails to find user, it returns a {@link Group} which will be caught by {@code SpringSecurityLoginModule}.
@@ -274,7 +271,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>
    * Called from {@code AbstractLoginModule.getPrincipals()}
    * </p>
@@ -396,7 +393,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>
    * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
    * never called.
@@ -408,7 +405,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>
    * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
    * never called.
@@ -420,7 +417,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>
    * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is
    * never called.
