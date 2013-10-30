@@ -49,6 +49,13 @@ function addStylesheet(url) {
     document.getElementsByTagName('head')[0].appendChild(link);
 }
 
+function addScript(url) {
+    var script = document.createElement('script');
+    script.type = "text/javascript";
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+}
+
 function includeResources(resourceTree) {
   var activeTheme = resourceTree && resourceTree[active_theme];
   if(!activeTheme) { return; }
@@ -66,7 +73,7 @@ function includeResources(resourceTree) {
         addStylesheet(basePath + baseName.replace('.css', '') + '-mobile.css');
       }
     } else {
-      document.write("<script type='text/javascript' src='" + basePath + baseName + "'></script>");
+      addScript(basePath + baseName);
     }
   }
 }
