@@ -256,7 +256,9 @@ public class ActionAdapterQuartzJob implements Job {
           SecurityHelper.getInstance().runAsUser( actionUser, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-              streamProvider.setStreamingAction( null ); // remove generated content
+              if(streamProvider != null) {
+                streamProvider.setStreamingAction( null ); // remove generated content  
+              }
               String jobName = StringUtils.substringBetween( context.getJobDetail().getName(), ":", ":" );
               jobParams.put( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG, Boolean.TRUE );
               scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
