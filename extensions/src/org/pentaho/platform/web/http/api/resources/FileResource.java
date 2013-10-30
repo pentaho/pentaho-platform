@@ -446,6 +446,7 @@ public class FileResource extends AbstractJaxRSResource {
           Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
           SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
           parameterProvider.setParameter("path", repositoryFile.getPath());
+          parameterProvider.setParameter("renderMode", "PARAMETER");
           parameterProviders.put(IParameterProvider.SCOPE_REQUEST, parameterProvider);
           parameterContentGenerator.setParameterProviders(parameterProviders);
           parameterContentGenerator.setSession(PentahoSessionHolder.getSession());
