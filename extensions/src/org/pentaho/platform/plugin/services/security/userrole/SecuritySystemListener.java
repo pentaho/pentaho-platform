@@ -6,14 +6,13 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.providers.AuthenticationProvider;
 
 /**
- * This listener ensures that the Authentication system has been loaded. Security must be started
- * before the repository.
+ * This listener ensures that the Authentication system has been loaded. Security must be started before the repository.
  */
 public class SecuritySystemListener implements IPentahoSystemListener {
 
   @Override
-  public boolean startup(IPentahoSession session) {
-    PentahoSystem.get(AuthenticationProvider.class);
+  public boolean startup( IPentahoSession session ) {
+    PentahoSystem.get( AuthenticationProvider.class );
     return true;
   }
 
