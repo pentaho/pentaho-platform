@@ -78,12 +78,11 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
   // ~ Constructors
   // ====================================================================================================
 
-  public JcrRoleAuthorizationPolicyRoleBindingDao( final JcrTemplate jcrTemplate, final List<String> logicalRoleNames,
-      final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
+  public JcrRoleAuthorizationPolicyRoleBindingDao( final JcrTemplate jcrTemplate, final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
       final Map<String, List<String>> bootstrapRoleBindings, final String superAdminRoleName,
-      final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles ) {
-    super( logicalRoleNames, immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils,
-        logicalRoles );
+      final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> authorizationActions ) {
+    super(immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils,
+        authorizationActions );
     Assert.notNull( jcrTemplate );
     this.jcrTemplate = jcrTemplate;
   }

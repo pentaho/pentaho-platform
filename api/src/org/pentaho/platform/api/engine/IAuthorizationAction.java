@@ -31,4 +31,12 @@ public interface IAuthorizationAction {
    * @return action name
    */
   String getName();
+  
+  /**
+   * Get the localized display name of action for a specific locale. If null is passed then default locale will be used
+   *
+   * @param locale 
+   * @return localized name
+   */
+  String getLocalizedDisplayName(String locale); 
 }
