@@ -62,7 +62,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
 
   protected String superAdminRoleName;
 
-  private Set<String> logicalRoles = new TreeSet<String>();
+  private List<IAuthorizationAction> authorizationActions = new ArrayList<IAuthorizationAction>();
 
   public static final String FOLDER_NAME_AUTHZ = ".authz"; //$NON-NLS-1$
 
@@ -75,24 +75,18 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   @SuppressWarnings( "unchecked" )
   protected Map boundLogicalRoleNamesCache = Collections.synchronizedMap( new LRUMap() );
 
-  public AbstractJcrBackedRoleBindingDao( final List<String> logicalRoleNames,
-      final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
+  public AbstractJcrBackedRoleBindingDao(final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
       final Map<String, List<String>> bootstrapRoleBindings, final String superAdminRoleName,
-      final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles ) {
+      final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> authorizationActions ) {
     super();
     // TODO: replace with IllegalArgumentException
     Assert.notNull( immutableRoleBindings );
     Assert.notNull( bootstrapRoleBindings );
     Assert.notNull( superAdminRoleName );
-    Assert.notNull( logicalRoles );
+    Assert.notNull( authorizationActions );
 
-    for ( IAuthorizationAction action : logicalRoles ) {
-      this.logicalRoles.add( action.getName() );
-    }
+    this.authorizationActions.addAll(authorizationActions);  
 
-    if ( logicalRoleNames != null ) {
-      this.logicalRoles.addAll( logicalRoleNames );
-    }
     this.immutableRoleBindings = immutableRoleBindings;
     this.bootstrapRoleBindings = bootstrapRoleBindings;
     this.superAdminRoleName = superAdminRoleName;
@@ -314,27 +308,9 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   }
 
   protected Map<String, String> getMapForLocale( final String localeString ) {
-    final String UNDERSCORE = "_"; //$NON-NLS-1$
-    Locale locale;
-
-    ResourceBundle resourceBundle = null;
-    if ( localeString == null ) {
-      resourceBundle = Messages.getInstance().getBundle();
-    } else {
-      String[] tokens = localeString.split( UNDERSCORE );
-      if ( tokens.length == 3 ) {
-        locale = new Locale( tokens[0], tokens[1], tokens[2] );
-      } else if ( tokens.length == 2 ) {
-        locale = new Locale( tokens[0], tokens[1] );
-      } else {
-        locale = new Locale( tokens[0] );
-      }
-      resourceBundle = Messages.getInstance().getBundle( locale );
-    }
-
     Map<String, String> map = new HashMap<String, String>();
-    for ( String logicalRoleName : logicalRoles ) {
-      map.put( logicalRoleName, resourceBundle.getString( logicalRoleName ) );
+    for ( IAuthorizationAction authorizationAction : authorizationActions ) {
+      map.put( authorizationAction.getName(), authorizationAction.getLocalizedDisplayName(localeString) );
     }
     return map;
   }

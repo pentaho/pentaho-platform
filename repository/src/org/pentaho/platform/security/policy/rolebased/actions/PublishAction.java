@@ -18,16 +18,23 @@
 
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-import org.pentaho.platform.api.engine.IAuthorizationAction;
+import java.util.ResourceBundle;
 
 /**
  * User: nbaker Date: 3/30/13
  */
-public class PublishAction implements IAuthorizationAction {
+public class PublishAction extends AbstractAuthorizationAction {
   public static final String NAME = "org.pentaho.security.publish";
-
+  ResourceBundle resourceBundle;
+  
   @Override
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public String getLocalizedDisplayName(String localeString) {
+    resourceBundle = getResourceBundle(localeString);
+    return resourceBundle.getString( NAME );
   }
 }
