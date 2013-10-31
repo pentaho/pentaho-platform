@@ -17,7 +17,6 @@
 
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -26,6 +25,7 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -33,8 +33,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.ui.Label;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import com.google.gwt.user.client.ui.HTML;
 
 public class DeleteFolderCommand extends AbstractCommand {
   
@@ -86,7 +85,7 @@ public class DeleteFolderCommand extends AbstractCommand {
 
     final String filesList = repositoryFile.getId();
     final String folderName = repositoryFile.getTitle() == null ? repositoryFile.getName() : repositoryFile.getTitle();
-    final HTML messageTextBox = new HTML(Messages.getString("moveToTrashQuestionFolder",folderName));
+    final HTML messageTextBox = new HTML(Messages.getString("moveToTrashQuestionFolder", escapeHtmlEntities( folderName )));
     final PromptDialogBox folderDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     folderDeleteWarningDialogBox.setContent(messageTextBox);
 
@@ -144,5 +143,10 @@ public class DeleteFolderCommand extends AbstractCommand {
 
 
   }
+  
+  public static String escapeHtmlEntities( String text ) {
+    return text.replace( "&", "&amp;" ).replace( "\"", "&quot;" ).replace( "'", "&apos;" ).replace( "<", "&lt;" )
+      .replace( ">", "&gt;" );
+  }  
 
 }
