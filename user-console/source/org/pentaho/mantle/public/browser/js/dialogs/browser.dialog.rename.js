@@ -87,6 +87,7 @@ pen.define([
             // if possible refresh the solution browser panel
             if (typeof window.top.mantle_setIsRepoDirty !== "undefined") {
               window.top.mantle_setIsRepoDirty(true);
+              window.top.mantle_isBrowseRepoDirty=true;
             }
 
             // Refresh file or folder list

@@ -131,6 +131,7 @@ public class RestoreFileCommand implements Command {
             dialogBox.center();
             event.setMessage( "Success" );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
+            setBrowseRepoDirty( Boolean.TRUE );
             EventBusUtil.EVENT_BUS.fireEvent( event );
           }
         }
@@ -144,4 +145,8 @@ public class RestoreFileCommand implements Command {
       EventBusUtil.EVENT_BUS.fireEvent( event );
     }
   }
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+    $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 }

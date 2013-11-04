@@ -157,6 +157,7 @@ public class DeleteFileCommand extends AbstractCommand {
             EventBusUtil.EVENT_BUS.fireEvent( event );
             new RefreshRepositoryCommand().execute( false );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
+            setBrowseRepoDirty( Boolean.TRUE );
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
@@ -178,4 +179,9 @@ public class DeleteFileCommand extends AbstractCommand {
     }
 
   }
+
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+    $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 }

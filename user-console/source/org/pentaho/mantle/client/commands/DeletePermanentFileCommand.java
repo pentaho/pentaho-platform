@@ -157,6 +157,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
                 new RefreshRepositoryCommand().execute( false );
                 event.setMessage( "Success" );
                 FileChooserDialog.setIsDirty( Boolean.TRUE );
+                setBrowseRepoDirty( Boolean.TRUE );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               } else {
                 MessageDialogBox dialogBox =
@@ -196,4 +197,9 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   protected void performOperation() {
     performOperation( true );
   }
+
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+    $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 }
