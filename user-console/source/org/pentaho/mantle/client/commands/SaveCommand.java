@@ -288,6 +288,7 @@ public class SaveCommand extends AbstractCommand {
       $wnd.mantle_showMessage("Error","The plugin has not defined a handle_puc_save function to handle the save of the content");
     }
     $wnd.mantle_setIsRepoDirty(true);
+    $wnd.mantle_isBrowseRepoDirty=true;
   }-*/;
 
   // used via JSNI

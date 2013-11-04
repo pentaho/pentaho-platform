@@ -29,6 +29,8 @@ pen.define([
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog) {
 
 
+  window.top.mantle_isBrowseRepoDirty = false;
+
   this.FileBrowser = {};
 
   FileBrowser.urlParam = function (paramName) {
@@ -177,7 +179,6 @@ pen.define([
       lastClick: "folder",
 
       data: undefined,
-      fileData: undefined,
 
       openFileHandler: undefined,
 
@@ -252,7 +253,7 @@ pen.define([
     },
 
     onFavoritesChanged: function () {
-      // BISERVER-9127	- Reselect current file
+      // BISERVER-9127  - Reselect current file
       var that = this;
       setTimeout(function () {
         that.get('fileListModel').trigger("change:clickedFile");
@@ -382,6 +383,7 @@ pen.define([
       clickedFolder: undefined,
 
       data: undefined,
+      cachedData: {},
       updateData: false,
 
       runSpinner: false,
@@ -393,6 +395,11 @@ pen.define([
       startFolder: "/",
 
       sequenceNumber: 0
+    },
+
+    getCachedData: function () {
+      var myself = this;
+      return myself.cachedData;
     },
 
     initialize: function () {
@@ -448,11 +455,13 @@ pen.define([
             myself.set("sequenceNumber", localSequenceNumber + 1);
             callback(customSort(response));
           }
+
         },
         error: function () {
         },
-        beforeSend: function () {
+        beforeSend: function (xhr) {
           myself.set("runSpinner", true);
+
         }
       });
     },
@@ -469,6 +478,7 @@ pen.define([
       clickedFile: undefined,
 
       data: undefined,
+      cachedData: {},
       path: "/",
 
       runSpinner: false,
@@ -550,11 +560,30 @@ pen.define([
             myself.set("sequenceNumber", localSequenceNumber + 1);
             callback(customSort(response));
           }
+
+          if(window.top.mantle_isBrowseRepoDirty == true) {
+            window.top.mantle_isBrowseRepoDirty=false;
+            //clear the cache
+            myself.set("cachedData",{});
+          }
+          //cache the folder contents
+          myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]=response;
         },
         error: function () {
         },
-        beforeSend: function () {
+        beforeSend: function (xhr) {
           myself.set("runSpinner", true);
+
+          if(!window.top.mantle_isBrowseRepoDirty){
+            if(myself.get("cachedData") != undefined) {
+              if(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] != undefined){
+                myself.set("data",myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+                xhr.abort();
+                myself.set("runSpinner", false);
+              }
+            }
+          }
+
         }
       });
     },

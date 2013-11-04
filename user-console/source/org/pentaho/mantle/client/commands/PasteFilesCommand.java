@@ -224,6 +224,7 @@ public class PasteFilesCommand extends AbstractCommand {
           event.setMessage( "Success" );
           EventBusUtil.EVENT_BUS.fireEvent( event );
           FileChooserDialog.setIsDirty( Boolean.TRUE );
+          setBrowseRepoDirty( Boolean.TRUE );
         }
 
       } );
@@ -234,4 +235,9 @@ public class PasteFilesCommand extends AbstractCommand {
     }
 
   }
+
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+   $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 }

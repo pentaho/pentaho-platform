@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -119,6 +120,8 @@ public class DeleteFolderCommand extends AbstractCommand {
               if ( response.getStatusCode() == 200 ) {
                 new RefreshRepositoryCommand().execute( false );
                 event.setMessage( "Success" );
+                FileChooserDialog.setIsDirty( Boolean.TRUE );
+                setBrowseRepoDirty( Boolean.TRUE );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               } else {
                 MessageDialogBox dialogBox =
@@ -150,5 +153,8 @@ public class DeleteFolderCommand extends AbstractCommand {
     return text.replace( "&", "&amp;" ).replace( "\"", "&quot;" ).replace( "'", "&apos;" ).replace( "<", "&lt;" )
       .replace( ">", "&gt;" );
   }
-
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+    $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 }

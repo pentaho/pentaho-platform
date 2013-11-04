@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -143,6 +144,8 @@ public class NewFolderCommand extends AbstractCommand {
                 NewFolderCommand.this.callback.onHandle( solutionPath );
                 new RefreshRepositoryCommand().execute( false );
                 event.setMessage( "Success" );
+                FileChooserDialog.setIsDirty( Boolean.TRUE );
+                setBrowseRepoDirty( Boolean.TRUE );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               } else {
                 MessageDialogBox dialogBox =
@@ -152,6 +155,7 @@ public class NewFolderCommand extends AbstractCommand {
                 dialogBox.center();
                 event.setMessage( Messages.getString( "couldNotCreateFolder", folderNameTextBox.getText() ) );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
+
               }
             }
 
@@ -209,5 +213,10 @@ public class NewFolderCommand extends AbstractCommand {
   public void setCallback( ICallback<String> callback ) {
     this.callback = callback;
   }
+
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+    $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 
 }
