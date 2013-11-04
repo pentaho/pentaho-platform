@@ -383,7 +383,6 @@ pen.define([
       clickedFolder: undefined,
 
       data: undefined,
-      cachedData: {},
       updateData: false,
 
       runSpinner: false,
@@ -395,11 +394,6 @@ pen.define([
       startFolder: "/",
 
       sequenceNumber: 0
-    },
-
-    getCachedData: function () {
-      var myself = this;
-      return myself.cachedData;
     },
 
     initialize: function () {
