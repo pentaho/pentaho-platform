@@ -87,6 +87,9 @@
 <div class="container-fluid main-container">
   <div class="row-fluid">
     <div class="span3" id="buttonWrapper">
+        
+            
+      <div class='row-fluid'>        
       <script type="text/x-handlebars-template">
         <div class="well sidebar">
           <button class="btn btn-large btn-block" onclick="window.top.mantle_setPerspective('browser.perspective')">
@@ -111,64 +114,17 @@
           <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('OpenDocCommand')">
             {{i18n.documentation}}
           </button>
-
-
-          <div style="display:none" id="btnCreateNewContent">
-
-            {{#if hasAnalyzerPlugin}}
-            <button class="btn btn-large btn-block nobreak"
-                    onclick="Home.openFile('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
-              {{i18n.analysis_report}}
-            </button>
-            {{/if}}
-
-            {{#if hasIRPlugin}}
-            <button class="btn btn-large btn-block nobreak"
-                    onclick="Home.openFile('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
-              {{i18n.interactive_report}}
-            </button>
-            {{/if}}
-
-            {{#if hasDashBoardsPlugin}}
-            <button class="btn btn-large btn-block nobreak"
-                    onclick="Home.openFile('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
-              {{i18n.dashboard}}
-            </button>
-            {{/if}}
-          </div>
-
         </div>
+
+        <div style="display:none" id="btnCreateNewContent"></div>
       </script>
-    </div>
-    <div class="span9" style="overflow:auto">
 
-      <div class="row-fluid">
+</div>
 
-        <!-- Pre-load  getting started over graphic for smooth inital transition for mouse over css -->
-        <div class="preload-getting-started-over-icon" style="display:none"></div>
-        
-        <script type="text/x-handlebars-template">
-          <div id="getting-started" class="well getting-started widget-panel">
-            <h3>{{i18n.getting_started_heading}}</h3>
-            
-            <ul class="nav nav-tabs" id="tab-group">
-                <li><a href="#tab1">{{i18n.getting_started_tab1}}</a></li>
-                <li><a href="#tab2">{{i18n.getting_started_tab2}}</a></li>
-                <li><a href="#tab3">{{i18n.getting_started_tab3}}</a></li>
-            </ul>
- 
-            <div class="tab-content">
-              <div class="tab-pane" id="tab1"></div>
-              <div class="tab-pane" id="tab2"></div>
-              <div class="tab-pane" id="tab3"></div>
-            </div>
-          </div>
-        </script>        
-      </div>
 
-      <div class="row-fluid">
 
-        <div class="span6">
+         <div class="row-fluid">
+         <div class='span12'>
           <script id="recentsTemplate" type="text/x-handlebars-template" delayCompile="true">
             <div id="recents" class="well widget-panel">
               <h3>
@@ -198,6 +154,8 @@
                           {{#if xaction}}     <i class="pull-left content-icon file-xaction"/>    {{/if}}
                           {{#if url}}         <i class="pull-left content-icon file-url"/>        {{/if}}
                           {{#if html}}        <i class="pull-left content-icon file-html"/>       {{/if}}
+                          {{#if cda}}         <i class="pull-left content-icon file-cda"/>        {{/if}}
+                          {{#if wcdf}}        <i class="pull-left content-icon file-wcdf"/>       {{/if}}
                           {{#if unknownType}} <i class="pull-left content-icon file-unknown"/>    {{/if}}
                           <span class="pad-left">{{title}}</span>
                         </div>
@@ -221,9 +179,15 @@
           </script>
 
           <div id="recentsContianer"></div>
+          </div>
         </div>
 
-        <div class="span6">
+
+
+      <div class="row-fluid">
+      
+
+        <div class="span12">
           <script id="favoritesTemplate" type="text/x-handlebars-template" delayCompile="true">
             <div id="favorites" class="well widget-panel">
               <h3>
@@ -274,8 +238,24 @@
           <div id="favoritesContianer"></div>
 
         </div>
-
+      
+      
+      
       </div>
+
+
+
+
+
+    </div> 
+    <div class="span9" style="overflow:visible">
+
+      <div class="row-fluid welcome-container">
+      
+      <iframe src="content/welcome/index.html" class='welcome-frame' frameborder="0" scrolling="no"></iframe>
+            
+      </div>
+      
     </div>
   </div>
 </div>
