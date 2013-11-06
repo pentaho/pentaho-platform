@@ -1,0 +1,90 @@
+.app-ng-view {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+
+	width: 100%;
+
+	z-index: 100;
+}
+
+.app-ng-view.ng-enter,
+.app-ng-view.ng-leave {
+	-webkit-transition: 500ms;
+	-moz-transition: 500ms;
+	-ms-transition: 500ms;
+	-o-transition: 500ms;
+	transition: 500ms;
+}
+
+/* *********** *
+ * SLIDE LEFT *
+ * *********** */
+
+ /* Start Enter */
+.app-ng-view[animate=slide-left].ng-enter {  
+	left: 100%;
+}
+
+/* Finish Enter */
+.app-ng-view[animate=slide-left].ng-enter.ng-enter-active {
+	left: 0; 
+}
+
+/* Start leave */
+.app-ng-view[animate=slide-left].ng-leave {
+	left: 0;
+}
+
+/* End Leave */
+.app-ng-view[animate=slide-left].ng-leave.ng-leave-active {
+	left: -100%;
+}
+
+/* *********** *
+ * SLIDE RIGHT *
+ * *********** */
+
+ /* Start Enter */
+.app-ng-view[animate=slide-right].ng-enter {  
+	left: -100%;
+}
+
+/* Finish Enter */
+.app-ng-view[animate=slide-right].ng-enter.ng-enter-active {
+	left: 0; 
+}
+
+/* Start leave */
+.app-ng-view[animate=slide-right].ng-leave {
+	left: 0;
+}
+
+/* End Leave */
+.app-ng-view[animate=slide-right].ng-leave.ng-leave-active {
+	left: 100%;
+}
+
+/* **** *
+ * FADE *
+ * **** */
+
+ /* Start Enter */
+.app-ng-view[animate=fade].ng-enter {  
+	opacity: 0;
+}
+
+/* Finish Enter */
+.app-ng-view[animate=fade].ng-enter.ng-enter-active {
+	opacity: 1;
+}
+
+/* Start leave */
+.app-ng-view[animate=fade].ng-leave {
+	opacity: 1;
+}
+
+/* End Leave */
+.app-ng-view[animate=fade].ng-leave.ng-leave-active {
+	opacity: 0;
+}

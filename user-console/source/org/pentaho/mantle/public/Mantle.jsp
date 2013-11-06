@@ -107,18 +107,37 @@
     }
 
   </script>
+
+  <!-- ANGULAR INCLUDES -->
+  <link rel='stylesheet' href='mantle/angular-animations.css'/>
+  <script type="text/javascript">
+
+    // Initialize angular application wrapper
+    var deps = ['common-ui/AngularPluginHandler', 'common-ui/angular', 'common-ui/angular-route','common-ui/angular-animate'];
+    pen.require(deps, function(AngularPluginHandler) {
+      var moduleName = 'PUC-angular-app-wrapper';
+      
+      var module = angular.module(moduleName, ['ngRoute', 'ngAnimate']);
+
+      // Make the base module pluggable
+      AngularPluginHandler.makePluggable(module);
+
+      angular.bootstrap(document, [moduleName]);
+
+      // // Require Perspectives as a plugin
+      // pen.require(['mantle/puc-api/dswPerspectivePlugin'], function(DSWPlugin) {
+      //   DSWPlugin.register();
+
+      //   // Bootstrap the document
+      //   angular.bootstrap(document, [moduleName]);
+      // });
+    }); 
+  </script>
 </head>
 
 <body oncontextmenu="return false;" class="pentaho-page-background">
 
-<!--
-	<div id="loading">
-    		<div class="loading-indicator">
-    			<img src="mantle/large-loading.gif" width="32" height="32"/><%= properties.getString("loadingConsole") %><a href="http://www.pentaho.com"></a><br/>
-    			<span id="loading-msg"><%= properties.getString("pleaseWait") %></span>
-    		</div>
-	</div>
-	-->
+<div ng-view class="app-ng-view" animate="slide-left"></div>
 
 <!-- Standard -->
 <div id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
@@ -151,6 +170,7 @@
         busy.hide("pucPleaseWait");
         document.getElementById("pucWrapper").style.left = "0";
         document.getElementById("pucWrapper").style.position = "relative";
+        window.allFramesLoaded = true;
       } else {
         // check again in a bit
         setTimeout("notifyOfLoad()", 300);
@@ -165,57 +185,6 @@
   });
 
 </script>
-
-<!-- Toolbar On Top -->
-<!--
-<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
-  <tr>
-    <td id="pucToolBar"></td>
-  </tr>
-
-  <tr>
-    <td>
-      <table cellspacing="0" cellpadding="0" >
-        <tr>
-          <td id="pucMenuBar" style="width:100%"></td>
-          <td id="pucPerspectives"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-
-  <tr>
-    <td id="pucContent" style="width:100%;height:100%"></td>
-  </tr>
-</table>
--->
-
-
-<!-- LOGO -->
-<!--
-<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
-  <tr>
-    <td colspan="2">
-      <table cellspacing="0" cellpadding="0" style="width: 100%">
-        <tr>
-          <td id="pucMenuBar" style="width:100%"></td>
-          <td id="pucPerspectives"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-
-  <tr>
-    <td id="pucToolBar"></td>
-    <td style="background-color: white;">LOGO PANEL</td>
-  </tr>
-
-  <tr>
-    <td id="pucContent" colspan="2" style="width:100%;height:100%"></td>
-  </tr>
-</table>
--->
-
 
 <!-- OPTIONAL: include this if you want history support -->
 <iframe id="__gwt_historyFrame" style="width:0px;height:0px;border:0;display:none"></iframe>
