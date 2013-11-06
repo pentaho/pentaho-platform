@@ -94,13 +94,23 @@ pen.define(["common-ui/jquery-i18n"], function(context) {
       });
     },
 
-    processOverlay: function(overlay, $button){
+    getUrlVars: function() {
+      var vars = {};
+      var parts = window.top.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+          vars[key] = value;
+      });
+      return vars;
+    },
+
+    processOverlay: function (overlay, $button) {
       var myself = this,
-          path = myself.getUrlBase() + overlay.resourceBundleUri;
+          path = myself.getUrlBase() + overlay.resourceBundleUri,
+          locale = myself.getUrlVars()["locale"];
 
       jQuery.i18n.properties({
         name: path,
         mode: 'map',
+        language: locale,
         callback: function () {
 
           var copiedMap = {};
