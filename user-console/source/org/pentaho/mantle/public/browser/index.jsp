@@ -157,6 +157,8 @@
           FileBrowser.openFolder(paramJson.stringParam);
         }
         else if (paramJson.eventSubType == "RefreshBrowsePerspectiveEvent") {
+          //Clear the Browse Perspective cache
+          FileBrowser.fileBrowserModel.get("fileListModel").set("cachedData",{});
           FileBrowser.update(window.top.HOME_FOLDER); // refresh folder list
         }
         else if (paramJson.eventSubType == "RefreshFolderEvent") {

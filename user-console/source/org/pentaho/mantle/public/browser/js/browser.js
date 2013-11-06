@@ -29,7 +29,9 @@ pen.define([
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog) {
 
 
-  window.top.mantle_isBrowseRepoDirty = false;
+  if(window.top.mantle_isBrowseRepoDirty == undefined){
+    window.top.mantle_isBrowseRepoDirty = false;
+  }
 
   this.FileBrowser = {};
 
