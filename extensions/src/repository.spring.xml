@@ -533,9 +533,6 @@
   <bean id="roleAuthorizationPolicyRoleBindingDaoTarget"
         class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicyRoleBindingDao">
     <constructor-arg ref="jcrTemplate"/>
-    <constructor-arg>
-      <null/>
-    </constructor-arg>
     <constructor-arg ref="immutableRoleBindingMap"/>
     <constructor-arg ref="bootstrapRoleBindingMap"/>
     <constructor-arg ref="superAdminAuthorityName"/>
