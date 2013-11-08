@@ -109,47 +109,28 @@
   </script>
 
   <!-- ANGULAR INCLUDES -->
-  <link rel='stylesheet' href='mantle/angular-animations.css'/>
-  <script type="text/javascript">
-
-    // Initialize angular application wrapper
-    var deps = ['common-ui/AngularPluginHandler', 'common-ui/angular', 'common-ui/angular-route','common-ui/angular-animate'];
-    pen.require(deps, function(AngularPluginHandler) {
-      var moduleName = 'PUC-angular-app-wrapper';
-      
-      var module = angular.module(moduleName, ['ngRoute', 'ngAnimate']);
-
-      // Make the base module pluggable
-      AngularPluginHandler.makePluggable(module);
-
-      angular.bootstrap(document, [moduleName]);
-
-      // // Require Perspectives as a plugin
-      // pen.require(['mantle/puc-api/dswPerspectivePlugin'], function(DSWPlugin) {
-      //   DSWPlugin.register();
-
-      //   // Bootstrap the document
-      //   angular.bootstrap(document, [moduleName]);
-      // });
-    }); 
-  </script>
+  <link rel='stylesheet' href='mantle/angular-animations.css'/>  
 </head>
 
 <body oncontextmenu="return false;" class="pentaho-page-background">
 
-<div ng-view class="app-ng-view" animate="slide-left"></div>
+  <div ng-show="viewContainer === 'PUC'" 
+    class="ng-app-element" animate="fade" id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
+    
+    <div id="pucHeader" cellspacing="0" cellpadding="0">
+      <div id="pucMenuBar"></div>
+      <div id="pucPerspectives"></div>
+      <div id="pucToolBar"></div>
+      <div id="pucUserDropDown"></div>
+    </div>
 
-<!-- Standard -->
-<div id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
-  <div id="pucHeader" cellspacing="0" cellpadding="0">
-    <div id="pucMenuBar"></div>
-    <div id="pucPerspectives"></div>
-    <div id="pucToolBar"></div>
-    <div id="pucUserDropDown"></div>
+    <div id="pucContent"></div>
   </div>
 
-  <div id="pucContent"></div>
-</div>
+  <div ng-view
+    class="ng-app-view ng-app-element" animate="slide-left"></div>
+  
+
 <script type="text/javascript">
   document.getElementById("pucWrapper").style.position = "absolute";
   document.getElementById("pucWrapper").style.left = "-5000px";

@@ -1,15 +1,17 @@
-.app-ng-view {
+.ng-app-element {
 	position: absolute;
 	top: 0;
 	bottom: 0;
 
 	width: 100%;
-
 	z-index: 100;
+	display: block !important;
 }
 
-.app-ng-view.ng-enter,
-.app-ng-view.ng-leave {
+.ng-app-element.ng-enter,
+.ng-app-element.ng-leave,
+.ng-app-element.ng-hide-add, 
+.ng-app-element.ng-hide-remove {
 	-webkit-transition: 500ms;
 	-moz-transition: 500ms;
 	-ms-transition: 500ms;
@@ -22,23 +24,27 @@
  * *********** */
 
  /* Start Enter */
-.app-ng-view[animate=slide-left].ng-enter {  
-	left: 100%;
+.ng-app-element[animate=slide-left].ng-enter, 
+.ng-app-element[animate=slide-left].ng-hide-remove {  
+	left: 100% !important;
 }
 
 /* Finish Enter */
-.app-ng-view[animate=slide-left].ng-enter.ng-enter-active {
-	left: 0; 
+.ng-app-element[animate=slide-left].ng-enter.ng-enter-active, 
+.ng-app-element[animate=slide-left].ng-hide-remove.ng-hide-remove-active {
+	left: 0 !important; 
 }
 
 /* Start leave */
-.app-ng-view[animate=slide-left].ng-leave {
-	left: 0;
+.ng-app-element[animate=slide-left].ng-leave, 
+.ng-app-element[animate=slide-left].ng-hide-add {
+	left: 0 !important;
 }
 
 /* End Leave */
-.app-ng-view[animate=slide-left].ng-leave.ng-leave-active {
-	left: -100%;
+.ng-app-element[animate=slide-left].ng-leave.ng-leave-active, 
+.ng-app-element[animate=slide-left].ng-hide-add.ng-hide-add-active {
+	left: -100% !important;
 }
 
 /* *********** *
@@ -46,23 +52,27 @@
  * *********** */
 
  /* Start Enter */
-.app-ng-view[animate=slide-right].ng-enter {  
-	left: -100%;
+.ng-app-element[animate=slide-right].ng-enter,
+.ng-app-element[animate=slide-right].ng-hide-remove {  
+	left: -100% !important;
 }
 
 /* Finish Enter */
-.app-ng-view[animate=slide-right].ng-enter.ng-enter-active {
-	left: 0; 
+.ng-app-element[animate=slide-right].ng-enter.ng-enter-active,
+.ng-app-element[animate=slide-right].ng-hide-remove.ng-hide-remove-active {
+	left: 0 !important; 
 }
 
 /* Start leave */
-.app-ng-view[animate=slide-right].ng-leave {
-	left: 0;
+.ng-app-element[animate=slide-right].ng-leave,
+.ng-app-element[animate=slide-right].ng-hide-add {
+	left: 0 !important;
 }
 
 /* End Leave */
-.app-ng-view[animate=slide-right].ng-leave.ng-leave-active {
-	left: 100%;
+.ng-app-element[animate=slide-right].ng-leave.ng-leave-active,
+.ng-app-element[animate=slide-right].ng-hide-add.ng-hide-add-active {
+	left: 100% !important;
 }
 
 /* **** *
@@ -70,21 +80,25 @@
  * **** */
 
  /* Start Enter */
-.app-ng-view[animate=fade].ng-enter {  
-	opacity: 0;
+.ng-app-element[animate=fade].ng-enter,
+.ng-app-element[animate=fade].ng-hide-remove {  
+	opacity: 0 !important;
 }
 
 /* Finish Enter */
-.app-ng-view[animate=fade].ng-enter.ng-enter-active {
-	opacity: 1;
+.ng-app-element[animate=fade].ng-enter.ng-enter-active,
+.ng-app-element[animate=fade].ng-hide-remove.ng-hide-remove-active {
+	opacity: 1 !important;
 }
 
 /* Start leave */
-.app-ng-view[animate=fade].ng-leave {
-	opacity: 1;
+.ng-app-element[animate=fade].ng-leave,
+.ng-app-element[animate=fade].ng-hide-add {
+	opacity: 1 !important;
 }
 
 /* End Leave */
-.app-ng-view[animate=fade].ng-leave.ng-leave-active {
-	opacity: 0;
+.ng-app-element[animate=fade].ng-leave.ng-leave-active,
+.ng-app-element[animate=fade].ng-hide-add.ng-hide-add-active {
+	opacity: 0 !important;
 }
