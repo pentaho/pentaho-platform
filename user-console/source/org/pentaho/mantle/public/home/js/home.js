@@ -1,11 +1,20 @@
-/*
- * ******************************************************************************
- * Pentaho
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
  *
- * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
- * ******************************************************************************
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
- 
+
 pen.define([
   "common-ui/util/HandlebarsCompiler",
   "common-ui/bootstrap",
@@ -17,6 +26,13 @@ pen.define([
     var favoriteControllerConfig = {
       favoritesDisabled: false,
       recentsDisabled: false,
+      i18nMap: context.i18n,
+
+    };
+
+    var createNewConfig = {
+      canAdminister: context.canAdminister,
+      hasMarketplacePlugin: context.hasMarketplacePlugin,
       i18nMap: context.i18n
     };
 
@@ -51,8 +67,8 @@ pen.define([
     }
 
     // Handle the new popover menu. If we add another, make generic
-    pen.require(["home/createNew"], function(createNew) {
-      createNew.buildContents(function($contents){
+    pen.require(["home/createNew"], function (createNew) {
+      createNew.buildContents(createNewConfig, function ($contents) {
         var result = "";
         for(var i = 0; i < $contents.length; i++){
           result+=$contents[i][0].outerHTML;
