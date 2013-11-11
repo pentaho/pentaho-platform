@@ -1,4 +1,5 @@
 /*
+ * PentahoPluginHandler
  * PUC API for Angular Plugins
  */
 
@@ -12,7 +13,7 @@ var deps = [
 ];
 
 pen.define(deps, function(AngularPluginHandler) {
-	var moduleName = 'PUC-angular-app-wrapper';
+	var moduleName = 'angular-app-wrapper';
 
 	var PUCAngularPlugin = function(routes, controllers, services, onRegister, onUnregister) {
 		$.extend(this, new AngularPluginHandler.AngularPlugin(moduleName, routes, controllers, services, 
@@ -53,7 +54,7 @@ pen.define(deps, function(AngularPluginHandler) {
 		setAnimation("fade");
 		AngularPluginHandler.goto("/");
 	}
-
+	
 	/*
 	 * Make a module and Boostrap the application
 	 */ 
@@ -80,8 +81,7 @@ pen.define(deps, function(AngularPluginHandler) {
 		$rootScope.viewContainer = "PUC";
 
 		$rootScope.$on("$locationChangeSuccess", function(event, current, last) {
-			$rootScope.actualLocation = $location.path();
-
+			
 			if (!canSetView) {
 				return;
 			}
@@ -91,17 +91,9 @@ pen.define(deps, function(AngularPluginHandler) {
 			if(hash == "" || hash == "#" || hash == "#/") {
 				setView("PUC");
 			} else {
-				setView("");
+				setView("ngView");
 			}
-		})
-
-		$rootScope.$watch(function () {
-			return $location.path()
-		}, function (newLocation, oldLocation) {
-	        if($rootScope.actualLocation === newLocation) {
-	            // alert('Why did you use history back?');
-	        }
-	    });
+		});
 
 		$rootScope.goNext = goNext;
 		$rootScope.goPrevious = goPrevious;
@@ -118,6 +110,10 @@ pen.define(deps, function(AngularPluginHandler) {
 	if (window.location.hash != "") {
 		window.location.hash = "";
 	}
+
+	$(document).ready(function(){
+		canSetView = true;	
+	});
 
 	return $.extend({
 		PUCAngularPlugin : PUCAngularPlugin,

@@ -1,11 +1,21 @@
+.full-screen {
+	position: absolute !important;
+	top: 0 !important;
+	left: 0 !important;
+	bottom: 0 !important;
+	right: 0 !important;
+}
+
+.ng-app-view {
+	z-index: 999999;
+}
+
 .ng-app-element {
 	position: absolute;
 	top: 0;
 	bottom: 0;
 
 	width: 100%;
-	z-index: 100;
-	display: block !important;
 }
 
 .ng-app-element.ng-enter,
@@ -17,6 +27,8 @@
 	-ms-transition: 500ms;
 	-o-transition: 500ms;
 	transition: 500ms;
+
+	display: block !important;
 }
 
 /* *********** *
