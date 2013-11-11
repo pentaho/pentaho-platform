@@ -110,10 +110,13 @@ public class PentahoWebContextFilter implements Filter {
           contextPathBytes = webContext.getBytes();
           THREAD_LOCAL_CONTEXT_PATH.set( contextPathBytes );
           if ( requireScriptBytes == null ) {
+            String requireJsLocation = "content/common-ui/resources/web/require.js";
+            String requireJsConfigLocation = "content/common-ui/resources/web/require-cfg.js";
             String requireScript =
-                "document.write(\"<script type='text/javascript' src='" + contextPath + "js/require.js'></scr\"+\"ipt>\");\n" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    "document.write(\"<script type=\'text/javascript\' src='" + contextPath
-                    + "js/require-cfg.js'></scr\"+\"ipt>\");\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                "document.write(\"<script type='text/javascript' src='" + contextPath
+                + requireJsLocation + "'></scr\"+\"ipt>\");\n"
+                + "document.write(\"<script type=\'text/javascript\' src='" + contextPath
+                + requireJsConfigLocation + "'></scr\"+\"ipt>\");\n";
             requireScriptBytes = requireScript.getBytes();
             THREAD_LOCAL_REQUIRE_SCRIPT.set( requireScriptBytes );
           }
