@@ -127,7 +127,7 @@
     <div id="pucContent"></div>
   </div>
 
-  <div ng-view
+  <div ng-view ng-show="viewContainer === 'ngView' "
     class="ng-app-view ng-app-element" animate="slide-left"></div>
   
 
