@@ -495,16 +495,8 @@ pen.define([
       myself.on("change:path", myself.updateData, myself);
     },
 
-    updateData: function () {
-      var myself = this;
-
-      myself.set("runSpinner", true);
-
-      myself.fetchData(myself.get("path"), function (response) {
-
-        //If we have trash data we reformat it to match the handlebar templates
-        if (myself.get("path") == ".trash") {
-          var newResp = {
+    reformatTrashResponse: function(myself, response) {
+         var newResp = {
             children: []
           }
           if (response && response.repositoryFileDto) {
@@ -528,6 +520,19 @@ pen.define([
               newResp.children.push(obj);
             }
           }
+          return newResp;
+    },
+
+    updateData: function () {
+      var myself = this;
+
+      myself.set("runSpinner", true);
+
+      myself.fetchData(myself.get("path"), function (response) {
+
+        //If we have trash data we reformat it to match the handlebar templates
+        if (myself.get("path") == ".trash") {
+        var newResp = myself.reformatTrashResponse(myself, response);
           myself.set("data", newResp);
           if (myself.get("deletedFiles") == "") {
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
@@ -563,7 +568,15 @@ pen.define([
             myself.set("cachedData",{});
           }
           //cache the folder contents
-          myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]=response;
+          if(FileBrowser.fileBrowserModel.getFolderClicked()){
+            if(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")==".trash"){
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]
+               =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response)
+            }
+            else {
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]=response;
+            }
+          }
         },
         error: function () {
         },
