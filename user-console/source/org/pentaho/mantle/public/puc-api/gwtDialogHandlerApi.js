@@ -16,14 +16,17 @@ pen.define(deps, function(PentahoPluginHandler) {
 			return;
 		}
 
-		var route = {
-			url : "/pentaho/gwt-dialog/" + dialogId,
-			template : "<div id='" + getDialogContainerId(dialogId) + "' style='width:100%; height: 100%;'></div>"
-		}
+		var routeUrl = "/pentaho/gwt-dialog/" + dialogId;
+		var routeCallback = function($routeProvider) {
+			$routeProvider
+				.when(routeUrl, {
+					template : "<div id='" + getDialogContainerId(dialogId) + "' style='width:100%; height: 100%;'></div>"
+				})
+		};
 
-		var plugin = new PentahoPluginHandler.PUCAngularPlugin(route).register();
+		var plugin = new PentahoPluginHandler.PUCAngularPlugin(routeCallback).register();
 		routeMap[dialogId] = {
-			routeUrl : route.url,
+			routeUrl : routeUrl,
 			$parent : undefined
 		}
 	}

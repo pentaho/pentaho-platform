@@ -28,10 +28,12 @@ pen.define(deps, function(AngularPluginHandler) {
 		// TODO - Add code for clean up of PUC view
 	}
 
+	// Sets the animation to be performed on animation transitions
 	var setAnimation = function(anim) {			
 		animation = anim;
 	}
 
+	// Sets the current rootscope view
 	var setView = function(view, apply) {
 		module.$rootScope.viewContainer = view;
 
@@ -40,19 +42,22 @@ pen.define(deps, function(AngularPluginHandler) {
 		}
 	}
 
+	// Sets the animation as slide left and goes to the url
 	var goNext = function(url) {
 		setAnimation("slide-left");
-		AngularPluginHandler.goto(url);
+		AngularPluginHandler.goto(url, moduleName);
 	}
 
+	// Sets the animation as slide right and goes to the url
 	var goPrevious = function(url) {
 		setAnimation("slide-right");
-		AngularPluginHandler.goto(url);
+		AngularPluginHandler.goto(url, moduleName);
 	}
 
+	// Sets the animatione to fade and goes back to the root application
 	var close = function() {
 		setAnimation("fade");
-		AngularPluginHandler.goto("/");
+		AngularPluginHandler.goHome();
 	}
 	
 	/*
@@ -63,7 +68,7 @@ pen.define(deps, function(AngularPluginHandler) {
 	var module = angular.module(moduleName, ['ngRoute', 'ngAnimate']);
 
 	// Set animation actions
-	var animation = "slide-left";
+	var animation = "fade";
 	module.animation(".ng-app-view", function() {
 		return {
 		    enter: function(element, done) {
@@ -80,8 +85,8 @@ pen.define(deps, function(AngularPluginHandler) {
 
 		$rootScope.viewContainer = "PUC";
 
+		// Switches the view container variable based on the location of the url
 		$rootScope.$on("$locationChangeSuccess", function(event, current, last) {
-			
 			if (!canSetView) {
 				return;
 			}
@@ -95,6 +100,7 @@ pen.define(deps, function(AngularPluginHandler) {
 			}
 		});
 
+		// Provides the navigation controlls to any template
 		$rootScope.goNext = goNext;
 		$rootScope.goPrevious = goPrevious;
 		$rootScope.close = close;
