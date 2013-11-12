@@ -39,7 +39,7 @@ public class OutputLocationUtils {
     }
 
     final String outputLocationPath = outputLocation.replaceAll( "/", ":" );
-    final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + outputLocationPath + "/children?depth=1"; //$NON-NLS-1$
+    final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + outputLocationPath + "/children"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     // This header is required to force Internet Explorer to not cache values from the GET response.
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );

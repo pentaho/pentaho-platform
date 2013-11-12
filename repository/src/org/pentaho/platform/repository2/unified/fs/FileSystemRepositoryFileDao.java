@@ -164,6 +164,15 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
     File folder = new File( folderId.toString() );
+    for ( Iterator iterator = FileUtils.listFiles( folder, null, false ).iterator(); iterator.hasNext(); ) {
+      children.add( internalGetFile( (File) iterator.next() ) );
+    }
+    return children;
+  }
+  
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
+    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    File folder = new File( folderId.toString() );
     for ( Iterator iterator = FileUtils.listFiles( folder, new WildcardFileFilter( filter ), null ).iterator(); iterator
         .hasNext(); ) {
       children.add( internalGetFile( (File) iterator.next() ) );

@@ -376,6 +376,21 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
     return repository.getChildren( folderId, filter );
   }
+  
+  /**
+   * Returns the children of this folder that match the specified filter.
+   * 
+   * @param folderId
+   *          id of folder whose children to fetch
+   * @param filter
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
+   *          disjunction (using the "|" character to represent logical OR) of these
+   * @return list of children (never {@code null})
+   */
+  @Override
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, Boolean showHiddenFiles ) {
+    return repository.getChildren( folderId, filter, showHiddenFiles );
+  }
 
   /**
    * Updates a file and/or the data of a file.

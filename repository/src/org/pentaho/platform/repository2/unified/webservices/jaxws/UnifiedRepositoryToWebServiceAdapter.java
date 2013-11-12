@@ -131,6 +131,11 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return unmarshalFiles( repoWebService.getChildren( folderId.toString() != null ? folderId.toString() : null ) );
   }
 
+  @Override
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
+    return unmarshalFiles( repoWebService.getChildrenWithFilter( folderId.toString() != null ? folderId.toString() : null, filter ) );
+  }
+  
   private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
     List<RepositoryFile> files = new ArrayList<RepositoryFile>();
     for ( RepositoryFileDto dto : dtos ) {
@@ -140,9 +145,9 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   }
 
   @Override
-  public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
-    return unmarshalFiles( repoWebService.getChildrenWithFilter( folderId.toString() != null ? folderId.toString()
-        : null, filter ) );
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
+    return unmarshalFiles( repoWebService.getChildrenWithFilterAndHidden( folderId.toString() != null ? folderId.toString()
+        : null, filter, showHiddenFiles ) );
   }
 
   @Override

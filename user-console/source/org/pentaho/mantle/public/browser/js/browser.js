@@ -463,7 +463,7 @@ pen.define([
     },
 
     getFileTreeRequest: function (path) {
-      return CONTEXT_PATH + "api/repo/files/" + path + "/children?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
+      return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
     }
 
   });
@@ -603,7 +603,7 @@ pen.define([
         request = CONTEXT_PATH + "api/repo/files/deleted";
       }
       else {
-        request = CONTEXT_PATH + "api/repo/files/" + path + "/children?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
+        request = CONTEXT_PATH + "api/repo/files/" + path + "/children?showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
       }
       return request;
     }

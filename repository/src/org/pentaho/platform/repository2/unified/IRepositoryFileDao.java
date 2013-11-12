@@ -71,7 +71,7 @@ public interface IRepositoryFileDao {
 
   RepositoryFile updateFolder( final RepositoryFile file, final String versionMessage );
 
-  List<RepositoryFile> getChildren( final Serializable folderId, final String filter );
+  List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles );
 
   RepositoryFile updateFile( final RepositoryFile file, final IRepositoryFileData data, final String versionMessage );
 

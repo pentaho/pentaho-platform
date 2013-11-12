@@ -617,7 +617,12 @@ public class JcrRepositoryFileUtils {
 
   public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Serializable folderId,
-      final String filter ) throws RepositoryException {
+      final String filter) throws RepositoryException {
+    return getChildren(session, pentahoJcrConstants, pathConversionHelper, lockHelper, folderId, filter, null);
+  }
+  public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Serializable folderId,
+      final String filter, Boolean showHiddenFiles) throws RepositoryException {
     Node folderNode = session.getNodeByIdentifier( folderId.toString() );
     Assert.isTrue( isPentahoFolder( pentahoJcrConstants, folderNode ) );
 
@@ -633,7 +638,14 @@ public class JcrRepositoryFileUtils {
     while ( nodeIterator.hasNext() ) {
       Node node = nodeIterator.nextNode();
       if ( isSupportedNodeType( pentahoJcrConstants, node ) ) {
-        children.add( nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, node ) );
+        RepositoryFile file = nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, node );
+        if(showHiddenFiles != null && !showHiddenFiles) {
+          if(!file.isHidden()) {
+            children.add(file);
+          }
+        } else {
+          children.add(file);  
+        }
       }
     }
     Collections.sort( children );

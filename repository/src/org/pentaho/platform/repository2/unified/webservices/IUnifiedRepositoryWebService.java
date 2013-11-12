@@ -63,7 +63,9 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   List<RepositoryFileDto> getChildren( final String folderId );
 
-  List<RepositoryFileDto> getChildrenWithFilter( final String folderId, final String filter );
+  List<RepositoryFileDto> getChildrenWithFilter( final String folderId, final String filter);
+
+  List<RepositoryFileDto> getChildrenWithFilterAndHidden( final String folderId, final String filter, Boolean showHiddenFiles );
 
   RepositoryFileDto updateFile( final RepositoryFileDto file, final NodeRepositoryFileDataDto data,
       final String versionMessage );

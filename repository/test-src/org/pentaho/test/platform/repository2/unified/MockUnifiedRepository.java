@@ -416,11 +416,16 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
-    return getChildren( folderId, null );
+    return getChildren( folderId, null);
   }
 
   @Override
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
+    return getChildren( folderId, filter, null );
+  }
+  
+  @Override
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
     FileRecord r = idManager.getFileById( folderId );
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
     for ( FileRecord child : r.getChildren() ) {

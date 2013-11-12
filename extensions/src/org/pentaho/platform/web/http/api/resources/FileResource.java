@@ -1052,6 +1052,8 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return content;
   }
+  
+  
 
   /**
    * Retrieve the list of files from root of the repository.  
@@ -1062,13 +1064,28 @@ public class FileResource extends AbstractJaxRSResource {
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
-  @Path( "/children" )
+  @Path( "/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RepositoryFileTreeDto doGetRootChildren( @QueryParam( "depth" ) Integer depth,
+  public RepositoryFileTreeDto doGetRootTree( @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden ) {
-    return doGetChildren( PATH_SEPARATOR, depth, filter, showHidden );
+    return doGetTree( PATH_SEPARATOR, depth, filter, showHidden );
   }
 
+
+  /**
+   * Retrieve the list of files from root of the repository.  
+   * 
+   * @param filter (filter to be applied for search)
+   * @return list of files <code> RepositoryFileDto </code>
+   */
+  @GET
+  @Path( "/children" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  public List<RepositoryFileDto> doGetRootChildren(@QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden ) {
+    return doGetChildren( PATH_SEPARATOR, filter, showHidden);
+  }
+
+  
   /**
    * Retrieve the children of the selected repository file.  This is a recursive search with a selected level
    * depth and filter  
@@ -1079,9 +1096,9 @@ public class FileResource extends AbstractJaxRSResource {
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
-  @Path( "{pathId : .+}/children" )
+  @Path( "{pathId : .+}/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RepositoryFileTreeDto doGetChildren( @PathParam( "pathId" ) String pathId,
+  public RepositoryFileTreeDto doGetTree( @PathParam( "pathId" ) String pathId,
       @QueryParam( "depth" ) Integer depth, @QueryParam( "filter" ) String filter,
       @QueryParam( "showHidden" ) Boolean showHidden ) {
 
@@ -1125,6 +1142,41 @@ public class FileResource extends AbstractJaxRSResource {
     return tree;
   }
 
+  
+  /**
+   * Retrieve the children of the selected repository file.  This is a recursive search with a selected level
+   * depth and filter  
+   * 
+   * @param filter (filter to be applied for search)
+   * @return list of files <code> RepositoryFileDto </code>
+   */
+  @GET
+  @Path( "{pathId : .+}/children" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
+      @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden ) {
+    
+    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(idToPath(pathId));
+    
+    if(repositoryFileDto != null && isPathValid(repositoryFileDto.getPath())) {
+      if ( filter == null &&  showHidden == null) {
+        repositoryFileDtoList = getRepoWs().getChildren(repositoryFileDto.getId());
+      } else if(filter != null && showHidden == null){
+        repositoryFileDtoList = 
+          getRepoWs().getChildrenWithFilter(repositoryFileDto.getId(), filter);
+      } else {
+        repositoryFileDtoList = 
+          getRepoWs().getChildrenWithFilterAndHidden(repositoryFileDto.getId(), filter, showHidden);
+      }
+      
+      // BISERVER-9599 - Use special sort order
+      Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
+      collator.setStrength( Collator.PRIMARY ); // ignore case
+      sortByLocaleTitle( collator, repositoryFileDtoList );
+    }
+    return repositoryFileDtoList;
+  }
   /**
    * Retrieve the list of files in the user's trash folder
    * 
@@ -1373,6 +1425,30 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  private void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
+
+    if ( repositoryFileDtoList == null ||  repositoryFileDtoList.size() <= 0 ) {
+      return;
+    }
+
+    for ( RepositoryFileDto rft : repositoryFileDtoList ) {
+      Collections.sort( repositoryFileDtoList, new Comparator<RepositoryFileDto>() {
+        @Override
+        public int compare(RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
+          String title1 = repositoryFile.getTitle();
+          String title2 = repositoryFile2.getTitle();
+
+          if ( collator.compare( title1, title2 ) == 0 ) {
+            return title1.compareTo( title2 ); // use lexical order if equals ignore case
+          }
+
+          return collator.compare( title1, title2 );
+        }
+      } );
+    }
+  }
+
+  
   public RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();

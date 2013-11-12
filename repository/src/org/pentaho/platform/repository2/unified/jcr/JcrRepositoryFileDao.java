@@ -506,14 +506,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @Override
   @SuppressWarnings( "unchecked" )
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles) {
     Assert.notNull( folderId );
     return (List<RepositoryFile>) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         return JcrRepositoryFileUtils.getChildren( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
-            folderId, filter );
+            folderId, filter, showHiddenFiles );
       }
     } );
   }
