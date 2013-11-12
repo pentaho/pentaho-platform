@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pentaho</groupId>
+	<artifactId>biserver-ce</artifactId>
+	<version>${RELEASE_VERSION}</version>
+	<packaging>pom</packaging>
+
+	<parent>
+    	<groupId>com.pentaho</groupId>
+    	<artifactId>pentaho-internal-parent-pom</artifactId>
+    	<version>1.0.14</version>
+	</parent>
+	
+	<!-- 
+		NOTE: This Maven pom file is currently ONLY for the purpose of assembling the biserver-manual zip
+		
+		It does NOT build the artifacts ... yet  :P
+	 -->
+
+
+	<profiles>
+		
+		<profile>
+			<id>manual</id>
+			<build>
+				<directory>dist</directory>
+		
+				<plugins>
+		
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>assemble-biserver-manual</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}</outputDirectory>
+									<finalName>biserver-manual-ce-${RELEASE_VERSION}</finalName>
+									<appendAssemblyId>false</appendAssemblyId>
+									<attach>false</attach>
+									<descriptors>
+										<descriptor>src/main/assembly/biserver-manual.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+	
+		</profile>
+	</profiles>
+	
+
+</project>
