@@ -27,7 +27,8 @@ pen.define(deps, function(PentahoPluginHandler) {
 		var plugin = new PentahoPluginHandler.PUCAngularPlugin(routeCallback).register();
 		routeMap[dialogId] = {
 			routeUrl : routeUrl,
-			$parent : undefined
+			$parent : undefined,
+			plugin : plugin
 		}
 	}
 
@@ -42,8 +43,10 @@ pen.define(deps, function(PentahoPluginHandler) {
 	// Needs to be called once the dialog has been attached to the dom
 	var show = function(dialogId, dialogDomElement) {
 		
+		var routeMapJson = routeMap[dialogId];
+		
 		// Navigate to the appropriate route to inject the content for the angular view
-		PentahoPluginHandler.goNext(routeMap[dialogId].routeUrl);
+		routeMapJson.plugin.goNext(routeMapJson.routeUrl);
 		
 		var $dialog = $(dialogDomElement);
 
@@ -60,13 +63,16 @@ pen.define(deps, function(PentahoPluginHandler) {
 
 	// Reparents the dialog back into it's previous parent
 	var hide = function(dialogId, dialogDomElement) {
-		PentahoPluginHandler.close();
+		
+		var routeMapJson = routeMap[dialogId];
+		
+		routeMapJson.plugin.close();
 
 		// Remove style for fullscreen from dom element
 		var $dialog = $(dialogDomElement).removeClass(fullScreenCssName);
 
 		// Re-attach dialog to original parent
-		routeMap[dialogId].$parent.append($dialog);
+		routeMapJson.$parent.append($dialog);
 	}
 
 	var getDialogContainerId = function(dialogId) {
