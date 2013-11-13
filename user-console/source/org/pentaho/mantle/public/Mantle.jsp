@@ -49,6 +49,9 @@
   <link rel="stylesheet" href="content/data-access/resources/gwt/datasourceEditorDialog.css"/>
   <link rel="stylesheet" href="mantle/Widgets.css"/>
 
+  <!-- ANGULAR INCLUDES -->
+  <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations.css'/>  
+
   <script language="javascript" type="text/javascript" src="webcontext.js?context=mantle"></script>
 
   <script type="text/javascript" src="mantle/nativeScripts.js"></script>
@@ -108,14 +111,13 @@
 
   </script>
 
-  <!-- ANGULAR INCLUDES -->
-  <link rel='stylesheet' href='mantle/angular-animations.css'/>  
 </head>
 
 <body oncontextmenu="return false;" class="pentaho-page-background">
 
   <div ng-show="viewContainer === 'PUC'" 
-    class="ng-app-element" animate="fade" id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
+    class="ng-app-element deny-animation-change" animate="fade" 
+    id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
     
     <div id="pucHeader" cellspacing="0" cellpadding="0">
       <div id="pucMenuBar"></div>

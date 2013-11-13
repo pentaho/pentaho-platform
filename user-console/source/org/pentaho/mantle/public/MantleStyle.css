@@ -858,3 +858,18 @@ code {
 .IE .schedules-panel-wrapper>table {
   width: 100%;
 }
+
+/*
+ * Angular styles
+ */
+.full-screen {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+}
+
+.ng-app-view {
+  z-index: 999999;
+}
