@@ -34,7 +34,12 @@ pen.define(deps, function(AngularPluginHandler) {
 	}
 
 	// Sets the current rootscope view
+	var canSetView = false;
 	var setView = function(view, apply) {
+		if (!canSetView) {
+			return;
+		}
+
 		module.$rootScope.viewContainer = view;
 
 		if (apply) {
@@ -57,7 +62,7 @@ pen.define(deps, function(AngularPluginHandler) {
 	// Sets the animatione to fade and goes back to the root application
 	var close = function() {
 		setAnimation("fade");
-		AngularPluginHandler.goHome();
+		AngularPluginHandler.goHome(moduleName);
 	}
 	
 	/*
@@ -68,42 +73,62 @@ pen.define(deps, function(AngularPluginHandler) {
 	var module = angular.module(moduleName, ['ngRoute', 'ngAnimate']);
 
 	// Set animation actions
-	var animation = "fade";
+	var animation = "slide-left";
 	module.animation(".ng-app-view", function() {
-		return {
-		    enter: function(element, done) {
-				return function(cancelled) {
-					$(".ng-app-view").attr("animate", animation);
+		var $body = $("body");
+
+		if ($body.hasClass("IE8") || $body.hasClass("IE9")) {
+			return {
+				enter : function(element, done) {
+					$(element)
+						.css("left", "100%")
+						.animate({ left: "0" }, done);
+				},
+				leave : function(element, done) {
+					$(element)
+						.css("left", "0")
+						.animate({ left: "-100%" }, done);
 				}
-		    }
-	    }	
-	})
+			}	
+		} else {
+			return {
+			    enter: function(element, done) {
+					return function(cancelled) {
+						$(".ng-app-view").attr("animate", animation);
+					}
+				}
+		    }	
+		}
+		
+	});	
 	
-	var canSetView = false;	
+	// Provides additional configuratione for the angular wrapper	
 	module.run(["$rootScope", "$location", function($rootScope, $location) {
 		module.$rootScope = $rootScope;
 
 		$rootScope.viewContainer = "PUC";
 
 		// Switches the view container variable based on the location of the url
-		$rootScope.$on("$locationChangeSuccess", function(event, current, last) {
-			if (!canSetView) {
-				return;
-			}
+		$rootScope.$on("$locationChangeSuccess", function(event, current, last) {		
 
-			var hash = window.location.hash;
+			var hash = $location.path();
 			
-			if(hash == "" || hash == "#" || hash == "#/") {
-				setView("PUC");
-			} else {
+			if(hash.search(moduleName) > -1) {
 				setView("ngView");
+			} else {
+				setView("PUC");
 			}
 		});
 
-		// Provides the navigation controlls to any template
+		// Provides the navigation controls to any template
 		$rootScope.goNext = goNext;
 		$rootScope.goPrevious = goPrevious;
 		$rootScope.close = close;
+
+		// Reset hash
+		if ($location.path() != "") {
+			$location.path("/");
+		}
 	}]);
 
 	// Make the base module pluggable
@@ -112,13 +137,8 @@ pen.define(deps, function(AngularPluginHandler) {
 	// Bootstrap the document
 	angular.bootstrap(document, [moduleName]);
 	
-	// Reset hash
-	if (window.location.hash != "") {
-		window.location.hash = "";
-	}
-
 	$(document).ready(function(){
-		canSetView = true;	
+		canSetView = true;
 	});
 
 	return $.extend({
