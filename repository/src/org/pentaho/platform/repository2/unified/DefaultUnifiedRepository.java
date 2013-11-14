@@ -267,15 +267,22 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
-    return getChildren( folderId, null );
+    return getChildren( folderId, null, null);
   }
 
   /**
    * {@inheritDoc}
    */
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter) {
+    return getChildren( folderId, filter, null );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
     Assert.notNull( folderId );
-    return repositoryFileDao.getChildren( folderId, filter );
+    return repositoryFileDao.getChildren( folderId, filter, showHiddenFiles );
   }
 
   /**

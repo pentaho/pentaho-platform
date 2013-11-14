@@ -330,7 +330,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
   private List<RepositoryFile> getRepositoryFiles() {
     Serializable folderId = getDatabaseParentFolderId();
     if ( folderId != null ) {
-      return repository.getChildren( folderId, "*" + RepositoryObjectType.DATABASE.getExtension() );
+      return repository.getChildren( folderId, "*" + RepositoryObjectType.DATABASE.getExtension());
     } else {
       return null;
     }

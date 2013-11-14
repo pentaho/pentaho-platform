@@ -87,7 +87,11 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public List<RepositoryFileDto> getChildrenWithFilter( String folderId, String filter ) {
-    return marshalFiles( repo.getChildren( folderId, filter ) );
+    return marshalFiles( repo.getChildren( folderId, filter) );
+  }
+
+  public List<RepositoryFileDto> getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
+    return marshalFiles( repo.getChildren( folderId, filter, showHiddenFiles ) );
   }
 
   public NodeRepositoryFileDataDto getDataAsNodeForRead( final String fileId ) {

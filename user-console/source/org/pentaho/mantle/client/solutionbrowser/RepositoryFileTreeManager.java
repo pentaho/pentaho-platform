@@ -113,7 +113,7 @@ public class RepositoryFileTreeManager {
     // such as busy cursor or tree loading indicators)
     beforeFetchRepositoryFileTree();
     RequestBuilder builder = null;
-    String url = GWT.getHostPageBaseURL() + "api/repo/files/:/children?"; //$NON-NLS-1$
+    String url = GWT.getHostPageBaseURL() + "api/repo/files/:/tree?"; //$NON-NLS-1$
     if ( depth == null ) {
       depth = -1;
     }

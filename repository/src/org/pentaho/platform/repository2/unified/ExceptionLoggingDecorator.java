@@ -147,10 +147,18 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", folderId ) ); //$NON-NLS-1$
   }
 
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter) {
     return callLogThrow( new Callable<List<RepositoryFile>>() {
       public List<RepositoryFile> call() throws Exception {
-        return delegatee.getChildren( folderId, filter );
+        return delegatee.getChildren( folderId, filter);
+      }
+    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", folderId ) ); //$NON-NLS-1$
+  }
+
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
+    return callLogThrow( new Callable<List<RepositoryFile>>() {
+      public List<RepositoryFile> call() throws Exception {
+        return delegatee.getChildren( folderId, filter, showHiddenFiles );
       }
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", folderId ) ); //$NON-NLS-1$
   }

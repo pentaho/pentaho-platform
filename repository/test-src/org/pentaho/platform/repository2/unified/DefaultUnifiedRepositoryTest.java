@@ -1478,13 +1478,13 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     if ( checkFolders.size() != 0 ) {
       fail( "All root folders not present" );
     }
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), null );
+    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), null);
     assertEquals( 3, children.size() );
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*" );
+    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*");
     assertEquals( 3, children.size() );
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*me" );
+    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*me");
     assertEquals( 1, children.size() );
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*Z*" );
+    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*Z*");
     assertEquals( 0, children.size() );
   }
 

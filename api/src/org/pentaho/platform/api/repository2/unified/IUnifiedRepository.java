@@ -340,7 +340,20 @@ public interface IUnifiedRepository {
    *          disjunction (using the "|" character to represent logical OR) of these
    * @return list of children (never {@code null})
    */
-  List<RepositoryFile> getChildren( final Serializable folderId, final String filter );
+  List<RepositoryFile> getChildren( final Serializable folderId, final String filter);
+
+  /**
+   * Returns the children of this folder that match the specified filter.
+   * 
+   * @param folderId
+   *          id of folder whose children to fetch
+   * @param filter
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
+   *          disjunction (using the "|" character to represent logical OR) of these
+   * @param showHiddenFiles flag determines whether to return the hidden files in he response or not         
+   * @return list of children (never {@code null})
+   */
+  List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles );
 
   /**
    * Updates a file and/or the data of a file.

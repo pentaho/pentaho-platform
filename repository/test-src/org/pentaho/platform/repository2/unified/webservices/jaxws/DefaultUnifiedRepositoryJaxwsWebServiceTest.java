@@ -368,7 +368,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     assertNotNull( folder1Children );
     assertEquals( 2, folder1Children.size() );
     System.out.println( "getChildren" );
-    List<RepositoryFile> folder1ChildrenFiltered = repo.getChildren( folder1.getId(), "*.sample" );
+    List<RepositoryFile> folder1ChildrenFiltered = repo.getChildren( folder1.getId(), "*.sample");
     assertNotNull( folder1ChildrenFiltered );
     assertEquals( 0, folder1ChildrenFiltered.size() );
     System.out.println( "getDeletedFiles" );

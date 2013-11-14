@@ -101,8 +101,12 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.getChildren( folderId );
   }
 
-  public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
-    return repositoryFileDao.getChildren( folderId, filter );
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
+    return repositoryFileDao.getChildren( folderId, filter);
+  }
+  
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
+    return repositoryFileDao.getChildren( folderId, filter, showHiddenFiles );
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute( Serializable fileId, Serializable versionId,
