@@ -158,7 +158,7 @@
         }
         else if (paramJson.eventSubType == "RefreshBrowsePerspectiveEvent") {
           //Clear the Browse Perspective cache
-          FileBrowser.fileBrowserModel.get("fileListModel").set("cachedData",{});
+          window.top.mantle_isBrowseRepoDirty = true;
           FileBrowser.update(window.top.HOME_FOLDER); // refresh folder list
         }
         else if (paramJson.eventSubType == "RefreshFolderEvent") {
