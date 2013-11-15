@@ -6,30 +6,14 @@
 // Define Pentaho Puc Plugin Handler
 var deps = [
 	'common-ui/AnimatedAngularPluginHandler', 
-	'common-ui/jquery',
-	'common-ui/angular', 
-	'common-ui/angular-route',
-	'common-ui/angular-animate'
+	'common-ui/angular-resource'
 ];
 
 pen.define(deps, function(AnimatedAngularPluginHandler) {
 	var moduleName = 'angular-app-wrapper';
 
-	var PUCAngularPlugin = function(routes, controllers, services, onRegister, onUnregister) {
-		$.extend(this, new AnimatedAngularPluginHandler.AngularPlugin(moduleName, routes, controllers, services, 
-			[_onRegister, onRegister], [_onUnregister, onUnregister]));
-
-		this.goNext = function(url) {
-			AnimatedAngularPluginHandler.goNext(url, moduleName);
-		}
-
-		this.goPrevious = function(url) {
-			AnimatedAngularPluginHandler.goPrevious(url, moduleName);		
-		}
-
-		this.goHome = function() {
-			AnimatedAngularPluginHandler.goHome(moduleName);
-		}
+	var Plugin = function(config, onRegister, onUnregister) {
+		$.extend(this, new AnimatedAngularPluginHandler.Plugin(moduleName, config, [_onRegister, onRegister], [_onUnregister, onUnregister]));
 	};
 
 	var _onRegister = function(plugin) {
@@ -59,7 +43,7 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 	 */ 
 
 	// Create module
-	var module = angular.module(moduleName, ['ngRoute', 'ngAnimate']);
+	var module = angular.module(moduleName, ['ngRoute', 'ngAnimate', 'ngResource']);
 
 	// Provides additional configuratione for the angular wrapper	
 	module.run(["$rootScope", "$location", function($rootScope, $location) {
@@ -93,7 +77,10 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 		canSetView = true;
 	});
 
-	return $.extend({
-		PUCAngularPlugin : PUCAngularPlugin		
-	}, AnimatedAngularPluginHandler);
+	var returnObj = $.extend({}, AnimatedAngularPluginHandler);
+
+	// Override Plugin provided in AnimatedAngularPluginHandler
+	returnObj.Plugin = Plugin;
+
+	return returnObj;
 })
