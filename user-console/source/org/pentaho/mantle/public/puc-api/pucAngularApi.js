@@ -43,7 +43,7 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 	 */ 
 
 	// Create module
-	var module = angular.module(moduleName, ['ngRoute', 'ngAnimate', 'ngResource']);
+	var module = AnimatedAngularPluginHandler.module(moduleName, ['ngResource']);
 
 	// Provides additional configuratione for the angular wrapper	
 	module.run(["$rootScope", "$location", function($rootScope, $location) {
@@ -66,9 +66,6 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 			$location.path("/");
 		}
 	}]);
-
-	// Make the base module pluggable
-	AnimatedAngularPluginHandler.makePluggable(module);
 
 	// Bootstrap the document
 	angular.bootstrap(document, [moduleName]);

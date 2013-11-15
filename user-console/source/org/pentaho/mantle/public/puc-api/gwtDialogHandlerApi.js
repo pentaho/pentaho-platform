@@ -24,7 +24,7 @@ pen.define(deps, function(PentahoPluginHandler) {
 				})
 		};
 
-		var plugin = new PentahoPluginHandler.PUCAngularPlugin({
+		var plugin = new PentahoPluginHandler.Plugin({
 			routerCallback : routerCallback
 		}).register();
 		
