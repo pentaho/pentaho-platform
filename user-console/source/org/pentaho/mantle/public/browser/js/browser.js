@@ -603,7 +603,7 @@ pen.define([
         request = CONTEXT_PATH + "api/repo/files/deleted";
       }
       else {
-        request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1?showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
+        request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
       }
       return request;
     }
