@@ -81,7 +81,8 @@
 
     <!-- Platform plugins -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin-package" rev="${dependency.pentaho-reporting-plugin.revision}" transitive="false" changing="true"  conf="plugin->default" />
-    <dependency org="pentaho" name="data-access-plugin-v2" rev="${dependency.data-access-plugin.revision}" changing="true" transitive="false" conf="plugin->default" />
+    <!--  This is a temporary change to point v2 to 5.1-SANDBOX, We have to change this to TRUNK-SNAPSHOT once me move the code from 5.1-SANDBOX to master -->
+    <dependency org="pentaho" name="data-access-plugin-v2" rev="${dependency.data-access-v2-plugin.revision}" changing="true" transitive="false" conf="plugin->default" />
     <dependency org="pentaho" name="data-access-plugin" rev="${dependency.data-access-plugin.revision}" changing="true" transitive="false" conf="plugin->default" />
     <dependency org="pentaho" name="common-ui" rev="${dependency.common-ui.revision}" changing="true" transitive="false" conf="plugin->default" >
     	<artifact name="common-ui" type="zip" />
