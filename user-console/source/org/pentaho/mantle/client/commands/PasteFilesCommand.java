@@ -115,7 +115,7 @@ public class PasteFilesCommand extends AbstractCommand {
     if ( pasteFiles != null && pasteFiles.size() > 0 && destinationFolder != null ) {
       String getChildrenUrl =
           contextURL
-              + "api/repo/files/" + SolutionBrowserPanel.pathToId( destinationFolder.getPath() ) + "/children"; //$NON-NLS-1$ //$NON-NLS-2$
+              + "api/repo/files/" + SolutionBrowserPanel.pathToId( destinationFolder.getPath() ) + "/tree?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder childrenRequestBuilder = new RequestBuilder( RequestBuilder.GET, getChildrenUrl );
       try {
         childrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
