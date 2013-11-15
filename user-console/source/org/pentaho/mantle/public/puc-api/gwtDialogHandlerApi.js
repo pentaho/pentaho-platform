@@ -17,14 +17,17 @@ pen.define(deps, function(PentahoPluginHandler) {
 		}
 
 		var routeUrl = "/pentaho/gwt-dialog/" + dialogId;
-		var routeCallback = function($routeProvider) {
+		var routerCallback = function($routeProvider) {
 			$routeProvider
 				.when(routeUrl, {
 					template : "<div id='" + getDialogContainerId(dialogId) + "' style='width:100%; height: 100%;'></div>"
 				})
 		};
 
-		var plugin = new PentahoPluginHandler.PUCAngularPlugin(routeCallback).register();
+		var plugin = new PentahoPluginHandler.PUCAngularPlugin({
+			routerCallback : routerCallback
+		}).register();
+		
 		routeMap[dialogId] = {
 			routeUrl : routeUrl,
 			$parent : undefined,
