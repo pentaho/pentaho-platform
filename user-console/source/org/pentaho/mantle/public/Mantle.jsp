@@ -109,6 +109,8 @@
       });
     }
 
+    // Require Angular Plugin Initialization
+    pen.require(['mantle/puc-api/pucAngularApi']);
   </script>
 
 </head>

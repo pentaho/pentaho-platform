@@ -67,10 +67,10 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 		}
 	}]);
 
-	// Bootstrap the document
-	angular.bootstrap(document, [moduleName]);
-	
 	$(document).ready(function(){
+		// Bootstrap the document
+		angular.bootstrap(document, [moduleName]);
+
 		canSetView = true;
 	});
 
