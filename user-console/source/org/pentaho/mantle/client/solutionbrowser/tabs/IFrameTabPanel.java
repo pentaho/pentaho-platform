@@ -196,12 +196,6 @@ public class IFrameTabPanel extends VerticalPanel {
         wind.onmousemove = null;          
         wind.onunload = null;
         $wnd.watchWindow = null; 
-        try {
-          $wnd.purge(ele.contentDocument.body);
-        } catch (ignoredxss) {}
-        try {
-          $wnd.removeChildrenFromNode(ele.contentDocument.body);     
-        } catch (ignoredxss) {}
     }-*/;
     
     public native void attachEventListeners(Element ele, CustomFrame frame)

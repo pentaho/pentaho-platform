@@ -18,10 +18,17 @@
  */
 package org.pentaho.mantle.client.ui.tabs;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
@@ -38,19 +45,13 @@ import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel.CustomFrame;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.ClosingEvent;
-import com.google.gwt.user.client.Window.ClosingHandler;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.HashSet;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
 
@@ -59,6 +60,8 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   private static final String FRAME_ID_PRE = "frame_"; //$NON-NLS-1$
   private static int frameIdCount = 0;
 
+  private HashSet<IFrameTabPanel> freeFrames = new HashSet<IFrameTabPanel>();
+  
   public MantleTabPanel() {
     this(false);
   }
@@ -138,7 +141,16 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     }
 
-    IFrameTabPanel panel = new IFrameTabPanel(frameName);
+    IFrameTabPanel panel = null;
+    if ( freeFrames.size() > 0 ) {
+      panel = freeFrames.iterator().next();
+      panel.setName( frameName );
+      // mark as no longer free by removing from set
+      freeFrames.remove( panel );
+    } else {
+      panel = new IFrameTabPanel( frameName );
+    }
+    
     addTab(tabName, tabTooltip, true, panel);
     selectTab(elementId);
 
@@ -250,6 +262,40 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   private native void setupNativeHooks(MantleTabPanel tabPanel)
   /*-{  
     
+    $wnd.removedAttributes = 0;
+
+    $wnd.purge = function(d) {
+      var a = d.attributes, i, l, n;
+      if (a) {
+          for (i = a.length - 1; i >= 0; i -= 1) {
+              n = a[i].name;
+              d[n] = null;
+              $wnd.removedAttributes++;
+          }
+      }
+      a = d.childNodes;
+      if (a) {
+          l = a.length;
+          for (i = 0; i < l; i += 1) {
+              $wnd.purge(d.childNodes[i]);
+          }
+      }
+    }    
+
+    $wnd.removedChildren = 0;
+    
+    $wnd.removeChildrenFromNode = function(node) {
+      if(typeof node == 'undefined' || node == null) {  
+        return;
+      }
+
+      while (node.hasChildNodes()) {
+        $wnd.removeChildrenFromNode(node.firstChild);        
+        node.removeChild(node.firstChild);
+        $wnd.removedChildren++;
+      }
+    }   
+        
     $wnd.enableContentEdit = function(enable) { 
       tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::enableContentEdit(Z)(enable);      
     }
@@ -472,10 +518,20 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         return;
       }
 
+      ((CustomFrame)((IFrameTabPanel) closeTab.getContent()).getFrame()).removeEventListeners(frameElement);
       clearClosingFrame(frameElement);
     }
     super.closeTab(closeTab, invokePreTabCloseHook);
 
+    // since we can't entirely reclaim the frame resources held, keep some around
+    // so we can minimize the extra leakage caused by constantly created more
+    // let's only keep 5 of these guys around so at least some of the resources
+    // can be cleaned up (maybe just wishful thinking)
+    Widget w = closeTab.getContent();
+    if (w instanceof IFrameTabPanel && freeFrames.size() < 5) {
+      freeFrames.add((IFrameTabPanel)w);      
+    }
+    
     if (getTabCount() == 0) {
       allTabsClosed();
       Widget selectTabContent = null;
@@ -490,9 +546,23 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   public static native void clearClosingFrame(Element frame)
   /*-{
     try{
+      frame.contentWindow.dijit.byId('borderContainer').destroy();
+    } catch (e) {
+    }
+    try {
+      $wnd.purge(frame.contentDocument.body);
+    } catch (ignoredxss) {}
+    try {
+      $wnd.removeChildrenFromNode(frame.contentDocument.body);     
+    } catch (ignoredxss) {}
+    try{
       frame.contentWindow.document.write("");
     } catch(e){
       // ignore XSS
+    }
+    try {
+      frame.contentWindow.location.href = "about:blank";
+    } catch (e) {
     }
   }-*/;
 
@@ -616,26 +686,29 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.OPENED_PERSPECTIVE, false);
   }
 
-  private native void ieFix(Element frame)/*-{
-                                          try {
-                                          var inputElements = frame.contentWindow.document.getElementsByTagName("input");
-                                          for (var i = 0; i < inputElements.length; i++) {
-                                          if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type").toUpperCase()) {
-                                          if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute("paramType").toUpperCase())) { 
-                                          inputElements[i].focus();
-                                          break;
-                                          }
-                                          }
-                                          }
-                                          } catch (e) {    
-                                          }
-                                          }-*/;
+  private native void ieFix( Element frame )/*-{
+  try {
+    var inputElements = frame.contentWindow.document.getElementsByTagName("input");
+    for (var i = 0; i < inputElements.length; i++) {
+      if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type")
+          .toUpperCase()) {
+        if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute
+            ("paramType").toUpperCase())) {
+          inputElements[i].focus();
+          break;
+        }
+      }
+    }
+  } catch (e) {
+    //ignore
+  }
+}-*/;
 
-  public static native void onTabSelect(Element element)/*-{
-                                                        try{
-                                                        element.contentWindow.onMantleActivation(); // tab must define this callback function
-                                                        } catch(e){
-                                                        // ignore
-                                                        }
-                                                        }-*/;
+public static native void onTabSelect( Element element )/*-{
+  try {
+    element.contentWindow.onMantleActivation(); // tab must define this callback function
+  } catch (e) {
+    // ignore
+  }
+}-*/;
 }
