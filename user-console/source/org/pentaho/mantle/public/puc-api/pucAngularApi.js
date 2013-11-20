@@ -12,8 +12,15 @@ var deps = [
 pen.define(deps, function(AnimatedAngularPluginHandler) {
 	var moduleName = 'angular-app-wrapper';
 
-	var Plugin = function(config, onRegister, onUnregister) {
-		$.extend(this, new AnimatedAngularPluginHandler.Plugin(moduleName, config, [_onRegister, onRegister], [_onUnregister, onUnregister]));
+	var Plugin = function(config) {
+		var onRegister = config.onRegister;
+		var onUnregister = config.onUnregister;
+
+		config.moduleName = moduleName;
+		config.onRegister = [_onRegister, onRegister];
+		config.onUnregister = [_onUnregister, onUnregister];
+		
+		$.extend(this, new AnimatedAngularPluginHandler.Plugin(config));
 	};
 
 	var _onRegister = function(plugin) {
