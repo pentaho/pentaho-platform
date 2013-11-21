@@ -3,33 +3,42 @@
  * PUC API for Angular Plugins
  */
 
-// Define Pentaho Puc Plugin Handler
+// Define Pentaho PUC Plugin Handler
 var deps = [
 	'common-ui/AnimatedAngularPluginHandler', 
-	'common-ui/angular-resource'
+	'common-ui/angular-resource',
+	'common-ui/ring'
 ];
 
 pen.define(deps, function(AnimatedAngularPluginHandler) {
+
+	/*
+	 * Define future development extension of AnimatedAngularPluginHandler
+	 */
+	var PUCAngularPluginHandler = ring.create([AnimatedAngularPluginHandler], {
+
+		_onRegister : function(plugin) {
+			this.$super(plugin);
+
+			// TODO - Add code for PUC which is required after registration - possibly start of loading modal
+		},
+
+		_onUnregister : function(plugin) {
+			this.$super(plugin);
+
+			// TODO - Add code for clean up of PUC view
+		}
+		
+	})
+
+	/*
+	 * Make a module and Boostrap the application
+	 */ 
 	var moduleName = 'angular-app-wrapper';
 
-	var Plugin = function(config) {
-		var onRegister = config.onRegister;
-		var onUnregister = config.onUnregister;
-
-		config.moduleName = moduleName;
-		config.onRegister = [_onRegister, onRegister];
-		config.onUnregister = [_onUnregister, onUnregister];
-		
-		$.extend(this, new AnimatedAngularPluginHandler.Plugin(config));
-	};
-
-	var _onRegister = function(plugin) {
-		// TODO - Add code for PUC which is required after registration - possibly start of loading modal
-	}
-
-	var _onUnregister = function(plugin) {
-		// TODO - Add code for clean up of PUC view
-	}
+	// Create module
+	var pluginHandler = new PUCAngularPluginHandler();
+	var module = pluginHandler.module(moduleName, ['ngResource']);
 
 	// Sets the current rootscope view
 	var canSetView = false;
@@ -44,13 +53,6 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 			module.$rootScope.$apply();
 		}
 	}
-	
-	/*
-	 * Make a module and Boostrap the application
-	 */ 
-
-	// Create module
-	var module = AnimatedAngularPluginHandler.module(moduleName, ['ngResource']);
 
 	// Provides additional configuratione for the angular wrapper	
 	module.run(["$rootScope", "$location", function($rootScope, $location) {
@@ -81,10 +83,9 @@ pen.define(deps, function(AnimatedAngularPluginHandler) {
 		canSetView = true;
 	});
 
-	var returnObj = $.extend({}, AnimatedAngularPluginHandler);
-
-	// Override Plugin provided in AnimatedAngularPluginHandler
-	returnObj.Plugin = Plugin;
-
-	return returnObj;
+	return {
+		PUCAngularPluginHandler : PUCAngularPluginHandler,
+		PUCAngularPluginHandlerInstance : pluginHandler,
+		moduleName : moduleName
+	}
 })
