@@ -85,7 +85,8 @@ public class DeleteFolderCommand extends AbstractCommand {
 
     final String filesList = repositoryFile.getId();
     final String folderName = repositoryFile.getTitle() == null ? repositoryFile.getName() : repositoryFile.getTitle();
-    final HTML messageTextBox = new HTML(Messages.getString("moveToTrashQuestionFolder",folderName));
+    final HTML messageTextBox =
+        new HTML( Messages.getString( "moveToTrashQuestionFolder", escapeHtmlEntities( folderName ) ) );
     final PromptDialogBox folderDeleteWarningDialogBox = new PromptDialogBox(Messages.getString("moveToTrash"), Messages.getString("yesMoveToTrash"), Messages.getString("no"), true, true);
     folderDeleteWarningDialogBox.setContent(messageTextBox);
 
@@ -143,5 +144,9 @@ public class DeleteFolderCommand extends AbstractCommand {
 
 
   }
-
+  
+  public static String escapeHtmlEntities( String text ) {
+    return text.replace( "&", "&amp;" ).replace( "\"", "&quot;" ).replace( "'", "&apos;" ).replace( "<", "&lt;" )
+      .replace( ">", "&gt;" );
+  }  
 }
