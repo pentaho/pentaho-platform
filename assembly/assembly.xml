@@ -192,6 +192,7 @@
       <copy todir="${stage.dir.server}/tomcat/lib">
         <fileset dir="${lib.dir}">
           <include name="jsp-api.jar" />
+          <include name="postgres*.jar" />
         </fileset>
       </copy>
 
@@ -266,7 +267,7 @@
 
 
   </target>
-	
+
 	<!-- Add general libs -->
 	  <target name="prepare-pentaho-lib-folder" >
 		    <copy todir="${prep.pentaho.war.lib.dir}">
@@ -309,6 +310,7 @@
         <exclude name="servlet-api-*.jar" />
         <exclude name="gwt-user-*.jar" />
         <exclude name="mysql-connector-*.jar" />
+        <exclude name="postgres*.jar" />
         <exclude name="*-sources.jar" />
         <!-- TODO: Remove the line below when we fix the circular dependency between kettle-engine and metadata -->
         <exclude name="hibernate-3.2.6.ga.jar" />
@@ -347,8 +349,8 @@
 
 
   <!--====================================================
-          macrodef: set-solution-visibility          
-          
+          macrodef: set-solution-visibility
+
           Sets the visible attribute for a pentaho solution
           directory.
         ==================================================-->
@@ -390,8 +392,8 @@
         <fileset dir="${stage.dir.solutions}/system/default-content/samples"/>
       </zip>
 
-      <delete dir="${stage.dir.solutions}/system/default-content/samples"/>  	
-  	
+      <delete dir="${stage.dir.solutions}/system/default-content/samples"/>
+
   </target>
 
   <!-- =================================
