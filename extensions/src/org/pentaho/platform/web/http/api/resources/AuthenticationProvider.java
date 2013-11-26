@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,12 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
- *
- *
- * @created 03/19/2013
- * @author Peter Minutillo
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -29,14 +24,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement
-public class AuthenticationProvider{
+public class AuthenticationProvider {
 
   private String authenticationType;
 
-  public AuthenticationProvider(){
+  public AuthenticationProvider() {
   }
 
-  public AuthenticationProvider(String authenticationTypeToSet){
+  public AuthenticationProvider( String authenticationTypeToSet ) {
     this.authenticationType = authenticationTypeToSet;
   }
 
@@ -44,15 +39,12 @@ public class AuthenticationProvider{
     return authenticationType;
   }
 
-  public void setAuthenticationType(String authenticationTypeToSet) {
+  public void setAuthenticationType( String authenticationTypeToSet ) {
     this.authenticationType = authenticationTypeToSet;
   }
 
   @Override
   public String toString() {
-    return "PentahoAuthenticationProvider{" +
-        "authenticationType='" + authenticationType + '\'' +
-        '}';
+    return "PentahoAuthenticationProvider{" + "authenticationType='" + authenticationType + '\'' + '}';
   }
 }
-

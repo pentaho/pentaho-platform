@@ -9,12 +9,14 @@
 #adminContentPanel.vbox > tbody > tr > td {
   height: 100%;
 }
-.schedulerPerspective{
+
+.schedulerPerspective {
   background: transparent;
   width: 1230px;
   margin: 0 auto;
   padding: 30px 40px 40px 40px;
 }
+
 .workspaceHeading {
   color: #1973bc;
   font-size: 22px;
@@ -29,9 +31,11 @@
 
 .schedule-dialog-content {
 }
-.schedulerPerspective-wrapper{
+
+.schedulerPerspective-wrapper {
   margin: 0 auto;
 }
+
 .admin-perspective {
   padding-top: 40px;
   padding-left: 40px;
@@ -41,7 +45,7 @@
   margin: 0 auto;
 }
 
-#adminCatTree .tree-scroll-panel{
+#adminCatTree .tree-scroll-panel {
   background: transparent;
 }
 
@@ -78,8 +82,9 @@
 
 #adminCatTree .tree-item-custom-widget {
   border-top: 0px solid transparent;
-  padding:0;
-  width: auto !important;}
+  padding: 0;
+  width: auto !important;
+}
 
 .adminCatTreeItem {
   border-top: 1px solid #dfdfdf;
@@ -130,21 +135,22 @@
 }
 
 #mainMenubar {
-  padding: 0  0 0px  0;
-  position:absolute;
+  padding: 0 0 0px 0;
+  position: absolute;
   top: 0;
   left: 12px;
-  -webkit-transition:all .500ms ease-in-out;
+  -webkit-transition: all .500ms ease-in-out;
 }
 
 .mantle-perspective-switcher {
   height: 28px;
 }
 
-.puc-logo{
+.puc-logo {
   background: url('images/logo.png') no-repeat center center;
 }
-.puc-logo-spacer{
+
+.puc-logo-spacer {
   width: 152px;
   height: 75px;
 }
@@ -164,7 +170,7 @@
 
 .reportParameterDisclosurePanel {
   background-color: #d8d8d8;
-  border-bottom:1px solid #848484;
+  border-bottom: 1px solid #848484;
 }
 
 .errorLabel {
@@ -181,20 +187,20 @@
 }
 
 .solutionDisclosureHeaderWidget {
-  background-color:#EEEEEE;
-  border:5px solid #EEEEEE;
+  background-color: #EEEEEE;
+  border: 5px solid #EEEEEE;
   color: #1973bc;
 }
 
 .solutionDisclosureHeaderWidgetHover {
-  background-color:#DDDDDD;
-  border:5px solid #DDDDDD;
+  background-color: #DDDDDD;
+  border: 5px solid #DDDDDD;
   color: #1973bc;
 }
 
 .solutionDisclosureWidget {
-  background-color:#EEEEEE;
-  border:1px solid #808080;
+  background-color: #EEEEEE;
+  border: 1px solid #808080;
   color: #1973bc;
 }
 
@@ -246,7 +252,6 @@
   background-color: #dbdbdb;
 }
 
-
 .fileLabel {
   background-color: #ffffff;
 }
@@ -255,16 +260,14 @@
   background-color: #dbdbdb;
 }
 
-
 .permissionsTable {
   border: 1px solid #7f9db9;
 }
 
-
 .filesPanelMenuLabel {
   background-color: #d8d8d8;
   background-image: url(../../images/subtoolbar_bg.png);
-  background-position:center;
+  background-position: center;
   background-repeat: repeat-x;
   border-bottom-width: 1px;
   border-bottom-style: solid;
@@ -278,19 +281,19 @@
   border-bottom-style: solid;
   border-bottom-color: #848484;
   background-repeat: repeat-x;
-  background-position:center;
+  background-position: center;
 }
 
 .mantle-default-tab-background {
-  background: #FFF;/*
-  background: -moz-linear-gradient(top,  #f1f1f1 0%, #fcfcfc 23%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f1f1f1), color-stop(23%,#fcfcfc));
-  background: -webkit-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
-  background: -o-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
-  background: -ms-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
-  background: linear-gradient(to bottom,  #f1f1f1 0%,#fcfcfc 23%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#fcfcfc',GradientType=0 ); */
-
+  background: #FFF;
+  /*
+    background: -moz-linear-gradient(top,  #f1f1f1 0%, #fcfcfc 23%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f1f1f1), color-stop(23%,#fcfcfc));
+    background: -webkit-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
+    background: -o-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
+    background: -ms-linear-gradient(top,  #f1f1f1 0%,#fcfcfc 23%);
+    background: linear-gradient(to bottom,  #f1f1f1 0%,#fcfcfc 23%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#fcfcfc',GradientType=0 ); */
 
 }
 
@@ -318,7 +321,6 @@
 .puc-vertical-split-panel {
 }
 
-
 #loading {
   background: white;
   border: 1px solid #ccc;
@@ -345,11 +347,11 @@
 }
 
 a, a:visited {
-  color:#1973bc;
+  color: #1973bc;
 }
 
 a:active, a:hover {
-  color:#1973bc;
+  color: #1973bc;
 }
 
 .filePropertyTabContent {
@@ -362,7 +364,6 @@ a:active, a:hover {
   background: white;
 }
 
-
 .backgroundContentAction {
   color: blue;
   font-size: 13px;
@@ -374,15 +375,16 @@ a:active, a:hover {
 }
 
 .backgroundContentHeaderTableCell {
-  background-color: #8ab3c6; /*
-  background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000));
-  background: -webkit-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
-  background: -o-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
-  background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
-  zoom: 1;
-  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); */
+  background-color: #8ab3c6;
+  /*
+   background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%);
+   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000));
+   background: -webkit-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
+   background: -o-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
+   background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
+   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
+   zoom: 1;
+   background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); */
 }
 
 .backgroundContentHeaderTableCell .gwt-Label {
@@ -391,15 +393,16 @@ a:active, a:hover {
 
 .backgroundContentHeaderTableCellRight {
 
-  background-color: #8ab3c6; /*
-  background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000));
-  background: -webkit-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
-  background: -o-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
-  background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
-  zoom: 1;
-  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); */
+  background-color: #8ab3c6;
+  /*
+   background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%);
+   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000));
+   background: -webkit-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
+   background: -o-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
+   background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%);
+   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
+   zoom: 1;
+   background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); */
 
 }
 
@@ -433,34 +436,30 @@ a:active, a:hover {
   background-color: white;
 }
 
-
-
-
-
 .gwt-Button {
   background-image: expression('url(buttonbg.gif)');
-  background-image:url(../../buttonbg.gif);
+  background-image: url(../../buttonbg.gif);
   font-weight: plain;
-  border-style:solid;
-  border-color:#000000;
-  border-width:1px;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
 }
 
 .gwt-Button:hover {
-  background-image:url(../../buttonhoverbg.gif);
+  background-image: url(../../buttonhoverbg.gif);
   background-image: expression('url(buttonhoverbg.gif)');
   font-weight: plain;
-  border-style:solid;
-  border-color:#000000;
-  border-width:1px;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
 }
 
 .gwt-Button:disabled {
-  background-image:url(../../buttonbg.gif);
+  background-image: url(../../buttonbg.gif);
   background-image: expression('url(buttonbg.gif)');
-  border-style:solid;
-  border-color:#c0c0c0;
-  border-width:1px;
+  border-style: solid;
+  border-color: #c0c0c0;
+  border-width: 1px;
 }
 
 .gwt-Canvas {
@@ -513,8 +512,8 @@ a:active, a:hover {
 
 .gwt-Frame {
   border: none;
-  overflow:visible;
-  width:100%;
+  overflow: visible;
+  width: 100%;
 }
 
 .workspace-resource-link {
@@ -549,8 +548,6 @@ a:active, a:hover {
 .gwt-TextBox-readonly {
   color: #888;
 }
-
-
 
 .gwt-StackPanel {
   background-color: #EEEEEE;
@@ -692,45 +689,52 @@ a:active, a:hover {
   border-bottom: 2px solid #848280;
   background-color: #efebe7;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-line {
   border: 1px solid black;
   background-color: white;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-tick {
   background: black;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-label {
   font-size: 8pt;
 }
+
 .gwt-SliderBar-shell-focused {
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-line-sliding {
   background-color: #DDDDDD;
 }
 
-.files-list-panel{
+.files-list-panel {
   background: white;
   border: 1px solid #abc9d9;
 }
-.files-toolbar{
+
+.files-toolbar {
   border: 1px solid #abc9d9;
   background-color: #fff;
 }
 
-.folder-list-panel{
+.folder-list-panel {
   border: 1px solid black;
 }
+
 .puc-navigator-panel {
   background-color: #f1f1f1;
   border-right: 1px solid #abc9d9;
 }
 
-.mantle-toolbar-combo-button-hovering{
+.mantle-toolbar-combo-button-hovering {
   background-color: #d0d0d0;
   cursor: pointer;
 }
 
-.fileItemDragProxy{
+.fileItemDragProxy {
   opacity: 0.85;
   filter: alpha(opacity=85);
   border: 1px dashed #999 !important;
@@ -746,8 +750,8 @@ a:active, a:hover {
 }
 
 .leaf-widget .gwt-TreeItem-selected > table {
-   background-color: #d7e9cd;
- }
+  background-color: #d7e9cd;
+}
 
 .leaf-widget .leaf-widget-hidden .gwt-TreeItem > table {
   width: 100%;
@@ -763,17 +767,16 @@ a:active, a:hover {
   background-color: #dbdbdb;
 }
 
-
 .gwt-MenuItem,
 .gwt-MenuItem-selected,
 .gwt-MenuItem-checkbox-unchecked,
 .gwt-MenuItem-checkbox-checked,
 .disabledMenuItem {
 }
+
 .disabledMenuItem {
   color: #ccc;
 }
-
 
 /*
  fix for toolbar buttons not supporting transparency in IE,
@@ -791,32 +794,50 @@ a:active, a:hover {
 
 /*========== Launch Page Styles ================= */
 #outterWrapper {
-  padding: 0px; margin-top: 0px; display:inline-block;
+  padding: 0px;
+  margin-top: 0px;
+  display: inline-block;
 }
+
 .largeGraphicButton {
   padding: 22px 0 8px 0px;
 }
+
 .largeGraphicSpacer {
   background-image: url('images/seperator_vert.png');
 }
-.smallButton{
+
+.smallButton {
   padding: 2px 0 30px 0px;
 }
-.newDsPanel{
+
+.newDsPanel {
   padding: 10px 0px 10px 10px;
 }
-.bottomButtonWrapper{
+
+.bottomButtonWrapper {
   padding: 20px 20px 0px 57px;
 }
-.launcher-bottom-text{
-  line-height: 1.5; padding: 10px 20px 0px 40px; font-size: 13px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 16px; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
+
+.launcher-bottom-text {
+  line-height: 1.5;
+  padding: 10px 20px 0px 40px;
+  font-size: 13px;
+  color: #FFF;
+  text-shadow: 0px 1px 1px #000;
+  text-align: left;
+"><div style=" font-size : 16 px;
+  color: #FFF;
+  text-shadow: 0px 1px 1px #000;
+  text-align: left
 }
 
 .schedulesPanel .toolbar {
-  background:none;
+  background: none;
   border: 0;
 }
-.schedulesPanel .pentaho-table th{
+
+.schedulesPanel .pentaho-table th {
   font-size: 16px;
   border-spacing: 2px;
   padding: 8px 10px 10px 10px;
@@ -960,7 +981,7 @@ a:active, a:hover {
   cursor: default;
 }
 
-.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover{
+.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover {
   background-color: white;
 }
 
@@ -1003,7 +1024,7 @@ a:active, a:hover {
   width: 100%;
 }
 
-.gwt-MenuBar-horizontal .gwt-MenuItem-selected{
+.gwt-MenuBar-horizontal .gwt-MenuItem-selected {
   background-color: #8ab3c6;
   border: 0px solid #8ab3c6;
   color: #fff;
@@ -1025,11 +1046,11 @@ a:active, a:hover {
   padding: 3px 20px 3px 20px;
 }
 
-.gwt-MenuBar-vertical .gwt-MenuItem-checkbox-unchecked{
+.gwt-MenuBar-vertical .gwt-MenuItem-checkbox-unchecked {
   color: #698492;
 }
 
-.gwt-MenuBar-vertical .gwt-MenuItem-checkbox-checked{
+.gwt-MenuBar-vertical .gwt-MenuItem-checkbox-checked {
   color: #698492;
 }
 
@@ -1067,9 +1088,8 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-selected:hover {
-  background-color:  #dce7ed;
+  background-color: #dce7ed;
 }
-
 
 /* == == == */
 #mainToolbar #openButton .toolbar-button IMG {
@@ -1077,26 +1097,31 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #newButton .toolbar-button IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/new_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #editContentButton .toolbar-toggle-button IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #editContentButton .toolbar-toggle-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32_disabled.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #saveButton .toolbar-button IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/save_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #saveButton .toolbar-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/save_32_disabled.png');
   height: 32px;
@@ -1108,31 +1133,37 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #saveAsButton .toolbar-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/saveAs_32_disabled.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #showBrowserButton .toolbar-toggle-button IMG {
   background: url('../../images/browser_hide_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #showBrowserButton .toolbar-toggle-button-down IMG {
   background: url('../../images/browser_show_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #newAnalysisButton_img .gwt-Image {
   background: url('../../../content/common-ui/resources/themes/crystal/images/dashbaord_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #printButton .toolbar-button IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/print_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #printButton .toolbar-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/crystal/images/print_32_disabled.png');
   height: 32px;
@@ -1274,6 +1305,7 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 .pentaho-table .cellTableLoading {
   margin: 30px;
 }
+
 /*************************************/
 /*** END of schedules table styles ***/
 /*************************************/
@@ -1281,32 +1313,36 @@ gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
 #admin-users-panel,
 #admin-roles-panel,
 #admin-system-roles-panel {
-  padding:10px;
+  padding: 10px;
 }
 
 .users-roles-list {
   height: 432px;
   width: 200px;
 }
+
 .users-roles-selection-list {
   height: 317px;
   width: 200px;
 }
+
 #admin-roles-panel .users-roles-selection-list {
   height: 268px;
 }
+
 #admin-system-roles-panel .pentaho-fieldgroup-minor .gwt-Label {
   height: 26px;
 }
+
 .alignleft {
-left: 3px !important;
+  left: 3px !important;
 }
 
 .newToolbarDropdown {
   border: 1px solid #8bb5c5;
   border: 1px solid rgba(139, 181, 197, 0.2);
   background-color: #dce7ed;
-  
+
   /* Standard form */
   border-radius: 6px;
   /* Firefox */
@@ -1316,7 +1352,7 @@ left: 3px !important;
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  
+
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 10px;

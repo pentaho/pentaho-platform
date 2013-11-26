@@ -1,28 +1,22 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU General Public License, version 2 as published by the Free Software 
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html 
- * or from the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * 
- * Copyright 2005-2008 Pentaho Corporation.  All rights reserved. 
- * 
- * @created Jul 8, 2005 
- * @author Marc Batchelor
- * 
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.test.platform.repository;
-
-import java.io.File;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -30,14 +24,15 @@ import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTest;
 
-@SuppressWarnings("nls")
+import java.io.File;
+
+@SuppressWarnings( "nls" )
 public class RepositoryTestCase extends BaseTest {
 
   /*
    * @see TestCase#setUp()
    */
 
-	
   private static IPentahoSession sess;
 
   private static final String SOLUTION_PATH = "test-src/solution";
@@ -45,17 +40,18 @@ public class RepositoryTestCase extends BaseTest {
   private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 
   public String getSolutionPath() {
-    File file = new File(SOLUTION_PATH + PENTAHO_XML_PATH);
-    if(file.exists()) {
-      return SOLUTION_PATH;  
-    } else {      
+    File file = new File( SOLUTION_PATH + PENTAHO_XML_PATH );
+    if ( file.exists() ) {
+      return SOLUTION_PATH;
+    } else {
       return ALT_SOLUTION_PATH;
     }
-    
+
   }
+
   public void setUp() {
     super.setUp();
-    sess = new StandaloneSession(Messages.getInstance().getString("REPOSTEST.JUNIT_TEST_SESSION")); //$NON-NLS-1$
+    sess = new StandaloneSession( Messages.getInstance().getString( "REPOSTEST.JUNIT_TEST_SESSION" ) ); //$NON-NLS-1$
     HibernateUtil.beginTransaction();
   }
 
@@ -80,8 +76,8 @@ public class RepositoryTestCase extends BaseTest {
    * 
    * @param arg0
    */
-  public RepositoryTestCase(String arg0) {
-    super(arg0);
+  public RepositoryTestCase( String arg0 ) {
+    super( arg0 );
   }
 
   public RepositoryTestCase() {

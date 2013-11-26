@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFree_ChartComponent.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>JFree_ChartComponent.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <chart-type type="string"> 
+      <default-value>.png</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </chart-type>  
+    <report-type type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </report-type> 
+  </inputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>JFree_ChartComponent.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Chart Data</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="chartData"/> 
+      </action-outputs>
+      <component-definition> 
+        <source>sql</source>  
+        <live>true</live>  
+        <jndi>SampleData</jndi>  
+        <query> <![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]> </query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartComponent</component-name>
+      <action-type>Create The Chart</action-type>
+      <action-inputs> 
+        <output-type type="string" mapping="chart-type"/>  
+        <chart-data type="result-set" mapping="chartData"/> 
+      </action-inputs>
+      <action-outputs> 
+        <chart-filename type="string"/>  
+        <fully-qualified-server-url type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <by-row>false</by-row>  
+        <height>300</height>  
+        <width>600</width>  
+        <title>Actual vs Budget by Region</title>  
+        <chart-attributes> 
+          <!--  this is the background for the whole image -->  
+          <!--  TODO support gradient and texture painting -->  
+          <chart-type>PieChart</chart-type>  
+          <title-position>TOP</title-position>  
+          <height></height>  
+          <width></width>  
+          <title></title>  
+          <title-font> 
+            <font-family>Serif</font-family>  
+            <size>36</size>  
+            <is-bold>false</is-bold>  
+            <is-italic>false</is-italic> 
+          </title-font>  
+          <range-title>US Dollars</range-title>  
+          <chart-background type="color">#FFFFFF</chart-background>  
+          <plot-background type="color">#FF0000</plot-background>  
+          <orientation>horizontal</orientation>  
+          <is-3D>true</is-3D>  
+          <is-stacked>false</is-stacked>  
+          <category-label-rotation>90</category-label-rotation>  
+          <border-visible>false</border-visible>  
+          <border-paint>#3399FF</border-paint>  
+          <include-legend>true</include-legend> 
+        </chart-attributes> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Get The Chart URL</action-type>
+      <action-inputs> 
+        <CHARTOUTPUT type="string" mapping="chart-filename"/>  
+        <FULLY_QUALIFIED_SERVER_URL type="string" mapping="fully-qualified-server-url"/> 
+      </action-inputs>
+      <action-outputs> 
+        <chart_url type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script> <![CDATA[ 
+			      function getImageURL( fileName ) {
+			        return FULLY_QUALIFIED_SERVER_URL + "getImage?image=" + fileName;
+			      }
+			    getImageURL( CHARTOUTPUT ); 
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Report Data</action-type>
+      <action-outputs>
+        <query-result type="result-set" mapping="reportData"/>
+      </action-outputs>
+      <component-definition>
+        <jndi>SampleData</jndi>
+        <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query>
+        <live>true</live>
+      </component-definition>
+    </action-definition>
+
+    <action-definition>
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create The Pentaho Report</action-type>
+      <action-inputs>
+        <data type="result-set" mapping="reportData"/>
+        <output-type type="string" mapping="report-type"/>
+        <chart_url type="string"/>
+      </action-inputs>
+      <action-resources>
+        <report-definition type="resource"/>
+      </action-resources>
+      <component-definition/>
+    </action-definition>
+  </actions> 
+</action-sequence>

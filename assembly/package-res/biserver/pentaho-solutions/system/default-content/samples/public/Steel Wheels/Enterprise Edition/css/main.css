@@ -1,0 +1,425 @@
+/* ==========================================================================
+	FONTS
+   =========================================================================== */
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Open Sans Light'), local('OpenSans-Light'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/DXI1ORHCpsQm3Vp6mXoaTXhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/MTP_ySUJH_bn48VBG8sNSnhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+}
+
+/* ==========================================================================
+    GENERAL STYLES
+   ========================================================================== */
+
+body {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+}
+
+.container {
+	max-width: none !important;
+	width: 960px;
+}
+
+img {
+	max-width: 100%;
+}
+
+/* ==========================================================================
+    HEADER STYLES
+   ========================================================================== */
+
+.header {
+	color: #999;
+}
+
+.header p {
+	color: #444;
+}
+
+p.subhead {
+	font-family: 'Open Sans',sans-serif;
+	font-weight: 300;
+	font-size: 28px;
+	color: #999;
+	margin-top: 12px;
+	margin-bottom: 10px;
+	line-height: 37px;
+}
+
+hr.topYellowMark {
+	height: 12px;
+	background-color: #ffc20f;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#fcd71c),color-stop(100%,#ffc20f));
+	background-image: -webkit-linear-gradient(#fcd71c,#ffc20f);
+	background-image: -moz-linear-gradient(#fcd71c,#ffc20f);
+	background-image: -o-linear-gradient(#fcd71c,#ffc20f);
+	background-image: linear-gradient(#fcd71c,#ffc20f);
+	border: none;
+	margin-left: 2px;
+	width: 20%;
+	margin-top: 0px;
+	text-align: left;
+}
+
+/* ==========================================================================
+   TEXT / LINK STYLES
+   ========================================================================== */
+
+h1 *, h1 {
+	font-family: 'Open Sans',sans-serif;
+	font-size: 60px;
+	font-weight: 300;
+	color: #005ca7;
+	line-height: 1.05;
+	margin: 0;
+	margin-left: -3px;
+}
+
+h3 {
+	font-size: 24px;
+	font-weight: 300;
+	color: #005ca7;
+}
+
+p *, p {
+	line-height: 27px;
+}
+
+a p,
+a:hover p,
+a:focus p {
+	color: #444;
+	text-decoration: none !important;
+}
+
+a:link .col-xs-4 {
+	border-radius: 4px;
+	transition: linear .3s background;
+	-moz-transition: linear .3s background;
+	-webkit-transition: linear .3s background;
+	background: none;
+}
+
+a:hover .col-xs-4 {
+	background: #fff;
+	border-radius: 4px;
+	transition: linear .3s background;
+	-moz-transition: linear .3s background;
+	-webkit-transition: linear .3s background;
+}
+
+a:hover h3,
+a:focus h3 {
+	text-decoration: underline;
+}
+
+/* ==========================================================================
+    VIDEO PLAYER
+   ========================================================================== */
+
+.player-block {
+	text-align: center;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
+
+.screenshot-row {
+	margin-top:30px;
+	margin-bottom:30px;
+}
+
+.video-screen {
+	margin-top: 50px;
+}
+
+#dashboard-designer-video-screen .video-player {
+	position: absolute;
+	margin-top: -370px;
+	margin-left: 223px;
+}
+
+#interactive-reports-video-screen .video-player {
+	position: absolute;
+	margin-top: -411px;
+	margin-left: 216px;
+}
+
+#pentaho-analyzer-video-screen .video-player {
+	position: absolute;
+	margin-top: -391px;
+	margin-left: 226px;
+}
+
+/* ==========================================================================
+    FOOTER
+   ========================================================================== */
+
+.jumbotron img {
+	max-width: 100%;
+}
+
+.try-pentaho-row {
+	margin-top: 50px;
+}
+
+.jumbotron h2 {
+	font-size: 24px;
+	font-weight: 300;
+	color: #333;
+	margin: 16px 0;
+}
+
+.jumbotron h3 {
+	font-size: 24px;
+	font-weight: 300;
+	color: #005ca7;
+	margin: 5px 0 10px;
+}
+
+hr.topShadow {
+	margin-top: -30px;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+}
+
+hr.topShadow:after {
+	content: "";
+	position: absolute;
+	right: 0;
+	left: 0;
+	height: 80px;
+	background-image: -webkit-gradient(radial,50% 50%,0,50% 50%,100,color-stop(0%,rgba(0,0,0,0.05)),color-stop(100%,rgba(0,0,0,0)));
+	background-image: -webkit-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-image: -moz-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-image: -o-radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-image: radial-gradient(50% 50%,ellipse contain,rgba(0,0,0,0.05),rgba(0,0,0,0) 100%);
+	background-size: 140% 200%;
+	background-repeat: no-repeat;
+	background-position: 50% -80px;
+	z-index: 1;
+}
+
+.jumbotron .container {
+	margin-top: 20px;
+	margin-bottom: 0px;
+}
+
+.link-icon {
+	width: 56px;
+	float:left;
+	margin-right: 20px;
+	display: block;
+	position: relative;
+	margin-top: 15px;
+}
+
+.link-content {
+	width: 235px;
+	display: block;
+	float:right;
+	position: absolute;
+	/*left: 86px;*/
+	left: 25px;
+	margin-top: 15px;
+}
+
+.other-tool {
+	position:relative;
+	height: 125px;
+}
+
+.try-pentaho h2 {
+	font-size: 18px;
+	line-height: 1.2;
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
+.try-pentaho p {
+	margin-top: 5px;
+}
+
+.try-pentaho {
+	width: 250px;
+	border-left: 1px solid #ddd;
+	height: 125px;
+	padding-top: 3px;
+}
+
+/* ==========================================================================
+    BUTTONS
+   ========================================================================== */
+
+a.btn.btn-primary {
+	background-color: #005ca7;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#247dc5),color-stop(100%,#015ea9));
+	background-image: -webkit-linear-gradient(#247dc5,#015ea9);
+	background-image: -moz-linear-gradient(#247dc5,#015ea9);
+	background-image: -o-linear-gradient(#247dc5,#015ea9);
+	background-image: linear-gradient(#247dc5,#015ea9);
+	text-shadow: 0 1px rgba(255,255,255,0.3);color: #FFFFFF;
+	border-radius: 4px;
+	box-shadow: 0 0 5px rgba(0,0,0,0.3);
+	border: none;
+	padding: 10px 30px;
+}
+
+a.btn.btn-primary:hover,
+a.btn.btn-primary:focus {
+	text-decoration: none;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#015ea9),color-stop(100%,#247dc5));
+	background-image: -webkit-linear-gradient(#015ea9,#247dc5);
+	background-image: -moz-linear-gradient(#015ea9,#247dc5);
+	background-image: -o-linear-gradient(#015ea9,#247dc5);
+	background-image: linear-gradient(#015ea9,#247dc5);
+}
+
+.try-pentaho-row a.btn-primary {
+	border: none;
+	font-size: 18px;
+	text-shadow: 0 1px rgba(255,255,255,0.3);
+	background-color: #005ca7;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#247dc5),color-stop(100%,#015ea9));
+	background-image: -webkit-linear-gradient(#247dc5,#015ea9);
+	background-image: -moz-linear-gradient(#247dc5,#015ea9);
+	background-image: -o-linear-gradient(#247dc5,#015ea9);
+	background-image: linear-gradient(#247dc5,#015ea9);
+	color: #FFFFFF;
+	border-radius: 4px;
+	box-shadow: 0 0 5px rgba(0,0,0,0.3);
+	display: block;
+	padding: 20px 30px;
+}
+
+.try-pentaho-row a.btn-primary:hover,
+.try-pentaho-row a.btn-primary:focus {
+	text-decoration: none;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#015ea9),color-stop(100%,#247dc5));
+	background-image: -webkit-linear-gradient(#015ea9,#247dc5);
+	background-image: -moz-linear-gradient(#015ea9,#247dc5);
+	background-image: -o-linear-gradient(#015ea9,#247dc5);
+	background-image: linear-gradient(#015ea9,#247dc5);
+}
+
+a.btn.btn-try-dashboard-designer {
+	/*padding-left: 20px;*/
+	text-align: left;
+	margin-top: 30px;
+	margin-bottom: 20px;
+}
+
+a.btn.btn-try-dashboard-designer img {
+	margin-right: 10px;
+}
+
+/* ==========================================================================
+    CAROUSEL
+   ========================================================================== */
+
+.carousel {
+	margin-bottom: 30px;
+}
+
+.carousel-caption {
+	z-index: 10;
+}
+
+.carousel .item {
+	height: 348px;
+}
+.carousel img {
+	position: relative;
+	max-width: 100%;
+}
+
+.carousel-indicators {
+	position: absolute;
+	bottom: 0px;
+	left: 50%;
+	z-index: 15;
+	width: 60%;
+	padding-left: 0;
+	margin-left: -30%;
+	text-align: center;
+	list-style: none;
+}
+
+.carousel-indicators li {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	margin: 2px;
+	text-indent: -999px;
+	cursor: pointer;
+	border: 1px solid #55a2e0;
+	border-radius: 10px;
+}
+
+.carousel-indicators .active {
+	width: 9px;
+	height: 9px;
+	margin: 4px;
+	background: #247DC5;
+	background-image: -webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,#015ea9),color-stop(100%,#247dc5));
+	background-image: -webkit-linear-gradient(#015ea9,#247dc5);
+	background-image: -moz-linear-gradient(#015ea9,#247dc5);
+	background-image: -o-linear-gradient(#015ea9,#247dc5);
+	background-image: linear-gradient(#015ea9,#247dc5);
+}
+
+#myCarousel {
+	margin-top: 20px;
+}
+
+/* Fade transition for carousel items */
+.carousel.fade {
+    opacity: 1;
+}
+
+.carousel.fade .item {
+    -moz-transition: opacity ease-in-out .7s;
+    -o-transition: opacity ease-in-out .7s;
+    -webkit-transition: opacity ease-in-out .7s;
+    transition: opacity ease-in-out .7s;
+    left: 0 !important;
+    opacity: 0;
+    top:0;
+    position:absolute;
+    width: 100%;
+    display:block !important;
+    z-index:1;
+}
+
+.carousel.fade .item:first-child {
+    top:auto;
+    position:relative;
+}
+
+.carousel.fade .item.active {
+    opacity: 1;
+    -moz-transition: opacity ease-in-out .7s;
+    -o-transition: opacity ease-in-out .7s;
+    -webkit-transition: opacity ease-in-out .7s;
+    transition: opacity ease-in-out .7s;
+    z-index:2;
+}

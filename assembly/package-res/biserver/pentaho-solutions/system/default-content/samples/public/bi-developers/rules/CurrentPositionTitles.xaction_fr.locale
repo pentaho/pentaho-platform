@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Fonctions actuelles
+file.description=Cette r\u00E8gle utilise une requ\u00EAte sur la base de donn\u00E9es pour d\u00E9terminer les fonctions valides pour un d\u00E9partement donn\u00E9.<p/>Vous pouvez lui passer diff\u00E9rents d\u00E9partement sur l'URL. Essayez <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Finance" target\="pentaho_action">Finance</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Sales" target\="pentaho_action">Sales</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Human%20Resource" target\="pentaho_action">Human Resource</a>

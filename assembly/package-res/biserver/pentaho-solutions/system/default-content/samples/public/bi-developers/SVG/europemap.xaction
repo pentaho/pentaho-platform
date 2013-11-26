@@ -1,0 +1,139 @@
+
+<action-sequence>
+
+	<name>europemap.xaction</name>
+	<version>1</version>
+  	<title>%title</title>
+	<title>Community growth from December 2005 to January 2006</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+    		<description><![CDATA[%description]]></description>
+		<help></help>
+		<result-type>rule</result-type>
+		<icon>svg.png</icon>
+	</documentation>
+
+	<inputs>
+	</inputs>
+
+	<outputs>
+		<svg type="content">
+	    	<destinations>
+	      		<response>content</response> 
+	    	</destinations>
+		</svg>
+	</outputs>
+	<resources> 
+		<template>
+			<solution-file>
+				<location>map_of_europe_jarno_vasa_02.svg</location>
+				<mime-type>text/xml</mime-type>
+			</solution-file>
+		</template>
+	</resources>
+  
+  <actions>
+
+      <action-definition>
+        <component-name>JavascriptRule</component-name>
+      	<action-inputs> 
+      	</action-inputs> 
+        <action-outputs>
+          	<regions type="list"/>
+          	<title type="string"/>
+          	<index1 type="string"/>
+          	<color1 type="string"/>
+          	<index2 type="string"/>
+          	<color2 type="string"/>
+          	<index3 type="string"/>
+          	<color3 type="string"/>
+          	<index4 type="string"/>
+          	<color4 type="string"/>
+          	<index5 type="string"/>
+          	<color5 type="string"/>
+          	<index6 type="string"/>
+          	<color6 type="string"/>
+        </action-outputs>
+        
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      	regions = new JavaScriptResultSet();
+			      	regions.setColumnHeaders( new Array( 'country', 'country_style' ) );
+			      	var data = new Array( 'france', 'spain', 'germany', 
+						'norway', 'sweden', 'united kingdom', 
+						'luxembourg', 'netherlands', 'italy', 
+						'portugal', 'czech republic', 'bulgaria', 'turkey', 'ireland', 'finland' );
+			      	var nRows = data.length;
+			      	var n;
+			      	for( row=0; row<nRows; row++ ) {
+			      		var countryName = data[ row ];
+			      		var value =  countryName.length*10;
+			      		var color = "fill:#00ff00";
+			      		if( value < 45 ) {
+			      		    color = "fill:#ff0000";
+			      		}
+			      		else if ( value < 55 ) {
+			      		    color = "fill:#ff8000";
+			      		}
+			      		else if ( value < 65 ) {
+			      		    color = "fill:#ffff00";
+			      		}
+			      		else if ( value < 75 ) {
+			      		    color = "fill:#80ff00";
+			      		}
+			      		else if ( value < 85 ) {
+			      		    color = "fill:#40ff00";
+			      		}
+			      		else {
+			      		    color = "fill:#00ff00";
+			      		}
+			      		regions.addRow( new Array( countryName, color ) );
+			      	}
+			      	title = 'Metric by Country';
+                    index1 = '85% or more';
+                    color1 = '#00ff00';
+			      	index2 = '75% to 84%';
+			      	color2 = '#40ff00';
+			      	index3 = '65% to 74%';
+			      	color3 = '#80ff00';
+			      	index4 = '55% to 64%';
+			      	color4 = '#ffff00';
+			      	index5 = '45% to 54%';
+			      	color5 = '#ff8000'
+			      	index6 = '44% or less';
+			      	color6 = '#ff0000';
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+      <action-definition>
+      	<action-inputs>
+			<regions type="list"/>
+          	<title type="string"/>
+          	<index1 type="string"/>
+          	<color1 type="string"/>
+          	<index2 type="string"/>
+          	<color2 type="string"/>
+          	<index3 type="string"/>
+          	<color3 type="string"/>
+          	<index4 type="string"/>
+          	<color4 type="string"/>
+          	<index5 type="string"/>
+          	<color5 type="string"/>
+          	<index6 type="string"/>
+          	<color6 type="string"/>
+      	</action-inputs>
+        <action-outputs>
+          	<svg type="content"/>
+        </action-outputs>
+        
+        <component-name>TemplateComponent</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+		      <mime-type>image/svg+xml</mime-type>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

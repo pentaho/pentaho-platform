@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,54 +12,50 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation.  All rights reserved.
- *
- *
- * @created 4/26/2011
- * @author Aaron Phillips
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JerseyUtil {
 
-  public static HttpServletRequest correctPostRequest(final MultivaluedMap<String, String> formParams,
-      HttpServletRequest httpServletRequest) {
+  public static HttpServletRequest correctPostRequest( final MultivaluedMap<String, String> formParams,
+      HttpServletRequest httpServletRequest ) {
     final HashMap<String, Object> formParamsHashMap = new HashMap<String, Object>();
 
-    for (String key : formParams.keySet()) {
-      Object value = formParams.get(key);
-      if (value instanceof List) {
-        Object[] valueArray = ((List<?>) value).toArray();
-        formParamsHashMap.put(key, valueArray);
+    for ( String key : formParams.keySet() ) {
+      Object value = formParams.get( key );
+      if ( value instanceof List ) {
+        Object[] valueArray = ( (List<?>) value ).toArray();
+        formParamsHashMap.put( key, valueArray );
       } else {
-        formParamsHashMap.put(key, value);
+        formParamsHashMap.put( key, value );
       }
     }
 
-    HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(httpServletRequest) {
+    HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper( httpServletRequest ) {
       @Override
       public Map<String, Object> getParameterMap() {
         return formParamsHashMap;
       }
 
       @Override
-      public String[] getParameterValues(String name) {
-        return (String[]) formParamsHashMap.get(name);
+      public String[] getParameterValues( String name ) {
+        return (String[]) formParamsHashMap.get( name );
       }
 
       @Override
-      public String getParameter(String name) {
-        Object value = formParamsHashMap.get(name);
-        if (value != null && value instanceof String[] && ((String[]) value)[0] != null) {
-          return ((String[]) value)[0];
+      public String getParameter( String name ) {
+        Object value = formParamsHashMap.get( name );
+        if ( value != null && value instanceof String[] && ( (String[]) value )[0] != null ) {
+          return ( (String[]) value )[0];
         } else {
           return null;
         }

@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Gesch\u00FCtztes PDF
+file.description=Dies ist ein Beispiel f\u00FCr einen gesch\u00FCtzten PDF-Bericht, der von Eclipse BIRT erzeugt wird. <p> Die Auswahl der Filter, wird w\u00E4hrend dem Login, durch eine Businessregel in der Usersession gespeichert.<p> Wenn Sie als 'Suzy' angemeldet sind, k\u00F6nnen sie nur 'Eastern', 'Western' und 'Southern' ausw\u00E4hlen. Wenn Sie sich als 'admin' einloggen, k\u00F6nnen Sie auch 'Central' ausw\u00E4hlen.

@@ -1,0 +1,4 @@
+#Locale = en
+#Thu Aug 15 12:32:46 EDT 2013
+file.title=Burst Sales Report
+file.description=Burst Customer Sales Report to each Account Manager. MUST HAVE EMAIL CONFIGURED ON PENTAHO SERVER.

@@ -1,3 +1,20 @@
+<%--
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+* Foundation.
+*
+* You should have received a copy of the GNU Lesser General Public License along with this
+* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+* or from the Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Lesser General Public License for more details.
+*
+* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+--%>
+
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
     page language="java"
@@ -142,11 +159,11 @@
           <div class="row-fluid nowrap">
             <div class="input-container">
               <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></label>
-              <input id="j_username" name="j_username" type="text" placeholder="">
+              <input id="j_username" name="j_username" type="text" placeholder="" autocomplete="off">
             </div>
             <div class="input-container">
               <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></label>
-              <input id="j_password" name="j_password" type="password" placeholder="">
+              <input id="j_password" name="j_password" type="password" placeholder="" autocomplete="off">
             </div>
             <div class="input-container">
               <label>&nbsp;</label>
@@ -248,11 +265,6 @@
     var locale = document.login.locale.value;
 
     var returnLocation = '<%=ESAPI.encoder().encodeForJavaScript(requestedURL)%>';
-
-    if(/(iPad|iPod|iPhone)/.test(navigator.userAgent) || window.orientation !== undefined){
-      returnLocation = CONTEXT_PATH+"content/analyzer/selectSchema";
-    }
-
 
     if (returnLocation != '' && returnLocation != null) {
       window.location.href = returnLocation;

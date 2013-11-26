@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFreeReport_Chart_ChartTypes.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Gretchen Moran / Nicholas Goodman / Jake Cornelius</author>  
+    <description>%description</description>  
+    <icon>BarChart.png</icon>  
+    <help>Help</help>  
+    <result-type>\</result-type> 
+  </documentation>
+
+  <inputs> 
+    <chart_type type="string"> 
+      <default-value><![CDATA[bar]]></default-value>  
+      <sources> 
+        <request>chart_type</request> 
+      </sources> 
+    </chart_type>  
+    <chart_type_FILTER type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="Display">Line</entry>  
+          <entry key="chart_type">line</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bar</entry>  
+          <entry key="chart_type">bar</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Pie</entry>  
+          <entry key="chart_type">pie</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bar Horizontal</entry>  
+          <entry key="chart_type">barchart_horizontal</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bar 3D</entry>  
+          <entry key="chart_type">barchart_3d</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bar Glass</entry>  
+          <entry key="chart_type">barchart_glass</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bar Sketch</entry>  
+          <entry key="chart_type">barchart_sketch</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Area</entry>  
+          <entry key="chart_type">area</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bar-Line</entry>  
+          <entry key="chart_type">barline</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">XY</entry>  
+          <entry key="chart_type">dotchart</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Display">Bubble</entry>  
+          <entry key="chart_type">bubble</entry> 
+        </property-map> 
+      </default-value> 
+    </chart_type_FILTER>  
+    <chart_width type="string"> 
+      <sources> 
+        <request>chart_width</request> 
+      </sources>  
+      <default-value><![CDATA[100%]]></default-value> 
+    </chart_width>  
+    <chart_height type="string"> 
+      <sources> 
+        <request>chart_height</request> 
+      </sources>  
+      <default-value><![CDATA[100%]]></default-value> 
+    </chart_height> 
+  </inputs>
+
+  <outputs> 
+    <html_fragment type="string"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </html_fragment> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <line> 
+      <solution-file> 
+        <location>flash_linechart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </line>  
+    <bar> 
+      <solution-file> 
+        <location>flash_barchart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </bar>  
+    <pie> 
+      <solution-file> 
+        <location>flash_piechart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </pie>  
+    <pageTemplate> 
+      <solution-file> 
+        <location>flash_parameter_template.html</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </pageTemplate>  
+    <barchart_horizontal> 
+      <solution-file> 
+        <location>flash_barchart_horizontal.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </barchart_horizontal>  
+    <barchart_3d> 
+      <solution-file> 
+        <location>flash_barchart_3d.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </barchart_3d>  
+    <barchart_glass> 
+      <solution-file> 
+        <location>flash_barchart_glass.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </barchart_glass>  
+    <barchart_sketch> 
+      <solution-file> 
+        <location>flash_barchart_sketch.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </barchart_sketch>  
+    <area> 
+      <solution-file> 
+        <location>flash_areachart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </area>  
+    <barline> 
+      <solution-file> 
+        <location>flash_barlinechart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </barline>  
+    <dot> 
+      <solution-file> 
+        <location>flash_dotchart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </dot>  
+    <bubble> 
+      <solution-file> 
+        <location>flash_bubblechart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </bubble> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Select the Chart Type</action-type>
+      <action-inputs> 
+        <chart_type type="string"/>  
+        <chart_type_FILTER type="property-map-list"/> 
+      </action-inputs>
+      <action-resources> 
+        <pageTemplate type="resource"/> 
+      </action-resources>
+      <action-outputs/>
+      <component-definition> 
+        <handle-all-prompts>true</handle-all-prompts>  
+        <selections> 
+          <chart_type style="select"> 
+            <filter value-col-name="chart_type" display-col-name="Display">chart_type_FILTER</filter>  
+            <title>Select the Chart Type</title> 
+          </chart_type> 
+        </selections>  
+        <xsl><![CDATA[pageTemplate]]></xsl> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Chart Data Query</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE AS LINE,
+     CAST(SUM(CASE ORDERFACT.YEAR_ID WHEN '2003' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS INTEGER) AS "2003",
+     CAST(SUM(CASE ORDERFACT.YEAR_ID WHEN '2004' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS INTEGER) AS "2004",
+     CAST(SUM(CASE ORDERFACT.YEAR_ID WHEN '2005' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS INTEGER) AS "2005"
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+     INNER JOIN CUSTOMER_W_TER ON ORDERFACT.CUSTOMERNUMBER = CUSTOMER_W_TER.CUSTOMERNUMBER GROUP BY
+     LINE
+ORDER BY
+     2 DESC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'bar']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="bar"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'line']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="line"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'area']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="area"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'barchart_horizontal']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="barchart_horizontal"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'pie']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="pie"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'barchart_3d']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="barchart_3d"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'barchart_glass']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="barchart_glass"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'barchart_sketch']]></condition>  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="barchart_sketch"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'barline']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Get Chart Data</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result2"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <query><![CDATA[SELECT
+     PRODUCTS.PRODUCTLINE AS LINE,
+     CAST(SUM(ORDERFACT.TOTALPRICE) AS INTEGER) AS TOTAL,
+     CAST(SUM(ORDERFACT.QUANTITYORDERED*PRODUCTS.BUYPRICE) AS INTEGER) AS COST,
+     CAST(SUM(ORDERFACT.QUANTITYORDERED*PRODUCTS.BUYPRICE)/SUM(ORDERFACT.TOTALPRICE)*100 AS INTEGER) AS MARGIN
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+GROUP BY
+     PRODUCTS.PRODUCTLINE
+ORDER BY
+     PRODUCTS.PRODUCTLINE ASC]]></query>  
+          <live><![CDATA[false]]></live> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result2"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="barline"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type=='dotchart']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Get Chart Data</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result3"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <live><![CDATA[true]]></live>  
+          <query><![CDATA[SELECT
+     PRODUCTS.PRODUCTLINE AS LINE,
+     CAST(SUM(ORDERFACT.QUANTITYORDERED) AS INTEGER) AS QUANTITY,
+     CAST(SUM(ORDERFACT.TOTALPRICE) AS INTEGER) AS TOTAL
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+GROUP BY
+     PRODUCTS.PRODUCTLINE
+ORDER BY
+     PRODUCTS.PRODUCTLINE ASC]]></query> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result3"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="dot"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type== 'bubble']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Get Chart Data</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result4"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <live><![CDATA[true]]></live>  
+          <query><![CDATA[SELECT
+     PRODUCTS.PRODUCTLINE AS LINE,
+     CAST(SUM(PRODUCTS.QUANTITYINSTOCK) AS INTEGER) AS ONHAND,
+     CAST(SUM(ORDERFACT.QUANTITYORDERED) AS INTEGER) AS QUANTITY,
+     CAST(SUM(ORDERFACT.TOTALPRICE) AS INTEGER) AS TOTAL
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+GROUP BY
+     PRODUCTS.PRODUCTLINE
+ORDER BY
+     PRODUCTS.PRODUCTLINE ASC]]></query>
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>OpenFlashChartComponent</component-name>
+        <action-type>Open Flash Chart</action-type>
+        <action-inputs> 
+          <chart-data type="string" mapping="query_result4"/>  
+          <height type="string" mapping="chart_height"/>  
+          <width type="string" mapping="chart_width"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="bubble"/> 
+        </action-resources>
+        <action-outputs> 
+          <html_fragment type="string"/>  
+          <content_url type="string"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

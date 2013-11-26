@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,8 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.mantle.client.workspace;
 
 import com.google.gwt.cell.client.AbstractCell;
@@ -30,38 +31,38 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 public class ClickableSafeHtmlCell extends AbstractCell<SafeHtml> {
 
   public ClickableSafeHtmlCell() {
-    super("click");
+    super( "click" );
   }
 
   @Override
-  public void onBrowserEvent(Context context, Element parent, SafeHtml value, NativeEvent event,
-                             ValueUpdater<SafeHtml> valueUpdater) {
+  public void onBrowserEvent( Context context, Element parent, SafeHtml value, NativeEvent event,
+      ValueUpdater<SafeHtml> valueUpdater ) {
 
     // use default implementation for all events other than the click event
-    super.onBrowserEvent(context, parent, value, event, valueUpdater);
+    super.onBrowserEvent( context, parent, value, event, valueUpdater );
 
-    if ("click".equals(event.getType())) {
+    if ( "click".equals( event.getType() ) ) {
 
       // Ignore clicks that occur outside of the outermost element.
       EventTarget eventTarget = event.getEventTarget();
-      if (parent.getFirstChildElement().isOrHasChild(Element.as(eventTarget))) {
-        onEnterKeyDown(context, parent, value, event, valueUpdater);
+      if ( parent.getFirstChildElement().isOrHasChild( Element.as( eventTarget ) ) ) {
+        onEnterKeyDown( context, parent, value, event, valueUpdater );
       }
     }
   }
 
   @Override
-  protected void onEnterKeyDown(Context context, Element parent, SafeHtml value,
-                                NativeEvent event, ValueUpdater<SafeHtml> valueUpdater) {
-    if (valueUpdater != null) {
-      valueUpdater.update(value);
+  protected void onEnterKeyDown( Context context, Element parent, SafeHtml value, NativeEvent event,
+      ValueUpdater<SafeHtml> valueUpdater ) {
+    if ( valueUpdater != null ) {
+      valueUpdater.update( value );
     }
   }
 
   @Override
-  public void render(Context context, SafeHtml value, SafeHtmlBuilder sb) {
-    if (value != null) {
-      sb.append(value);
+  public void render( Context context, SafeHtml value, SafeHtmlBuilder sb ) {
+    if ( value != null ) {
+      sb.append( value );
     }
   }
 }

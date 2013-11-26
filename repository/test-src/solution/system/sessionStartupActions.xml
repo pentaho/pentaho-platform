@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-"http://www.springframework.org/dtd/spring-beans.dtd">
+    "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <!-- 
 This is the spring configuration file that is used to wire session startup actions into the Pentaho
@@ -10,50 +10,50 @@ PentahoHttpSession, PentahoPortletSession, UserSession, & Standalone session.
 -->
 
 <beans>
-	<bean id="sessionStartupActionsList" class="java.util.ArrayList">
-		<!--<constructor-arg>-->
-			<!--<list>-->
-			<!---->
-				<!--&lt;!&ndash; Start of PentahoHttpSession startup actions. &ndash;&gt;-->
-				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
-					<!--<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>-->
-					<!--<property name="actionPath" value="samples/rules/session-region-list.xaction"/>-->
-					<!--<property name="actionOutputScope" value="session"/>-->
-				<!--</bean>-->
-				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
-					<!--<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>-->
-					<!--<property name="actionPath" value="samples/secure/global-department-list.xaction"/>-->
-					<!--<property name="actionOutputScope" value="global"/>-->
-				<!--</bean>-->
-				<!--&lt;!&ndash; End of PentahoHttpSession startup actions. &ndash;&gt;-->
-				<!---->
-				<!--&lt;!&ndash; Start of PentahoPortletSession startup actions. &ndash;&gt;-->
-				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
-					<!--<property name="sessionType" value="org.pentaho.platform.web.http.portal.PentahoPortletSession"/>-->
-					<!--<property name="actionPath" value="samples/rules/session-region-list.xaction"/>-->
-					<!--<property name="actionOutputScope" value="session"/>-->
-				<!--</bean>-->
-				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
-					<!--<property name="sessionType" value="org.pentaho.platform.web.http.portal.PentahoPortletSession"/>-->
-					<!--<property name="actionPath" value="samples/secure/global-department-list.xaction"/>-->
-					<!--<property name="actionOutputScope" value="global"/>-->
-				<!--</bean>-->
-				<!--&lt;!&ndash; End of PentahoPortletSession startup actions. &ndash;&gt;-->
-			<!---->
-				<!--&lt;!&ndash; Start of UserSession startup actions. &ndash;&gt;-->
-				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
-					<!--<property name="sessionType" value="org.pentaho.core.session.UserSession"/>-->
-					<!--<property name="actionPath" value="samples/rules/session-region-list.xaction"/>-->
-					<!--<property name="actionOutputScope" value="session"/>-->
-				<!--</bean>-->
-				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
-					<!--<property name="sessionType" value="org.pentaho.core.session.UserSession"/>-->
-					<!--<property name="actionPath" value="samples/secure/global-department-list.xaction"/>-->
-					<!--<property name="actionOutputScope" value="global"/>-->
-				<!--</bean>-->
-				<!--&lt;!&ndash; End of UserSession startup actions. &ndash;&gt;-->
-				<!---->
-			<!--</list>-->
-		<!--</constructor-arg>-->
-	</bean>
+  <bean id="sessionStartupActionsList" class="java.util.ArrayList">
+    <!--<constructor-arg>-->
+    <!--<list>-->
+    <!---->
+    <!--&lt;!&ndash; Start of PentahoHttpSession startup actions. &ndash;&gt;-->
+    <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
+    <!--<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>-->
+    <!--<property name="actionPath" value="samples/rules/session-region-list.xaction"/>-->
+    <!--<property name="actionOutputScope" value="session"/>-->
+    <!--</bean>-->
+    <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
+    <!--<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>-->
+    <!--<property name="actionPath" value="samples/secure/global-department-list.xaction"/>-->
+    <!--<property name="actionOutputScope" value="global"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; End of PentahoHttpSession startup actions. &ndash;&gt;-->
+    <!---->
+    <!--&lt;!&ndash; Start of PentahoPortletSession startup actions. &ndash;&gt;-->
+    <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
+    <!--<property name="sessionType" value="org.pentaho.platform.web.http.portal.PentahoPortletSession"/>-->
+    <!--<property name="actionPath" value="samples/rules/session-region-list.xaction"/>-->
+    <!--<property name="actionOutputScope" value="session"/>-->
+    <!--</bean>-->
+    <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
+    <!--<property name="sessionType" value="org.pentaho.platform.web.http.portal.PentahoPortletSession"/>-->
+    <!--<property name="actionPath" value="samples/secure/global-department-list.xaction"/>-->
+    <!--<property name="actionOutputScope" value="global"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; End of PentahoPortletSession startup actions. &ndash;&gt;-->
+    <!---->
+    <!--&lt;!&ndash; Start of UserSession startup actions. &ndash;&gt;-->
+    <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
+    <!--<property name="sessionType" value="org.pentaho.core.session.UserSession"/>-->
+    <!--<property name="actionPath" value="samples/rules/session-region-list.xaction"/>-->
+    <!--<property name="actionOutputScope" value="session"/>-->
+    <!--</bean>-->
+    <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">-->
+    <!--<property name="sessionType" value="org.pentaho.core.session.UserSession"/>-->
+    <!--<property name="actionPath" value="samples/secure/global-department-list.xaction"/>-->
+    <!--<property name="actionOutputScope" value="global"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; End of UserSession startup actions. &ndash;&gt;-->
+    <!---->
+    <!--</list>-->
+    <!--</constructor-arg>-->
+  </bean>
 </beans>

@@ -1,32 +1,29 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU General Public License, version 2 as published by the Free Software 
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html 
- * or from the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2005 - 2008 Pentaho Corporation.  All rights reserved. 
- * 
- * @created Jul 18, 2005 
- * @author James Dixon
- * 
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.platform.engine.services.actionsequence;
 
-import java.util.List;
-import java.util.Map;
+package org.pentaho.platform.engine.services.actionsequence;
 
 import org.pentaho.platform.api.engine.IActionSequence;
 import org.pentaho.platform.api.engine.IConditionalExecution;
 import org.pentaho.platform.api.engine.ISequenceDefinition;
+
+import java.util.List;
+import java.util.Map;
 
 public class ActionSequence implements IActionSequence {
   private ISequenceDefinition sequenceDefinition;
@@ -39,8 +36,8 @@ public class ActionSequence implements IActionSequence {
 
   private boolean loopUsingPeek;
 
-  protected ActionSequence(final String loopParameter, final ISequenceDefinition sequenceDefinition,
-      final List actionDefinitions, boolean loopUsingPeek) {
+  protected ActionSequence( final String loopParameter, final ISequenceDefinition sequenceDefinition,
+      final List actionDefinitions, boolean loopUsingPeek ) {
     this.loopParameter = loopParameter;
     this.sequenceDefinition = sequenceDefinition;
     this.actionDefinitions = actionDefinitions;
@@ -59,12 +56,12 @@ public class ActionSequence implements IActionSequence {
     return conditionalExecution;
   }
 
-  public void setConditionalExecution(final IConditionalExecution value) {
+  public void setConditionalExecution( final IConditionalExecution value ) {
     this.conditionalExecution = value;
   }
 
   public boolean hasLoop() {
-    return (loopParameter != null);
+    return ( loopParameter != null );
   }
 
   public String getResultType() {
@@ -72,47 +69,47 @@ public class ActionSequence implements IActionSequence {
   }
 
   public String getSequenceName() {
-    return (sequenceDefinition.getSequenceName());
+    return ( sequenceDefinition.getSequenceName() );
   }
 
   public String getAuthor() {
-    return (sequenceDefinition.getAuthor());
+    return ( sequenceDefinition.getAuthor() );
   }
 
   public String getDescription() {
-    return (sequenceDefinition.getDescription());
+    return ( sequenceDefinition.getDescription() );
   }
 
   public String getHelp() {
-    return (sequenceDefinition.getHelp());
+    return ( sequenceDefinition.getHelp() );
   }
 
   public Map getInputDefinitions() {
-    return (sequenceDefinition.getInputDefinitions());
+    return ( sequenceDefinition.getInputDefinitions() );
   }
 
-  public Map getInputDefinitionsForParameterProvider(final String parameterProviderName) {
-    return (sequenceDefinition.getInputDefinitionsForParameterProvider(parameterProviderName));
+  public Map getInputDefinitionsForParameterProvider( final String parameterProviderName ) {
+    return ( sequenceDefinition.getInputDefinitionsForParameterProvider( parameterProviderName ) );
   }
 
   public Map getOutputDefinitions() {
-    return (sequenceDefinition.getOutputDefinitions());
+    return ( sequenceDefinition.getOutputDefinitions() );
   }
 
   public Map getResourceDefinitions() {
-    return (sequenceDefinition.getResourceDefinitions());
+    return ( sequenceDefinition.getResourceDefinitions() );
   }
 
   public String getSolutionName() {
-    return (sequenceDefinition.getSolutionName());
+    return ( sequenceDefinition.getSolutionName() );
   }
 
   public String getSolutionPath() {
-    return (sequenceDefinition.getSolutionPath());
+    return ( sequenceDefinition.getSolutionPath() );
   }
 
   public int getLoggingLevel() {
-    return (sequenceDefinition.getLoggingLevel());
+    return ( sequenceDefinition.getLoggingLevel() );
   }
 
   public String getTitle() {

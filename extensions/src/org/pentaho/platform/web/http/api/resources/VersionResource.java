@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,21 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2012 Pentaho Corporation.  All rights reserved.
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
-
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-
-import java.util.List;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,27 +24,51 @@ import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
-@Path("/version")
-public class VersionResource extends AbstractJaxRSResource {
-  
-  protected static final Log logger = LogFactory.getLog(VersionResource.class);
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+
+/**
+ * This resource manages version checking capability of the platform
+ * 
+ *
+ */
+@Path( "/version" )
+public class VersionResource extends AbstractJaxRSResource {
+
+  protected static final Log logger = LogFactory.getLog( VersionResource.class );
+
+  /**
+   * Returns the current version of the platform
+   * 
+   * @return platform's version
+   */
   @GET
-  @Path("/show")
-  @Produces(TEXT_PLAIN)
+  @Path( "/show" )
+  @Produces( TEXT_PLAIN )
   public Response getVersion() {
-    VersionInfo versionInfo = VersionHelper.getVersionInfo(PentahoSystem.class);
-    return Response.ok(versionInfo.getVersionNumber()).type(MediaType.TEXT_PLAIN).build();
+    VersionInfo versionInfo = VersionHelper.getVersionInfo( PentahoSystem.class );
+    return Response.ok( versionInfo.getVersionNumber() ).type( MediaType.TEXT_PLAIN ).build();
   }
 
+  /**
+   * Return software update document to the user
+   * 
+   * @return software update document
+   */
   @GET
-  @Path("/softwareUpdates")
-  @Produces(TEXT_PLAIN)
+  @Path( "/softwareUpdates" )
+  @Produces( TEXT_PLAIN )
   public String getSoftwareUpdatesDocument() {
-    if (PentahoVersionCheckReflectHelper.isVersionCheckerAvailable()) {
-      @SuppressWarnings("rawtypes")
-      List results = PentahoVersionCheckReflectHelper.performVersionCheck(false, -1);
-      return PentahoVersionCheckReflectHelper.logVersionCheck(results, logger);
+    if ( PentahoVersionCheckReflectHelper.isVersionCheckerAvailable() ) {
+      @SuppressWarnings( "rawtypes" )
+      List results = PentahoVersionCheckReflectHelper.performVersionCheck( false, -1 );
+      return PentahoVersionCheckReflectHelper.logVersionCheck( results, logger );
     }
     return "<vercheck><error><[!CDATA[Version Checker is disabled]]></error></vercheck>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }

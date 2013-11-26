@@ -12,8 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.action.jfreereport.helper;
 
 import org.pentaho.reporting.engine.classic.core.metadata.ElementMetaDataParser;
@@ -23,7 +25,7 @@ import org.pentaho.reporting.libraries.base.boot.SubSystem;
 
 /**
  * Defines the Module for PentahoTableDataFactory
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoTableDataFactoryModule extends AbstractModule {
@@ -32,17 +34,17 @@ public class PentahoTableDataFactoryModule extends AbstractModule {
   }
 
   /**
-   * Initializes the module. Use this method to perform all initial setup operations.
-   * This method is called only once in a modules lifetime. If the initializing cannot
-   * be completed, throw a ModuleInitializeException to indicate the error. The module
-   * will not be available to the system.
-   *
-   * @param subSystem the subSystem.
-   * @throws ModuleInitializeException if an error occurred while initializing the module.
+   * Initializes the module. Use this method to perform all initial setup operations. This method is called only once in
+   * a modules lifetime. If the initializing cannot be completed, throw a ModuleInitializeException to indicate the
+   * error. The module will not be available to the system.
+   * 
+   * @param subSystem
+   *          the subSystem.
+   * @throws ModuleInitializeException
+   *           if an error occurred while initializing the module.
    */
-  public void initialize(final SubSystem subSystem) throws ModuleInitializeException {
+  public void initialize( final SubSystem subSystem ) throws ModuleInitializeException {
     ElementMetaDataParser
-        .initializeOptionalDataFactoryMetaData
-            ("org/pentaho/platform/plugin/action/jfreereport/helper/meta-datafactory.xml"); //$NON-NLS-1$
+        .initializeOptionalDataFactoryMetaData( "org/pentaho/platform/plugin/action/jfreereport/helper/meta-datafactory.xml" ); //$NON-NLS-1$
   }
 }

@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,17 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation.  All rights reserved.
- *
- *
- * @created 5/2/2011
- * @author Angelo Rodriguez
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @XmlRootElement
 public class JobRequest implements Serializable {
@@ -38,7 +34,7 @@ public class JobRequest implements Serializable {
     return jobId;
   }
 
-  public void setJobId(String jobId) {
+  public void setJobId( String jobId ) {
     this.jobId = jobId;
   }
 

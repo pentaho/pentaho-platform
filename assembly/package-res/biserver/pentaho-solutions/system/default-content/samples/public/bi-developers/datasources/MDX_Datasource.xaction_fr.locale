@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=Requ\u00EAte MDX sur une source de donn\u00E9es OLAP
+file.description=Cette r\u00E8gle utilise une requ\u00EAte multidimentionnelle MDX pour extraire le budget pr\u00E9visionnel et r\u00E9alis\u00E9 pour toutes les r\u00E9gions.<p>La source de donn\u00E9es est un cube OLAP Mondrian.

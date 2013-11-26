@@ -189,7 +189,7 @@
                 rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
     <dependency org="pentaho" name="pentaho-report-wizard-core" rev="${dependency.pentaho-report-wizard-core.revision}"
                 changing="true"/>
-
+	<dependency org="pentaho-library" name="librepository" rev="${dependency.librepository.revision}" changing="true" transitive="false"/>
 
     <!-- olap -->
     <dependency org="pentaho" name="mondrian" rev="${dependency.mondrian.revision}" changing="true">

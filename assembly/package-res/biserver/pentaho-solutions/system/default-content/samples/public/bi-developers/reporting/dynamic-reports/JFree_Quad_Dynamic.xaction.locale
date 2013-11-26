@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:47 EDT 2013
+file.title=Programmatic Quadrant Report
+title=JFree_Quad_Dynamic
+file.description=This action sequence executes a SQL query and then programmatically builds a ReportSpec object model which is used to generate a JFreeReport definition.  The report definition is passed to JFreeReport and a formatted report is generated.

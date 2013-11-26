@@ -1,19 +1,18 @@
-/*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU Lesser General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
- * or from the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2007 - 2009 Pentaho Corporation.  All rights reserved.
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 /* Parts Copyright 2004 Acegi Technology Pty Limited
@@ -33,6 +32,11 @@
 
 package org.pentaho.platform.plugin.services.security.userrole.memory;
 
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.memory.UserMap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,11 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.memory.UserMap;
 
 public class UserRoleListEnhancedUserMap extends UserMap {
   // ~ Static fields/initializers
@@ -61,25 +60,25 @@ public class UserRoleListEnhancedUserMap extends UserMap {
   // ================================================================
 
   @Override
-  public void addUser(final UserDetails user) throws IllegalArgumentException {
-    super.addUser(user);
-    this.userRoleListEnhanceduserMap.put(user.getUsername().toLowerCase(), user);
+  public void addUser( final UserDetails user ) throws IllegalArgumentException {
+    super.addUser( user );
+    this.userRoleListEnhanceduserMap.put( user.getUsername().toLowerCase(), user );
     GrantedAuthority[] auths = user.getAuthorities();
-    for (GrantedAuthority anAuthority : auths) {
-      Set<String> userListForAuthority = rolesToUsersMap.get(anAuthority);
-      if (userListForAuthority == null) {
+    for ( GrantedAuthority anAuthority : auths ) {
+      Set<String> userListForAuthority = rolesToUsersMap.get( anAuthority );
+      if ( userListForAuthority == null ) {
         userListForAuthority = new TreeSet<String>();
-        rolesToUsersMap.put(anAuthority, userListForAuthority);
+        rolesToUsersMap.put( anAuthority, userListForAuthority );
       }
-      userListForAuthority.add(user.getUsername());
+      userListForAuthority.add( user.getUsername() );
     }
   }
 
   public String[] getAllAuthorities() {
     Set<GrantedAuthority> authoritiesSet = this.rolesToUsersMap.keySet();
-    List<String> roles = new ArrayList<String>(authoritiesSet.size());
-    for (GrantedAuthority role : authoritiesSet) {
-      roles.add(role.getAuthority());
+    List<String> roles = new ArrayList<String>( authoritiesSet.size() );
+    for ( GrantedAuthority role : authoritiesSet ) {
+      roles.add( role.getAuthority() );
     }
     return (String[]) roles.toArray();
   }
@@ -88,29 +87,29 @@ public class UserRoleListEnhancedUserMap extends UserMap {
     String[] rtn = new String[userRoleListEnhanceduserMap.size()];
     Iterator it = userRoleListEnhanceduserMap.values().iterator();
     int i = 0;
-    while (it.hasNext()) {
-      rtn[i] = ((UserDetails) it.next()).getUsername();
+    while ( it.hasNext() ) {
+      rtn[i] = ( (UserDetails) it.next() ).getUsername();
       i++;
     }
     return rtn;
   }
 
-  public String[] getUserNamesInRole(final String role) {
-    Set<String> userListForAuthority = rolesToUsersMap.get(new GrantedAuthorityImpl(role));
+  public String[] getUserNamesInRole( final String role ) {
+    Set<String> userListForAuthority = rolesToUsersMap.get( new GrantedAuthorityImpl( role ) );
     String[] typ = {};
-    if (userListForAuthority != null) {
-      return userListForAuthority.toArray(typ);
+    if ( userListForAuthority != null ) {
+      return userListForAuthority.toArray( typ );
     } else {
       return typ;
     }
   }
 
   @Override
-  public void setUsers(final Map users) {
-    super.setUsers(users);
+  public void setUsers( final Map users ) {
+    super.setUsers( users );
     Iterator iter = users.values().iterator();
-    while (iter.hasNext()) {
-      addUser((UserDetails) iter.next());
+    while ( iter.hasNext() ) {
+      addUser( (UserDetails) iter.next() );
     }
   }
 

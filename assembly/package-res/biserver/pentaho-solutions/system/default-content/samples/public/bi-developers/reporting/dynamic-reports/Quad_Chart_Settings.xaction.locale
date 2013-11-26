@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:47 EDT 2013
+file.title=Dynamic Report with Chart Settings
+title=Quad_Chart_Settings
+file.description=Builds a JFreeChart via Pentaho Reporting dynamically and with many chart settings shown.

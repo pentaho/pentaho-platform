@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">  
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>inventory.png</icon>  
+    <help/>  
+    <result-type>none</result-type> 
+  </documentation>
+
+  <inputs> 
+    <reportType type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>reportType</request> 
+      </sources> 
+    </reportType>  
+    <productLine type="string"> 
+      <sources> 
+        <request>productLine</request> 
+      </sources>  
+      <default-value/> 
+    </productLine>  
+    <reportTypeList type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="reportTypeDesc">Send as PDF</entry>  
+          <entry key="reportTypeId">pdf</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="reportTypeDesc">Send as Excel</entry>  
+          <entry key="reportTypeId">xls</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="reportTypeDesc">View in Browser</entry>  
+          <entry key="reportTypeId">html</entry> 
+        </property-map> 
+      </default-value> 
+    </reportTypeList>  
+    <emailAddress type="string"> 
+      <sources> 
+        <request>emailAddress</request> 
+      </sources>  
+      <default-value>empty</default-value> 
+    </emailAddress>  
+    <SUB_SCHEDULED_EXECUTE type="string"> 
+      <sources> 
+        <request>SUB_SCHEDULED_EXECUTE</request> 
+      </sources>  
+      <default-value>false</default-value> 
+    </SUB_SCHEDULED_EXECUTE>  
+    <SUB_EXECUTE_TIME type="string"> 
+      <sources> 
+        <request>SUB_EXECUTE_TIME</request> 
+      </sources>  
+      <default-value>NO VALUE</default-value> 
+    </SUB_EXECUTE_TIME>  
+    <SUB_SCHEDULE_NAME type="string"> 
+      <sources> 
+        <request>SUB_SCHEDULE_NAME</request> 
+      </sources>  
+      <default-value>NO VALUE</default-value> 
+    </SUB_SCHEDULE_NAME>  
+    <SUB_NAME type="string"> 
+      <sources> 
+        <request>SUB_NAME</request> 
+      </sources>  
+      <default-value>NO VALUE</default-value> 
+    </SUB_NAME>  
+    <SUB_ID type="string"> 
+      <sources> 
+        <request>SUB_ID</request> 
+      </sources>  
+      <default-value>NO VALUE</default-value> 
+    </SUB_ID> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default -->  
+    <ConfMessage type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </ConfMessage> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>Inventory List.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get List of Product Lines</action-type>
+      <action-outputs> 
+        <PRODUCTLINE type="string"/>  
+        <query-result type="result-set" mapping="productLineList"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT DISTINCT (PRODUCTLINE) FROM PRODUCTS ORDER BY PRODUCTLINE ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Product Line and Report Type</action-type>
+      <action-inputs> 
+        <productLine type="string"/>  
+        <productLineList type="result-set"/>  
+        <reportType type="string"/>  
+        <reportTypeList type="property-map-list"/>  
+        <emailAddress type="string"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <productLine style="list-multi"> 
+            <title>Product Line</title>  
+            <filter value-col-name="PRODUCTLINE" display-col-name="PRODUCTLINE">productLineList</filter> 
+          </productLine>  
+          <reportType style="radio"> 
+            <title>Report Type</title>  
+            <filter value-col-name="reportTypeId" display-col-name="reportTypeDesc">reportTypeList</filter> 
+          </reportType>  
+          <emailAddress filter="none" optional="true"> 
+            <title>Enter Email Address, if choosing Send.</title> 
+          </emailAddress> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Run Data Query</action-type>
+      <action-inputs> 
+        <productLine type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="data_source_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT PRODUCTLINE, PRODUCTVENDOR, PRODUCTCODE, PRODUCTNAME,PRODUCTSCALE, PRODUCTDESCRIPTION, QUANTITYINSTOCK, BUYPRICE, MSRP FROM PRODUCTS WHERE  PRODUCTLINE IN ({PREPARE:productLine}) ORDER BY PRODUCTLINE ASC, PRODUCTVENDOR ASC, PRODUCTCODE ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <actions> 
+      <condition><![CDATA[reportType == "html"]]></condition>  
+      <action-definition> 
+        <component-name>JFreeReportComponent</component-name>
+        <action-type>View with Browser</action-type>
+        <action-inputs> 
+          <data type="result-set" mapping="data_source_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <report-definition type="resource"/> 
+        </action-resources>
+        <component-definition> 
+          <output-type>html</output-type> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[reportType != "html"]]></condition>  
+      <action-definition> 
+        <component-name>UtilityComponent</component-name>
+        <action-type>Create Attachment Name</action-type>
+        <action-inputs> 
+          <reportType type="string"/> 
+        </action-inputs>
+        <action-outputs> 
+          <formatted_msg type="string" mapping="attach_name"/> 
+        </action-outputs>
+        <component-definition> 
+          <format> 
+            <return>formatted_msg</return>  
+            <format-string>"Inventory.{0}"</format-string>  
+            <arg>reportType</arg> 
+          </format> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>UtilityComponent</component-name>
+        <action-type>Create Subject Line</action-type>
+        <action-inputs/>
+        <action-outputs> 
+          <formatted_msg type="string" mapping="subject"/> 
+        </action-outputs>
+        <component-definition> 
+          <format> 
+            <format-string>"Inventory Report"</format-string>  
+            <return>formatted_msg</return> 
+          </format> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>UtilityComponent</component-name>
+        <action-type>Create Message</action-type>
+        <action-inputs/>
+        <action-outputs> 
+          <formatted_msg type="string" mapping="message_text"/> 
+        </action-outputs>
+        <component-definition> 
+          <format> 
+            <format-string>"Attached is the Inventory Report."</format-string>  
+            <return>formatted_msg</return> 
+          </format> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>JFreeReportComponent</component-name>
+        <action-type>Run Report</action-type>
+        <action-inputs> 
+          <output-type type="string" mapping="reportType"/>  
+          <data type="result-set" mapping="data_source_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <report-definition type="resource"/> 
+        </action-resources>
+        <action-outputs> 
+          <report-output type="content" mapping="report_output"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+  
+      <actions> 
+        <condition><![CDATA[SUB_SCHEDULED_EXECUTE]]></condition>  
+        <action-definition> 
+          <component-name>JavascriptRule</component-name>
+          <action-type>Build Message for Subscription</action-type>
+          <action-inputs> 
+            <SUB_EXECUTE_TIME type="string"/>  
+            <SUB_SCHEDULE_NAME type="string"/>  
+            <SUB_NAME type="string"/>  
+            <SUB_ID type="string"/>  
+            <productLine type="string"/>  
+            <data_source_result type="result-set"/> 
+          </action-inputs>
+          <action-outputs> 
+            <emailSubject type="string"/>  
+            <resultMessage type="string"/> 
+          </action-outputs>
+          <component-definition> 
+            <script><![CDATA[resultMessage = "Attached is your Inventory Report for Product Lines: " + "{productLine}" + ".\n";
+resultMessage += "\nSubscription Name: " + SUB_NAME;
+resultMessage += "\nExecuted on: " + SUB_EXECUTE_TIME;
+resultMessage += "\nSchedule Name: " + SUB_SCHEDULE_NAME;
+resultMessage += "\n\nSent by the Pentaho BI Platform - Pro Edition\n";
+
+emailSubject = "Subscription Error for id: " + SUB_ID;
+
+if ( data_source_result.getRowCount() > 0 ) {
+  emailSubject = "Inventory Report for: " + "{productLine}";
+}]]></script> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>EmailComponent</component-name>
+          <action-type>Email PDF or Excel</action-type>
+          <action-inputs> 
+            <message-plain type="string" mapping="resultMessage"/>  
+            <report_output type="content"/>  
+            <subject type="string" mapping="emailSubject"/>  
+            <to type="string" mapping="emailAddress"/>  
+            <attach_name type="string"/> 
+          </action-inputs>
+          <component-definition> 
+            <from>pentaho-server@pentaho.org</from>  
+            <attachment-ref name-param="attach_name" input-param="report_output"/> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>TemplateComponent</component-name>
+          <action-type>Confirmation Message</action-type>
+          <action-inputs> 
+            <emailAddress type="string"/>  
+            <productLine type="string"/> 
+          </action-inputs>
+          <action-outputs> 
+            <output-message type="string" mapping="ConfMessage"/> 
+          </action-outputs>
+          <component-definition> 
+            <template><![CDATA[The report was sent to {emailAddress}.  Selections are: {productLine}]]></template> 
+          </component-definition> emailAddress
+        </action-definition>
+ 
+      </actions>
+  
+      <actions> 
+        <condition><![CDATA[SUB_SCHEDULED_EXECUTE == "false"]]></condition>  
+        <action-definition> 
+          <component-name>EmailComponent</component-name>
+          <action-type>Email PDF or Excel</action-type>
+          <action-inputs> 
+            <message-plain type="string" mapping="message_text"/>  
+            <report_output type="content"/>  
+            <subject type="string"/>  
+            <to type="string" mapping="emailAddress"/>  
+            <attach_name type="string"/> 
+          </action-inputs>
+          <component-definition> 
+            <from>pentaho-server@pentaho.org</from>  
+            <attachment-ref name-param="attach_name" input-param="report_output"/> 
+          </component-definition> 
+        </action-definition>
+  
+        <action-definition> 
+          <component-name>TemplateComponent</component-name>
+          <action-type>Confirmation Message</action-type>
+          <action-inputs> 
+            <emailAddress type="string"/>  
+            <productLine type="string"/> 
+          </action-inputs>
+          <action-outputs> 
+            <output-message type="content" mapping="ConfMessage"/> 
+          </action-outputs>
+          <component-definition> 
+            <template><![CDATA[The report was sent to {emailAddress}.  Selections are: {productLine}]]></template> 
+          </component-definition> 
+        </action-definition>
+ 
+      </actions>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

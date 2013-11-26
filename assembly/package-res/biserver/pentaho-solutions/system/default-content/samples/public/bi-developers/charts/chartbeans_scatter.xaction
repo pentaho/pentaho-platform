@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>Simple Scatter Chart Example</name>
+  <title>Chartbeans Scatter Chart</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description/>  
+    <help/> 
+  </documentation>
+
+  <inputs> 
+    <seriesColumn type="string"> 
+      <sources> 
+        <request>series-column</request> 
+      </sources>  
+      <default-value>DEPT</default-value> 
+    </seriesColumn>  
+    <categoryColumn type="string"> 
+      <sources> 
+        <request>category-column</request> 
+      </sources>  
+      <default-value>ACTUAL</default-value> 
+    </categoryColumn>  
+    <valueColumn type="string"> 
+      <sources> 
+        <request>value-column</request> 
+      </sources>  
+      <default-value>BUDGET</default-value> 
+    </valueColumn> 
+  </inputs>
+
+  <outputs> 
+    <chartContent type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </chartContent> 
+  </outputs>
+
+  <resources> 
+    <scatter> 
+      <solution-file> 
+        <location>chartbeans_scatterchart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </scatter> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>New Chart Data Query</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="new_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[SELECT QUADRANT_ACTUALS.DEPARTMENT AS DEPT,
+				QUADRANT_ACTUALS.ACTUAL AS ACTUAL,
+                        QUADRANT_ACTUALS.BUDGET AS BUDGET
+                        FROM QUADRANT_ACTUALS
+                        WHERE DEPT='Sales' OR DEPT='Finance']]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartBeansAction</component-name>
+      <action-inputs> 
+        <valueColumn type="string"/>  
+        <categoryColumn type="string"/>  
+        <seriesColumn type="string"/>  
+        <chartData type="result-set" mapping="new_result"/> 
+      </action-inputs>
+      <action-resources> 
+        <chartModelXmlStream type="resource" mapping="scatter"/> 
+      </action-resources>
+      <action-outputs> 
+        <chartContent type="content"/>
+      </action-outputs>
+      <component-definition/>  
+      <action-name>ChartBeans Scatter Chart</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

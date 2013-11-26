@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=XQuery Abfrage einer XML Datenquelle
+file.description=Diese Norm verwendet eine XML Abfrage, um eine B\u00FCcherliste zur\u00FCck zu liefern.<p> Die Datenquelle ist ein XML Dokument.

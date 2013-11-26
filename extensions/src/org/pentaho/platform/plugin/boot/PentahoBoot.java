@@ -1,5 +1,4 @@
-/*
- * Copyright 2009 - 2010 Pentaho Corporation.  All rights reserved. 
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,9 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Created Feb 4, 2009 
- * @author jdixon
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.boot;
 
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
@@ -49,7 +48,7 @@ import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedReposi
 
 /**
  * This class is designed to help embedded deployments start the Pentaho system
- *
+ * 
  * @author jamesdixon
  */
 public class PentahoBoot extends PentahoSystemBoot {
@@ -59,22 +58,18 @@ public class PentahoBoot extends PentahoSystemBoot {
   }
 
   /**
-   * Sets up the defaults:
-   * - File-based repository
-   * - SQL datasource connections
-   * - MXL datasources
-   * - File outputs
+   * Sets up the defaults: - File-based repository - SQL datasource connections - MXL datasources - File outputs
    */
   @Override
-  protected void configure(String solutionPath, String baseUrl, IPentahoDefinableObjectFactory factory) {
-    super.configure(null, null, null);
+  protected void configure( String solutionPath, String baseUrl, IPentahoDefinableObjectFactory factory ) {
+    super.configure( null, null, null );
     IPentahoObjectFactory objectFactory = getFactory();
-    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
-      define(ISolutionEngine.class, SolutionEngine.class, Scope.LOCAL);
-      define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.SESSION);
-      define("connection-XML", XQConnection.class, Scope.LOCAL); //$NON-NLS-1$
-      define("connection-SQL", SQLConnection.class, Scope.LOCAL); //$NON-NLS-1$
-      define("file", FileOutputHandler.class, Scope.LOCAL); //$NON-NLS-1$
+    if ( objectFactory instanceof IPentahoDefinableObjectFactory ) {
+      define( ISolutionEngine.class, SolutionEngine.class, Scope.LOCAL );
+      define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.SESSION );
+      define( "connection-XML", XQConnection.class, Scope.LOCAL ); //$NON-NLS-1$
+      define( "connection-SQL", SQLConnection.class, Scope.LOCAL ); //$NON-NLS-1$
+      define( "file", FileOutputHandler.class, Scope.LOCAL ); //$NON-NLS-1$
     }
   }
 
@@ -82,7 +77,7 @@ public class PentahoBoot extends PentahoSystemBoot {
    * Enables the components necessary to create reports
    */
   public void enableReporting() {
-    addLifecycleListener(new JFreeReportSystemListener());
+    addLifecycleListener( new JFreeReportSystemListener() );
   }
 
   /**
@@ -90,23 +85,23 @@ public class PentahoBoot extends PentahoSystemBoot {
    */
   public void enableOlap() {
     IPentahoObjectFactory objectFactory = getFactory();
-    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
-      define("connection-MDX", MDXConnection.class.getName(), Scope.LOCAL); //$NON-NLS-1$
+    if ( objectFactory instanceof IPentahoDefinableObjectFactory ) {
+      define( "connection-MDX", MDXConnection.class.getName(), Scope.LOCAL ); //$NON-NLS-1$
     }
-    addLifecycleListener(new MondrianSystemListener());
+    addLifecycleListener( new MondrianSystemListener() );
   }
 
   /**
    * Enables the plugin manager
    */
   public void enablePluginManager() {
-    if (getFactory() instanceof IPentahoDefinableObjectFactory) {
-      define(IPluginProvider.class, SystemPathXmlPluginProvider.class, Scope.GLOBAL);
-      define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
-      define(IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL);
-      define(IPluginResourceLoader.class, PluginResourceLoader.class, Scope.GLOBAL);
+    if ( getFactory() instanceof IPentahoDefinableObjectFactory ) {
+      define( IPluginProvider.class, SystemPathXmlPluginProvider.class, Scope.GLOBAL );
+      define( IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL );
+      define( IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL );
+      define( IPluginResourceLoader.class, PluginResourceLoader.class, Scope.GLOBAL );
     }
-    addLifecycleListener(new PluginAdapter());
+    addLifecycleListener( new PluginAdapter() );
 
   }
 
@@ -115,10 +110,10 @@ public class PentahoBoot extends PentahoSystemBoot {
    */
   public void enablePooledDatasources() {
     IPentahoObjectFactory objectFactory = getFactory();
-    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
-      define(IDBDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL);
+    if ( objectFactory instanceof IPentahoDefinableObjectFactory ) {
+      define( IDBDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL );
     }
-    addLifecycleListener(new PooledDatasourceSystemListener());
+    addLifecycleListener( new PooledDatasourceSystemListener() );
   }
 
   /**
@@ -126,8 +121,9 @@ public class PentahoBoot extends PentahoSystemBoot {
    */
   public void enableMetadata() {
     IPentahoObjectFactory objectFactory = getFactory();
-    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
-      define(IMetadataDomainRepository.class, org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository.class, Scope.GLOBAL);
+    if ( objectFactory instanceof IPentahoDefinableObjectFactory ) {
+      define( IMetadataDomainRepository.class,
+          org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository.class, Scope.GLOBAL );
     }
   }
 
@@ -135,7 +131,7 @@ public class PentahoBoot extends PentahoSystemBoot {
    * Enables the components necessary to create reports
    */
   public void enableDataIntegration() {
-    addLifecycleListener(new KettleSystemListener());
+    addLifecycleListener( new KettleSystemListener() );
   }
 
 }

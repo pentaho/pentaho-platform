@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Angelo Rodriguez</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </type>  
+    <REGION type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION>  
+    <DEPARTMENT type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>DEPARTMENT</request> 
+      </sources> 
+    </DEPARTMENT>  
+    <REGION_VALUES type="string-list">
+      <sources>
+        <request>REGION_VALUES</request>
+      </sources>
+      <default-value type="string-list">
+        <list-item>Central</list-item>
+        <list-item>Eastern</list-item>
+        <list-item>Southern</list-item>
+        <list-item>Western</list-item>
+      </default-value>
+    </REGION_VALUES>
+    <DEPARTMENT_VALUES type="string-list">
+      <sources>
+        <request>DEPARTMENT_VALUES</request>
+      </sources>
+      <default-value type="string-list">
+        <list-item>Executive Management</list-item>
+        <list-item>Finance</list-item>
+        <list-item>Human Resource</list-item>
+        <list-item>Marketing &amp; Communication</list-item>
+        <list-item>Product Development</list-item>
+        <list-item>Professional Services</list-item>
+        <list-item>Sales</list-item>
+      </default-value>
+    </DEPARTMENT_VALUES>
+    <REPORT_OUTPUT_TYPES type="string-list">
+      <sources>
+        <request>REPORT_OUTPUT_TYPES</request>
+      </sources>
+      <default-value type="string-list">
+        <list-item>html</list-item>
+        <list-item>xls</list-item>
+        <list-item>pdf</list-item>
+        <list-item>csv</list-item>
+        <list-item>rtf</list-item>
+        <list-item>xml</list-item>
+      </default-value>
+    </REPORT_OUTPUT_TYPES>
+  </inputs>
+
+  <outputs/>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeQuadForRegion.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt For Region, Dept, and Output Type</action-type>
+      <action-inputs> 
+        <REGION type="string"/>  
+        <DEPARTMENT type="string"/>  
+        <type type="string"/>  
+        <REGION_VALUES type="string-list"/>
+        <DEPARTMENT_VALUES type="string-list"/>
+        <REPORT_OUTPUT_TYPES type="string-list"/>
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <selections> 
+          <!-- for now ignore the column names -->  
+          <REGION style="text-box"> 
+            <title>Region</title>  
+            <filter>REGION_VALUES</filter>
+          </REGION>  
+          <DEPARTMENT style="text-box"> 
+            <title>Department</title>  
+            <filter>DEPARTMENT_VALUES</filter>
+          </DEPARTMENT>  
+          <type style="text-box"> 
+            <title>Report Format</title>  
+            <filter>REPORT_OUTPUT_TYPES</filter>
+          </type> 
+        </selections>  
+        <xsl>CustomReportParameters.xsl</xsl>  
+        <target>Report_Window</target> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Report Data</action-type>
+      <action-inputs> 
+        <DEPARTMENT type="string"/>  
+        <REGION type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="reportData"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION = {PREPARE:REGION} and QUADRANT_ACTUALS.DEPARTMENT = {PREPARE:DEPARTMENT} order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query>  
+        <live>true</live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="reportData"/>  
+        <output-type type="string" mapping="type"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>MDX_Datasource.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>William Seyler</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>MDX_Datasource.png</icon> 
+  </documentation>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>MDXLookupRule</component-name>
+      <action-type>Query For OLAP Data</action-type>
+      <action-resources/> 
+      <action-outputs> 
+        <query-results type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <catalog>SampleData</catalog>  
+        <query><![CDATA[with member [Measures].[Variance Percent] as '([Measures].[Variance] / [Measures].[Budget])', format_string = IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) > 2.0), "|#.00%|style='green'", IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) < 0.0), "|#.00%|style='red'", "#.00%"))
+select Crossjoin({[Region].[All Regions].[Central], [Region].[All Regions].[Eastern], [Region].[All Regions].[Southern], [Region].[All Regions].[Western]}, {[Measures].[Actual], [Measures].[Budget]}) ON columns,
+  Hierarchize(Union({[Department].[All Departments]}, [Department].[All Departments].Children)) ON rows
+from [Quadrant Analysis]]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

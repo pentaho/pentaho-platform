@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+
+<report name="Income Statement" orientation="portrait" pageformat="LETTER" leftmargin="72" rightmargin="72" topmargin="36" bottommargin="36">
+
+<watermark>
+    <imageref height="100%" keepAspectRatio="true" name="watermark" scale="true" src="${serverBaseURL}/sw-style/active/background_car.jpg" visible="true" width="100%" x="0" y="10%" />
+</watermark>
+
+<reportheader color="#000000" fontname="SansSerif" fontsize="12" fontstyle="plain">
+ <!--  
+  <rectangle color="gray" fill="true" height="4" width="100%" x="0" y="0"/>
+  <rectangle color="white" fill="true" height="12" width="100%" x="0" y="4"/>
+  <message-field height="16" width="100%" x="0%" y="16" vertical-alignment="middle" alignment="center">Steel Wheels, Inc.</message-field>
+  <message-field height="16" width="100%" x="0%" y="32" vertical-alignment="middle" alignment="center">Income Statement</message-field>
+  <message-field height="16" width="100%" x="0%" y="48" vertical-alignment="middle" alignment="center">From January 1 through June 30, 2006</message-field>
+  <rectangle color="white" fill="true" height="8" width="100%" x="0" y="64"/>
+  <line color="black" weight=".25" width="100%" x1="0%" x2="100%" y1="72" y2="72"/>
+  <rectangle color="white" fill="true" height="8" width="100%" x="0" y="79"/>
+ -->
+    <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="0" y2="0"/>
+    <line color="#5C7485" weight=".5" width="100%" x1="0%" x2="100%" y1="3" y2="3"/>
+    <band x="0" y="9">
+    <message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%" y="0">Steel Wheels, Inc.</message-field>
+	<message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%" y="14">Income Statement</message-field>
+	<message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%" y="28">From June 1 through June 30, 2005</message-field>
+    </band>
+    <!-- message-field vertical-alignment="middle" alignment="left" height="10" width="33%" x="0%" y="16">$(username)</message-field -->
+    <imageref src="${serverBaseURL}/sw-style/active/sw_logo.jpg" width="50%" height="40" keepAspectRatio="true" scale="true" alignment="left" x="0%" y="14"/>
+    <line color="#5C7485" weight=".5" x1="0%" x2="100%" y1="57" y2="57"/>
+    <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="60" y2="60"/>
+    <rectangle color="white" fill="false" height="18" width="100%" x="0" y="61" draw="false"/>
+</reportheader>
+
+<reportfooter color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain">
+  <rectangle color="#FFC607" fill="true" height="14" width="100%" x="0" y="2"/>
+  <line color="black" weight=".25" x1="91%" x2="100%" y1="1" y2="1" />
+  <number-field fieldname="Summary_AmountExpression" fontstyle="bold" height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2" format="$ #,###;$ #,###"/>
+  <message-field height="14" width="50%" x="0%" y="2" fontstyle="bold" vertical-alignment="middle" alignment="left">Net Income</message-field>
+  <line color="black" weight=".25" x1="91%" x2="100%" y1="17" y2="17" />
+  <rectangle color="white" fill="true" height="2" width="100%" x="0" y="18"/>
+  <line color="black" weight=".25" x1="91%" x2="100%" y1="20" y2="20" />
+</reportfooter>
+
+<pagefooter color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain">
+    <line color="#5C7485" weight=".5" x1="0%" x2="100%" y1="0" y2="0"/>
+    <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="3" y2="3"/>
+    <message-field height="15" width="50%" alignment="left" x="0" y="4" vertical-alignment="middle">Report Run: $(report.date)</message-field>
+</pagefooter>
+
+
+<groups>
+  <group name="Category">
+   <fields>
+      <field>Category</field>
+   </fields>
+   <groupheader repeat="false" pagebreak-before-print="false" color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain" layout-cachable="false">
+
+	<band name="Revenue">
+      <message-field height="14" fontstyle="bold" vertical-alignment="middle" alignment="left" width="100%" x="2%" y="0">$(Category)</message-field>
+    </band>
+
+	<band name="Expenses">
+      <message-field height="14" fontstyle="bold" vertical-alignment="middle" alignment="left" width="100%" x="2%" y="0">$(Category)</message-field>
+    </band>
+
+    <band name="Other revenues">
+      <message-field height="14" vertical-alignment="middle" alignment="left" width="100%" x="2%" y="0">$(Category)</message-field>
+    </band>
+
+    <band name="Other expenses">
+      <message-field height="14" vertical-alignment="middle" alignment="left" width="100%" x="2%" y="0">$(Category)</message-field>
+    </band>        
+
+   </groupheader>
+   <groupfooter color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain" pagebreak-after-print="false" layout-cachable="false">      
+
+    <band name="Revenue">
+      <line color="black" weight=".25" x1="71%" x2="80%" y1="1" y2="1"/>
+      <number-field fieldname="CategoryAmountExpression" height="14" fontstyle="bold" vertical-alignment="middle" alignment="right" width="10%" x="80%" y="2" format="$ #,###; $ #,###"/>
+      <label height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"></label>
+      <message-field height="14" width="78%" x="2%" y="2" fontstyle="bold" vertical-alignment="middle" alignment="left">Total $(Category)</message-field>
+    </band>
+
+    <band name="Cost of goods">
+      <line color="black" weight=".25" x1="71%" x2="80%" y1="1" y2="1"/>
+      <message-field height="14" width="78%" x="2%" y="2" fontstyle="bold" vertical-alignment="middle" alignment="left">Cost of goods sold</message-field>
+      <message-field height="14" fontstyle="bold" vertical-alignment="middle" alignment="right" width="10%" x="80%" y="2">$ $(CategoryAmountExpression, number, #,###;#,###)</message-field>
+      <label height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"></label>
+      <line color="black" weight=".25" x1="81%" x2="90%" y1="18" y2="18" />
+      <number-field fieldname="Summary_AmountExpression" height="14" fontstyle="bold" vertical-alignment="middle" alignment="right" format="$ #,###;$ #,###" width="10%" x="90%" y="19"/>
+      <message-field height="14" width="78%" x="2%" y="19" fontstyle="bold" vertical-alignment="middle" alignment="left">Gross Margin</message-field>
+    </band>
+
+    <band name="Expenses">
+      <line color="black" weight=".25" x1="91%" x2="100%" y1="1" y2="1" />
+      <message-field height="14" fontstyle="bold" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2">$ $(CategoryAmountExpression, number, #,###;#,###)</message-field>
+      <message-field height="14" width="88%" x="2%" y="2" fontstyle="bold" vertical-alignment="middle" alignment="left">Total $(Category)</message-field>
+    </band>
+
+    <band name="Other revenues">
+      <line color="black" weight=".25" x1="91%" x2="100%" y1="1" y2="1" />
+      <number-field fieldname="CategoryAmountExpression" height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2" format="$ #,###;$ #,###"/>
+      <message-field height="14" width="88%" x="2%" y="2" vertical-alignment="middle" alignment="left">Total $(Category)</message-field>
+    </band>
+
+    <band name="Other expenses">
+      <line color="black" weight=".25" x1="91%" x2="100%" y1="1" y2="1" />
+      <number-field fieldname="CategoryAmountExpression" height="14" vertical-alignment="middle" alignment="right" format="#,###;#,###" width="10%" x="90%" y="2"/>
+      <message-field height="14" width="88%" x="2%" y="2" vertical-alignment="middle" alignment="left">Total $(Category)</message-field>
+    </band>
+   </groupfooter> 
+  </group>
+    <group name="Category2">
+      <fields>
+        <field>Category</field>
+        <field>Category2</field>
+      </fields>
+      <groupheader repeat="false" pagebreak-before-print="false" color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain" layout-cachable="false">
+
+       <band name="Selling expenses">
+        <message-field height="14" vertical-alignment="middle" alignment="left" width="96%" x="4%" y="2">$(Category2)</message-field>
+       </band>
+
+       <band name="General and administrative expenses">
+        <message-field height="14" vertical-alignment="middle" alignment="left" width="96%" x="4%" y="2">$(Category2)</message-field>
+       </band> 
+      </groupheader>
+      <groupfooter color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain" pagebreak-after-print="false" layout-cachable="false">
+
+       <band name="Selling expenses">
+         <line color="black" weight=".25" x1="81%" x2="90%" y1="1" y2="1" />       
+         <number-field fieldname="Category2AmountExpression" height="14" vertical-alignment="middle" alignment="right" format="#,###; #,###" width="10%" x="90%" y="2"/>
+         <message-field height="14" width="86%" x="4%" y="2" vertical-alignment="middle" alignment="left">Total $(Category2)</message-field>
+       </band>  
+
+       <band name="General and administrative expenses">
+         <line color="black" weight=".25" x1="81%" x2="90%" y1="1" y2="1" />
+         <number-field fieldname="Category2AmountExpression" height="14" vertical-alignment="middle" alignment="right" format="#,###; #,###" width="10%" x="90%" y="2"/>
+         <message-field height="14" width="86%" x="4%" y="2" vertical-alignment="middle" alignment="left">Total $(Category2)</message-field>
+       </band>  
+      </groupfooter> 
+    </group>
+  </groups>
+<items color="#000000" fontname="SansSerif" fontsize="10" fontstyle="plain" layout-cachable="false">
+
+  <band name="Revenue" x="0" y="0">
+    <string-field fieldname="Category2" height="14" vertical-alignment="middle" alignment="left" width="65%" x="5%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" width="10%" x="70%" y="2"/>
+    <label height="14" vertical-alignment="middle" alignment="right" width="20%" x="80%" y="2"></label>
+  </band>
+  
+  <band name="Cost of goods" x="0" y="0">
+    <string-field fieldname="Detail" height="14" vertical-alignment="middle" alignment="left" width="65%" x="5%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" width="10%" x="70%" y="2" format="#,###; #,###"/>
+    <label height="14" vertical-alignment="middle" alignment="right" width="20%" x="80%" y="2"></label>
+  </band>
+  
+  <band name="Selling expenses" x="0" y="0">
+    <string-field fieldname="Detail" height="14" vertical-alignment="middle" alignment="left" width="74%" x="6%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" format="#,###; #,###" width="10%" x="80%" y="2"/>
+    <label height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"></label>
+  </band>
+  
+  <band name="General and administrative expenses" x="0" y="0">
+    <string-field fieldname="Detail" height="14" vertical-alignment="middle" alignment="left" width="74%" x="6%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" format="#,###; #,###" width="10%" x="80%" y="2"/>
+    <label height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"></label>        
+  </band>    
+  
+  <band name="Other revenues" x="0" y="0">
+    <string-field fieldname="Category2" height="14" vertical-alignment="middle" alignment="left" width="85%" x="5%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"/>
+  </band>
+
+  <band name="Other expenses" x="0" y="0">
+    <string-field fieldname="Category2" height="14" vertical-alignment="middle" alignment="left" width="85%" x="5%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" format="#,###; #,###" width="10%" x="90%" y="2"/>
+  </band>
+
+  <band name="Income tax expense" x="0" y="0">
+    <string-field fieldname="Category2" height="14" vertical-alignment="middle" alignment="left" width="90%" x="0%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" format="#,###; #,###" width="10%" x="90%" y="2"/>
+  </band>
+
+  <band name="Extraordinary item - gain on disposal of business segment" x="0" y="2">
+    <string-field fieldname="Category2" height="14" vertical-alignment="middle" alignment="left" width="90%" x="0%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"/>
+  </band>
+    
+  <band name="Other Comprehensive Income" x="0" y="0">
+    <string-field fieldname="Category2" height="14" vertical-alignment="middle" alignment="left" width="90%" x="0%" y="2"/>
+    <number-field fieldname="Amount" height="14" vertical-alignment="middle" alignment="right" width="10%" x="90%" y="2"/>
+  </band>
+</items>
+
+<functions>
+  <property-ref name="report.date"/>
+  <expression class="org.jfree.report.function.ItemSumFunction" name="Summary_AmountExpression">
+    <properties>
+      <property name="field">Amount</property>
+    </properties>
+  </expression>
+  <expression class="org.jfree.report.function.ItemSumFunction" name="TypeAmountExpression" deplevel="1">
+    <properties>
+      <property name="field">Amount</property>
+      <property name="group">Type</property>
+    </properties>
+  </expression>
+  <expression class="org.jfree.report.function.ItemSumFunction" name="CategoryAmountExpression" deplevel="1">
+    <properties>
+      <property name="field">Amount</property>
+      <property name="group">Category</property>
+    </properties>
+  </expression>
+  <expression class="org.jfree.report.function.ItemSumFunction" name="Category2AmountExpression">
+    <properties>
+      <property name="field">Amount</property>
+      <property name="group">Category2</property>
+    </properties>
+  </expression>
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Revenue">
+    <properties>
+      <property name="element">Revenue</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Cost_of_goods">
+    <properties>
+      <property name="element">Cost of goods</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Expenses">
+    <properties>
+      <property name="element">Expenses</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Selling_expenses">
+    <properties>
+      <property name="element">Selling expenses</property>
+      <property name="field">Category2</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_General_and_Administrative_expenses">
+    <properties>
+      <property name="element">General and administrative expenses</property>
+      <property name="field">Category2</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Other_revenues">
+    <properties>
+      <property name="element">Other revenues</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Other_expenses">
+    <properties>
+      <property name="element">Other expenses</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Income_tax_expense">
+    <properties>
+      <property name="element">Income tax expense</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Extraordinary_item_gain_on_disposal_of_business_segment">
+    <properties>
+      <property name="element">Extraordinary item - gain on disposal of business segment</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>     
+  <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Other_Comprehensive_Income">
+    <properties>
+      <property name="element">Other Comprehensive Income</property>
+      <property name="field">Category</property>
+    </properties>
+  </function>
+</functions>
+</report>

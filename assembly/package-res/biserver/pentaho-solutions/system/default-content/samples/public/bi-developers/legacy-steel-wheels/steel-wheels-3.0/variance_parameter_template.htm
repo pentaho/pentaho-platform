@@ -1,0 +1,187 @@
+<html xmlns:xf="http://www.w3.org/2002/xforms">
+<head>
+<!-- Author Michael Tarallo, Pre-Sales Director, Pentaho -->
+<!-- All Areas have been documented to explain INPUTS and such -->
+<!-- Do not modify -->
+<!-- Style Sheet Code for Tabbed View -->
+<link rel="stylesheet" type="text/css" href="/pentaho-style/tabview/css/pentaho_tabview.css" />
+<link rel="stylesheet" type="text/css" href="/pentaho-style/tabview/css/tab_content.css" />
+<!-- Style Sheet Code for Tabbed View -->
+<!-- JS Code for Tabbed View -->
+<script src="../../../js/parameters.js" type="text/javascript"></script>
+<script type="text/javascript" src="../../../js/tabview/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="../../../js/tabview/element-beta.js"></script>
+<script type="text/javascript" src="../../../js/tabview/tabview.js"></script>
+<!-- JS Code for Tabbed View -->
+
+<!-- JS Code for Design Studio Template DO NOT MODIFY Autogenerates FORM OBJECTS -->
+<script><![CDATA[
+              var url=window.location.pathname + '?';
+              var target=unescape('theoutput');
+
+              function doForm() {
+                var submitUrl = url;
+                        var submitParms = '';
+                var form = document.forms['parameter-form'];
+                var elements = form.elements;
+                var i;
+                for( i=0; i<elements.length; i++ ) {
+                  if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+                    submitParms += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+                  } else if( elements[i].type == 'radio' ) {
+                    if( elements[i].checked ) {
+                      submitParms += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+                    }
+                  } else if( elements[i].type == 'checkbox' ) {
+                    if( elements[i].checked ) {
+                    submitParms += '&' + elements[i].name + "=" + escape( elements[i].value );
+                    }
+                  } else if( elements[i].type == 'select-multiple' ) {
+                  var options = elements[i].options;
+                  var j;
+                  for( j=0; j!=options.length; j++ ) {
+                    if( options[j].selected ) {
+                        submitParms += '&' + elements[i].name + '=' + escape( options[ j ].value );
+                    }
+                  }
+                }
+                }
+                if (submitParms != '') {
+                  submitUrl = url + submitParms.substring(1);
+                }
+                if( target == '') {
+                  document.location.href=submitUrl;
+                  if (document.getElementById("radio").checked == true) document.getElementById("loader").style.visibility = "visible"
+              } else {
+                if (document.getElementById("radio").checked == true) document.getElementById("loader").style.visibility = "visible"
+                window.open( submitUrl, target );
+              }
+                return false;
+              }
+            ]]>
+</script>
+
+<!-- JS Code for Design Studio Template DO NOT MODIFY Autogenerates FORM OBJECTS -->
+
+<!-- Do not Modify -->
+{xform-header}
+<!-- Do not Modify -->
+<title>Variance Report</title>
+</head>
+<body class="yui-skin-sam" >
+<p></p>
+<p>Update your Group selection, Filter selection, Report Title or Report Output.</p>
+
+<form name="parameter-form" id="parameter-form" method="GET">
+<div class="exampleIntro"></div>
+
+<div id="demo" class="yui-navset" >
+  <ul id="thelist" class="yui-nav">
+  <li class="selected"><a href="#tab2a"><em>Grouping</em></a></li>
+  <li><a href="#tab2"><em>Filters</em></a></li>
+  <li><a href="#tab4"><em>Report Title</em></a></li>
+   <li><a href="#tab3"><em>Output</em></a></li>
+  </ul>
+
+<div id="thetabs" class="yui-content" style="visibility:visible; display:block;">
+<div id="tab2a">
+         <table width="377" border="0">
+      <tr>
+        <td width="77" nowrap="nowrap"><span class="style53">Group By:</span></td>
+        <td width="290" align="left" nowrap="nowrap"><span class="style40">
+<!-- SORT1 Input Filter Object set in Design Studio -->{SORT1}<!--SORT1 Input Filter Object set in Design Studio -->    </span></td>
+        </tr>
+    </table>
+</div>
+
+<div id="tab2">
+        <table width="511" border="0">
+      <tr>
+        <td width="85" height="27" valign="top"><fieldset>
+        <legend><span class="style53">Territory:</span></legend>
+        <!-- Territory Input Filter Object set in Design Studio -->
+        {TERRITORY}
+        <!-- Territory Input Filter Object set in Design Studio -->
+        </fieldset></td>
+        <td width="114" valign="top"><fieldset>
+            <legend class="style53">Variance Year:</legend><!-- Year Input Filter Object set in Design Studio -->{YEAR}<!-- Year Input Filter Object set in Design Studio --></fieldset></td>
+        <td width="114" valign="top"></td>
+        <td width="88" valign="top"></td>
+        <td width="88" valign="top"></td>
+      </tr>
+    </table>
+</div>
+
+<div id="tab4">
+
+          <table width="455" border="0">
+            <tr>
+              <td width="80" nowrap="nowrap" class="style53">Report Title:</td>
+
+<td width="365" align="left" nowrap="nowrap"><span class="style40"><!-- Report Title Input Filter Object set in Design Studio -->{REPORTTITLE} <!-- Report Tile Input Filter Object set in Design Studio --></span></td>
+
+            </tr>
+          </table>
+</div>
+
+<div id="tab3">
+          <table width="508" border="0">
+            <tr>
+              <td width="67" nowrap="nowrap" ><div align="center"><strong><span class="style40">Web</span></strong></div></td>
+              <td width="97" nowrap="nowrap" ><div align="center"><strong><span class="style40">PDF</span></strong></div></td>
+              <td width="50" nowrap="nowrap" ><div align="center"><strong><span class="style40">Excel</span></strong></div></td>
+            </tr>
+            <tr>
+              <td nowrap="nowrap"><div align="center"><span class="style49"><img src="/pentaho-style/tabview/images/html-icon.gif"  /></span></div></td>
+              <td nowrap="nowrap"><div align="center"><span class="style49"><img src="/pentaho-style/tabview/images/pdf_small.gif"  /></span></div></td>
+              <td nowrap="nowrap"><div align="center"><span class="style49"><img src="/pentaho-style/tabview/images/excel.gif"   /></span></div></td>
+            </tr>
+            <tr>
+              <td nowrap="nowrap"><div align="center">
+                <input name="type" type="radio" id="radio" value="html" checked="checked" /></div></td>
+
+              <td nowrap="nowrap"><div align="center"><span class="style49">
+                <input name="type" type="radio" id="radio2" value="pdf" />
+              </span></div></td>
+              <td nowrap="nowrap"><div align="center"><span class="style49">
+                <input name="type" type="radio" id="radio3" value="xls" />
+              </span></div></td>
+              <td nowrap="nowrap"><div align="center">
+
+              </div></td>
+              <td nowrap="nowrap"><div align="center">
+
+              </div></td>
+              <td nowrap="nowrap"><label>
+
+              </label></td>
+            </tr>
+          </table>
+</div>
+
+       <table width="1058" border="0" >
+        <tr>
+          <td colspan="2"><hr></hr></td>
+         </tr>
+        <tr>
+          <td width="66">
+          <input type="button" name="go" class="groovybutton2" value="Run" onClick="doForm()"/>
+</td>
+          <td width="377"><label></label></td>
+        </tr>
+    </table>
+
+ </div>
+ </div>
+{path}
+</form>
+<!-- Initiate Tab View -->
+<script>var tabView = new YAHOO.widget.TabView('demo');</script>
+<!-- Initiate Tab View -->
+</body>
+<iframe width="1500" height="2000" name="theoutput" frameborder="0" scrolling="yes"></iframe>
+<!-- Loading indicator -->
+<div id="loader"><div id="loadingStatus"><div align="center"><table width="50" border="0" align="left"><tr><td valign="middle"><strong><img src="/pentaho-style/tabview/images/loading.gif" alt="Loading Indicator" width="16" height="16" vspace="1" border="0" align="top" title="Loading Indicator"  /></strong></td>
+<td valign="middle"><span class="style49"><strong>Creating.....</strong></span></td></tr></table></div></div></div>
+<div id="apDiv2"></div>
+</html>

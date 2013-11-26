@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2009-10-21T11:01:28" created="2009-10-21T10:46:54" description="" updatedBy="admin" createdBy="admin">
+        <path folder="steel-wheels/dashboards/Widget Library/Analysis Views/Territory Sales.xanalyzer" name="Territory Sales"/>
+    </commonStorageAttributes>
+    <report version="4" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showSubTotals="true" showColumnGrandTotal="true" showRowGrandTotal="false" reportTypeEnum="PIVOT" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure id="[MEASURE:0]" sortOrderEnum="DESC" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showSum="true" formula="[Measures].[Sales]">
+                <displayLabels>
+                    <displayLabel labelPlural="" label="Sales" locale=""/>
+                </displayLabels>
+                <numberFormat formatScale="0" formatCategory="Currency ($)"/>
+            </measure>
+        </measures>
+        <columnAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Time].[Years]"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="true" formula="[Markets].[Territory]"/>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Product].[Line]"/>
+        </rowAttributes>
+        <filters>
+            <filter viewFilterEnum="MULTIPLE" formula="[Markets].[Territory]">
+                <predicates>
+                    <predicate operatorEnum="NOT_EQUAL" ordinal="1">
+                        <member pos="0" formula="[Markets].[All Markets].[Japan]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+        </filters>
+        <chartOptions chartType="HORIZONTAL_BAR"/>
+    </report>
+    <uiAttributes>
+        <rowFieldWidths/>
+        <columnDataFieldWidths>
+            <labelWidth index="0">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="1">
+                <width>0</width>
+            </labelWidth>
+            <labelWidth index="2">
+                <width>0</width>
+            </labelWidth>
+        </columnDataFieldWidths>
+    </uiAttributes>
+</reportRecord>

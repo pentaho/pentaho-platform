@@ -1,0 +1,22 @@
+<chartModel chartEngine="OpenFlashChart" style="border-top-width: 5; border-top-color: #987654; background-color: #ffffff;" theme="Theme4">
+  <title style="font-family: verdana; color: #ffaa00; font-size: 20px; font-weight: bold; text-align: center; font-style: oblique; background-color: #ffffff;"></title>
+  <subtitle style="font-family: monospace; color: #00ff00; font-size: 12px; font-weight: bold; font-style: italic; background-color: #ffffff;">subtitle</subtitle>
+  <legend style="font-family: verdana; font-size: 18px; font-weight: bold; border-top-width: 10; border-top-color: #880a0f; font-style: italic;"/>
+  <piePlot orientation="VERTICAL" style="opacity: 0.75; background-color: #ffffff;" animate="true" startAngle="65">
+    <palette>
+      <paint style="color: #880a0f;"/>
+      <paint style="color: #b09a6b;"/>
+      <paint style="color: #772200;"/>
+      <paint style="color: #c52f0d;"/>
+      <paint style="color: #123d82;"/>
+      <paint style="color: #4a0866;"/>
+      <paint style="color: #ffaa00;"/>
+      <paint style="color: #1e8ad3;"/>
+      <paint style="color: #aa6611;"/>
+      <paint style="color: #772200;"/>
+      <paint style="color: #8b2834;"/>
+      <paint style="color: #333333;"/>
+    </palette>
+    <labels style="font-family: monospace; font-size: 10px; font-weight: bold; font-style: oblique;"/>
+  </piePlot>
+</chartModel>

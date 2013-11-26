@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:41 EDT 2013
+file.title=Gel\u00E4ufige Anreden
+file.description=Diese Regel verwendet eine Datenbankabfrage, um die gel\u00E4ufigen Positionsanreden f\u00FCr die gegebene Abteilung heraus zu suchen.<p>  Sie k\u00F6nnen die verschiedenen Abteilungen \u00FCber folgende URL's erreichen\: <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Finance" target\="pentaho_action">Finanzbuchhaltung</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Sales" target\="pentaho_action">Verkauf</a>, <a href\="ViewAction?solution\=samples&path\=rules&action\=CurrentPositionTitles.xaction&dept\=Human%20Resource" target\="pentaho_action">Personalabteilung</a>

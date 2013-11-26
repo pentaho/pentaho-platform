@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>Simple Dial Chart Example</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Jake Cornelius</author>  
+    <description/>  
+    <help/> 
+  </documentation>
+
+  <inputs> 
+    <Territory type="string"> 
+      <sources> 
+        <request>Territory</request> 
+      </sources>  
+      <default-value><![CDATA[NA]]></default-value> 
+    </Territory>  
+    <ProductLine type="string"> 
+      <sources> 
+        <request>ProductLine</request> 
+      </sources>  
+      <default-value><![CDATA[Classic Cars]]></default-value> 
+    </ProductLine> 
+  </inputs>
+
+  <outputs> 
+    <chartContent type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </chartContent> 
+  </outputs>
+
+  <resources> 
+    <dial> 
+      <solution-file> 
+        <location>ordercancellation_dialchart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </dial> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>MQLRelationalDataComponent</component-name>
+      <action-type>MQL</action-type>
+      <action-inputs> 
+        <Territory/>  
+        <ProductLine/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="chartData"/> 
+      </action-outputs>
+      <component-definition> 
+        <query><![CDATA[<mql>
+  <domain_type>relational</domain_type>
+  <domain_id>steel-wheels</domain_id>
+  <model_id>BV_ORDERS</model_id>
+  <model_name>Orders</model_name>
+  <options>
+    <disable_distinct>false</disable_distinct>
+  </options>
+  <parameters>
+	<parameter name="Territory" type="string" defaultValue="NA"/>
+	<parameter name="ProductLine" type="string" defaultValue="Classic Cars"/>
+  </parameters>
+  <selections>
+    <selection>
+      <view>CAT_ORDERS</view>
+      <column>BC_ORDERS_ORDERNUMBER</column>
+      <aggregation>count_distinct</aggregation>
+    </selection>
+  </selections>
+  <constraints>
+    <constraint>
+      <operator/>
+      <condition>[BC_CUSTOMER_W_TER_.BC_CUSTOMER_W_TER_TERRITORY]=[param:Territory]</condition>
+    </constraint>
+    <constraint>
+      <operator>AND</operator>
+      <condition>[CAT_PRODUCTS.BC_PRODUCTS_PRODUCTLINE]=[param:ProductLine]</condition>
+    </constraint>
+    <constraint>
+      <operator>AND</operator>
+      <condition>[CAT_ORDERS.BC_ORDERS_STATUS]="Cancelled"</condition>
+    </constraint>
+  </constraints>
+  <orders/>
+</mql>]]></query>
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartBeansAction</component-name>
+      <action-inputs> 
+        <chartData type="result-set"/> 
+      </action-inputs>
+      <action-resources> 
+        <chartModelXmlStream type="resource" mapping="dial"/> 
+      </action-resources>
+      <action-outputs> 
+        <chartContent type="content"/> 
+      </action-outputs>
+      <component-definition>
+        <valueColumn>BC_ORDERS_ORDERNUMBER</valueColumn>
+      </component-definition>  
+      <action-name>Simple demonstration Flash dial chart.</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

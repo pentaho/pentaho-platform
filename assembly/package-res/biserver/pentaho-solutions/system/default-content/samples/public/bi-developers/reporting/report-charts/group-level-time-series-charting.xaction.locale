@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:46 EDT 2013
+file.title=Group Level Time Series Charting
+title=group-level-time-series-charting
+file.description=An example of charts at the group level in a time based report.

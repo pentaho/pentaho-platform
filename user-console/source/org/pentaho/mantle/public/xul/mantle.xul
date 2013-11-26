@@ -1,102 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <window width="400" height="275" title="Placeholder"
-  xmlns="http://www.pentaho.org/there.is.only.xul"  xmlns:pen="http://www.pentaho.org/2008/xul" onload="mantleXulHandler.init()">
-  
-	<menubar id="mainMenubar" layout="horizontal">
-		<menubar id="filemenu" label="${file}" layout="vertical">
-			<menubar id="newmenu" label="${new}" layout="vertical">
-				<!-- the rest of the menu items here are provided by the plugins overlays -->	
-			</menubar>
-			<menuitem id="openMenuItem" label="${openEllipsis}" command="mantleXulHandler.executeMantleCommand('OpenFileCommand')" />
-      <menubarseparator id="pickListsSeparator"/>
-			<menubar id="recentmenu" label="${recent}" layout="vertical" />
-			<menubar id="favoritesmenu" label="${favorites}" layout="vertical" />	
-			<menubarseparator id="openSeparator"/>
-			<menuitem id="saveMenuItem" label="${save}" command="mantleXulHandler.saveClicked()" disabled="true" />		
-			<menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()" disabled="true" />
-			<menubarseparator id="logoutSeparator"/>
-			<menuitem id="logoutMenuItem" label="${logout}" command="mantleXulHandler.executeMantleCommand('LogoutCommand')" />		
-		</menubar>
-		
-		<menubar id="viewmenu" label="${view}" layout="vertical">
-			<menuitem id="useDescriptionsMenuItem" label="${useDescriptionsForTooltips}" command="mantleXulHandler.useDescriptionsForTooltipsClicked()" type="checkbox" checked="false" />		
-			<menuitem id="showHiddenFilesMenuItem" label="${showHiddenFiles}" command="mantleXulHandler.showHiddenFilesClicked()" type="checkbox" checked="false" />		
-			<menubarseparator id="descriptionsSeparator"/>
-			<menubar id="languagemenu" label="${languages}" layout="vertical">
-			</menubar>
-			<menubar id="themesmenu" label="${themes}" layout="vertical">
-			</menubar>
-		</menubar>		
+        xmlns="http://www.pentaho.org/there.is.only.xul" xmlns:pen="http://www.pentaho.org/2008/xul"
+        onload="mantleXulHandler.init()">
 
-		<menubar id="toolsmenu" label="${tools}" layout="vertical" visible="false">
-			<menubar id="refreshmenu" label="${refresh}" layout="vertical">
-				<menuitem id="refreshRepositoryCacheMenuItem" label="${refreshRepository}" command="mantleXulHandler.executeMantleCommand('RefreshRepositoryCommand')" />		
-				<menuitem id="refreshSystemSettingsMenuItem" label="${refreshSystemSettings}" command="mantleXulHandler.executeMantleCommand('RefreshSystemSettingsCommand')" />		
-				<menuitem id="refreshReportingMetadataMenuItem" label="${refreshReportingMetadata}" command="mantleXulHandler.executeMantleCommand('RefreshMetaDataCommand')" />		
-				<menuitem id="executeGlobalActionsMenuItem" label="${executeGlobalActions}" command="mantleXulHandler.executeMantleCommand('ExecuteGlobalActionsCommand')" />		
-				<menuitem id="purgeMondrianSchemaCacheMenuItem" label="${purgeMondrianSchemaCache}" command="mantleXulHandler.executeMantleCommand('PurgeMondrianSchemaCacheCommand')" />		
-				<menuitem id="purgeReportingDataCacheMenuItem" label="${purgeReportingDataCache}" command="mantleXulHandler.executeMantleCommand('PurgeReportingDataCacheCommand')" />		
-			</menubar>
-		</menubar>		
-		
-		<menubar id="helpmenu" label="${help}" layout="vertical">
-			<menuitem id="documentationMenuItem" label="${documentation}" command="mantleXulHandler.documentationClicked()" />		
-			<menubarseparator id="documentationSeparator"/>
-			<menuitem id="pentahoDotComMenuItem" label="${pentahoHomePageName}" command="mantleXulHandler.executeMantleCommand('PentahoHomeCommand')" />		
-			<menubarseparator id="aboutSeparator"/>
-			<menuitem id="aboutMenuItem" label="${about}" command="mantleXulHandler.executeMantleCommand('AboutCommand')" />		
-		</menubar>		
-	</menubar>
-  
+  <menubar id="mainMenubar" layout="horizontal">
+    <menubar id="filemenu" label="${file}" layout="vertical">
+      <menubar id="newmenu" label="${new}" layout="vertical">
+        <!-- the rest of the menu items here are provided by the plugins overlays -->
+      </menubar>
+      <menuitem id="openMenuItem" label="${openEllipsis}"
+                command="mantleXulHandler.executeMantleCommand('OpenFileCommand')"/>
+      <menubarseparator id="pickListsSeparator"/>
+      <menubar id="recentmenu" label="${recent}" layout="vertical"/>
+      <menubar id="favoritesmenu" label="${favorites}" layout="vertical"/>
+      <menubarseparator id="openSeparator"/>
+      <menuitem id="saveMenuItem" label="${save}" command="mantleXulHandler.saveClicked()" disabled="true"/>
+      <menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()"
+                disabled="true"/>
+      <menubarseparator id="logoutSeparator"/>
+      <menuitem id="logoutMenuItem" label="${logout}" command="mantleXulHandler.executeMantleCommand('LogoutCommand')"/>
+    </menubar>
+
+    <menubar id="viewmenu" label="${view}" layout="vertical">
+      <menuitem id="useDescriptionsMenuItem" label="${useDescriptionsForTooltips}"
+                command="mantleXulHandler.useDescriptionsForTooltipsClicked()" type="checkbox" checked="false"/>
+      <menuitem id="showHiddenFilesMenuItem" label="${showHiddenFiles}"
+                command="mantleXulHandler.showHiddenFilesClicked()" type="checkbox" checked="false"/>
+      <menubarseparator id="descriptionsSeparator"/>
+      <menubar id="languagemenu" label="${languages}" layout="vertical">
+      </menubar>
+      <menubar id="themesmenu" label="${themes}" layout="vertical">
+      </menubar>
+    </menubar>
+
+    <menubar id="toolsmenu" label="${tools}" layout="vertical" visible="false">
+      <menubar id="refreshmenu" label="${refresh}" layout="vertical">
+        <menuitem id="refreshRepositoryCacheMenuItem" label="${refreshRepository}"
+                  command="mantleXulHandler.executeMantleCommand('RefreshRepositoryCommand')"/>
+        <menuitem id="refreshSystemSettingsMenuItem" label="${refreshSystemSettings}"
+                  command="mantleXulHandler.executeMantleCommand('RefreshSystemSettingsCommand')"/>
+        <menuitem id="refreshReportingMetadataMenuItem" label="${refreshReportingMetadata}"
+                  command="mantleXulHandler.executeMantleCommand('RefreshMetaDataCommand')"/>
+        <menuitem id="executeGlobalActionsMenuItem" label="${executeGlobalActions}"
+                  command="mantleXulHandler.executeMantleCommand('ExecuteGlobalActionsCommand')"/>
+        <menuitem id="purgeMondrianSchemaCacheMenuItem" label="${purgeMondrianSchemaCache}"
+                  command="mantleXulHandler.executeMantleCommand('PurgeMondrianSchemaCacheCommand')"/>
+        <menuitem id="purgeReportingDataCacheMenuItem" label="${purgeReportingDataCache}"
+                  command="mantleXulHandler.executeMantleCommand('PurgeReportingDataCacheCommand')"/>
+      </menubar>
+    </menubar>
+
+    <menubar id="helpmenu" label="${help}" layout="vertical">
+      <menuitem id="documentationMenuItem" label="${documentation}" command="mantleXulHandler.documentationClicked()"/>
+      <menubarseparator id="documentationSeparator"/>
+      <menuitem id="pentahoDotComMenuItem" label="${pentahoHomePageName}"
+                command="mantleXulHandler.executeMantleCommand('PentahoHomeCommand')"/>
+      <menubarseparator id="aboutSeparator"/>
+      <menuitem id="aboutMenuItem" label="${about}" command="mantleXulHandler.executeMantleCommand('AboutCommand')"/>
+    </menubar>
+  </menubar>
+
   <window id="mainToolbarWrapper">
-  	<toolbar id="mainToolbar" visible="false">
+    <toolbar id="mainToolbar" visible="false">
       <!-- use spacers as images, the real images are loaded via css background images to support themeing -->
-    	<toolbarspacer width="10"/>
-    	<toolbarbutton id="openButton" image="images/spacer.gif" onclick="mantleXulHandler.openClicked()" tooltiptext="${openEllipsis}"/>
-    	<toolbarspacer width="10"/>
-    	<toolbarbutton id="newButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.newClicked()" tooltiptext="${new}"/>
-    	<toolbarspacer width="20"/>
-    	<toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
-    	<toolbarspacer width="20"/>
-    	<toolbarbutton id="editContentButton" image="images/spacer.gif" disabledimage="images/spacer.gif"  onclick="mantleXulHandler.editContentClicked()" tooltiptext="${editContent}" disabled="true" type="toggle" pen:visible="true"/>
-    	<toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
-    	<toolbarbutton id="saveButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
-    	<toolbarbutton id="saveAsButton" image="images/spacer.gif" disabledimage="images/spacer.gif"  onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
+      <toolbarspacer width="10"/>
+      <toolbarbutton id="openButton" image="images/spacer.gif" onclick="mantleXulHandler.openClicked()"
+                     tooltiptext="${openEllipsis}"/>
+      <toolbarspacer width="10"/>
+      <toolbarbutton id="newButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
+                     onclick="mantleXulHandler.newClicked()" tooltiptext="${new}"/>
+      <toolbarspacer width="20"/>
+      <toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
+      <toolbarspacer width="20"/>
+      <toolbarbutton id="editContentButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
+                     onclick="mantleXulHandler.editContentClicked()" tooltiptext="${editContent}" disabled="true"
+                     type="toggle" pen:visible="true"/>
+      <toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
+      <toolbarbutton id="saveButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
+                     onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
+      <toolbarbutton id="saveAsButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
+                     onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
 
       <toolbarspacer width="20"/>
-      <toolbarbutton id="printButton" image="images/spacer.gif" disabledimage="images/spacer.gif" onclick="mantleXulHandler.printClicked()" tooltiptext="${print}" pen:visible="false"/>
+      <toolbarbutton id="printButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
+                     onclick="mantleXulHandler.printClicked()" tooltiptext="${print}" pen:visible="false"/>
 
-  	</toolbar>
+    </toolbar>
   </window>
-  
-	<hbox id="adminPerspective" flex="1">
-		<tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false">
-			<treecols id="adminTreeCol">
-				<treecol id="adminCol" label="Name" flex="2" editable="false" />
-			</treecols> 
-			<treechildren id="adminCatTreeChildren">
-				<treeitem id="usersRoles" container="true" command="mantleXulHandler.loadUserRolesAdminPanel()">
-		  			<treerow>
-		    			<treecell label="${manageUsersAndRoles}" />
-			  		</treerow>	    
-				</treeitem>		
-				
-				<treeitem id="mailServer" container="true" command="mantleXulHandler.loadEmailAdminPanel()">
-	   		 		<treerow>
-						<treecell label="${manageMailServer}" />
-	  				</treerow>
-	  			</treeitem>
 
-	  			<treeitem id="settings" container="true" command="mantleXulHandler.loadSettingsPanel()">
-		  			<treerow>
-		    			<treecell label="${settings}" />
-			  		</treerow>	    
-				</treeitem>
-			</treechildren>
-		</tree>
-		<vbox id="adminContentPanel" flex="2">
-		</vbox>  
-	</hbox>  
-  
+  <hbox id="adminPerspective" flex="1">
+    <tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false">
+      <treecols id="adminTreeCol">
+        <treecol id="adminCol" label="Name" flex="2" editable="false"/>
+      </treecols>
+      <treechildren id="adminCatTreeChildren">
+        <treeitem id="usersRoles" container="true" command="mantleXulHandler.loadUserRolesAdminPanel()">
+          <treerow>
+            <treecell label="${manageUsersAndRoles}"/>
+          </treerow>
+        </treeitem>
+
+        <treeitem id="mailServer" container="true" command="mantleXulHandler.loadEmailAdminPanel()">
+          <treerow>
+            <treecell label="${manageMailServer}"/>
+          </treerow>
+        </treeitem>
+
+        <treeitem id="settings" container="true" command="mantleXulHandler.loadSettingsPanel()">
+          <treerow>
+            <treecell label="${settings}"/>
+          </treerow>
+        </treeitem>
+      </treechildren>
+    </tree>
+    <vbox id="adminContentPanel" flex="2">
+    </vbox>
+  </hbox>
+
 </window>

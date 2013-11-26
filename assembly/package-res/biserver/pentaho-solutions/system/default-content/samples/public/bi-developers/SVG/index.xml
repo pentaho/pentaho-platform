@@ -1,0 +1,7 @@
+<index>
+	<name>SVG</name>
+	<description>Examples of using SVG to display data graphically</description>
+	<icon>svg.png</icon>
+	<visible>true</visible>
+	<display-type>list</display-type>
+</index>

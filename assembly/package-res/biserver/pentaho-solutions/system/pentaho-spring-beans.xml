@@ -38,7 +38,6 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
   <import resource="pentahoSystemConfig.xml" />
   <import resource="adminPlugins.xml" />
   <import resource="systemListeners.xml" />
-  <import resource="sessionStartupActions.xml" />
   <import resource="repository.spring.xml" />
   <import resource="applicationContext-spring-security.xml" />
     <import resource="applicationContext-spring-security-superuser.xml" />
@@ -61,4 +60,5 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
   <import resource="GettingStartedDB-spring.xml" /> <!-- Remove this line to unhook the Getting Started DB -->
   <import resource="importExport.xml" />
   <import resource="defaultUser.spring.xml"/>
+  <import resource="sessionStartupActions.xml" />
 </beans>

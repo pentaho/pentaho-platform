@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:54 EDT 2013
+file.title=Secured PDF Example
+title=quadrant-budget-for-region-session
+file.description=This is an example of a secure parameterized PDF report.<p>Valid entries are defined by a business rule executed during login and saved in the user's session.<p>If you are logged in as 'Suzy', you will be prompted to select a region filtered for her - 'Eastern', 'Western' and 'Southern'.  Log in as 'admin' who only has permission for 'Central' and you will not be prompted

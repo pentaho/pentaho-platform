@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+<sub-report>
+<items>
+<string-field color="blue" fieldname="DEPARTMENT" fontstyle="bold" height="12" width="50%"/>
+</items>
+</sub-report>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name></name>
+    <directory>/</directory>
+    <log>
+      <read></read>
+      <write></write>
+      <input></input>
+      <output></output>
+      <update></update>
+      <connection></connection>
+      <table></table>
+      <use_batchid>N</use_batchid>
+      <use_logfield>N</use_logfield>
+      </log>
+    <maxdate>
+      <connection></connection>
+      <table></table>
+      <field></field>
+      <offset>0.0</offset>
+      <maxdiff>0.0</maxdiff>
+      </maxdate>
+    <size_rowset>350</size_rowset>
+    <sleep_time_empty>1</sleep_time_empty>
+    <sleep_time_full>1</sleep_time_full>
+    <dependencies>
+      </dependencies>
+    </info>
+  <notepads>
+    </notepads>
+  <connection>
+    <name>SampleData</name>
+    <server>localhost</server>
+    <type>HYPERSONIC</type>
+    <access>JNDI</access>
+    <database>SampleData</database>
+    <port>9001</port>
+    <username>sa</username>
+    <password>Encrypted </password>
+    <servername></servername>
+    <data_tablespace></data_tablespace>
+    <index_tablespace></index_tablespace>
+    <attributes>
+    </attributes>
+  </connection>
+  <order>
+  <hop> <from>Java Script Value</from><to>XML Output</to><enabled>Y</enabled> </hop>  <hop> <from>QUADRANT_ACTUALS</from><to>Filter rows</to><enabled>Y</enabled> </hop>  <hop> <from>Filter rows</from><to>Java Script Value</to><enabled>Y</enabled> </hop>  </order>
+
+  <step>
+    <name>QUADRANT_ACTUALS</name>
+    <type>TableInput</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <connection>SampleData</connection>
+    <sql>SELECT REGION, DEPARTMENT, POSITIONTITLE
+FROM QUADRANT_ACTUALS
+</sql>
+    <limit>0</limit>
+    <lookup></lookup>
+    <execute_each_row>N</execute_each_row>
+    <GUI>
+      <xloc>55</xloc>
+      <yloc>38</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>XML Output</name>
+    <type>XMLOutput</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <encoding>UTF-8</encoding>
+    <xml_main_element>Rows</xml_main_element>
+    <xml_repeat_element>Row</xml_repeat_element>
+    <file>
+      <name>sample</name>
+      <extention>xml</extention>
+      <split>N</split>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <zipped>N</zipped>
+      <splitevery>0</splitevery>
+      </file>
+    <fields>
+      <field>
+        <name>REGION</name>
+        <element></element>
+        <type>0</type>
+        <format></format>
+        <currency></currency>
+        <decimal></decimal>
+        <group></group>
+        <nullif></nullif>
+        <length>50</length>
+        <precision>-1</precision>
+        </field>
+      <field>
+        <name>DEPARTMENT</name>
+        <element></element>
+        <type>0</type>
+        <format></format>
+        <currency></currency>
+        <decimal></decimal>
+        <group></group>
+        <nullif></nullif>
+        <length>50</length>
+        <precision>-1</precision>
+        </field>
+      <field>
+        <name>POSITIONTITLE</name>
+        <element></element>
+        <type>0</type>
+        <format></format>
+        <currency></currency>
+        <decimal></decimal>
+        <group></group>
+        <nullif></nullif>
+        <length>50</length>
+        <precision>-1</precision>
+        </field>
+      <field>
+        <name>Hello</name>
+        <element></element>
+        <type>2</type>
+        <format></format>
+        <currency></currency>
+        <decimal></decimal>
+        <group></group>
+        <nullif></nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+        </field>
+      </fields>
+    <GUI>
+      <xloc>262</xloc>
+      <yloc>461</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Java Script Value</name>
+    <type>ScriptValue</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <script>var Hello;
+Hello =  &apos;Hello, &apos; + POSITIONTITLE.getString();
+
+
+</script>
+    <fields>      <field>        <name>Hello</name>
+        <rename>Hello</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        </field>      </fields>    <GUI>
+      <xloc>43</xloc>
+      <yloc>341</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+<send_true_to></send_true_to>
+<send_false_to></send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <conditions>
+  <condition>
+   <negated>N</negated>
+   <leftvalue>REGION</leftvalue>
+   <function>=</function>
+   <rightvalue></rightvalue>
+<value>     <name>constant</name><type>String</type><text>Central</text><length>-1</length><precision>-1</precision><isnull>N</isnull>  </value>   </condition>
+  <condition>
+   <negated>N</negated>
+   <operator>AND</operator>
+   <leftvalue>DEPARTMENT</leftvalue>
+   <function>=</function>
+   <rightvalue></rightvalue>
+<value>     <name>constant</name><type>String</type><text>Sales</text><length>-1</length><precision>-1</precision><isnull>N</isnull>  </value>   </condition>
+  </conditions>
+ </condition>
+    </compare>
+    <GUI>
+      <xloc>261</xloc>
+      <yloc>193</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+</transformation>

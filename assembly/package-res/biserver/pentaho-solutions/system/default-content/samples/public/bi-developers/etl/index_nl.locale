@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:44 EDT 2013
+file.title=Extractie, Transformatie en Laden met Kettle
+file.description=Een verzameling van voorbeelden die de Kettle ETL Component demonstreert.

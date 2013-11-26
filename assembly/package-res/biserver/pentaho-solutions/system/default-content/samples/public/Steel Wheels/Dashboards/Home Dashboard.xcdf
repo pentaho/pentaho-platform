@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdf>
+	<title>Pentaho Home Dashboard</title>
+	<author>Webdetails</author>
+	<description>Pentaho Home Dashboard</description>
+	<icon></icon>
+	<template>home_dashboard.html</template>
+</cdf>

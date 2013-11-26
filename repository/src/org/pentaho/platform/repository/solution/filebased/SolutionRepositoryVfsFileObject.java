@@ -1,26 +1,22 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU General Public License, version 2 as published by the Free Software 
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html 
- * or from the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
- * Copyright 2007-2008 Pentaho Corporation.  All rights reserved. 
- * 
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.platform.repository.solution.filebased;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+package org.pentaho.platform.repository.solution.filebased;
 
 import org.apache.commons.vfs.FileContent;
 import org.apache.commons.vfs.FileName;
@@ -36,19 +32,24 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SolutionRepositoryVfsFileObject implements FileObject {
 
   private String fileRef;
 
-  private static final IUnifiedRepository REPOSITORY = PentahoSystem.get(IUnifiedRepository.class, null);
+  private static final IUnifiedRepository REPOSITORY = PentahoSystem.get( IUnifiedRepository.class, null );
 
   private FileContent content = null;
 
   private boolean fileInitialized;
-  
+
   private RepositoryFile repositoryFile = null;
 
-  public SolutionRepositoryVfsFileObject(final String fileRef) {
+  public SolutionRepositoryVfsFileObject( final String fileRef ) {
     super();
     this.fileRef = fileRef;
   }
@@ -66,28 +67,29 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     FileType fileType = null;
     try {
       fileType = getType();
-    } catch (Exception ex) {
+    } catch ( Exception ex ) {
       fileType = FileType.FOLDER;
     }
-    return new SolutionRepositoryFileName(fileRef, fileType);
+    return new SolutionRepositoryFileName( fileRef, fileType );
   }
 
   public URL getURL() throws FileSystemException {
     URL url = null;
     try {
-      url = new URL("solution:" + fileRef); //$NON-NLS-1$
-    } catch (Exception e) {
-
+      url = new URL( "solution:" + fileRef ); //$NON-NLS-1$
+    } catch ( Exception e ) {
+      // CHECKSTYLES IGNORE
     }
     return url;
   }
 
   private void initFile() {
-    if (!fileInitialized) {
-      repositoryFile = REPOSITORY.getFile(fileRef);
+    if ( !fileInitialized ) {
+      repositoryFile = REPOSITORY.getFile( fileRef );
       fileInitialized = true;
     }
   }
+
   public boolean exists() throws FileSystemException {
     initFile();
     return repositoryFile != null;
@@ -109,7 +111,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   public FileType getType() throws FileSystemException {
-    return ((repositoryFile != null) && !repositoryFile.isFolder()) ? FileType.FILE : FileType.FOLDER;
+    return ( ( repositoryFile != null ) && !repositoryFile.isFolder() ) ? FileType.FILE : FileType.FOLDER;
   }
 
   public FileObject getParent() throws FileSystemException {
@@ -125,36 +127,36 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   public FileObject[] getChildren() throws FileSystemException {
 
     List<FileObject> fileList = new ArrayList<FileObject>();
-    if (exists()) {
-      for (RepositoryFile child : REPOSITORY.getChildren(repositoryFile.getId())) {
-          SolutionRepositoryVfsFileObject fileInfo = new SolutionRepositoryVfsFileObject(child.getPath());
-          fileList.add(fileInfo);
+    if ( exists() ) {
+      for ( RepositoryFile child : REPOSITORY.getChildren( repositoryFile.getId() ) ) {
+        SolutionRepositoryVfsFileObject fileInfo = new SolutionRepositoryVfsFileObject( child.getPath() );
+        fileList.add( fileInfo );
       }
     }
-    return fileList.toArray(new FileObject[0]);
+    return fileList.toArray( new FileObject[0] );
   }
 
-  public FileObject getChild(final String arg0) throws FileSystemException {
+  public FileObject getChild( final String arg0 ) throws FileSystemException {
     // not needed for our usage
     return null;
   }
 
-  public FileObject resolveFile(final String arg0, final NameScope arg1) throws FileSystemException {
+  public FileObject resolveFile( final String arg0, final NameScope arg1 ) throws FileSystemException {
     // not needed for our usage
     return null;
   }
 
-  public FileObject resolveFile(final String arg0) throws FileSystemException {
+  public FileObject resolveFile( final String arg0 ) throws FileSystemException {
     // not needed for our usage
     return null;
   }
 
-  public FileObject[] findFiles(final FileSelector arg0) throws FileSystemException {
+  public FileObject[] findFiles( final FileSelector arg0 ) throws FileSystemException {
     // not needed for our usage
     return null;
   }
 
-  public void findFiles(final FileSelector arg0, final boolean arg1, final List arg2) throws FileSystemException {
+  public void findFiles( final FileSelector arg0, final boolean arg1, final List arg2 ) throws FileSystemException {
     // not needed for our usage
   }
 
@@ -163,7 +165,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     return false;
   }
 
-  public int delete(final FileSelector arg0) throws FileSystemException {
+  public int delete( final FileSelector arg0 ) throws FileSystemException {
     // not needed for our usage
     return 0;
   }
@@ -178,27 +180,27 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
   }
 
-  public void copyFrom(final FileObject arg0, final FileSelector arg1) throws FileSystemException {
+  public void copyFrom( final FileObject arg0, final FileSelector arg1 ) throws FileSystemException {
     // not needed for our usage
 
   }
 
-  public void moveTo(final FileObject arg0) throws FileSystemException {
+  public void moveTo( final FileObject arg0 ) throws FileSystemException {
     // not needed for our usage
   }
 
-  public boolean canRenameTo(final FileObject arg0) {
+  public boolean canRenameTo( final FileObject arg0 ) {
     // not needed for our usage
     return false;
   }
 
   public FileContent getContent() throws FileSystemException {
-    content = new SolutionRepositoryVfsFileContent(this);
+    content = new SolutionRepositoryVfsFileContent( this );
     return content;
   }
 
   public void close() throws FileSystemException {
-    if (content != null) {
+    if ( content != null ) {
       content.close();
       content = null;
     }
@@ -214,7 +216,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   public boolean isContentOpen() {
-    return (content != null) && content.isOpen();
+    return ( content != null ) && content.isOpen();
   }
 
   public FileOperations getFileOperations() throws FileSystemException {
@@ -224,8 +226,8 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
   public InputStream getInputStream() throws FileSystemException {
     InputStream inputStream = null;
-    if (exists()) {
-      inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+    if ( exists() ) {
+      inputStream = REPOSITORY.getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
     }
     return inputStream;
   }

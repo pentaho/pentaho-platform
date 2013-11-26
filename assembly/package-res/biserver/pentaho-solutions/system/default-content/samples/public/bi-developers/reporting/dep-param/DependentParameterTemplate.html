@@ -1,0 +1,208 @@
+<html xmlns:xf="http://www.w3.org/2002/xforms">
+   <head>
+	<!-- do not include a <meta> tag -->
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css"></link>
+      <title>Dynamic Dependent Parameter Page Example</title>
+
+      			<script><![CDATA[
+
+      			  var url= window.location.pathname;
+      			  var target=unescape('');
+      			  function doForm() {
+      			    var submitUrl = url + '?';
+      			    var form = document.forms['parameter-form'];
+      			    var elements = form.elements;
+      			    var i;
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      } else if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      	}
+      			      } else if( elements[i].type == 'checkbox' ) {
+      			      	if( elements[i].checked ) {
+      				      submitUrl += '&' + elements[i].name + "=" + escape( elements[i].value );
+      			      	}
+      			      } else if( elements[i].type == 'select-multiple' ) {
+      				    var options = elements[i].options;
+      				    var j;
+      				    for( j=0; j!=options.length; j++ ) {
+      				      if( options[j].selected ) {
+      	  			        submitUrl += '&' + elements[i].name + '=' + escape( options[ j ].value );
+      				      }
+      				    }
+      				  }
+      			    }
+					embedUrl(submitUrl);
+      			    return false;
+      			  }
+
+				  function returnObjById( id ) {
+    				if (document.getElementById)
+        				var returnVar = document.getElementById(id);
+    				else if (document.all)
+        				var returnVar = document.all[id];
+    				else if (document.layers)
+        				var returnVar = document.layers[id];
+    				return returnVar;
+			      }
+
+	              function sendRequest( url, query, func, dependentFunction ) {
+      				http_request = false;
+	  				var returnType = "application/xml";
+
+      				if (window.XMLHttpRequest) { // Mozilla, Safari,...
+         			  http_request = new XMLHttpRequest();
+         			  if (http_request.overrideMimeType) {
+                        http_request.overrideMimeType(returnType);
+                      }
+                    } else if (window.ActiveXObject) { // IE
+                      try {
+                        http_request = new ActiveXObject("Msxml2.XMLHTTP");
+                      } catch (e) {
+                        try {
+                          http_request = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {}
+                      }
+                    }
+                    if (!http_request) {
+                      alert('Cannot create XMLHTTP instance');
+                      return false;
+                    }
+
+                    http_request.onreadystatechange = function() { pentahoResponse(http_request, func, dependentFunction); };
+                    http_request.open('POST', url, true);
+                    http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    http_request.setRequestHeader("Content-length", query.length);
+                    http_request.setRequestHeader("Connection", "close");
+                    http_request.send(query);
+                  }
+
+                  function pentahoResponse(http_request, func, dependentFunction) {
+                    if (http_request.readyState == 4) {
+                      if (http_request.status == 200) {
+				        var content = http_request.responseText;
+				        eval( func+'content )' );
+				        eval( dependentFunction );
+                      } else {
+				        eval( func+'( "There was a problem with the request." )' );
+                      }
+                    }
+                  }
+
+	              function paramService( params, func, dependentFunction ) {
+		            var url = window.location.pathname;
+		            var query = "";
+		            if( params ) {
+		              query += "?";
+			          for( idx=0; idx<params.length; idx+=2 ) {
+				        query += "&" +escape( params[idx] ) + "=" + escape( params[idx+1] );
+			          }
+		            }
+		            return sendRequest( url, query, func, dependentFunction );
+	              }
+
+	              function parseSOAPResultSet(dependentControlName, content) {
+	                CDATA_START_TAG = "\<DATA-ITEM\>\<!\[CDATA\[";
+	                CDATA_END_TAG = "\]\]\>\</DATA-ITEM\>";
+      				dependentControl = returnObjById(dependentControlName);
+	                dependentControl.options.length = 0;
+                    index = 0;
+	                while (content.indexOf(CDATA_START_TAG) >= 0) {
+	                  cdataBeginIdx = content.indexOf(CDATA_START_TAG);
+	                  cdataEndIdx = content.indexOf(CDATA_END_TAG);
+ 	                  text = content.substring(cdataBeginIdx+CDATA_START_TAG.length, cdataEndIdx);
+	                  content = content.substring(cdataEndIdx+CDATA_END_TAG.length);
+	                  dependentControl.options[index] = new Option(text, text);
+	                  index++;
+	                }
+	              }
+
+	              function embedUrl(url) {
+					var myDiv = returnObjById("content");
+					myDiv.style.visibility='visible';
+					myDiv.innerHTML = "<IFRAME style=\"border: none;\" height=\"600\" width=\"100%\" src=\"" + url + "\"/>";
+	              }
+
+				  function returnObjById( id ) {
+					if (document.getElementById)
+						var returnVar = document.getElementById(id);
+					else if (document.all)
+						var returnVar = document.all[id];
+					else if (document.layers)
+        				var returnVar = document.layers[id];
+					return returnVar;
+				  }
+
+                ]]>
+      			</script>
+
+	{xform-header}
+
+   </head>
+   <body style="border:2px solid #dddddd">
+      <div style="margin:10px"><span class="portlet-section-header">Dynamic Dependent Parameter Page Example</span></div>
+      <div style="margin:10px;border:1px solid #808080;padding:5px;">
+         <form name="parameter-form" id="parameter-form" method="POST">
+            <table width="100%" style="padding:5px;">
+               <tr>
+                  <td class="portlet-font">The region selections control the department choices and the department selections filter the positions.</td>
+               </tr>
+
+               <tr>
+                  <td class="portlet-font">Region: {REGION}</td>
+               </tr>
+
+               <tr>
+                  <td class="portlet-font">Department: {DEPARTMENT}</td>
+               </tr>
+
+               <tr>
+                  <td class="portlet-font">Position: {POSITIONTITLE}</td>
+               </tr>
+
+               <tr>
+                  <td class="portlet-font">Output: {outputType}</td>
+               </tr>
+
+               <tr>
+                  <td><br/><input type="button" name="go" class="portlet-form-button" value="Run..." onClick="doForm()"/></td>
+               </tr>
+            </table>
+		{path}
+	    </form>
+
+
+	<script><![CDATA[
+
+      var regionControl = returnObjById("REGION");
+	  regionControl.onchange=regionChangeFunction;
+
+      var deptControl = returnObjById("DEPARTMENT");
+	  deptControl.onchange=departmentChangeFunction;
+
+      var positionControl = returnObjById("POSITIONTITLE");
+      positionControl.onchange=doForm;
+
+      var outputControl = returnObjById("outputType");
+      outputControl.onchange=doForm;
+
+	  function departmentChangeFunction() {
+        paramService(new Array( "dept", deptControl.value,  "path", "/public/pentaho-solutions/bi-developers/reporting/dep-param/PositionTitlesForDept.xaction" ), "parseSOAPResultSet(\"POSITIONTITLE\", ", "");
+      }
+
+	  function regionChangeFunction() {
+        paramService(new Array( "region", regionControl.value, "path", "/public/pentaho-solutions/bi-developers/reporting/dep-param/DepartmentsForRegion.xaction" ), "parseSOAPResultSet(\"DEPARTMENT\", ", "departmentChangeFunction()");
+      }
+
+
+    ]]></script>
+
+      </div>
+
+      <div width="100%" style="visibility: hidden; border: 1px solid rgb(128, 128, 128); margin: 10px; padding: 5px;" id="content">
+      </div>
+
+   </body>
+</html>

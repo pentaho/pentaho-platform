@@ -12,19 +12,19 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2012 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.File;
-
-import javax.ws.rs.core.Response;
-
 import junit.framework.TestCase;
-
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
+
+import javax.ws.rs.core.Response;
+import java.io.File;
 
 /**
  * Class Description
@@ -40,48 +40,42 @@ public class EmailResourceTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     // Setup the temp email config file
-    defaultConfigFile = File.createTempFile("email_config_", ".xml");
-    this.emailResource = new EmailResource(new EmailService(defaultConfigFile));
+    defaultConfigFile = File.createTempFile( "email_config_", ".xml" );
+    this.emailResource = new EmailResource( new EmailService( defaultConfigFile ) );
   }
 
   public void testEmailConfig() throws Exception {
-    {
-      try {
-        new EmailResource(null);
-        fail("Exception should be thrown when a null EmailService is provided");
-      } catch (IllegalArgumentException success) {
-      }
+
+    try {
+      new EmailResource( null );
+      fail( "Exception should be thrown when a null EmailService is provided" );
+    } catch ( IllegalArgumentException success ) {
+      //ignore
     }
 
-    {
-      try {
-        new EmailResource(new EmailService(new File(defaultConfigFile, "cannot.exist")));
-        fail("Exception should be thrown when an invalid EmailService is provided");
-      } catch (IllegalArgumentException success) {
-      }
+    try {
+      new EmailResource( new EmailService( new File( defaultConfigFile, "cannot.exist" ) ) );
+      fail( "Exception should be thrown when an invalid EmailService is provided" );
+    } catch ( IllegalArgumentException success ) {
+      //ignore
     }
 
-    {
-      final IEmailConfiguration emptyConfig = emailResource.getEmailConfig();
-      assertTrue(BLANK_CONFIG.equals(emptyConfig));
-    }
+    IEmailConfiguration emptyConfig = emailResource.getEmailConfig();
+    assertTrue( BLANK_CONFIG.equals( emptyConfig ) );
 
-    {
-      final Response response = emailResource.setEmailConfig(new EmailConfiguration());
-      assertEquals(OK_STATUS, response.getStatus());
-      final IEmailConfiguration emptyConfig = emailResource.getEmailConfig();
-      assertTrue(BLANK_CONFIG.equals(emptyConfig));
-    }
+    Response response = emailResource.setEmailConfig( new EmailConfiguration() );
+    assertEquals( OK_STATUS, response.getStatus() );
+    emptyConfig = emailResource.getEmailConfig();
+    assertTrue( BLANK_CONFIG.equals( emptyConfig ) );
 
-    {
-      final EmailConfiguration emailConfigOriginal = new EmailConfiguration(true, false, "test@pentaho.com", "Pentaho Scheduler", null, new Short((short) 36), "", true, "user",
-          null, false, true);
-      final Response response = emailResource.setEmailConfig(emailConfigOriginal);
-      assertEquals(OK_STATUS, response.getStatus());
+    final EmailConfiguration emailConfigOriginal =
+        new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", null, new Short( (short) 36 ),
+            "", true, "user", null, false, true );
+    response = emailResource.setEmailConfig( emailConfigOriginal );
+    assertEquals( OK_STATUS, response.getStatus() );
 
-      final IEmailConfiguration emailConfigNew = emailResource.getEmailConfig();
-      assertTrue(emailConfigOriginal.equals(emailConfigNew));
-    }
+    final IEmailConfiguration emailConfigNew = emailResource.getEmailConfig();
+    assertTrue( emailConfigOriginal.equals( emailConfigNew ) );
 
   }
 

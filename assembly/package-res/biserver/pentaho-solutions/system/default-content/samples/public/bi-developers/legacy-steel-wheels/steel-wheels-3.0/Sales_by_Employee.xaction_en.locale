@@ -1,0 +1,4 @@
+#Locale = en
+#Thu Aug 15 12:32:48 EDT 2013
+file.title=Sales by Account Manager
+file.description=List of Account Managers sorted by Sales. Select date range (Jan 2003 through May 2005). Includes chart.

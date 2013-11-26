@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:51 EDT 2013
+file.title=Ejemplo HTML JFreeReport
+file.description=Esto es un ejemplo de un informe HTML producido por JFreeReport. <p/>\\t\\t\\tMuesta el recuento del coste  actual, recuento del coste facturado, y variaci\u00F3n de cada posici\u00F3n, departamento y regi\u00F3n<p/>\\t\\t\\tLo demuestra usando colores and estilos para cabeceras y agrupaciones. Tambien muestra subtotales.

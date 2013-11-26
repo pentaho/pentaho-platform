@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser.filelist;
@@ -25,13 +25,13 @@ import java.util.Comparator;
 /**
  * @author Rowell Belen
  */
-public class RepositoryFileComparator implements Comparator<RepositoryFile>{
+public class RepositoryFileComparator implements Comparator<RepositoryFile> {
 
   private TreeItemComparator comparator = new TreeItemComparator();
 
   @Override
-  public int compare(RepositoryFile repositoryFile, RepositoryFile repositoryFile2) {
-    return comparator.compare(repositoryFile.getTitle(), repositoryFile2.getTitle());
+  public int compare( RepositoryFile repositoryFile, RepositoryFile repositoryFile2 ) {
+    return comparator.compare( repositoryFile.getTitle(), repositoryFile2.getTitle() );
   }
 
 }

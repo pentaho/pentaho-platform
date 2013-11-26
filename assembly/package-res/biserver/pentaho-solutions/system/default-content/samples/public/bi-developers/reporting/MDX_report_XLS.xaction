@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>MDX_report_XLS.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>William Seyler</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>MDX_report.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>xls</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <outputs> 
+    <report type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </report> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeMondrianQuadrant.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>MDXLookupRule</component-name>
+      <action-type>OLAP Query For Report Data</action-type>
+      <action-resources> 
+      </action-resources>
+      <action-outputs> 
+        <query-results type="result-set" mapping="reportData"/> 
+      </action-outputs>
+      <component-definition> 
+        <extended_column_names>false</extended_column_names>
+        <catalog>SampleData</catalog>  
+        <query><![CDATA[with member [Measures].[Variance Percent] as '([Measures].[Variance] / [Measures].[Budget])', format_string = IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) > 2.0), "|#.00%|style='green'", IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) < 0.0), "|#.00%|style='red'", "#.00%"))
+select Crossjoin({[Region].[All Regions].[Central], [Region].[All Regions].[Eastern], [Region].[All Regions].[Southern], [Region].[All Regions].[Western]}, {[Measures].[Actual], [Measures].[Budget]}) ON columns,
+  Hierarchize(Union({[Department].[All Departments]}, [Department].[All Departments].Children)) ON rows
+from [Quadrant Analysis]]]></query>  
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="reportData"/>  
+        <output-type type="string"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <report-output type="content" mapping="report"/> 
+      </action-outputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

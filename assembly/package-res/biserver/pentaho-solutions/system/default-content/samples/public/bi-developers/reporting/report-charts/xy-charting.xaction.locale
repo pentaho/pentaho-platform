@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:46 EDT 2013
+file.title=XY Charting
+title=xy-charting
+file.description=Example report to demonstrate a chart plotting two numeric dimensions. The first chart in the report displays all data, while subsequent charts display data for the previous product line in the report.  

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5" "http://jfreereport.sourceforge.net/report-085.dtd">
+
+<report bottommargin="10" topmargin="10" rightmargin="10" leftmargin="10" pageformat="LETTER" orientation="landscape" name="Group Level Time Series Charting">
+  <parser-config>
+    <property name="reportheader">Product Line Customer Sales By Product</property>
+    <property name="reportfooter"/>
+    <property name="pageheader"></property>
+    <property name="pagefooter"/>
+  </parser-config>
+  <reportheader color="#ff7d17" fontname="Arial" fontsize="16">
+    <message-field alignment="left" height="18" vertical-alignment="middle" width="100%" x="0%" y="0">${reportheader}</message-field>
+    <line color="#9eaa36" weight="2" x1="0%" x2="100%" y1="19" y2="22"/>
+  </reportheader>
+  <reportfooter color="#ff7d17" fontname="Arial" fontsize="16">
+    <message-field alignment="center" height="18" vertical-alignment="top" width="100%" x="0%" y="0">${reportfooter}</message-field>
+  </reportfooter>
+  <pageheader color="#c0c0c0" fontname="Arial" fontsize="8">
+    <message-field alignment="left" height="18" vertical-alignment="middle" width="50%" x="0%" y="0">${pageheader}</message-field>
+    <message-field alignment="right" height="18" width="50%" x="50%" y="0">$(report.date, date, MMMM dd, yyyy @ hh:mm )</message-field>
+    <line color="#9eaa36" height="3" weight="1" width="100%" x1="0%" x2="100%" y1="18" y2="18"/>
+  </pageheader>
+  <pagefooter color="#c0c0c0" fontname="Arial" fontsize="8">
+    <line color="#9eaa36" height="3" weight="1" width="100%" x1="0%" x2="100%" y1="0" y2="0"/>
+    <message-field alignment="left" height="18" width="50%" x="0" y="0">${pagefooter}</message-field>
+    <message-field alignment="right" height="18" width="50%" x="50%" y="0">Page $(PageofPages)</message-field>
+  </pagefooter>
+  <functions>
+    <property-ref name="report.date"/>
+    <function class="org.jfree.report.function.PageOfPagesFunction" name="PageofPages"/>
+    <function name="backgroundTrigger" class="org.jfree.report.function.ElementVisibilitySwitchFunction">
+      <properties>
+        <property name="element">rowBandingElement</property>
+        <property name="numberOfElements">1</property>
+        <property name="initialState">true</property>
+      </properties>
+    </function>
+    <expression class="org.jfree.report.function.HideElementIfDataAvailableExpression" name="noDataLabelElementHideIfNullTrigger">
+      <properties>
+        <property name="element">noDataLabelElement</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="dummyGroupFooterHideIfNullTrigger">
+      <properties>
+        <property name="element">dummyGroupFooter</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="Summary_SOLD_PRICEExpression">
+      <properties>
+        <property name="field">SOLD_PRICE</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="PRODUCTLINEGroupHeaderHideIfNullTrigger">
+      <properties>
+        <property name="element">PRODUCTLINEGroupHeader</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="PRODUCTLINEGroupFooterHideIfNullTrigger">
+      <properties>
+        <property name="element">PRODUCTLINEGroupFooter</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="PRODUCTLINESOLD_PRICEExpression">
+      <properties>
+        <property name="field">SOLD_PRICE</property>
+        <property name="group">PRODUCTLINE</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="PRODUCTNAMEGroupHeaderHideIfNullTrigger">
+      <properties>
+        <property name="element">PRODUCTNAMEGroupHeader</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="PRODUCTNAMEGroupFooterHideIfNullTrigger">
+      <properties>
+        <property name="element">PRODUCTNAMEGroupFooter</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="PRODUCTNAMESOLD_PRICEExpression">
+      <properties>
+        <property name="field">SOLD_PRICE</property>
+        <property name="group">PRODUCTNAME</property>
+      </properties>
+    </expression>
+	<expression class="org.pentaho.plugin.jfreereport.reportcharts.TimeSeriesCollectorFunction" name="chartDataSource" depLevel="1">
+      <properties>
+        <property name="timeValueColumn[0]">ORDERDATE</property>
+        <property name="seriesName[0]">PRODUCTNAME</property>
+        <property name="seriesColumn">true</property>
+        <property name="valueColumn[0]">SOLD_PRICE</property>
+        <property name="summaryOnly">false</property>
+        <property name="domainPeriodType">Day</property>
+		<property name="group">PRODUCTNAME</property>  
+		<property name="resetGroup">PRODUCTLINE</property>  
+      </properties>
+    </expression>
+
+    <expression class="org.pentaho.plugin.jfreereport.reportcharts.XYLineChartExpression" name="TimeSeriesChart" depLevel="1">
+      <properties>
+        <!--  
+          Font specification: fontfamilyname-style-pointsize
+          e.g. Arial-BOLD-14
+          Style can be BOLD, BOLDITALIC, or ITALIC        
+         -->
+        <property name="titleFont">Arial-BOLD-14</property>
+        <property name="labelFont">Arial--8</property>
+        <property name="legendFont">Arial--6</property>
+        <property name="backgroundColor">#FFFFFF</property>
+        <property name="showBorder">true</property>
+        <property name="horizontal">false</property>
+        <property name="dataSource">chartDataSource</property>
+        <property name="legendLocation">BOTTOM</property>
+		<property name="showLegend">true</property>
+		<property name="chartHeight">400</property>
+        <property name="chartWidth">600</property>
+		<property name="useDrawable">true</property>
+		<property name="markersVisible">true</property>
+		<property name="domainVerticalTickLabels">true</property>
+		<property name="rangeMinimum">0</property>
+		<property name="rangeMaximum">15000</property>
+		<property name="rangeTitle">Sold Price</property>
+		<property name="domainTitle">Time</property>
+		<property name="seriesColor[0]">#EE7733</property>
+		<property name="seriesColor[1]">#9EAA36</property>
+		<property name="seriesColor[2]">#BF0000</property>
+		<property name="seriesColor[3]">#FCCF12</property>
+		<property name="seriesColor[4]">#772200</property>
+		<property name="seriesColor[5]">#DDCC88</property>
+		<property name="seriesColor[6]">#123D82</property>
+		<property name="seriesColor[7]">#4A0866</property>
+		<property name="seriesColor[8]">#445500</property>
+		<property name="seriesColor[9]">#FFAA00</property>
+		<property name="seriesColor[10]">#1E8AD3</property>
+		<property name="seriesColor[11]">#AA6611</property>
+		<property name="seriesColor[12]">#772200</property>
+		  
+      </properties>
+    </expression>
+	  
+  </functions>
+  <items color="#000000" fontname="Arial" fontsize="9" fontstyle="plain">
+    <rectangle name="rowBandingElement" color="#e7e7e7" draw="false" fill="true" height="11" x="0%" width="100%" y="0"/>
+    <string-field name="CUSTOMERNAMEElement" nullstring="-" fieldname="CUSTOMERNAME" vertical-alignment="middle" alignment="left" width="30.0%" x="20.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <date-field name="ORDERDATEElement" nullstring="-" fieldname="ORDERDATE" vertical-alignment="middle" alignment="left" width="25.0%" x="50.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <number-field name="SOLD_PRICEElement" nullstring="-" fieldname="SOLD_PRICE" vertical-alignment="middle" alignment="right" width="25.0%" x="75.0%" y="0" height="11" color="#000000" fontname="Arial" fontsize="9"/>
+    <line color="#c0c0c0" weight=".5" x1="0.0%" y1="0" x2="0.0%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="50.0%" y1="0" x2="50.0%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="100%" y1="0" x2="100%" y2="11"/>
+    <line color="#c0c0c0" weight=".5" x1="0%" y1="0" x2="100%" y2="0"/>
+    <line color="#c0c0c0" weight=".5" x1="0%" y1="11" x2="100%" y2="11"/>
+  </items>
+  <groups>
+    <group name="dummy">
+      <groupheader name="dummyGroupHeader" color="#767676" fontname="Arial" fontsize="12" fontstyle="bold" repeat="false">
+        <label name="noDataLabelElement" height="11" vertical-alignment="middle" alignment="left" width="100%" x="0%" y="0" visible="false">No Data Available</label>
+      </groupheader>
+      <groupfooter name="dummyGroupFooter" color="#ff7d17" fontname="Arial" fontsize="12" fontstyle="bold">
+        <rectangle color="#e0d0c0" draw="false" fill="true" height="17" width="100%" y="1" x="0%"/>
+        <number-field fieldname="Summary_SOLD_PRICEExpression" height="16" vertical-alignment="middle" alignment="right" width="50.0%" x="50.0%" y="2"/>
+        <message-field height="16" x="0%" width="50.0%" y="2" alignment="left" vertical-alignment="middle">Grand Total</message-field>
+      </groupfooter>
+    </group>
+    <group name="PRODUCTLINE">
+      <fields>
+        <field>PRODUCTLINE</field>
+      </fields>
+      <groupheader name="PRODUCTLINEGroupHeader" repeat="false" pagebreak-before-print="false" pagebreak-after-print="false" color="#767676" fontname="Arial" fontsize="20" fontstyle="bold">
+        <rectangle color="#FFFFFF" draw="false" fill="false" height="17" width="100%" x="0%" y="0"/>
+        <string-field fieldname="PRODUCTLINE" height="20" vertical-alignment="top" alignment="center" width="100%" x="0%" y="0" nullstring="-">Product Line: $(PRODUCTLINE)</string-field>
+        <rectangle color="#FFFFFF" draw="false" fill="false" height="10" width="100%" x="0%" y="21"/>
+        <drawable-field x="160" y="42" fieldname="TimeSeriesChart" width="600" height="400"/> 
+      </groupheader>
+      <groupfooter name="PRODUCTLINEGroupFooter" color="#ff7d17" fontname="Arial" fontsize="12" fontstyle="bold" pagebreak-before-print="false" pagebreak-after-print="false">
+        <rectangle color="#c0d0e0" draw="false" fill="true" height="17" width="100%" y="1" x="0%"/>
+        <number-field fieldname="PRODUCTLINESOLD_PRICEExpression" height="16" vertical-alignment="middle" alignment="right" width="50.0%" x="50.0%" y="2"/>
+        <message-field height="16" x="0%" width="50.0%" y="2" alignment="left" vertical-alignment="middle">$(PRODUCTLINE) Total</message-field>
+        <rectangle color="#ffffff" draw="false" fill="false" height="40" width="100%" y="10" x="0%"/>
+      </groupfooter>
+    </group>
+    <group name="PRODUCTNAME">
+      <fields>
+        <field>PRODUCTLINE</field>
+        <field>PRODUCTNAME</field>
+      </fields>
+      <groupheader name="PRODUCTNAMEGroupHeader" repeat="false" pagebreak-before-print="false" pagebreak-after-print="false" color="#767676" fontname="Arial" fontsize="12" fontstyle="bold" height="37">
+        <rectangle color="#FFFFFF" draw="false" fill="false" height="17" width="100%" x="0%" y="0"/>
+        <string-field fieldname="PRODUCTNAME" height="17" vertical-alignment="middle" alignment="left" width="100%" x="0%" y="0" nullstring="-">Product Name: $(PRODUCTNAME)</string-field>
+        <rectangle color="#9eaa36" draw="false" fill="true" height="18" width="100%" x="0%" y="18"/>
+        <rectangle draw="false" fill="false" height="1" width="100%" x="0%" y="17"/>
+        <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="left" width="30.0%" x="20.0%" y="18">Customer Name</label>
+        <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="left" width="25.0%" x="50.0%" y="18">Order Date</label>
+        <label color="#ffffff" fontname="Arial" fontsize="10" fontstyle="plain" height="18" vertical-alignment="middle" alignment="right" width="25.0%" x="75.0%" y="18">Sold Price</label>
+      </groupheader>
+      <groupfooter name="PRODUCTNAMEGroupFooter" color="#ff7d17" fontname="Arial" fontsize="12" fontstyle="bold" pagebreak-before-print="false" pagebreak-after-print="false">
+        <rectangle color="#ffffff" draw="false" fill="false" height="40" width="100%" y="1" x="0%"/>
+        <number-field fieldname="PRODUCTNAMESOLD_PRICEExpression" height="16" vertical-alignment="top" alignment="right" width="50.0%" x="50.0%" y="2"/>
+        <message-field height="16" x="0%" width="50.0%" y="2" alignment="left" vertical-alignment="top">$(PRODUCTNAME) Total</message-field>
+      </groupfooter>
+    </group>
+  </groups>
+</report>

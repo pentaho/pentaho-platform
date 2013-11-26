@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>DepartmentsForRegion.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+    <visible>false</visible>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>none</result-type>  
+    <icon>CurrentPositionTitles.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <REGION type="string"> 
+      <default-value>Central</default-value>  
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION> 
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform SQL Query</action-type>
+      <action-inputs> 
+        <REGION type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct DEPARTMENT from QUADRANT_ACTUALS where REGION={PREPARE:REGION} order by DEPARTMENT]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

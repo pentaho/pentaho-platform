@@ -12,13 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.services.importexport;
 
 /**
  * Handles the import process for a specific content type
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public interface ImportHandler {
@@ -28,18 +30,22 @@ public interface ImportHandler {
   public String getName();
 
   /**
-   * Processes the list of files and performs any processing required to import that data into the repository. If
-   * during processing it handles file(s) which should not be handled by downstream import handlers, then it
-   * should remove them from the set of files provided.
-   *
-   * @param importFileSet   the set of files to be imported - any files handled to completion by this Import Handler
-   *                        should remove this files from this list
-   * @param destinationPath the requested destination location in the repository
-   * @param comment         the import comment provided
-   * @param overwrite       indicates if the process is authorized to overwrite existing content in the repository
-   * @throws ImportException indicates a significant error during import processing
+   * Processes the list of files and performs any processing required to import that data into the repository. If during
+   * processing it handles file(s) which should not be handled by downstream import handlers, then it should remove them
+   * from the set of files provided.
+   * 
+   * @param importFileSet
+   *          the set of files to be imported - any files handled to completion by this Import Handler should remove
+   *          this files from this list
+   * @param destinationPath
+   *          the requested destination location in the repository
+   * @param comment
+   *          the import comment provided
+   * @param overwrite
+   *          indicates if the process is authorized to overwrite existing content in the repository
+   * @throws ImportException
+   *           indicates a significant error during import processing
    */
-  public void doImport(final Iterable<ImportSource.IRepositoryFileBundle> importFileSet,
-                       final String destinationPath, final String comment, final boolean overwrite)
-      throws ImportException;
+  public void doImport( final Iterable<ImportSource.IRepositoryFileBundle> importFileSet, final String destinationPath,
+      final String comment, final boolean overwrite ) throws ImportException;
 }

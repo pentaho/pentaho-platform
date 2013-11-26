@@ -1,31 +1,27 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU General Public License, version 2 as published by the Free Software 
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html 
- * or from the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2005 - 2008 Pentaho Corporation.  All rights reserved. 
- * 
- * @created Jul 11, 2005 
- * @author James Dixon
- * 
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services.actionsequence;
 
+import org.pentaho.platform.api.engine.IOutputDef;
+
 import java.io.OutputStream;
 import java.util.List;
-
-import org.pentaho.platform.api.engine.IOutputDef;
 
 public class OutputDef implements IOutputDef {
 
@@ -37,21 +33,21 @@ public class OutputDef implements IOutputDef {
 
   private Object value;
 
-  public OutputDef(final String name, final OutputStream outputStream) {
+  public OutputDef( final String name, final OutputStream outputStream ) {
     this.name = name;
     isList = false;
     type = "content"; //$NON-NLS-1$
     value = outputStream;
   }
 
-  public OutputDef(final String name, final List list) {
+  public OutputDef( final String name, final List list ) {
     this.name = name;
     isList = true;
     type = "list"; //$NON-NLS-1$
     value = list;
   }
 
-  public OutputDef(final String name, final String type) {
+  public OutputDef( final String name, final String type ) {
     this.name = name;
     this.type = type;
     isList = false;
@@ -90,8 +86,8 @@ public class OutputDef implements IOutputDef {
    * 
    * @see org.pentaho.core.solution.IOutputDef#setValue(java.lang.Object)
    */
-  public void setValue(final Object value) {
-    if (!"content".equals(type) && !"list".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+  public void setValue( final Object value ) {
+    if ( !"content".equals( type ) && !"list".equals( type ) ) { //$NON-NLS-1$ //$NON-NLS-2$
       this.value = value;
     }
   }
@@ -103,15 +99,15 @@ public class OutputDef implements IOutputDef {
    */
   public OutputStream getOutputStream() {
     // TODO Auto-generated method stub
-    if ("content".equals(type)) { //$NON-NLS-1$
+    if ( "content".equals( type ) ) { //$NON-NLS-1$
       return (OutputStream) value;
     }
     return null;
   }
 
-  public void addToList(final Object listItem) {
-    if ("list".equals(type)) { //$NON-NLS-1$
-      ((List) value).add(listItem);
+  public void addToList( final Object listItem ) {
+    if ( "list".equals( type ) ) { //$NON-NLS-1$
+      ( (List) value ).add( listItem );
     }
   }
 

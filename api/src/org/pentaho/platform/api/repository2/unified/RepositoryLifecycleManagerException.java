@@ -12,30 +12,32 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.api.repository2.unified;
 
 /**
  * Exception thrown from a {@link IBackingRepositoryLifecycleManager} method that fails
  */
 public class RepositoryLifecycleManagerException extends RuntimeException {
-    
+
   private static final long serialVersionUID = -8568973306515692541L;
 
   public RepositoryLifecycleManagerException() {
     super();
   }
 
-  public RepositoryLifecycleManagerException(final String message) {
-    super(message);
+  public RepositoryLifecycleManagerException( final String message ) {
+    super( message );
   }
 
-  public RepositoryLifecycleManagerException(final String message, final Throwable cause) {
-    super(message, cause);
+  public RepositoryLifecycleManagerException( final String message, final Throwable cause ) {
+    super( message, cause );
   }
 
-  public RepositoryLifecycleManagerException(final Throwable cause) {
-    super(cause);
+  public RepositoryLifecycleManagerException( final Throwable cause ) {
+    super( cause );
   }
 }

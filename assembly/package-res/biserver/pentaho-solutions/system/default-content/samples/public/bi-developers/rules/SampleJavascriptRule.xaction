@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>SampleJavascriptRule.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>%description</description>  
+    <icon>SampleJavascriptRule.png</icon>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <rule-result> 
+      <type>string</type> 
+    </rule-result> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript To Return Central Region</action-type>
+      <action-outputs> 
+        <rule-result type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+			      function region() { 
+				    return "Central";
+			    } 
+			    region(); 
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

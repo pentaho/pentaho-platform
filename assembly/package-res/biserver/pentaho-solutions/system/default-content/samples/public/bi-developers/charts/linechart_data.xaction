@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Line Chart Data</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description/>  
+    <help/>  
+    <result-type>none</result-type> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <!-- Define an input called 'REGION'. This will be passed in when the user clicks on a slice of the pie chart -->  
+  <!-- Define an output called 'rule-result' -->  
+  <!-- This action sequence does not require any external resources -->  
+  <actions> 
+    <action-definition> 
+      <!-- Define a local input called 'REGION' -->  
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Data</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <!-- Define the datasource for the query -->  
+        <jndi>SampleData</jndi>  
+        <source>sql</source>  
+        <!-- Define the query to execute. Note the parameter {REGION} in the query -->  
+        <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE AS LINE,
+     SUM(CASE ORDERFACT.YEAR_ID WHEN '2003' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "2003",
+     SUM(CASE ORDERFACT.YEAR_ID WHEN '2004' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "2004",
+     SUM(CASE ORDERFACT.YEAR_ID WHEN '2005' THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "2005"
+FROM
+     PRODUCTS INNER JOIN ORDERFACT ON PRODUCTS.PRODUCTCODE = ORDERFACT.PRODUCTCODE
+     INNER JOIN CUSTOMER_W_TER ON ORDERFACT.CUSTOMERNUMBER = CUSTOMER_W_TER.CUSTOMERNUMBER GROUP BY
+     LINE
+ORDER BY
+     2 DESC]]></query> 
+      </component-definition>  
+      <!-- Define a local output called 'rule-result' -->  
+      <!-- Specify the component to execute -->  
+      <!-- Define the settings for the component --> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

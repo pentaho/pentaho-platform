@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>order_detail.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <visible>false</visible>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>%description</description>  
+    <icon>orders.png</icon>  
+    <help/>  
+    <result-type>none</result-type>
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>  
+    <customernumber type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>customernumber</request> 
+      </sources> 
+    </customernumber>  
+    <time_start type="string"> 
+      <sources> 
+        <request>time_start</request> 
+      </sources>  
+      <default-value>2005-01-01</default-value> 
+    </time_start>  
+    <time_stop type="string"> 
+      <sources> 
+        <request>time_stop</request> 
+      </sources>  
+      <default-value>05-01-2005</default-value> 
+    </time_stop> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default --> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition1> 
+      <solution-file> 
+        <location>order_detail.xml</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </report-definition1> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data</action-type>
+      <action-inputs> 
+        <customernumber type="string"/>  
+        <time_stop type="string"/>  
+        <time_start type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT CUSTOMERS.CUSTOMERNAME, CUSTOMERS.ADDRESSLINE1, CUSTOMERS.ADDRESSLINE2, CUSTOMERS.CITY, CUSTOMERS.STATE, CUSTOMERS.PHONE, ORDERS.STATUS, ORDERS.SHIPPEDDATE, ORDERS.CUSTOMERNUMBER, ORDERS.ORDERNUMBER, ORDERS.ORDERDATE, ORDERDETAILS.ORDERLINENUMBER, PRODUCTS.PRODUCTNAME, ORDERDETAILS.QUANTITYORDERED,  ORDERDETAILS.PRODUCTCODE, ORDERDETAILS.PRICEEACH, PRODUCTS.QUANTITYINSTOCK FROM ORDERS, ORDERDETAILS, PRODUCTS, CUSTOMERS WHERE ( ORDERDATE >= {PREPARE:time_start}  AND ORDERDATE <= {PREPARE:time_stop} )  AND ORDERS.CUSTOMERNUMBER = {PREPARE:customernumber} AND ( ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER AND PRODUCTS.PRODUCTCODE = ORDERDETAILS.PRODUCTCODE AND ORDERS.CUSTOMERNUMBER = CUSTOMERS.CUSTOMERNUMBER ) ORDER BY CUSTOMERS.CUSTOMERNAME ASC, ORDERS.ORDERNUMBER ASC, ORDERDETAILS.ORDERLINENUMBER ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Run Pentaho Report</action-type>
+      <action-inputs> 
+        <time_start type="string"/>  
+        <time_stop type="string"/>  
+        <data type="result-set" mapping="query-result"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource" mapping="report-definition1"/> 
+      </action-resources>
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

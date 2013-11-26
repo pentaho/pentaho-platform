@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:47 EDT 2013
+file.title=Column Formatting Example
+title=Quad_Column_Format
+file.description=This Report-Spec API example uses passed-in column formatting

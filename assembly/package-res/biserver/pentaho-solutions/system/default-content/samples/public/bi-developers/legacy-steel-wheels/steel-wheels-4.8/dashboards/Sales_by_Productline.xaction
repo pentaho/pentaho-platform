@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>Sales_by_Productline.xaction</name>
+  <title>06. SALES BY PRODUCTLINE</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>List of Product Lines sorted by Sales. Select date range (Jan 2003 through May 2005). Includes chart.</description>  
+    <icon>slsprdln.png</icon>  
+    <help/>  
+    <result-type>none</result-type> 
+  </documentation>
+
+  <inputs> 
+    <TERRITORY type="string"> 
+      <sources> 
+        <request>TERRITORY</request> 
+      </sources>  
+      <default-value>NULL</default-value> 
+    </TERRITORY> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default -->  
+    <swresult type="result-set"/> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report --> 
+  </resources>
+  
+  <visible>false</visible>  
+  <actions> 
+    <actions> 
+      <condition><![CDATA[TERRITORY == "NULL"]]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>SQL Query</action-type>
+        <action-inputs/>
+        <action-outputs> 
+          <query-result type="result-set" mapping="swresult"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi>SampleData</jndi>  
+          <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE, SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) REVENUE FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN PRODUCTS ON ORDERDETAILS.PRODUCTCODE =PRODUCTS.PRODUCTCODE  INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER  INNER JOIN EMPLOYEES ON CUSTOMERS.SALESREPEMPLOYEENUMBER = EMPLOYEES.EMPLOYEENUMBER INNER JOIN OFFICES ON EMPLOYEES.OFFICECODE=OFFICES.OFFICECODE GROUP BY PRODUCTS.PRODUCTLINE ORDER BY 2 DESC]]></query> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query</action-type>
+      <action-inputs> 
+        <TERRITORY type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="swresult"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE, SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) REVENUE FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN PRODUCTS ON ORDERDETAILS.PRODUCTCODE =PRODUCTS.PRODUCTCODE  INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER  INNER JOIN EMPLOYEES ON CUSTOMERS.SALESREPEMPLOYEENUMBER = EMPLOYEES.EMPLOYEENUMBER INNER JOIN OFFICES ON EMPLOYEES.OFFICECODE=OFFICES.OFFICECODE WHERE TERRITORY={PREPARE:TERRITORY} GROUP BY PRODUCTS.PRODUCTLINE ORDER BY 2 DESC]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

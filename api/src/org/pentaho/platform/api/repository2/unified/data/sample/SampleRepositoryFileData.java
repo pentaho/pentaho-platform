@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -11,7 +11,10 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.api.repository2.unified.data.sample;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -23,11 +26,13 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
  */
 public class SampleRepositoryFileData implements IRepositoryFileData {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final long serialVersionUID = 8243282317105073909L;
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private String sampleString;
 
@@ -35,16 +40,18 @@ public class SampleRepositoryFileData implements IRepositoryFileData {
 
   private int sampleInteger;
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
-  public SampleRepositoryFileData(final String sampleString, final boolean sampleBoolean, final int sampleInteger) {
+  public SampleRepositoryFileData( final String sampleString, final boolean sampleBoolean, final int sampleInteger ) {
     super();
     this.sampleString = sampleString;
     this.sampleBoolean = sampleBoolean;
     this.sampleInteger = sampleInteger;
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   public String getSampleString() {
     return sampleString;
@@ -58,7 +65,9 @@ public class SampleRepositoryFileData implements IRepositoryFileData {
     return sampleInteger;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.platform.api.repository2.unified.IRepositoryFileData#getDataSize()
    */
   public long getDataSize() {

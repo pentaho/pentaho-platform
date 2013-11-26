@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>HQL_Datasource.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>Use Hibernate as a datasource</description>  
+    <icon>SQL_Datasource.png</icon>  
+    <help>Runs a hibernate query that returns data from the pro_files table</help>
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+    <dbtype type="string">
+      <default-value>default</default-value> 
+      <sources> 
+        <request>dbtype</request> 
+      </sources> 
+    </dbtype>
+    <db_filter type="string-list"> 
+      <sources/>  
+      <default-value type="string-list"> 
+        <list-item>HSQLDB</list-item>  
+        <list-item>MySQL</list-item>  
+        <list-item>PostgreSQL</list-item>  
+        <list-item>Oracle</list-item> 
+      </default-value> 
+    </db_filter>
+
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources> 
+    <hibernateConfig> 
+      <solution-file> 
+        <location>HQL_Datasource_{dbtype}.cfg.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </hibernateConfig> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt For DB Type</action-type>
+      <action-inputs> 
+        <dbtype type="string"/>
+        <db_filter type="string-list"/>  
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <selections> 
+          <dbtype> 
+            <title>Choose Repo Type.</title>  
+            <filter>db_filter</filter> 
+          </dbtype> 
+        </selections>
+      </component-definition> 
+    </action-definition>
+    
+    <action-definition> 
+      <component-name>HQLLookupRule</component-name>
+      <action-type>HQL For Report Data</action-type>
+      <action-inputs> 
+        <dbtype type="string"/>  
+      </action-inputs>
+      <hibernateConfig> 
+        <catalog type="resource"/> 
+      </hibernateConfig>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <!-- classNames>org.pentaho.platform.repository.content.BackgroundExecutedContentId</classNames -->  
+        <classNames></classNames>  
+        <query><![CDATA[select fileName as SolutionFolderName, fullPath as FullPath from org.pentaho.platform.repository.solution.dbbased.RepositoryFile where directory = true order by fileName]]></query>  
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

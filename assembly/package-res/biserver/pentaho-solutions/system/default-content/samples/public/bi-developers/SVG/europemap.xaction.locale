@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=European Map
+title=europemap
+file.description=example of using an SVG template and a datasource to create a graphical representation of data. <p/>To see this you need to use Firefox 1.5, Opera 8, or the Adobe SVG viewer plug-in for Microsoft IE.

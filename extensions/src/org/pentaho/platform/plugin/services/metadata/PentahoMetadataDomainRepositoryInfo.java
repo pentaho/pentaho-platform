@@ -12,8 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.services.metadata;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -21,13 +23,13 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
 /**
  * Contains information about how and where metadata information is stored in the {@code }IUnifiedRepository}
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepositoryInfo {
   /**
-   * The name of the folder in which Pentaho Metadata should be stored (appended to the proper path for
-   * each tenant) - the value is {@value}
+   * The name of the folder in which Pentaho Metadata should be stored (appended to the proper path for each tenant) -
+   * the value is {@value}
    */
   private static final String METADATA_FOLDER_NAME = "metadata";
 

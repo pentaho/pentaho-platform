@@ -1,0 +1,80 @@
+<action-sequence>
+
+	<name>Example1.xaction</name>
+	<version>1</version>
+	<title>Rule and Email</title>
+	<logging-level>debug</logging-level>
+
+	<documentation>
+		<author>Admin Pentaho</author>
+		<description>Call a JavaScript rule to determine the email address of the passed in region and send an email to that manager</description>
+		<help>This is an Example Action Sequence</help>
+	</documentation>
+
+	<inputs>	
+		<region type="string">
+		  <default-value>Central</default-value>
+			<sources>
+				<request>REGION</request>
+				<session>aRegion</session>
+			</sources>			
+		</region>
+
+		<from type="string">
+		  <default-value>joe.pentaho@pentaho.org</default-value>
+		</from>
+		
+		<subject type="string">
+		  <default-value>Pentaho Example1</default-value>
+		</subject>
+		
+		<message-plain type="string">
+		  <default-value>This is an email from the Pentaho BI Platform - Example1</default-value>
+		</message-plain>
+  </inputs>
+  
+	<outputs/>
+
+  <resources/>
+  
+  <actions>
+      <action-definition>
+        <action-inputs>
+          <region type="string"/>
+        </action-inputs>
+        
+        <action-outputs>
+          <rule-result type="string"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      function getManagersEmail( theRegion ) { 
+			        
+			        if ( "Central".equals( theRegion ) ) {
+			          return( "joe.pentaho@pentaho.org" );
+			        }
+			        return( "jose.pentaho@pentaho.org" );
+			      }
+
+			      getManagersEmail( region );
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+        
+      <action-definition>
+        <action-inputs>
+          <to type="string" mapping="rule-result"/>
+          <from type="string"/>
+          <subject type="string"/>
+          <message-plain type="string"/>
+        </action-inputs>
+        <component-name>EmailComponent</component-name>
+      	<component-definition/>
+      </action-definition>
+        
+  </actions>
+</action-sequence>
+

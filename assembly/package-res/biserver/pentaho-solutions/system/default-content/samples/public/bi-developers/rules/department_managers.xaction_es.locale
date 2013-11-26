@@ -1,0 +1,4 @@
+#Locale = es
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Jefes por Departamentos
+file.description=Esta regla usa una consulta de base de datos para determinar los jefes de cada regi\u00F3n<p>Esta regla es usada en los Ejemplos Bursting. Vea el  Quick Start Guide para ver c\u00F3mo personalizar estos datos.

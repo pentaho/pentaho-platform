@@ -13,6 +13,7 @@
       <list>
         <bean id="kettleSystemListener" class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener" />
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
+        <bean class="org.pentaho.platform.plugin.services.security.userrole.SecuritySystemListener"/>
         <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
 
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />

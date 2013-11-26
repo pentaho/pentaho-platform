@@ -1,14 +1,14 @@
 .mantle-perspective-toggle {
-	color: #303030;
-	padding: 4px 5px 3px 5px;
-	cursor: pointer;
-	cursor: hand;
-	white-space: nowrap;
+  color: #303030;
+  padding: 4px 5px 3px 5px;
+  cursor: pointer;
+  cursor: hand;
+  white-space: nowrap;
   border-top: 2px solid transparent;
 }
 
 .mantle-perspective-toggle-up {
-	color: #303030;
+  color: #303030;
 }
 
 .mantle-perspective-toggle-up-disabled {
@@ -16,32 +16,33 @@
 }
 
 .mantle-perspective-toggle-up-hovering {
-	color: #303030;
+  color: #303030;
 }
 
 .mantle-perspective-toggle-down {
   border-top: 2px solid #fe700f;
-	color: black;
+  color: black;
 }
 
 .mantle-perspective-toggle-down-hovering {
   border-top: 2px solid #fe700f;
-	color: black;
+  color: black;
 }
 
 #mainMenubar {
 }
 
 .mantle-perspective-switcher {
-	height: 28px;
+  height: 28px;
 }
 
-.puc-logo{
-    background: url('images/logo.png') no-repeat center center;
+.puc-logo {
+  background: url('images/logo.png') no-repeat center center;
 }
-.puc-logo-spacer{
-    width: 152px;
-    height: 75px;
+
+.puc-logo-spacer {
+  width: 152px;
+  height: 75px;
 }
 
 .launchButtonPanel {
@@ -59,7 +60,7 @@
 
 .reportParameterDisclosurePanel {
   background-color: #d8d8d8;
-  border-bottom:1px solid #848484;
+  border-bottom: 1px solid #848484;
 }
 
 .errorLabel {
@@ -76,21 +77,21 @@
 }
 
 .solutionDisclosureHeaderWidget {
-  background-color:#EEEEEE;
-  border:5px solid #EEEEEE;
-  color:#778645;
+  background-color: #EEEEEE;
+  border: 5px solid #EEEEEE;
+  color: #778645;
 }
 
 .solutionDisclosureHeaderWidgetHover {
-  background-color:#DDDDDD;
-  border:5px solid #DDDDDD; 
-  color:#EF6507;
+  background-color: #DDDDDD;
+  border: 5px solid #DDDDDD;
+  color: #EF6507;
 }
 
 .solutionDisclosureWidget {
-  background-color:#EEEEEE;
-  border:1px solid #808080;
-  color:#778645;
+  background-color: #EEEEEE;
+  border: 1px solid #808080;
+  color: #778645;
 }
 
 .classicNavigatorTable {
@@ -98,13 +99,13 @@
 }
 
 .classicNavigatorTableCell {
- border-bottom: 1px solid #808080;
+  border-bottom: 1px solid #808080;
 }
 
 .classicNavigatorTableHeader {
- background-color: #C2CFA2;
- color: black;
- border: 1px solid #808080;
+  background-color: #C2CFA2;
+  color: black;
+  border: 1px solid #808080;
 }
 
 .classicNavigatorFileLabelHover {
@@ -128,17 +129,17 @@
 }
 
 .hiddenFileLabel {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #ffffff;
+  width: 100%;
+  opacity: .7;
+  font-style: italic;
+  background-color: #ffffff;
 }
 
 .hiddenFileLabelSelected {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #DBDBDB;
+  width: 100%;
+  opacity: .7;
+  font-style: italic;
+  background-color: #DBDBDB;
 }
 
 .fileLabel {
@@ -149,16 +150,14 @@
   background-color: #DBDBDB;
 }
 
-
 .permissionsTable {
   border: 1px solid #7f9db9;
 }
 
-
 .filesPanelMenuLabel {
   background-color: #d8d8d8;
   background-image: url(../../images/subtoolbar_bg.png);
-  background-position:center;
+  background-position: center;
   background-repeat: repeat-x;
   border-bottom-width: 1px;
   border-bottom-style: solid;
@@ -172,15 +171,15 @@
   border-bottom-style: solid;
   border-bottom-color: #848484;
   background-repeat: repeat-x;
-  background-position:center;
+  background-position: center;
 }
 
 .mantle-default-tab-background {
-	background-color: transparent;
+  background-color: transparent;
 }
 
 .mantle-white-tab-background {
-	background-color: white;
+  background-color: white;
 }
 
 .mainToolbar {
@@ -193,15 +192,14 @@
 }
 
 .puc-horizontal-split-panel .hsplitter {
- background-color: rgba(70, 70, 70, 0.2); /*#c5c5c5;*/
- border-bottom: 1px solid #848484;
- border-top: 1px solid #848484; 
- border-right: 1px solid #848484;
+  background-color: rgba(70, 70, 70, 0.2); /*#c5c5c5;*/
+  border-bottom: 1px solid #848484;
+  border-top: 1px solid #848484;
+  border-right: 1px solid #848484;
 }
 
-.puc-vertical-split-panel .vsplitter
-{
- border-top: 1px solid #848484;
+.puc-vertical-split-panel .vsplitter {
+  border-top: 1px solid #848484;
 }
 
 .puc-horizontal-split-panel .left {
@@ -210,7 +208,6 @@
 
 .puc-vertical-split-panel {
 }
-
 
 #loading {
   background: white;
@@ -238,11 +235,11 @@
 }
 
 a, a:visited {
-  color:#ef8033;
+  color: #ef8033;
 }
 
 a:active, a:hover {
-  color:#949e3e;
+  color: #949e3e;
 }
 
 .filePropertyTabContent {
@@ -255,97 +252,91 @@ a:active, a:hover {
   background: white;
 }
 
-
 .backgroundContentAction {
   color: blue;
   font-size: 13px;
 }
 
 .backgroundContentTable {
-	background:  #848484;
- font-size: 13px;
+  background: #848484;
+  font-size: 13px;
 }
 
 .backgroundContentHeaderTableCell {
- background: #c7c8c9;
+  background: #c7c8c9;
   /* Safari/Chrome */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e5e5 ), color-stop(0.50, #e6e5e5), color-stop(0.51, #c7c8c9),color-stop(0.90, #d8d8d8));
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e5e5), color-stop(0.50, #e6e5e5), color-stop(0.51, #c7c8c9), color-stop(0.90, #d8d8d8));
   /* Firefox */
   background: -moz-linear-gradient(#e0e0e0, #e6e5e5 50%, #d4d4d4 51%, #e6e5e5 90%) repeat scroll 0 0 transparent;
 
-  background: -webkit-linear-gradient(top, #e0e0e0 0%,#e6e5e5 51%,#d4d4d4  100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #e0e0e00%,#e6e5e551%,#d4d4d4 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #e0e0e0 0%,#e6e5e5 51%,#d4d4d4 100%); /* IE10+ */
-  background: linear-gradient(top, #e0e0e0 0%,#e6e5e551%,#d4d4d4  100%); /* W3C */
+  background: -webkit-linear-gradient(top, #e0e0e0 0%, #e6e5e5 51%, #d4d4d4 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #e0e0e00%, #e6e5e551%, #d4d4d4 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #e0e0e0 0%, #e6e5e5 51%, #d4d4d4 100%); /* IE10+ */
+  background: linear-gradient(top, #e0e0e0 0%, #e6e5e551%, #d4d4d4 100%); /* W3C */
 }
 
 .backgroundContentHeaderTableCell .gwt-Label {
-	color: black;
+  color: black;
 }
 
 .backgroundContentHeaderTableCellRight {
- background: #c7c8c9;
+  background: #c7c8c9;
   /* Safari/Chrome */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e5e5 ), color-stop(0.50, #e6e5e5), color-stop(0.51, #c7c8c9),color-stop(0.90, #d8d8d8));
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e5e5), color-stop(0.50, #e6e5e5), color-stop(0.51, #c7c8c9), color-stop(0.90, #d8d8d8));
   /* Firefox */
   background: -moz-linear-gradient(#e0e0e0, #e6e5e5 50%, #d4d4d4 51%, #e6e5e5 90%) repeat scroll 0 0 transparent;
 
-  background: -webkit-linear-gradient(top, #e0e0e0 0%,#e6e5e5 51%,#d4d4d4  100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #e0e0e00%,#e6e5e551%,#d4d4d4 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #e0e0e0 0%,#e6e5e5 51%,#d4d4d4 100%); /* IE10+ */
-  background: linear-gradient(top, #e0e0e0 0%,#e6e5e551%,#d4d4d4  100%); /* W3C */
- 
+  background: -webkit-linear-gradient(top, #e0e0e0 0%, #e6e5e5 51%, #d4d4d4 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #e0e0e00%, #e6e5e551%, #d4d4d4 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #e0e0e0 0%, #e6e5e5 51%, #d4d4d4 100%); /* IE10+ */
+  background: linear-gradient(top, #e0e0e0 0%, #e6e5e551%, #d4d4d4 100%); /* W3C */
+
 }
 
 .backgroundContentHeaderTableCellRight .gwt-Label {
-	color: black;
+  color: black;
 }
 
-
 .backgroundContentTableCell {
- background-color: white;
+  background-color: white;
 }
 
 .backgroundContentTableCellRight {
- background-color: white;
+  background-color: white;
 }
 
 .backgroundContentTableCellBottom {
- background-color: white;
+  background-color: white;
 }
 
 .backgroundContentTableCellBottomRight {
- background-color: white;
+  background-color: white;
 }
 
-
-
-
-
 .gwt-Button {
-   background-image: expression('url(buttonbg.gif)');
-   background-image:url(../../buttonbg.gif);
-   font-weight: plain;
-   border-style:solid;
-   border-color:#000000;
-   border-width:1px;
+  background-image: expression('url(buttonbg.gif)');
+  background-image: url(../../buttonbg.gif);
+  font-weight: plain;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
 }
 
 .gwt-Button:hover {
-   background-image:url(../../buttonhoverbg.gif);
-   background-image: expression('url(buttonhoverbg.gif)');
-   font-weight: plain;
-   border-style:solid;
-   border-color:#000000;
-   border-width:1px;
+  background-image: url(../../buttonhoverbg.gif);
+  background-image: expression('url(buttonhoverbg.gif)');
+  font-weight: plain;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
 }
 
 .gwt-Button:disabled {
-   background-image:url(../../buttonbg.gif);
-   background-image: expression('url(buttonbg.gif)');
-   border-style:solid;
-   border-color:#c0c0c0;
-   border-width:1px;
+  background-image: url(../../buttonbg.gif);
+  background-image: expression('url(buttonbg.gif)');
+  border-style: solid;
+  border-color: #c0c0c0;
+  border-width: 1px;
 }
 
 .gwt-Canvas {
@@ -360,7 +351,7 @@ a:active, a:hover {
 
 .dialogContentPanel {
   background-color: #e8eefa;
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .viewContentDialogBox {
@@ -379,32 +370,32 @@ a:active, a:hover {
   font-weight: normal;
   font-size: 13px;
 }
-	
+
 .gwt-FileUpload {
 }
 
 .gwt-StyledFileUpload {
- position: absolute; 
- font-size: 45px;
- right: 0px; 
- top: 0px;
- opacity: 0; 
+  position: absolute;
+  font-size: 45px;
+  right: 0px;
+  top: 0px;
+  opacity: 0;
 
- filter: alpha(opacity=0); 
- -ms-filter: alpha(opacity=0); 
- -khtml-opacity: 0; 
- -moz-opacity: 0;
+  filter: alpha(opacity=0);
+  -ms-filter: alpha(opacity=0);
+  -khtml-opacity: 0;
+  -moz-opacity: 0;
 }
 
 .gwt_file_upload_hidden_div {
-  position: relative; 
+  position: relative;
   overflow: hidden;
 }
 
 .gwt-Frame {
   border: none;
-  overflow:visible; 
-  width:100%; 
+  overflow: visible;
+  width: 100%;
 }
 
 .workspace-resource-link {
@@ -419,21 +410,21 @@ a:active, a:hover {
 }
 
 .workspacePanel {
-	background-color: #D3D3D3;
+  background-color: #D3D3D3;
 }
 
 .workspaceDisclosureContentWrapper {
-	background-color: #9f9f9f;
-	border: 1px solid black;
+  background-color: #9f9f9f;
+  border: 1px solid black;
 }
 
 .IE .workspaceDisclosureContentWrapper {
-	background-color: #9f9f9f;
-	border: 0px solid transparent;
+  background-color: #9f9f9f;
+  border: 0px solid transparent;
 }
 
 .workspaceMessage {
-	font-size: 13px;
+  font-size: 13px;
 }
 
 .gwt-TextBox-readonly {
@@ -443,7 +434,6 @@ a:active, a:hover {
 .gwt-Tree {
   background: white;
 }
-
 
 .gwt-Tree .gwt-TreeItem-selected {
   background-color: #DDDDDD;
@@ -589,56 +579,63 @@ a:active, a:hover {
   border-bottom: 2px solid #848280;
   background-color: #efebe7;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-line {
   border: 1px solid black;
   background-color: white;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-tick {
   background: black;
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-label {
   font-size: 8pt;
 }
+
 .gwt-SliderBar-shell-focused {
 }
+
 .gwt-SliderBar-shell .gwt-SliderBar-line-sliding {
   background-color: #DDDDDD;
 }
 
-.files-list-panel{
+.files-list-panel {
   background: white;
   border: 1px solid black;
 }
-.files-toolbar{
+
+.files-toolbar {
   border: 1px solid #aaaaaa;
 }
 
-.folder-list-panel{
+.folder-list-panel {
   border: 1px solid black;
 }
+
 .puc-navigator-panel {
- background-color:  rgba(70, 70, 70, 0.2); /*#c5c5c5;*/
- border-bottom: 1px solid #848484;
- border-top: 1px solid #848484;
+  background-color: rgba(70, 70, 70, 0.2); /*#c5c5c5;*/
+  border-bottom: 1px solid #848484;
+  border-top: 1px solid #848484;
 }
 
-.mantle-toolbar-combo-button-hovering{
+.mantle-toolbar-combo-button-hovering {
   background-color: #d0d0d0;
   cursor: pointer;
 }
 
-.fileItemDragProxy{
+.fileItemDragProxy {
   opacity: 0.85;
   filter: alpha(opacity=85);
   border: 1px dashed #999 !important;
   background: transparent;
 }
 
-#solutionTree .gwt-TreeItem{
+#solutionTree .gwt-TreeItem {
   font-size: 13px;
 }
 
-#solutionTree .gwt-TreeItem-selected{
+#solutionTree .gwt-TreeItem-selected {
   font-size: 13px;
   background-color: #dbdbdb;
 }
@@ -649,7 +646,6 @@ a:active, a:hover {
 .gwt-MenuItem-checkbox-checked,
 .disabledMenuItem {
 }
-
 
 /*
  fix for toolbar buttons not supporting transparency in IE,
@@ -667,57 +663,67 @@ a:active, a:hover {
   margin: 0px;
 }
 
-.mainToolbar-Wrapper{
+.mainToolbar-Wrapper {
   padding: 1px 6px 4px 6px;
 }
 
 #mainToolbar .toolbar-toggle-button-down,
 #mainToolbar .toolbar-button-down {
- border: 1px solid #848484;
- background: #ccc;
+  border: 1px solid #848484;
+  background: #ccc;
 }
+
 #mainToolbar .toolbar-toggle-button-hovering,
-#mainToolbar .toolbar-button-hovering{
- border: 1px solid #a2a2a2;
- background: #ccc;
+#mainToolbar .toolbar-button-hovering {
+  border: 1px solid #a2a2a2;
+  background: #ccc;
 }
-#main_toolbar{
-	color: black;
+
+#main_toolbar {
+  color: black;
 }
 
 /*========== Launch Page Styles ================= */
 #outterWrapper {
- padding: 0px; margin-top: 0px; display:inline-block;
+  padding: 0px;
+  margin-top: 0px;
+  display: inline-block;
 }
+
 .largeGraphicButton {
- padding: 22px 0 8px 0px;
+  padding: 22px 0 8px 0px;
 }
+
 .largeGraphicSpacer {
- background-image: url('images/seperator_vert.png');
+  background-image: url('images/seperator_vert.png');
 }
-.smallButton{
- padding: 2px 0 30px 0px;
+
+.smallButton {
+  padding: 2px 0 30px 0px;
 }
-.newDsPanel{
- padding: 10px 0px 10px 10px;
+
+.newDsPanel {
+  padding: 10px 0px 10px 10px;
 }
-.bottomButtonWrapper{
- padding: 20px 20px 0px 57px;
+
+.bottomButtonWrapper {
+  padding: 20px 20px 0px 57px;
 }
-.launcher-bottom-text{
-    color: #000;
-   font-size: 13px;
-   line-height: 1.5;
-   padding: 10px 20px 0 40px;
-   text-align: left;
-   text-shadow: 0 1px 1px #FFF;
+
+.launcher-bottom-text {
+  color: #000;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 20px 0 40px;
+  text-align: left;
+  text-shadow: 0 1px 1px #FFF;
 }
 
 #adminContentPanel {
-	padding-left: 40px;
+  padding-left: 40px;
 }
 
-#adminContentPanel.vbox > tbody > tr > td {  
+#adminContentPanel.vbox > tbody > tr > td {
   height: 100%;
 }
 
@@ -727,26 +733,31 @@ a:active, a:hover {
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #newButton .toolbar-button IMG {
   background: url('../../../content/common-ui/resources/themes/images/new_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #editContentButton .toolbar-toggle-button IMG {
   background: url('../../../content/common-ui/resources/themes/images/editContent_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #editContentButton .toolbar-toggle-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/images/editContent_32_disabled.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #saveButton .toolbar-button IMG {
   background: url('../../../content/common-ui/resources/themes/images/save_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #saveButton .toolbar-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/images/save_32_disabled.png');
   height: 32px;
@@ -758,16 +769,19 @@ a:active, a:hover {
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #saveAsButton .toolbar-button-disabled IMG {
   background: url('../../../content/common-ui/resources/themes/images/saveAs_32_disabled.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #showBrowserButton .toolbar-toggle-button IMG {
   background: url('../../images/browser_hide_32.png');
   height: 32px;
   width: 32px;
 }
+
 #mainToolbar #showBrowserButton .toolbar-toggle-button-down IMG {
   background: url('../../images/browser_show_32.png');
   height: 32px;

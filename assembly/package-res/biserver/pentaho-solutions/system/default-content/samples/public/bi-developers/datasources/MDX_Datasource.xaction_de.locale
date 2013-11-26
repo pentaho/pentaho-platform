@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=MDX Abfrage einer OLAP Datenquelle
+file.description=Diese Regel verwendet eine multidimensionale MDX Abfrage, um 'Ist' und 'Budget' aller Regionen anzuzeigen.<p>  Die Datenquelle ist ein Mondarian OLAP cube.

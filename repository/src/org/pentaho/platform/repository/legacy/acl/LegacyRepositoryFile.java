@@ -1,10 +1,22 @@
-package org.pentaho.platform.repository.legacy.acl;
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+package org.pentaho.platform.repository.legacy.acl;
 
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IFileFilter;
@@ -12,229 +24,232 @@ import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.springframework.util.Assert;
 
-public class LegacyRepositoryFile implements ISolutionFile, IAclHolder,
-		Serializable {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-	private static final long serialVersionUID = -3181545217413101032L;
+public class LegacyRepositoryFile implements ISolutionFile, IAclHolder, Serializable {
 
-	public static final char EXTENSION_CHAR = '.';
+  private static final long serialVersionUID = -3181545217413101032L;
 
-	protected Serializable id;
-	private String fileName;
-	private String fullPath;
-	private long lastModified;
-	private boolean root;
-	private boolean directory;
-	private byte[] data;
-	private String solution;
-	private String solutionPath;
-	protected LegacyRepositoryFile parent;
-	private List<IPentahoAclEntry> accessControls = new ArrayList<IPentahoAclEntry>();
-	private Set childrenFiles = new TreeSet();
+  public static final char EXTENSION_CHAR = '.';
 
-	public LegacyRepositoryFile(String fileName, String fullPath, boolean directory) {
+  protected Serializable id;
+  private String fileName;
+  private String fullPath;
+  private long lastModified;
+  private boolean root;
+  private boolean directory;
+  private byte[] data;
+  private String solution;
+  private String solutionPath;
+  protected LegacyRepositoryFile parent;
+  private List<IPentahoAclEntry> accessControls = new ArrayList<IPentahoAclEntry>();
+  private Set childrenFiles = new TreeSet();
 
-		Assert.notNull(fileName);
-		Assert.notNull(fullPath);
-		Assert.notNull(directory);
+  public LegacyRepositoryFile( String fileName, String fullPath, boolean directory ) {
 
-		this.fileName = fileName;
-		this.fullPath = fullPath;
-		this.directory = directory;
-	}
+    Assert.notNull( fileName );
+    Assert.notNull( fullPath );
+    Assert.notNull( directory );
 
-	@Override
-	public String getFileName() {
-		return fileName;
-	}
+    this.fileName = fileName;
+    this.fullPath = fullPath;
+    this.directory = directory;
+  }
 
-	@Override
-	public String getFullPath() {
-		return fullPath;
-	}
+  @Override
+  public String getFileName() {
+    return fileName;
+  }
 
-	@Override
-	public String getExtension() {
-		return hasExtension() ? fileName.substring(fileName
-				.lastIndexOf(EXTENSION_CHAR)) : ""; //$NON-NLS-1$
-	}
+  @Override
+  public String getFullPath() {
+    return fullPath;
+  }
 
-	@Override
-	public long getLastModified() {
-		return lastModified;
-	}
+  @Override
+  public String getExtension() {
+    return hasExtension() ? fileName.substring( fileName.lastIndexOf( EXTENSION_CHAR ) ) : ""; //$NON-NLS-1$
+  }
 
-	@Override
-	public boolean isDirectory() {
-		return directory;
-	}
+  @Override
+  public long getLastModified() {
+    return lastModified;
+  }
 
-	@Override
-	public boolean isRoot() {
-		return root;
-	}
+  @Override
+  public boolean isDirectory() {
+    return directory;
+  }
 
-	@Override
-	public byte[] getData() {
-		return data;
-	}
+  @Override
+  public boolean isRoot() {
+    return root;
+  }
 
-	@Override
-	public String getSolution() {
-		return solution;
-	}
+  @Override
+  public byte[] getData() {
+    return data;
+  }
 
-	@Override
-	public String getSolutionPath() {
-		return solutionPath;
-	}
+  @Override
+  public String getSolution() {
+    return solution;
+  }
 
-	@Override
-	public List<IPentahoAclEntry> getAccessControls() {
-		return accessControls;
-	}
+  @Override
+  public String getSolutionPath() {
+    return solutionPath;
+  }
 
-	@Override
-	public void resetAccessControls(List<IPentahoAclEntry> arg0) {
-		this.accessControls = new ArrayList<IPentahoAclEntry>();
-	}
+  @Override
+  public List<IPentahoAclEntry> getAccessControls() {
+    return accessControls;
+  }
 
-	@Override
-	public void setAccessControls(List<IPentahoAclEntry> arg0) {
-		this.accessControls = arg0;
-	}
+  @Override
+  public void resetAccessControls( List<IPentahoAclEntry> arg0 ) {
+    this.accessControls = new ArrayList<IPentahoAclEntry>();
+  }
 
-	/**
-	 * Chains up to find the access controls that are in force on this object.
-	 * Could end up chaining all the way to the root.
-	 * 
-	 * <p>
-	 * Note that (1) defining no access control entries of your own and (2)
-	 * removing all of your access control entries is indistiguishable in the
-	 * current design. In #1, we chain up because we inherit. But in #2, it
-	 * might be expected that by explicitly removing all access control entries,
-	 * the chaining up ends. That is not the case in the current design.
-	 * </p>
-	 */
-	@Override
-	public List<IPentahoAclEntry> getEffectiveAccessControls() {
-		List acls = this.getAccessControls();
-		if (acls.size() == 0) {
-			LegacyRepositoryFile chain = this;
-			while (!chain.isRoot() && (acls.size() == 0)) {
-				chain = (LegacyRepositoryFile) chain.retrieveParent();
-				acls = chain.getAccessControls();
-			}
-		}
-		return acls;
-	}
+  @Override
+  public void setAccessControls( List<IPentahoAclEntry> arg0 ) {
+    this.accessControls = arg0;
+  }
 
-	@Override
-	public boolean exists() {
-		return true;
-	}
+  /**
+   * Chains up to find the access controls that are in force on this object. Could end up chaining all the way to
+   * the root.
+   * 
+   * <p>
+   * Note that (1) defining no access control entries of your own and (2) removing all of your access control
+   * entries is indistiguishable in the current design. In #1, we chain up because we inherit. But in #2, it might
+   * be expected that by explicitly removing all access control entries, the chaining up ends. That is not the case
+   * in the current design.
+   * </p>
+   */
+  @Override
+  public List<IPentahoAclEntry> getEffectiveAccessControls() {
+    List acls = this.getAccessControls();
+    if ( acls.size() == 0 ) {
+      LegacyRepositoryFile chain = this;
+      while ( !chain.isRoot() && ( acls.size() == 0 ) ) {
+        chain = (LegacyRepositoryFile) chain.retrieveParent();
+        acls = chain.getAccessControls();
+      }
+    }
+    return acls;
+  }
 
-	@Override
-	public ISolutionFile[] listFiles() {
-		Set<ISolutionFile> files = getChildrenFiles();
-		return files.toArray(new ISolutionFile[] {});
-	}
+  @Override
+  public boolean exists() {
+    return true;
+  }
 
-	@Override
-	public ISolutionFile[] listFiles(IFileFilter filter) {
-		List matchedFiles = new ArrayList();
-		Object[] objArray = getChildrenFiles().toArray();
-		for (Object element : objArray) {
-			if (filter.accept((ISolutionFile) element)) {
-				matchedFiles.add(element);
-			}
-		}
-		return (ISolutionFile[]) matchedFiles.toArray(new ISolutionFile[] {});
-	}
+  @Override
+  public ISolutionFile[] listFiles() {
+    Set<ISolutionFile> files = getChildrenFiles();
+    return files.toArray( new ISolutionFile[] {} );
+  }
 
-	@Override
-	public ISolutionFile retrieveParent() {
-		return parent;
-	}
-	
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
+  @Override
+  public ISolutionFile[] listFiles( IFileFilter filter ) {
+    List matchedFiles = new ArrayList();
+    Object[] objArray = getChildrenFiles().toArray();
+    for ( Object element : objArray ) {
+      if ( filter.accept( (ISolutionFile) element ) ) {
+        matchedFiles.add( element );
+      }
+    }
+    return (ISolutionFile[]) matchedFiles.toArray( new ISolutionFile[] {} );
+  }
 
-	@Override
-	public boolean equals(final Object other) {
-		if (this == other) {
-			return true;
-		}
-		if (!(other instanceof LegacyRepositoryFile)) {
-			return false;
-		}
-		final LegacyRepositoryFile that = (LegacyRepositoryFile) other;
-		return this.getId().equals(that.getId());
-	}
+  @Override
+  public ISolutionFile retrieveParent() {
+    return parent;
+  }
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
 
-	public void setFullPath(String fullPath) {
-		this.fullPath = fullPath;
-	}
+  @Override
+  public boolean equals( final Object other ) {
+    if ( this == other ) {
+      return true;
+    }
+    if ( !( other instanceof LegacyRepositoryFile ) ) {
+      return false;
+    }
+    final LegacyRepositoryFile that = (LegacyRepositoryFile) other;
+    return this.getId().equals( that.getId() );
+  }
 
-	public void setLastModified(long lastModified) {
-		this.lastModified = lastModified;
-	}
+  public void setFileName( String fileName ) {
+    this.fileName = fileName;
+  }
 
-	public void setRoot(boolean root) {
-		this.root = root;
-	}
+  public void setFullPath( String fullPath ) {
+    this.fullPath = fullPath;
+  }
 
-	public void setDirectory(boolean directory) {
-		this.directory = directory;
-	}
+  public void setLastModified( long lastModified ) {
+    this.lastModified = lastModified;
+  }
 
-	public void setData(byte[] data) {
-		this.data = data;
-	}
+  public void setRoot( boolean root ) {
+    this.root = root;
+  }
 
-	public void setSolution(String solution) {
-		this.solution = solution;
-	}
+  public void setDirectory( boolean directory ) {
+    this.directory = directory;
+  }
 
-	public void setSolutionPath(String solutionPath) {
-		this.solutionPath = solutionPath;
-	}
+  public void setData( byte[] data ) {
+    this.data = data;
+  }
 
-	public Set getChildrenFiles() {
-		return childrenFiles;
-	}
+  public void setSolution( String solution ) {
+    this.solution = solution;
+  }
 
-	public void setChildrenFiles(Set childrenFiles) {
-		this.childrenFiles = childrenFiles;
-	}
+  public void setSolutionPath( String solutionPath ) {
+    this.solutionPath = solutionPath;
+  }
 
-	private boolean hasExtension() {
-		return fileName.lastIndexOf(LegacyRepositoryFile.EXTENSION_CHAR) != -1;
-	}
+  public Set getChildrenFiles() {
+    return childrenFiles;
+  }
 
-	public Serializable getId() {
-		return id;
-	}
+  public void setChildrenFiles( Set childrenFiles ) {
+    this.childrenFiles = childrenFiles;
+  }
 
-	public void setId(String id) {
-		this.id = id;
-	}	
+  private boolean hasExtension() {
+    return fileName.lastIndexOf( LegacyRepositoryFile.EXTENSION_CHAR ) != -1;
+  }
 
-	public LegacyRepositoryFile getParent() {
-		return parent;
-	}
+  public Serializable getId() {
+    return id;
+  }
 
-	public void setParent(LegacyRepositoryFile parent) {
-		this.parent = parent;
-	}
+  public void setId( String id ) {
+    this.id = id;
+  }
 
-	public void setId(Serializable id) {
-		this.id = id;
-	}
+  public LegacyRepositoryFile getParent() {
+    return parent;
+  }
+
+  public void setParent( LegacyRepositoryFile parent ) {
+    this.parent = parent;
+  }
+
+  public void setId( Serializable id ) {
+    this.id = id;
+  }
 }

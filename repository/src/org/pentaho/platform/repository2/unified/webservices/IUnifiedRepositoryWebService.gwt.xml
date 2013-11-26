@@ -2,9 +2,9 @@
 
   <inherits name='com.google.gwt.user.User'/>
   <source path="">
-        <exclude name="**/*Adapter.java"/>
-        <exclude name="**/DefaultUnifiedRepositoryWebService.java"/>
-        <exclude name="**/jaxws/*"/>
+    <exclude name="**/*Adapter.java"/>
+    <exclude name="**/DefaultUnifiedRepositoryWebService.java"/>
+    <exclude name="**/jaxws/*"/>
   </source>
 
 </module>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>session-region-list.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>%description</description>  
+    <help/> 
+  </documentation>
+
+  <inputs> 
+    <user type="string"> 
+      <sources> 
+        <session>name</session> 
+      </sources> 
+    </user>  
+    <REGION_list_msg type="string">
+      <sources/>
+      <default-value>REGION-list has been set.</default-value>
+    </REGION_list_msg>
+  </inputs>
+
+  <outputs> 
+    <REGION-list type="list"> 
+      <destinations> 
+        <session>REGION-list</session>  
+        <session>REGION_FILTER</session> 
+      </destinations> 
+    </REGION-list>  
+    <REGION_list_msg type="string">
+      <destinations>
+        <response>content</response>
+      </destinations>
+    </REGION_list_msg>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript To Build User Specific Result Set</action-type>
+      <action-inputs> 
+        <user type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <REGION-list type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+			      function getRegions( user ) {
+			      	var results = new JavaScriptResultSet();
+			      	results.setColumnHeaders( 'REGION' );
+			      	if( user == 'admin' ) {
+			      		results.addRow( new Array( 'Central' ) );
+			      	} 
+			      	else if( user == 'suzy' ) {
+			      		results.addRow( new Array( 'Eastern' ) );
+			      		results.addRow( new Array( 'Western' ) );
+			      		results.addRow( new Array( 'Southern' ) );
+			      	}
+			      	return results;
+			      }
+			    getRegions( user ); 
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -12,13 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.platform.plugin.services.metadata;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+package org.pentaho.platform.plugin.services.metadata;
 
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -29,9 +27,13 @@ import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Class Description
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class CachingPentahoMetadataDomainRepository extends PentahoMetadataDomainRepository {
@@ -40,8 +42,8 @@ public class CachingPentahoMetadataDomainRepository extends PentahoMetadataDomai
   /**
    * @param repository
    */
-  public CachingPentahoMetadataDomainRepository(final IUnifiedRepository repository) {
-    super(repository);
+  public CachingPentahoMetadataDomainRepository( final IUnifiedRepository repository ) {
+    super( repository );
     cache = new HashMap<String, Domain>();
   }
 
@@ -51,48 +53,48 @@ public class CachingPentahoMetadataDomainRepository extends PentahoMetadataDomai
    * @param xmiParser
    * @param localizationUtil
    */
-  public CachingPentahoMetadataDomainRepository(final IUnifiedRepository repository,
-                                                final RepositoryUtils repositoryUtils,
-                                                final XmiParser xmiParser,
-                                                final LocalizationUtil localizationUtil) {
-    super(repository, repositoryUtils, xmiParser, localizationUtil);
+  public CachingPentahoMetadataDomainRepository( final IUnifiedRepository repository,
+      final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
+    super( repository, repositoryUtils, xmiParser, localizationUtil );
     cache = new HashMap<String, Domain>();
   }
 
-
   /**
-   * Store a domain to the repository.  The domain should persist between JVM restarts.
-   *
-   * @param domain    domain object to store
-   * @param overwrite if true, overwrite existing domain
+   * Store a domain to the repository. The domain should persist between JVM restarts.
+   * 
+   * @param domain
+   *          domain object to store
+   * @param overwrite
+   *          if true, overwrite existing domain
    * @throws org.pentaho.metadata.repository.DomainIdNullException
-   *          if domain id is null
+   *           if domain id is null
    * @throws org.pentaho.metadata.repository.DomainAlreadyExistsException
-   *          if domain exists and overwrite = false
+   *           if domain exists and overwrite = false
    * @throws org.pentaho.metadata.repository.DomainStorageException
-   *          if there is a problem storing the domain
+   *           if there is a problem storing the domain
    */
   @Override
-  public void storeDomain(final Domain domain, final boolean overwrite)
-      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
-    super.storeDomain(domain, overwrite);
-    cache.put(domain.getId(), domain);
+  public void storeDomain( final Domain domain, final boolean overwrite ) throws DomainIdNullException,
+    DomainAlreadyExistsException, DomainStorageException {
+    super.storeDomain( domain, overwrite );
+    cache.put( domain.getId(), domain );
   }
 
   /**
-   * retrieve a domain from the repo.  This does lazy loading of the repo, so it calls reloadDomains()
-   * if not already loaded.
-   *
-   * @param domainId domain to get from the repository
+   * retrieve a domain from the repo. This does lazy loading of the repo, so it calls reloadDomains() if not already
+   * loaded.
+   * 
+   * @param domainId
+   *          domain to get from the repository
    * @return domain object
    */
   @Override
-  public Domain getDomain(final String domainId) {
-    Domain domain = cache.get(domainId);
-    if (null == domain) {
-      domain = super.getDomain(domainId);
-      if (null != domain) {
-        cache.put(domainId, domain);
+  public Domain getDomain( final String domainId ) {
+    Domain domain = cache.get( domainId );
+    if ( null == domain ) {
+      domain = super.getDomain( domainId );
+      if ( null != domain ) {
+        cache.put( domainId, domain );
       }
     }
     return domain;
@@ -100,15 +102,15 @@ public class CachingPentahoMetadataDomainRepository extends PentahoMetadataDomai
 
   /**
    * Returns a list of all the domain ids in the repository.
-   *
+   * 
    * @return the domain Ids.
    */
   @Override
   public Set<String> getDomainIds() {
-    if (cache.isEmpty()) {
+    if ( cache.isEmpty() ) {
       Set<String> domainIds = super.getDomainIds();
-      for (final String domainId : domainIds) {
-        cache.put(domainId, null);
+      for ( final String domainId : domainIds ) {
+        cache.put( domainId, null );
       }
     }
     return cache.keySet();

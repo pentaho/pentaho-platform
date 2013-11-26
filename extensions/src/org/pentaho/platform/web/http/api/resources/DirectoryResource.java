@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,64 +12,83 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
- *
- *
- * @created Apr 12, 2011 
- * @author wseyler
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import java.net.URLDecoder;
 
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
- * A class that can manipulate directories
+ * This resource manages directories in the repository
  * @author wseyler
- *
+ * 
  */
 
-@Path("/repo/dirs/")
+@Path( "/repo/dirs/" )
 public class DirectoryResource extends AbstractJaxRSResource {
   protected DefaultUnifiedRepositoryWebService repoWs;
-  
+
+  private static final Log logger = LogFactory.getLog( FileResource.class );
+
   public DirectoryResource() {
     super();
-    
+
     repoWs = new DefaultUnifiedRepositoryWebService();
   }
 
+  /**
+   * Creates a new folder with the specified name  
+   * Example: (:public:admin:test). It will create folder public --> admin --> test.
+   * If folder already exists then it skips to the next folder to be created.
+   *  
+   * @param pathId (colon seperated path to the repository file)
+   * @return 
+   */
   @PUT
-  @Path("{pathId : .+}")
-  @Consumes( { WILDCARD })
-  public Response createDirs(@PathParam("pathId") String pathId) {
-      String path = FileResource.idToPath(pathId);
-      String[] folders = path.split("[" + FileResource.PATH_SEPARATOR + "]");  //$NON-NLS-1$//$NON-NLS-2$
-      RepositoryFileDto parentDir = repoWs.getFile(FileResource.PATH_SEPARATOR);
-      for (String folder : folders) {
-        String currentFolderPath = (parentDir.getPath() + FileResource.PATH_SEPARATOR + folder).substring(1);
-        if (!currentFolderPath.startsWith(FileResource.PATH_SEPARATOR)) {
-          currentFolderPath = FileResource.PATH_SEPARATOR + currentFolderPath;
-        }
-        RepositoryFileDto currentFolder = repoWs.getFile(currentFolderPath);
-        if (currentFolder == null) {
-          currentFolder = new RepositoryFileDto();
-          currentFolder.setFolder(true);
-          currentFolder.setName(folder);
-          currentFolder.setPath(parentDir.getPath() + FileResource.PATH_SEPARATOR + folder);
-          currentFolder = repoWs.createFolder(parentDir.getId(), currentFolder, currentFolderPath);
-        }
-        parentDir = currentFolder;
+  @Path( "{pathId : .+}" )
+  @Consumes( { WILDCARD } )
+  public Response createDirs( @PathParam( "pathId" ) String pathId ) {
+    String path = FileResource.idToPath( pathId );
+    String[] folders = path.split( "[" + FileResource.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
+    RepositoryFileDto parentDir = repoWs.getFile( FileResource.PATH_SEPARATOR );
+    for ( String folder : folders ) {
+      String currentFolderPath = ( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder ).substring( 1 );
+      if ( !currentFolderPath.startsWith( FileResource.PATH_SEPARATOR ) ) {
+        currentFolderPath = FileResource.PATH_SEPARATOR + currentFolderPath;
       }
-    return Response.ok().build();    
+      RepositoryFileDto currentFolder = repoWs.getFile( currentFolderPath );
+      if ( currentFolder == null ) {
+        currentFolder = new RepositoryFileDto();
+        currentFolder.setFolder( true );
+        currentFolder.setName( decode( folder ) );
+        currentFolder.setPath( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder );
+        currentFolder = repoWs.createFolder( parentDir.getId(), currentFolder, currentFolderPath );
+      }
+      parentDir = currentFolder;
+    }
+    return Response.ok().build();
+  }
+
+  private String decode( String folder ) {
+    String decodeName = folder;
+    try {
+      decodeName = URLDecoder.decode( folder, "UTF-8" );
+    } catch ( Exception ex ) {
+      logger.error( ex );
+    }
+    return decodeName;
   }
 }

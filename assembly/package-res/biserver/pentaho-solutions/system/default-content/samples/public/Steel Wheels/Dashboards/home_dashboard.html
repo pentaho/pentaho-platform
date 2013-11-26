@@ -1,0 +1,126 @@
+<!-- Created by Harris Ward - www.hazamonzo.co.uk -->
+
+<SCRIPT LANGUAGE="JavaScript">
+
+// This is a custom function that is fired when a user selects a productLine and then want to select a territory
+// Its purpose is to reset the productLine variable back to null and pass the territory that has been selected
+// The function is executed from the url-template tag in the territorySales.xaction
+
+function clickOnTerritory(value) {
+	productLine = "null";
+	Dashboards.fireChange('territory',value);
+}
+
+</SCRIPT>
+
+
+<table align="center" style="border: 1px solid #000;">
+	<tr>
+		<td align="center" colspan="2"><p><div id="titleObject"></div></p></td>
+	</tr>
+	<tr>
+		<td>
+			<table>
+				<tr>
+					<td valign="top"><div id="territorySalesObject"></div></td>
+				</tr>
+				<tr>
+					<td valign="top"><div id="productLineSalesObject"></div></td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			<table>
+				<tr>
+					<td><div id="topTenCustomersObject"></div></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<script language="javascript" type="text/javascript">
+
+
+
+var productLine = "null";
+var territory = "null";
+
+titleString = 
+{
+  name: "titleString",
+  type: "text",
+  title: "Top Ten Customers",
+  listeners:["productLine", "territory"],
+  htmlObject: "titleObject",
+  executeAtStart: true,
+  expression: function(){return this.title},
+  preExecution:function(){
+  	if( territory == "null" && productLine != "null") {
+		this.title = "Top Ten for " + productLine;
+	} 
+	else if ( territory != "null" && productLine == "null") {
+		this.title = "Top Ten for " + territory;
+	}
+	else if ( territory == "null" && productLine == "null") {
+		this.title = "Top Ten Customers";
+	}
+	else  {
+		this.title = "Top Ten for " + territory + ", " + productLine;
+	}
+  },
+  postExecution:function(){}
+}
+
+topTenCustomers = 
+{
+  name: "topTenCustomers",
+  type: "xaction",
+  path: "/public/Steel Wheels/Dashboards/topTenCustomers.xaction",
+  listeners:["productLine", "territory"],
+  parameters: [["productLine", "productLine"], ["territory", "territory"]],
+  htmlObject: "topTenCustomersObject",
+  executeAtStart: true,
+  preExecution:function(){},
+  postExecution:function(){}
+}
+
+territorySales = 
+{
+  name: "territorySales",
+  type: "xaction",
+  path: "/public/Steel Wheels/Dashboards/territorySales.xaction",
+  listeners:[],
+  parameters: [],
+  htmlObject: "territorySalesObject",
+  executeAtStart: true,
+  preExecution:function(){},
+  postExecution:function(){}
+}
+
+productLineSales = 
+{
+  name: "productLineSales",
+  type: "xaction",
+  path: "/public/Steel Wheels/Dashboards/productLineSales.xaction",
+  listeners:[],
+  parameters: [],
+  htmlObject: "productLineSalesObject",
+  executeAtStart: true,
+  preExecution:function(){},
+  postExecution:function(){}
+}
+
+var components = [titleString, topTenCustomers, territorySales, productLineSales];
+
+</script>
+
+<script language="javascript" type="text/javascript">
+
+function load(){
+	Dashboards.init(components);
+}
+
+load();
+
+</script>

@@ -173,6 +173,19 @@ not directly from the PentahoObjectFactory. -->
 
   </bean>
 
+
+
+    <pen:bean class="org.springframework.security.providers.AuthenticationProvider">
+        <pen:attributes>
+            <pen:attr key="providerName" value="${security.provider}"/>
+        </pen:attributes>
+        <pen:publish as-type="ALL">
+            <pen:attributes>
+                <pen:attr key="priority" value="50"/>
+            </pen:attributes>
+        </pen:publish>
+    </pen:bean>
+
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
 

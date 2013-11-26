@@ -1,0 +1,49 @@
+<chart>
+
+	<!-- Define the chart type -->	
+	  <chart-type>PieChart</chart-type> 
+	
+	<!-- Define title and title formatting -->
+	  <title>Chart Title</title>
+	  <title-font>
+		<font-family>Arial</font-family>
+		<size>16</size>
+		<is-bold>true</is-bold>
+	  </title-font>
+
+    <!-- General Chart Propeties --> 
+	  <chart-background type="color">#FFFFFF</chart-background>
+	  <animate>true</animate>
+	  <alpha>.90</alpha>
+	  <start-angle>0</start-angle>
+	  <tooltip>
+        #label#
+        <!-- #key# -->
+        #val#
+      </tooltip>
+
+	<!-- Specify is the chart legend should be shown -->
+	  <include-legend>true</include-legend> 
+      <legend-font>
+        <font-family>Arial</font-family>
+	    <size>12</size>
+	    <is-bold>false</is-bold>
+	    <is-italic>false</is-italic>
+      </legend-font> 
+
+	<!-- Specify the color palette for the chart -->
+	  <color-palette>
+		<color>#880a0f</color>
+		<color>#0f3765</color>
+		<color>#5d7e33</color>
+		<color>#795687</color>
+		<color>#AF3335</color>
+		<color>#41747e</color>
+		<color>#FDC446</color>
+		<color>#5d7e33</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	  </color-palette>
+
+</chart>

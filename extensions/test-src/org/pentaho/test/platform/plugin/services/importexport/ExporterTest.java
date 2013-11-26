@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,13 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.services.importexport;
 
 import junit.framework.TestCase;
-import static org.mockito.Mockito.*;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
@@ -34,20 +33,16 @@ public class ExporterTest extends TestCase {
 
   public void setUp() throws Exception {
     super.setUp();
-/*
-
-    // set up mock repository
-    unifiedRepository = mock(IUnifiedRepository.class);
-    repositoryFile = mock(RepositoryFile.class);
-
-    // handle  method calls
-    when(unifiedRepository.getFile(REPO_PATH)).thenReturn(repositoryFile);
-
-    // instantiate exporter here to reuse for each test
-    exporter = new Exporter(unifiedRepository);
-    exporter.setRepoPath(REPO_PATH);
-    exporter.setFilePath(FILE_PATH);
-*/
+    /*
+     * 
+     * // set up mock repository unifiedRepository = mock(IUnifiedRepository.class); repositoryFile =
+     * mock(RepositoryFile.class);
+     * 
+     * // handle method calls when(unifiedRepository.getFile(REPO_PATH)).thenReturn(repositoryFile);
+     * 
+     * // instantiate exporter here to reuse for each test exporter = new Exporter(unifiedRepository);
+     * exporter.setRepoPath(REPO_PATH); exporter.setFilePath(FILE_PATH);
+     */
 
   }
 
@@ -62,13 +57,16 @@ public class ExporterTest extends TestCase {
   public void testDoExportAsDirectory() throws Exception {
 
   }
+
   public void testDoExportAsZip() throws Exception {
 
   }
 
-/*  public void testDoExportAsZip() throws Exception {
-
-  }*/
+  /*
+   * public void testDoExportAsZip() throws Exception {
+   * 
+   * }
+   */
 
   public void testExportDirectory() throws Exception {
 

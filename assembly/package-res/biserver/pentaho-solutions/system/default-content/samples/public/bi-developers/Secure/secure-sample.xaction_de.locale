@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:54 EDT 2013
+file.title=Zwei verschiedene Filter
+file.description=Dieses Beispiel ben\u00F6tigt zwei Parameter\: Region und Abteilung.<p/> Die Auswahl der Regionen wird durch eine Business Regel festgelegt, die w\u00E4hrend des Logins in die Usersession gespeichert wird.<p/> Die Auswahl der Abteilungen dagegen sind in der xaction-Datei fest programmiert.

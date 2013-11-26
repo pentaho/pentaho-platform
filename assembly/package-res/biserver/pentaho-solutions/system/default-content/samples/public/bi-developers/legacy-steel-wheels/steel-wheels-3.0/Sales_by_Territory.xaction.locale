@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:49 EDT 2013
+file.title=Sales by Territory
+title=Sales_by_Territory
+file.description=List of Territories sorted by Sales. Select date range (Jan 2003 through May 2005). Includes chart.

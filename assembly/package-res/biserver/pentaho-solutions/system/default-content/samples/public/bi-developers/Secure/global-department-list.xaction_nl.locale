@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Afdelingslist voor globale parameters 
+file.description=Voert een SQL query uit om een lijst van alle afdelingen te verkrijgen en slaat deze lijst op in de globale parameter leverancier 

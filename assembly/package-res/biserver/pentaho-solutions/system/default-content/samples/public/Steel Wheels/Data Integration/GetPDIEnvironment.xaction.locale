@@ -1,0 +1,5 @@
+#Locale = default
+#Tue Sep 24 17:43:57 WEST 2013
+file.title=Get Environment Information
+title=GetPDIEnvironment
+file.description=This transformation collects a lot of information about the environment of Pentaho Data Integration (previously Kettle) and the installed version e.g. in the Pentaho BI Suite.

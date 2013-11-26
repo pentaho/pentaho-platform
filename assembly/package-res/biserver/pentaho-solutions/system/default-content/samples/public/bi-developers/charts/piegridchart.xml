@@ -1,0 +1,51 @@
+<chart>
+	
+	<!--  this is the background for the whole image -->
+	<!--  TODO support gradient and texture painting -->
+	<title>Pie Grid Sample Chart</title>
+	<chart-type>PieGrid</chart-type>
+	<!-- 
+	<subtitles>
+		<subtitle>a simple sample</subtitle> 
+	</subtitles> -->
+	<chart-background type="color">#FFFFFF</chart-background>
+	<plot-background type="color">#FFFFFF</plot-background>
+
+	<include-legend>true</include-legend>
+	<legend-font>
+      <font-family>Arial</font-family>
+	  <size>12</size>
+	  <is-bold>false</is-bold>
+	  <is-italic>false</is-italic>
+    </legend-font> 
+	<color-palette>
+		<color>#387179</color>
+		<color>#626638</color>
+		<color>#A8979A</color>
+		<color>#B09A6B</color>
+		<color>#772200</color>
+		<color>#C52F0D</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	</color-palette>
+
+	<!-- Specify where the data for the chart comes from -->
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution></data-solution>
+		<data-path>/public/pentaho-solutions/bi-developers/charts/piegridchart_data.xaction</data-path>
+		<data-action></data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>query_result</data-output>
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+	</data>	
+	
+</chart>

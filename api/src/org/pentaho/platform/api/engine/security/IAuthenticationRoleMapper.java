@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,31 +12,31 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.api.engine.security;
 
 /**
- * Map ldap roles to pentaho security roles using map defined
- * in spring configuration (applicationContext-spring-security-ldap.xml)
+ * Map ldap roles to pentaho security roles using map defined in spring configuration
+ * (applicationContext-spring-security-ldap.xml)
  */
 public interface IAuthenticationRoleMapper {
 
   /**
    * Take a string name of third party role and return mapped pentaho security role
+   * 
    * @param ldapRole
    * @return pentaho security role
    */
-  public String toPentahoRole(String thirdPartyRole);
+  public String toPentahoRole( String thirdPartyRole );
 
   /**
    * Take a pentaho security role and return mapped third party role
+   * 
    * @param pentahoRole
    * @return ldap role
    */
-  public String fromPentahoRole(String pentahoRole);
-
-  
+  public String fromPentahoRole( String pentahoRole );
 
 }

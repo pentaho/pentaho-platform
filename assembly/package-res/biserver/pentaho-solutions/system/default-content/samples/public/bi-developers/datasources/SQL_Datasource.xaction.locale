@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=SQL Query of Managers for Departments
+title=SQL_Datasource
+file.description=This rule uses a SQL database query to determine the manager for each region.<p>See the Quick Start Guide for how to customize this data.

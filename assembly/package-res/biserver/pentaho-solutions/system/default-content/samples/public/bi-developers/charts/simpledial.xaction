@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence>
+  <name>Simple Dial Chart Example</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description/>  
+    <help/>
+  </documentation>
+
+  <inputs/>
+
+  <outputs>
+    <outputstream type="string"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </outputstream> 
+  </outputs>
+
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Create dial value in memory resultset.</action-type>
+      <action-outputs> 
+        <results type="result-set" mapping="chartdata"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[var results = new JavaScriptResultSet();
+                         results.setColumnHeaders( 'DIAL_DATA' );
+                         var goodArray = [57.0];
+                         results.addRow( goodArray);]]></script> 
+      </component-definition> 
+    </action-definition>
+
+    
+    <action-definition>
+      <action-name>Simple demonstration Flash dial chart.</action-name>  
+      <component-name>org.pentaho.platform.engine.services.solution.PojoComponent</component-name>
+      <action-inputs> 
+        <chartdata type="result-set" />
+      </action-inputs>
+      <action-outputs>
+        <outputstream/>
+      </action-outputs>
+      <component-definition> 
+        <class>ChartBeansComponent</class> 
+        <value-column>DIAL_DATA</value-column>
+	  <chart-model-xml><![CDATA[
+	  
+          <chartModel chartEngine="OpenFlashChart" theme="THEME4" style="border-top-width: 1; border-top-color: #987654; background-color: #343434;">
+					  <title style="font-family: monospace; color: #123456; font-size: 20px; font-weight: bold; font-style: oblique;">Dial Chart Sample</title>
+					  <subtitle style="font-family: monospace; color: #00ff00; font-size: 12px; font-weight: bold; font-style: italic; background-color: #0000ff;">subtitle</subtitle>
+					  <subtitle style="font-family: arial; font-size: 14px;">subtitle 2</subtitle>
+					  <legend style="font-family: verdana; font-size: 18px; font-weight: bold; border-top-width: 2; border-top-color: #654321; font-style: italic;"/>
+					  <dialPlot style="background-color: #343434" animate="true">
+							<scale>
+							      <range min="0" max="75" style="color: #ff0000;"/>
+							      <range min="75" max="125" style="color: #ffff00;"/>
+							      <range min="125" max="200" style="color: #00ff00;"/>
+							</scale>
+              <annotation style="font-family: verdana; font-size: 10px; font-weight: bold; font-style: italic;">annotation</annotation>
+					  </dialPlot>
+					</chartModel>
+
+	  ]]></chart-model-xml>
+      </component-definition>
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+  </actions> 
+</action-sequence>

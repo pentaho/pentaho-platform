@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael Tarallo</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>report</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs> 
+    <SORT1 type="string"> 
+      <sources> 
+        <request>SORT1</request> 
+      </sources>  
+      <default-value><![CDATA[Territory]]></default-value> 
+    </SORT1>  
+    <SORT1LIST type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="Name">Territory</entry>  
+          <entry key="Value">Territory</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="Name">Country</entry>  
+          <entry key="Value">Country</entry> 
+        </property-map> 
+      </default-value> 
+    </SORT1LIST>  
+    <TERRITORY type="string"> 
+      <sources> 
+        <request>TERRITORY</request> 
+      </sources>  
+      <default-value><![CDATA[EMEA,APAC,NA,Japan]]></default-value> 
+    </TERRITORY>  
+    <YEAR type="string"> 
+      <sources> 
+        <request>YEAR</request> 
+      </sources>  
+      <default-value><![CDATA[2004]]></default-value> 
+    </YEAR>  
+    <REPORTTITLE type="string"> 
+      <sources> 
+        <request>REPORTTITLE</request> 
+      </sources>  
+      <default-value><![CDATA[Sales Variance]]></default-value> 
+    </REPORTTITLE>  
+    <type type="string"> 
+      <sources> 
+        <request>type</request> 
+      </sources>  
+      <default-value><![CDATA[html]]></default-value> 
+    </type> 
+  </inputs>
+
+  <outputs> 
+    <report_out type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </report_out>  
+    <hide_msg type="string"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </hide_msg> 
+  </outputs>
+
+  <resources> 
+    <pageTemplate> 
+      <solution-file> 
+        <location>variance_parameter_template.htm</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </pageTemplate>  
+    <report-definition> 
+      <solution-file> 
+        <location>Variance Report.xml</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Territories for pulldown of SORT1</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="TERRITORY_LIST"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT DISTINCT
+     OFFICES.TERRITORY
+FROM
+     OFFICES]]></query>  
+        <live><![CDATA[false]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get years for filter variance</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="YEAR_LIST"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT DISTINCT YEAR(ORDERFACT.ORDERDATE) AS YEAR FROM ORDERFACT WHERE YEAR(ORDERFACT.ORDERDATE) != '2008' AND YEAR(ORDERFACT.ORDERDATE) != '2003']]></query>  
+        <live><![CDATA[false]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt/Secure Filter</action-type>
+      <action-inputs> 
+        <SORT1 type="string"/>  
+        <TERRITORY type="string"/>  
+        <REPORTTITLE type="string"/>  
+        <YEAR type="string"/>  
+        <SORT1LIST type="property-map-list"/>  
+        <TERRITORY_LIST type="result-set"/>  
+        <YEAR_LIST type="result-set"/> 
+      </action-inputs>
+      <action-resources> 
+        <pageTemplate/> 
+      </action-resources>
+      <component-definition> 
+        <selections> 
+          <SORT1 style="select"> 
+            <filter value-col-name="Value" display-col-name="Name">SORT1LIST</filter> 
+          </SORT1>  
+          <TERRITORY style="list-multi"> 
+            <filter value-col-name="TERRITORY" display-col-name="TERRITORY">TERRITORY_LIST</filter> 
+          </TERRITORY>  
+          <REPORTTITLE filter="none" style="text-box"/>  
+          <YEAR style="select"> 
+            <filter value-col-name="YEAR" display-col-name="YEAR">YEAR_LIST</filter> 
+          </YEAR> 
+        </selections>  
+        <xsl><![CDATA[pageTemplate]]></xsl> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Create Selections for Variance</action-type>
+      <action-inputs> 
+        <YEAR type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <PrevYear type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[PrevYear = (YEAR - 1) + ""]]></script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Result Set</action-type>
+      <action-inputs> 
+        <SORT1 type="string"/>  
+        <PrevYear type="string"/>  
+        <YEAR type="string"/>  
+        <TERRITORY type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <query><![CDATA[SELECT CUSTOMER_W_TER.{SORT1} AS "S1",
+     SUM(CASE YEAR(ORDERFACT.ORDERDATE) WHEN {PrevYear} THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "{PrevYear}",
+     SUM(CASE YEAR(ORDERFACT.ORDERDATE) WHEN {YEAR} THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "{YEAR}",
+     SUM(CASE YEAR(ORDERFACT.ORDERDATE) WHEN {YEAR} THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) - SUM(CASE YEAR(ORDERFACT.ORDERDATE) WHEN {PrevYear} THEN (ORDERFACT.TOTALPRICE) ELSE 0 END) AS "Variance" FROM
+     CUSTOMER_W_TER CUSTOMER_W_TER INNER JOIN ORDERFACT ORDERFACT ON CUSTOMER_W_TER.CUSTOMERNUMBER = ORDERFACT.CUSTOMERNUMBER WHERE CUSTOMER_W_TER.TERRITORY IN ({PREPARE:TERRITORY})
+GROUP BY
+     S1
+ORDER BY
+     S1 ASC]]></query>  
+        <live><![CDATA[false]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="query_result"/>  
+        <SORT1 type="string"/>  
+        <REPORTTITLE type="string"/>  
+        <PrevYear type="string"/>  
+        <YEAR type="string"/>  
+        <output-type type="string" mapping="type"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <report-output type="content" mapping="report_out"/> 
+      </action-outputs>
+      <component-definition/> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>TemplateComponent</component-name>
+      <action-type>Message Template</action-type>
+      <action-outputs> 
+        <output-message type="string" mapping="hide_msg"/> 
+      </action-outputs>
+      <component-definition> 
+        <template><![CDATA[<script>
+
+
+self.parent.document.getElementById("loader").style.visibility = "hidden";
+
+</script>]]></template> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

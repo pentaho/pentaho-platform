@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Europakarte
+file.description=Dieses Beispiel verwendet eine SVG template und eine Datenquelle, um eine grafische Darstellung der Daten zu erm\u00F6glichen. <p> Um sich das Beispiel anzusehn, brauchen Sie Firefox 1.5, Opra 8 oder das 'Adobe SVG Viewer Plug-in' f\u00FCr den Microsoft IE.

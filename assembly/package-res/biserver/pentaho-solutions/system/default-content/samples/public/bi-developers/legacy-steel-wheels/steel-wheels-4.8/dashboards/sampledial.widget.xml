@@ -1,0 +1,55 @@
+	<widget>
+		<dial>
+			<units>$</units>
+			
+			<!--  this is the background for the whole image -->
+			<!-- <chart-background type="color">#ffffff</chart-background> -->
+			
+			<!--  this ia the background for the dial -->
+			<!-- <plot-background type="color">#777700</plot-background> -->
+			
+			<plot-background type="texture">
+				<texture-image>
+					/samples/advanced/portal/dial_03.gif</texture-image>
+			</plot-background>
+			
+			<tick-interval>5</tick-interval>
+			
+			<value-color>#9999bb</value-color>
+			<tick-color>#808080</tick-color>
+			
+			<!--  this is the color of the needle -->
+			<needle-color>#808080</needle-color>
+			
+			<chart-background type="texture">
+				<texture-image>
+					/samples/advanced/portal/dial_03.gif</texture-image>
+			</chart-background>
+			
+			
+			<!--  intervals define ranges on the dial that are colored differently from the dial background -->
+			<intervals>
+				<interval>
+					<label>under</label>
+					<!-- this is the value that the range starts at -->
+					<minimum>-15</minimum>
+					<!-- this is the value that the range stops at -->
+					<maximum>0</maximum>
+					<!--  this is the color of the range -->
+					<color>#ffffff</color>
+					
+					<!--  this is the color of the text for the range value and tick marks -->
+					<text-color>#40bb40</text-color>
+					<stroke-width>5</stroke-width>
+				</interval>
+				<interval>
+					<label>over</label>
+					<minimum>0</minimum>
+					<maximum>15</maximum>
+					<color>#ffffff</color>
+					<text-color>#bb4040</text-color>
+					<stroke-width>5</stroke-width>
+				</interval>
+			</intervals>
+		</dial>
+	</widget>

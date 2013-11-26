@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Business Regeln
+file.description=Diese Regeln k\u00F6nnen mit Hilfe von JavaScript und Datenbankabfragen erzeugt werden. <br> Sie sind teil des Business-Intelligence Prozesses, aber in diesem Fall kann man sie unabh\u00E4ngig voneinander benutzen.

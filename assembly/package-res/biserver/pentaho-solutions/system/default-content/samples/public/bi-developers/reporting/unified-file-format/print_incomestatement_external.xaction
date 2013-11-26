@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Print Income Statement</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>Test Print Report</description>  
+    <help/>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <outputType type="string"> 
+      <default-value><![CDATA[application/pdf]]></default-value>  
+      <sources> 
+        <request>outputType</request> 
+      </sources> 
+    </outputType>  
+    <outputTypeList type="property-map-list"> 
+      <sources> 
+        <runtime>outputTypeList</runtime> 
+      </sources>  
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="report-output-desc">PDF</entry>
+          <entry key="report-output-type-id">application/pdf</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Excel</entry>
+          <entry key="report-output-type-id">application/vnd.ms-excel</entry>
+        </property-map>
+      </default-value> 
+    </outputTypeList>  
+  </inputs>
+
+  <outputs> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>incomestatement_external.prpt</location>  
+        <mime-type>application/zip</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Report Format</action-type>
+      <action-inputs> 
+        <outputTypeList type="property-map-list"/>  
+        <outputType type="string"/>  
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <outputType style="radio"> 
+            <title>Select Report Format</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter> 
+          </outputType>  
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query For Report Data</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="queryData"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[SELECT * FROM TRIAL_BALANCE]]></query> 
+      </component-definition> 
+    </action-definition>
+
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Print PRPT</action-type>
+      <action-inputs>
+          <reportOutput type="content"/> 
+          <outputType type="string"/> 
+          <queryData type="result-set"/>  
+      </action-inputs>
+      <action-outputs> 
+          <myReport type="content"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+                         function print(report) {
+                           var printService = Packages.javax.print.PrintServiceLookup.lookupDefaultPrintService();
+                           var printUtil = Packages.org.pentaho.reporting.engine.classic.extensions.modules.java14print.Java14PrintUtil;
+                           printUtil.printDirectly(report, printService);
+                         }
+ 
+                         var runtimeContext = rule.getRuntimeContext();
+
+                         var rc = new Packages.org.pentaho.reporting.platform.plugin.SimpleReportingComponent();
+                         rc.setOutputType(outputType);
+                         rc.setReportDefinitionInputStream(runtimeContext.getResourceInputStream(runtimeContext.getResourceDefintion("report-definition")));
+                         var map = new Packages.java.util.HashMap();
+                         map.put("queryData", queryData);
+                         rc.setInputs(map);
+
+                         var report = rc.getReport();
+
+                         var parameterContext = new Packages.org.pentaho.reporting.engine.classic.core.parameters.DefaultParameterContext(report);
+                         rc.applyInputsToReportParameters(report, parameterContext);
+                         parameterContext.close();
+
+                         print(report);
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

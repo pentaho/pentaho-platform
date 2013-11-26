@@ -1,10 +1,27 @@
-package org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo;
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 
-import java.io.Serializable;
-import java.util.ArrayList;
+package org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo;
 
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 
 public class DefaultPluginPerspective implements Serializable, IPluginPerspective {
 
@@ -24,7 +41,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     return id;
   }
 
-  public void setId(String id) {
+  public void setId( String id ) {
     this.id = id;
   }
 
@@ -32,7 +49,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     return title;
   }
 
-  public void setTitle(String title) {
+  public void setTitle( String title ) {
     this.title = title;
   }
 
@@ -40,7 +57,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     return contentUrl;
   }
 
-  public void setContentUrl(String contentUrl) {
+  public void setContentUrl( String contentUrl ) {
     this.contentUrl = contentUrl;
   }
 
@@ -48,7 +65,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     return resourceBundleUri;
   }
 
-  public void setResourceBundleUri(String resourceBundleUri) {
+  public void setResourceBundleUri( String resourceBundleUri ) {
     this.resourceBundleUri = resourceBundleUri;
   }
 
@@ -56,7 +73,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     return overlays;
   }
 
-  public void setOverlays(ArrayList<XulOverlay> overlays) {
+  public void setOverlays( ArrayList<XulOverlay> overlays ) {
     this.overlays = overlays;
   }
 
@@ -74,7 +91,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
    * 
    * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#setLayoutPriority(int)
    */
-  public void setLayoutPriority(int layoutPriority) {
+  public void setLayoutPriority( int layoutPriority ) {
     this.layoutPriority = layoutPriority;
   }
 
@@ -82,7 +99,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     return securityActions;
   }
 
-  public void setRequiredSecurityActions(ArrayList<String> securityActions) {
+  public void setRequiredSecurityActions( ArrayList<String> securityActions ) {
     this.securityActions = securityActions;
   }
 }

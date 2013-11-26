@@ -1,0 +1,70 @@
+<chart>
+	
+	<chart-type>BarChart</chart-type>
+	<title>Product Line Sales</title>
+	<title-position>TOP</title-position>
+	<title-font>
+		<font-family>Ariel</font-family>
+		<size>14</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+	<data>
+		<data-solution></data-solution>
+		<data-path>/public/pentaho-solutions/steel-wheels/dashboards/productline_sales.xaction</data-path>
+		<data-action></data-action>
+		<data-output>rule-result</data-output>
+		<data-name>PRODUCTLINE</data-name>
+		<data-value>REVENUE</data-value>
+		<data-orientation>columns</data-orientation>
+	</data>
+
+	<template>
+	<chart>
+    	<background-color>#445544</background-color>
+	<axis_category font='arial' bold='true' size='12' color='626638' alpha='85' skip='0' />
+	<axis_ticks value_ticks='true' category_ticks='true' major_thickness='2' minor_thickness='1' minor_count='1' major_color='222222' minor_color='222222' position='centered' />
+	<axis_value font='arial' bold='true' size='10' color='ffffff' alpha='30' steps='6' prefix='' suffix='' decimals='0' separator='' show_min='true' />
+
+	<chart_border color='000000' top_thickness='1' bottom_thickness='1' left_thickness='3' right_thickness='1' />
+	<chart_data>
+		{data}
+	</chart_data>
+	<chart_grid_h alpha='20' color='000000' thickness='1' type='dashed' />
+	<chart_grid_v alpha='20' color='000000' thickness='1' />
+			<legend_label layout='horizontal' bullet='circle' font='arial' bold='true' size='13' color='ffffff' alpha='85' />
+			<legend_rect fill_color='aaaaaa' fill_alpha='100' line_color='000000' line_alpha='0' line_thickness='0' />
+	<chart_rect x='180' y='30' width='300' height='230' positive_color='ffffff' negative_color='ff0000' positive_alpha='35' negative_alpha='10' />
+	<chart_transition type='scale' delay='.5' duration='1.0' order='series' />
+	<chart_type>bar</chart_type>
+	<chart_value color='772200' alpha='70' font='arial' bold='false' size='12' position='right' prefix='$' suffix=' (US)' decimals='0' separator=',' as_percentage='false' />
+
+	<draw>
+		<text color='000044' alpha='35' size='20' x='145' y='65' width='250' height='30' h_align='right' v_align='center'>Revenue</text>
+		<text color='000044' alpha='35' rotation='-90' size='20' x='20' y='270' width='300' height='40' h_align='center' v_align='top'>Product Line</text>
+	</draw>
+
+	<legend_rect x='-100' y='-100' width='10' height='10' />
+
+	<series_color>
+		<color>387179</color>
+		<color>626638</color>
+		<color>A8979A</color>
+		<color>B09A6B</color>
+		<color>772200</color>
+		<color>C52F0D</color>
+		<color>123D82</color>
+		<color>4A0866</color>
+		<color>445500</color>
+		<color>FFAA00</color>
+		<color>1E8AD3</color>
+		<color>AA6611</color>
+		<color>772200</color>
+	</series_color>
+	<link_data url='{drill-url}' /> 
+
+	</chart>
+	
+	</template>
+
+</chart>

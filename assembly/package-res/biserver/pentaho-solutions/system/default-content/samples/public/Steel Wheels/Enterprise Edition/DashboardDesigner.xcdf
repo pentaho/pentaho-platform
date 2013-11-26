@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdf>
+	<title>Dashboard Designer</title>
+	<author>Pentaho</author>
+	<description>Dashboard Designer description</description>
+	<icon></icon>
+	<template>DashboardDesigner.html</template>
+	<style>clean</style>
+</cdf>

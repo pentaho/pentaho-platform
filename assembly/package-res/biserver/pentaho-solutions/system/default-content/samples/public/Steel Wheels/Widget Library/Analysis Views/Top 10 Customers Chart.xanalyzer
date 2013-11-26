@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportRecord xmlns="http://www.pentaho.com">
+    <commonStorageAttributes update="2011-07-13T15:56:55" created="2011-07-12T10:03:19" description="" updatedBy="admin" createdBy="admin">
+        <path folder="steel-wheels/dashboards/Widget Library/Analysis Views/Top 10 Customers Chart.xanalyzer" name="Top 10 Customers Chart"/>
+    </commonStorageAttributes>
+    <report freezeRows="true" freezeColumns="true" autoRefresh="true" version="5" showDrillLinks="false" emptyCellDisplay="-" showEmptyCells="false" useNonVisualTotals="false" showColumnGrandTotal="false" showRowGrandTotal="false" reportTypeEnum="CHART" cube="SteelWheelsSales" catalog="SteelWheels">
+        <title></title>
+        <subtitle></subtitle>
+        <measures>
+            <measure id="[MEASURE:0]" sortOrderEnum="DESC" measureTypeEnum="VALUE" showMin="false" showMax="false" showCount="false" showAverage="false" showAggregate="true" showSum="false" formula="[Measures].[Sales]"/>
+        </measures>
+        <columnAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Order Status].[Type]"/>
+        </columnAttributes>
+        <rowAttributes>
+            <attribute sortOrderEnum="ASC" showSubtotal="false" formula="[Customers].[Customer]"/>
+        </rowAttributes>
+        <filters>
+            <filter viewFilterEnum="MULTIPLE" formula="[Customers].[Customer]">
+                <topBottom count="10" type="TOP" formula="[Measures].[Sales]"/>
+            </filter>
+            <filter viewFilterEnum="MULTIPLE" formula="[Markets].[Territory]">
+                <predicates>
+                    <predicate parameterName="Territory" operatorEnum="EQUAL" ordinal="1">
+                        <member pos="0" caption="APAC" formula="[Markets].[APAC]"/>
+                        <member pos="0" caption="EMEA" formula="[Markets].[EMEA]"/>
+                        <member pos="0" caption="Japan" formula="[Markets].[Japan]"/>
+                        <member pos="0" caption="NA" formula="[Markets].[NA]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+            <filter viewFilterEnum="MULTIPLE" formula="[Product].[Line]">
+                <predicates>
+                    <predicate parameterName="Line" operatorEnum="EQUAL" ordinal="1">
+                        <member pos="0" caption="Classic Cars" formula="[Product].[Classic Cars]"/>
+                        <member pos="0" caption="Motorcycles" formula="[Product].[Motorcycles]"/>
+                        <member pos="0" caption="Planes" formula="[Product].[Planes]"/>
+                        <member pos="0" caption="Ships" formula="[Product].[Ships]"/>
+                        <member pos="0" caption="Trains" formula="[Product].[Trains]"/>
+                        <member pos="0" caption="Trucks and Buses" formula="[Product].[Trucks and Buses]"/>
+                        <member pos="0" caption="Vintage Cars" formula="[Product].[Vintage Cars]"/>
+                    </predicate>
+                </predicates>
+            </filter>
+        </filters>
+        <chartOptions legendFontFamily="Tahoma" labelFontFamily="Tahoma" legendStyle="PLAIN" legendColor="#000000" legendSize="12" legendBackgroundColor="#ffffff" labelStyle="PLAIN" backgroundColorEnd="#ffffff" maxChartsPerRow="3" backgroundFill="NONE" labelSize="12" labelColor="#000000" backgroundColor="#c0c0c0" maxValues="100" lineShape="CIRCLE" lineWidth="3" displayUnits="UNITS_0" autoRange="true" showLegend="true" legendPosition="RIGHT" showMultiChart="false" chartType="STACKED_HORIZONTAL_BAR"/>
+    </report>
+    <uiAttributes>
+        <rowFieldWidths/>
+        <columnDataFieldWidths/>
+    </uiAttributes>
+</reportRecord>

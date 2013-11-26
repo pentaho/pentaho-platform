@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>MQL_Datasource.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>SQL_Datasource.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>MQLRelationalDataComponent</component-name>
+      <action-type>Query For Order Info</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[<mql>
+  <domain_type>relational</domain_type>
+  <domain_id>steel-wheels</domain_id>
+  <model_id>BV_ORDERS</model_id>
+  <model_name>Orders</model_name>
+  <selections>
+    <selection>
+      <view>CAT_ORDERS</view>
+      <column>BC_ORDERS_ORDERDATE</column>
+    </selection>
+    <selection>
+      <view>CAT_ORDERS</view>
+      <column>BC_ORDERS_ORDERNUMBER</column>
+    </selection>
+    <selection>
+      <view>CAT_ORDERS</view>
+      <column>BC_ORDER_DETAILS_QUANTITYORDERED</column>
+    </selection>
+  </selections>
+  <constraints>
+  
+    <constraint>
+      <operator>AND</operator>
+      <condition>[CAT_ORDERS.BC_ORDERDETAILS_QUANTITYORDERED] &gt;70</condition>
+    </constraint>
+    
+    <constraint>
+      <operator>AND</operator>
+      <condition>[CAT_ORDERS.BC_ORDERS_ORDERDATE] &gt; DATE(2003;12;31)</condition>
+    </constraint>
+  </constraints>
+  <orders/>
+</mql>]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

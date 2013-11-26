@@ -1,20 +1,16 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+ * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * This software was developed by Pentaho Corporation and is provided under the terms
+ * of the Mozilla Public License, Version 1.1, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. TThe Initial Developer is Pentaho Corporation.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * Copyright 2005 - 2009 Pentaho Corporation.  All rights reserved.
- *
-*/
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
+
 package org.pentaho.platform.web.servlet;
 
 import java.sql.SQLException;
@@ -24,18 +20,13 @@ import java.util.Properties;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import mondrian.xmla.XmlaHandler;
 import mondrian.xmla.XmlaHandler.ConnectionFactory;
-import mondrian.xmla.XmlaHandler.Request;
-import mondrian.xmla.XmlaHandler.XmlaExtra;
-import mondrian.xmla.XmlaRequest;
 import mondrian.xmla.impl.DefaultXmlaServlet;
 
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
-import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 
 public class PentahoXmlaServlet extends DefaultXmlaServlet {
 
@@ -69,30 +60,32 @@ public class PentahoXmlaServlet extends DefaultXmlaServlet {
                         catalogName,
                         PentahoSessionHolder.getSession());
             }
-            public void endRequest(Request arg0) {
-                // no op.
-            }
-            public XmlaExtra getExtra() {
-                OlapConnection conn = olapService
-                    .getConnection(null, PentahoSessionHolder.getSession());
-                try {
-                    return conn.unwrap(XmlaHandler.XmlaExtra.class);
-                } catch (SQLException e) {
-                    throw new IOlapServiceException(
-                        "Failed to obtain XmlaExtra form olap connection.",
-                        e);
-                } finally {
-                    try {
-                        conn.close();
-                    } catch (SQLException e) {
-                        // ignore.
-                        LOGGER.warn("Failed to close olap connection.", e);
-                    }
-                }
-            }
-            public Request startRequest(XmlaRequest request, OlapConnection conn) {
-                return null;
-            }
+// The code below will be needed when we move to olap4j-xmlaserver
+//
+//            public void endRequest(Request arg0) {
+//                // no op.
+//            }
+//            public XmlaExtra getExtra() {
+//                OlapConnection conn = olapService
+//                    .getConnection(null, PentahoSessionHolder.getSession());
+//                try {
+//                    return conn.unwrap(XmlaHandler.XmlaExtra.class);
+//                } catch (SQLException e) {
+//                    throw new IOlapServiceException(
+//                        "Failed to obtain XmlaExtra form olap connection.",
+//                        e);
+//                } finally {
+//                    try {
+//                        conn.close();
+//                    } catch (SQLException e) {
+//                        // ignore.
+//                        LOGGER.warn("Failed to close olap connection.", e);
+//                    }
+//                }
+//            }
+//            public Request startRequest(XmlaRequest request, OlapConnection conn) {
+//                return null;
+//            }
         };
     }
 }

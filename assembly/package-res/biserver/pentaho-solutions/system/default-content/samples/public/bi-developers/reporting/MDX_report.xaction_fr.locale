@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:49 EDT 2013
+file.title=OLAP - Document avec tableau crois\u00E9
+file.description=Tableau crois\u00E9 qui montre le budget pr\u00E9visionnel et r\u00E9alis\u00E9 pour chaque d\u00E9partement et chaque r\u00E9gion. Le rapport interroge un serveur OLAP Mondrian et utilise JFreeReport pour g\u00E9n\u00E9rer la page

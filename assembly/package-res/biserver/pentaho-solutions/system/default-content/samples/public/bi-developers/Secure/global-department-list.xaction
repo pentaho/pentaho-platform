@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>global-department-list.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Doug Moran</author>  
+    <description>%description</description>  
+    <help/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <DEPARTMENT_LIST type="result-set">
+      <destinations>
+        <global>DEPARTMENT_LIST</global>
+      </destinations>
+    </DEPARTMENT_LIST>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Departments</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="DEPARTMENT_LIST"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>false</live>  
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct DEPARTMENT from QUADRANT_ACTUALS]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

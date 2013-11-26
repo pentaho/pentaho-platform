@@ -1,0 +1,4 @@
+#Locale = fr
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=Requ\u00EAte SQL ramenant la liste des responsables de d\u00E9partement
+file.description=Cette r\u00E8gle utilise une requ\u00EAte SQL pour d\u00E9terminer les responsables de chaque r\u00E9gion.<p>Consultez le 'Quick Start Guide' pour adapter ces donn\u00E9es.

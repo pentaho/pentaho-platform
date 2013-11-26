@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+<!--
+  The report needs JFreeReport 0.8.6 or the message-field
+  contents will look funny.
+-->
+<report name="Quadrant For Region" orientation="portrait" pageformat="LETTER"
+  topmargin="36" leftmargin="36" bottommargin="36" rightmargin="36">
+
+  <!-- This is what is called 'title' in JasperReports -->
+  <reportheader>
+    <rectangle x="0" y="0" width="100%" height="50"
+               color="#0000CC" fill="true" draw="false"/>
+    <label x="0" y="0" width="100%" height="50" fontname="Arial" color="white"
+            vertical-alignment="middle" alignment="center"
+           fontsize="18" fontstyle="bold">OLAP Data from Mondrian in JFreeReport</label>
+    <!-- Add a drawable field here for a chart -->
+  </reportheader>
+
+  <groups>
+    <!-- group name="RegionGroup">
+      <fields>
+        <field>REGION</field>
+      </fields>
+      <groupheader fontname="Arial" fontsize="18" fontstyle="bold">
+        <string-field x="0" y="0" width="310" height="23" fieldname="REGION" color="#009999"/>
+      </groupheader>
+    </group -->
+
+    <group name="DepartmentGroup">
+      <fields>
+        <field>REGION</field>
+        <field>DEPARTMENT</field>
+      </fields>
+      <groupheader fontname="Arial" fontsize="9" fontstyle="bold">
+        <rectangle x="0" y="0" width="100%" height="100%" color="#FF6600" draw="false" fill="true"/>
+        <!--  message-field x="0" y="4" width="100%" height="18" color="white" fontsize="12">Department: $(DEPARTMENT)</message-field -->
+        <label x="20%" y="10" width="20%" height="14" alignment="center" fontsize="11" >Central</label>
+        <label x="40%" y="10" width="20%" height="14" alignment="center" fontsize="11" >Eastern</label>
+        <label x="60%" y="10" width="20%" height="14" alignment="center" fontsize="11" >Southern</label>
+        <label x="80%" y="10" width="20%" height="14" alignment="center" fontsize="11" >Western</label>
+        <label x="20%" y="25" width="10%" height="14" alignment="right">Actual</label>
+        <label x="30%" y="25" width="10%" height="14" alignment="right">Budget</label>
+        <label x="40%" y="25" width="10%" height="14" alignment="right">Actual</label>
+        <label x="50%" y="25" width="10%" height="14" alignment="right">Budget</label>
+        <label x="60%" y="25" width="10%" height="14" alignment="right">Actual</label>
+        <label x="70%" y="25" width="10%" height="14" alignment="right">Budget</label>
+        <label x="80%" y="25" width="10%" height="14" alignment="right">Actual</label>
+        <label x="90%" y="25" width="10%" height="14" alignment="right">Budget</label>
+      </groupheader>
+    </group>
+  </groups>
+
+  <!-- This is what is called 'detail' in JasperReports -->
+  <items fontname="Arial" fontsize="9" height="12">
+    <string-field x="0%" y="0" width="20%" height="12" fieldname="Department"/>
+    <!--  string-field x="179" y="0" width="60" height="12" fieldname="Header 2"/ -->
+    <number-field x="20%" y="0" width="10%" height="12" fieldname="Central/Actual/Measures" format="$#,##0" alignment="right" />
+    <number-field x="30%" y="0" width="10%" height="12" fieldname="Central/Budget/Measures" format="$#,##0" alignment="right" />
+    <number-field x="40%" y="0" width="10%" height="12" fieldname="Eastern/Actual/Measures" format="$#,##0" alignment="right" />
+    <number-field x="50%" y="0" width="10%" height="12" fieldname="Eastern/Budget/Measures" format="$#,##0" alignment="right" />
+    <number-field x="60%" y="0" width="10%" height="12" fieldname="Southern/Actual/Measures" format="$#,##0" alignment="right" />
+    <number-field x="70%" y="0" width="10%" height="12" fieldname="Southern/Budget/Measures" format="$#,##0" alignment="right" />
+    <number-field x="80%" y="0" width="10%" height="12" fieldname="Western/Actual/Measures" format="$#,##0" alignment="right" />
+    <number-field x="90%" y="0" width="10%" height="12" fieldname="Western/Budget/Measures" format="$#,##0" alignment="right" />
+  </items>
+
+  <functions>
+    <!-- This makes sure, that we can access the parameter as if it was a column from the table -->
+    <property-ref name="REGION"/>
+
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression"
+                name="isVarianceNegative">
+      <properties>
+        <property name="expression">
+          Object getValue()
+          {
+            Object value = dataRow.get("VARIANCE");
+            if (value instanceof Number == false)
+            {
+              return Boolean.FALSE;
+            }
+            Number number = (Number) value;
+            if (number.doubleValue() &lt; 0)
+            {
+              return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+          }
+        </property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ElementColorFunction"
+                name="changeColor">
+      <properties>
+        <property name="element">Variance Field</property>
+        <property name="field">isVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+
+
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression"
+                name="isDepartmentVarianceNegative">
+      <properties>
+        <property name="expression">
+          Object getValue()
+          {
+            Object value = dataRow.get("DepartmentVariance");
+            if (value instanceof Number == false)
+            {
+              return Boolean.FALSE;
+            }
+            Number number = (Number) value;
+            if (number.doubleValue() &lt; 0)
+            {
+              return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+          }
+        </property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ElementColorFunction"
+                name="changeDepartmentColor">
+      <properties>
+        <property name="element">Variance Department Field</property>
+        <property name="field">isDepartmentVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+
+
+
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression"
+                name="isRegionVarianceNegative">
+      <properties>
+        <property name="expression">
+          Object getValue()
+          {
+            Object value = dataRow.get("RegionVariance");
+            if (value instanceof Number == false)
+            {
+              return Boolean.FALSE;
+            }
+            Number number = (Number) value;
+            if (number.doubleValue() &lt; 0)
+            {
+              return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+          }
+        </property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ElementColorFunction"
+                name="changeRegionColor">
+      <properties>
+        <property name="element">Variance Region Field</property>
+        <property name="field">isRegionVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+
+  </functions>
+</report>

@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,14 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2012 Pentaho Corporation.  All rights reserved.
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @XmlRootElement
 public class Cube implements Serializable {
@@ -33,7 +32,7 @@ public class Cube implements Serializable {
   public Cube() {
   }
 
-  public Cube(String catName, String name, String id) {
+  public Cube( String catName, String name, String id ) {
     this.catName = catName;
     this.name = name;
     this.id = id;
@@ -43,7 +42,7 @@ public class Cube implements Serializable {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName( String name ) {
     this.name = name;
   }
 
@@ -51,7 +50,7 @@ public class Cube implements Serializable {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId( String id ) {
     this.id = id;
   }
 
@@ -59,7 +58,7 @@ public class Cube implements Serializable {
     return catName;
   }
 
-  public void setCatName(String catName) {
+  public void setCatName( String catName ) {
     this.catName = catName;
   }
 }

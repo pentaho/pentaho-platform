@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.pentaho.com/schema/pentaho-system"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:beans="http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
             xmlns:tool="http://www.springframework.org/schema/tool"
             targetNamespace="http://www.pentaho.com/schema/pentaho-system"
             elementFormDefault="qualified"
@@ -21,7 +20,7 @@
   <xsd:element name="attributes">
     <xsd:complexType>
       <xsd:sequence>
-          <xsd:element ref="attr" minOccurs="1" maxOccurs="unbounded"/>
+        <xsd:element ref="attr" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -39,7 +38,7 @@
         <xsd:appinfo>
           <tool:annotation>
             <tool:exports identifier="@id"
-                          type="java.util.List" />
+                          type="java.util.List"/>
           </tool:annotation>
         </xsd:appinfo>
       </xsd:annotation>
@@ -59,7 +58,7 @@
         <xsd:appinfo>
           <tool:annotation>
             <tool:exports identifier="@id"
-                          type="java.util.List" />
+                          type="java.util.List"/>
           </tool:annotation>
         </xsd:appinfo>
       </xsd:annotation>

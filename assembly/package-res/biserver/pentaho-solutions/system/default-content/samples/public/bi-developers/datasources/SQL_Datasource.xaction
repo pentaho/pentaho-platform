@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>SQL_Datasource.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>SQL_Datasource.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs>
+    <rule-result type="result-set"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Mgr Info</action-type>
+      <action-inputs> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select REGION, MANAGER_NAME, EMAIL from DEPARTMENT_MANAGERS]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

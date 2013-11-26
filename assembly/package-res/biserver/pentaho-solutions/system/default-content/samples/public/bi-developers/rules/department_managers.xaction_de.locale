@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:42 EDT 2013
+file.title=Abteilungsleiter
+file.description=Durch eine Datenbankabfrage erh\u00E4lt diese Regel die Abteilungsleiter jeder Region.<p> Diese Regel wird auch in den Bursting Beispielen verwendet. Um diese Daten zu \u00E4ndern, lesen sie bitte den Quick Start Guide.

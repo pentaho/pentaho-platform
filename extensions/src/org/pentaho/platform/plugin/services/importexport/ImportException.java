@@ -12,27 +12,28 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.services.importexport;
 
 /**
- * Exception that indicates an error during import processing
- * User: dkincade
+ * Exception that indicates an error during import processing User: dkincade
  */
 public class ImportException extends Exception {
   public ImportException() {
   }
 
-  public ImportException(final String message) {
-    super(message);
+  public ImportException( final String message ) {
+    super( message );
   }
 
-  public ImportException(final String message, final Throwable cause) {
-    super(message, cause);
+  public ImportException( final String message, final Throwable cause ) {
+    super( message, cause );
   }
 
-  public ImportException(final Throwable cause) {
-    super(cause);
+  public ImportException( final Throwable cause ) {
+    super( cause );
   }
 }

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs>
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query For Report Data</action-type>
+      <action-outputs> 
+        <query-result type="result-set"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query> 
+      </component-definition> 
+    </action-definition>
+
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript to Build JFreeReport Definition</action-type>
+      <action-inputs>
+        <resultset type="result-set" mapping="query-result"/> 
+      </action-inputs>
+      <action-outputs> 
+        <report-definition type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+			    function getReportDefinition() { 
+			      var reportSpec = new Packages.org.pentaho.jfreereport.castormodel.reportspec.ReportSpec();
+			      //reportSpec.setUseRowBanding(false);
+			      var regionField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      regionField.setName("REGION");
+			      regionField.setDisplayName("Region: $(REGION)");
+			      regionField.setHorizontalAlignment("left");
+			      regionField.setIsDetail(false);
+                  var chart = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Chart();
+                  chart.setType(Packages.org.pentaho.jfreereport.castormodel.reportspec.types.ChartType.BAR);
+                  reportSpec.setChart(chart);                  
+                  chart.setIsThreeDimensional(true);
+                  chart.setWidth(780);
+                  chart.setHeight(300);
+                  chart.setTitle("Department Budgets");
+				  chart.setCategoryColumn("DEPARTMENT");
+                  chart.addValuesColumn("VARIANCE");
+                  chart.setShowBorder(true);
+                  var series = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Series();
+                  series.setSeriesName("DEPARTMENT");
+                  series.setSeriesColor("#3030FF");
+                  chart.addSeries(series);
+			      chart.setGroup("REGION");
+			      chart.setResetGroup("REGION");
+			      chart.setShowLegend(false);
+			      regionField.setUseChart(true);
+			      regionField.setChart(chart);
+			      regionField.setShowChartAboveGroupHeader(true);
+			      //regionField.setPageBreakAfterFooter(true);
+			      reportSpec.addField(regionField);
+
+			      
+			      var deptField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      deptField.setName("DEPARTMENT");
+			      deptField.setDisplayName("Department");
+			      deptField.setIsDetail(true);
+			      deptField.setUseItemHide(true);
+			      reportSpec.addField(deptField);
+
+			      var positionField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      positionField.setName("POSITIONTITLE");
+			      positionField.setDisplayName("Position");
+			      positionField.setIsDetail(true);
+			      reportSpec.addField(positionField);
+
+			      var actualField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      actualField.setName("ACTUAL");
+			      actualField.setDisplayName("Actual");
+			      actualField.setIsDetail(true);
+			      actualField.setType(1);
+			      actualField.setExpression("sum");
+			      reportSpec.addField(actualField);
+
+			      var budgetField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      budgetField.setName("BUDGET");
+			      budgetField.setDisplayName("Budget");
+			      budgetField.setIsDetail(true);
+			      budgetField.setType(1);
+			      budgetField.setExpression("sum");
+			      reportSpec.addField(budgetField);
+
+			      var varianceField = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			      varianceField.setName("VARIANCE");
+			      varianceField.setDisplayName("Variance");
+			      varianceField.setIsDetail(true);
+			      varianceField.setType(1);
+			      varianceField.setExpression("sum");
+			      reportSpec.addField(varianceField);
+			      
+			      
+      			  return Packages.org.pentaho.jfreereport.wizard.utility.report.ReportGenerationUtility.createJFreeReportXML(reportSpec, "UTF-8" );
+			    } 
+			    getReportDefinition(); 
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Report Using Query Results</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="query-result"/> 
+        <report-definition type="string"/>
+        <output-type type="string"/>
+      </action-inputs>
+      <action-resources/> 
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

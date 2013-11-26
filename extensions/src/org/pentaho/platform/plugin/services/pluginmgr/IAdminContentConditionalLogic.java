@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,17 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2012 Pentaho Corporation.  All rights reserved.
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
 public interface IAdminContentConditionalLogic {
 
-	public static int DISPLAY_ADMIN_CONTENT = 0;
-	public static int AVOID_ADMIN_CONTENT = 1;
-	public static int DISPLAY_EXCEPTION_MESSAGE = 2;
+  public static int DISPLAY_ADMIN_CONTENT = 0;
+  public static int AVOID_ADMIN_CONTENT = 1;
+  public static int DISPLAY_EXCEPTION_MESSAGE = 2;
 
-	int validate();
+  int validate();
 }

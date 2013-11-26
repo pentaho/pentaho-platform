@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Time Series Chart Data</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description/>  
+    <help/>  
+    <result-type>none</result-type>  
+    <icon>folder.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <results type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data from</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <query-result type="result-set" mapping="results"/> 
+      </action-outputs>
+      <component-definition> 
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[SELECT PRODUCTLINE, ORDERS.ORDERDATE, SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) SOLD_PRICE 
+FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN PRODUCTS ON ORDERDETAILS.PRODUCTCODE =PRODUCTS.PRODUCTCODE INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER  
+INNER JOIN EMPLOYEES ON CUSTOMERS.SALESREPEMPLOYEENUMBER = EMPLOYEES.EMPLOYEENUMBER
+INNER JOIN OFFICES ON EMPLOYEES.OFFICECODE=OFFICES.OFFICECODE
+WHERE (ORDERS.ORDERDATE >= '2003-01-01' AND ORDERS.ORDERDATE <= '2005-06-30') AND PRODUCTLINE IN ('Classic Cars', 'Vintage Cars', 'Motorcycles')
+GROUP BY  PRODUCTLINE, ORDERS.ORDERDATE
+ORDER BY PRODUCTLINE, ORDERS.ORDERDATE]]></query>  
+        <jndi><![CDATA[SampleData]]></jndi> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

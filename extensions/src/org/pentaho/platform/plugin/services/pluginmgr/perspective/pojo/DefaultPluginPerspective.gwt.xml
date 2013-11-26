@@ -1,9 +1,9 @@
 <module>
 
-	<!-- Inherit the core Web Toolkit stuff.                  -->
-	<inherits name='com.google.gwt.user.User'/>
-	<inherits name='org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective'/>
+  <!-- Inherit the core Web Toolkit stuff.                  -->
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name='org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective'/>
 
-    <source path=""/>
+  <source path=""/>
 
 </module>

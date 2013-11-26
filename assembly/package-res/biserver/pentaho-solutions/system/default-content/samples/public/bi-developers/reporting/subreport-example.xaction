@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <inputs/>
+
+  <outputs> 
+    <test type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </test> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>subreport-parent.xml</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Create Shared Connection</action-type>
+      <action-outputs> 
+        <prepared_component type="sql-connection" mapping="shared_conn"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query for Main Report</action-type>
+      <action-inputs> 
+        <prepared_component type="sql-connection" mapping="shared_conn"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="main_query"/> 
+      </action-outputs>
+      <component-definition> 
+        <query><![CDATA[select DISTINCT POSITIONTITLE from QUADRANT_ACTUALS order by POSITIONTITLE]]></query>  
+        <live><![CDATA[true]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query for Sub Report</action-type>
+      <action-inputs> 
+        <prepared_component type="sql-connection" mapping="shared_conn"/> 
+      </action-inputs>
+      <action-outputs> 
+        <prepared_component type="sql-query" mapping="sub_query"/> 
+      </action-outputs>
+      <component-definition> 
+        <query><![CDATA[select DISTINCT DEPARTMENT from QUADRANT_ACTUALS WHERE POSITIONTITLE = {PREPARELATER:POSITIONTITLE} order by DEPARTMENT]]></query>  
+        <live><![CDATA[true]]></live> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="main_query"/>  
+        <sub_query type="sql-query"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <report-output type="content" mapping="test"/> 
+      </action-outputs>
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Kaart van Europa
+file.description=voorbeeld van het gebruik van een SVG template en een databron voor het aanmaken van een grafische voorstelling van data. <p/>Om dit voorbeeld te gebruiken moet je ten minste Firefox 1.5, Opera 8, of de Adobe SVG plug-in voor Microsoft Internet Explorer gebruiken.

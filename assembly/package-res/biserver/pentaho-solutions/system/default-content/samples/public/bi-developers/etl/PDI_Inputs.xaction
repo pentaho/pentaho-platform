@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>PDI Inputs Test</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>C. Boyden</author>  
+    <description>PDI Inputs Test</description>  
+    <help/>  
+    <result-type/>  
+    <icon/> 
+  </documentation>
+
+  <inputs>
+    <inputOne type="string">
+      <sources>
+        <request>inputOne</request>
+      </sources>
+      <default-value><![CDATA[10]]></default-value>
+    </inputOne>
+    <inputTwo type="string">
+      <sources>
+        <request>inputTwo</request>
+      </sources>
+      <default-value><![CDATA[20]]></default-value>
+    </inputTwo>
+    <inputThree type="string">
+      <sources>
+        <request>inputThree</request>
+      </sources>
+      <default-value><![CDATA[30]]></default-value>
+    </inputThree>
+  </inputs>
+
+  <outputs> 
+    <OutputRows type="result-set"/> 
+  </outputs>
+
+  <resources> 
+    <transformation-file> 
+      <solution-file> 
+        <location>SimpleTest.ktr</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </transformation-file> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>KettleComponent</component-name>
+      <action-type>Pentaho Data Integration</action-type>
+      <action-inputs>
+        <inputOne type="string"/>
+        <inputTwo type="string"/>
+        <inputThree type="string"/>
+      </action-inputs>
+      <action-resources> 
+        <transformation-file type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <kettle-execution-log type="string" mapping="OutputLog"/>  
+        <kettle-execution-status type="string" mapping="ExecStatus"/>  
+        <transformation-output-rows type="result-set" mapping="OutputRows"/>  
+        <transformation-output-rows-count type="integer" mapping="OutputRowsCount"/>  
+        <transformation-output-error-rows type="result-set" mapping="ErrorRows"/>  
+        <transformation-output-error-rows-count type="integer" mapping="ErrorRowsCount"/> 
+      </action-outputs>
+      <component-definition> 
+        <kettle-logging-level><![CDATA[rowlevel]]></kettle-logging-level>  
+        <monitor-step><![CDATA[Output]]></monitor-step>
+		<set-parameter>
+			<name>parmOne</name>
+			<mapping>inputOne</mapping>
+		</set-parameter>
+		<set-parameter>
+			<name>parmTwo</name>
+			<mapping>inputTwo</mapping>
+		</set-parameter>
+		<set-variable>
+			<name>varOne</name>
+			<mapping>inputTwo</mapping>
+		</set-variable>
+		<set-argument>
+			<name>2</name>
+			<mapping>inputThree</mapping>
+		</set-argument>
+		<set-argument>
+			<name>1</name>
+			<mapping>inputTwo</mapping>
+		</set-argument>
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

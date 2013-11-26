@@ -1,0 +1,4 @@
+#Locale = de
+#Thu Aug 15 12:32:46 EDT 2013
+file.title=Burst Sales Report
+file.description=Burst Kunden-Umsatzbericht zu jedem Kundenbetreuer. VORAUSSETZUNG IST DIE KONFIGURATION VOM EMAIL AM PENTAHO SERVER.

@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=SQL Query op Afdelingshoofden
+file.description=Deze regel gebruikt een SQL databasequery om de manager voor elke regio op te zoeken.<p>Raadpleeg de Quick Start Guide om te leren hoe u deze gegevens kan aanpassen.

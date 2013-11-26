@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>report-to-printer.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description><![CDATA[%description]]></description>  
+    <icon>JFree-quadrant-budget-hsql.png</icon>  
+    <help>just testing...</help>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>  
+    <printer-name type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>printer</request> 
+      </sources> 
+    </printer-name>  
+    <default-printer type="string"> 
+      <default-value/>  
+      <sources> 
+        <session>printer</session> 
+      </sources> 
+    </default-printer> 
+  </inputs>
+
+  <outputs> 
+    <default-printer type="string"> 
+      <destinations> 
+        <session>printer</session> 
+      </destinations> 
+    </default-printer> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeQuadForRegion.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>PrintComponent</component-name>
+      <action-type>print</action-type>
+      <action-inputs> 
+        <printer-name type="string"/>  
+        <default-printer type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <printer-name type="string"/>  
+        <default-printer type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <handle-all-prompts>true</handle-all-prompts> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <printer-name type="string"/> 
+      </action-inputs>
+      <action-resources>
+        <report-definition type="resource"/>
+      </action-resources>
+      <component-definition> 
+        <source>sql</source>  
+        <live>true</live>  
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

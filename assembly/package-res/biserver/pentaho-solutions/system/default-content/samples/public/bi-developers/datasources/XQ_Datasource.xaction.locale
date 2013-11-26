@@ -1,0 +1,5 @@
+#Locale = default
+#Thu Aug 15 12:32:45 EDT 2013
+file.title=XQuery Query of an XML Datasource
+title=XQ_Datasource
+file.description=This rule uses an XML query to return a List of Books.<p>The data source is an XML Document.

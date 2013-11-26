@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>E-mail Income Statement</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>Test send email.</description>  
+    <help/>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <outputType type="string"> 
+      <default-value><![CDATA[application/pdf]]></default-value>  
+      <sources> 
+        <request>outputType</request> 
+      </sources> 
+    </outputType>  
+    <outputTypeList type="property-map-list"> 
+      <sources> 
+        <runtime>outputTypeList</runtime> 
+      </sources>  
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="report-output-desc">PDF</entry>
+          <entry key="report-output-type-id">application/pdf</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Excel</entry>
+          <entry key="report-output-type-id">application/vnd.ms-excel</entry>
+        </property-map>
+      </default-value> 
+    </outputTypeList>  
+    <sendto type="string"> 
+      <sources> 
+        <request>sendto</request> 
+      </sources>  
+      <default-value><![CDATA[joe@pentaho.com]]></default-value>
+    </sendto> 
+  </inputs>
+
+  <outputs> 
+    <reportOutput type="content"> 
+      <destinations> 
+        <contentrepo>reportOutput</contentrepo> 
+      </destinations> 
+    </reportOutput> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>incomestatement_external.prpt</location>  
+        <mime-type>application/zip</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Report Format</action-type>
+      <action-inputs> 
+        <outputTypeList type="property-map-list"/>  
+        <outputType type="string"/>  
+        <sendto type="string"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <outputType style="radio"> 
+            <title>Select Report Format</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter> 
+          </outputType>  
+          <sendto filter="none" style="text-box"> 
+            <title>Email To</title> 
+          </sendto> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query For Report Data</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="queryData"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[SELECT * FROM TRIAL_BALANCE]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SimpleReportingComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <queryData type="result-set"/>  
+        <outputType type="string"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <outputstream type="content" mapping="reportOutput"/> 
+      </action-outputs>
+      <component-definition> 
+        <useContentRepository><![CDATA[true]]></useContentRepository> 
+      </component-definition> 
+    </action-definition>
+ 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Output content to browser</action-type>
+      <action-inputs>
+          <reportOutput type="content"/> 
+          <outputType type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+          <myReport type="content"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+                         myReport = rule.getRuntimeContext().getOutputContentItem(outputType).getOutputStream(rule.getActionName());
+                         Packages.org.apache.commons.io.IOUtils.copy(reportOutput.getInputStream(), myReport);
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+
+ 
+    <actions> 
+      <condition><![CDATA[outputType=="application/pdf"]]></condition>  
+      <action-definition> 
+        <component-name>EmailComponent</component-name>
+        <action-type>E-Mail PDF</action-type>
+        <action-inputs> 
+          <to type="string" mapping="sendto"/>  
+          <reportOutput type="content"/> 
+        </action-inputs>
+        <component-definition> 
+          <message-plain><![CDATA[Please see the report attached.]]></message-plain>  
+          <attachment-ref name-param="attach_name_1" input-param="reportOutput"/>  
+          <attach_name_1><![CDATA[incomestatement.pdf]]></attach_name_1>  
+          <subject><![CDATA[Income Statement PDF]]></subject> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[outputType=="application/vnd.ms-excel"]]></condition>  
+      <action-definition> 
+        <component-name>EmailComponent</component-name>
+        <action-type>E-Mail XLS</action-type>
+        <action-inputs> 
+          <to type="string" mapping="sendto"/>  
+          <reportOutput type="content"/> 
+        </action-inputs>
+        <component-definition> 
+          <subject><![CDATA[Income Statement XLS]]></subject>  
+          <message-plain><![CDATA[Please see attached excel file.]]></message-plain>  
+          <attachment-ref name-param="attach_name_1" input-param="reportOutput"/>  
+          <attach_name_1><![CDATA[incomestatement.xls]]></attach_name_1> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

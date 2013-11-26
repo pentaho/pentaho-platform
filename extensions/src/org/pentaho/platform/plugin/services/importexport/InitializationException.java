@@ -12,27 +12,28 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.services.importexport;
 
 /**
- * Exception generated when any initialization is unsuccessful
- * User: dkincade
+ * Exception generated when any initialization is unsuccessful User: dkincade
  */
 public class InitializationException extends Exception {
   public InitializationException() {
   }
 
-  public InitializationException(final String message) {
-    super(message);
+  public InitializationException( final String message ) {
+    super( message );
   }
 
-  public InitializationException(final String message, final Throwable cause) {
-    super(message, cause);
+  public InitializationException( final String message, final Throwable cause ) {
+    super( message, cause );
   }
 
-  public InitializationException(final Throwable cause) {
-    super(cause);
+  public InitializationException( final Throwable cause ) {
+    super( cause );
   }
 }

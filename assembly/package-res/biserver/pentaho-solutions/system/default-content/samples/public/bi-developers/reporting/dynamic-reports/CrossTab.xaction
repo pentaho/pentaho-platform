@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+
+
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation>
+    <author>Michael D'Amour</author>
+    <description>%description</description>
+    <help>just testing...</help>
+    <result-type>report</result-type>
+    <icon>JFree-quadrant-budget-hsql.png</icon>
+  </documentation>
+
+  <inputs> 
+    <groupColumns type="string"> 
+      <sources> 
+        <request>groupColumns</request> 
+      </sources>  
+      <default-value><![CDATA[0]]></default-value> 
+    </groupColumns>  
+    <outputType type="string"> 
+      <sources> 
+        <request>outputType</request> 
+      </sources>  
+      <default-value><![CDATA[html]]></default-value> 
+    </outputType>  
+    <timeIntervalList type="property-map-list">
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="timeSeriesID">YTD</entry>
+          <entry key="timeSeriesDesc">Year</entry>
+        </property-map>
+        <property-map>
+          <entry key="timeSeriesID">QTD</entry>
+          <entry key="timeSeriesDesc">Quarter</entry>
+        </property-map>
+        <property-map>
+          <entry key="timeSeriesID">MTH</entry>
+          <entry key="timeSeriesDesc">Month</entry>
+        </property-map>
+      </default-value>
+    </timeIntervalList>
+  </inputs>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Relational</action-type>
+      <action-outputs> 
+        <query_result type="result-set" mapping="relationalResult"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>true</live>  
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT
+     CONCAT(CONCAT(DIM_TIME.YEAR_ID, '-'), DIM_TIME.QTR_NAME) AS PIVOT,
+     CUSTOMER_W_TER.TERRITORY AS TERRITORY,
+     ORDERFACT.TOTALPRICE AS ORDERFACT_TOTALPRICE
+     FROM
+     CUSTOMER_W_TER CUSTOMER_W_TER INNER JOIN ORDERFACT ORDERFACT ON CUSTOMER_W_TER.CUSTOMERNUMBER = ORDERFACT.CUSTOMERNUMBER
+      INNER JOIN DIM_TIME DIM_TIME ON DIM_TIME.TIME_ID = ORDERFACT.TIME_ID
+     ORDER BY
+      PIVOT ASC,
+      CUSTOMER_W_TER.TERRITORY ASC
+        ]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ResultSetCrosstabComponent</component-name>
+      <action-type>Cross Tab Relational Data</action-type>
+      <action-inputs> 
+        <result_set type="result-set" mapping="relationalResult"/> 
+      </action-inputs>
+      <action-outputs> 
+        <crosstabresult type="result-set"/> 
+      </action-outputs>
+      <component-definition>
+        <pivot_column>1</pivot_column>  
+        <measures_column>3</measures_column>  
+        <unique_row_identifier_column>2</unique_row_identifier_column>
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Generate Report Template on the fly via JavaScript</action-type>
+      <action-inputs> 
+        <groupColumns type="string"/>  
+        <resultSet type="result-set" mapping="crosstabresult"/> 
+      </action-inputs>
+      <action-outputs> 
+        <report-definition type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[function getType(theTypeClass) {
+	if (theTypeClass != null) {
+		if (theTypeClass == "java.lang.String") {
+		return Packages.java.sql.Types.VARCHAR;
+     	} 
+	else if (theTypeClass == "java.math.BigDecimal" || theTypeClass== "java.lang.Integer" || theTypeClass== "java.lang.Double") {
+     return Packages.java.sql.Types.NUMERIC;
+	} 
+	else if (theTypeClass == "java.util.Date") {
+     return Packages.java.sql.Types.DATE;
+	}
+ 	}
+    	return Packages.java.sql.Types.VARCHAR;        
+	}
+                        
+function isGroupColumn(column) {
+	if (groupColumns != null && (column == groupColumns || groupColumns.indexOf(column + ",") != -1 || groupColumns.indexOf(", " + column) != -1)) {
+    return true;
+	}
+    return false;
+     }
+                        
+			    function getReportDefinition() { 
+			      var reportSpec = new Packages.org.pentaho.jfreereport.castormodel.reportspec.ReportSpec();
+			      //reportSpec.setUseRowBanding(false);
+      			  reportSpec.setGrandTotalsHorizontalAlignment("right");
+    			  var colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+    			  
+    			  // create sum calculated column
+                              var sumCalc = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+                              sumCalc.setName("Row Total");
+                              sumCalc.setDisplayName("Row Total");
+                              sumCalc.setIsDetail(true);
+                              sumCalc.setType(Packages.java.sql.Types.NUMERIC);
+                              sumCalc.setIsCalculatedColumn(true);
+                              sumCalc.setCalculatedColumnFunction("sum");
+        				      sumCalc.setExpression("sum"); //$NON-NLS-1$
+                              sumCalc.setFormat("#,###.##");
+        				      sumCalc.setExpression("sum"); //$NON-NLS-1$
+          				      sumCalc.setHorizontalAlignment("right"); //$NON-NLS-1$
+                  
+    			  for (var i = 0; i < colHeaders.length; i++) {
+    			    var typeClass = null;
+      				for (var j = 0; j < resultSet.getRowCount() && typeClass == null; j++) {
+        				var value = resultSet.getValueAt(j, i);
+        				if (value != null && !value.toString().equals("")) { //$NON-NLS-1$
+          					typeClass = value.getClass().getName();
+        				}
+      				}
+			        var field = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+			        field.setName(colHeaders[i].toString());
+			        field.setDisplayName(colHeaders[i].toString());
+			        field.setHorizontalAlignment("left");
+      				field.setType(getType(typeClass));
+      				if (isGroupColumn(colHeaders[i].toString())) {
+      				  field.setIsDetail(false);
+      				  field.setDisplayName(colHeaders[i].toString() + ": $(" + colHeaders[i].toString() + ")");
+      			 	  field.setGroupTotalsHorizontalAlignment("right");
+      			 	  field.setGroupTotalsLabel("$(" + colHeaders[i].toString() + ") Total");
+					  //field.setPageBreakBeforeHeader(true);
+      				}
+        			field.setUseItemHide(getType(typeClass) == Packages.java.sql.Types.NUMERIC ? false : true);
+        			if (field.getType() == Packages.java.sql.Types.NUMERIC) {
+          				field.setHorizontalAlignment("right"); //$NON-NLS-1$
+        				field.setExpression("sum"); //$NON-NLS-1$
+        			    sumCalc.addCalculatedColumns(field.getName());
+        			}
+
+      			    reportSpec.addField(field);
+				  }			      
+			      
+                  reportSpec.addField(sumCalc);
+      			  return Packages.org.pentaho.jfreereport.wizard.utility.report.ReportGenerationUtility.createJFreeReportXML(reportSpec, "UTF-8");
+			    } 
+			    getReportDefinition();]]></script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Report Using Query Results</action-type>
+      <action-inputs> 
+        <report-definition type="string"/>  
+        <output-type type="string" mapping="outputType"/>  
+        <data type="result-set" mapping="crosstabresult"/> 
+      </action-inputs>
+      <action-resources/>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

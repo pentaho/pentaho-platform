@@ -1,0 +1,4 @@
+#Locale = nl
+#Thu Aug 15 12:32:53 EDT 2013
+file.title=Beveiligde Sessie en Globale Filters
+file.description=Dit is een voorbeeld van het gebruik van een globale filter en een sessie filter.  <p/>De globale filter is DEPARTMENT_LIST die de DEPARTMENT parameter van waarden voorziet. DEPARTMENT_LIST wordt\tgegenereerd door het uitvoeren van een SQL 'select distinct' op de afdelings-kolom.  Als globale filter wordt de query slechts eenmaal uitgevoerd en is ze beschkbaar voor alle gebruikers. <p/>De sessie filter REGION_FILTER is gegenereerd door een regel die uitgevoerd wordt door elke gebruiker die zich aanmeldt. De waarden worden opgeslagen in de sessie van de gebruiker en is beschikbaar zolang de gebruiker aangemeld blijft.

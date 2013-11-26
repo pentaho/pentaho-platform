@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">  
+  <name>Income Statement.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>inc_stmt.png</icon>  
+    <help/>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default --> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>Income Statement.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data</action-type>
+      <action-outputs>
+        <query-result type="result-set" mapping="query_result"/>
+      </action-outputs>
+      <component-definition>
+        <jndi><![CDATA[SampleData]]></jndi>
+        <query><![CDATA[select * from TRIAL_BALANCE]]></query>
+        <live><![CDATA[false]]></live>
+      </component-definition>
+    </action-definition>
+
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <data type="result-set" mapping="query_result"/>
+      </action-inputs>
+      <component-definition> 
+        <live>true</live> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

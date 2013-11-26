@@ -69,11 +69,12 @@
 <ul>
 <li>Go to your JBoss home directory (called later &lt;JBossHome&gt;), then the modules folder.
 <li>Open the module.xml under &lt;JBossHome&gt;/modules/sun/jdk/main subdirectory</li>
-<li>Add the two lines below to the list of packages in the module.xml</li>
+<li>Add the three lines below to the list of packages in the module.xml</li>
 <div class="highlight">
 <pre class='brush: xml;'>
    &lt;path name="sun/net/www/protocol/jar"/&gt;
-   &lt;path name="sun/net/www/protocol/jar/JarURLConnection"/&gt;         
+   &lt;path name="sun/net/www/protocol/jar/JarURLConnection"/&gt;
+   &lt;path name="com/sun/org/apache/xerces/internal/jaxp/datatype"/&gt;            
 </pre>                              
 <li>The include-set should look like this after the addition of the two lines</li>
 <div class="highlight">
@@ -84,6 +85,7 @@
                     &lt;path name="com/sun/jndi/ldap"/&gt;
                     &lt;path name="com/sun/security/auth"/&gt;
                     &lt;path name="com/sun/security/auth/module"/&gt;
+                    &lt;path name="com/sun/org/apache/xerces/internal/jaxp/datatype"/&gt;
                     &lt;path name="sun/misc"/&gt;
                     &lt;path name="sun/nio"/&gt;
                     &lt;path name="sun/nio/ch"/&gt;

@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,15 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
- *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class StringListWrapper {
@@ -28,19 +28,19 @@ public class StringListWrapper {
 
   public StringListWrapper() {
   }
-  
-  public StringListWrapper(Collection<String> stringList) {
-    this.strings.addAll(stringList);
+
+  public StringListWrapper( Collection<String> stringList ) {
+    this.strings.addAll( stringList );
   }
-  
+
   public List<String> getStrings() {
     return strings;
   }
 
-  public void setStrings(List<String> stringList) {
-    if (stringList != this.strings) {
+  public void setStrings( List<String> stringList ) {
+    if ( stringList != this.strings ) {
       this.strings.clear();
-      this.strings.addAll(stringList);
+      this.strings.addAll( stringList );
     }
   }
 }

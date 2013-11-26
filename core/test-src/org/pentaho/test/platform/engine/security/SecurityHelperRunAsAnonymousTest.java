@@ -1,4 +1,4 @@
-/*
+/*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,54 +12,52 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
-package org.pentaho.test.platform.engine.security;
 
-import java.util.concurrent.Callable;
+package org.pentaho.test.platform.engine.security;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 
+import java.util.concurrent.Callable;
+
 /**
- * Test class that validates if ISecurityHelper.runAsAnonymous() method holds an
- * AnonymousAuthenticationToken User: pteixeira
+ * Test class that validates if ISecurityHelper.runAsAnonymous() method holds an AnonymousAuthenticationToken User:
+ * pteixeira
  */
 public class SecurityHelperRunAsAnonymousTest extends TestCase {
 
-	public void testRunAsAnonymousWithAnonymousAuthenticationToken() throws Exception {
+  public void testRunAsAnonymousWithAnonymousAuthenticationToken() throws Exception {
 
-		Callable<Object> callableObject = new Callable<Object>() {
+    Callable<Object> callableObject = new Callable<Object>() {
 
-			public Object call() throws Exception {
+      public Object call() throws Exception {
 
-				Authentication auth = SecurityContextHolder.getContext()
-						.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-				Assert.assertTrue(auth != null
-						&& auth instanceof AnonymousAuthenticationToken);
-				
-				return null;
-			}
-		};
+        Assert.assertTrue( auth != null && auth instanceof AnonymousAuthenticationToken );
 
-		SecurityHelper.getInstance().runAsAnonymous(callableObject);
-	}
+        return null;
+      }
+    };
 
-	public static void main(final String[] args) {
-		SecurityHelperRunAsAnonymousTest test = new SecurityHelperRunAsAnonymousTest();
-		try {
-			
-			test.testRunAsAnonymousWithAnonymousAuthenticationToken();
+    SecurityHelper.getInstance().runAsAnonymous( callableObject );
+  }
 
-		}catch(Throwable t){
-			System.err.println(t.toString());
-		}
-	}
+  public static void main( final String[] args ) {
+    SecurityHelperRunAsAnonymousTest test = new SecurityHelperRunAsAnonymousTest();
+    try {
+
+      test.testRunAsAnonymousWithAnonymousAuthenticationToken();
+
+    } catch ( Throwable t ) {
+      System.err.println( t.toString() );
+    }
+  }
 
 }
