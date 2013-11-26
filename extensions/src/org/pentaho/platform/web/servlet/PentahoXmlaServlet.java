@@ -30,36 +30,33 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 
 public class PentahoXmlaServlet extends DefaultXmlaServlet {
 
-    private static final long serialVersionUID = 1L;
-    private final IOlapService olapService;
+  private static final long serialVersionUID = 1L;
+  private final IOlapService olapService;
 
-    public PentahoXmlaServlet() {
-        super();
-        olapService = PentahoSystem.get(IOlapService.class);
-    }
+  public PentahoXmlaServlet() {
+    super();
+    olapService = PentahoSystem.get( IOlapService.class );
+  }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory(ServletConfig arg0)
-        throws ServletException
-    {
-        return new ConnectionFactory() {
-            public Map<String, Object> getPreConfiguredDiscoverDatasourcesResponse() {
-                return null;
-            }
-            public OlapConnection getConnection(
-                String databaseName,
-                String catalogName,
-                String roleNames,
-                Properties props)
-            throws SQLException
-            {
-                // We ignore databaseName because there can only be 1.
-                // We ignore the roleNames because we get them from the session.
-                return olapService
-                    .getConnection(
-                        catalogName,
-                        PentahoSessionHolder.getSession());
-            }
+  @Override
+  protected ConnectionFactory createConnectionFactory( ServletConfig arg0 ) throws ServletException {
+    return new ConnectionFactory() {
+      public Map<String, Object> getPreConfiguredDiscoverDatasourcesResponse() {
+        return null;
+      }
+      public OlapConnection getConnection(
+        String databaseName,
+        String catalogName,
+        String roleNames,
+        Properties props )
+        throws SQLException {
+        // We ignore databaseName because there can only be 1.
+        // We ignore the roleNames because we get them from the session.
+        return olapService
+          .getConnection(
+            catalogName,
+            PentahoSessionHolder.getSession() );
+      }
 // The code below will be needed when we move to olap4j-xmlaserver
 //
 //            public void endRequest(Request arg0) {
@@ -86,6 +83,6 @@ public class PentahoXmlaServlet extends DefaultXmlaServlet {
 //            public Request startRequest(XmlaRequest request, OlapConnection conn) {
 //                return null;
 //            }
-        };
-    }
+    };
+  }
 }

@@ -1,20 +1,16 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+ * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * This software was developed by Pentaho Corporation and is provided under the terms
+ * of the Mozilla Public License, Version 1.1, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. The Initial Developer is Pentaho Corporation.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
- *
-*/
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
+
 package org.pentaho.platform.plugin.action.olap;
 
 import java.io.InputStream;
@@ -37,8 +33,8 @@ public interface IOlapService {
    */
   OlapConnection getConnection(
       String catalogName,
-      IPentahoSession session)
-  throws IOlapServiceException;
+      IPentahoSession session )
+    throws IOlapServiceException;
 
   /**
    * Adds a hosted catalog on this server.
@@ -53,18 +49,18 @@ public interface IOlapService {
       String dataSourceInfo,
       InputStream inputStream,
       boolean overwriteInRepossitory,
-      IPentahoSession session)
-  throws IOlapServiceException;
+      IPentahoSession session )
+    throws IOlapServiceException;
 
   /**
    * Adds a generic olap4j catalog to this server.
    * @param name Name of the catalog to use
    * @param className The class of the driver to use.
-   * Must be an imlementation of OlapConnection.
+   * Must be an implementation of OlapConnection.
    * @param URL The URL to use.
    * @param user Username to use when connecting.
    * @param password Password to use when connecting.
-   * @param props Extra conenction parameters to pass.
+   * @param props Extra connection parameters to pass.
    * @param overwrite Whether to overwrite the catalog if it exists.
    * @param pentahoSession The session to use when creating the connection.
    */
@@ -76,8 +72,8 @@ public interface IOlapService {
       String password,
       Properties props,
       boolean overwrite,
-      IPentahoSession pentahoSession)
-  throws IOlapServiceException;
+      IPentahoSession pentahoSession )
+    throws IOlapServiceException;
 
   /**
    * Provides a list of catalog names known to this server,
@@ -85,8 +81,8 @@ public interface IOlapService {
    * @param pentahoSession The session asking for catalogs.
    */
   List<String> getCatalogs(
-      final IPentahoSession pentahoSession)
-  throws IOlapServiceException;
+      final IPentahoSession pentahoSession )
+    throws IOlapServiceException;
 
   /**
    * Removes a catalog from this server, whether hosted or remote.
@@ -95,11 +91,11 @@ public interface IOlapService {
    */
   void removeCatalog(
       final String catalogName,
-      final IPentahoSession pentahoSession)
-  throws IOlapServiceException;
+      final IPentahoSession pentahoSession )
+    throws IOlapServiceException;
 
   /**
    * Flushes all schema caches.
    */
-  public void flushAll(IPentahoSession pentahoSession);
+  public void flushAll( IPentahoSession pentahoSession );
 }
