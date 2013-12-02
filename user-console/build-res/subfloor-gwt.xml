@@ -81,9 +81,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </fileset>
     <fileset dir="${codegenlib.dir}">
       <include name="*.jar" />
+      <exclude name="gwt-dev*.jar" />
     </fileset>
   </path>
 
+	
+  <!-- Setup the classpath used for testing -->
+  <path id="test.classpath">
+    <pathelement path="${testclasses.dir}" />
+    <pathelement path="${classes.dir}" />
+    <pathelement path="${testsrc.dir}" />
+    <pathelement path="${src.dir}" />
+    <fileset dir="${devlib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${testlib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+  </path>
+	
+	
   <!--=======================================================================
       init (override)
       
@@ -196,5 +216,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </fileset>
     </copy>
   </target>
+	
+	
+    <!--=======================================================================
+      install-pentaho-ant-tasks
+
+      Fetches and installs Pentaho Ant tasks
+    ====================================================================-->
+    <target name="install-pentaho-ant-tasks" depends="install-ivy">
+        <taskdef-with-ivy task-name="validate-gwt-compile" classname="org.pentaho.anttasks.GwtBuildValidator" organisation="pentaho" module="pentaho-ant-tasks" revision="1.2-SNAPSHOT" />
+    </target>
+
+    <!--=======================================================================
+      validate-gwt-compile
+
+      Fetches and installs Pentaho Ant tasks
+    ====================================================================-->
+    <target name="gwt-compile.validate" depends="install-pentaho-ant-tasks, gwt-compile">
+        <validate-gwt-compile stagePath="${gwt.output.dir}" whitelistFilePath="${basedir}/package-res/plugin.spring.xml" quickScan="true" debug="false" />
+    </target>
+	
 
 </project>
