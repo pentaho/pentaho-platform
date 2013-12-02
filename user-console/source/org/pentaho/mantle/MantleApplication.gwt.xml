@@ -25,6 +25,9 @@
 
   <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true"/>
 
+  <add-linker name="xsiframe"/>
+  <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+
   <!-- Specify the app entry point class.                   -->
   <entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>
 
