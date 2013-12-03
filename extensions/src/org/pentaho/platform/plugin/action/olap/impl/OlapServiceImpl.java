@@ -42,7 +42,6 @@ import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -55,10 +54,24 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.HostedCatalogInfo;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
 
+/**
+ * Implementation of the IOlapService which uses the
+ * {@link MondrianCatalogRepositoryHelper} as a backend to
+ * store the connection informations and uses {@link DriverManager}
+ * to create the connections.
+ *
+ * <p>It will also check for the presence of a {@link IConnectionUserRoleMapper}
+ * and change the roles accordingly before creating a connection.
+ */
 public class OlapServiceImpl implements IOlapService {
 
-  public static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
-  public static final String DATASOURCE_NAME = "Pentaho";
+  static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
+
+  /**
+   * This is the default name of an XMLA data source on the server.
+   * Mondrian XMLA servers only support a single data source.
+   */
+  static final String DATASOURCE_NAME = "Pentaho";
 
   private static final Log LOG = getLogger();
 
@@ -73,18 +86,30 @@ public class OlapServiceImpl implements IOlapService {
   private MondrianServer server = null;
   private final List<IOlapConnectionFilter> filters;
 
+  /**
+   * Possible access rights on a connection.
+   */
   protected static enum CatalogPermission {
-    READ, WRITE
+    READ,
+    WRITE
   }
 
   private static Log getLogger() {
     return LogFactory.getLog( IOlapService.class );
   }
 
+  /**
+   * Empty constructor. Creating an instance from here will
+   * use the {@link PentahoSystem} to fetch the {@link IUnifiedRepository}
+   * at runtime.
+   */
   public OlapServiceImpl() {
     this( null );
   }
 
+  /**
+   * Constructor for testing purposes. Takes a repository as a parameter.
+   */
   public OlapServiceImpl( IUnifiedRepository repo ) {
     this.repository = repo;
     this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
@@ -133,7 +158,7 @@ public class OlapServiceImpl implements IOlapService {
     try {
       MondrianCatalogRepositoryHelper helper =
         new MondrianCatalogRepositoryHelper( getRepository() );
-      helper.addSchema( inputStream, name, dataSourceInfo );
+      helper.addHostedCatalog( inputStream, name, dataSourceInfo );
     } catch ( Exception e ) {
       throw new IOlapServiceException(
         e,
@@ -187,7 +212,8 @@ public class OlapServiceImpl implements IOlapService {
 
   public void removeCatalog( String name, IPentahoSession session ) {
     try {
-      if ( !getConnection( name, session ).getOlapCatalogs().asMap().containsKey( name ) ) {
+      if ( getConnection( name, session ) == null
+        || !getConnection( name, session ).getOlapCatalogs().asMap().containsKey( name ) ) {
         throw new IOlapServiceException(
           Messages.getInstance().getErrorString(
             "MondrianCatalogHelper.ERROR_0015_CATALOG_NOT_FOUND",
@@ -206,25 +232,8 @@ public class OlapServiceImpl implements IOlapService {
         IOlapServiceException.Reason.ACCESS_DENIED );
     }
 
-    final RepositoryFile deletingFile =
-        getRepository().getFile(
-          RepositoryFile.SEPARATOR
-          + "etc" //$NON-NLS-1$
-          + RepositoryFile.SEPARATOR
-          + "mondrian"  //$NON-NLS-1$
-          + RepositoryFile.SEPARATOR
-          + name );
-
-    if ( deletingFile != null ) {
-      // We are dealing with a local datasource here. We can delete it.
-      getRepository().deleteFile(
-        deletingFile.getId(),
-        "Deleting Mondrian Schema because of a request from "
-        + session.getName() );
-    } else {
-      // This could be a remote connection
-      getHelper().deleteOlap4jServer( name );
-    }
+    // This could be a remote connection
+    getHelper().deleteCatalog( name );
   }
 
   public void flushAll( IPentahoSession pentahoSession ) {
@@ -382,6 +391,9 @@ public class OlapServiceImpl implements IOlapService {
           new DynamicContentFinder( "http://not-needed.com" ) {
             @Override
             public String getContent() {
+              // We dynamically generate the XML required by the
+              // XMLA servlet. It must conform to Datasources.dtd,
+              // as specified by olap4j-xmlaserver.
               return getDatasourcesXml();
             }
           },

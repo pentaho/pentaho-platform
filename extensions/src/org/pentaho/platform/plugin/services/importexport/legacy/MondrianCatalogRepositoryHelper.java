@@ -50,7 +50,12 @@ public class MondrianCatalogRepositoryHelper {
     this.repository = repository;
   }
 
+  @Deprecated
   public void addSchema( InputStream mondrianFile, String catalogName, String datasourceInfo ) throws Exception {
+    this.addHostedCatalog( mondrianFile, catalogName, datasourceInfo );
+  }
+
+  public void addHostedCatalog( InputStream mondrianFile, String catalogName, String datasourceInfo ) throws Exception {
     RepositoryFile catalog = createCatalog( catalogName, datasourceInfo );
 
     File tempFile = File.createTempFile( "tempFile", null );
@@ -74,6 +79,27 @@ public class MondrianCatalogRepositoryHelper {
       repository.createFile( catalog.getId(), repoFileBundle.getFile(), data, null );
     } else {
       repository.updateFile( schema, data, null );
+    }
+  }
+
+  public void deleteCatalog( String catalogName ) {
+    deleteHostedCatalog( catalogName );
+    deleteOlap4jServer( catalogName );
+  }
+
+  public void deleteHostedCatalog( String catalogName ) {
+
+    final RepositoryFile catalogNode =
+      repository.getFile(
+        ETC_MONDRIAN_JCR_FOLDER
+          + RepositoryFile.SEPARATOR
+          + catalogName );
+
+    if ( catalogNode != null ) {
+      repository.deleteFile(
+        catalogNode,
+        "Deleting hosted catalog: "
+        + catalogName );
     }
   }
 
