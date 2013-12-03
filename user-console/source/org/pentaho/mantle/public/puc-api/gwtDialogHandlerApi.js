@@ -3,9 +3,9 @@
  * API for handling gwt dialogs that want to become fullscreen
  */
 
-var deps = ['mantle/puc-api/pucAngularApi', 'common-ui/jquery'];
+var deps = ['mantle/puc-api/pucAngularPlugin', 'common-ui/jquery'];
 
-pen.define(deps, function(PentahoPluginHandler) {
+pen.define(deps, function(PUCAngularPlugin) {
 
 	var routeMap = {};
 	var fullScreenCssName = "full-screen";
@@ -24,7 +24,7 @@ pen.define(deps, function(PentahoPluginHandler) {
 				})
 		};
 
-		var plugin = new PentahoPluginHandler.Plugin({
+		var plugin = new PUCAngularPlugin({
 			routerCallback : routerCallback
 		}).register();
 		

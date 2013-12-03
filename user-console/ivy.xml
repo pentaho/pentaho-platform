@@ -66,6 +66,8 @@
         <dependency org="com.allen_sauer" name="gwt-dnd" rev="${dependency.gwt-dnd.revision}"       conf="codegen->default" transitive="false"/>
         <dependency org="com.google.gwt" name="gwt-user" rev="${dependency.gwt.revision}" conf="codegen->default" transitive="false"/>
         <dependency org="com.google.gwt" name="gwt-dev"  rev="${dependency.gwt.revision}" conf="codegen->default" transitive="false"/>
+        <dependency org="com.google.gwt" name="gwt-codeserver"  rev="${dependency.gwt.revision}" conf="codegen->default" transitive="false"/>
+		<dependency org="org.json" name="json" rev="3.1.1" transitive="false" conf="codegen->default" />
 
         <dependency org="javax.validation" name="validation-api"  rev="1.0.0.GA" conf="codegen->default" transitive="false">
           <artifact name="validation-api"/>
