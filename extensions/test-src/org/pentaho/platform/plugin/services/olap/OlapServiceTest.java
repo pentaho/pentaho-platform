@@ -16,35 +16,20 @@ package org.pentaho.platform.plugin.services.olap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.pentaho.database.model.DatabaseConnection;
-import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.database.service.DatabaseDialectService;
-import org.pentaho.database.service.IDatabaseDialectService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.util.IPasswordService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.SystemSettings;
-import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
+import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl;
-import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.util.Base64PasswordService;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -54,35 +39,48 @@ import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtil
 public class OlapServiceTest extends TestCase {
 
   private IUnifiedRepository repository;
-  private MicroPlatform booter;
+  private String mondrianFolderPath;
+  private String olapFolderPath;
+  private IPentahoSession session;
+  private IOlapService olapService;
 
   @Override
   protected void setUp() throws Exception {
 
-    PentahoSessionHolder.setSession(new StandaloneSession( "admin" ) );
-
     repository = mock( IUnifiedRepository.class );
 
-    booter = new MicroPlatform( "test-src/solution" );
-    booter.define( IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL );
-    booter.define( IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL );
-    booter.define( IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL );
-    booter.define( ICacheManager.class, CacheManager.class, Scope.GLOBAL );
-    booter.define( IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL );
-    booter.defineInstance( IUnifiedRepository.class, repository );
-    booter.define( ISolutionEngine.class, SolutionEngine.class, Scope.GLOBAL );
-    booter.define( IOlapService.class, OlapServiceImpl.class, Scope.GLOBAL );
-    booter.setSettingsProvider( new SystemSettings() );
-    booter.start();
+    // Stub /etc/mondrian
+    mondrianFolderPath =
+      ClientRepositoryPaths.getEtcFolderPath()
+      + RepositoryFile.SEPARATOR
+      + "mondrian";
+    stubGetFolder( repository, mondrianFolderPath );
+
+    // Stub /etc/olap-servers
+    olapFolderPath =
+      ClientRepositoryPaths.getEtcFolderPath()
+      + RepositoryFile.SEPARATOR
+      + "olap-servers";
+    stubGetFolder( repository, olapFolderPath );
+
+    // Create a session as admin.
+    session = new StandaloneSession( "admin" );
+
+    // Create the olap service.
+    olapService = new OlapServiceImpl( repository );
   }
 
-  public void testImportHosted() throws Exception {
+  protected void tearDown() throws Exception {
+    repository = null;
+    olapService = null;
+    session = null;
+    super.tearDown();
+  }
 
-    // Stub /etc/mondrian
-    final String mondrianFolderPath =
-      ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
-    stubGetFolder( repository, mondrianFolderPath );
-    stubGetChildren( repository, mondrianFolderPath ); // return no children
+  /**
+   * Verifies that we can create locally hosted mondrian instances.
+   */
+  public void testImportHosted() throws Exception {
 
     final String testFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "test-server";
     stubGetFileDoesNotExist( repository, testFolderPath );
@@ -91,7 +89,7 @@ public class OlapServiceTest extends TestCase {
     stubCreateFile( repository, metadataPath );
 
     final IPentahoSession session = new StandaloneSession( "admin" );
-    final IOlapService olapService = PentahoSystem.get( IOlapService.class );
+    final IOlapService olapService = new OlapServiceImpl( repository );
 
     final InputStream is =
       new FileInputStream(
@@ -117,22 +115,17 @@ public class OlapServiceTest extends TestCase {
       any( IRepositoryFileData.class ), anyString() );
   }
 
+  /**
+   * Verifies that we can add generic olap4j connections.
+   */
   public void testImportOlap4j() throws Exception {
 
-    // Stub /etc/mondrian
-    final String olapFolderPath =
-      ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
-    stubGetFolder( repository, olapFolderPath );
-    stubGetChildren( repository, olapFolderPath ); // return no children
-
     final String testFolderPath = olapFolderPath + RepositoryFile.SEPARATOR + "test-server-2";
-    stubGetFileDoesNotExist( repository, testFolderPath );
     stubCreateFolder( repository, testFolderPath );
+
     final String metadataPath = testFolderPath + RepositoryFile.SEPARATOR + "metadata";
     stubCreateFile( repository, metadataPath );
 
-    final IPentahoSession session = new StandaloneSession( "admin" );
-    final IOlapService olapService = PentahoSystem.get( IOlapService.class );
 
     olapService.addOlap4jCatalog(
       "test-server-2",
@@ -146,12 +139,241 @@ public class OlapServiceTest extends TestCase {
 
     verify( repository ).createFile(
       eq( makeIdObject( testFolderPath ) ),
-      argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
-      argThat( hasData(
-        pathPropertyPair( "/name", "test-server-2" ),
-        pathPropertyPair( "/className", "class-name" ),
-        pathPropertyPair( "/url", "url" ),
-        pathPropertyPair( "/password", "password" )
-      ) ), anyString() );
+      argThat(
+        isLikeFile( makeFileObject( metadataPath ) ) ),
+      argThat(
+        hasData(
+          pathPropertyPair( "/server/name", "test-server-2" ),
+          pathPropertyPair( "/server/className", "class-name" ),
+          pathPropertyPair( "/server/URL", "url" ),
+          pathPropertyPair( "/server/user", "user" ),
+          pathPropertyPair( "/server/password", "password" ) ) ),
+      anyString() );
+  }
+
+  /**
+   * Validates getting a list of remote catalogs.
+   */
+  public void testGetOlap4jCatalogs() throws Exception {
+
+    stubGetChildren( repository, olapFolderPath, "myServer" );
+
+    // Stub /etc/olap-servers/myServer
+    final String testServerPath =
+      olapFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+
+    // Stub /etc/olap-servers/myServer/metadata
+    final String metadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath
+      + RepositoryFile.SEPARATOR
+      + "myServer",
+      "server",
+      pathPropertyPair( "/server/name", "myServer" ),
+      pathPropertyPair( "/server/user", "myUser" ),
+      pathPropertyPair( "/server/password", "myPassword" ),
+      pathPropertyPair( "/server/URL", "myUrl" ),
+      pathPropertyPair( "/server/className", "someClass" ) );
+
+    // Get a list of catalogs.
+    final List<String> catalogs = olapService.getCatalogs( session );
+
+    assertEquals( 1, catalogs.size() );
+    assertEquals( "myServer", catalogs.get( 0 ) );
+
+    verify( repository ).getChildren(
+      eq( makeIdObject( olapFolderPath ) ) );
+
+    // Now check for non-existent catalogs
+    try {
+      olapService.getConnection( "someName", session );
+      fail();
+    } catch ( IOlapServiceException e ) {
+      assertEquals(
+        "MondrianCatalogHelper.ERROR_0015 - Catalog someName not found",
+        e.getMessage() );
+    }
+  }
+
+  /**
+   * Validates getting a list of hosted catalogs.
+   */
+  public void testGetHostedCatalogs() throws Exception {
+
+    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
+
+    // Stub /etc/mondrian/myHostedServer
+    final String testServerPath =
+      mondrianFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myHostedServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+
+    // Stub /etc/mondrian/myServer/myHostedServer
+    final String metadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath,
+      "catalog",
+      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+
+    // Get a list of catalogs.
+    final List<String> catalogs = olapService.getCatalogs( session );
+
+    assertEquals( 1, catalogs.size() );
+    assertEquals( "myHostedServer", catalogs.get( 0 ) );
+
+    verify( repository ).getChildren(
+      eq( makeIdObject( mondrianFolderPath ) ) );
+
+    // Now check for non-existent catalogs
+    try {
+      olapService.getConnection( "someName", session );
+      fail();
+    } catch ( IOlapServiceException e ) {
+      assertEquals(
+        "MondrianCatalogHelper.ERROR_0015 - Catalog someName not found",
+        e.getMessage() );
+    }
+  }
+
+  /**
+   * Validates getting a list of hosted catalogs. They must come
+   * back sorted correctly.
+   */
+  public void testGetAllCatalogs() throws Exception {
+
+    // Stub the hosted server
+    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
+    final String testServerPath =
+      mondrianFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myHostedServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+    final String metadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath,
+      "catalog",
+      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+
+    // Stub the remote server
+    stubGetChildren( repository, olapFolderPath, "myServer" );
+    final String remoteServerPath =
+      olapFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myServer";
+    stubGetFolder( repository, remoteServerPath );
+    stubGetChildren( repository, remoteServerPath, "metadata" );
+    final String remoteMetadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, remoteMetadataPath );
+    stubGetData(
+      repository,
+      remoteMetadataPath
+      + RepositoryFile.SEPARATOR
+      + "myServer",
+      "server",
+      pathPropertyPair( "/server/name", "myServer" ),
+      pathPropertyPair( "/server/user", "myUser" ),
+      pathPropertyPair( "/server/password", "myPassword" ),
+      pathPropertyPair( "/server/URL", "myUrl" ),
+      pathPropertyPair( "/server/className", "someClass" ) );
+
+    // Get a list of catalogs.
+    final List<String> catalogs = olapService.getCatalogs( session );
+
+    assertEquals( 2, catalogs.size() );
+    assertEquals( "myHostedServer", catalogs.get( 0 ) );
+    assertEquals( "myServer", catalogs.get( 1 ) );
+
+    verify( repository ).getChildren(
+      eq( makeIdObject( mondrianFolderPath ) ) );
+    verify( repository ).getChildren(
+      eq( makeIdObject( olapFolderPath ) ) );
+  }
+
+  /**
+   * Validates getting a list of remote catalogs.
+   */
+  public void testRemoveOlap4jCatalogs() throws Exception {
+
+    stubGetChildren( repository, olapFolderPath, "myServer" );
+
+    // Stub /etc/olap-servers/myServer
+    final String testServerPath =
+      olapFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+
+    // Stub /etc/olap-servers/myServer/metadata
+    final String metadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath
+      + RepositoryFile.SEPARATOR
+      + "myServer",
+      "server",
+      pathPropertyPair( "/server/name", "myServer" ),
+      pathPropertyPair( "/server/user", "myUser" ),
+      pathPropertyPair( "/server/password", "myPassword" ),
+      pathPropertyPair( "/server/URL", "myUrl" ),
+      pathPropertyPair( "/server/className", "someClass" ) );
+
+    // Get a list of catalogs.
+    final List<String> catalogs = olapService.getCatalogs( session );
+
+    assertEquals( 1, catalogs.size() );
+    assertEquals( "myServer", catalogs.get( 0 ) );
+
+    verify( repository ).getChildren(
+      eq( makeIdObject( olapFolderPath ) ) );
+
+    // Now delete it.
+    olapService.removeCatalog( "myServer", session );
+
+    // Check if the repo was modified.
+    verify( repository ).deleteFile(
+      argThat( isLikeFile( makeFileObject( testServerPath ) ) ),
+      anyString() );
+
+    // Now check for non-existent catalogs
+    try {
+      olapService.removeCatalog( "someName", session );
+      fail();
+    } catch ( IOlapServiceException e ) {
+      assertEquals(
+        "MondrianCatalogHelper.ERROR_0015 - Catalog someName not found",
+        e.getMessage() );
+    }
   }
 }

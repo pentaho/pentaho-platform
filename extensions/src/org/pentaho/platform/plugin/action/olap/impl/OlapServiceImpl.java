@@ -23,6 +23,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -37,7 +38,6 @@ import mondrian.spi.CatalogLocator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
-import org.olap4j.OlapException;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -211,16 +211,12 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   public void removeCatalog( String name, IPentahoSession session ) {
-    try {
-      if ( getConnection( name, session ) == null
-        || !getConnection( name, session ).getOlapCatalogs().asMap().containsKey( name ) ) {
-        throw new IOlapServiceException(
-          Messages.getInstance().getErrorString(
-            "MondrianCatalogHelper.ERROR_0015_CATALOG_NOT_FOUND",
-            name ) );
-      }
-    } catch ( OlapException e ) {
-      throw new IOlapServiceException( e );
+
+    if ( !getCatalogs( session ).contains( name ) ) {
+      throw new IOlapServiceException(
+        Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0015_CATALOG_NOT_FOUND",
+          name ) );
     }
 
     // Check Access
@@ -253,6 +249,7 @@ public class OlapServiceImpl implements IOlapService {
     List<String> names = new ArrayList<String>();
     names.addAll( getHelper().getHostedCatalogs() );
     names.addAll( getHelper().getOlap4jServers() );
+    Collections.sort( names );
     return names;
   }
 

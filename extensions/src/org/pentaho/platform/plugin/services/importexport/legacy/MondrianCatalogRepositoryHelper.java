@@ -318,7 +318,7 @@ public class MondrianCatalogRepositoryHelper {
       final NodeRepositoryFileData data =
         repository.getDataForRead(
           source.getId(),
-            NodeRepositoryFileData.class );
+          NodeRepositoryFileData.class );
 
       this.name = data.getNode().getProperty( "name" ).getString();
       this.className = data.getNode().getProperty( "className" ).getString();
