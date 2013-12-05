@@ -62,7 +62,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> T get( Class<T> interfaceClass, String key, IPentahoSession session ) throws ObjectFactoryException {
     Map map = ( key != null ) ? Collections.singletonMap( "id", key ) : Collections.emptyMap();
-    return get( interfaceClass, session, map );
+    return (T) get( interfaceClass, session, map );
   }
 
   @Override
