@@ -52,17 +52,17 @@
 
     <dependency org="net.sf.saxon" name="saxon" rev="9.1.0.8" transitive="false"/>
     <dependency org="net.sf.saxon" name="saxon-dom" rev="9.1.0.8" transitive="false"/>
-    
-    
+
+
     <dependency org="org.quartz-scheduler" name="quartz" rev="1.7.2" transitive="false"/>
 
     <dependency org="rhino" name="js" rev="1.7R3"/>
     <!--  open flash chart json builder -->
     <dependency org="com.thoughtworks.xstream" name="xstream" rev="${dependency.xstream.revision}"/>
-    
+
     <!--  The PDI Excel output step depends on this  -->
     <dependency org="org.apache.xmlbeans" name="xmlbeans" rev="2.5.0" transitive="false"/>
-    
+
     <!--  PDI Elastic search bulk loader -->
     <dependency org="elasticsearch" name="elasticsearch" rev="0.16.3" transitive="false"/>
 
@@ -72,6 +72,9 @@
     <!--  external lib/xml dependencies -->
     <dependency org="jaxen" name="jaxen" rev="1.1.1" transitive="false"/>
     <dependency org="xerces" name="xercesImpl" rev="2.9.1">
+      <exclude org="xml-apis" name="xml-apis"/>
+    </dependency>
+    <dependency org="xerces" name="xercesImpl" rev="2.9.1" conf="test->default">
       <exclude org="xml-apis" name="xml-apis"/>
     </dependency>
     <dependency org="xml-apis" name="xml-apis" rev="1.4.01"/>
@@ -146,7 +149,7 @@
 
     <!-- To support Enunciate Annotations in Resource classes 1.21.1 -->
 	<dependency org="org.codehaus.enunciate" name="enunciate-jersey-rt" rev="1.27" />
-	
+
     <!--  internal dependencies -->
 
     <!--  charting  -->
@@ -183,8 +186,8 @@
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-legacy-functions"
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
-    <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-cda" 
-		rev="${dependency.pentaho-reporting.revision}" transitive="false" changing="true"/>                
+    <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-cda"
+		rev="${dependency.pentaho-reporting.revision}" transitive="false" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-wizard-core"
                 rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
     <dependency org="pentaho" name="pentaho-report-wizard-core" rev="${dependency.pentaho-report-wizard-core.revision}"
@@ -201,7 +204,7 @@
     <!-- kettle and dependencies -->
     <dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.kettle.revision}" changing="true"/>
     <dependency org="pentaho-kettle" name="kettle-core" rev="${dependency.kettle.revision}" changing="true"/>
-    
+
     <dependency org="org.snmp4j" name="snmp4j" rev="1.9.3d" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="salesforce-partner" rev="24.0" conf="default->default" transitive="false"/>
     <dependency org="rome" name="rome" rev="1.0" conf="default->default" transitive="false"/>
@@ -232,7 +235,7 @@
                 transitive="false"/>
     <dependency org="postgresql" name="postgresql" rev="9.1-902.jdbc4" conf="default->default" transitive="false"/>
     <dependency org="hsqldb" name="hsqldb" rev="1.8.0" conf="default->default" transitive="false"/>
-    <dependency org="com.h2database" name="h2" rev="1.2.131" conf="default->default" /> 
+    <dependency org="com.h2database" name="h2" rev="1.2.131" conf="default->default" />
 
 
     <!-- kettle jdbc drivers -->
@@ -308,8 +311,17 @@
     <dependency org="org.apache.ws.commons.schema" name="XmlSchema" rev="1.4.2" transitive="false"
                 conf="runtime->default"/>
 
+    <!-- OSGI Components -->
+    <dependency org="org.osgi" name="org.osgi.core" rev="4.3.1"/>
+
+    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-core" rev="1.0.2.RELEASE"/>
+
+    <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.2.1"/>
+    <dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"/>
+
+
     <!--  testing dependencies -->
-    <dependency org="junit" name="junit" rev="4.4" conf="test->default"/>
+    <dependency org="junit" name="junit" rev="4.11" conf="test->default"/>
     <dependency org="com.dumbster" name="dumbster" rev="1.6.0" conf="test->default"/>
 
     <dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default"/>
@@ -353,12 +365,17 @@
       <exclude org="log4j" name="log4j"/>
     </dependency>
 
+    <dependency org="com.google.guava" name="guava" rev="15.0" conf="test->default"/>
+
     <!-- dependencies for generating doc -->
     <dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.27" conf="enunciate->default"/>
 
     <exclude org="junit" conf="default,runtime,source"/>
     <exclude org="org.apache.ant" conf="default,runtime,source"/>
     <exclude org="org.glassfish" module="javax.servlet"/>
+
+    <exclude org="org.osgi" module="org.osgi.core" conf="test"/>
+
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>
 

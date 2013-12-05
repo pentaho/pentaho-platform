@@ -35,7 +35,7 @@ import java.util.Map;
  * 
  * User: nbaker Date: 1/16/13
  */
-public class SpringPentahoObjectReference<T> implements IPentahoObjectReference {
+public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<T> {
 
   private ConfigurableApplicationContext context;
 
@@ -59,7 +59,8 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
   }
 
   @Override
-  public Object getObject() {
+  @SuppressWarnings( "unchecked" )
+  public T getObject() {
     SpringScopeSessionHolder.SESSION.set( session );
     Object obj = context.getBeanFactory().getBean( name );
     SpringScopeSessionHolder.SESSION.set( null );
@@ -67,7 +68,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
     if ( obj instanceof IPentahoInitializer ) {
       ( (IPentahoInitializer) obj ).init( session );
     }
-    return obj;
+    return (T) obj;
   }
 
   @Override
@@ -112,7 +113,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
   }
 
   @Override
-  public int compareTo( Object o ) {
+  public int compareTo( IPentahoObjectReference<T> o ) {
     if ( o == null || o instanceof IPentahoObjectReference == false ) {
       return -1;
     }
@@ -127,6 +128,11 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference 
       return -1;
     }
 
+  }
+
+  @Override
+  public Integer getRanking() {
+    return extractPriority(this);
   }
 
   private int extractPriority( IPentahoObjectReference ref ) {
