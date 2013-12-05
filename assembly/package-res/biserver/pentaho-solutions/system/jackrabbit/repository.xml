@@ -241,6 +241,7 @@
         -->
     <!--
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+      <param name="driver" value="com.mysql.jdbc.Driver"/>
       <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
       <param name="user" value="jcr_user" />
       <param name="password" value="password" />
@@ -370,6 +371,7 @@ value="{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:w
         -->
     <!--
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+      <param name="driver" value="com.mysql.jdbc.Driver"/>
       <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
       <param name="user" value="jcr_user" />
       <param name="password" value="password" />

@@ -46,7 +46,7 @@ import java.util.Map;
 public interface IPentahoObjectFactory {
 
   // Available Factory impls are ordered by priority. If one is not provided this default value is used.
-  public static final int DEFAULT_PRIORTIY = 20;
+  public static final int DEFAULT_PRIORTIY = 0;
 
   /**
    * Retrieves an instance of a Pentaho BI Server API interface using the simple interface name (interfaceClass

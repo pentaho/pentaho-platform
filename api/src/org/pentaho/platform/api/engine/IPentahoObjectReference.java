@@ -29,8 +29,10 @@ import java.util.Map;
  * getObject() method is called
  * 
  */
-public interface IPentahoObjectReference<T> extends Comparable<T> {
+public interface IPentahoObjectReference<T> extends Comparable<IPentahoObjectReference<T>> {
   Map<String, Object> getAttributes();
 
   T getObject();
+
+  Integer getRanking();
 }

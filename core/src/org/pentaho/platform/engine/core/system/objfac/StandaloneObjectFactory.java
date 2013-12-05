@@ -283,6 +283,11 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
     public int compareTo( Object o ) {
       return 0;
     }
+
+    @Override
+    public Integer getRanking() {
+      return 0;
+    }
   }
 
   @Override
