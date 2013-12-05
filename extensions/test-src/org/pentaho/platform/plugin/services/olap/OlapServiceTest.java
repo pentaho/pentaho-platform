@@ -199,6 +199,8 @@ public class OlapServiceTest extends TestCase {
       fail();
     } catch ( IOlapServiceException e ) {
       assertEquals(
+        IOlapServiceException.Reason.GENERAL, e.getReason() );
+      assertEquals(
         "MondrianCatalogHelper.ERROR_0015 - Catalog someName not found",
         e.getMessage() );
     }
@@ -246,6 +248,8 @@ public class OlapServiceTest extends TestCase {
       olapService.getConnection( "someName", session );
       fail();
     } catch ( IOlapServiceException e ) {
+      assertEquals(
+        IOlapServiceException.Reason.GENERAL, e.getReason() );
       assertEquals(
         "MondrianCatalogHelper.ERROR_0015 - Catalog someName not found",
         e.getMessage() );
@@ -371,6 +375,8 @@ public class OlapServiceTest extends TestCase {
       olapService.removeCatalog( "someName", session );
       fail();
     } catch ( IOlapServiceException e ) {
+      assertEquals(
+        IOlapServiceException.Reason.GENERAL, e.getReason() );
       assertEquals(
         "MondrianCatalogHelper.ERROR_0015 - Catalog someName not found",
         e.getMessage() );

@@ -33,7 +33,8 @@ import javax.sql.DataSource;
  * @author Luc Boudreau
  */
 public class PentahoDataSourceResolver implements DataSourceResolver {
-  private static final Log logger = LogFactory.getLog( HttpWebService.class );
+  private static final Log logger =
+    LogFactory.getLog( PentahoDataSourceResolver.class );
 
   public DataSource lookup( String dataSourceName ) throws Exception {
     try {

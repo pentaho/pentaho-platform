@@ -29,7 +29,6 @@ import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
@@ -64,7 +63,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   private ArrayList<String> systemRoles;
   private String adminRole;
 
-  private static final Log logger = LogFactory.getLog(IOlapService.class);
+  private static final Log logger =
+    LogFactory.getLog( UserRoleDaoResource.class );
+
 
   public UserRoleDaoResource() {
     this( PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class ), PentahoSystem.get( ITenantManager.class ),

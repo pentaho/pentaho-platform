@@ -37,6 +37,9 @@ import mondrian.spi.CatalogLocator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.VFS;
+import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -53,6 +56,7 @@ import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.HostedCatalogInfo;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
+import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 
 /**
  * Implementation of the IOlapService which uses the
@@ -113,6 +117,15 @@ public class OlapServiceImpl implements IOlapService {
   public OlapServiceImpl( IUnifiedRepository repo ) {
     this.repository = repo;
     this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
+
+    try {
+      DefaultFileSystemManager dfsm = (DefaultFileSystemManager) VFS.getManager();
+      if ( dfsm.hasProvider( "mondrian" ) == false ) {
+        dfsm.addProvider( "mondrian", new MondrianVfs() );
+      }
+    } catch ( FileSystemException e ) {
+      throw new RuntimeException( e );
+    }
   }
 
   private synchronized IUnifiedRepository getRepository() {
