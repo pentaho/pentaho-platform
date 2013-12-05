@@ -70,7 +70,10 @@
   <property name="pentaho.wars.dir" value="${stage.dir}/pentaho-wars" />
 
   <property name="kettle-plugins.stage.dir" value="kettle-plugins" />
-  <property name="kettle-plugins.dir" value="${solution.dir.server}/system/kettle/plugins" />
+  <property name="kettle-plugins.dir" value="${stage.dir.solutions}/system/kettle/plugins" />
+
+  <property name="core-bundles.dir" value="${stage.dir.solutions}/system/osgi/core_bundles"/>
+  <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
 
   <!-- =================================
           target: clean-all
@@ -80,6 +83,8 @@
     <delete dir="${solution-archives.dir}" />
     <delete dir="${devlib.dir}" />
     <delete dir="${user-console.tmp.dir}"/>
+    <delete dir="${core-bundles.dir}" />
+    <delete dir="${bundles.dir}" />
   </target>
 
 
@@ -344,6 +349,8 @@
 
       <!-- Add libraries to the sample data -->
     <antcall target="resolve-sampledata-libs"/>
+    <antcall target="resolve-osgi-core-bundles"/>
+    <antcall target="resolve-osgi-bundles"/>
 
   </target>
 
@@ -430,7 +437,6 @@
       <fileset file="${kettle-plugins.stage.dir}/*.zip" />
     </unzip>
   </target>
-
 
 
   <!--=======================================================================
