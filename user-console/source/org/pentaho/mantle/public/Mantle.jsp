@@ -144,9 +144,13 @@
     window.notifyOfLoad = function (area) {
       var allFramesLoaded = true;
       for (var i = 0; i < window.frames.length; i++) {
-        if (window.frames[i].document.readyState != "complete") {
-          allFramesLoaded = false;
-          break;
+        try{
+          if (window.frames[i].document.readyState != "complete") {
+            allFramesLoaded = false;
+            break;
+          }
+        } catch(ignored){
+          // likely a XSS issue.
         }
       }
 
