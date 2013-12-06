@@ -23,8 +23,11 @@ import org.apache.jackrabbit.core.cache.GrowingLRUMap;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
 import org.codehaus.jackson.map.util.LRUMap;
+import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * <code>CachingEntryCollector</code> extends <code>PentahoEntryCollector</code> by keeping a cache of ACEs per
- * access controlled nodeId.
+ * <code>CachingEntryCollector</code> extends <code>PentahoEntryCollector</code> by keeping a cache of ACEs per access
+ * controlled nodeId.
  * 
  * This class is a copy of the one in trunk of Jackrabbit. Backported here for performance reasons.
  * 
@@ -49,8 +52,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   private static final Logger log = LoggerFactory.getLogger( CachingEntryCollector.class );
 
   /**
-   * Cache to look up the list of access control entries defined at a given nodeID (key). The map only contains an
-   * entry if the corresponding Node is access controlled.
+   * Cache to look up the list of access control entries defined at a given nodeID (key). The map only contains an entry
+   * if the corresponding Node is access controlled.
    */
   private final Map<IPentahoSession, EntryCache> cacheBySession = Collections
       .synchronizedMap( new LRUMap<IPentahoSession, EntryCache>( 128, 512 ) );
@@ -72,6 +75,37 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
     throws RepositoryException {
     super( systemSession, rootID, configuration );
 
+    // Flush caches of session on logout
+    PentahoSystem.addLogoutListener( new ILogoutListener() {
+      @Override
+      public void onLogout( IPentahoSession iPentahoSession ) {
+        flushCachesOfSession( iPentahoSession );
+      }
+    } );
+
+    // Flush all caches when the System is going down.
+    PentahoSystem.getApplicationContext().addExitPointHandler( new IPentahoSystemExitPoint() {
+      @Override
+      public void systemExitPoint() {
+        close();
+      }
+    } );
+  }
+
+  private void flushCachesOfSession( IPentahoSession iPentahoSession ) {
+    synchronized ( cacheBySession ) {
+      if ( cacheBySession.containsKey( iPentahoSession ) ) {
+        cacheBySession.get( iPentahoSession ).clear();
+        cacheBySession.remove( iPentahoSession );
+      }
+    }
+
+    synchronized ( futuresBySession ) {
+      if ( futuresBySession.containsKey( iPentahoSession ) ) {
+        futuresBySession.get( iPentahoSession ).clear();
+        futuresBySession.remove( iPentahoSession );
+      }
+    }
   }
 
   private EntryCache getCache() {
@@ -104,6 +138,14 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
       for ( Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet() ) {
         entry.getValue().clear();
       }
+      cacheBySession.clear();
+    }
+
+    synchronized ( futuresBySession ) {
+      for ( Map.Entry<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>> entry : this.futuresBySession.entrySet() ) {
+        entry.getValue().clear();
+      }
+      futuresBySession.clear();
     }
   }
 
@@ -169,8 +211,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant blocks the current thread if a
-   * concurrent update for the same node id takes place
+   * See {@link CachingEntryCollector#updateCache(NodeImpl)} ; this variant blocks the current thread if a concurrent
+   * update for the same node id takes place
    */
   private Entries throttledUpdateCache( NodeImpl node ) throws RepositoryException {
     NodeId id = node.getNodeId();
@@ -207,8 +249,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * Find the next access control ancestor in the hierarchy 'null' indicates that there is no ac-controlled
-   * ancestor.
+   * Find the next access control ancestor in the hierarchy 'null' indicates that there is no ac-controlled ancestor.
    * 
    * @param node
    *          The target node for which the cache needs to be updated.
@@ -358,9 +399,9 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   /**
-   * A cache to lookup the ACEs defined on a given (access controlled) node. The internal map uses the ID of the
-   * node as key while the value consists of {@Entries} objects that not only provide the ACEs defined
-   * for that node but also the ID of the next access controlled parent node.
+   * A cache to lookup the ACEs defined on a given (access controlled) node. The internal map uses the ID of the node as
+   * key while the value consists of {@Entries} objects that not only provide the ACEs defined for that node
+   * but also the ID of the next access controlled parent node.
    */
   private class EntryCache {
 
