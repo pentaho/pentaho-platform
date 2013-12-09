@@ -4,6 +4,7 @@
     
     <configurations>
     	<conf name="default"/>
+      <conf name="js"/>
     	<conf name="runtime"/>
     	<conf name="source" />    	
     	<conf name="test" visibility="private"/>
@@ -17,10 +18,14 @@
     	<artifact name="${ivy.artifact.id}" type="jar" conf="default"/>
     	<artifact name="${ivy.artifact.id}" m:classifier="sources" type="source" ext="jar" conf="source" />
     </publications>
-    
+
     <dependencies defaultconf="default->default">
         <!--  Actual dependencies -->
         <dependency org="com.google.gwt"        name="gwt-servlet"        rev="${dependency.gwt.revision}" transitive="false"/>
+
+        <dependency org="pentaho" name="common-ui" rev="${dependency.common-ui.revision}" changing="true" transitive="false" conf="js->default" >
+          <artifact name="common-ui" type="zip" />
+        </dependency>
 
 	    <!--  Pentaho dependencies -->
         <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"        rev="${project.revision}" conf="default->default" changing="true" transitive="false">
@@ -77,5 +82,5 @@
         <!--  Testing dependencies -->
         <dependency org="junit"          name="junit"          rev="4.4" conf="test->default" />
 
-    </dependencies>
+    </dependencies>    
 </ivy-module>

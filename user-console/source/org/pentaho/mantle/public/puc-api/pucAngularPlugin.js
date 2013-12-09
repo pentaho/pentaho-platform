@@ -4,7 +4,7 @@ var deps = [
 	'common-ui/ring'
 ];
 
-pen.define(deps, function(AnimatedAngularPlugin, PUCAngularApi) {
+pen.define(deps, function(AnimatedAngularPlugin, PUCAngularApi, ring) {
 
 	var PUCAngularPlugin = ring.create([AnimatedAngularPlugin], {
 		init : function(config) {
@@ -14,7 +14,7 @@ pen.define(deps, function(AnimatedAngularPlugin, PUCAngularApi) {
 			this.$super(config);
 
 			if (!ring.instance(this.config.pluginHandler, PUCAngularApi.PUCAngularPluginHandler)) {
-				throw "There attached plugin handler is not a PUC Angular Plugin Handler"
+				throw PUCAngularPlugin.errMsgs.incorrectHandlerType;
 			}
 		},
 
@@ -35,6 +35,9 @@ pen.define(deps, function(AnimatedAngularPlugin, PUCAngularApi) {
 			return this.$super();
 		}
 	});
+
+	PUCAngularPlugin.errMsgs = {};
+	PUCAngularPlugin.errMsgs.incorrectHandlerType = "There attached plugin handler is not a PUC Angular Plugin Handler";
 
 	return PUCAngularPlugin;
 });

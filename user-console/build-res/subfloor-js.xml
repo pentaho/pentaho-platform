@@ -1,0 +1,324 @@
+<!--===========================================================================
+Copyright (c) 2012, Pentaho Engineering Team
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the Pentaho Corporation nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY Pentaho Engineering Team ''AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL <copyright holder> BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+============================================================================-->
+<!--===========================================================================
+    == SUBFLOOR-JS ==
+
+    $Rev: 1 $
+    $Date: 2012-02-22 9:58:26 -0500 (Wed, 09 Dec 2009) $
+    Project Home: http://code.google.com/p/subfloor/
+
+    Provides default targets for creating application archives such as zip and tar.gzip
+    files.
+    ============================================================================-->
+
+<project name="subfloor-js" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+
+  <!-- Import the next subfloor instance, defaults to -pkg, but configurable -->
+  <echo message="JS importing pkg file: ${subfloor-js-pkg.file}"/>
+  <import file="subfloor-pkg.xml"/>
+
+
+  <property name="js.lib.dir" value="js-lib"/>
+
+  <!-- location of module scripts -->
+  <property name="js.module.script.dir" value="package-res/module-scripts"/>
+
+  <property name="js.module.script.namespace" value=""/>
+
+  <!-- directory to unzip all dependent JS zips -->
+  <property name="js.module.script.agg.dir" value="build-res/module-scripts"/>
+
+  <property name="js.build.output.dir" value="bin/scriptOutput"/>
+
+  <!--<property name="js.requires.dojo" value="false"/>-->
+
+  <property name="js.dojo.agg.dir" value="build-res/dojo"/>
+
+
+  <property name="js.dojo.version" value="1.6.1"/>
+  <property name="js.dojo-artifact" value="dojo-release-${js.dojo.version}-src"/>
+  <property name="js.dojo.root" value="build-res"/>
+  <property name="js.dojo.src"
+            value="${js.dojo.root}/dojo-release-${js.dojo.version}-src"
+            description="Dojo source folder"/>
+  <property name="js.dojo.src.release"
+            value="${js.dojo.src}/release/dojo"
+            description="Dojo source folder"/>
+  <property name="js.dojo.script.dir" value="package-res/scripts"/>
+
+  <property name="js.build.file" value="build-res/javascript.build.js"/>
+  <property name="js.dojo.build.profile" value="build-res/dojo.profile.js"/>
+  <property name="js.dojo.src.dir" value="scripts/dojo"/>
+  <property name="js.script.package.dest" value="${stage.dir}/${package.root.dir}/scripts"/>
+  <property name="js.dojo.module.name" value="dojo-custom"/>
+
+
+  <target name="js.clean"
+          description="Cleans all the files generated from a build with the exception of IVY-downloaded jars (see clean-all)">
+    <delete dir="${js.module.script.agg.dir}"/>
+  </target>
+
+  <target name="resolve-js">
+    <ivy:resolve file="ivy.xml" conf="js"/>
+    <ivy:retrieve conf="js" pattern="${js.lib.dir}/[module]-[revision](-[classifier]).[ext]"/>
+  </target>
+
+  <target name="clean-js">
+    <delete dir="${js.lib.dir}" />
+  </target>
+
+  <target name="build-js" depends="install-antcontrib">
+    <delete dir="${js.build.output.dir}"/>
+    <delete dir="${js.module.script.agg.dir}" />
+    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
+    <mkdir dir="${js.module.script.agg.dir}" />
+
+    <unzip dest="${js.module.script.agg.dir}" overwrite="true">
+      <fileset dir=".">
+        <include name="${js.lib.dir}/*.zip"/>
+      </fileset>
+    </unzip>
+
+    <copy todir="${js.module.script.agg.dir}/${js.module.script.namespace}" overwrite="true">
+      <fileset dir="${js.module.script.dir}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+
+
+    <copy todir="${js.module.script.agg.dir}" overwrite="true">
+      <fileset dir="build-res/pentaho-js-build/module-scripts">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+
+    <if>
+      <available file="${js.dojo.src.dir}"/>
+      <then>
+        <copy todir="${js.module.script.agg.dir}" overwrite="true">
+          <fileset dir="${js.dojo.src.dir}">
+            <include name="**/*"/>
+          </fileset>
+        </copy>
+      </then>
+      <else>
+      </else>
+    </if>
+
+    <path id="build.classpath">
+      <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
+        <include name="*.jar" />
+      </fileset>
+    </path>
+
+    <!-- uncomment once core build in artifactory, placed in dev-lib for now -->
+    <!--<java classname="org.mozilla.javascript.tools.shell.Main"-->
+    <!--fork="true"-->
+    <!--classpathref="build.classpath"-->
+    <!--args="${js.module.script.agg.dir}/r.js -o ${js.build.file}">-->
+    <!--</java>-->
+    <mkdir dir="${js.build.output.dir}"/>
+    <java classname="org.mozilla.javascript.tools.shell.Main"
+          fork="true"
+          classpathref="build.classpath"
+          args="build-res/pentaho-js-build/r.js -o ${js.build.file}">
+    </java>
+    <antcall target="build-dojo"/>
+  </target>
+
+  <target name="build-dojo" if="js.requires.dojo" depends="install-dojo">
+    <delete dir="${stage.dir}/dojo-release"/>
+    <mkdir dir="${stage.dir}/dojo-release"/>
+
+    <copy verbose="true" todir="${js.dojo.src}" overwrite="true">
+      <fileset dir="${js.module.script.agg.dir}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+
+
+    <java classname="org.mozilla.javascript.tools.shell.Main"
+          dir="${js.dojo.src}/util/buildscripts"
+          fork="true">
+
+      <arg value="build.js"/>
+      <arg value="action=release"/>
+      <arg value="offlineProfile=true"/>
+      <arg value="copyTests=false"/>
+      <arg value="version=${project.revision}"/>
+      <arg value="profileFile=../../../../${js.dojo.build.profile}"/>
+      <classpath>
+        <pathelement location="${js.dojo.src}/util/shrinksafe/js.jar"/>
+        <pathelement location="${js.dojo.src}/util/shrinksafe/shrinksafe.jar"/>
+      </classpath>
+    </java>
+    <!-- copy the scripts out -->
+
+
+    <copy todir="${stage.dir}/dojo-release/dojo/nls" overwrite="true">
+      <fileset dir="${js.dojo.src.release}/dojo/nls"/>
+    </copy>
+    <copy todir="${stage.dir}/dojo-release/dojo/cldr/nls" overwrite="true">
+      <fileset dir="${js.dojo.src.release}/dojo/cldr/nls"/>
+    </copy>
+
+    <copy todir="${stage.dir}/dojo-release" overwrite="true">
+      <fileset dir="${js.dojo.script.dir}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+
+    <concat destfile="${stage.dir}/dojo-release/dojo/${js.dojo.module.name}.js" overwrite="yes">
+
+      <fileset file="${js.dojo.src.release}/dojo/dojo.js" />
+      <fileset file="${js.dojo.src.release}/dojo/${js.dojo.module.name}.js" />
+
+    </concat>
+
+
+  </target>
+
+  <target name="dist-js" >
+    <echo message="dist-js: ${js.module.script.dir}"/>
+    <mkdir dir="bin/js-source/${js.module.script.namespace}"/>
+    <copy todir="bin/js-source/${js.module.script.namespace}" overwrite="true">
+      <fileset dir="${js.module.script.dir}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+
+    <zip destfile="${dist.dir}/${ivy.artifact.id}-${project.revision}-js.zip">
+      <zipfileset dir="bin/js-source" includes="**/*"/>
+    </zip>
+  </target>
+
+  <target name="js.publish-nojar">
+    <antcall target="maven-publish-js-source">
+      <param name="publish.groupId" value="${ivy.artifact.group}" />
+      <param name="publish.artifactId" value="${ivy.artifact.id}" />
+      <param name="publish.version" value="${project.revision}" />
+      <param name="publish.file" value="${dist.dir}/${ivy.artifact.id}-${project.revision}-js.zip" />
+    </antcall>
+  </target>
+
+  <target name="maven-publish-js-source" depends="install-antcontrib">
+    <sequential>
+      <fail message="No file found at: ${publish.file}">
+        <condition>
+          <not>
+            <available file="${publish.file}" />
+          </not>
+        </condition>
+      </fail>
+      <if>
+        <isset property="isWindows" />
+        <then>
+          <exec executable="cmd" failonerror="true">
+            <arg value="/c" />
+            <arg value="mvn.bat" />
+            <arg value="deploy:deploy-file" />
+            <arg value="-DrepositoryId=${ivy.repository.id}" />
+            <arg value="-Durl=${ivy.repository.publish}" />
+            <arg value="-DgroupId=${publish.groupId}" />
+            <arg value="-DartifactId=${publish.artifactId}" />
+            <arg value="-Dversion=${publish.version}" />
+            <arg value="-DgeneratePom=true" />
+            <arg value="-Dpackaging=zip" />
+            <arg value="-Dclassifier=js" />
+            <arg value="-Dfile=${publish.file}" />
+          </exec>
+        </then>
+        <else>
+          <exec executable="mvn" failonerror="true">
+            <arg value="deploy:deploy-file" />
+            <arg value="-DrepositoryId=${ivy.repository.id}" />
+            <arg value="-Durl=${ivy.repository.publish}" />
+            <arg value="-DgroupId=${publish.groupId}" />
+            <arg value="-DartifactId=${publish.artifactId}" />
+            <arg value="-Dversion=${publish.version}" />
+            <arg value="-DgeneratePom=true" />
+            <arg value="-Dpackaging=zip" />
+            <arg value="-Dclassifier=js" />
+            <arg value="-Dfile=${publish.file}" />
+          </exec>
+        </else>
+      </if>
+    </sequential>
+  </target>
+
+
+  <target name="package-js-output">
+    <copy todir="${js.script.package.dest}" overwrite="true">
+      <fileset dir="${js.module.script.dir}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+    <copy todir="${js.script.package.dest}" overwrite="true">
+      <fileset dir="${js.build.output.dir}">
+        <include name="*"/>
+      </fileset>
+    </copy>
+
+    <if>
+    <available file="${stage.dir}/dojo-release"/>
+    <then>
+    <mkdir dir="${js.script.package.dest}/dojo"/>
+    <copy todir="${js.script.package.dest}/dojo" overwrite="true">
+      <fileset dir="${stage.dir}/dojo-release">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+    </then>
+    <else/>
+    </if>
+  </target>
+
+
+  <target name="install-dojo" if="js.requires.dojo" depends="install-antcontrib">
+
+    <if>
+      <available file="${js.dojo.root}/${js.dojo-artifact}.zip"/>
+      <then/>
+      <else>
+        <mkdir dir="${js.dojo.root}"/>
+        <get src="http://download.dojotoolkit.org/release-${js.dojo.version}/${js.dojo-artifact}.zip"
+             dest="${js.dojo.root}/${js.dojo-artifact}.zip"/>
+
+        <unzip src="${js.dojo.root}/${js.dojo-artifact}.zip" dest="${js.dojo.root}"/>
+
+        <copy verbose="true" todir="${js.dojo.src}/util/buildscripts" overwrite="true">
+          <fileset dir="build-res/licenses">
+            <include name="*.txt"/>
+          </fileset>
+          <mapper type="glob" from="dojo_*" to="*"/>
+        </copy>
+      </else>
+    </if>
+  </target>
+
+</project>
