@@ -5,12 +5,12 @@
 
 // Define Pentaho PUC Plugin Handler
 var deps = [
-	'common-ui/AnimatedAngularPluginHandler', 
-	'common-ui/angular-resource',
-	'common-ui/ring'
+	'common-ui/AnimatedAngularPluginHandler',
+	'common-ui/ring',
+	'common-ui/angular-resource'
 ];
 
-pen.define(deps, function(AnimatedAngularPluginHandler) {
+pen.define(deps, function(AnimatedAngularPluginHandler, ring) {
 
 	/*
 	 * Define future development extension of AnimatedAngularPluginHandler
