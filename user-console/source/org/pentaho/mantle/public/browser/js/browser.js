@@ -523,6 +523,25 @@ pen.define([
           return newResp;
     },
 
+    reformatResponse: function(response) {
+         var newResp = {
+            children: []
+          }
+          if (response && response.repositoryFileDto) {
+
+            for (var i = 0; i < response.repositoryFileDto.length; i++) {
+              var obj = {
+                file: Object
+              }
+
+              obj.file = response.repositoryFileDto[i];
+              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+              newResp.children.push(obj);
+            }
+          }
+          return newResp;
+    },
+
     updateData: function () {
       var myself = this;
 
@@ -540,8 +559,9 @@ pen.define([
 
         }
         else {
-          response.ts = new Date(); // force backbone to trigger onchange event even if response is the same
-          myself.set("data", response);
+          var newResp = myself.reformatResponse(response);
+          newResp.ts = new Date(); // force backbone to trigger onchange event even if response is the same
+          myself.set("data", newResp);
         }
       });
     },
@@ -571,10 +591,11 @@ pen.define([
           if(FileBrowser.fileBrowserModel.getFolderClicked()){
             if(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")==".trash"){
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]
-               =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response)
+               =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response);
             }
             else {
-              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]=response;
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]= FileBrowser.
+                fileBrowserModel.attributes.fileListModel.reformatResponse(response);
             }
           }
         },
@@ -603,7 +624,8 @@ pen.define([
         request = CONTEXT_PATH + "api/repo/files/deleted";
       }
       else {
-        request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
+        //request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
+        request = CONTEXT_PATH + "api/repo/files/" + path + "/children?showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
       }
       return request;
     }
