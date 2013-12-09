@@ -65,8 +65,6 @@ import java.util.HashMap;
  */
 public class MantleApplication implements UserSettingsLoadedEventHandler, MantleSettingsLoadedEventHandler {
 
-  public static boolean showAdvancedFeatures = false;
-
   public static String mantleRevisionOverride = null;
   public static boolean submitOnEnter = true;
 
@@ -246,9 +244,12 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public void onMantleSettingsLoaded( MantleSettingsLoadedEvent event ) {
     final HashMap<String, String> settings = event.getSettings();
-    final boolean showOnlyPerspective = Boolean.parseBoolean( Window.Location.getParameter( "showOnlyPerspective" ) );
-    final String startupPerspective = Window.Location.getParameter( "startupPerspective" );
-
+    
+    final boolean showOnlyPerspective = 
+        Boolean.parseBoolean( StringUtils.isEmpty( Window.Location.getParameter( "showOnlyPerspective" ) ) ? settings.get( "showOnlyPerspective" ) : Window.Location.getParameter( "showOnlyPerspective" ) );
+    final String startupPerspective = 
+        StringUtils.isEmpty( Window.Location.getParameter( "startupPerspective" ) ) ? settings.get("startupPerspective") : Window.Location.getParameter( "startupPerspective" );
+    
     mantleRevisionOverride = settings.get( "user-console-revision" );
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
@@ -290,11 +291,6 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     overlayPanel.getElement().getStyle().setProperty( "zIndex", "1000" );
     overlayPanel.getElement().getStyle().setProperty( "position", "absolute" );
     RootPanel.get().add( overlayPanel, 0, 0 );
-
-    String showAdvancedFeaturesSetting = settings.get( "show-advanced-features" ); //$NON-NLS-1$ 
-    showAdvancedFeatures =
-        showAdvancedFeaturesSetting == null ? showAdvancedFeatures
-          : Boolean.parseBoolean( showAdvancedFeaturesSetting );
 
     String submitOnEnterSetting = settings.get( "submit-on-enter-key" );
     submitOnEnter = submitOnEnterSetting == null ? submitOnEnter : Boolean.parseBoolean( submitOnEnterSetting );
@@ -340,7 +336,9 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
                   for ( int i = 0; i < numStartupURLs; i++ ) {
                     String url = settings.get( "startup-url-" + ( i + 1 ) ); //$NON-NLS-1$
                     String name = settings.get( "startup-name-" + ( i + 1 ) ); //$NON-NLS-1$
-                    if ( url != null && !"".equals( url ) ) { //$NON-NLS-1$
+                    if ( StringUtils.isEmpty( url ) == false ) { //$NON-NLS-1$
+                      url = URL.decodeQueryString( url );
+                      name = URL.decodeQueryString( name );
                       SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( name != null ? name : url,
                           url, url, false );
                     }

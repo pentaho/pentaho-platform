@@ -145,7 +145,18 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     settings
         .add( new Setting( "login-show-users-list", PentahoSystem.getSystemSetting( "login-show-users-list", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     settings.add( new Setting( "documentation-url", PentahoSystem.getSystemSetting( "documentation-url", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
+    settings.add( new Setting( "submit-on-enter-key", PentahoSystem.getSystemSetting( "submit-on-enter-key", "true" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    settings.add( new Setting( "user-console-revision", PentahoSystem.getSystemSetting( "user-console-revision", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    settings.add( new Setting( "startupPerspective", PentahoSystem.getSystemSetting( "startup-perspective", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    settings.add( new Setting( "showOnlyPerspective", PentahoSystem.getSystemSetting( "show-only-perspective", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    
+    int startupUrls = Integer.parseInt(PentahoSystem.getSystemSetting( "num-startup-urls", "0" ));
+    settings.add( new Setting( "num-startup-urls", PentahoSystem.getSystemSetting( "num-startup-urls", "0" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    for ( int i = 1; i <= startupUrls; i++ ) {
+      settings.add( new Setting( "startup-url-" + i, PentahoSystem.getSystemSetting( "startup-url-" + i, "" ) ) ); //$NON-NLS-1$
+      settings.add( new Setting( "startup-name-" + i, PentahoSystem.getSystemSetting( "startup-name-" + i, "" ) ) ); //$NON-NLS-1$
+    }
+    
     // Check for override of New Analysis View via pentaho.xml
     // Poked in via pentaho.xml entries
     // <new-analysis-view>
