@@ -238,13 +238,21 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     dialog.center();
   }
 
-  public void onUserSettingsLoaded( UserSettingsLoadedEvent event ) {
+  public void onUserSettingsLoaded( final UserSettingsLoadedEvent event ) {
     // listen to any reloads of mantle settings
     MantleSettingsManager.getInstance().getMantleSettings( new AsyncCallback<HashMap<String, String>>() {
-      public void onSuccess( HashMap<String, String> result ) {
-        onMantleSettingsLoaded( new MantleSettingsLoadedEvent( result ) );
+      public void onSuccess( HashMap<String, String> mantleSettings ) {
+        // merge user settings with mantle settings for possible system/tenant/user overrides
+        JsArray<JsSetting> userSettings = event.getSettings();
+        if ( userSettings != null ) {
+          for ( int i=0; i < userSettings.length(); i++ ) {
+            JsSetting setting = userSettings.get( i );
+            mantleSettings.put( setting.getName(), setting.getValue() );
+          }
+        }
+        onMantleSettingsLoaded( new MantleSettingsLoadedEvent( mantleSettings ) );
       }
-
+      
       public void onFailure( Throwable caught ) {
       }
     }, false );
@@ -259,6 +267,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
         StringUtils.isEmpty( Window.Location.getParameter( "startupPerspective" ) ) ? settings.get("startupPerspective") : Window.Location.getParameter( "startupPerspective" );
     
     mantleRevisionOverride = settings.get( "user-console-revision" );
+    
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
