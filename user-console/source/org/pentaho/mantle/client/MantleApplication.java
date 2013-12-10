@@ -203,6 +203,14 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           });
   }-*/;
 
+  public static native void log( String message ) 
+  /*-{
+    try {
+      window.top.console.log( message );
+    } catch ( e ) {
+    }
+  }-*/;  
+  
   public void notifyGlasspaneListeners( boolean isShown ) {
     if ( isShown ) {
       GlassPane.getInstance().show();
