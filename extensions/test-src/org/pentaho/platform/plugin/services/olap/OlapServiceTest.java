@@ -36,6 +36,7 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
 public class OlapServiceTest extends TestCase {
@@ -689,6 +690,11 @@ public class OlapServiceTest extends TestCase {
       assertTrue(
         e.getMessage().contains( "OlapServiceImpl.ERROR_0003" ) );
     }
+
+    // Make sure we didn't invoke the delete method.
+    verify( repository, never() ).deleteFile(
+      (RepositoryFile) anyObject(),
+      anyString() );
   }
 
   /**
@@ -738,6 +744,17 @@ public class OlapServiceTest extends TestCase {
       assertTrue(
         e.getMessage().contains( "OlapServiceImpl.ERROR_0004" ) );
     }
+
+    // Make sure we didn't invoke the update or write methods.
+    verify( repository, never() ).updateFile(
+      (RepositoryFile) anyObject(),
+      (IRepositoryFileData) anyObject(),
+      anyString() );
+    verify( repository, never() ).createFile(
+      (RepositoryFile) anyObject(),
+      (RepositoryFile) anyObject(),
+      (IRepositoryFileData) anyObject(),
+      anyString() );
 
     // Now do it again.
     olapService.addHostedCatalog(
@@ -811,6 +828,17 @@ public class OlapServiceTest extends TestCase {
       assertTrue(
         e.getMessage().contains( "OlapServiceImpl.ERROR_0004" ) );
     }
+
+    // Make sure we didn't invoke the update or write methods.
+    verify( repository, never() ).updateFile(
+      (RepositoryFile) anyObject(),
+      (IRepositoryFileData) anyObject(),
+      anyString() );
+    verify( repository, never() ).createFile(
+      (RepositoryFile) anyObject(),
+      (RepositoryFile) anyObject(),
+      (IRepositoryFileData) anyObject(),
+      anyString() );
 
     // Now do it again.
     olapService.addOlap4jCatalog(
