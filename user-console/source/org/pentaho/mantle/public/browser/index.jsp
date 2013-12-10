@@ -107,7 +107,7 @@
             (event.action.indexOf('RestoreFileCommand') >= 0) ||
             (event.action.indexOf('DeletePermanentFileCommand') >= 0)) {
           if (event.message == 'Success') {
-            FileBrowser.updateData(); // refresh file list
+            window.top.mantle_isBrowseRepoDirty = true;
             FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
           }
           else {
