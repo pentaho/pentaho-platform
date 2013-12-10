@@ -344,7 +344,11 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     if (event.getFileItems() != null && event.getFileItems().size() > 0) {
       selectedItem = event.getFileItems().get(0);
     }
-    handleSolutionBrowserEvent(event.getWidget(), selectedItem);
+    try {
+      handleSolutionBrowserEvent( event.getWidget(), selectedItem );
+    } catch ( Throwable t ) {
+      MantleApplication.log( t.getMessage() );
+    }
     if (event.getWidget() != null) {
       main.removeOverlays(((IFrameTabPanel) event.getWidget()).getOverlayIds());
     }
