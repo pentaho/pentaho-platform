@@ -14,6 +14,7 @@
 package org.pentaho.platform.plugin.action.olap;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -23,6 +24,35 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 /**
  * This service manages the hosted OLAP connections, implemented with Mondrian,
  * as well as other generic olap4j connections.
+ *
+ * <p>There are two types of connections that you can create. Either
+ *
+ * <ul><li>Hosted locally by the local Mondrian server instance</li>
+ * <li>Hosted by some other OLAP server and configured as a generic
+ * olap4j connection.</li></ul>
+ *
+ * <p>Whether hosted or generic, the OLAP connections must not share the same
+ * name.
+ *
+ * <p>To create a hosted connection, you must use the method
+ * {@link #addHostedCatalog(String, String, InputStream, boolean, IPentahoSession)}.
+ * The InputStream parameter must be pointing to a Mondrian schema file.
+ *
+ * <p>When a hosted connection is added, the service will also attempt to use
+ * the IConnectionUserRoleMapper, if one is configured.
+ *
+ * <p>To create a generic connection, use the method
+ * {@link #addOlap4jCatalog(String, String, String, String, String, Properties, boolean, IPentahoSession)}.
+ * The parameters are the standard ones used by JDBC and will be passed to the
+ * java.sql.DriverManager as-is.
+ *
+ * <p>To obtain a list of the configured catalogs, there are a few options.
+ * Calling {@link #getCatalogNames(IPentahoSession)} is the cheap and fast method.
+ * It will return a list of the catalog names available. For more metadata, one can
+ * use {@link #getCatalogs(IPentahoSession)}, {@link #getSchemas(String, IPentahoSession)}
+ * or {@link #getCubes(String, String, IPentahoSession)}. These alternative methods
+ * come at a higher price, since we will need to activate each of the configured
+ * connections to populate the metadata.
  */
 public interface IOlapService {
 
@@ -77,12 +107,54 @@ public interface IOlapService {
 
   /**
    * Provides a list of catalog names known to this server,
-   * whether local or remote,
+   * whether local or remote.
+   * <p>This method is much cheaper to invoke than
+   * {@link #getCatalogs(IPentahoSession)} since it doesn't
+   * require the connection to be opened.
    * @param pentahoSession The session asking for catalogs.
    */
-  List<String> getCatalogs(
+  List<String> getCatalogNames(
       final IPentahoSession pentahoSession )
     throws IOlapServiceException;
+
+  /**
+   * Provides a list of catalogs known to this server,
+   * whether local or remote. Returns a tree, rooted at the catalog,
+   * representing all of the schemas and cubes included in this catalog.
+   * @param pentahoSession The session asking for catalogs.
+   */
+  List<IOlapService.Catalog> getCatalogs(
+      final IPentahoSession pentahoSession )
+    throws IOlapServiceException;
+
+  /**
+   * Provides a list of the available schemas, whether constrained to a
+   * particular catalog or not, represented as a tree of the schema and all
+   * of its cubes.
+   * @param parentCatalog The catalog to constrain the list of schemas, or null
+   * to return the whole list.
+   * @param pentahoSession The session asking for schemas.
+   * @return A list of schemas.
+   */
+  List<IOlapService.Schema> getSchemas(
+      String parentCatalog,
+      final IPentahoSession pentahoSession )
+    throws IOlapServiceException;;
+
+  /**
+   * Provides a list of the available cubes, whether constrained to a
+   * particular catalog and/or schema or not.
+   * @param parentCatalog The catalog to constrain the list of cubes, or null
+   * to return the whole list.
+   * @param parentSchema The schema to constrain the list of cubes, or null
+   * to return the whole list.
+   * @param pentahoSession The session asking for cubes.
+   * @return A list of cubes.
+   */
+  List<IOlapService.Cube> getCubes(
+    String parentCatalog,
+    String parentSchema,
+    final IPentahoSession pentahoSession );
 
   /**
    * Removes a catalog from this server, whether hosted or remote.
@@ -98,4 +170,80 @@ public interface IOlapService {
    * Flushes all schema caches.
    */
   public void flushAll( IPentahoSession pentahoSession );
+
+  /**
+   * Representation of a catalog. Catalogs have {@link Schema} children.
+   */
+  public class Catalog {
+    public final String name;
+    public final List<Schema> schemas;
+    public Catalog( String name, List<Schema> schemas ) {
+      /**
+       * The unique name of this catalog.
+       */
+      this.name = name;
+      /**
+       * A lost of schemas which are included in this catalog.
+       */
+      this.schemas = schemas;
+    }
+    public String toString() {
+      return name;
+    }
+  }
+
+  /**
+   * Representation of a schema. Schemas have {@link Cube} children
+   * and a parent {@link Catalog}, along with a list of role names.
+   */
+  public class Schema {
+    public final String name;
+    public final Catalog catalog;
+    public final List<Cube> cubes;
+    public final List<String> roles;
+    public Schema( String name, Catalog parent, List<Cube> cubes, List<String> roles ) {
+      /**
+       * The name of this schema.
+       */
+      this.name = name;
+      /**
+       * The parent catalog to which this schema belongs to.
+       */
+      this.catalog = parent;
+      /**
+       * A list of cubes included in this schema.
+       */
+      this.cubes = cubes;
+      /**
+       * A list of role names defined in this schema.
+       */
+      this.roles = roles;
+      // Make sure to sort the roles
+      Collections.sort( this.roles );
+    }
+    public String toString() {
+      return name;
+    }
+  }
+
+  /**
+   * Representation of a Cube with its parent {@link Schema}.
+   */
+  public class Cube {
+    /**
+     * The unique name of the cube.
+     */
+    public final String name;
+    /**
+     * The parent schema to which belongs this cube.
+     */
+    public final Schema schema;
+    public Cube( String name, Schema parent ) {
+      this.name = name;
+      this.schema = parent;
+    }
+    public String toString() {
+      return name;
+    }
+  }
 }

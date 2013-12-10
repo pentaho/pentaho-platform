@@ -32,13 +32,14 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
 public class MondrianCatalogRepositoryHelper {
 
-  private static final String ETC_MONDRIAN_JCR_FOLDER =
+  public static final String ETC_MONDRIAN_JCR_FOLDER =
       RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
-  private static final String ETC_OLAP_SERVERS_JCR_FOLDER =
+  public static final String ETC_OLAP_SERVERS_JCR_FOLDER =
       RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "olap-servers";
 
   private IUnifiedRepository repository;
@@ -73,8 +74,8 @@ public class MondrianCatalogRepositoryHelper {
         repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR
             + "schema.xml" );
     IRepositoryFileData data =
-        new org.pentaho.platform.plugin.services.importexport.StreamConverter().convert( repoFileBundle
-          .getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType() );
+        new StreamConverter().convert(
+          repoFileBundle.getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType() );
     if ( schema == null ) {
       repository.createFile( catalog.getId(), repoFileBundle.getFile(), data, null );
     } else {
