@@ -621,10 +621,10 @@
 	<!-- ===================================================================
 	       target: package-manual
 
-	       Create the biserver-manual-${project.revision}.zip
+	       Create the biserver-manual-ce-${project.revision}.zip
 	      =================================================================== -->
 	<target name="package-manual" depends="war-pentaho, zip-pentaho-data, zip-pentaho-solutions">    	
-	    <zip destfile="${dist.dir}/biserver-manual-${project.revision}.zip">
+	    <zip destfile="${dist.dir}/biserver-manual-ce-${project.revision}.zip">
 	        <zipfileset dir="${dist.dir}" filemode="755">
 	          <include name="**/MANIFEST.MF" />
 	          <include name="**/pentaho-data.zip" />        	
