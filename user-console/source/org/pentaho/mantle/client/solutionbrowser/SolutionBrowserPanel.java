@@ -47,6 +47,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.TreeListener;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -570,6 +571,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     recentPickItem.setTitle( title );
     recentPickItem.setLastUse( System.currentTimeMillis() );
     RecentPickList.getInstance().add( recentPickItem );
+  }
+  
+  public void removeRecent( String fileNameWithPath ) {
+    RecentPickItem recentItem = new RecentPickItem( fileNameWithPath );
+    RecentPickList.getInstance().remove( recentItem );
   }
 
   public void addFavorite( String fileNameWithPath, String title ) {

@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -43,7 +44,7 @@ public class AboutCommand extends AbstractCommand {
   }
 
   protected void performOperation( boolean feedback ) {
-    if ( MantleApplication.mantleRevisionOverride != null && MantleApplication.mantleRevisionOverride.length() > 0 ) {
+    if ( StringUtils.isEmpty( MantleApplication.mantleRevisionOverride ) ) {
       showAboutDialog( MantleApplication.mantleRevisionOverride );
     } else {
       final String url = GWT.getHostPageBaseURL() + "api/version/show"; //$NON-NLS-1$

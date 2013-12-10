@@ -17,13 +17,9 @@
 
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.ui.HTML;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -36,8 +32,13 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.HTML;
 
 public class DeleteFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -158,6 +159,12 @@ public class DeleteFileCommand extends AbstractCommand {
             new RefreshRepositoryCommand().execute( false );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
             setBrowseRepoDirty( Boolean.TRUE );
+            for( FileItem recentItem : repositoryFiles ) {
+              if( recentItem != null ) {
+                SolutionBrowserPanel.getInstance().removeRecent( recentItem.getPath() );
+                SolutionBrowserPanel.getInstance().removeFavorite( recentItem.getPath() );
+              }
+            }
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
@@ -179,7 +186,7 @@ public class DeleteFileCommand extends AbstractCommand {
     }
 
   }
-
+  
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
     $wnd.mantle_isBrowseRepoDirty=isDirty;

@@ -618,4 +618,30 @@
 		</zip>
 	</target>
 
+	<!-- ===================================================================
+	       target: package-manual
+
+	       Create the biserver-manual-ce-${project.revision}.zip
+	      =================================================================== -->
+	<target name="package-manual" depends="war-pentaho, zip-pentaho-data, zip-pentaho-solutions">    	
+	    <zip destfile="${dist.dir}/biserver-manual-ce-${project.revision}.zip">
+	        <zipfileset dir="${dist.dir}" filemode="755">
+	          <include name="**/MANIFEST.MF" />
+	          <include name="**/pentaho-data.zip" />        	
+	          <include name="**/pentaho-solutions.zip" />
+	          <include name="**/pentaho.war" />
+	          <include name="**/*.html" />
+	        </zipfileset>
+	    </zip>
+		<delete>
+			<fileset dir="${dist.dir}">
+				<include name="**/MANIFEST.MF" />
+			    <include name="**/pentaho-data.zip" />        	
+			    <include name="**/pentaho-solutions.zip" />
+				<include name="**/pentaho.war" />
+				<include name="**/*.html" />	   	
+			</fileset>
+		</delete>		
+	</target>
+
 </project>

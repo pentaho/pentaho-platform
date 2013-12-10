@@ -1,5 +1,5 @@
 #Locale = default
-#Tue Sep 24 17:43:57 WEST 2013
-file.title=Top Customers (report)
+#Tue Nov 26 11:08:57 EST 2013
+file.title=Top Customers
 title=Top Customers (report)
-file.description=
+file.description=View the top customers for sales and volume of units sold, quickly filter by region and product line.

@@ -17,13 +17,6 @@
 
 package org.pentaho.mantle.client.ui.xul;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
@@ -58,6 +51,14 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.stereotype.Bindable;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserOpenEventHandler,
     SolutionBrowserCloseEventHandler, SolutionBrowserSelectEventHandler, SolutionBrowserDeselectEventHandler,
@@ -349,7 +350,11 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     if ( event.getFileItems() != null && event.getFileItems().size() > 0 ) {
       selectedItem = event.getFileItems().get( 0 );
     }
-    handleSolutionBrowserEvent( event.getWidget(), selectedItem );
+    try {
+      handleSolutionBrowserEvent( event.getWidget(), selectedItem );
+    } catch ( Throwable t ) {
+      MantleApplication.log( t.getMessage() );
+    }
     if ( event.getWidget() != null ) {
       main.removeOverlays( ( (IFrameTabPanel) event.getWidget() ).getOverlayIds() );
     }
