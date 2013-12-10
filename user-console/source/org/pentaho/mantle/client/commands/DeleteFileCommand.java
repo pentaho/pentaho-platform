@@ -159,10 +159,11 @@ public class DeleteFileCommand extends AbstractCommand {
             new RefreshRepositoryCommand().execute( false );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
             setBrowseRepoDirty( Boolean.TRUE );
-            FileItem recentItem = repositoryFiles.get( 0 );
-            if( recentItem != null ) {
-              SolutionBrowserPanel.getInstance().removeRecent( recentItem.getPath() );
-              SolutionBrowserPanel.getInstance().removeFavorite( recentItem.getPath() );
+            for( FileItem recentItem : repositoryFiles ) {
+              if( recentItem != null ) {
+                SolutionBrowserPanel.getInstance().removeRecent( recentItem.getPath() );
+                SolutionBrowserPanel.getInstance().removeFavorite( recentItem.getPath() );
+              }
             }
           } else {
             MessageDialogBox dialogBox =
