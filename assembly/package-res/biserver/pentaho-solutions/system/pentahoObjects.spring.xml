@@ -194,10 +194,15 @@ not directly from the PentahoObjectFactory. -->
 
     <bean id="IOlapService" class="org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl"
         scope="singleton">
+      <!-- Allows to override some properties form each connection before they are established. -->
       <!--property name="connectionFilters">
         <list>
           <bean class="org.pentaho.platform.plugin.action.olap.IOlapConnectionFilter"/>
         </list>
+      </property-->
+      <!-- Allows to specify a custom class to use as a role implementation for hosted mondrian connections. -->
+      <!--property name="mondrianRole">
+        <bean class="mondrian.olap.RoleImpl"/>
       </property-->
     </bean>
 

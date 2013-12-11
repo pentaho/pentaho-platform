@@ -36,11 +36,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import mondrian.olap.MondrianServer;
+import mondrian.olap.Role;
 import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
 import mondrian.server.MondrianServerRegistry;
 import mondrian.spi.CatalogLocator;
+import mondrian.util.LockBox.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,6 +111,7 @@ public class OlapServiceImpl implements IOlapService {
 
   private MondrianServer server = null;
   private final List<IOlapConnectionFilter> filters;
+  private Role role;
 
   private static Log getLogger() {
     return LogFactory.getLog( IOlapService.class );
@@ -594,44 +597,52 @@ public class OlapServiceImpl implements IOlapService {
       return makeOlap4jConnection( catalogName, session );
     }
 
-    final IConnectionUserRoleMapper mapper =
-      PentahoSystem.get(
-        IConnectionUserRoleMapper.class,
-        MDXConnection.MDX_CONNECTION_MAPPER_KEY,
-        null ); // Don't use the user session here yet.
+    final StringBuilder roleName = new StringBuilder();
+    Entry roleMonikor = null;
+    if ( this.role != null ) {
+      // We must use a custom role implementation.
+      // Register the instance with the mondrian server.
+      roleMonikor = getServer().getLockBox().register( this.role );
+      roleName.append( roleMonikor.getMoniker() );
+    } else {
+      final IConnectionUserRoleMapper mapper =
+          PentahoSystem.get(
+              IConnectionUserRoleMapper.class,
+              MDXConnection.MDX_CONNECTION_MAPPER_KEY,
+              null ); // Don't use the user session here yet.
 
-    String[] effectiveRoles = new String[0];
+      String[] effectiveRoles = new String[0];
 
-    /*
-     * If Catalog/Schema are null (this happens with high level metadata requests,
-     * like DISCOVER_DATASOURCES) we can't use the role mapper, even if it
-     * is present and configured.
-     */
-    if ( mapper != null ) {
-      // Use the role mapper.
-      try {
-        effectiveRoles =
-          mapper
-            .mapConnectionRoles(
-              session,
-              catalogName );
-        if ( effectiveRoles == null ) {
-          effectiveRoles = new String[0];
+      /*
+       * If Catalog/Schema are null (this happens with high level metadata requests,
+       * like DISCOVER_DATASOURCES) we can't use the role mapper, even if it
+       * is present and configured.
+       */
+      if ( mapper != null ) {
+        // Use the role mapper.
+        try {
+          effectiveRoles =
+              mapper
+              .mapConnectionRoles(
+                  session,
+                  catalogName );
+          if ( effectiveRoles == null ) {
+            effectiveRoles = new String[0];
+          }
+        } catch ( PentahoAccessControlException e ) {
+          throw new IOlapServiceException( e );
         }
-      } catch ( PentahoAccessControlException e ) {
-        throw new IOlapServiceException( e );
       }
-    }
 
-    // Now we tokenize that list.
-    boolean addComma = false;
-    StringBuilder roleName = new StringBuilder();
-    for ( String role : effectiveRoles ) {
-      if ( addComma ) {
-        roleName.append( "," ); //$NON-NLS-1$
+      // Now we tokenize that list.
+      boolean addComma = false;
+      for ( String role : effectiveRoles ) {
+        if ( addComma ) {
+          roleName.append( "," ); //$NON-NLS-1$
+        }
+        roleName.append( role );
+        addComma = true;
       }
-      roleName.append( role );
-      addComma = true;
     }
 
     // Populate some properties, like locale.
@@ -649,6 +660,11 @@ public class OlapServiceImpl implements IOlapService {
         properties );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
+    } finally {
+      // Cleanup our lockbox entry.
+      if ( roleMonikor != null ) {
+        getServer().getLockBox().deregister( roleMonikor );
+      }
     }
   }
 
@@ -780,6 +796,10 @@ public class OlapServiceImpl implements IOlapService {
 
   public void setConnectionFilters( Collection<IOlapConnectionFilter> filters ) {
     this.filters.addAll( filters );
+  }
+
+  public void setMondrianRole( Role role ) {
+    this.role = role;
   }
 
   private String makeHostedPath( String name ) {
