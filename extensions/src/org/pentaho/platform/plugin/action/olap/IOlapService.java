@@ -14,7 +14,6 @@
 package org.pentaho.platform.plugin.action.olap;
 
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -190,6 +189,13 @@ public interface IOlapService {
     public String toString() {
       return name;
     }
+    // Bean accessors
+    public String getName() {
+      return name;
+    }
+    public List<Schema> getSchemas() {
+      return schemas;
+    }
   }
 
   /**
@@ -218,11 +224,19 @@ public interface IOlapService {
        * A list of role names defined in this schema.
        */
       this.roles = roles;
-      // Make sure to sort the roles
-      Collections.sort( this.roles );
     }
     public String toString() {
       return name;
+    }
+    // Bean accessors
+    public String getName() {
+      return name;
+    }
+    public List<Cube> getCubes() {
+      return cubes;
+    }
+    public List<String> getRoles() {
+      return roles;
     }
   }
 
@@ -235,15 +249,27 @@ public interface IOlapService {
      */
     public final String name;
     /**
+     * The caption of the cube.
+     */
+    public final String caption;
+    /**
      * The parent schema to which belongs this cube.
      */
     public final Schema schema;
-    public Cube( String name, Schema parent ) {
+    public Cube( String name, String caption, Schema parent ) {
       this.name = name;
+      this.caption = caption;
       this.schema = parent;
     }
     public String toString() {
       return name;
+    }
+    // Bean accessors.
+    public String getName() {
+      return name;
+    }
+    public String getCaption() {
+      return caption;
     }
   }
 }

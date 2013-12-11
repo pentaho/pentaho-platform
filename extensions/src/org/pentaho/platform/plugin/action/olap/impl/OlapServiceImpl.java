@@ -27,16 +27,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import mondrian.olap.MondrianServer;
 import mondrian.rolap.RolapConnection;
+import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
 import mondrian.server.MondrianServerRegistry;
 import mondrian.spi.CatalogLocator;
@@ -48,6 +49,7 @@ import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.olap4j.OlapConnection;
 import org.olap4j.OlapException;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -67,6 +69,7 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.HostedCatalogInfo;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 /**
  * Implementation of the IOlapService which uses the
@@ -82,11 +85,11 @@ import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
  */
 public class OlapServiceImpl implements IOlapService {
 
+  public static String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
+
   static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
 
   final ReadWriteLock cacheLock = new ReentrantReadWriteLock();
-  private AtomicInteger cacheStateHash = new AtomicInteger();
-  private List<IOlapService.Catalog> cache = new ArrayList<IOlapService.Catalog>();
 
   /**
    * This is the default name of an XMLA data source on the server.
@@ -153,66 +156,125 @@ public class OlapServiceImpl implements IOlapService {
     return helper;
   }
 
-  void initCache() {
-    final Lock readLock = cacheLock.readLock();
+  /**
+   * Returns a list of catalogs for the current session.
+   *
+   * <p>The cache is stored in the platform's caches in the region
+   * {@link #CATALOG_CACHE_REGION}. It is also segmented by
+   * locale, but we only return the correct sub-region according to the
+   * session passed as a parameter.
+   */
+  @SuppressWarnings( "unchecked" )
+  protected synchronized List<IOlapService.Catalog> getCache( IPentahoSession session ) {
+    // Create the cache region if necessary.
+    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
+    final Object cacheKey = makeCacheSubRegionKey( getLocale() );
+
+
+    final Lock writeLock = cacheLock.writeLock();
     try {
 
-      readLock.lock();
+      writeLock.lock();
 
-      if ( getCurrentCacheHash() != cacheStateHash.get() ) {
-
-        final Lock writeLock = cacheLock.writeLock();
-
-        try {
-
-          writeLock.lock();
-
-          // First clear the cache
-          cache.clear();
-
-          SecurityHelper.getInstance().runAsSystem(
-            new Callable<Void>() {
-              public Void call() throws Exception {
-                // Now build the cache
-                for ( String name : getHelper().getHostedCatalogs() ) {
-                  addCatalogToCache( name );
-                }
-                for ( String name : getHelper().getOlap4jServers() ) {
-                  addCatalogToCache( name );
-                }
-                return null;
-              }
-            } );
-
-          // Sort it all.
-          Collections.sort(
-            cache,
-            new Comparator<IOlapService.Catalog>() {
-              public int compare( Catalog o1, Catalog o2 ) {
-                return o1.name.compareTo( o2.name );
-              }
-            } );
-
-          // Update the hash
-          cacheStateHash.set( getCurrentCacheHash() );
-
-        } catch ( IOlapServiceException e ) {
-
-          LOG.error(
-            "Failed to initialize the connection cache",
-            e );
-
-        } catch ( Exception e ) {
-
-          throw new IOlapServiceException( e );
-
-        } finally {
-          writeLock.unlock();
-        }
+      if ( !cacheMgr.cacheEnabled( CATALOG_CACHE_REGION ) ) {
+        // Create the region. This requires write access.
+        cacheMgr.addCacheRegion( CATALOG_CACHE_REGION );
       }
 
+      if ( cacheMgr.getFromRegionCache( CATALOG_CACHE_REGION, cacheKey ) == null ) {
+        // Create the sub-region. This requires write access.
+        cacheMgr.putInRegionCache(
+          CATALOG_CACHE_REGION,
+          cacheKey,
+          new ArrayList<IOlapService.Catalog>() );
+      }
+
+      return (List<IOlapService.Catalog>)
+        cacheMgr.getFromRegionCache( CATALOG_CACHE_REGION, cacheKey );
+
+    } finally {
+      writeLock.unlock();
+    }
+  }
+
+  /**
+   * Clears all caches for all locales.
+   */
+  protected void resetCache( IPentahoSession session ) {
+    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
+    cacheMgr.clearRegionCache( CATALOG_CACHE_REGION );
+  }
+
+  protected Object makeCacheSubRegionKey( Locale locale ) {
+    return locale.toString();
+  }
+
+  /**
+   * Initializes the cache. Only the cache specific to the sesison's locale
+   * will be populated.
+   */
+  protected void initCache( IPentahoSession session ) {
+
+    final List<Catalog> cache = getCache( session );
+
+    final boolean needUpdate;
+    final Lock readLock = cacheLock.readLock();
+
+    try {
+      readLock.lock();
+      // Check if the cache is empty.
+      if ( cache.size() == 0 ) {
+        needUpdate = true;
+      } else {
+        needUpdate = false;
+      }
     } finally {
       readLock.unlock();
+    }
+
+    if ( needUpdate ) {
+      final Lock writeLock = cacheLock.writeLock();
+      try {
+        writeLock.lock();
+
+        // First clear the cache
+        cache.clear();
+
+        SecurityHelper.getInstance().runAsSystem(
+          new Callable<Void>() {
+            public Void call() throws Exception {
+              // Now build the cache. Use the system session in the holder.
+              for ( String name : getHelper().getHostedCatalogs() ) {
+                addCatalogToCache( PentahoSessionHolder.getSession(), name );
+              }
+              for ( String name : getHelper().getOlap4jServers() ) {
+                addCatalogToCache( PentahoSessionHolder.getSession(), name );
+              }
+              return null;
+            }
+          } );
+
+        // Sort it all.
+        Collections.sort(
+          cache,
+          new Comparator<IOlapService.Catalog>() {
+            public int compare( Catalog o1, Catalog o2 ) {
+              return o1.name.compareTo( o2.name );
+            }
+          } );
+      } catch ( IOlapServiceException e ) {
+
+        LOG.error(
+          "Failed to initialize the connection cache",
+          e );
+
+      } catch ( Exception e ) {
+
+        throw new IOlapServiceException( e );
+
+      } finally {
+        writeLock.unlock();
+      }
     }
   }
 
@@ -222,7 +284,7 @@ public class OlapServiceImpl implements IOlapService {
    * on the cache.
    * @param catalogName The name of the catalog to load in cache.
    */
-  private void addCatalogToCache( String catalogName ) {
+  private void addCatalogToCache( IPentahoSession session, String catalogName ) {
 
     final IOlapService.Catalog catalog =
       new Catalog( catalogName, new ArrayList<IOlapService.Schema>() );
@@ -232,7 +294,7 @@ public class OlapServiceImpl implements IOlapService {
     try {
 
       connection =
-        getConnection( catalogName, PentahoSessionHolder.getSession() );
+        getConnection( catalogName, session );
 
       connection.setCatalog( catalogName );
 
@@ -249,12 +311,14 @@ public class OlapServiceImpl implements IOlapService {
 
         for ( org.olap4j.metadata.Cube cube4j : schema4j.getCubes() ) {
           schema.cubes.add(
-            new IOlapService.Cube( cube4j.getName(), schema ) );
+            new IOlapService.Cube( cube4j.getName(), cube4j.getCaption(), schema ) );
         }
+
+        catalog.schemas.add( schema );
       }
 
       // We're done.
-      cache.add( catalog );
+      getCache( session ).add( catalog );
 
     } catch ( OlapException e ) {
 
@@ -262,12 +326,6 @@ public class OlapServiceImpl implements IOlapService {
         "Failed to initialize the olap connection cache for catalog "
         + catalogName,
         e );
-
-      // We still add the catalog to the list.
-      cache.add(
-        new Catalog(
-          catalogName,
-          Collections.<IOlapService.Schema>emptyList() ) );
 
     } finally {
       try {
@@ -283,22 +341,6 @@ public class OlapServiceImpl implements IOlapService {
     }
   }
 
-  private int getCurrentCacheHash() {
-    int hash = 37;
-    for ( String name : getHelper().getHostedCatalogs() ) {
-      hash = hash( hash, name );
-    }
-    for ( String name : getHelper().getOlap4jServers() ) {
-      hash = hash( hash, name );
-    }
-    return hash;
-  }
-
-  private static int hash( int h, Object o ) {
-    int k = ( o == null ) ? 0 : o.hashCode();
-    return ( ( h << 4 ) | h ) ^ k;
-  }
-
   public void addHostedCatalog(
     String name,
     String dataSourceInfo,
@@ -307,7 +349,7 @@ public class OlapServiceImpl implements IOlapService {
     IPentahoSession session ) {
 
     // Access
-    if ( !hasAccess( makeHostedPath( name ), EnumSet.of( RepositoryFilePermission.WRITE ), session ) ) {
+    if ( !hasAccess( name, EnumSet.of( RepositoryFilePermission.WRITE ), session ) ) {
       LOG.debug( "user does not have access; throwing exception" ); //$NON-NLS-1$
       throw new IOlapServiceException(
         Messages.getInstance().getErrorString(
@@ -335,9 +377,16 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   protected boolean hasAccess(
-    final String path,
+    final String catalogName,
     final EnumSet<RepositoryFilePermission> perms,
     IPentahoSession session ) {
+
+    final String path;
+    if ( isHosted( catalogName ) ) {
+      path = makeHostedPath( catalogName );
+    } else {
+      path = makeGenericPath( catalogName );
+    }
 
     try {
       return SecurityHelper.getInstance().runAsUser(
@@ -365,7 +414,7 @@ public class OlapServiceImpl implements IOlapService {
     IPentahoSession session ) {
 
     // Access
-    if ( !hasAccess( makeGenericPath( name ), EnumSet.of( RepositoryFilePermission.WRITE ), session ) ) {
+    if ( !hasAccess( name, EnumSet.of( RepositoryFilePermission.WRITE ), session ) ) {
       LOG.debug( "user does not have access; throwing exception" ); //$NON-NLS-1$
       throw new IOlapServiceException(
         Messages.getInstance().getErrorString(
@@ -390,11 +439,7 @@ public class OlapServiceImpl implements IOlapService {
   public void removeCatalog( String name, IPentahoSession session ) {
 
     // Check Access
-    final String path =
-      isHosted( name )
-        ? makeHostedPath( name )
-        : makeGenericPath( name );
-    if ( !hasAccess( path, EnumSet.of( RepositoryFilePermission.DELETE ), session ) ) {
+    if ( !hasAccess( name, EnumSet.of( RepositoryFilePermission.DELETE ), session ) ) {
       LOG.debug( "user does not have access; throwing exception" ); //$NON-NLS-1$
       throw new IOlapServiceException(
         Messages.getInstance().getErrorString(
@@ -413,14 +458,13 @@ public class OlapServiceImpl implements IOlapService {
     getHelper().deleteCatalog( name );
   }
 
-  public void flushAll( IPentahoSession pentahoSession ) {
+  public void flushAll( IPentahoSession session ) {
     final Lock writeLock = cacheLock.writeLock();
     try {
       writeLock.lock();
 
       // Start by flushing the local cache.
-      cache.clear();
-      cacheStateHash.set( 0 );
+      resetCache( session );
 
       // Now flush the hosted server's caches.
       getServer().getConnection( null, null, null )
@@ -444,13 +488,13 @@ public class OlapServiceImpl implements IOlapService {
     final List<String> names = new ArrayList<String>();
 
     for ( String name : getHelper().getHostedCatalogs() ) {
-      if ( hasAccess( makeHostedPath( name ), EnumSet.of( RepositoryFilePermission.READ ), pentahoSession ) ) {
+      if ( hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession ) ) {
         names.add( name );
       }
     }
 
     for ( String name : getHelper().getOlap4jServers() ) {
-      if ( hasAccess( makeGenericPath( name ), EnumSet.of( RepositoryFilePermission.READ ), pentahoSession ) ) {
+      if ( hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession ) ) {
         names.add( name );
       }
     }
@@ -464,13 +508,15 @@ public class OlapServiceImpl implements IOlapService {
   public List<IOlapService.Catalog> getCatalogs(
     IPentahoSession session )
     throws IOlapServiceException {
+
+    // Make sure the cache is initialized.
+    initCache( session );
+    final List<Catalog> cache = getCache( session );
+
     final Lock readLock = cacheLock.readLock();
     try {
       readLock.lock();
-      initCache();
 
-      // Do not leak the cache list.
-      // Do not allow modifications on the list.
       final List<IOlapService.Catalog> catalogs =
         new ArrayList<IOlapService.Catalog>();
       for ( Catalog catalog : cache ) {
@@ -479,30 +525,25 @@ public class OlapServiceImpl implements IOlapService {
         }
       }
 
+      // Do not leak the cache list.
+      // Do not allow modifications on the list.
       return Collections.unmodifiableList(
-        new ArrayList<>( cache ) );
+        new ArrayList<IOlapService.Catalog>( cache ) );
+
     } finally {
       readLock.unlock();
     }
   }
 
-
   public List<IOlapService.Schema> getSchemas(
     String parentCatalog,
-    IPentahoSession pentahoSession ) {
+    IPentahoSession session ) {
     final List<IOlapService.Schema> schemas = new ArrayList<IOlapService.Schema>();
-    final Lock readLock = cacheLock.readLock();
-    try {
-      readLock.lock();
-      initCache();
-      for ( IOlapService.Catalog catalog : getCatalogs( pentahoSession ) ) {
-        if ( parentCatalog == null
-          || catalog.name.equals( parentCatalog ) ) {
-          schemas.addAll( catalog.schemas );
-        }
+    for ( IOlapService.Catalog catalog : getCatalogs( session ) ) {
+      if ( parentCatalog == null
+        || catalog.name.equals( parentCatalog ) ) {
+        schemas.addAll( catalog.schemas );
       }
-    } finally {
-      readLock.unlock();
     }
     return schemas;
   }
@@ -512,18 +553,11 @@ public class OlapServiceImpl implements IOlapService {
     String parentSchema,
     IPentahoSession pentahoSession ) {
     final List<IOlapService.Cube> cubes = new ArrayList<IOlapService.Cube>();
-    final Lock readLock = cacheLock.readLock();
-    try {
-      readLock.lock();
-      initCache();
-      for ( IOlapService.Schema schema : getSchemas( parentCatalog, pentahoSession ) ) {
-        if ( parentSchema == null
-          || schema.name.equals( parentSchema ) ) {
-          cubes.addAll( schema.cubes );
-        }
+    for ( IOlapService.Schema schema : getSchemas( parentCatalog, pentahoSession ) ) {
+      if ( parentSchema == null
+        || schema.name.equals( parentSchema ) ) {
+        cubes.addAll( schema.cubes );
       }
-    } finally {
-      readLock.unlock();
     }
     return cubes;
   }
@@ -539,11 +573,7 @@ public class OlapServiceImpl implements IOlapService {
     }
 
     // Check Access
-    final String path =
-      isHosted( catalogName )
-        ? makeHostedPath( catalogName )
-        : makeGenericPath( catalogName );
-    if ( !hasAccess( path, EnumSet.of( RepositoryFilePermission.READ ), session ) ) {
+    if ( !hasAccess( catalogName, EnumSet.of( RepositoryFilePermission.READ ), session ) ) {
       LOG.debug( "user does not have access; throwing exception" ); //$NON-NLS-1$
       throw new IOlapServiceException(
         Messages.getInstance().getErrorString(
@@ -604,13 +634,19 @@ public class OlapServiceImpl implements IOlapService {
       addComma = true;
     }
 
+    // Populate some properties, like locale.
+    final Properties properties = new Properties();
+    properties.put(
+      RolapConnectionProperties.Locale.name(),
+      getLocale().toString() );
+
     // Return a connection
     try {
       return getServer().getConnection(
         DATASOURCE_NAME,
         catalogName,
         roleName.toString(),
-        new Properties() );
+        properties );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
     }
@@ -765,6 +801,15 @@ public class OlapServiceImpl implements IOlapService {
       return true;
     } else {
       return false;
+    }
+  }
+
+  private static Locale getLocale() {
+    final Locale locale = LocaleHelper.getLocale();
+    if ( locale != null ) {
+      return locale;
+    } else {
+      return Locale.getDefault();
     }
   }
 }
