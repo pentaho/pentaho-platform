@@ -630,6 +630,7 @@
 	          <include name="**/pentaho-data.zip" />        	
 	          <include name="**/pentaho-solutions.zip" />
 	          <include name="**/pentaho.war" />
+	          <include name="**/pentaho-style.war" />
 	          <include name="**/*.html" />
 	        </zipfileset>
 	    </zip>
@@ -639,6 +640,7 @@
 			    <include name="**/pentaho-data.zip" />        	
 			    <include name="**/pentaho-solutions.zip" />
 				<include name="**/pentaho.war" />
+				<include name="**/pentaho-style.war" />
 				<include name="**/*.html" />	   	
 			</fileset>
 		</delete>		
