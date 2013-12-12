@@ -56,7 +56,6 @@ import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -204,8 +203,13 @@ public class OlapServiceImpl implements IOlapService {
    * Clears all caches for all locales.
    */
   protected void resetCache( IPentahoSession session ) {
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
-    cacheMgr.clearRegionCache( CATALOG_CACHE_REGION );
+    final Lock writeLock = cacheLock.writeLock();
+    try {
+      final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
+      cacheMgr.clearRegionCache( CATALOG_CACHE_REGION );
+    } finally {
+      writeLock.unlock();
+    }
   }
 
   protected Object makeCacheSubRegionKey( Locale locale ) {
@@ -383,27 +387,7 @@ public class OlapServiceImpl implements IOlapService {
     final String catalogName,
     final EnumSet<RepositoryFilePermission> perms,
     IPentahoSession session ) {
-
-    final String path;
-    if ( isHosted( catalogName ) ) {
-      path = makeHostedPath( catalogName );
-    } else {
-      path = makeGenericPath( catalogName );
-    }
-
-    try {
-      return SecurityHelper.getInstance().runAsUser(
-        session.getName(),
-        new Callable<Boolean>() {
-          public Boolean call() throws Exception {
-            return repository.hasAccess(
-              path,
-              perms );
-          }
-        } );
-    } catch ( Exception e ) {
-      throw new IOlapServiceException( e );
-    }
+    return getHelper().hasAccess( catalogName, perms, session );
   }
 
   public void addOlap4jCatalog(
@@ -800,28 +784,6 @@ public class OlapServiceImpl implements IOlapService {
 
   public void setMondrianRole( Role role ) {
     this.role = role;
-  }
-
-  private String makeHostedPath( String name ) {
-    return
-      MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER
-      + RepositoryFile.SEPARATOR
-      + name;
-  }
-
-  private String makeGenericPath( String name ) {
-    return
-      MondrianCatalogRepositoryHelper.ETC_OLAP_SERVERS_JCR_FOLDER
-      + RepositoryFile.SEPARATOR
-      + name;
-  }
-
-  private boolean isHosted( String name ) {
-    if ( getHelper().getHostedCatalogs().contains( name ) ) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   private static Locale getLocale() {

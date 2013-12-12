@@ -449,10 +449,13 @@ public class OlapServiceTest extends TestCase {
     // Stub the security
     accessMock = new DefaultAccessImpl() {
       public boolean hasAccess(
-        String path,
+        String catalogName,
         EnumSet<RepositoryFilePermission> perms,
         IPentahoSession session ) {
-        if ( path.startsWith( "/etc/mondrian" ) ) {
+        if ( !perms.contains( RepositoryFilePermission.READ ) ) {
+          fail();
+        }
+        if ( catalogName.equals( "myHostedServer" ) ) {
           return false;
         }
         return true;
@@ -519,10 +522,10 @@ public class OlapServiceTest extends TestCase {
         String path,
         EnumSet<RepositoryFilePermission> perms,
         IPentahoSession session ) {
-        if ( path.startsWith( "/etc/olap-servers" ) ) {
-          return false;
+        if ( !perms.contains( RepositoryFilePermission.READ ) ) {
+          fail();
         }
-        return true;
+        return false;
       }
     };
 
@@ -604,10 +607,10 @@ public class OlapServiceTest extends TestCase {
         String path,
         EnumSet<RepositoryFilePermission> perms,
         IPentahoSession session ) {
-        if ( path.startsWith( "/etc/mondrian" ) ) {
-          return false;
+        if ( path.equals( "myServer" ) ) {
+          return true;
         }
-        return true;
+        return false;
       }
     };
 
@@ -673,7 +676,8 @@ public class OlapServiceTest extends TestCase {
         String path,
         EnumSet<RepositoryFilePermission> perms,
         IPentahoSession session ) {
-        if ( path.startsWith( "/etc/olap-servers" ) ) {
+        if ( perms.contains( RepositoryFilePermission.DELETE )
+          && path.equals( "myServer" ) ) {
           return false;
         }
         return true;

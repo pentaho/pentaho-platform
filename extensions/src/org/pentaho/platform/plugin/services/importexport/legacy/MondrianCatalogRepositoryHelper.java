@@ -21,17 +21,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.io.IOUtils;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
@@ -403,4 +409,52 @@ public class MondrianCatalogRepositoryHelper {
     }
   }
 
+  private String makeHostedPath( String name ) {
+    return
+      MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER
+      + RepositoryFile.SEPARATOR
+      + name;
+  }
+
+  private String makeGenericPath( String name ) {
+    return
+      MondrianCatalogRepositoryHelper.ETC_OLAP_SERVERS_JCR_FOLDER
+      + RepositoryFile.SEPARATOR
+      + name;
+  }
+
+  private boolean isHosted( String name ) {
+    if ( getHostedCatalogs().contains( name ) ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private String makePath( String catalogName ) {
+    if ( isHosted( catalogName ) ) {
+      return makeHostedPath( catalogName );
+    } else {
+      return makeGenericPath( catalogName );
+    }
+  }
+
+  public boolean hasAccess(
+    final String catalogName,
+    final EnumSet<RepositoryFilePermission> perms,
+    IPentahoSession session ) {
+    try {
+      return SecurityHelper.getInstance().runAsUser(
+        session.getName(),
+        new Callable<Boolean>() {
+          public Boolean call() throws Exception {
+            return repository.hasAccess(
+              makePath( catalogName ),
+              perms );
+          }
+        } );
+    } catch ( Exception e ) {
+      throw new IOlapServiceException( e );
+    }
+  }
 }
