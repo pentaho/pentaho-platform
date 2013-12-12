@@ -96,6 +96,10 @@ public class ImportDialog extends PromptDialogBox {
           dialogBox.setContent( messageTextBox );
           dialogBox.center();
         }
+        
+        // if mantle_isBrowseRepoDirty=true: do getChildren call 
+        // if mantle_isBrowseRepoDirty=false: use stored fileBrowserModel in myself.get("cachedData")
+        setBrowseRepoDirty( Boolean.TRUE );
 
         // BISERVER-9319 Refresh browse perspective after import
         final GenericEvent event = new GenericEvent();
@@ -171,7 +175,7 @@ public class ImportDialog extends PromptDialogBox {
     overwriteFile.setValue( "true" );
 
     final Hidden logLevel = new Hidden( "logLevel" );
-    overwriteFile.setValue( "WARN" );
+    logLevel.setValue( "WARN" );
 
     final Hidden retainOwnership = new Hidden( "retainOwnership" );
     retainOwnership.setValue( "true" );
@@ -377,4 +381,9 @@ public class ImportDialog extends PromptDialogBox {
       }
     }
   }
+  
+  private static native void setBrowseRepoDirty( boolean isDirty )
+  /*-{
+    $wnd.mantle_isBrowseRepoDirty=isDirty;
+  }-*/;
 }
