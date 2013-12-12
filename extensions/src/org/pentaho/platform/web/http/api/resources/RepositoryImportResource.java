@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
@@ -122,6 +123,12 @@ public class RepositoryImportResource {
           PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder
               .getSession() );
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
+
+      // Flush the IOlapService
+      IOlapService olapService =
+        PentahoSystem.get( IOlapService.class, "IOlapService", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
+      olapService.flushAll( PentahoSessionHolder.getSession() );
+
     } catch ( PentahoAccessControlException e ) {
       return Response.serverError().entity( e.toString() ).build();
     } catch ( Exception e ) {
