@@ -62,6 +62,7 @@ public class PentahoHttpSessionListener implements HttpSessionListener {
         Object obj = session.getAttribute( PentahoSystem.PENTAHO_SESSION_KEY ); //$NON-NLS-1$
         if ( obj != null ) {
           IPentahoSession userSession = (IPentahoSession) obj;
+          PentahoSystem.invokeLogoutListeners( userSession );
           userSession.destroy();
         } else {
           String[] info = PentahoHttpSessionListener.getSessionInfo( sessionId );
