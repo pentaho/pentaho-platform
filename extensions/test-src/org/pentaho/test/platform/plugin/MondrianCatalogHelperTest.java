@@ -112,6 +112,10 @@ public class MondrianCatalogHelperTest {
     final String metadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
     stubCreateFile( repo, metadataPath );
 
+    final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+    stubGetFolder( repo, olapFolderPath );
+    stubGetChildren( repo, olapFolderPath ); // return no children
+
     IPentahoSession session = new StandaloneSession( "admin" );
     MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
 
@@ -154,6 +158,10 @@ public class MondrianCatalogHelperTest {
 
     stubCreateFile( repo, metadataPath );
 
+    final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+    stubGetFolder( repo, olapFolderPath );
+    stubGetChildren( repo, olapFolderPath ); // return no children
+
     MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
     helper.importSchema( mondrianFile, "SampleData", "" );
 
@@ -177,6 +185,10 @@ public class MondrianCatalogHelperTest {
     final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
     stubGetFolder( repo, mondrianFolderPath );
     stubGetChildren( repo, mondrianFolderPath, "SampleData/", "SteelWheels/" ); // return two child folders
+
+    final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+    stubGetFolder( repo, olapFolderPath );
+    stubGetChildren( repo, olapFolderPath ); // return no children
 
     final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SampleData";
     final String sampleDataMetadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
