@@ -24,6 +24,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
@@ -37,17 +38,17 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
- * This resource is responsible for refreshing  different system components (metadata, mondrian etc.) 
- * 
+ * This resource is responsible for refreshing  different system components (metadata, mondrian etc.)
+ *
  * @author rmansoor
  *
  */
-@Path("/system/refresh")
+@Path( "/system/refresh" )
 public class SystemRefreshResource extends AbstractJaxRSResource {
 
   /**
-   * 
-   * 
+   *
+   *
    * @return
    */
   @GET
@@ -95,9 +96,14 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
     if ( canAdminister() ) {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       if ( SecurityHelper.getInstance().isPentahoAdministrator( pentahoSession ) ) {
+        // Flush the catalog helper (legacy)
         IMondrianCatalogService mondrianCatalogService =
             PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", pentahoSession ); //$NON-NLS-1$
         mondrianCatalogService.reInit( pentahoSession );
+        // Flush the IOlapService
+        IOlapService olapService =
+          PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession ); //$NON-NLS-1$
+        olapService.flushAll( pentahoSession );
       }
       return Response.ok().type( MediaType.TEXT_PLAIN ).build();
     } else {

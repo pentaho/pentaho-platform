@@ -17,7 +17,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -51,7 +52,7 @@ import static javax.ws.rs.core.MediaType.*;
 
 /**
  *  UserRoleDao manage pentaho security user and roles in the platform.
- * 
+ *
  *
  */
 @Path( "/userroledao/" )
@@ -62,7 +63,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   private ArrayList<String> systemRoles;
   private String adminRole;
 
-  private static final Logger logger = Logger.getLogger( UserRoleDaoResource.class );
+  private static final Log logger =
+    LogFactory.getLog( UserRoleDaoResource.class );
+
 
   public UserRoleDaoResource() {
     this( PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class ), PentahoSystem.get( ITenantManager.class ),
@@ -86,9 +89,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Returns the list of users in the platform's repository
-   * 
+   *
    * @return list of users in the platform
-   * 
+   *
    * @throws Exception
    */
   @GET
@@ -102,9 +105,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Returns the list of roles in the platform's repository
-   * 
+   *
    * @return list of roles in the platform
-   * 
+   *
    * @throws Exception
    */
   @GET
@@ -118,11 +121,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Retrieves a selected user's roles
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (user name)
    * @return list of roles fir the selected user
-   * 
+   *
    * @throws Exception
    */
   @GET
@@ -137,12 +140,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Retrieves list of users for the selected role
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param roleName (role name)
-   * 
+   *
    * @return list of users for the selected role
-   * 
+   *
    * @throws Exception
    */
   @GET
@@ -157,12 +160,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Associates selected role(s) to a user
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (username)
    * @param roleNames (pipe (|) separated list of role names)
-   * 
-   * @return 
+   *
+   * @return
    */
   @PUT
   @Path( "/assignRoleToUser" )
@@ -185,11 +188,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Remove selected roles(s) from a selected user
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (username)
    * @param roleNames (pipe (|) separated list of role names)
-   * 
+   *
    * @return
    */
   @PUT
@@ -217,7 +220,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Associate all roles to the selected user
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (username)
    *
@@ -240,7 +243,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Remove all roles from the selected user
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (username)
    *
@@ -264,11 +267,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   /**
    * Associate list of users to the selected role
    *
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userNames (list of pipe(|) separated user names 
+   * @param userNames (list of pipe(|) separated user names
    * @param roleName (role name)
-   * 
+   *
    * @return
    */
   @PUT
@@ -292,11 +295,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Remove user(s) from a particular role
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userNames (list of pipe(|) separated user names 
+   * @param userNames (list of pipe(|) separated user names
    * @param roleName (role name)
-   * 
+   *
    * @return
    */
   @PUT
@@ -324,10 +327,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Associates all user to a particular role
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param roleName (role name)
-   * 
+   *
    * @return
    */
   @PUT
@@ -347,10 +350,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Removes all users from a particular role
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param roleName (role name)
-   * 
+   *
    * @return
    */
   @PUT
@@ -370,10 +373,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Create a new user with provided information.
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param user (user information <code> User </code>)
-   * 
+   *
    * @return
    */
   @PUT
@@ -402,10 +405,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Create a new role with the provided information
-   * 
+   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param roleName (name of the new role)
-   * 
+   *
    * @return
    */
   @PUT
@@ -420,9 +423,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Delete role(s) from the platform
-   * 
+   *
    * @param roleNames (list of pipe (|) separated role names)
-   * 
+   *
    * @return
    */
   @PUT
@@ -447,9 +450,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Delete user(s) from the platform
-   * 
+   *
    * @param userNames (list of pipe (|) separated user names)
-   * 
+   *
    * @return
    */
   @PUT
@@ -474,9 +477,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Update the password of a selected user
-   * 
+   *
    * @param user (user information <code> User </code>)
-   * 
+   *
    * @return
    */
   @PUT
@@ -508,9 +511,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Retrieve the list of logical roles in the platform
-   * 
-   * @param locale (locale) 
-   * 
+   *
+   * @param locale (locale)
+   *
    * @return
    */
   @GET
@@ -532,9 +535,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Associate a particular runtime role to list of logical role in the repository
-   * 
+   *
    * @param roleAssignments (logical to runtime role assignments)
-   * 
+   *
    * @return
    */
   @PUT
