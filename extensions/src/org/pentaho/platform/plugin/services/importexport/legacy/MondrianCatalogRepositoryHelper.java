@@ -55,6 +55,7 @@ public class MondrianCatalogRepositoryHelper {
       throw new IllegalArgumentException();
     }
     this.repository = repository;
+    initOlapServersFolder();
   }
 
   @Deprecated
@@ -110,6 +111,19 @@ public class MondrianCatalogRepositoryHelper {
     }
   }
 
+  private void initOlapServersFolder() {
+    final RepositoryFile etcOlapServers =
+      repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
+    if ( etcOlapServers == null ) {
+      repository.createFolder(
+        repository.getFile(RepositoryFile.SEPARATOR + "etc" ).getId(),
+          new RepositoryFile.Builder( "olap-servers" )
+            .folder(true )
+            .build(),
+            "Creating olap-servers directory in /etc" );
+    }
+  }
+
   public void addOlap4jServer(
     String name,
     String className,
@@ -117,19 +131,9 @@ public class MondrianCatalogRepositoryHelper {
     String user,
     String password,
     Properties props ) {
-    // Get the /etc/olap-servers folder.
-    // Create it if necessary.
-    RepositoryFile etcOlapServers =
-      repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
-    if ( etcOlapServers == null ) {
-      etcOlapServers =
-        repository.createFolder(
-          repository.getFile(RepositoryFile.SEPARATOR + "etc" ).getId(),
-            new RepositoryFile.Builder( "olap-servers" )
-              .folder(true )
-              .build(),
-              "Creating olap-servers directory in /etc" );
-    }
+
+    final RepositoryFile etcOlapServers =
+        repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
 
     RepositoryFile entry =
       repository.getFile(
@@ -443,13 +447,27 @@ public class MondrianCatalogRepositoryHelper {
     final String catalogName,
     final EnumSet<RepositoryFilePermission> perms,
     IPentahoSession session ) {
+
+    // If the connection doesn't exist yet and we're trying to create it,
+    // we need to check the parent folder instead.
+    final String path;
+    if ( !getHostedCatalogs().contains( catalogName )
+      && !getOlap4jServers().contains( catalogName )
+      && perms.contains( RepositoryFilePermission.WRITE ) ) {
+      path = isHosted( catalogName )
+        ? ETC_MONDRIAN_JCR_FOLDER
+        : ETC_OLAP_SERVERS_JCR_FOLDER;
+    } else {
+      path = makePath( catalogName );
+    }
+
     try {
       return SecurityHelper.getInstance().runAsUser(
         session.getName(),
         new Callable<Boolean>() {
           public Boolean call() throws Exception {
             return repository.hasAccess(
-              makePath( catalogName ),
+              path,
               perms );
           }
         } );

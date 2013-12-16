@@ -303,8 +303,6 @@ public class OlapServiceImpl implements IOlapService {
       connection =
         getConnection( catalogName, session );
 
-      connection.setCatalog( catalogName );
-
       for ( org.olap4j.metadata.Schema schema4j : connection.getOlapSchemas() ) {
 
         connection.setSchema( schema4j.getName() );
@@ -554,9 +552,17 @@ public class OlapServiceImpl implements IOlapService {
     IPentahoSession session )
     throws IOlapServiceException {
 
-    // Check valid name.
     if ( catalogName == null ) {
-      throw new NullPointerException( "catalogName cannot be null." );
+      // This is normal. It happens on XMLA's DISCOVER_DATASOURCES
+      try {
+        return getServer().getConnection(
+          DATASOURCE_NAME,
+          null,
+          null,
+          new Properties() );
+      } catch ( Exception e ) {
+        throw new IOlapServiceException( e );
+      }
     }
 
     // Check Access
