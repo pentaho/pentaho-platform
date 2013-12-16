@@ -23,6 +23,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
@@ -93,14 +94,14 @@ public class OSGIBoot implements IPentahoSystemListener {
 
       Runtime.getRuntime().addShutdownHook(new Thread("Felix Shutdown Hook") {
         public void run() {
-          try {
-            if (framework != null) {
-              framework.stop();
-              framework.waitForStop(0);
-            }
-          } catch (Exception ex) {
-            logger.error("Error stopping OSGI", ex);
-          }
+          shutdownFramework();
+        }
+      });
+
+      PentahoSystem.getApplicationContext().addExitPointHandler(new IPentahoSystemExitPoint() {
+        @Override
+        public void systemExitPoint() {
+          shutdownFramework();
         }
       });
 
@@ -142,6 +143,17 @@ public class OSGIBoot implements IPentahoSystemListener {
     } catch ( Exception ex ) {
       logger.error( "Error starting OSGI environment", ex );
       return false;
+    }
+  }
+
+  private void shutdownFramework() {
+    try {
+      if (framework != null) {
+        framework.stop();
+        framework.waitForStop(0);
+      }
+    } catch (Exception ex) {
+      logger.error("Error stopping OSGI", ex);
     }
   }
 
