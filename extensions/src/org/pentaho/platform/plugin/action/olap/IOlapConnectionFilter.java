@@ -24,12 +24,12 @@ import java.util.Properties;
  * before a connection is made.
  */
 public interface IOlapConnectionFilter {
-    /**
-     * Will be called before opening an olap connection. Note that
-     * 'user' and 'password' properties might get overridden downstream
-     * if they have been set when creating the connection with the
-     * {@link IOlapService}.
-     * @param properties Properties used for the connection.
-     */
-    void filterProperties(Properties properties);
+  /**
+   * Will be called before opening an olap connection. Note that
+   * 'user' and 'password' properties might get overridden downstream
+   * if they have been set when creating the connection with the
+   * {@link IOlapService}.
+   * @param properties Properties used for the connection.
+   */
+  void filterProperties( Properties properties );
 }
