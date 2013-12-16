@@ -172,13 +172,13 @@ public class StandaloneApplicationContext implements IApplicationContext {
 
   public void invokeEntryPoints() {
     for ( int i = 0; i < entryPointsList.size(); i++ ) {
-      ( (IPentahoSystemEntryPoint) entryPointsList.get( i ) ).systemEntryPoint();
+      entryPointsList.get( i ).systemEntryPoint();
     }
   }
 
   public void invokeExitPoints() {
     for ( int i = 0; i < exitPointsList.size(); i++ ) {
-      ( (IPentahoSystemExitPoint) entryPointsList.get( i ) ).systemExitPoint();
+      exitPointsList.get( i ).systemExitPoint();
     }
   }
 
