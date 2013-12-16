@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.osgi;
 
-import org.apache.felix.main.AutoProcessor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
@@ -40,9 +39,9 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 /**
- * This {@link org.pentaho.platform.api.engine.IPentahoSystemListener} starts a Felix OSGI container. It then
- * installs bundles found in system/osgi and finally calls the {@link PentahoOSGIActivator} to bootstrap OSGI
- * into the PentahoSystem aggregate objectFactory
+ * This {@link org.pentaho.platform.api.engine.IPentahoSystemListener} starts a Felix OSGI container. It then installs
+ * bundles found in system/osgi and finally calls the {@link PentahoOSGIActivator} to bootstrap OSGI into the
+ * PentahoSystem aggregate objectFactory
  */
 public class OSGIBoot implements IPentahoSystemListener {
   Framework framework;
@@ -50,7 +49,8 @@ public class OSGIBoot implements IPentahoSystemListener {
 
   @Override
   public boolean startup( IPentahoSession session ) {
-    logger.info("Starting OSGI Environment");
+
+    logger.info( "Starting OSGI Environment" );
     String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
 
     final String sep = File.separator;
@@ -79,31 +79,29 @@ public class OSGIBoot implements IPentahoSystemListener {
     configProps.put( "felix.fileinstall.bundles.new.start", "true" );
     configProps.put( "felix.fileinstall.bundles.startActivationPolicy", "false" );
 
+    configProps.put( "org.eclipse.virgo.kernel.home", solutionRootPath + "/osgi/virgo" );
+    configProps.put( "org.eclipse.virgo.kernel.config", solutionRootPath + "/osgi/virgo/configuration" );
+    configProps.put( "osgi.sharedConfiguration.area", solutionRootPath + "/osgi/virgo/configuration" );
+    configProps.put( "osgi.configuration.area", solutionRootPath + "/osgi/virgo/configuration" );
+    configProps.put( "osgi.install.area", solutionRootPath + "/osgi/virgo" );
+    configProps.put( "eclipse.ignoreApp", "true" );
 
     try {
-      logger.debug("Attempting to load OSGI FrameworkFactory.");
+      logger.debug( "Attempting to load OSGI FrameworkFactory." );
       FrameworkFactory factory = ServiceLoader.load( FrameworkFactory.class ).iterator().next();
-      logger.debug("FrameworkFactory found");
+      logger.debug( "FrameworkFactory found" );
       framework = factory.newFramework( configProps );
-      logger.debug("Initializing FrameworkFactory");
+      logger.debug( "Initializing FrameworkFactory" );
       framework.init();
 
-      AutoProcessor.process( configProps, framework.getBundleContext() );
-      logger.debug("Starting FrameworkFactory");
+      logger.debug( "Starting FrameworkFactory" );
       framework.start();
 
-      Runtime.getRuntime().addShutdownHook(new Thread("Felix Shutdown Hook") {
+      Runtime.getRuntime().addShutdownHook( new Thread( "Felix Shutdown Hook" ) {
         public void run() {
           shutdownFramework();
         }
-      });
-
-      PentahoSystem.getApplicationContext().addExitPointHandler(new IPentahoSystemExitPoint() {
-        @Override
-        public void systemExitPoint() {
-          shutdownFramework();
-        }
-      });
+      } );
 
       List<Bundle> bundleList = new ArrayList<Bundle>();
 
@@ -114,7 +112,7 @@ public class OSGIBoot implements IPentahoSystemListener {
             new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
                 + "bundles" ) };
 
-      logger.debug("Installing bundles");
+      logger.debug( "Installing bundles" );
       for ( File bundleDirectory : bundleDirectories ) {
         for ( File f : bundleDirectory.listFiles() ) {
           if ( f.isFile() && f.getName().endsWith( ".jar" ) ) {
@@ -128,7 +126,7 @@ public class OSGIBoot implements IPentahoSystemListener {
         }
       }
 
-      logger.debug("Starting bundles");
+      logger.debug( "Starting bundles" );
       for ( Bundle bundle : bundleList ) {
         try {
           bundle.start();
@@ -148,17 +146,17 @@ public class OSGIBoot implements IPentahoSystemListener {
 
   private void shutdownFramework() {
     try {
-      if (framework != null) {
+      if ( framework != null ) {
         framework.stop();
-        framework.waitForStop(0);
+        framework.waitForStop( 0 );
       }
-    } catch (Exception ex) {
-      logger.error("Error stopping OSGI", ex);
+    } catch ( Exception ex ) {
+      logger.error( "Error stopping OSGI", ex );
     }
   }
 
   @Override
   public void shutdown() {
-
+    shutdownFramework();
   }
 }
