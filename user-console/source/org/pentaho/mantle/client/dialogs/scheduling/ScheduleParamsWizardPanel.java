@@ -182,9 +182,17 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
 
   private native void addOnLoad( Element ele, String scheduledFilePath )
   /*-{
-    ele.onload = function() {
+    var onloadFunc = function(){
       $wnd.schedulerParamsLoadedCallback(scheduledFilePath);
     };
+
+    if(ele.attachEvent){
+      // can't use onload to an iframe in IE8 using the DOM property once the page has loaded
+      ele.attachEvent('onload', onloadFunc);
+    }
+    else{
+      ele.onload = onloadFunc;
+    }
   }-*/;
 
   /**
