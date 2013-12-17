@@ -218,6 +218,12 @@ public class SimpleOutputHandler implements IOutputHandler {
       if ( output != null ) {
         output.setInstanceId( instanceId );
         output.setMimeType( localMimeType );
+        output.setContentRef( contentName );
+        if ( contentName.indexOf( ":" ) != -1 ) {
+          output.setSolutionPath( contentName.substring( contentName.indexOf( ":" ) + 1 ) );
+        } else {
+          output.setSolutionPath( null );
+        }
         return output.getFileOutputContentItem();
       }
     }
