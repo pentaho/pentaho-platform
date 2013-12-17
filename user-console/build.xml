@@ -7,7 +7,7 @@
 
   See common_build.xml for more details
 ============================================================================-->
-<project name="Pentaho Mantle" basedir="." default="jar">
+<project name="Pentaho Mantle" basedir="." default="jar" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <description>
 	  This build file is used to create the Pentaho Commons Action Sequence DOM
@@ -141,5 +141,12 @@
       <available file="${approot.stage.dir}/lib" type="dir"/>
     </condition>
   </target>
+
+  <target name="publish-local-nojar.internal" depends="install-ivy">
+      <ivy:publish resolver="local" pubrevision="${project.revision}" overwrite="true" forcedeliver="true" warnonmissing="yes" haltonmissing="no">
+          <artifacts pattern="${dist.dir}/[artifact]-[revision](-[classifier]).[ext]" />
+      </ivy:publish>
+  </target>
+
 
 </project>
