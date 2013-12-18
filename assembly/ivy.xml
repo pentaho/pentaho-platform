@@ -156,7 +156,6 @@
     <dependency org="org.apache.felix" name="org.apache.felix.configadmin" rev="1.8.0" conf="core-bundle->default"/>
     <dependency org="org.apache.felix" name="org.apache.felix.fileinstall" rev="3.2.6" conf="core-bundle->default"/>
     <dependency org="org.apache.felix" name="org.apache.felix.utils" rev="1.4.0" conf="core-bundle->default"/>
-    <dependency org="org.osgi" name="org.osgi.compendium" rev="4.3.1" conf="core-bundle->default"/>
 
     <exclude org="org.osgi"  module="org.osgi.core" conf="core-bundle" />
 
