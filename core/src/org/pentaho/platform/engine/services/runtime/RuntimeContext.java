@@ -423,6 +423,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         String objectName = destination.getSourceName();
         String contentName = destination.getValue();
         contentName = TemplateUtil.applyTemplate( contentName, this );
+        outputHandler.setSession( session );
         IContentItem tmpContentItem =
             outputHandler.getOutputContentItem( objectName, contentName, instanceId, mimeType );
         if ( contentItem instanceof MultiContentItem ) {
