@@ -94,48 +94,6 @@
 		token="user-console-revision=" value="user-console-revision=${user.console.revision}" />
   </target>
 
-  <target name="resolve-js" depends="resolve,subfloor-js.resolve-js">
-    <unzip dest="${js.expanded.lib.dir}" overwrite="true">
-      <fileset file="${js.lib.dir}/*.zip" />
-      <patternset>
-        <exclude name="**/*.jar"/>
-        <exclude name="**/plugin*.xml"/>
-        <exclude name="**/settings.xml"/>
-        <exclude name="**/themes.xml"/>
-      </patternset>
-    </unzip>
-  </target>
-
-  <target name="clean-js" depends="subfloor-js.clean-js">
-    <delete dir="${js.expanded.lib.dir}" />
-  </target>
-
-  <target name="npm-install">
-    <exec executable="npm">
-      <arg value="install"/>
-    </exec>
-  </target>
-
-  <available file="karma" filepath="${env.PATH}" property="karma-is-available" />
-
-  <target name="test-js" depends="install-antcontrib, npm-install">
-    <if>
-      <isset property="karma-is-available" />
-      <then>
-        <!-- we have karma available, use it to run the tests -->
-        <exec executable="karma">
-          <arg value="start"/>
-          <arg value="${js.karma.config}"/>
-          <!-- if we are running via ant, then assume we must 'single-run' -->
-          <arg value="--single-run"/>
-        </exec>
-      </then>
-      <else>
-        <fail>Karma is not available. Unit tests could not be run</fail>
-      </else>
-    </if>
-  </target>
-
   <target name="lib.dir.check">
     <condition property="lib.dir.exists">
       <available file="${approot.stage.dir}/lib" type="dir"/>
