@@ -78,49 +78,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <property name="js.dojo.module.name" value="dojo-custom"/>
 
 
-  <!-- location to expand the zipped contents of js dependencies (to be available for testing) -->
-  <property name="js.expanded.lib.dir" value="${js.lib.dir}/expanded"/>
-
-  <!-- Path to the karma configuration -->
-  <property name="js.karma.config" value="config/karma.ci.conf.js"/>
-  
-  <property environment="env"/>
-
-
   <target name="js.clean"
           description="Cleans all the files generated from a build with the exception of IVY-downloaded jars (see clean-all)">
     <delete dir="${js.module.script.agg.dir}"/>
   </target>
 
-  <available file="" property="js-lib-dir-exists"/>
-
-  <target name="resolve-js" depends="install-ivy, install-antcontrib">
+  <target name="resolve-js">
     <ivy:resolve file="ivy.xml" conf="js"/>
     <ivy:retrieve conf="js" pattern="${js.lib.dir}/[module]-[revision](-[classifier]).[ext]"/>
-
-    <if>
-      <available file="${js.lib.dir}"/>
-      <then>    
-        <unzip dest="${js.expanded.lib.dir}" overwrite="true">
-          <fileset file="${js.lib.dir}/*.zip" />
-          <patternset>
-            <exclude name="**/*.jar"/>
-            <exclude name="**/plugin*.xml"/>
-            <exclude name="**/settings.xml"/>
-            <exclude name="**/themes.xml"/>
-          </patternset>
-        </unzip>
-      </then>
-      <else>
-        <echo>No js libraries need expaning. ${js.lib.dir} does not exist.</echo>
-      </else>
-    </if>
-
   </target>
 
   <target name="clean-js">
     <delete dir="${js.lib.dir}" />
-    <delete dir="${js.expanded.lib.dir}" />
   </target>
 
   <target name="build-js" depends="install-antcontrib">
@@ -351,51 +320,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </else>
     </if>
   </target>
-
-
-  <!-- Check to see if karma is on the PATH -->
-  <available file="karma" filepath="${env.PATH}" property="karma-is-available" />
-
-  <!-- Only run if there is a package.json file -->
-  <target name="npm-install">
-    <if>
-      <available file="package.json"/>
-      <then>
-        <exec executable="npm">
-          <arg value="install"/>
-        </exec>
-      </then>
-      <else>
-        <echo>Skipping 'npm install' -- Node.js configuration not found (looking for: package.json).</echo>
-      </else>
-    </if>
-  </target>
-
-  <target name="test-js" depends="install-antcontrib, npm-install">
-    <if>
-      <not>
-        <isset property="karma-is-available" />
-      </not>
-      <then>
-        <fail>karma is not available on the PATH. Unit tests could not be run.</fail>
-      </then>
-    </if>
-    <if>
-      <available file="${js.karma.config}" />
-      <then>
-        <!-- we have karma available, use it to run the tests -->
-        <exec executable="karma">
-          <arg value="start"/>
-          <arg value="${js.karma.config}"/>
-          <!-- if we are running via ant, then assume we must 'single-run' -->
-          <arg value="--single-run"/>
-        </exec>
-      </then>
-      <else>
-        <fail>There is no karma configuration file available (looking for: ${js.karma.config})</fail>
-      </else>
-    </if>
-  </target>
-
 
 </project>
