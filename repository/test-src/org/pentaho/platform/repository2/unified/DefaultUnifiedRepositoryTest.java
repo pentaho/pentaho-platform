@@ -140,6 +140,7 @@ import static org.junit.Assert.*;
  * 
  * @author mlowery
  */
+@Ignore
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
