@@ -95,7 +95,7 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
 
   @Override
   public List<String> getAllRoles( ITenant tenant ) {
-    return filterExtraRoles( userRoleListService.getAllRoles( tenant ) );
+    return  userRoleListService.getAllRoles( tenant );
   }
 
   @Override
@@ -110,24 +110,11 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
 
   @Override
   public List<String> getRolesForUser( ITenant tenant, String username ) {
-    return filterExtraRoles( userRoleListService.getRolesForUser( tenant, username ) );
+    return userRoleListService.getRolesForUser( tenant, username );
   }
 
   @Override
   public List<String> getSystemRoles() {
-    return filterExtraRoles( userRoleListService.getSystemRoles() );
+    return userRoleListService.getSystemRoles();
   }
-
-  private List<String> filterExtraRoles( List<String> roles ) {
-    List<String> auths = new ArrayList<String>( roles.size() - extraRoles.size() );
-
-    for ( String role : roles ) {
-      if ( !extraRoles.contains( role ) ) {
-        auths.add( role );
-      }
-    }
-
-    return auths;
-  }
-
 }

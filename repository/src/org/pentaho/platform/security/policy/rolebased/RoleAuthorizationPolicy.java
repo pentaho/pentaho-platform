@@ -20,8 +20,11 @@ package org.pentaho.platform.security.policy.rolebased;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -84,13 +87,20 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
   }
 
   protected List<String> getRuntimeRoleNames() {
+    List<String> runtimeRoles = new ArrayList<String>();
+    Authentication authentication = null;
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state( pentahoSession != null );
-    Authentication authentication = SecurityHelper.getInstance().getAuthentication();
-    GrantedAuthority[] authorities = authentication.getAuthorities();
-    List<String> runtimeRoles = new ArrayList<String>();
-    for ( int i = 0; i < authorities.length; i++ ) {
-      runtimeRoles.add( authorities[i].getAuthority() );
+    IUserRoleListService userRoleListService =
+        PentahoSystem.getInitializedOK() ? PentahoSystem.get( IUserRoleListService.class, pentahoSession ) : null;
+    authentication = SecurityHelper.getInstance().getAuthentication();
+    if ( userRoleListService != null ) {
+      runtimeRoles = userRoleListService.getRolesForUser( JcrTenantUtils.getCurrentTenant(), authentication.getName() );
+    } else {
+      GrantedAuthority[] authorities = authentication.getAuthorities();
+      for ( int i = 0; i < authorities.length; i++ ) {
+        runtimeRoles.add( authorities[i].getAuthority() );
+      }
     }
     return runtimeRoles;
   }
