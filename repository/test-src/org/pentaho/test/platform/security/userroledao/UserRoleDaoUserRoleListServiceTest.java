@@ -412,18 +412,18 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     System.out.println("allRolesForTenant.size() ==" + allRolesForTenant.size());   
 
     
-    assertTrue( allRolesForDefaultTenant.size() == 12 + DEFAULT_ROLE_COUNT );
+    assertTrue( allRolesForDefaultTenant.size() == 2 + DEFAULT_ROLE_COUNT );
     assertTrue( allRolesForTenant.size() == 2 );
 
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
     allRolesForDefaultTenant = service.getAllRoles();
     allRolesForTenant = service.getAllRoles( mainTenant_1 );
-    assertTrue( allRolesForDefaultTenant.size() == 4 + DEFAULT_ROLE_COUNT );
+    assertTrue( allRolesForDefaultTenant.size() == 3 + DEFAULT_ROLE_COUNT );
     assertTrue( allRolesForTenant.size() == 2 );
 
     allRolesForTenant = service.getAllRoles( mainTenant_2 );
-    assertTrue( allRolesForTenant.size() == 4 + DEFAULT_ROLE_COUNT );
+    assertTrue( allRolesForTenant.size() == 3 + DEFAULT_ROLE_COUNT );
 
     allRolesForTenant = service.getAllRoles( mainTenant_1 );
     assertTrue( allRolesForTenant.size() == 2 );
@@ -432,7 +432,7 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
 
     allRolesForTenant = service.getAllRoles( mainTenant_1 );
-    assertTrue( allRolesForTenant.size() == 3 + DEFAULT_ROLE_COUNT );
+    assertTrue( allRolesForTenant.size() == 2 + DEFAULT_ROLE_COUNT );
 
     allRolesForTenant = service.getAllRoles( mainTenant_2 );
     assertTrue( allRolesForTenant.size() == 2 );
@@ -495,7 +495,7 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     List<String> allUserForDefaultTenant = service.getAllUsers();
     List<String> allUserForTenant = service.getAllUsers( mainTenant_2 );
 
-    assertTrue( allUserForDefaultTenant.size() == 9 + DEFAULT_USER_COUNT );
+    assertTrue( allUserForDefaultTenant.size() == 5 + DEFAULT_USER_COUNT );
     assertTrue( allUserForTenant.size() == 0 );
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
@@ -701,7 +701,7 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     assertTrue( usersInRole_1.size() == 3 );
     assertTrue( usersInRole_2.size() == 2 );
     assertTrue( usersInRole_3.size() == 3 );
-    assertTrue( usersInRole_4.size() == 2 );
+    assertTrue( usersInRole_4.size() == 1 );
 
     logout();
 
