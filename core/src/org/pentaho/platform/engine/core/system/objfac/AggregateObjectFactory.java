@@ -329,9 +329,9 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
     for ( IPentahoObjectFactory fact : factories ) {
       if ( fact.objectDefined( interfaceClass ) ) {
-        IPentahoObjectReference<T> found = fact.getObjectReference( interfaceClass, curSession, properties );
+        List<IPentahoObjectReference<T>> found = fact.getObjectReferences(interfaceClass, curSession, properties);
         if ( found != null ) {
-          referenceSet.add( found );
+          referenceSet.addAll( found );
         }
       }
     }

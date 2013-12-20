@@ -105,4 +105,22 @@ public class AggregateObjectFactoryTest {
     assertEquals( "Higher Priority MimeTypeListener", ( (MimeTypeListener) republishedAsInterface ).name );
 
   }
+
+
+  @Test
+  public void testRePublishAttributes() throws Exception {
+
+    StandaloneSession session = new StandaloneSession();
+    StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+    factory.init( "test-res/solution/system/republish.spring.xml", null );
+
+    PentahoSystem.registerObjectFactory( factory );
+
+    MimeTypeListener republished =
+        PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "someValue" ) );
+    assertNotNull( republished );
+
+    assertEquals( "Higher Priority MimeTypeListener", republished.name );
+
+  }
 }
