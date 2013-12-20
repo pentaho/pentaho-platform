@@ -17,14 +17,19 @@
 
 package org.pentaho.platform.plugin.action.mondrian.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
@@ -99,16 +104,32 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
     // Get the Spring Security authentication object
     Authentication auth = SecurityHelper.getInstance().getAuthentication();
     String[] rtn = null;
-    // Get the authorities
-    GrantedAuthority[] gAuths = auth.getAuthorities();
-    if ( ( gAuths != null ) && ( gAuths.length > 0 ) ) {
-      // Copy role names out of the Authentication
-      rtn = new String[gAuths.length];
-      for ( int i = 0; i < gAuths.length; i++ ) {
-        rtn[i] = gAuths[i].getAuthority();
-      }
+    List<String> runtimeRoles = new ArrayList<String>();
+    IUserRoleListService userRoleListService = PentahoSystem.getInitializedOK() ? PentahoSystem.get(IUserRoleListService.class, session) : null;
+    // Get the role from IUserRoleListService
+    if ( userRoleListService != null ) {
+      runtimeRoles = userRoleListService.getRolesForUser( JcrTenantUtils.getCurrentTenant(), auth.getName() );
+      if ((runtimeRoles != null) && (runtimeRoles.size() > 0) ) {
+      // Copy role names out of the Authentication 
+        rtn = new String[runtimeRoles.size()];
+        for (int i=0; i<runtimeRoles.size(); i++) {
+          rtn[i] = runtimeRoles.get( i );
+        }
       // Sort the returned list of roles
-      Arrays.sort( rtn );
+      Arrays.sort(rtn);
+      }
+    } else {
+      // Get the authorities
+      GrantedAuthority[] gAuths = auth.getAuthorities();
+      if ((gAuths != null) && (gAuths.length > 0) ) {
+      // Copy role names out of the Authentication 
+        rtn = new String[gAuths.length];
+        for (int i=0; i<gAuths.length; i++) {
+          rtn[i] = gAuths[i].getAuthority();
+        }
+        // Sort the returned list of roles
+        Arrays.sort(rtn);
+      }      
     }
     return rtn;
   }

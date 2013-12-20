@@ -540,8 +540,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean usingLDAP = response.getText().contains( "ldap" );
-          if ( usingLDAP ) {
+          boolean usingPentahoSecurity = response.getText().contains( "jackrabbit" );
+          if ( !usingPentahoSecurity ) {
             initializeRoles( null, "api/userrolelist/roles", rolesListBox );
           } else {
             initializeRoles( null, "api/userroledao/roles", rolesListBox );

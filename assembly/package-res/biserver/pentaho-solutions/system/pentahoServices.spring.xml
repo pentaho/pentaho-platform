@@ -70,6 +70,7 @@
   <bean class="org.pentaho.platform.web.http.api.resources.UserRoleListResource" scope="request">
     <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
+	<constructor-arg ref="singleTenantAnonymousAuthorityName"/>    
     <constructor-arg ref="extraSystemAuthorities"/>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
