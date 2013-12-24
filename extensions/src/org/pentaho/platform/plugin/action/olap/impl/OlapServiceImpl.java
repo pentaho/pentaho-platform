@@ -252,10 +252,24 @@ public class OlapServiceImpl implements IOlapService {
             public Void call() throws Exception {
               // Now build the cache. Use the system session in the holder.
               for ( String name : getHelper().getHostedCatalogs() ) {
-                addCatalogToCache( PentahoSessionHolder.getSession(), name );
+                try {
+                  addCatalogToCache( PentahoSessionHolder.getSession(), name );
+                } catch ( Throwable t ) {
+                  LOG.error(
+                    "Failed to initialize the cache for OLAP connection "
+                    + name,
+                    t );
+                }
               }
               for ( String name : getHelper().getOlap4jServers() ) {
-                addCatalogToCache( PentahoSessionHolder.getSession(), name );
+                try {
+                  addCatalogToCache( PentahoSessionHolder.getSession(), name );
+                } catch ( Throwable t ) {
+                  LOG.error(
+                    "Failed to initialize the cache for OLAP connection "
+                    + name,
+                    t );
+                }
               }
               return null;
             }
@@ -269,15 +283,14 @@ public class OlapServiceImpl implements IOlapService {
               return o1.name.compareTo( o2.name );
             }
           } );
-      } catch ( IOlapServiceException e ) {
+
+      } catch ( Throwable t ) {
 
         LOG.error(
           "Failed to initialize the connection cache",
-          e );
+          t );
 
-      } catch ( Exception e ) {
-
-        throw new IOlapServiceException( e );
+        throw new IOlapServiceException( t );
 
       } finally {
         writeLock.unlock();
