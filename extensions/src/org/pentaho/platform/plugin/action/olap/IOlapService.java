@@ -85,7 +85,7 @@ public interface IOlapService {
    * Adds a generic olap4j catalog to this server.
    * @param name Name of the catalog to use
    * @param className The class of the driver to use.
-   * Must be an implementation of OlapConnection.
+   * Must be an implementation of java.sql.Driver.
    * @param URL The URL to use.
    * @param user Username to use when connecting.
    * @param password Password to use when connecting.
