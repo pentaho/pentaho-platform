@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+       default-lazy-init="true">
+  <bean id="olap4jConnectionList" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <!--uncomment the bean below and change the values for your Olap4J Connection-->
+        <!--<bean class="org.pentaho.platform.plugin.action.olap.Olap4jConnectionBean">
+          <property name="name" value="mongoFoodmart"/>
+          <property name="className" value="what"/>
+          <property name="user" value="aUser"/>
+          <property name="password" value="aPassword"/>
+          <property name="connectString" value="jdbc:mondrian4:Host=localhost;Database=foodmart;DataServicesProvider=com.pentaho.analysis.mongo.MongoDataServicesProvider;Jdbc=empty;Catalog=/home/admin/pentaho-mongolap/test-data/FoodMart.mongo.xml;"/>
+        </bean>-->
+      </list>
+    </constructor-arg>
+  </bean>
+</beans>
