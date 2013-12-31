@@ -38,6 +38,9 @@
         <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
         <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
         <bean id="loadDriversListener" class="org.pentaho.commons.system.LoadDriversListener" />
+        <bean id = "olap4jSystemListener" class="org.pentaho.platform.plugin.action.olap.Olap4jSystemListener">
+          <property name="olap4jConnectionList" ref="olap4jConnectionList"/>
+        </bean>
         
     <!-- Insert system-listeners -->
       </list>

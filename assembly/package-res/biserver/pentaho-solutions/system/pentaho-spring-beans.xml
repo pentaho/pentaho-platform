@@ -61,4 +61,5 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
   <import resource="importExport.xml" />
   <import resource="defaultUser.spring.xml"/>
   <import resource="sessionStartupActions.xml" />
+  <import resource="olap4j.spring.xml"/>
 </beans>
