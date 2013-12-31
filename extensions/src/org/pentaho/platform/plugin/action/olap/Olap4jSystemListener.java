@@ -19,7 +19,6 @@ package org.pentaho.platform.plugin.action.olap;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
   private List<Olap4jConnectionBean> olap4jConnectionList;
 
   @Override public boolean startup( IPentahoSession session ) {
-    IOlapService olapService = getOlapService();
+    IOlapService olapService = getOlapService( session );
     if ( olapService != null ) {
       for ( Olap4jConnectionBean bean : olap4jConnectionList ) {
         olapService.addOlap4jCatalog(
@@ -46,8 +45,8 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
     return true;
   }
 
-  IOlapService getOlapService() {
-    return PentahoSystem.get( IOlapService.class, PentahoSessionHolder.getSession() );
+  IOlapService getOlapService( IPentahoSession session ) {
+    return PentahoSystem.get( IOlapService.class, session );
   }
 
   @Override public void shutdown() {

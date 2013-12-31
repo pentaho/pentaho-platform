@@ -17,8 +17,10 @@
  */
 package org.pentaho.platform.plugin.action.olap;
 
+import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.pentaho.platform.api.engine.IPentahoSession;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -27,21 +29,23 @@ public class Olap4jSystemListenerTest {
   @Test
   public void testStartupRegistersOlapConnections() throws Exception {
     final IOlapService mockOlapService = Mockito.mock( IOlapService.class );
+    final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
     Olap4jSystemListener listener = new Olap4jSystemListener() {
-      @Override IOlapService getOlapService() {
+      @Override IOlapService getOlapService( IPentahoSession session ) {
+        Assert.assertSame( mockSession, session );
         return mockOlapService;
       }
     };
     Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
     Olap4jConnectionBean bean2 = makeBean( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
     listener.setOlap4jConnectionList( Arrays.asList( bean1, bean2 ) );
-    listener.startup( null );
+    listener.startup( mockSession );
     Mockito.verify( mockOlapService )
       .addOlap4jCatalog(
-        "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, null );
+        "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, mockSession );
     Mockito.verify( mockOlapService )
       .addOlap4jCatalog(
-        "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, null );
+        "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, mockSession );
 
   }
 
