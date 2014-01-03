@@ -18,12 +18,15 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import com.google.gwt.user.client.rpc.RemoteService;
-import org.pentaho.platform.repository2.locale.PentahoLocale;
-
-import javax.jws.WebService;
 import java.util.List;
 import java.util.Properties;
+
+import javax.jws.WebService;
+
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
+
+import com.google.gwt.user.client.rpc.RemoteService;
 
 /**
  * JAX-WS-safe version of {@code IUnifiedRepositoryService}.
@@ -61,11 +64,25 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   RepositoryFileDto createFolderWithAcl( final String parentFolderId, final RepositoryFileDto file,
       final RepositoryFileAclDto acl, final String versionMessage );
 
+  /**
+   * @Deprecated  Construct a RepositoryRequest and use that, instead
+   */
+  @Deprecated
   List<RepositoryFileDto> getChildren( final String folderId );
 
+  /**
+   * @Deprecated  Construct a RepositoryRequest and use that, instead
+   */
+  @Deprecated
   List<RepositoryFileDto> getChildrenWithFilter( final String folderId, final String filter);
 
+  /**
+   * @Deprecated  Construct a RepositoryRequest and use that, instead
+   */
+  @Deprecated
   List<RepositoryFileDto> getChildrenWithFilterAndHidden( final String folderId, final String filter, Boolean showHiddenFiles );
+  
+  List<RepositoryFileDto> getChildren( RepositoryRequest repositoryRequest );
 
   RepositoryFileDto updateFile( final RepositoryFileDto file, final NodeRepositoryFileDataDto data,
       final String versionMessage );
@@ -92,8 +109,14 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   void unlockFile( final String fileId );
 
+  /**
+   * @Deprecated  Construct a RepositoryRequest and use that, instead
+   */
+  @Deprecated
   RepositoryFileTreeDto getTree( final String path, final int depth, final String filter, final boolean showHidden );
 
+  RepositoryFileTreeDto getTree( final RepositoryRequest repositoryRequest);
+  
   RepositoryFileAclDto getAcl( final String fileId );
 
   RepositoryFileAclDto updateAcl( final RepositoryFileAclDto acl );

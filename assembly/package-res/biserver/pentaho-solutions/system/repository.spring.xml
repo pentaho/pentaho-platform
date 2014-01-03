@@ -341,7 +341,7 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="repositoryFileDao"/>
     <constructor-arg ref="pathConversionHelper"/>
-    <constructor-arg ref="lockHelper"/>
+    <constructor-arg ref="ILockHelper"/>
     <constructor-arg ref="defaultAclHandler" />
     <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="extraRoles"/>
@@ -652,7 +652,7 @@
 
   <bean id="jcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
-    <property name="allowCreate" value="false"/>
+    <property name="allowCreate" value="true"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
   
@@ -667,10 +667,10 @@
   <bean id="repositoryFileDao" class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="transformers"/>
-    <constructor-arg ref="lockHelper"/>
+    <constructor-arg ref="ILockHelper"/>
     <constructor-arg>
       <bean class="org.pentaho.platform.repository2.unified.jcr.DefaultDeleteHelper">
-        <constructor-arg ref="lockHelper"/>
+        <constructor-arg ref="ILockHelper"/>
         <constructor-arg ref="pathConversionHelper"/>
       </bean>
     </constructor-arg>
@@ -686,8 +686,9 @@
     <bean class="org.pentaho.platform.repository2.unified.jcr.transform.NodeRepositoryFileDataTransformer"/>
   </util:list>
 
-  <bean id="lockHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultLockHelper">
+  <bean id="ILockHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultLockHelper">
     <constructor-arg ref="tenantedUserNameUtils"/>
+  <pen:publish as-type="INTERFACES"/>
   </bean>
   <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
 
@@ -892,5 +893,9 @@
     </property>
   </bean>
 
+  <bean id="RepositoryFileProxyFactory" class="org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="repositoryFileDao"/>
+  </bean>
   <!-- end authorization policy -->
 </beans>

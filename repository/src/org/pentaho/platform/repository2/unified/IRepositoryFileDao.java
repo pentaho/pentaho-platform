@@ -18,18 +18,20 @@
 
 package org.pentaho.platform.repository2.unified;
 
-import org.pentaho.platform.api.locale.IPentahoLocale;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.VersionSummary;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+
+import org.pentaho.platform.api.locale.IPentahoLocale;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
 /**
  * A data access object for reading and writing {@code RepositoryFile} instances. The methods in this interface
@@ -44,7 +46,10 @@ public interface IRepositoryFileDao {
 
   RepositoryFile getFile( final String relPath );
 
+  @Deprecated
   RepositoryFileTree getTree( final String relPath, final int depth, final String filter, final boolean showHidden );
+  
+  RepositoryFileTree getTree( RepositoryRequest repositoryRequest );
 
   RepositoryFile getFile( final String relPath, final boolean loadLocaleMaps );
 
@@ -71,7 +76,10 @@ public interface IRepositoryFileDao {
 
   RepositoryFile updateFolder( final RepositoryFile file, final String versionMessage );
 
+  @Deprecated
   List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles );
+  
+  List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest );
 
   RepositoryFile updateFile( final RepositoryFile file, final IRepositoryFileData data, final String versionMessage );
 

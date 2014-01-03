@@ -17,6 +17,13 @@
 
 package org.pentaho.test.platform.repository2.unified;
 
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -25,14 +32,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Creates a base implementation of IUnifiedRepository (all methods do default things like {@code return null}) so
@@ -337,6 +338,16 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   @Override
   public RepositoryFile updateFolder( RepositoryFile folder, String versionMessage ) {
     // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    return null;
+  }
+
+  @Override
+  public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
     return null;
   }
 }

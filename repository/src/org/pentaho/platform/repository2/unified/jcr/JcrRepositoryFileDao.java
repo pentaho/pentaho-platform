@@ -18,13 +18,39 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Item;
+import javax.jcr.ItemExistsException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.Lock;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
+import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
@@ -41,29 +67,6 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.Item;
-import javax.jcr.ItemExistsException;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * CRUD operations against JCR. Note that there is no access control in this class (implicit or explicit).
@@ -499,6 +502,23 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       }
     } );
 
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @SuppressWarnings( "unchecked" )
+  public List<RepositoryFile> getChildren( final RepositoryRequest repositoryRequest ) {
+    Assert.notNull( repositoryRequest.getPath() );
+    return (List<RepositoryFile>) jcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+        return JcrRepositoryFileUtils.getChildren( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+            repositoryRequest );
+      }
+    } );
   }
 
   /**
@@ -1012,22 +1032,40 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       }
     } );
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public RepositoryFileTree getTree( final RepositoryRequest repositoryRequest ) {
+    Assert.hasText( repositoryRequest.getPath() );
+    return (RepositoryFileTree) jcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+        String absPath = pathConversionHelper.relToAbs( repositoryRequest.getPath() );
+        return JcrRepositoryFileUtils.getTree( session, pentahoJcrConstants, pathConversionHelper, lockHelper, absPath,
+            repositoryRequest, accessVoterManager );
+      }
+    } );
+  }
 
   /**
    * {@inheritDoc}
    */
-
   @Override
+  @Deprecated
   public RepositoryFileTree getTree( final String relPath, final int depth, final String filter,
       final boolean showHidden ) {
     Assert.hasText( relPath );
+    final RepositoryRequest repositoryRequest = new RepositoryRequest( relPath, showHidden, depth, filter );
     return (RepositoryFileTree) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         String absPath = pathConversionHelper.relToAbs( relPath );
         return JcrRepositoryFileUtils.getTree( session, pentahoJcrConstants, pathConversionHelper, lockHelper, absPath,
-            depth, filter, showHidden, accessVoterManager );
+            repositoryRequest, accessVoterManager );
       }
     } );
   }

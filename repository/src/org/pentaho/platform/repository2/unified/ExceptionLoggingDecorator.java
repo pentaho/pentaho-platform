@@ -18,6 +18,16 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,20 +39,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * Decorates another {@code IUnifiedRepository} instance and logs exceptions if they occur. Also, a new non-chained
@@ -138,29 +139,29 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getAcl", fileId ) ); //$NON-NLS-1$
   }
+  
+  @Override
+  public List<RepositoryFile> getChildren( final RepositoryRequest repositoryRequest ) {
+    return callLogThrow( new Callable<List<RepositoryFile>>() {
+      public List<RepositoryFile> call() throws Exception {
+        return delegatee.getChildren( repositoryRequest );
+      }
+    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", repositoryRequest.getPath() ) ); //$NON-NLS-1$
+  }
 
+  @Deprecated
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
-    return callLogThrow( new Callable<List<RepositoryFile>>() {
-      public List<RepositoryFile> call() throws Exception {
-        return delegatee.getChildren( folderId );
-      }
-    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", folderId ) ); //$NON-NLS-1$
+    return getChildren( folderId, "", false);
   }
 
+  @Deprecated
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter) {
-    return callLogThrow( new Callable<List<RepositoryFile>>() {
-      public List<RepositoryFile> call() throws Exception {
-        return delegatee.getChildren( folderId, filter);
-      }
-    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", folderId ) ); //$NON-NLS-1$
+    return getChildren( folderId, filter, false);
   }
 
+  @Deprecated
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
-    return callLogThrow( new Callable<List<RepositoryFile>>() {
-      public List<RepositoryFile> call() throws Exception {
-        return delegatee.getChildren( folderId, filter, showHiddenFiles );
-      }
-    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getChildren", folderId ) ); //$NON-NLS-1$
+    return getChildren( new RepositoryRequest(folderId.toString(), showHiddenFiles, -1, filter ) );
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute( final Serializable fileId,
@@ -435,14 +436,22 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.updateFile", file != null ? file.getId() : null ) ); //$NON-NLS-1$
   }
+  
 
-  public RepositoryFileTree getTree( final String path, final int depth,
-                                     final String filter, final boolean showHidden ) {
+  @Override
+  public RepositoryFileTree getTree( final RepositoryRequest repositoryRequest ) {
     return callLogThrow( new Callable<RepositoryFileTree>() {
       public RepositoryFileTree call() throws Exception {
-        return delegatee.getTree( path, depth, filter, showHidden );
+        return delegatee.getTree( repositoryRequest );
       }
-    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getTree", path ) ); //$NON-NLS-1$
+    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getTree", repositoryRequest.getPath() ) ); //$NON-NLS-1$
+  }
+
+  @Deprecated
+  public RepositoryFileTree getTree( final String path, final int depth,
+                                     final String filter, final boolean showHidden ) {
+    
+    return getTree( new RepositoryRequest( path, showHidden, depth, filter ) );
   }
 
   public RepositoryFile createFile( final Serializable parentFolderId, final RepositoryFile file,
@@ -670,4 +679,5 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance()
         .getString( "ExceptionLoggingDecorator.updateFile", folder != null ? folder.getId() : null ) ); //$NON-NLS-1$
   }
+
 }

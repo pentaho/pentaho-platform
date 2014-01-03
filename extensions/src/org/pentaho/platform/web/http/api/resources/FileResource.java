@@ -17,6 +17,46 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -33,6 +73,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -62,38 +103,6 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAc
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.*;
 
 /**
  * Represents a file node in the getRepository(). This api provides methods for discovering information about repository
@@ -981,7 +990,7 @@ public class FileResource extends AbstractJaxRSResource {
             Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
             String creatorId = (String) fileMetadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
             if ( creatorId != null && creatorId.equals( targetFileId ) ) {
-              content.add( RepositoryFileAdapter.toFileDto( child ) );
+              content.add( RepositoryFileAdapter.toFileDto( child, null, false ) );
             }
           }
         }
@@ -1016,7 +1025,7 @@ public class FileResource extends AbstractJaxRSResource {
             Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
             String creatorId = (String) fileMetadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
             if ( creatorId != null && creatorId.equals( targetFileId ) ) {
-              content.add( RepositoryFileAdapter.toFileDto( child ) );
+              content.add( RepositoryFileAdapter.toFileDto( child, null, false ) );
             }
           }
         }
@@ -1045,7 +1054,7 @@ public class FileResource extends AbstractJaxRSResource {
           Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
           String lineageIdMeta = (String) fileMetadata.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
           if ( lineageIdMeta != null && lineageIdMeta.equals( lineageId ) ) {
-            content.add( RepositoryFileAdapter.toFileDto( child ) );
+            content.add( RepositoryFileAdapter.toFileDto( child, null, false ) );
           }
         }
       }
@@ -1067,8 +1076,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RepositoryFileTreeDto doGetRootTree( @QueryParam( "depth" ) Integer depth,
-      @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden ) {
-    return doGetTree( PATH_SEPARATOR, depth, filter, showHidden );
+      @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
+      @DefaultValue("false") @QueryParam( "includeAcls" ) Boolean includeAcls ) {
+    return doGetTree( PATH_SEPARATOR, depth, filter, showHidden, includeAcls );
   }
 
 
@@ -1081,8 +1091,10 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public List<RepositoryFileDto> doGetRootChildren(@QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden ) {
-    return doGetChildren( PATH_SEPARATOR, filter, showHidden);
+  public List<RepositoryFileDto> doGetRootChildren( @QueryParam( "filter" ) String filter,
+      @QueryParam( "showHidden" ) Boolean showHidden,
+      @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
+    return doGetChildren( PATH_SEPARATOR, filter, showHidden, includeAcls );
   }
 
   
@@ -1098,17 +1110,11 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RepositoryFileTreeDto doGetTree( @PathParam( "pathId" ) String pathId,
-      @QueryParam( "depth" ) Integer depth, @QueryParam( "filter" ) String filter,
-      @QueryParam( "showHidden" ) Boolean showHidden ) {
+  public RepositoryFileTreeDto doGetTree( @PathParam( "pathId" ) String pathId, @QueryParam( "depth" ) Integer depth,
+      @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
+      @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
 
     String path = null;
-    if ( filter == null ) {
-      filter = "*"; //$NON-NLS-1$
-    }
-    if ( depth == null ) {
-      depth = -1; // search all
-    }
     if ( pathId == null || pathId.equals( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR;
     } else {
@@ -1116,12 +1122,12 @@ public class FileResource extends AbstractJaxRSResource {
         path = idToPath( pathId );
       }
     }
-    if ( showHidden == null ) {
-      showHidden = Boolean.FALSE;
-    }
 
+    RepositoryRequest repositoryRequest = new RepositoryRequest(path, showHidden, depth, filter);
+    repositoryRequest.setIncludeAcls( includeAcls );
+    
     List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
-    RepositoryFileTreeDto tree = getRepoWs().getTree( path, depth, filter, showHidden.booleanValue() );
+    RepositoryFileTreeDto tree = getRepoWs().getTree( repositoryRequest );
 
     // BISERVER-9599 - Use special sort order
     Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
@@ -1154,21 +1160,16 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
-      @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden ) {
+      @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
+      @DefaultValue("false") @QueryParam( "includeAcls" ) Boolean includeAcls ) {
     
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(idToPath(pathId));
-    
-    if(repositoryFileDto != null && isPathValid(repositoryFileDto.getPath())) {
-      if ( filter == null &&  showHidden == null) {
-        repositoryFileDtoList = getRepoWs().getChildren(repositoryFileDto.getId());
-      } else if(filter != null && showHidden == null){
-        repositoryFileDtoList = 
-          getRepoWs().getChildrenWithFilter(repositoryFileDto.getId(), filter);
-      } else {
-        repositoryFileDtoList = 
-          getRepoWs().getChildrenWithFilterAndHidden(repositoryFileDto.getId(), filter, showHidden);
-      }
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
+
+    if ( repositoryFileDto != null && isPathValid( repositoryFileDto.getPath() ) ) {
+      RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
+      repositoryRequest.setIncludeAcls( includeAcls );
+      repositoryFileDtoList = getRepoWs().getChildren( repositoryRequest );
       
       // BISERVER-9599 - Use special sort order
       Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
@@ -1358,7 +1359,7 @@ public class FileResource extends AbstractJaxRSResource {
            * update the original.
            */
           RepositoryFile sourceFile = getRepository().getFileById( file.getId() );
-          RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto( sourceFile );
+          RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto( sourceFile, null, false );
 
           destFileDto.setHidden( isHidden );
 

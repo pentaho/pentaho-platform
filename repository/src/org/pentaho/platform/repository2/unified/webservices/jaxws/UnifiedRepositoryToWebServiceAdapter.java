@@ -18,6 +18,16 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -26,10 +36,12 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataAdapter;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceAdapter;
@@ -42,16 +54,6 @@ import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValue
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryAdapter;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryDto;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Converts calls to {@link IUnifiedRepository} into {@link IUnifiedRepositoryWebService}. This is how client code
@@ -125,18 +127,26 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public RepositoryFileAcl getAcl( Serializable fileId ) {
     return repositoryFileAclAdapter.unmarshal( repoWebService.getAcl( fileId != null ? fileId.toString() : null ) );
   }
+  
 
   @Override
+  public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
+    return unmarshalFiles( repoWebService.getChildren( repositoryRequest ) );
+  }
+
+  @Override
+  @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId ) {
     return unmarshalFiles( repoWebService.getChildren( folderId.toString() != null ? folderId.toString() : null ) );
   }
 
   @Override
+  @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
     return unmarshalFiles( repoWebService.getChildrenWithFilter( folderId.toString() != null ? folderId.toString() : null, filter ) );
   }
   
-  private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
+    private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
     List<RepositoryFile> files = new ArrayList<RepositoryFile>();
     for ( RepositoryFileDto dto : dtos ) {
       files.add( repositoryFileAdapter.unmarshal( dto ) );
@@ -398,8 +408,14 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public boolean canUnlockFile( final Serializable fileId ) {
     return repoWebService.canUnlockFile( fileId.toString() );
   }
+  
+  @Override
+  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    return repositoryFileTreeAdapter.unmarshal( repoWebService.getTree( repositoryRequest ) );
+  }
 
   @Override
+  @Deprecated
   public RepositoryFileTree getTree( final String path, final int depth, final String filter,
                                      final boolean showHidden ) {
     return repositoryFileTreeAdapter.unmarshal( repoWebService.getTree( path, depth, filter, showHidden ) );
@@ -526,4 +542,5 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return repositoryFileAdapter.unmarshal( repoWebService.updateFolder( repositoryFileAdapter.marshal( folder ),
         versionMessage ) );
   }
+
 }
