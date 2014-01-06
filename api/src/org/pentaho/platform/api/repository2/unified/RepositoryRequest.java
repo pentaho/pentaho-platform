@@ -24,6 +24,10 @@ public class RepositoryRequest {
   private transient String workingFilter; // temporary storage of remaining filter text as it is parsed.
   private String childNodeFilter;
 
+  public RepositoryRequest() {
+    
+  }
+  
   public RepositoryRequest( String path, boolean showHidden, Integer depth, String legacyFilter ) {
     this.path = path;
     this.showHidden = showHidden;
