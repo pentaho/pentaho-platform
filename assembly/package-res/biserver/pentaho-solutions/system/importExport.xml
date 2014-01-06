@@ -65,6 +65,7 @@
 			<value>.url</value>
 			<value>.xanalyzer</value>				
 			<value>.xjpivot</value>				
+            <value>.xcdf</value>				
 		</list>
 	</property>	
     </bean>
@@ -120,6 +121,7 @@
 				<entry key="xjpivot" value="text/xml"/>
                 <entry key="cdfde" value="text/xml"/>                
                 <entry key="wcdf" value="text/xml"/>                 
+                <entry key="xcdf" value="text/xml"/>                
             </map>
         </constructor-arg>
     </bean>
@@ -162,6 +164,7 @@
 		<value>.xjpivot</value>
 		<value>.wcdf</value>      
     	<value>.cdfde</value>       
+        <value>.xcdf</value>       
 	</util:list>
 
 	<util:list id="hiddenExtensionList">
@@ -218,6 +221,7 @@
                 				<value>prpti</value>
 								<value>xanalyzer</value>
                         <value>wcdf</value>								
+                        <value>xcdf</value>								
 		            		</list>
 	        			</constructor-arg>
 						<constructor-arg ref="approvedExtensionList"/>
