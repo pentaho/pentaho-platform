@@ -194,6 +194,7 @@ not directly from the PentahoObjectFactory. -->
 
     <bean id="IOlapService" class="org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl"
         scope="singleton">
+      <pen:publish as-type="org.pentaho.platform.plugin.action.olap.IOlapService"/>
       <!-- Allows to override some properties form each connection before they are established. -->
       <!--property name="connectionFilters">
         <list>
