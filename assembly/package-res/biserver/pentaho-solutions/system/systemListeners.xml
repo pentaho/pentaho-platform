@@ -40,6 +40,7 @@
         <bean id="loadDriversListener" class="org.pentaho.commons.system.LoadDriversListener" />
         <bean id = "olap4jSystemListener" class="org.pentaho.platform.plugin.action.olap.Olap4jSystemListener">
           <property name="olap4jConnectionList" ref="olap4jConnectionList"/>
+          <property name="olap4jConnectionRemoveList" ref="olap4jConnectionRemoveList"/>
         </bean>
         
     <!-- Insert system-listeners -->

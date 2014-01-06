@@ -26,6 +26,7 @@ import java.util.Properties;
 
 public class Olap4jSystemListener implements IPentahoSystemListener {
   private List<Olap4jConnectionBean> olap4jConnectionList;
+  private List<String> removeList;
 
   @Override public boolean startup( IPentahoSession session ) {
     IOlapService olapService = getOlapService( session );
@@ -41,6 +42,9 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
           true,
           session );
       }
+      for ( String catalogName : removeList ) {
+        olapService.removeCatalog( catalogName, session );
+      }
     }
     return true;
   }
@@ -54,5 +58,9 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
 
   public void setOlap4jConnectionList( List<Olap4jConnectionBean> olap4jConnectionList ) {
     this.olap4jConnectionList = olap4jConnectionList;
+  }
+
+  public void setOlap4jConnectionRemoveList( List<String> removeList ) {
+    this.removeList = removeList;
   }
 }
