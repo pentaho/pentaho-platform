@@ -18,6 +18,14 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -26,18 +34,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Default implementation of {@link IUnifiedRepository}. Delegates to {@link IRepositoryFileDao} and
@@ -262,6 +263,11 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
       final Class<T> dataClass ) {
     return getDataForReadInBatch( files, dataClass );
   }
+  
+  @Override
+  public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
+    return repositoryFileDao.getChildren( repositoryRequest );
+  }
 
   /**
    * {@inheritDoc}
@@ -282,7 +288,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    */
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
     Assert.notNull( folderId );
-    return repositoryFileDao.getChildren( folderId, filter, showHiddenFiles );
+    return repositoryFileDao.getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
   }
 
   /**
@@ -467,17 +473,28 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull( fileId );
     return repositoryFileDao.canUnlockFile( fileId );
   }
-
+  
   /**
    * {@inheritDoc}
    */
+  @Override
+  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    return repositoryFileDao.getTree( repositoryRequest );
+  }
+
+  /**
+   * @deprecated  Use <code>getTree(RepositoryRequest)</code>
+   * 
+   * {@inheritDoc}
+   */
+  @Deprecated
   public RepositoryFileTree getTree( final String path, final int depth, final String filter,
                                      final boolean showHidden ) {
     Assert.hasText( path );
-    return repositoryFileDao.getTree( path, depth, filter, showHidden );
+    return getTree( new RepositoryRequest( path, showHidden, depth, filter ) );
   }
-
-  private RepositoryFile internalCreateFile( final Serializable parentFolderId, final RepositoryFile file,
+  
+    private RepositoryFile internalCreateFile( final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage ) {
     Assert.notNull( file );
     Assert.notNull( data );
@@ -593,5 +610,4 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull( folder );
     return internalUpdateFolder( folder, versionMessage );
   }
-
 }

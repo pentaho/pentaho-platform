@@ -18,25 +18,32 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.jws.WebService;
+
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-
-import javax.jws.WebService;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -52,7 +59,6 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   protected RepositoryFileAdapter repositoryFileAdapter = new RepositoryFileAdapter();
 
-  protected RepositoryFileTreeAdapter repositoryFileTreeAdapter = new RepositoryFileTreeAdapter();
 
   protected NodeRepositoryFileDataAdapter nodeRepositoryFileDataAdapter = new NodeRepositoryFileDataAdapter();
 
@@ -81,17 +87,25 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     super();
     this.repo = repo;
   }
+  
+  @Override
+  public List<RepositoryFileDto> getChildren( RepositoryRequest repositoryRequest ) {
+    return marshalFiles( repo.getChildren( repositoryRequest ) );
+  }
 
+  @Deprecated
   public List<RepositoryFileDto> getChildren( String folderId ) {
-    return marshalFiles( repo.getChildren( folderId ) );
+    return getChildrenWithFilter( folderId, null );
   }
 
+  @Deprecated
   public List<RepositoryFileDto> getChildrenWithFilter( String folderId, String filter ) {
-    return marshalFiles( repo.getChildren( folderId, filter) );
+    return getChildrenWithFilterAndHidden( folderId, filter, false );
   }
 
+  @Deprecated
   public List<RepositoryFileDto> getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
-    return marshalFiles( repo.getChildren( folderId, filter, showHiddenFiles ) );
+    return marshalFiles( repo.getChildren( new RepositoryRequest( folderId, showHiddenFiles, 0, filter ) ) );
   }
 
   public NodeRepositoryFileDataDto getDataAsNodeForRead( final String fileId ) {
@@ -136,10 +150,20 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return file != null ? this.repositoryFileAdapter.marshal( file ) : null;
   }
 
+  //private static final Pattern FILES_TYPES_PATTERN = Pattern.compile("limit=(.+)");
+  
   public RepositoryFileTreeDto getTree( final String path, final int depth, final String filter,
       final boolean showHidden ) {
-    RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
 
+    RepositoryRequest repositoryRequest = new RepositoryRequest( path, showHidden, depth, filter );
+    return getTree( repositoryRequest );
+  }
+  
+  public RepositoryFileTreeDto getTree( final RepositoryRequest repositoryRequest ) {
+    //RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
+    
+    RepositoryFileTree tree = repo.getTree( repositoryRequest );
+    
     // Filter system folders from non-admin users.
     // PDI uses this web-service and system folders must be returned to admin repository database connections.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
@@ -156,7 +180,11 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
       files.add( file );
     }
     tree = new RepositoryFileTree( tree.getFile(), files );
-    return tree != null ? repositoryFileTreeAdapter.marshal( tree ) : null;
+    if(tree == null) {
+      return null;
+    }
+
+    return new RepositoryFileTreeAdapter( repositoryRequest ).marshal(tree);
   }
 
   private List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files ) {

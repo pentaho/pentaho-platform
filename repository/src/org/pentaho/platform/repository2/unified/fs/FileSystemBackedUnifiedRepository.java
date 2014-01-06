@@ -18,16 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.fs;
 
-import org.pentaho.platform.api.locale.IPentahoLocale;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.VersionSummary;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.Collections;
@@ -36,6 +26,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+
+import org.pentaho.platform.api.locale.IPentahoLocale;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   private FileSystemRepositoryFileDao repositoryFileDao;
@@ -96,17 +97,25 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   public RepositoryFileAcl getAcl( Serializable fileId ) {
     throw new UnsupportedOperationException();
   }
-
-  public List<RepositoryFile> getChildren( Serializable folderId ) {
-    return repositoryFileDao.getChildren( folderId );
+  
+  @Override
+  public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
+    return repositoryFileDao.getChildren( repositoryRequest );
   }
 
+  @Deprecated
+  public List<RepositoryFile> getChildren( Serializable folderId ) {
+    return repositoryFileDao.getChildren( folderId, "", false );
+  }
+
+  @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
-    return repositoryFileDao.getChildren( folderId, filter);
+    return repositoryFileDao.getChildren( folderId, filter, false);
   }
   
+  @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
-    return repositoryFileDao.getChildren( folderId, filter, showHiddenFiles );
+    return repositoryFileDao.getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute( Serializable fileId, Serializable versionId,
@@ -189,9 +198,14 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   public RepositoryFile getFileById( Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale ) {
     return this.repositoryFileDao.getFileById( fileId, loadLocaleMaps, locale );
   }
+  
+  @Override
+  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    return repositoryFileDao.getTree( repositoryRequest);
+  }
 
   public RepositoryFileTree getTree( String path, int depth, String filter, boolean showHidden ) {
-    return repositoryFileDao.getTree( path, depth, filter, showHidden );
+    return repositoryFileDao.getTree( new RepositoryRequest( path, showHidden, depth, filter ) );
   }
 
   public List<VersionSummary> getVersionSummaries( Serializable fileId ) {
@@ -335,4 +349,5 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   public RepositoryFile updateFolder( RepositoryFile folder, String versionMessage ) {
     throw new UnsupportedOperationException();
   }
+
 }

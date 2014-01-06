@@ -17,6 +17,13 @@
 
 package org.pentaho.test.platform.repository2.unified;
 
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -25,15 +32,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * A wrapper around a repository that will throw an exception if a call is made to any method which would modify
@@ -64,6 +65,11 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   @Override
   public RepositoryFile getFile( final String path ) {
     return repository.getFile( path );
+  }
+   
+  @Override
+  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    return getTree(repositoryRequest.getPath(), repositoryRequest.getDepth(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
   }
 
   /**
@@ -362,6 +368,11 @@ public class UnmodifiableRepository implements IUnifiedRepository {
     return repository.getChildren( folderId );
   }
 
+  @Override
+  public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
+    return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
+  }
+  
   /**
    * Returns the children of this folder that match the specified filter.
    * 
@@ -827,4 +838,5 @@ public class UnmodifiableRepository implements IUnifiedRepository {
     Assert.isTrue( folder.isFolder() );
     return repository.updateFolder( folder, versionMessage );
   }
+
 }

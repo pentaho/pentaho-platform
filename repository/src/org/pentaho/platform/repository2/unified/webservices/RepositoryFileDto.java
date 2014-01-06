@@ -18,11 +18,12 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * JAXB-safe version of {@code RepositoryFile}. ({@code RepositoryFile} has no zero-arg constructor and no public
@@ -86,6 +87,8 @@ public class RepositoryFileDto implements Serializable {
   Date deletedDate;
 
   List<LocaleMapDto> localePropertiesMapEntries;
+  
+  RepositoryFileAclDto repositoryFileAclDto;
 
   public RepositoryFileDto() {
     super();
@@ -279,6 +282,14 @@ public class RepositoryFileDto implements Serializable {
   public void setDeletedDate( Date deletedDate ) {
     this.deletedDate = deletedDate;
   }
+  
+  public RepositoryFileAclDto getRepositoryFileAclDto() {
+    return repositoryFileAclDto;
+  }
+
+  public void setRepositoryFileAclDto( RepositoryFileAclDto repositoryFileAclDto ) {
+    this.repositoryFileAclDto = repositoryFileAclDto;
+  }
 
   public List<LocaleMapDto> getLocalePropertiesMapEntries() {
     return localePropertiesMapEntries;
@@ -297,7 +308,7 @@ public class RepositoryFileDto implements Serializable {
         + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage + ", lockOwner=" + lockOwner
         + ", locked=" + locked + ", originalParentFolderPath=" + originalParentFolderPath + ", owner=" + owner
         + ", ownerType=" + ownerType + ", title=" + title + ", localePropertiesMapEntries="
-        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + "]";
+        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + ", hasAcl=" + (repositoryFileAclDto != null) + "]";
   }
 
 }

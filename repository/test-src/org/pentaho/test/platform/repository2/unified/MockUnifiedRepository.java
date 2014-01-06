@@ -17,31 +17,10 @@
 
 package org.pentaho.test.platform.repository2.unified;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.pentaho.platform.api.locale.IPentahoLocale;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
-import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,10 +43,32 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+import org.pentaho.platform.api.locale.IPentahoLocale;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
+import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * Mock implementation of the {@link IUnifiedRepository} for unit testing.
@@ -167,6 +168,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       return r.getFile();
     }
     return null;
+  }
+  
+  @Override
+  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    return getTree( repositoryRequest.getPath(), repositoryRequest.getDepth(), repositoryRequest.getChildNodeFilter(),
+        repositoryRequest.isShowHidden() );
   }
 
   @Override
@@ -412,6 +419,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     idManager.register( fileRecord );
     parentFolder.addChild( fileRecord );
     return fileRecord.getFile();
+  }
+  
+  @Override
+  public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
+    return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
   }
 
   @Override

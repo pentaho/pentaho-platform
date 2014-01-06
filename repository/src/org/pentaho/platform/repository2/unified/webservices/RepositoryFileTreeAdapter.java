@@ -18,11 +18,14 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 
 /**
  * Converts {@code RepositoryFileTree} into JAXB-safe object and vice-versa.
@@ -30,11 +33,30 @@ import java.util.List;
  * @author mlowery
  */
 public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto, RepositoryFileTree> {
+  private Set<String> membersSet;
+  private boolean exclude;
+  private boolean includeAcls;
+
+  public RepositoryFileTreeAdapter() {
+
+  }
+
+  public RepositoryFileTreeAdapter( RepositoryRequest repositoryRequest ) {
+    if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
+      this.exclude = true;
+      this.membersSet = repositoryRequest.getExcludeMemberSet();
+    } else {
+      this.exclude = false;
+      this.membersSet = repositoryRequest.getIncludeMemberSet();
+      this.includeAcls = repositoryRequest.isIncludeAcls();
+    }
+
+  }
 
   @Override
   public RepositoryFileTreeDto marshal( final RepositoryFileTree v ) {
     RepositoryFileTreeDto treeDto = new RepositoryFileTreeDto();
-    treeDto.setFile( RepositoryFileAdapter.toFileDto( v.getFile() ) );
+    treeDto.setFile( RepositoryFileAdapter.toFileDto( v.getFile(), membersSet, exclude, includeAcls ) );
 
     List<RepositoryFileTreeDto> children = null;
     if ( v.getChildren() != null ) {

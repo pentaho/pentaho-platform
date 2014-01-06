@@ -45,6 +45,8 @@ public interface IUnifiedRepository {
   RepositoryFile getFile( final String path );
 
   /**
+   * @Deprecated  Construct a RepositoryRequest and use <code>getTree(RepositoryRequest)</code>
+   * 
    * Gets a tree rooted at path.
    * 
    * @param path
@@ -61,7 +63,17 @@ public interface IUnifiedRepository {
    *          is a boolean which identify whether to include the hidden files/folders in the list or not
    * @return file or {@code null} if the file does not exist or access is denied
    */
+  @Deprecated
   RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden );
+  
+  /**
+   * Gets a tree rooted at path.
+   * 
+   * @param repositoryRequest
+   *          Contains the information necessary to process the request.  See the {@link RepositoryRequest} class.
+   * @return file or {@code null} if the file does not exist or access is denied
+   */
+  RepositoryFileTree getTree( final RepositoryRequest repositoryRequest);
 
   /**
    * Gets file as it was at the given version.
@@ -322,15 +334,19 @@ public interface IUnifiedRepository {
   RepositoryFile updateFolder( final RepositoryFile folder, final String versionMessage );
 
   /**
+   * @Deprecated
    * Returns the children of this folder.
    * 
    * @param folderId
    *          id of folder whose children to fetch
    * @return list of children (never {@code null})
    */
+  @Deprecated
   List<RepositoryFile> getChildren( final Serializable folderId );
 
   /**
+   * @Deprecated
+   * 
    * Returns the children of this folder that match the specified filter.
    * 
    * @param folderId
@@ -340,9 +356,12 @@ public interface IUnifiedRepository {
    *          disjunction (using the "|" character to represent logical OR) of these
    * @return list of children (never {@code null})
    */
+  @Deprecated
   List<RepositoryFile> getChildren( final Serializable folderId, final String filter);
 
   /**
+   * @Deprecated
+   * 
    * Returns the children of this folder that match the specified filter.
    * 
    * @param folderId
@@ -353,7 +372,16 @@ public interface IUnifiedRepository {
    * @param showHiddenFiles flag determines whether to return the hidden files in he response or not         
    * @return list of children (never {@code null})
    */
+  @Deprecated
   List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles );
+  
+  /**
+   * Returns the children according to the specifications of the RepositoryRequest object
+   * 
+   * @param repositoryRequest  See {@link RepositoryRequest) class
+   * @return list of children (never {@code null})
+   */
+  List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest );
 
   /**
    * Updates a file and/or the data of a file.
