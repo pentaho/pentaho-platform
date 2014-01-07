@@ -25,7 +25,9 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class PentahoSystemDriverTest {
@@ -35,11 +37,12 @@ public class PentahoSystemDriverTest {
     final Driver mockDriver2 = Mockito.mock( Driver.class );
     final Connection mockConn = Mockito.mock( Connection.class );
     final Connection mockConn2 = Mockito.mock( Connection.class );
-    DriverManager.registerDriver( new PentahoSystemDriver() {
+    PentahoSystemDriver driver = new PentahoSystemDriver() {
       @Override List<Driver> getAllDrivers() {
         return Arrays.asList( mockDriver, mockDriver2 );
       }
-    } );
+    };
+    DriverManager.registerDriver( driver );
     String url = "jdbc:testing123:morestuff";
     String url2 = "jdbc:alternate:morestuff";
     Mockito.when( mockDriver.connect( url, new Properties() ) ).thenReturn( mockConn );
@@ -54,5 +57,31 @@ public class PentahoSystemDriverTest {
     Assert.assertSame( mockConn, conn );
     Connection conn2 = DriverManager.getConnection( url2 );
     Assert.assertSame( mockConn2, conn2 );
+    DriverManager.deregisterDriver( driver );
+  }
+
+  @Test
+  public void testSystemDriversCanBeUsedWithAlternateJdbcIdentifier()  throws Exception {
+    final Driver mockDriver = Mockito.mock( Driver.class );
+    final Connection mockConn = Mockito.mock( Connection.class );
+    PentahoSystemDriver driver = new PentahoSystemDriver() {
+      @Override List<Driver> getAllDrivers() {
+        return Arrays.asList( mockDriver );
+      }
+
+      @Override Map<String, String> getTranslationMap() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put( "driver4", "driver1" );
+        return map;
+      }
+    };
+    DriverManager.registerDriver( driver );
+    String url = "jdbc:driver4:morestuff";
+    String url2 = "jdbc:driver1:morestuff";
+    Mockito.when( mockDriver.connect( url2, new Properties() ) ).thenReturn( mockConn );
+    Mockito.when( mockDriver.acceptsURL( url2 ) ).thenReturn( true );
+    Connection conn = DriverManager.getConnection( url );
+    Assert.assertSame( mockConn, conn );
+    DriverManager.deregisterDriver( driver );
   }
 }

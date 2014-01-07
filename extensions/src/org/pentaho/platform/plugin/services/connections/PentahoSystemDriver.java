@@ -17,16 +17,18 @@
  */
 package org.pentaho.platform.plugin.services.connections;
 
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
+import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -45,15 +47,33 @@ public class PentahoSystemDriver implements Driver {
     }
   }
 
+  private static final String JDBC = "jdbc:";
+
   List<Driver> getAllDrivers() {
     return PentahoSystem.getAll( Driver.class );
   }
 
+  Map<String, String> getTranslationMap() {
+    return PentahoSystem.get( Map.class, "jdbcDriverTranslationMap", PentahoSessionHolder.getSession() );
+  }
+
+  private String translate( String url ) {
+    Map<String, String> translationMap = getTranslationMap();
+    if ( translationMap != null && url.startsWith( JDBC ) ) {
+      String initial = url.substring( 5, url.indexOf( ":", 5 ) );
+      if ( translationMap.containsKey( initial ) ) {
+        return url.replace( JDBC + initial, JDBC + translationMap.get( initial ) );
+      }
+    }
+    return url;
+  }
+
   @Override
   public Connection connect( final String url, final Properties info ) throws SQLException {
+    String translatedUrl = translate( url );
     for ( Driver driver : getAllDrivers() ) {
-      if ( driver.acceptsURL( url ) ) {
-        Connection conn = driver.connect( url, info );
+      if ( driver.acceptsURL( translatedUrl ) ) {
+        Connection conn = driver.connect( translatedUrl, info );
         if ( conn != null ) {
           return conn;
         }
@@ -64,8 +84,9 @@ public class PentahoSystemDriver implements Driver {
 
   @Override
   public boolean acceptsURL( final String url ) throws SQLException {
+    String translatedUrl = translate( url );
     for ( Driver driver : getAllDrivers() ) {
-      if ( driver.acceptsURL( url ) ) {
+      if ( driver.acceptsURL( translatedUrl ) ) {
         return true;
       }
     }
@@ -74,9 +95,10 @@ public class PentahoSystemDriver implements Driver {
 
   @Override
   public DriverPropertyInfo[] getPropertyInfo( final String url, final Properties info ) throws SQLException {
+    String translatedUrl = translate( url );
     for ( Driver driver : getAllDrivers() ) {
-      if ( driver.acceptsURL( url ) ) {
-        return driver.getPropertyInfo( url, info );
+      if ( driver.acceptsURL( translatedUrl ) ) {
+        return driver.getPropertyInfo( translatedUrl, info );
       }
     }
     return null;

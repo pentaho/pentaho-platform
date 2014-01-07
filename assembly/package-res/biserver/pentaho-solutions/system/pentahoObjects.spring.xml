@@ -268,5 +268,13 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry"
         scope="singleton"/>
+  <bean id="jdbcDriverTranslationMap" class="java.util.HashMap">
+    <pen:publish as-type="ALL"/>
+    <constructor-arg index="0" type="java.util.Map">
+      <map key-type="java.lang.String" value-type="java.lang.String">
+        <entry key="mondrian4" value="mondrian"/>
+      </map>
+    </constructor-arg>
+  </bean>
 
 </beans>
