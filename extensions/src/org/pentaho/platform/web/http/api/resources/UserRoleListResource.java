@@ -28,19 +28,22 @@ public class UserRoleListResource extends AbstractJaxRSResource  {
 
   private ArrayList<String> systemRoles;
   private String adminRole;
+  private String anonymousRole;
   private ArrayList<String> extraRoles;
 
   public UserRoleListResource() {
     this(PentahoSystem.get(ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession()),
         PentahoSystem.get(String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession()),
+        PentahoSystem.get( String.class, "singleTenantAnonymousAuthorityName", PentahoSessionHolder.getSession() ),
         PentahoSystem.get(ArrayList.class, "extraSystemAuthorities", PentahoSessionHolder.getSession()));
   }
 
   public UserRoleListResource(final ArrayList<String> systemRoles, final String adminRole,
-      final ArrayList<String> extraRoles) {
+      final String anonymousRole , final ArrayList<String> extraRoles) {
 
     this.systemRoles = systemRoles;
     this.adminRole = adminRole;
+    this.anonymousRole = anonymousRole;   
     this.extraRoles = extraRoles;
   }
     
@@ -66,6 +69,10 @@ public class UserRoleListResource extends AbstractJaxRSResource  {
     	if(!allRoles.contains(extraRole)) {
     		allRoles.add(extraRole);
     	}
+    }
+    // We will not allow user to update permission for Anonymous
+    if ( allRoles.contains( anonymousRole ) ) {
+      allRoles.remove( anonymousRole );
     }
     return new RoleListWrapper(allRoles);
   }

@@ -17,6 +17,7 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +36,7 @@ import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
@@ -105,6 +107,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private UserDetailsService userDetailsService;
 
+  private IUserRoleListService userRoleListService;
+  
   private String adminId;
 
   private AdminPrincipal adminPrincipal;
@@ -161,6 +165,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
     if (PentahoSystem.getInitializedOK()) {
       userDetailsService = PentahoSystem.get(UserDetailsService.class);
+      userRoleListService = PentahoSystem.get(IUserRoleListService.class);
     }
 
     initialized.set(true);
@@ -355,25 +360,25 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     // user cache not available or user not in cache; do lookup
     GrantedAuthority[] auths = null;
     UserDetails newUser = null;
-    int index = 0;
     if(getUserDetailsService() != null) {
       try {
         user = getUserDetailsService().loadUserByUsername(username);
-        auths = new GrantedAuthority[user.getAuthorities().length];
+        List<String> roles = getUserRoleListService().getRolesForUser( JcrTenantUtils.getCurrentTenant(), username );
+        auths = new GrantedAuthority[roles.size()];
+        
         // cache the roles while we're here
-        for (final GrantedAuthority grantedAuth : user.getAuthorities()) {
-          
-          final String grantedAuthString = grantedAuth.getAuthority();
-          final String tenatedRoleString = JcrTenantUtils.getTenantedRole(grantedAuthString);
+        for (int i = 0; i < roles.size(); i++) {
+          String role = roles.get( i );
+          final String tenatedRoleString = JcrTenantUtils.getTenantedRole(role);
 
           synchronized(roleCache){
-            if (!roleCache.containsKey(grantedAuthString)) {
+            if (!roleCache.containsKey(role)) {
               final SpringSecurityRolePrincipal ssRolePrincipal = new SpringSecurityRolePrincipal(tenatedRoleString);
-              roleCache.put(grantedAuthString, ssRolePrincipal);
+              roleCache.put(role, ssRolePrincipal);
             }
           }
 
-          auths[index++] = new GrantedAuthorityImpl(tenatedRoleString);
+          auths[i] = new GrantedAuthorityImpl(tenatedRoleString);
         }
         if (logger.isTraceEnabled()) {
           logger.trace("found user in back-end " + user.getUsername()); //$NON-NLS-1$
@@ -453,6 +458,19 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
   }
 
+  protected IUserRoleListService getUserRoleListService() {
+    if (null != userRoleListService) {
+      return userRoleListService;
+    } else {
+      if (PentahoSystem.getInitializedOK()) {
+        userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+        return userRoleListService;
+      } else {
+        return null;
+      }
+    }
+  }
+  
   private SpringSecurityRolePrincipal createSpringSecurityRolePrincipal(String principal) {
     return new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(principal));
   }
