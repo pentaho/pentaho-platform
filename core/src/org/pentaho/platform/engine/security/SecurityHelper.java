@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.engine.security;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
@@ -65,6 +66,8 @@ public class SecurityHelper implements ISecurityHelper {
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
   private IAclVoter aclVoter;
   private UserDetailsService userDetailsService;
+  private IUserRoleListService userRoleListService;
+  
 
   /**
    * Returns the one-and-only default instance
@@ -283,12 +286,27 @@ public class SecurityHelper implements ISecurityHelper {
   @Override
   public Authentication createAuthentication(String principalName) {
     userDetailsService = getUserDetailsService();
+    userRoleListService = getUserRoleListService();
+    
     UserDetails userDetails = userDetailsService.loadUserByUsername(principalName);
+    List<String> roles = userRoleListService.getRolesForUser(null,principalName);
+    
     if (SecurityHelper.logger.isDebugEnabled()) {
-      SecurityHelper.logger.debug("rolesForUser from UserDetailsService:" + userDetails.getAuthorities()); //$NON-NLS-1$
+      SecurityHelper.logger.debug("rolesForUser from roleListService:" + roles); //$NON-NLS-1$
     }
-    Authentication auth = new UsernamePasswordAuthenticationToken(principalName, null, userDetails.getAuthorities());
-    return auth;
+    
+    if (!roles.isEmpty()) {
+      GrantedAuthority[] grantedAuthorities = new GrantedAuthority[roles.size()];
+      for (int i = 0; i < roles.size(); i++) {
+        grantedAuthorities[i] = new GrantedAuthorityImpl((String) roles.get(i));
+      }
+
+      Authentication auth = new UsernamePasswordAuthenticationToken(principalName, null, grantedAuthorities);
+
+      return auth;
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -367,6 +385,14 @@ public class SecurityHelper implements ISecurityHelper {
       userDetailsService = PentahoSystem.get(UserDetailsService.class);
     }
     return userDetailsService;
+  }
+
+  public IUserRoleListService getUserRoleListService() {
+    if(userRoleListService == null){
+      userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+    }
+    
+    return userRoleListService;
   }
 
 
