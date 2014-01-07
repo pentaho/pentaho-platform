@@ -52,6 +52,30 @@ public class Olap4jSystemListenerTest {
 
   }
 
+  @Test
+  public void testExceptionsDoNotStopSystemLoad() throws Exception {
+    final IOlapService mockOlapService = Mockito.mock( IOlapService.class );
+    final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
+    Olap4jSystemListener listener = new Olap4jSystemListener() {
+      @Override IOlapService getOlapService( IPentahoSession session ) {
+        Assert.assertSame( mockSession, session );
+        return mockOlapService;
+      }
+    };
+    Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
+    listener.setOlap4jConnectionList( Arrays.asList( bean1 ) );
+    listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection" ) );
+    Mockito.doThrow( new RuntimeException( "something terrible happened" ) )
+      .when( mockOlapService )
+      .addOlap4jCatalog(
+        "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, mockSession );
+    Mockito.doThrow( new RuntimeException( "something amazing happend" ) )
+      .when( mockOlapService )
+      .removeCatalog( "defunctConnection", mockSession );
+    Assert.assertTrue( listener.startup( mockSession ) );
+
+  }
+
   private Olap4jConnectionBean makeBean(
     String name, String className, String connectString, String user, String password )
   {

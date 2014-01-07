@@ -20,6 +20,8 @@ package org.pentaho.platform.plugin.action.olap;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.services.messages.Messages;
+import org.pentaho.platform.util.logging.Logger;
 
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +33,26 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
   @Override public boolean startup( IPentahoSession session ) {
     IOlapService olapService = getOlapService( session );
     if ( olapService != null ) {
-      for ( Olap4jConnectionBean bean : olap4jConnectionList ) {
+      addCatalogs( session, olapService );
+      removeCatalogs( session, olapService );
+    }
+    return true;
+  }
+
+  private void removeCatalogs( IPentahoSession session, IOlapService olapService ) {
+    for ( String catalogName : removeList ) {
+      try {
+        olapService.removeCatalog( catalogName, session );
+      } catch ( Exception e ) {
+        Logger.warn( this, Messages.getInstance().getString(
+          "Olap4jSystemListener.ERROR_00002_REMOVE_ERROR", catalogName ), e );
+      }
+    }
+  }
+
+  private void addCatalogs( IPentahoSession session, IOlapService olapService ) {
+    for ( Olap4jConnectionBean bean : olap4jConnectionList ) {
+      try {
         olapService.addOlap4jCatalog(
           bean.getName(),
           bean.getClassName(),
@@ -41,12 +62,11 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
           new Properties(),
           true,
           session );
-      }
-      for ( String catalogName : removeList ) {
-        olapService.removeCatalog( catalogName, session );
+      } catch ( Exception e ) {
+        Logger.warn( this, Messages.getInstance().getString(
+          "Olap4jSystemListener.ERROR_00001_ADD_ERROR", bean.getName() ), e );
       }
     }
-    return true;
   }
 
   IOlapService getOlapService( IPentahoSession session ) {
