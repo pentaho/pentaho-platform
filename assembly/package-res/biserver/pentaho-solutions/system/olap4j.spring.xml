@@ -16,4 +16,12 @@
       </list>
     </constructor-arg>
   </bean>
+  <bean id="olap4jConnectionRemoveList" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <!--uncomment the value below and change the text to remove existing olap4j connections-->
+        <!--<value>mongoFoodmart</value>-->
+      </list>
+    </constructor-arg>
+  </bean>
 </beans>

@@ -27,7 +27,7 @@ import java.util.Properties;
 
 public class Olap4jSystemListenerTest {
   @Test
-  public void testStartupRegistersOlapConnections() throws Exception {
+  public void testStartupRegistersAndRemovesOlapConnections() throws Exception {
     final IOlapService mockOlapService = Mockito.mock( IOlapService.class );
     final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
     Olap4jSystemListener listener = new Olap4jSystemListener() {
@@ -39,6 +39,7 @@ public class Olap4jSystemListenerTest {
     Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
     Olap4jConnectionBean bean2 = makeBean( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
     listener.setOlap4jConnectionList( Arrays.asList( bean1, bean2 ) );
+    listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection", "worthless" ) );
     listener.startup( mockSession );
     Mockito.verify( mockOlapService )
       .addOlap4jCatalog(
@@ -46,6 +47,8 @@ public class Olap4jSystemListenerTest {
     Mockito.verify( mockOlapService )
       .addOlap4jCatalog(
         "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, mockSession );
+    Mockito.verify( mockOlapService ).removeCatalog( "defunctConnection", mockSession );
+    Mockito.verify( mockOlapService ).removeCatalog( "worthless", mockSession );
 
   }
 
