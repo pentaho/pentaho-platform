@@ -29,12 +29,11 @@ import org.pentaho.commons.connection.ActivationHelper;
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.api.engine.IMessageFormatter;
-import org.pentaho.platform.api.util.IPasswordService;
-import org.pentaho.platform.api.util.PasswordServiceException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.util.PasswordHelper;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 import javax.activation.DataHandler;
@@ -381,18 +380,7 @@ public class EmailComponent extends ComponentBase {
   }
 
   public String decryptPassword( String encpass ) {
-    if ( encpass.startsWith( "ENC:" ) ) {
-      IPasswordService passwordService = PentahoSystem.get( IPasswordService.class, null );
-      String tmp = encpass.substring( 4 );
-      try {
-        return passwordService.decrypt( tmp );
-      } catch ( PasswordServiceException ex ) {
-        getLogger().error( "Exception decrypting mail password", ex );
-        throw new RuntimeException( ex );
-      }
-    } else {
-      return encpass;
-    }
+    return new PasswordHelper().getPassword( encpass );
   }
 
   private class EmailAuthenticator extends Authenticator {

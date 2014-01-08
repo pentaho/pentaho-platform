@@ -21,6 +21,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
+import org.pentaho.platform.util.PasswordHelper;
 import org.pentaho.platform.util.logging.Logger;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
           bean.getClassName(),
           bean.getConnectString(),
           bean.getUser(),
-          bean.getPassword(),
+          getPassword( bean ),
           new Properties(),
           true,
           session );
@@ -67,6 +68,14 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
           "Olap4jSystemListener.ERROR_00001_ADD_ERROR", bean.getName() ), e );
       }
     }
+  }
+
+  private String getPassword( Olap4jConnectionBean bean ) {
+    return getPasswordHelper().getPassword( bean.getPassword() );
+  }
+
+  PasswordHelper getPasswordHelper() {
+    return new PasswordHelper();
   }
 
   IOlapService getOlapService( IPentahoSession session ) {
