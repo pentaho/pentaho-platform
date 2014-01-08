@@ -21,6 +21,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.util.Base64PasswordService;
+import org.pentaho.platform.util.PasswordHelper;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -35,8 +37,12 @@ public class Olap4jSystemListenerTest {
         Assert.assertSame( mockSession, session );
         return mockOlapService;
       }
+
+      @Override PasswordHelper getPasswordHelper() {
+        return new PasswordHelper( new Base64PasswordService() );
+      }
     };
-    Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
+    Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "ENC:YVBhc3N3b3Jk" );
     Olap4jConnectionBean bean2 = makeBean( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
     listener.setOlap4jConnectionList( Arrays.asList( bean1, bean2 ) );
     listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection", "worthless" ) );
@@ -49,6 +55,30 @@ public class Olap4jSystemListenerTest {
         "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, mockSession );
     Mockito.verify( mockOlapService ).removeCatalog( "defunctConnection", mockSession );
     Mockito.verify( mockOlapService ).removeCatalog( "worthless", mockSession );
+
+  }
+
+  @Test
+  public void testExceptionsDoNotStopSystemLoad() throws Exception {
+    final IOlapService mockOlapService = Mockito.mock( IOlapService.class );
+    final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
+    Olap4jSystemListener listener = new Olap4jSystemListener() {
+      @Override IOlapService getOlapService( IPentahoSession session ) {
+        Assert.assertSame( mockSession, session );
+        return mockOlapService;
+      }
+    };
+    Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
+    listener.setOlap4jConnectionList( Arrays.asList( bean1 ) );
+    listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection" ) );
+    Mockito.doThrow( new RuntimeException( "something terrible happened" ) )
+      .when( mockOlapService )
+      .addOlap4jCatalog(
+        "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, mockSession );
+    Mockito.doThrow( new RuntimeException( "something amazing happend" ) )
+      .when( mockOlapService )
+      .removeCatalog( "defunctConnection", mockSession );
+    Assert.assertTrue( listener.startup( mockSession ) );
 
   }
 
