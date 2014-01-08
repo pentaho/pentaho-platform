@@ -22,11 +22,13 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
@@ -354,6 +356,151 @@ public class OlapServiceTest extends TestCase {
       eq( makeIdObject( olapFolderPath ) ) );
   }
 
+  public void testGetAllCatalogsFiltersNonXmla() throws Exception {
+
+    // Stub the hosted server
+    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
+    final String testServerPath =
+      mondrianFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myHostedServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+    final String metadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath,
+      "catalog",
+      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;EnableXmla=false;" ) );
+
+    // Stub the remote server
+    stubGetChildren( repository, olapFolderPath, "myServer" );
+    final String remoteServerPath =
+      olapFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myServer";
+    stubGetFolder( repository, remoteServerPath );
+    stubGetChildren( repository, remoteServerPath, "metadata" );
+    final String remoteMetadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, remoteMetadataPath );
+    stubGetData(
+      repository,
+      remoteMetadataPath
+      + RepositoryFile.SEPARATOR
+      + "myServer",
+      "server",
+      pathPropertyPair( "/server/name", "myServer" ),
+      pathPropertyPair( "/server/user", "myUser" ),
+      pathPropertyPair( "/server/password", "myPassword" ),
+      pathPropertyPair( "/server/URL", "myUrl" ),
+      pathPropertyPair( "/server/className", "someClass" ) );
+
+    // Get a list of catalogs.
+    final List<String> catalogs =
+      olapService.getCatalogNames( session );
+
+    assertEquals( 2, catalogs.size() );
+    assertEquals( "myHostedServer", catalogs.get( 0 ) );
+    assertEquals( "myServer", catalogs.get( 1 ) );
+
+    verify( repository ).getChildren(
+      eq( makeIdObject( mondrianFolderPath ) ) );
+    verify( repository ).getChildren(
+      eq( makeIdObject( olapFolderPath ) ) );
+
+    // Mock this.
+    PentahoRequestContextHolder.setRequestContext( new IPentahoRequestContext() {
+      public String getContextPath() {
+        return null;
+      }
+    } );
+
+    final String xml =
+      ( ( OlapServiceImpl ) olapService ).generateInMemoryDatasourcesXml();
+    assertFalse(
+      xml.contains( "SteelWheels" ) );
+  }
+
+  public void testGetAllCatalogsNoFilterXmla() throws Exception {
+
+    // Stub the hosted server
+    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
+    final String testServerPath =
+      mondrianFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myHostedServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+    final String metadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath,
+      "catalog",
+      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;EnableXmla=true;" ) );
+
+    // Stub the remote server
+    stubGetChildren( repository, olapFolderPath, "myServer" );
+    final String remoteServerPath =
+      olapFolderPath
+      + RepositoryFile.SEPARATOR
+      + "myServer";
+    stubGetFolder( repository, remoteServerPath );
+    stubGetChildren( repository, remoteServerPath, "metadata" );
+    final String remoteMetadataPath =
+      testServerPath
+      + RepositoryFile.SEPARATOR
+      + "metadata";
+    stubGetFile( repository, remoteMetadataPath );
+    stubGetData(
+      repository,
+      remoteMetadataPath
+      + RepositoryFile.SEPARATOR
+      + "myServer",
+      "server",
+      pathPropertyPair( "/server/name", "myServer" ),
+      pathPropertyPair( "/server/user", "myUser" ),
+      pathPropertyPair( "/server/password", "myPassword" ),
+      pathPropertyPair( "/server/URL", "myUrl" ),
+      pathPropertyPair( "/server/className", "someClass" ) );
+
+    // Get a list of catalogs.
+    final List<String> catalogs =
+      olapService.getCatalogNames( session );
+
+    assertEquals( 2, catalogs.size() );
+    assertEquals( "myHostedServer", catalogs.get( 0 ) );
+    assertEquals( "myServer", catalogs.get( 1 ) );
+
+    verify( repository ).getChildren(
+      eq( makeIdObject( mondrianFolderPath ) ) );
+    verify( repository ).getChildren(
+      eq( makeIdObject( olapFolderPath ) ) );
+
+    // Mock this.
+    PentahoRequestContextHolder.setRequestContext( new IPentahoRequestContext() {
+      public String getContextPath() {
+        return null;
+      }
+    } );
+
+    final String xml =
+      ( ( OlapServiceImpl ) olapService ).generateInMemoryDatasourcesXml();
+    assertTrue(
+      xml.contains( "SteelWheels" ) );
+  }
   /**
    * Validates getting a list of remote catalogs.
    */
