@@ -131,7 +131,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
-    return unmarshalFiles( repoWebService.getChildren( repositoryRequest ) );
+    return unmarshalFiles( repoWebService.getChildrenFromRequest( repositoryRequest ) );
   }
 
   @Override
@@ -411,7 +411,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
-    return repositoryFileTreeAdapter.unmarshal( repoWebService.getTree( repositoryRequest ) );
+    return repositoryFileTreeAdapter.unmarshal( repoWebService.getTreeFromRequest( repositoryRequest ) );
   }
 
   @Override
