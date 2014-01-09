@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class Olap4jSystemListener implements IPentahoSystemListener {
-  private List<Olap4jConnectionBean> olap4jConnectionList;
+  private List<Properties> olap4jConnectionList;
   private List<String> removeList;
 
   @Override public boolean startup( IPentahoSession session ) {
@@ -52,26 +52,26 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
   }
 
   private void addCatalogs( IPentahoSession session, IOlapService olapService ) {
-    for ( Olap4jConnectionBean bean : olap4jConnectionList ) {
+    for ( Properties properties : olap4jConnectionList ) {
       try {
         olapService.addOlap4jCatalog(
-          bean.getName(),
-          bean.getClassName(),
-          bean.getConnectString(),
-          bean.getUser(),
-          getPassword( bean ),
+          properties.getProperty( "name" ),
+          properties.getProperty( "className" ),
+          properties.getProperty( "connectString" ),
+          properties.getProperty( "user" ),
+          getPassword( properties.getProperty( "password" ) ),
           new Properties(),
           true,
           session );
       } catch ( Exception e ) {
         Logger.warn( this, Messages.getInstance().getString(
-          "Olap4jSystemListener.ERROR_00001_ADD_ERROR", bean.getName() ), e );
+          "Olap4jSystemListener.ERROR_00001_ADD_ERROR", properties.getProperty( "name" ) ), e );
       }
     }
   }
 
-  private String getPassword( Olap4jConnectionBean bean ) {
-    return getPasswordHelper().getPassword( bean.getPassword() );
+  private String getPassword( String password ) {
+    return getPasswordHelper().getPassword( password );
   }
 
   PasswordHelper getPasswordHelper() {
@@ -85,7 +85,7 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
   @Override public void shutdown() {
   }
 
-  public void setOlap4jConnectionList( List<Olap4jConnectionBean> olap4jConnectionList ) {
+  public void setOlap4jConnectionList( List<Properties> olap4jConnectionList ) {
     this.olap4jConnectionList = olap4jConnectionList;
   }
 
