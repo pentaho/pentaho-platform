@@ -42,9 +42,9 @@ public class Olap4jSystemListenerTest {
         return new PasswordHelper( new Base64PasswordService() );
       }
     };
-    Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "ENC:YVBhc3N3b3Jk" );
-    Olap4jConnectionBean bean2 = makeBean( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
-    listener.setOlap4jConnectionList( Arrays.asList( bean1, bean2 ) );
+    Properties properties1 = makeProperties( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "ENC:YVBhc3N3b3Jk" );
+    Properties properties2 = makeProperties( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
+    listener.setOlap4jConnectionList( Arrays.asList( properties1, properties2 ) );
     listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection", "worthless" ) );
     listener.startup( mockSession );
     Mockito.verify( mockOlapService )
@@ -67,9 +67,13 @@ public class Olap4jSystemListenerTest {
         Assert.assertSame( mockSession, session );
         return mockOlapService;
       }
+
+      @Override PasswordHelper getPasswordHelper() {
+        return new PasswordHelper( new Base64PasswordService() );
+      }
     };
-    Olap4jConnectionBean bean1 = makeBean( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
-    listener.setOlap4jConnectionList( Arrays.asList( bean1 ) );
+    Properties properties1 = makeProperties( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
+    listener.setOlap4jConnectionList( Arrays.asList( properties1 ) );
     listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection" ) );
     Mockito.doThrow( new RuntimeException( "something terrible happened" ) )
       .when( mockOlapService )
@@ -79,18 +83,17 @@ public class Olap4jSystemListenerTest {
       .when( mockOlapService )
       .removeCatalog( "defunctConnection", mockSession );
     Assert.assertTrue( listener.startup( mockSession ) );
-
   }
 
-  private Olap4jConnectionBean makeBean(
+  private Properties makeProperties(
     String name, String className, String connectString, String user, String password )
   {
-    Olap4jConnectionBean bean = new Olap4jConnectionBean();
-    bean.setName( name );
-    bean.setClassName( className );
-    bean.setConnectString( connectString );
-    bean.setUser( user );
-    bean.setPassword( password );
-    return bean;
+    Properties properties = new Properties();
+    properties.setProperty( "name", name );
+    properties.setProperty( "className", className );
+    properties.setProperty( "connectString", connectString );
+    properties.setProperty( "user", user );
+    properties.setProperty( "password", password );
+    return properties;
   }
 }
