@@ -37,8 +37,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import mondrian.olap.MondrianServer;
 import mondrian.olap.Role;
-import mondrian.olap.Util;
-import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
@@ -755,7 +753,7 @@ public class OlapServiceImpl implements IOlapService {
     }
   }
 
-  public String generateInMemoryDatasourcesXml() {
+  private String generateInMemoryDatasourcesXml() {
     StringBuffer datasourcesXML = new StringBuffer();
     datasourcesXML.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSources>\n" ); //$NON-NLS-1$
@@ -774,19 +772,11 @@ public class OlapServiceImpl implements IOlapService {
     for ( String name : getHelper().getHostedCatalogs() ) {
       final HostedCatalogInfo hostedServerInfo =
         getHelper().getHostedCatalogInfo( name );
-
-      final PropertyList props =
-        Util.parseConnectString( hostedServerInfo.dataSourceInfo );
-      final boolean disableXmla =
-        "false".equalsIgnoreCase( props.get( "EnableXmla" ) );
-
-      if ( !disableXmla ) {
-        addCatalogXml(
-          datasourcesXML,
-          hostedServerInfo.name,
-          hostedServerInfo.dataSourceInfo,
-          hostedServerInfo.definition );
-      }
+      addCatalogXml(
+        datasourcesXML,
+        hostedServerInfo.name,
+        hostedServerInfo.dataSourceInfo,
+        hostedServerInfo.definition );
     }
 
     // Don't add the olap4j catalogs. This doesn't work for now.
