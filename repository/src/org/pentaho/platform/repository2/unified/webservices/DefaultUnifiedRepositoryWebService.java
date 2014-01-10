@@ -20,16 +20,11 @@ package org.pentaho.platform.repository2.unified.webservices;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.jws.WebService;
 
@@ -89,7 +84,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
   
   @Override
-  public List<RepositoryFileDto> getChildren( RepositoryRequest repositoryRequest ) {
+  public List<RepositoryFileDto> getChildrenFromRequest( RepositoryRequest repositoryRequest ) {
     return marshalFiles( repo.getChildren( repositoryRequest ) );
   }
 
@@ -150,16 +145,14 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return file != null ? this.repositoryFileAdapter.marshal( file ) : null;
   }
 
-  //private static final Pattern FILES_TYPES_PATTERN = Pattern.compile("limit=(.+)");
-  
   public RepositoryFileTreeDto getTree( final String path, final int depth, final String filter,
       final boolean showHidden ) {
 
     RepositoryRequest repositoryRequest = new RepositoryRequest( path, showHidden, depth, filter );
-    return getTree( repositoryRequest );
+    return getTreeFromRequest( repositoryRequest );
   }
   
-  public RepositoryFileTreeDto getTree( final RepositoryRequest repositoryRequest ) {
+  public RepositoryFileTreeDto getTreeFromRequest( final RepositoryRequest repositoryRequest ) {
     //RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
     
     RepositoryFileTree tree = repo.getTree( repositoryRequest );

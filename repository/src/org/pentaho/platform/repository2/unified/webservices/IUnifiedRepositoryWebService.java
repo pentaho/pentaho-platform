@@ -82,7 +82,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   @Deprecated
   List<RepositoryFileDto> getChildrenWithFilterAndHidden( final String folderId, final String filter, Boolean showHiddenFiles );
   
-  List<RepositoryFileDto> getChildren( RepositoryRequest repositoryRequest );
+  //Jax-WS fails methods are overloaded
+  List<RepositoryFileDto> getChildrenFromRequest( RepositoryRequest repositoryRequest );
 
   RepositoryFileDto updateFile( final RepositoryFileDto file, final NodeRepositoryFileDataDto data,
       final String versionMessage );
@@ -115,7 +116,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   @Deprecated
   RepositoryFileTreeDto getTree( final String path, final int depth, final String filter, final boolean showHidden );
 
-  RepositoryFileTreeDto getTree( final RepositoryRequest repositoryRequest);
+  //Jax-WS fails methods are overloaded
+  RepositoryFileTreeDto getTreeFromRequest( final RepositoryRequest repositoryRequest );
   
   RepositoryFileAclDto getAcl( final String fileId );
 

@@ -1127,7 +1127,7 @@ public class FileResource extends AbstractJaxRSResource {
     repositoryRequest.setIncludeAcls( includeAcls );
     
     List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
-    RepositoryFileTreeDto tree = getRepoWs().getTree( repositoryRequest );
+    RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
 
     // BISERVER-9599 - Use special sort order
     Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
@@ -1169,7 +1169,7 @@ public class FileResource extends AbstractJaxRSResource {
     if ( repositoryFileDto != null && isPathValid( repositoryFileDto.getPath() ) ) {
       RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
       repositoryRequest.setIncludeAcls( includeAcls );
-      repositoryFileDtoList = getRepoWs().getChildren( repositoryRequest );
+      repositoryFileDtoList = getRepoWs().getChildrenFromRequest( repositoryRequest );
       
       // BISERVER-9599 - Use special sort order
       Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
