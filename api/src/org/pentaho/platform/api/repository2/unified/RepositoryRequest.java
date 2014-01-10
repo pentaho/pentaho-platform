@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 public class RepositoryRequest {
   private static final Pattern FILES_TYPES_PATTERN = FILES_TYPE_FILTER.getRegExPattern();
 
@@ -17,7 +19,7 @@ public class RepositoryRequest {
   private boolean showHidden = false;
   private boolean includeAcls = false;
   private Integer depth = -1;
-  private FILES_TYPE_FILTER types;
+  private FILES_TYPE_FILTER types = FILES_TYPE_FILTER.FILES_FOLDERS;
   private Set<String> includeMemberSet = null;
   private Set<String> excludeMemberSet = null;
 
@@ -28,9 +30,9 @@ public class RepositoryRequest {
     
   }
   
-  public RepositoryRequest( String path, boolean showHidden, Integer depth, String legacyFilter ) {
+  public RepositoryRequest( String path, Boolean showHidden, Integer depth, String legacyFilter ) {
     this.path = path;
-    this.showHidden = showHidden;
+    this.showHidden = showHidden == null ? false : showHidden;
     setDepth( depth );
     setLegacyFilter( legacyFilter );
   }
@@ -114,7 +116,7 @@ public class RepositoryRequest {
   }
 
   private void setLegacyFilter( String legacyFilter ) {
-    this.workingFilter = (legacyFilter == null) ? "*" : legacyFilter;
+    this.workingFilter = (legacyFilter == null || StringUtils.isEmpty( legacyFilter )) ? "*" : legacyFilter;
     parseOutFileTypes();
     parseOutIncludeExclude();
     childNodeFilter = workingFilter.isEmpty() ? null : workingFilter;
