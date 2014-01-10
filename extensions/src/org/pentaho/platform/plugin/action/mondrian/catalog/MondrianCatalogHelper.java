@@ -326,18 +326,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           String datasourceInfo = metadataNode.getProperty( "datasourceInfo" ).getString(); //$NON-NLS-1$
           String definition = metadataNode.getProperty( "definition" ).getString(); //$NON-NLS-1$
 
-          final PropertyList props =
-            Util.parseConnectString( datasourceInfo );
-          final boolean disableXmla =
-            "false".equalsIgnoreCase( props.get( "EnableXmla" ) );
-
-          if ( !disableXmla ) {
-            datasourcesXML.append( "<Catalog name=\"" + catalogName + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
-            datasourcesXML
-              .append( "<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
-            datasourcesXML.append( "<Definition>" + definition + "</Definition>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
-            datasourcesXML.append( "</Catalog>\n" ); //$NON-NLS-1$
-          }
+          datasourcesXML.append( "<Catalog name=\"" + catalogName + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML
+            .append( "<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append( "<Definition>" + definition + "</Definition>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append( "</Catalog>\n" ); //$NON-NLS-1$
         } else {
           logger
             .warn( Messages.getInstance().getString( "MondrianCatalogHelper.WARN_META_DATA_IS_NULL" ) ); //$NON-NLS-1$
