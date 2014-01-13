@@ -57,7 +57,6 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -71,6 +70,7 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.springframework.security.userdetails.UserDetailsService;
 
 /**
  * Implementation of the IOlapService which uses the
@@ -142,6 +142,27 @@ public class OlapServiceImpl implements IOlapService {
     }
   }
 
+  private Boolean isSec = null;
+  private boolean isSecurityEnabled() {
+
+    if ( isSec != null ) {
+      return isSec;
+    }
+
+    try {
+      UserDetailsService uds = PentahoSystem.get( UserDetailsService.class );
+      if (uds != null) {
+        isSec = true;
+      } else {
+        isSec = false;
+      }
+    } catch ( Exception e ) {
+      // no op.
+      isSec = false;
+    }
+    return isSec;
+  }
+
   synchronized IUnifiedRepository getRepository() {
     if ( repository == null ) {
       repository = PentahoSystem.get( IUnifiedRepository.class );
@@ -156,6 +177,10 @@ public class OlapServiceImpl implements IOlapService {
           getRepository() );
     }
     return helper;
+  }
+
+  public synchronized void setHelper( MondrianCatalogRepositoryHelper helper ) {
+    this.helper = helper;
   }
 
   /**
@@ -247,33 +272,38 @@ public class OlapServiceImpl implements IOlapService {
         // First clear the cache
         cache.clear();
 
-        SecurityHelper.getInstance().runAsSystem(
-          new Callable<Void>() {
-            public Void call() throws Exception {
-              // Now build the cache. Use the system session in the holder.
-              for ( String name : getHelper().getHostedCatalogs() ) {
-                try {
-                  addCatalogToCache( PentahoSessionHolder.getSession(), name );
-                } catch ( Throwable t ) {
-                  LOG.error(
-                    "Failed to initialize the cache for OLAP connection "
-                    + name,
-                    t );
-                }
+        final Callable<Void> call = new Callable<Void>() {
+          public Void call() throws Exception {
+            // Now build the cache. Use the system session in the holder.
+            for ( String name : getHelper().getHostedCatalogs() ) {
+              try {
+                addCatalogToCache( PentahoSessionHolder.getSession(), name );
+              } catch ( Throwable t ) {
+                LOG.error(
+                  "Failed to initialize the cache for OLAP connection "
+                  + name,
+                  t );
               }
-              for ( String name : getHelper().getOlap4jServers() ) {
-                try {
-                  addCatalogToCache( PentahoSessionHolder.getSession(), name );
-                } catch ( Throwable t ) {
-                  LOG.error(
-                    "Failed to initialize the cache for OLAP connection "
-                    + name,
-                    t );
-                }
-              }
-              return null;
             }
-          } );
+            for ( String name : getHelper().getOlap4jServers() ) {
+              try {
+                addCatalogToCache( PentahoSessionHolder.getSession(), name );
+              } catch ( Throwable t ) {
+                LOG.error(
+                  "Failed to initialize the cache for OLAP connection "
+                  + name,
+                  t );
+              }
+            }
+            return null;
+          }
+        };
+
+        if ( isSecurityEnabled() ) {
+          SecurityHelper.getInstance().runAsSystem( call );
+        } else {
+          call.call();
+        }
 
         // Sort it all.
         Collections.sort(
@@ -740,14 +770,18 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private String getDatasourcesXml() {
+    final Callable<String> call = new Callable<String>() {
+      public String call() throws Exception {
+        return generateInMemoryDatasourcesXml();
+      }
+    };
     try {
-      return
-        SecurityHelper.getInstance().runAsSystem(
-          new Callable<String>() {
-            public String call() throws Exception {
-              return generateInMemoryDatasourcesXml();
-            }
-          } );
+      if ( isSecurityEnabled() ) {
+        return
+          SecurityHelper.getInstance().runAsSystem( call );
+      } else {
+        return call.call();
+      }
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
     }
@@ -761,7 +795,7 @@ public class OlapServiceImpl implements IOlapService {
     datasourcesXML.append( "<DataSource>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSourceName>" + DATASOURCE_NAME + "</DataSourceName>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n" ); //$NON-NLS-1$
-    datasourcesXML.append( "<URL>" + PentahoRequestContextHolder.getRequestContext().getContextPath() + "Xmla</URL>\n" ); //$NON-NLS-1$
+    datasourcesXML.append( "<URL>Xmla</URL>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<ProviderName>PentahoXMLA</ProviderName>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<ProviderType>MDP</ProviderType>\n" ); //$NON-NLS-1$
