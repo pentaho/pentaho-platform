@@ -240,9 +240,11 @@ public class MondrianCatalogRepositoryHelper {
     }
 
     final List<String> names = new ArrayList<String>();
+
     for ( RepositoryFile repoFile : repository.getChildren( hostedFolder.getId() ) ) {
       names.add( repoFile.getName() );
     }
+
     return names;
   }
 
@@ -267,8 +269,10 @@ public class MondrianCatalogRepositoryHelper {
    */
   public List<String> getHostedCatalogs() {
     final List<String> names = new ArrayList<String>();
+
     final RepositoryFile serversFolder =
       repository.getFile( ETC_MONDRIAN_JCR_FOLDER );
+
     if ( serversFolder != null ) {
       for ( RepositoryFile repoFile : repository.getChildren( serversFolder.getId() ) ) {
         names.add( repoFile.getName() );
@@ -314,6 +318,14 @@ public class MondrianCatalogRepositoryHelper {
       this.definition =
         data.getNode().getProperty( "definition" ).getString();
     }
+    public HostedCatalogInfo(
+      String name,
+      String dataSourceInfo,
+      String definition) {
+        this.name = name;
+        this.dataSourceInfo = dataSourceInfo;
+        this.definition = definition;
+    }
   }
 
   public final class Olap4jServerInfo {
@@ -353,8 +365,10 @@ public class MondrianCatalogRepositoryHelper {
 
   public Map<String, InputStream> getModrianSchemaFiles( String catalogName ) {
     Map<String, InputStream> values = new HashMap<String, InputStream>();
+
     RepositoryFile catalogFolder =
-        repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
+      repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
+
     for ( RepositoryFile repoFile : repository.getChildren( catalogFolder.getId() ) ) {
       RepositoryFileInputStream is;
       try {
