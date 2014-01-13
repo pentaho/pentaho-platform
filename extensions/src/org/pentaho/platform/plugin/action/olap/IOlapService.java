@@ -206,7 +206,7 @@ public interface IOlapService {
     public final String name;
     public final Catalog catalog;
     public final List<Cube> cubes;
-    public final List<String> roles;
+    public final List<String> roleNames;
     public Schema( String name, Catalog parent, List<Cube> cubes, List<String> roles ) {
       /**
        * The name of this schema.
@@ -223,7 +223,7 @@ public interface IOlapService {
       /**
        * A list of role names defined in this schema.
        */
-      this.roles = roles;
+      this.roleNames = roles;
     }
     public String toString() {
       return name;
@@ -235,8 +235,8 @@ public interface IOlapService {
     public List<Cube> getCubes() {
       return cubes;
     }
-    public List<String> getRoles() {
-      return roles;
+    public List<String> getRoleNames() {
+      return roleNames;
     }
   }
 
