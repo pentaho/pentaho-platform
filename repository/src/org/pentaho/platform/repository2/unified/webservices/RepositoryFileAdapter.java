@@ -18,25 +18,17 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.apache.jackrabbit.core.session.SessionOperation;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.springframework.extensions.jcr.JcrCallback;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 
 /**
  * Converts {@code RepositoryFile} into JAXB-safe object and vice-versa.
@@ -45,10 +37,30 @@ import org.springframework.extensions.jcr.JcrCallback;
  */
 public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, RepositoryFile> {
   private static DefaultUnifiedRepositoryWebService repoWs;
+  private Set<String> membersSet;
+  private boolean exclude;
+  private boolean includeAcls;
+  
+  public RepositoryFileAdapter () {
+    this.exclude = false;
+    this.includeAcls = false;
+    this.membersSet = null;
+  }
+  
+  public RepositoryFileAdapter( RepositoryRequest repositoryRequest) {
+    if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
+      this.exclude = true;
+      this.membersSet = repositoryRequest.getExcludeMemberSet();
+    } else {
+      this.exclude = false;
+      this.membersSet = repositoryRequest.getIncludeMemberSet();
+      this.includeAcls = repositoryRequest.isIncludeAcls();
+    }
+  }
 
   @Override
   public RepositoryFileDto marshal( final RepositoryFile v ) {
-    return toFileDto( v, null, false, false );
+    return toFileDto( v, membersSet, exclude, includeAcls );
   }
 
   private static boolean include( String key, Set<String> set, boolean exclude ) {
