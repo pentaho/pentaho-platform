@@ -54,7 +54,6 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   protected RepositoryFileAdapter repositoryFileAdapter = new RepositoryFileAdapter();
 
-
   protected NodeRepositoryFileDataAdapter nodeRepositoryFileDataAdapter = new NodeRepositoryFileDataAdapter();
 
   protected RepositoryFileAclAdapter repositoryFileAclAdapter = new RepositoryFileAclAdapter();
@@ -62,6 +61,8 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   protected RepositoryFileAclAceAdapter repositoryFileAclAceAdapter = new RepositoryFileAclAceAdapter();
 
   protected VersionSummaryAdapter versionSummaryAdapter = new VersionSummaryAdapter();
+  
+  protected RepositoryFileTreeAdapter repositoryFileTreeAdapter;
 
   // ~ Constructors
   // ====================================================================================================
@@ -85,7 +86,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   
   @Override
   public List<RepositoryFileDto> getChildrenFromRequest( RepositoryRequest repositoryRequest ) {
-    return marshalFiles( repo.getChildren( repositoryRequest ) );
+    return marshalFiles( repo.getChildren( repositoryRequest ), repositoryRequest );
   }
 
   @Deprecated
@@ -184,6 +185,15 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     ArrayList<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>();
     for ( RepositoryFile file : files ) {
       fileDtos.add( repositoryFileAdapter.marshal( file ) );
+    }
+    return fileDtos;
+  }
+  
+  private List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files, RepositoryRequest repositoryRequest ) {
+    ArrayList<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>();
+    RepositoryFileAdapter filteringRepositoryFileAdapter = new RepositoryFileAdapter( repositoryRequest );
+    for ( RepositoryFile file : files ) {
+      fileDtos.add( filteringRepositoryFileAdapter.marshal( file ) );
     }
     return fileDtos;
   }

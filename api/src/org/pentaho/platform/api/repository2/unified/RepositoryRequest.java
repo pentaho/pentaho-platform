@@ -26,6 +26,10 @@ public class RepositoryRequest {
   private transient String workingFilter; // temporary storage of remaining filter text as it is parsed.
   private String childNodeFilter;
 
+  /**
+   * This class encapsulates the parameters received by the "children" and "tree" REST calls. It provides default values
+   * for parameters not specified and breaks down the legacy "filter" parameters into it's component parts.
+   */
   public RepositoryRequest() {
     
   }
@@ -139,6 +143,9 @@ public class RepositoryRequest {
     return includeMemberSet;
   }
 
+  /**
+   * @param includeMemberSet A set of field names to be included in the output.
+   */
   public void setIncludeMemberSet( Set<String> includeMemberSet ) {
     this.includeMemberSet = includeMemberSet;
   }
@@ -147,6 +154,9 @@ public class RepositoryRequest {
     return excludeMemberSet;
   }
 
+  /**
+   * @param includeMemberSet A set of field names to be excluded in the output.
+   */
   public void setExcludeMemberSet( Set<String> excludeMemberSet ) {
     this.excludeMemberSet = excludeMemberSet;
   }
@@ -157,7 +167,7 @@ public class RepositoryRequest {
 
   /**
    * @param showHidden
-   *      Return information about hidden files.  Default is false.
+   *      Whether to return information about hidden files.  Default is false.
    */
   public void setShowHidden( boolean showHidden ) {
     this.showHidden = showHidden;
@@ -169,9 +179,9 @@ public class RepositoryRequest {
 
   /**
    * @param depth
-   *          0 fetches just file at path; positive integer n fetches node at path plus n levels of children;
-   *          negative integer fetches all children.  If n > 0 and {@link RepositoryRequest#setTypes(FILES_TYPE_FILTER)}
-   *          is set to FILES then only the top level children will be processed. 
+   *          0 fetches just file at path; positive integer n fetches node at path plus n levels of children; negative
+   *          integer fetches all children. If n > 0 and {@link RepositoryRequest#setTypes(FILES_TYPE_FILTER)} is set to
+   *          FILES then only the top level children will be processed.
    */
   public void setDepth( Integer depth ) {
     if ( depth == null ) {

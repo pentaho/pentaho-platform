@@ -1097,14 +1097,45 @@ public class FileResource extends AbstractJaxRSResource {
     return doGetChildren( PATH_SEPARATOR, filter, showHidden, includeAcls );
   }
 
-  
   /**
-   * Retrieve the children of the selected repository file.  This is a recursive search with a selected level
-   * depth and filter  
+   * Retrieve the children of the selected repository file. This is a recursive search with a selected level depth and
+   * filter
    * 
-   * @param depth (how many level should the search go)
-   * @param filter (filter to be applied for search)
-   * @param showHidden (include or exclude hidden files from the file list)
+   * @param pathId
+   *          The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *          or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   * @param depth
+   *          (how many level should the search go)
+   * @param filter
+   *          (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
+   *          Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   *          <p>
+   *          File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
+   *          accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
+   *          whether to return files, folders, or both files and folders, respectively.
+   *          <p>
+   *          The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
+   *          name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
+   *          filter does not apply to root node.
+   *          <p>
+   *          The Member Filter portion of the filter parameter allows the caller to specify which properties of the
+   *          metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
+   *          comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
+   *          be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *          Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
+   *          excludeMembers= clause in the same service call.
+   *          <p>
+   *          Example:
+   *          http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/tree?showHidden=false&filter=*|FILES
+   *          |includeMembers=name,fileSize,description,folder,id,title
+   *          <p>
+   *          will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
+   *          include the name, filesize, description, id and title.
+   * 
+   * @param showHidden
+   *          (include or exclude hidden files from the file list)
+   * @param includeAcls
+   *          (Include permission information about the file in the output)
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
@@ -1126,14 +1157,16 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryRequest repositoryRequest = new RepositoryRequest(path, showHidden, depth, filter);
     repositoryRequest.setIncludeAcls( includeAcls );
     
-    List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
     RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
+    List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
 
     // BISERVER-9599 - Use special sort order
-    Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
-    collator.setStrength( Collator.PRIMARY ); // ignore case
-    sortByLocaleTitle( collator, tree );
-
+    if ( isShowingTitle( repositoryRequest ) ) {
+      Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
+      collator.setStrength( Collator.PRIMARY ); // ignore case
+      sortByLocaleTitle( collator, tree );
+    }
+      
     for ( RepositoryFileTreeDto child : tree.getChildren() ) {
       RepositoryFileDto file = child.getFile();
       Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
@@ -1145,6 +1178,7 @@ public class FileResource extends AbstractJaxRSResource {
       }
     }
     tree.setChildren( filteredChildren );
+    
     return tree;
   }
 
@@ -1153,8 +1187,41 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the children of the selected repository file.  This is a recursive search with a selected level
    * depth and filter  
    * 
-   * @param filter (filter to be applied for search)
-   * @return list of files <code> RepositoryFileDto </code>
+   * @param pathId
+   *          The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *          or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   * @param filter
+   *          (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
+   *          Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   *          <p>
+   *          File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
+   *          accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
+   *          whether to return files, folders, or both files and folders, respectively.
+   *          <p>
+   *          The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
+   *          name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
+   *          filter does not apply to root node.
+   *          <p>
+   *          The Member Filter portion of the filter parameter allows the caller to specify which properties of the
+   *          metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
+   *          comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
+   *          be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *          Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
+   *          excludeMembers= clause in the same service call.
+   *          <p>
+   *          Example:
+   *          <p>
+   *          http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/children?showHidden=false&filter=*|FILES
+   *          |includeMembers=name,fileSize,description,folder,id,title
+   *          <p>
+   *          will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
+   *          include the name, filesize, description, id and title.
+   * 
+   * @param showHidden
+   *          (include or exclude hidden files from the file list)
+   * @param includeAcls
+   *          (Include permission information about the file in the output)
+   * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
   @Path( "{pathId : .+}/children" )
@@ -1172,9 +1239,11 @@ public class FileResource extends AbstractJaxRSResource {
       repositoryFileDtoList = getRepoWs().getChildrenFromRequest( repositoryRequest );
       
       // BISERVER-9599 - Use special sort order
-      Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
-      collator.setStrength( Collator.PRIMARY ); // ignore case
-      sortByLocaleTitle( collator, repositoryFileDtoList );
+      if (isShowingTitle( repositoryRequest ) ) {
+        Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
+        collator.setStrength( Collator.PRIMARY ); // ignore case
+        sortByLocaleTitle( collator, repositoryFileDtoList );
+      }
     }
     return repositoryFileDtoList;
   }
@@ -1480,5 +1549,17 @@ public class FileResource extends AbstractJaxRSResource {
       repoWs = new DefaultUnifiedRepositoryWebService();
     }
     return repoWs;
+  }
+  
+  private boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
+    if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
+      if ( repositoryRequest.getExcludeMemberSet().contains( "title" ) ) {
+        return false;
+      }
+    } else if ( repositoryRequest.getIncludeMemberSet() != null
+        && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
+      return false;
+    }
+    return true;
   }
 }
