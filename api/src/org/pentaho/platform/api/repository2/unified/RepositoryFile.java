@@ -341,14 +341,14 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     }
 
     public Builder( final RepositoryFile other ) {
-      this( other.name );
-      this.id( other.id ).path( other.path ).createdDate( other.createdDate ).creatorId( other.creatorId ).fileSize(
-          other.fileSize ).folder( other.folder ).lastModificationDate( other.lastModifiedDate ).versioned(
-          other.versioned ).hidden( other.hidden ).versionId( other.versionId ).locked( other.locked ).lockDate(
-          other.lockDate ).lockOwner( other.lockOwner ).lockMessage( other.lockMessage ).title( other.title )
-          .description( other.description ).locale( other.locale ).originalParentFolderPath(
-              other.originalParentFolderPath ).deletedDate( other.deletedDate ).localePropertiesMap(
-              other.localePropertiesMap );
+      this( other.getName() );
+      this.id( other.getId() ).path( other.getPath()).createdDate( other.getCreatedDate() ).creatorId( other.getCreatorId() ).fileSize(
+          other.getFileSize() ).folder( other.isFolder() ).lastModificationDate( other.getLastModifiedDate() ).versioned(
+          other.isVersioned() ).hidden( other.isHidden() ).versionId( other.getVersionId() ).locked( other.isLocked() ).lockDate(
+          other.getLockDate() ).lockOwner( other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() )
+          .description( other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
+              other.getOriginalParentFolderPath() ).deletedDate( other.getDeletedDate() ).localePropertiesMap(
+              other.getLocalePropertiesMap() );
     }
 
     public RepositoryFile build() {
