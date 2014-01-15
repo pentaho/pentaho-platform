@@ -129,6 +129,10 @@ public class OSGIBoot implements IPentahoSystemListener {
       logger.debug( "Starting bundles" );
       for ( Bundle bundle : bundleList ) {
         try {
+          // detect if a fragment bundle and skip. They cannot be started..
+          if(bundle.getHeaders().get("Fragment-Host") != null){
+            continue;
+          }
           bundle.start();
         } catch ( Exception e ) {
           logger.error( "Error installing Bundle", e );

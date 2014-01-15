@@ -5,9 +5,10 @@
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
-
+<!-- 
   <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer"
         lazy-init="false"/>
+ -->
 
 
   <bean id="propertyPlaceholderConfigurerRepository"
@@ -769,6 +770,11 @@
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+  </bean>
+   
+  <bean id="RepositoryFileProxyFactory" class="org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="repositoryFileDao"/>
   </bean>
 
   <!-- end authorization policy -->
