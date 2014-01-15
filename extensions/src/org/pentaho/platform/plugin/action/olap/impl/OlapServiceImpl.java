@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import mondrian.olap.MondrianServer;
 import mondrian.olap.Role;
+import mondrian.olap.Util;
 import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
@@ -689,7 +690,9 @@ public class OlapServiceImpl implements IOlapService {
       return getServer().getConnection(
         DATASOURCE_NAME,
         catalogName,
-        roleName.toString(),
+        Util.isEmpty( roleName.toString() )
+          ? null
+          : roleName.toString(),
         properties );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
