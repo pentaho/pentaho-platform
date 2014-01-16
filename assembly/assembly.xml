@@ -73,6 +73,7 @@
   <property name="kettle-plugins.dir" value="${stage.dir.solutions}/system/kettle/plugins" />
 
   <property name="core-bundles.dir" value="${stage.dir.solutions}/system/osgi/core_bundles"/>
+  <property name="fragment-bundles.dir" value="${stage.dir.solutions}/system/osgi/fragment_bundles"/>
   <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
 
   <!-- =================================
@@ -84,6 +85,7 @@
     <delete dir="${devlib.dir}" />
     <delete dir="${user-console.tmp.dir}"/>
     <delete dir="${core-bundles.dir}" />
+    <delete dir="${fragment-bundles.dir}" />
     <delete dir="${bundles.dir}" />
   </target>
 
@@ -353,6 +355,7 @@
       <!-- Add libraries to the sample data -->
     <antcall target="resolve-sampledata-libs"/>
     <antcall target="resolve-osgi-core-bundles"/>
+    <antcall target="resolve-osgi-fragment-bundles"/>
     <antcall target="resolve-osgi-bundles"/>
 
   </target>
