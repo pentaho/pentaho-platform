@@ -11,6 +11,7 @@
     <conf name="test" visibility="private" />
     <conf name="bundle" visibility="private"/>
     <conf name="core-bundle" visibility="private"/>
+    <conf name="fragment-bundle" visibility="private"/>
   </configurations>
   <dependencies defaultconf="default->default">
 

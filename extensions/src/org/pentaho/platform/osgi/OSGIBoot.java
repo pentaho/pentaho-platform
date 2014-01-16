@@ -22,7 +22,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
@@ -110,6 +109,8 @@ public class OSGIBoot implements IPentahoSystemListener {
             new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
                 + "core_bundles" ),
             new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+              + "fragment_bundles" ),
+            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
                 + "bundles" ) };
 
       logger.debug( "Installing bundles" );
@@ -129,6 +130,10 @@ public class OSGIBoot implements IPentahoSystemListener {
       logger.debug( "Starting bundles" );
       for ( Bundle bundle : bundleList ) {
         try {
+          // detect if a fragment bundle and skip. They cannot be started..
+          if ( bundle.getHeaders().get( "Fragment-Host" ) != null ) {
+            continue;
+          }
           bundle.start();
         } catch ( Exception e ) {
           logger.error( "Error installing Bundle", e );

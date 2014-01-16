@@ -91,4 +91,11 @@
   <target name="resolve-osgi-bundles" depends="install-ivy">
     <ivy-resolve conf="bundle" directory="${bundles.dir}" />
   </target>
+
+  <!-- - - - - - - - - - - - - - - - - -
+          target: resolve-osgi-fragment-bundles
+         - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-osgi-fragment-bundles" depends="install-ivy">
+    <ivy-resolve conf="fragment-bundle" directory="${fragment-bundles.dir}" />
+  </target>
 </project>
