@@ -115,6 +115,10 @@ public class OSGIBoot implements IPentahoSystemListener {
 
       logger.debug( "Installing bundles" );
       for ( File bundleDirectory : bundleDirectories ) {
+        if(bundleDirectory.exists() == false){
+          logger.warn("Bundle directory: "+bundleDirectory.getName()+" does not exist");
+          continue;
+        }
         for ( File f : bundleDirectory.listFiles() ) {
           if ( f.isFile() && f.getName().endsWith( ".jar" ) ) {
             try {
