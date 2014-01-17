@@ -54,8 +54,8 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     } else {
       this.exclude = false;
       this.membersSet = repositoryRequest.getIncludeMemberSet();
-      this.includeAcls = repositoryRequest.isIncludeAcls();
     }
+    this.includeAcls = repositoryRequest.isIncludeAcls();
   }
 
   @Override
@@ -145,7 +145,11 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       if ( v.getId() != null ) {
         try {
           f.repositoryFileAclDto = getRepoWs().getAcl( v.getId().toString() );
-        } catch (Exception e) {
+          if ( f.repositoryFileAclDto.isEntriesInheriting() ) {
+            List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces( v.getId().toString() );
+            f.repositoryFileAclDto.setAces( aces, f.repositoryFileAclDto.isEntriesInheriting() );
+          }
+        } catch ( Exception e ) {
           e.printStackTrace();
         }
       }
