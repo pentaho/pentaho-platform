@@ -176,6 +176,10 @@
   background-image: url("../../../content/pdi-platform-plugin/resources/images/transformation.png");
 }
 
+.fileBrowserColumn .body .file .icon.kjb {
+  background-image: url("../../../content/pdi-platform-plugin/resources/images/job.png");
+}
+
 .fileBrowserColumn .body .file .icon.prpt {
   background-image: url("../../../api/repos/reporting/reportviewer/images/prptFileType.png");
 }
