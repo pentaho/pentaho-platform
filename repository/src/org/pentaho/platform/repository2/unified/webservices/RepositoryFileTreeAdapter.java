@@ -48,8 +48,8 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
     } else {
       this.exclude = false;
       this.membersSet = repositoryRequest.getIncludeMemberSet();
-      this.includeAcls = repositoryRequest.isIncludeAcls();
     }
+    this.includeAcls = repositoryRequest.isIncludeAcls();
 
   }
 

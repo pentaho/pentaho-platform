@@ -54,8 +54,8 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     } else {
       this.exclude = false;
       this.membersSet = repositoryRequest.getIncludeMemberSet();
-      this.includeAcls = repositoryRequest.isIncludeAcls();
     }
+    this.includeAcls = repositoryRequest.isIncludeAcls();
   }
 
   @Override
