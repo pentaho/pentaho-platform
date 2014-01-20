@@ -1902,18 +1902,6 @@
             </EntityAcl>
         </ExportManifestProperty>
     </ExportManifestEntity>
-    <ExportManifestEntity path="public/bi-developers/charts/simpledial.xaction">
-        <ExportManifestProperty>
-            <EntityMetaData name="simpledial.xaction" createdDate="2013-09-24T17:13:04.192+01:00" isFolder="false" path="public/bi-developers/charts/simpledial.xaction" isHidden="true" locale="en_US" title="Simple Dial Chart Example"/>
-        </ExportManifestProperty>
-        <ExportManifestProperty>
-            <EntityAcl>
-                <entriesInheriting>true</entriesInheriting>
-                <owner>admin</owner>
-                <ownerType>USER</ownerType>
-            </EntityAcl>
-        </ExportManifestProperty>
-    </ExportManifestEntity>
     <ExportManifestEntity path="public/bi-developers/charts/steelwheels.mondrian.xml">
         <ExportManifestProperty>
             <EntityMetaData name="steelwheels.mondrian.xml" createdDate="2013-09-24T17:13:04.334+01:00" isFolder="false" path="public/bi-developers/charts/steelwheels.mondrian.xml" isHidden="true" locale="en_US" title="steelwheels.mondrian"/>
