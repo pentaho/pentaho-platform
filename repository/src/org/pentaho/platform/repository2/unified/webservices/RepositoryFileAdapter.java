@@ -68,7 +68,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
   }
   
   public static RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude ) {
-    return null;
+    return toFileDto( v, memberSet, exclude, false);
   }
 
   public static RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude, boolean includeAcls ) {
