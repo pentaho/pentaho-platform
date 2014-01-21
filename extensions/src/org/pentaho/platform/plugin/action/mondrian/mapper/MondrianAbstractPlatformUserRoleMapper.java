@@ -101,13 +101,17 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * @return Users' roles as defined in the authentication object
    */
   protected String[] getPlatformRolesFromSession( IPentahoSession session ) {
+    
+    //get 'anonymousUser' defined name from pentaho.xml's <anonymous-authentication> block
+    String anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
+    
     // Get the Spring Security authentication object
     Authentication auth = SecurityHelper.getInstance().getAuthentication();
     String[] rtn = null;
     List<String> runtimeRoles = new ArrayList<String>();
     IUserRoleListService userRoleListService = PentahoSystem.getInitializedOK() ? PentahoSystem.get(IUserRoleListService.class, session) : null;
     // Get the role from IUserRoleListService
-    if ( userRoleListService != null ) {
+    if ( userRoleListService != null && !anonymousUser.equals( auth.getName() ) ) {
       runtimeRoles = userRoleListService.getRolesForUser( JcrTenantUtils.getCurrentTenant(), auth.getName() );
       if ((runtimeRoles != null) && (runtimeRoles.size() > 0) ) {
       // Copy role names out of the Authentication 

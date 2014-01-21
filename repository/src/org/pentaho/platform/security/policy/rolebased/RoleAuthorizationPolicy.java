@@ -87,6 +87,10 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
   }
 
   protected List<String> getRuntimeRoleNames() {
+    
+    //get 'anonymousUser' defined name from pentaho.xml's <anonymous-authentication> block
+    String anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
+    
     List<String> runtimeRoles = new ArrayList<String>();
     Authentication authentication = null;
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -94,7 +98,7 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
     IUserRoleListService userRoleListService =
         PentahoSystem.getInitializedOK() ? PentahoSystem.get( IUserRoleListService.class, pentahoSession ) : null;
     authentication = SecurityHelper.getInstance().getAuthentication();
-    if ( userRoleListService != null ) {
+    if ( userRoleListService != null && !anonymousUser.equals( authentication.getName() ) ) {
       runtimeRoles = userRoleListService.getRolesForUser( JcrTenantUtils.getCurrentTenant(), authentication.getName() );
     } else {
       GrantedAuthority[] authorities = authentication.getAuthorities();
