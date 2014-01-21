@@ -196,12 +196,24 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     openTabInNewWindow();
   }
 
+  /**
+   * Correct 'left' if necessary to avoid menu be very narrow if it is too close to right edge 
+   */
+  private int adjustLeftIfNecessary(int left){
+    int WIDHT = 225; //supposed width of popup menu
+    
+    if (left + WIDHT > Window.getClientWidth()){
+      return Window.getClientWidth() - WIDHT;
+    } 
+    return left;
+  }
+  
   public void onRightClick( Event event ) {
     FrameUtils.setEmbedVisibility( ( (IFrameTabPanel) getTabPanel().getSelectedTab().getContent() ).getFrame(), false );
 
     int left = Window.getScrollLeft() + DOM.eventGetClientX( event );
     int top = Window.getScrollTop() + DOM.eventGetClientY( event );
-    popupMenu.setPopupPosition( left, top );
+    popupMenu.setPopupPosition( adjustLeftIfNecessary(left), top);
     MenuBar menuBar = new MenuBar( true );
     menuBar.setAutoOpen( true );
     if ( getContent() instanceof IFrameTabPanel ) {
