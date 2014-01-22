@@ -17,29 +17,20 @@
 
 package org.pentaho.platform.web.http.security;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.platform.web.http.request.MultiReadHttpServletRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
@@ -126,43 +117,10 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-    InputStream in = httpRequest.getInputStream();
-    byte[] bytes = IOUtils.toByteArray( in );
-    // Do something with Bytes.
+    MultiReadHttpServletRequest wrapper = new MultiReadHttpServletRequest( httpRequest );
 
-    final InputStream newStream = new ByteArrayInputStream( bytes );
-    final Map<?, ?> parameterMap = request.getParameterMap();
-
-    HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper( httpRequest ) {
-      private final AtomicBoolean getInputStreamCalled = new AtomicBoolean( false );
-
-      @Override
-      public Map<?, ?> getParameterMap() {
-        return parameterMap;
-      }
-
-      @Override
-      public ServletInputStream getInputStream() throws IOException {
-        if ( getInputStreamCalled.getAndSet( true ) ) {
-          // Will throw correct exception as we've already called this method
-          return super.getInputStream();
-        }
-        return new ServletInputStream() {
-          @Override
-          public int read() throws IOException {
-            return newStream.read();
-          }
-        };
-      }
-
-      @Override
-      public BufferedReader getReader() throws IOException {
-        return new BufferedReader( new InputStreamReader( getInputStream() ) );
-      }
-    };
-
-    String username = httpRequest.getParameter( this.userNameParameter );
-    String password = httpRequest.getParameter( this.passwordParameter );
+    String username = wrapper.getParameter( this.userNameParameter );
+    String password = wrapper.getParameter( this.passwordParameter );
 
     if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
       RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
