@@ -269,11 +269,20 @@ public class FileResource extends AbstractJaxRSResource {
               RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
               RepositoryFile destFile = getRepository().getFile( destDir.getPath() + PATH_SEPARATOR + fileName );
               if ( destFile == null ) { // destFile doesn't exist so we'll create it.
-                RepositoryFile duplicateFile = new RepositoryFile.Builder( fileName ).build();
-                getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
+                RepositoryFile duplicateFile = new RepositoryFile.Builder( fileName )
+                    .hidden( sourceFile.isHidden() ).build();
+                final RepositoryFile repositoryFile = getRepository()
+                    .createFile( destDir.getId(), duplicateFile, data, acl, null );
+                getRepository()
+                    .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
               } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
-                getRepository().updateFile( destFile, data, null );
+                RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto( destFile, null, false );
+                destFileDto.setHidden( sourceFile.isHidden() );
+                destFile = RepositoryFileAdapter.toFile( destFileDto );
+                final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
                 getRepository().updateAcl( acl );
+                getRepository()
+                    .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
               }
             }
           }
@@ -317,12 +326,14 @@ public class FileResource extends AbstractJaxRSResource {
             if ( !sourceFile.getName().equals( sourceFile.getTitle() ) ) {
               duplicateFile =
                   new RepositoryFile.Builder( fileName ).title( RepositoryFile.DEFAULT_LOCALE,
-                    sourceFile.getTitle() + copyText ).build();
+                    sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() ).build();
             } else {
-              duplicateFile = new RepositoryFile.Builder( fileName ).build();
+              duplicateFile = new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).build();
             }
 
-            getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
+            final RepositoryFile repositoryFile = getRepository()
+                .createFile( destDir.getId(), duplicateFile, data, acl, null );
+            getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
           }
         }
       }
