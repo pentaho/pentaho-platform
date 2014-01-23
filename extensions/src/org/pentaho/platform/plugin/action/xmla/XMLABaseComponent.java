@@ -51,6 +51,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Locale;
 
 public abstract class XMLABaseComponent extends ComponentBase implements IDataComponent {
 
@@ -811,7 +812,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         Messages.getInstance().getString( "XMLABaseComponent.ERROR_0023_NO_DATASOURCE_GIVEN" ) ); //$NON-NLS-1$
     }
 
-    String upperDSString = dataSourceString.toUpperCase();
+    String upperDSString = dataSourceString.toUpperCase(Locale.US);
     if ( !upperDSString.startsWith( "PROVIDER=" ) ) { //$NON-NLS-1$
       throw new XMLAException(
         Messages.getInstance().getString( "XMLABaseComponent.ERROR_0024_MALFORMED_DATASOURCE" ) ); //$NON-NLS-1$
