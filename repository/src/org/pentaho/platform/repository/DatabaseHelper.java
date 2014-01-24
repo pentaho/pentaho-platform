@@ -23,11 +23,14 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class DatabaseHelper {
@@ -140,6 +143,62 @@ public class DatabaseHelper {
     return rootNode;
   }
 
+  public IDatabaseConnection databaseMetaToDatabaseConnection( final DatabaseMeta databaseMeta) {
+    
+    IDatabaseConnection databaseConnection = new DatabaseConnection();
+    databaseConnection.setDatabaseType( databaseTypeHelper
+        .getDatabaseTypeByShortName( databaseMeta.getDatabaseTypeDesc() ));
+    databaseConnection.setName( databaseMeta.getName() );
+    if ( databaseMeta.getObjectId() != null ) {
+      databaseConnection.setId( databaseMeta.getObjectId().getId() );
+    }
+    String accessType = databaseMeta.getAccessTypeDesc();
+
+    // This is a special case with some PDI connections
+    if(accessType != null && accessType.contains( "Native")) {
+      accessType = DatabaseAccessType.NATIVE.getName();
+    } else if(accessType != null && accessType.equals(", ")) {
+      accessType = DatabaseAccessType.JNDI.getName();
+    }
+    
+    databaseConnection.setAccessType( accessType != null
+      ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
+    databaseConnection.setHostname(databaseMeta.getHostname() );
+    databaseConnection.setDatabaseName( databaseMeta.getDatabaseName() );
+    databaseConnection.setDatabasePort( databaseMeta.getDatabasePortNumberString() );
+    databaseConnection.setUsername( databaseMeta.getUsername() );
+    databaseConnection.setPassword( databaseMeta.getPassword() );
+    databaseConnection.setInformixServername( databaseMeta.getServername() );
+    databaseConnection.setDataTablespace( databaseMeta.getDataTablespace() );
+    databaseConnection.setIndexTablespace( databaseMeta.getIndexTablespace() );
+    databaseConnection.setConnectSql( databaseMeta.getConnectSQL() );
+    databaseConnection.setInitialPoolSize( databaseMeta.getInitialPoolSize() );
+    databaseConnection.setMaximumPoolSize( databaseMeta.getMaximumPoolSize() );
+    databaseConnection.setUsingConnectionPool( databaseMeta.isUsingConnectionPool() );
+    databaseConnection.setForcingIdentifiersToLowerCase( databaseMeta.isForcingIdentifiersToLowerCase() );
+    databaseConnection.setForcingIdentifiersToUpperCase( databaseMeta.isForcingIdentifiersToUpperCase() );
+    databaseConnection.setQuoteAllFields( databaseMeta.isQuoteAllFields() );
+    databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator( databaseMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
+    
+    Map<String,String> attributeMap = new HashMap<String, String>();
+    
+    for(Entry<Object, Object> entry:databaseMeta.getAttributes().entrySet()) {
+      attributeMap.put( (String)entry.getKey(), (String)entry.getValue() );
+    }
+    databaseConnection.setAttributes(attributeMap);
+    
+    Map<String,String> connectionPoolingMap = new HashMap<String, String>();
+    for(Entry<Object, Object> entry:databaseMeta.getConnectionPoolingProperties().entrySet()) {
+      connectionPoolingMap.put( (String)entry.getKey(), (String)entry.getValue() );
+    }
+    databaseConnection.setConnectionPoolingProperties(connectionPoolingMap);
+    
+    databaseConnection.setExtraOptions(databaseMeta.getExtraOptions());
+
+    return databaseConnection;
+
+  }
+  
   public IDatabaseConnection dataNodeToDatabaseConnection( final Serializable id, final String name,
       final DataNode rootNode ) {
     IDatabaseConnection databaseConnection = new DatabaseConnection();
@@ -151,6 +210,14 @@ public class DatabaseHelper {
       databaseConnection.setId( id.toString() );
     }
     String accessType = getString( rootNode, PROP_CONTYPE );
+
+    // This is a special case with some PDI connections
+    if(accessType != null && accessType.contains( "Native")) {
+      accessType = DatabaseAccessType.NATIVE.getName();
+    } else if(accessType != null && accessType.equals(", ")) {
+      accessType = DatabaseAccessType.JNDI.getName();
+    }
+    
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( getString( rootNode, PROP_HOST_NAME ) );

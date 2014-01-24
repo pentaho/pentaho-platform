@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
+import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;

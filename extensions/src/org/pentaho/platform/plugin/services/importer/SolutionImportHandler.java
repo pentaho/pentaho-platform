@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -211,7 +212,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
         for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
           try {
-            datasourceMgmtSvc.createDatasource( databaseConnection );
+            IDatabaseConnection existingDBConnection = datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName()); 
+            if(existingDBConnection != null && existingDBConnection.getName() != null) {
+              databaseConnection.setId( existingDBConnection.getId() );
+              datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
+            } else {
+              datasourceMgmtSvc.createDatasource( databaseConnection );  
+            }
           } catch ( Exception e ) {
             e.printStackTrace();
           }

@@ -17,6 +17,33 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,29 +66,6 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository
@@ -151,6 +155,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
         parameterMap.put( param.getName(), param.getValue() );
       }
 
+      parameterMap = handlePDIScheduling( file, parameterMap );
+      
       if ( hasInputFile ) {
         SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );
         String outputFile = outputPathResolver.resolveOutputFilePath();
@@ -560,5 +566,18 @@ public class SchedulerResource extends AbstractJaxRSResource {
     jobParams.add( new JobScheduleParam( "param4", new Date() ) );
     jobRequest.setJobParameters( jobParams );
     return jobRequest;
+  }
+  
+  private static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file, HashMap<String, Serializable> parameterMap ) {
+    if ( file != null ) {
+      if ( "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) ) ) {
+        parameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
+        parameterMap.put( "transformation", FilenameUtils.getBaseName( file.getPath() ) );
+      } else if ( "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) ) ) {
+        parameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
+        parameterMap.put( "job", FilenameUtils.getBaseName( file.getPath() ) );
+      }
+    }
+    return parameterMap;
   }
 }

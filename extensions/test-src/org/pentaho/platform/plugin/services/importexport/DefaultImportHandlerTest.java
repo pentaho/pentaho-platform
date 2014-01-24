@@ -18,21 +18,6 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import junit.framework.TestCase;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.RepositoryUtils;
-import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
-import org.pentaho.test.platform.repository2.unified.EmptyUnifiedRepository;
-import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
-import org.pentaho.test.platform.repository2.unified.UnmodifiableRepository;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,6 +29,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.RepositoryUtils;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.EmptyUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.UnmodifiableRepository;
 
 /**
  * Class Description
