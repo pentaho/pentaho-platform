@@ -19,7 +19,7 @@ package org.pentaho.platform.config;
 
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.drools.core.util.StringUtils;
+import org.drools.util.StringUtils;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.slf4j.Logger;
