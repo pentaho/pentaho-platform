@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -155,7 +156,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
         parameterMap.put( param.getName(), param.getValue() );
       }
 
-      parameterMap = handlePDIScheduling( file, parameterMap );
+      if( isPdiFile( file ) ){
+    	  parameterMap = handlePDIScheduling( file, parameterMap );
+      }
       
       if ( hasInputFile ) {
         SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );
@@ -569,15 +572,42 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
   
   private static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file, HashMap<String, Serializable> parameterMap ) {
-    if ( file != null ) {
-      if ( "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) ) ) {
-        parameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
-        parameterMap.put( "transformation", FilenameUtils.getBaseName( file.getPath() ) );
-      } else if ( "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) ) ) {
-        parameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
-        parameterMap.put( "job", FilenameUtils.getBaseName( file.getPath() ) );
-      }
+    
+	  if ( file != null && isPdiFile( file ) ) {
+      
+		  HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>(); 
+		  Map<String, String> pdiParameterMap = new HashMap<String, String>();
+		  convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
+      
+		  String type = isTransformation( file ) ? "transformation" : "job";
+		  convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
+      
+	      Iterator it = parameterMap.keySet().iterator();
+      
+	      while ( it.hasNext() ) {
+	
+	          String param = (String)it.next();
+	
+	          if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
+	        	  pdiParameterMap.put(param, parameterMap.get( param ).toString() );
+	          }
+	      }
+	      
+	      convertedParameterMap.put("parameters", (Serializable) pdiParameterMap);
+	      return convertedParameterMap;
     }
     return parameterMap;
+  }
+  
+  private static boolean isPdiFile( RepositoryFile file ){
+	  return isTransformation( file ) || isJob( file );
+  }
+  
+  private static boolean isTransformation( RepositoryFile file ){
+	  return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+  }
+
+  private static boolean isJob( RepositoryFile file ){
+	  return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
   }
 }
