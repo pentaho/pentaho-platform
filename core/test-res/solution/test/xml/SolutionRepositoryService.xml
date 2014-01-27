@@ -1055,8 +1055,6 @@
                   localized-name="Pie Chart Data" name="piechart_data.xaction" visible="false"/>
             <file description="piegridchart_data.xaction" isDirectory="false" lastModifiedDate="1260207466000"
                   localized-name="Pie Grid Chart Data" name="piegridchart_data.xaction" visible="false"/>
-            <file description="simpledial.xaction" isDirectory="false" lastModifiedDate="1260207474000"
-                  localized-name="Simple Dial Chart Example" name="simpledial.xaction" visible="true"/>
             <file description="timeserieschart_data.xaction" isDirectory="false" lastModifiedDate="1260207472000"
                   localized-name="Time Series Chart Data" name="timeserieschart_data.xaction" visible="false"/>
             <file description="xychart_data.xaction" isDirectory="false" lastModifiedDate="1260207472000"
