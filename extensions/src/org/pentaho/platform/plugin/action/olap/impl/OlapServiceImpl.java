@@ -231,6 +231,7 @@ public class OlapServiceImpl implements IOlapService {
   protected void resetCache( IPentahoSession session ) {
     final Lock writeLock = cacheLock.writeLock();
     try {
+      writeLock.lock();
       final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
       cacheMgr.clearRegionCache( CATALOG_CACHE_REGION );
     } finally {
