@@ -208,22 +208,45 @@ public class ActionAdapterQuartzJob implements Job {
           OutputStream stream = streamProvider.getOutputStream();
           if ( stream instanceof ISourcesStreamEvents ) {
             ( (ISourcesStreamEvents) stream ).addListener( new IStreamListener() {
-              public void fileCreated( String filePath ) {
-                IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
-                RepositoryFile sourceFile = repo.getFile( filePath );
-                // add metadata
-                Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
-                String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-                metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
-                repo.setFileMetadata( sourceFile.getId(), metadata );
-                // send email
-                SimpleRepositoryFileData data =
-                    repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
-                try {
-                  sendEmail( actionParams, filePath, data );
-                } catch ( Throwable t ) {
-                  log.warn( t.getMessage(), t );
-                }
+              public void fileCreated( final String filePath ) {
+                // BISERVER-10544: spawn a new Thread (to prevent blocking) and create a new Callable (for auth)
+                Runnable r = new Runnable() {
+                  public void run() {
+                    try {
+                      Callable<Void> c = new Callable<Void>() {
+                        public Void call() throws Exception {
+                          IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+                          RepositoryFile sourceFile = repo.getFile( filePath );
+                          // add metadata
+                          Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
+                          String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+                          metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
+                          repo.setFileMetadata( sourceFile.getId(), metadata );
+                          // send email
+                          SimpleRepositoryFileData data =
+                              repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
+                          try {
+                            sendEmail( actionParams, filePath, data );
+                          } catch ( Throwable t ) {
+                            log.warn( t.getMessage(), t );
+                          }
+                          return null;
+                        }
+                      };
+                      if ( ( actionUser == null ) || ( actionUser.equals( "system session" ) ) ) { //$NON-NLS-1$
+                        // For now, don't try to run quartz jobs as authenticated if the user
+                        // that created the job is a system user. See PPP-2350
+                        SecurityHelper.getInstance().runAsAnonymous( c );
+                      } else {
+                        SecurityHelper.getInstance().runAsUser( actionUser, c);
+                      }
+                    } catch ( Exception e ) {
+                      log.warn( e.getMessage(), e );
+                    }
+                  }
+                };
+                Thread t = new Thread( r );
+                t.start();
               }
             } );
           }
