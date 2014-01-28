@@ -200,21 +200,37 @@ public class ActionAdapterQuartzJob implements Job {
           OutputStream stream = streamProvider.getOutputStream();
           if (stream instanceof ISourcesStreamEvents) {
             ((ISourcesStreamEvents) stream).addListener(new IStreamListener() {
-              public void fileCreated(String filePath) {
-                IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
-                RepositoryFile sourceFile = repo.getFile(filePath);
-                // add metadata
-                Map<String, Serializable> metadata = repo.getFileMetadata(sourceFile.getId());
-                String lineageId = (String) params.get(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
-                metadata.put(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId);
-                repo.setFileMetadata(sourceFile.getId(), metadata);
-                // send email
-                SimpleRepositoryFileData data = repo.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
-                try {
-                  sendEmail(actionParams, filePath, data);
-                } catch (Throwable t) {
-                  log.warn(t.getMessage(), t);
-                }
+              public void fileCreated(final String filePath) {
+                Runnable r = new Runnable() {
+                  public void run() {
+                    try {
+                      SecurityHelper.getInstance().runAsUser( actionUser, new Callable<Boolean>() {
+
+                        public Boolean call() throws Exception {
+                          IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+                          RepositoryFile sourceFile = repo.getFile( filePath );
+                          // add metadata
+                          Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
+                          String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+                          metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
+                          repo.setFileMetadata( sourceFile.getId(), metadata );
+                          // send email
+                          SimpleRepositoryFileData data =
+                              repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
+                          try {
+                            sendEmail( actionParams, filePath, data );
+                          } catch ( Throwable t ) {
+                            log.warn( t.getMessage(), t );
+                          }
+                          return false;
+                        }
+                      });
+                    } catch (Exception e) {
+                    }
+                  }
+                };
+                Thread t = new Thread(r);
+                t.start();
               }
             });
           }
