@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.engine.security;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -285,11 +286,29 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public Authentication createAuthentication(String principalName) {
+    
+    //get 'anonymousUser' defined name from pentaho.xml's <anonymous-authentication> block
+    String anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$   
+    
     userDetailsService = getUserDetailsService();
     userRoleListService = getUserRoleListService();
     
     UserDetails userDetails = userDetailsService.loadUserByUsername(principalName);
-    List<String> roles = userRoleListService.getRolesForUser(null,principalName);
+    List<String> roles = new ArrayList<String>();
+
+    // anonymousUser gets its roles from session
+    if( anonymousUser.equals( principalName ) ){
+
+      //get 'anonymous' defined role from pentaho.xml's <anonymous-authentication> block
+      String anonymousRole = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-role", "Anonymous" ); //$NON-NLS-1$//$NON-NLS-2$
+      roles.add( anonymousRole );
+
+    }else{
+
+      // default (standard) role fetching via IUserRoleListService
+      roles = userRoleListService.getRolesForUser(null,principalName);
+
+    }
     
     if (SecurityHelper.logger.isDebugEnabled()) {
       SecurityHelper.logger.debug("rolesForUser from roleListService:" + roles); //$NON-NLS-1$
