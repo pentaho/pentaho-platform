@@ -73,6 +73,13 @@ public class PropertiesFileConfiguration implements IConfiguration {
 
   }
 
+  /**
+   * 20140121/PM - Updated to back up original file with timestamp for historical
+   * rollback purposes
+   *
+   * @param newProperties
+   * @throws IOException
+   */
   @Override
   public void update(Properties  newProperties) throws IOException {
 
@@ -81,6 +88,11 @@ public class PropertiesFileConfiguration implements IConfiguration {
     }
 
     synchronized (properties){
+      // first back up original property file
+      // use unix time for timestamp and append to filename
+      long unixTime = System.currentTimeMillis() / 1000L;
+      properties.store(new FileOutputStream(propFile + "." + String.valueOf(unixTime)), "");
+
       properties.clear();
       properties.putAll(newProperties);
     }

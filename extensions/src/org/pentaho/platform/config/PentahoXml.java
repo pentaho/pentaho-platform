@@ -17,6 +17,7 @@
 package org.pentaho.platform.config;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.XMLWriter;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.config.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -209,5 +211,22 @@ public class PentahoXml {
   public Document getDocument() {
     return document;
   }
-  
+
+  /**
+   * Write this XML Document to the provided path
+   */
+  public boolean write( String path ){
+      try{
+          XMLWriter writer = new XMLWriter(
+                  new FileWriter( path )
+          );
+          writer.write(document);
+          writer.close();
+      }
+      catch( IOException e ){
+          return false;
+      }
+
+      return true;
+  }
 }
