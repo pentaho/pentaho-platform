@@ -20,6 +20,7 @@ package org.pentaho.platform.security.policy.rolebased;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A simple way to group two related pieces of info together. The caller receives this all at once.
@@ -38,10 +39,13 @@ public class RoleBindingStruct {
    */
   public Map<String, List<String>> bindingMap;
 
-  public RoleBindingStruct( Map<String, String> logicalRoleNameMap, Map<String, List<String>> bindingMap ) {
+  public Set<String> immutableRoles;
+
+  public RoleBindingStruct( Map<String, String> logicalRoleNameMap, Map<String, List<String>> bindingMap, Set<String> immutableRoles ) {
     super();
     this.logicalRoleNameMap = logicalRoleNameMap;
     this.bindingMap = bindingMap;
+    this.immutableRoles = immutableRoles;
   }
 
 }
