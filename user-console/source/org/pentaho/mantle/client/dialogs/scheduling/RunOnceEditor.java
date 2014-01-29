@@ -20,15 +20,18 @@ package org.pentaho.mantle.client.dialogs.scheduling;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.CaptionPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
 import org.pentaho.gwt.widgets.client.controls.DatePickerEx;
 import org.pentaho.gwt.widgets.client.controls.TimePicker;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil;
+import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.Date;
 
@@ -49,6 +52,8 @@ public class RunOnceEditor extends VerticalPanel implements IChangeHandler {
   private static final String DEFAULT_START_MINUTE = "00"; //$NON-NLS-1$
   private static final TimeUtil.TimeOfDay DEFAULT_TIME_OF_DAY = TimeUtil.TimeOfDay.AM;
   private ICallback<IChangeHandler> onChangeHandler = null;
+  private final MessageDialogBox errorBox =
+      new MessageDialogBox( Messages.getString( "error" ), "", false, false, true );
 
   public RunOnceEditor( final TimePicker startTimePicker ) {
     setWidth( "100%" ); //$NON-NLS-1$
@@ -86,6 +91,10 @@ public class RunOnceEditor extends VerticalPanel implements IChangeHandler {
   }
 
   public void setStartDateError( String errorMsg ) {
+    if ( errorMsg != null && !errorBox.isShowing() ) {
+      errorBox.setContent( new Label( errorMsg ) );
+      errorBox.center();
+    }
     // startDateLabel.setErrorMsg( errorMsg );
   }
 
