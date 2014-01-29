@@ -963,6 +963,10 @@ a:active, a:hover {
   background-color: white;
 }
 
+.gwt-MenuBar-vertical tr:hover .gwt-MenuItem-selected, .gwt-MenuBar-vertical tr:hover .subMenuIcon-selected {
+    background-color: #cbefa3;
+}
+
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem:hover {
   background-color: #d7e9cd;
 }
