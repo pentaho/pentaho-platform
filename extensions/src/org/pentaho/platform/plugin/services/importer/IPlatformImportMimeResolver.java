@@ -23,6 +23,9 @@ package org.pentaho.platform.plugin.services.importer;
  * User: nbaker Date: 6/18/12
  */
 public interface IPlatformImportMimeResolver {
+  
+  void addExtensionForMime( String extension, String mimeType );
+  
   String resolveMimeForBundle( IPlatformImportBundle bundle );
 
   String resolveMimeForFileName( String fileName );

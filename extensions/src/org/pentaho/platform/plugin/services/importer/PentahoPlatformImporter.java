@@ -63,8 +63,18 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   /**
    * To be consumed mainly by platform plugins who want to treat importing artifacts different.
    * */
-  public void addHandler( String key, IPlatformImportHandler handler ) {
-    this.importHandlers.put( key, handler );
+  public void addHandler( String mimeType, IPlatformImportHandler handler ) {
+    this.importHandlers.put( mimeType, handler );
+  }  
+  
+  @Override
+  public void addHandler( String mimeTypes[], String extensions[], IPlatformImportHandler handler ) {
+    for ( String mimeType : mimeTypes ) {
+      this.importHandlers.put( mimeType, handler );
+      for ( String extension : extensions ) {
+        this.mimeResolver.addExtensionForMime( extension, mimeType );
+      }
+    }
   }
 
   /**
