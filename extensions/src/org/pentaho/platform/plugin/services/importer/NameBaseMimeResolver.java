@@ -36,6 +36,11 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
   }
 
   @Override
+  public void addExtensionForMime( String extension, String mimeType ) {
+    extensionToMimeMap.put( extension, mimeType );
+  }
+  
+  @Override
   public String resolveMimeForBundle( IPlatformImportBundle bundle ) {
     return ( bundle.getMimeType() != null ) ? bundle.getMimeType() : extensionToMimeMap.get( extractExtension( bundle
         .getName() ) );
