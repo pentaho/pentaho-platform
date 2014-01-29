@@ -84,7 +84,7 @@
       <ref local="allUsernamesSearch" />
     </property>
     <property name="userDetailsService">
-      <ref bean="ldapUserDetailsService" />
+    	<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
     </property>
     <property name="usernamesInRoleSearch">
       <ref local="usernamesInRoleSearch" />
