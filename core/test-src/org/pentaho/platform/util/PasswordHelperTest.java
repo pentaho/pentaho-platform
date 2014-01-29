@@ -28,5 +28,7 @@ public class PasswordHelperTest {
     String drudia = "12345";
     Assert.assertEquals( contra, helper.getPassword( "ENC:dXVkZGxybHJiYXM=" ) );
     Assert.assertEquals( drudia, helper.getPassword( drudia ) );
+    Assert.assertEquals( "", helper.getPassword( "" ) );
+    Assert.assertNull(helper.getPassword( null ) );
   }
 }
