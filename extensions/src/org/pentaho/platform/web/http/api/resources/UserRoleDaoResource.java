@@ -528,7 +528,8 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
     for ( Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet() ) {
       systemRolesMap.getAssignments().add(
-          new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue() ) );
+          new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()
+              , roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) ) );
     }
     return systemRolesMap;
   }

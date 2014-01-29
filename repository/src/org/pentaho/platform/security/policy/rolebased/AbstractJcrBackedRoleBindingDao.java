@@ -304,7 +304,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
 
   public RoleBindingStruct getRoleBindingStruct( Session session, ITenant tenant, String locale )
     throws RepositoryException {
-    return new RoleBindingStruct( getMapForLocale( locale ), getRoleBindings( session, tenant ) );
+    return new RoleBindingStruct( getMapForLocale( locale ), getRoleBindings( session, tenant ), new HashSet<String>( immutableRoleBindingNames.keySet() ) );
   }
 
   protected Map<String, String> getMapForLocale( final String localeString ) {
