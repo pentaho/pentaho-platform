@@ -34,19 +34,23 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
 public class MondrianCatalogRepositoryHelper {
 
   public static final String ETC_MONDRIAN_JCR_FOLDER =
-      RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
+    ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
   public static final String ETC_OLAP_SERVERS_JCR_FOLDER =
-      RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "olap-servers";
+    ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
 
   private IUnifiedRepository repository;
 
@@ -219,7 +223,7 @@ public class MondrianCatalogRepositoryHelper {
 
     if ( serverNode != null ) {
       repository.deleteFile(
-        serverNode,
+        serverNode.getId(),
         "Deleting olap server: "
         + name );
     }
@@ -346,8 +350,13 @@ public class MondrianCatalogRepositoryHelper {
       this.name = data.getNode().getProperty( "name" ).getString();
       this.className = data.getNode().getProperty( "className" ).getString();
       this.URL = data.getNode().getProperty( "URL" ).getString();
-      this.user = data.getNode().getProperty( "user" ).getString();
-      this.password = data.getNode().getProperty( "password" ).getString();
+
+      final DataProperty userProp = data.getNode().getProperty( "user" );
+      this.user = userProp == null ? null : userProp.toString();
+
+      final DataProperty passwordProp = data.getNode().getProperty( "user" );
+      this.password = passwordProp == null ? null : passwordProp.toString();
+
       this.properties = new Properties();
 
       final String propertiesXml =
@@ -475,18 +484,16 @@ public class MondrianCatalogRepositoryHelper {
       path = makePath( catalogName );
     }
 
+    final IPentahoSession origSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession(session);
     try {
-      return SecurityHelper.getInstance().runAsUser(
-        session.getName(),
-        new Callable<Boolean>() {
-          public Boolean call() throws Exception {
-            return repository.hasAccess(
-              path,
-              perms );
-          }
-        } );
+      return repository.hasAccess(
+        path,
+        perms );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
+    } finally {
+      PentahoSessionHolder.setSession(origSession);
     }
   }
 }
