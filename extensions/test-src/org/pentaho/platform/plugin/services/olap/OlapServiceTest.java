@@ -402,7 +402,7 @@ public class OlapServiceTest extends TestCase {
 
     // Check if the repo was modified.
     verify( repository ).deleteFile(
-      argThat( isLikeFile( makeFileObject( testServerPath ) ) ),
+      eq( makeIdObject( testServerPath ) ),
       anyString() );
 
     // Now check for non-existent catalogs
