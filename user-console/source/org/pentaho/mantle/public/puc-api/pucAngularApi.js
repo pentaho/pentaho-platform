@@ -10,7 +10,7 @@ var deps = [
 	'common-ui/angular-resource'
 ];
 
-pen.define(deps, function(AnimatedAngularPluginHandler, ring) {
+define(deps, function(AnimatedAngularPluginHandler, ring) {
 
 	/*
 	 * Define future development extension of AnimatedAngularPluginHandler

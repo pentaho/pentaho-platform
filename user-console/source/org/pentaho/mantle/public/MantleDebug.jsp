@@ -75,7 +75,7 @@
     <!-- Providing computed Locale for session -->
     var SESSION_LOCALE = 'en';
     if (typeof(pen) != 'undefined' && pen.define) {
-      pen.define('Locale', {locale: 'en'})
+      define('Locale', {locale: 'en'})
     }
     ;
     <!-- Injecting web resources defined in by plugins as external-resources for: global-->

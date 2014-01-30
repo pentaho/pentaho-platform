@@ -15,18 +15,20 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-pen.define([
+define([
   "js/browser.fileButtons",
   "js/browser.folderButtons",
   "js/browser.trashButtons",
   "js/browser.trashItemButtons",
   "js/dialogs/browser.dialog.rename.js",
+  "common-ui/util/spin.min",
+  "common-ui/util/PentahoSpinner",
+  "js/browser.templates",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
-  "js/browser.templates"
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog, Spinner, spin, templates) {
 
 
   if(window.top.mantle_isBrowseRepoDirty == undefined){
@@ -134,7 +136,7 @@ pen.define([
   FileBrowser.redraw = function (initialPath) {
     var myself = this;
 
-    pen.require(["common-ui/util/PentahoSpinner"], function (spin) {
+    
       myself.fileBrowserModel = new FileBrowserModel({
         spinConfig: spin,
         openFileHandler: myself.openFileHandler,
@@ -149,7 +151,6 @@ pen.define([
         el: myself.$container
 
       });
-    });
   };
 
   FileBrowser.openFolder = function (path) {
@@ -667,10 +668,8 @@ pen.define([
 
       myself.$el.empty();
 
-      //require structure template
-      pen.require(["js/browser.templates"], function (templates) {
         myself.$el.append($(templates.structure({})));
-      });
+
     },
 
     initializeOptions: function () {
@@ -732,9 +731,7 @@ pen.define([
       obj.i18n = jQuery.i18n;
 
       //require buttons header template
-      pen.require(["js/browser.templates"], function (templates) {
         $buttonsContainer.prepend($(templates.buttonsHeader(obj)));
-      });
 
     },
 
@@ -762,9 +759,8 @@ pen.define([
       }
 
       //require folders header template
-      pen.require(["js/browser.templates"], function (templates) {
         $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
-      });
+    
 
     },
 
@@ -786,9 +782,8 @@ pen.define([
       }
 
       //require files header template
-      pen.require(["js/browser.templates"], function (templates) {
         $folderBrowserContainer.prepend($(templates.fileBrowserHeader(obj)));
-      });
+    
     },
 
     updateButtons: function () {
@@ -818,8 +813,6 @@ pen.define([
 
       var model = this.model; // trap model
 
-      //require buttons template
-      pen.require(["js/browser.templates"], function (templates) {
         $buttonsContainer.append($(templates.buttons(buttonsType)));
 
         // add onClick handler to each button
@@ -856,7 +849,6 @@ pen.define([
               event.stopPropagation();
             }
           });
-        });
 
       });
     },
@@ -908,7 +900,6 @@ pen.define([
 
 
       //require folders template
-      pen.require(["js/browser.templates"], function (templates) {
         //stop spinner
         myself.model.set("runSpinner", false);
 
@@ -957,7 +948,6 @@ pen.define([
         myself.setFolder();
 
         myself.updateDescriptions();
-      });
 
 
     },
@@ -1066,7 +1056,6 @@ pen.define([
           data = myself.model.get("data");
 
       //require file list template
-      pen.require(["js/browser.templates"], function (templates) {
         myself.$el.empty().append(templates.files(data));
 
         if (myself.$el.children().length > 0) {
@@ -1086,8 +1075,6 @@ pen.define([
         }
 
         myself.updateDescriptions();
-      });
-
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);

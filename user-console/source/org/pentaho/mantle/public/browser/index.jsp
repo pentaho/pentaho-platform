@@ -75,7 +75,7 @@
   var FileBrowser = null;
 
   function initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish) {
-    pen.require(["js/browser"], function (pentahoFileBrowser) {
+    require(["js/browser"], function (pentahoFileBrowser) {
       FileBrowser = pentahoFileBrowser;
       FileBrowser.setOpenFileHandler(openRepositoryFile);
       FileBrowser.setContainer($("#fileBrowser"));

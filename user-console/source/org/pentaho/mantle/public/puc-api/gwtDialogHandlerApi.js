@@ -5,7 +5,7 @@
 
 var deps = ['mantle/puc-api/pucAngularPlugin', 'common-ui/jquery'];
 
-pen.define(deps, function(PUCAngularPlugin, $) {
+define(deps, function(PUCAngularPlugin, $) {
 
 	var routeMap = {};
 	var fullScreenCssName = "full-screen";

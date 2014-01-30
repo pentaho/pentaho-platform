@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-pen.define(["common-ui/util/PentahoSpinner"], function (spin) {
+define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (spinner, Spinner) {
 
   var local = {
     name: "favorites",
@@ -177,7 +177,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function (spin) {
     },
 
     showWaiting: function () {
-      var config = spin.getLargeConfig();
+      var config = spinner.getLargeConfig();
       config.color = "#BBB";
       this.spinner = new Spinner(config);
       var s = this.spinner.spin();

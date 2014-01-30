@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-pen.define(["common-ui/handlebars"],
+define(["common-ui/handlebars"],
     function () {
       var templates = {};
 
