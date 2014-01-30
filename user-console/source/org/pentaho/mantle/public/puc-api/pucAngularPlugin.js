@@ -4,7 +4,7 @@ var deps = [
 	'common-ui/ring'
 ];
 
-pen.define(deps, function(AnimatedAngularPlugin, PUCAngularApi, ring) {
+define(deps, function(AnimatedAngularPlugin, PUCAngularApi, ring) {
 
 	var PUCAngularPlugin = ring.create([AnimatedAngularPlugin], {
 		init : function(config) {

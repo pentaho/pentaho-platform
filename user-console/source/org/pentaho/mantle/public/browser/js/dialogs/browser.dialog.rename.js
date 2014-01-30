@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-pen.define([
+define([
   "js/browser.dialogs.js",
   "js/browser.dialogs.templates.js",
   "js/dialogs/browser.dialog.rename.templates",

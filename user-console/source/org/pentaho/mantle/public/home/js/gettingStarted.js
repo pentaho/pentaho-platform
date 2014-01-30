@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-pen.define([
+define([
   "common-ui/util/ContextProvider",
   "common-ui/util/BootstrappedTabLoader",
   "common-ui/util/HandlebarsCompiler"

@@ -119,7 +119,7 @@
     }
 
     // Require Angular Plugin Initialization
-    pen.require(['mantle/puc-api/pucAngularApi']);
+    require(['mantle/puc-api/pucAngularApi']);
   </script>
 
 </head>
@@ -146,7 +146,7 @@
 <script type="text/javascript">
   document.getElementById("pucWrapper").style.position = "absolute";
   document.getElementById("pucWrapper").style.left = "-5000px";
-  pen.require(["common-ui/util/BusyIndicator"], function (busy) {
+  require(["common-ui/util/BusyIndicator"], function (busy) {
 
     busy.show("<%= properties.getString("pleaseWait") %>", "<%= properties.getString("loadingConsole") %>", "pucPleaseWait");
 

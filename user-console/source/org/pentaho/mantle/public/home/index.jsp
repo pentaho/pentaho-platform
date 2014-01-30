@@ -67,7 +67,7 @@
   <!-- Require Home -->
   <script type="text/javascript">
     var Home = null;
-    pen.require(["home/home",
+    require(["home/home", 
       "common-ui/util/ContextProvider"], function (pentahoHome, ContextProvider) {
       Home = pentahoHome;
 
@@ -84,8 +84,7 @@
           post: function (context, loadedMap) {
             context.i18n = loadedMap;
           }
-        }
-      ];
+      }];
 
       // Define permissions
       ContextProvider.addProperty("canCreateContent", <%=canCreateContent%>);

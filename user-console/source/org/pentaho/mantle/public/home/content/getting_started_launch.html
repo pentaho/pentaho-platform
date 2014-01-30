@@ -13,8 +13,8 @@
   <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
 
   <script type="text/javascript">
-    pen.require(["common-ui/util/HandlebarsCompiler",
-      "common-ui/util/ContextProvider"], function (HandlebarsCompiler, ContextProvider) {
+    require(["common-ui/util/HandlebarsCompiler",
+      "common-ui/util/ContextProvider", "home/launch"], function (HandlebarsCompiler, ContextProvider, LaunchWidget) {
 
       // Define properties for loading context
       var contextConfig = [
@@ -38,9 +38,7 @@
           jElement.parent().append($(compiledContent));
         });
 
-        pen.require(["home/launch"], function (launchWidget) {
-          launchWidget.init();
-        });
+        LaunchWidget.init();
 
       }, contextConfig);
     });

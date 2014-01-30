@@ -15,11 +15,11 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-pen.define([
+define([
   "common-ui/util/HandlebarsCompiler",
   "common-ui/bootstrap",
-  "common-ui/jquery"
-], function (HandlebarsCompiler) {
+  "common-ui/jquery", "home/gettingStarted", "home/createNew"
+], function (HandlebarsCompiler, _bootstrap, _jquery, gettingStarted, createNew) {
 
 
   function init(context) {
@@ -62,13 +62,11 @@ pen.define([
 
     // Require getting-started widget if it has not been disabled
     if ($("#getting-started").length > 0) {
-      pen.require(["home/gettingStarted"], function (gettingStarted) {
         gettingStarted.init();
-      });
     }
 
     // Handle the new popover menu. If we add another, make generic
-    pen.require(["home/createNew"], function (createNew) {
+    
       createNew.buildContents(createNewConfig, function ($contents) {
         var result = "";
         for (var i = 0; i < $contents.length; i++) {
@@ -76,7 +74,6 @@ pen.define([
         }
         $("#btnCreateNewContent").append($(result));
       });
-    });
 
     $("#btnCreateNew").popover({
       'html': true,
