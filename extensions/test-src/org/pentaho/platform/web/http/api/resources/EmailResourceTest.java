@@ -20,11 +20,18 @@ package org.pentaho.platform.web.http.api.resources;
 
 import junit.framework.TestCase;
 import org.pentaho.platform.api.email.IEmailConfiguration;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.util.List;
 
 /**
  * Class Description
@@ -36,10 +43,14 @@ public class EmailResourceTest extends TestCase {
   private File defaultConfigFile = null;
   private final int OK_STATUS = Response.ok().build().getStatus();
   private final EmailConfiguration BLANK_CONFIG = new EmailConfiguration();
-
+  private MicroPlatform mp;
   @Override
   protected void setUp() throws Exception {
     // Setup the temp email config file
+    mp = new MicroPlatform();
+    mp.defineInstance( IAuthorizationPolicy.class, new TestAuthorizationPolicy() );
+    mp.start();
+
     defaultConfigFile = File.createTempFile( "email_config_", ".xml" );
     this.emailResource = new EmailResource( new EmailService( defaultConfigFile ) );
   }
@@ -81,5 +92,21 @@ public class EmailResourceTest extends TestCase {
 
   public void testSendEmailTest() throws Exception {
 
+  }
+  
+  class TestAuthorizationPolicy implements IAuthorizationPolicy {
+
+    @Override
+    public boolean isAllowed( String actionName ) {
+      // TODO Auto-generated method stub
+      return true;
+    }
+
+    @Override
+    public List<String> getAllowedActions( String actionNamespace ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
   }
 }
