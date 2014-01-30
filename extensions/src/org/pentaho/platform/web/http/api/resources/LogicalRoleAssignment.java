@@ -24,14 +24,16 @@ public class LogicalRoleAssignment {
 
   String roleName;
   ArrayList<String> logicalRoles = new ArrayList<String>();
+  boolean immutable;
 
   public LogicalRoleAssignment() {
 
   }
 
-  public LogicalRoleAssignment( String roleName, List<String> logicalRoleAssignments ) {
+  public LogicalRoleAssignment( String roleName, List<String> logicalRoleAssignments, boolean immutable ) {
     this.roleName = roleName;
     this.logicalRoles.addAll( logicalRoleAssignments );
+    this.immutable = immutable;
   }
 
   public String getRoleName() {
@@ -53,5 +55,13 @@ public class LogicalRoleAssignment {
         this.logicalRoles.addAll( logicalRoles );
       }
     }
+  }
+
+  public boolean isImmutable() {
+    return immutable;
+  }
+
+  public void setImmutable( boolean immutable ) {
+    this.immutable = immutable;
   }
 }

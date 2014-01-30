@@ -19,6 +19,7 @@
 package org.pentaho.platform.security.policy.rolebased.ws;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * JAXB-safe version of {@code RoleBindingStruct}. ({@code RoleBindingStruct} has contains a {@code Map}.)
@@ -31,4 +32,6 @@ public class JaxbSafeRoleBindingStruct {
   public List<StringKeyStringValueMapEntry> logicalRoleNameMapEntries;
 
   public List<StringKeyListValueMapEntry> bindingMapEntries;
+
+  public Set<String> immutableRoles;
 }

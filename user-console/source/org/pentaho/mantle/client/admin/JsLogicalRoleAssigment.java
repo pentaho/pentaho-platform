@@ -29,4 +29,7 @@ public class JsLogicalRoleAssigment extends JavaScriptObject {
   public final native JsArrayString getAssignedLogicalRoles() /*-{ return this.logicalRoles; }-*/; //
 
   public final native String getRoleName() /*-{ return this.roleName; }-*/; //
+
+  public final native boolean isImmutable() /*-{ return this.immutable != undefined
+      && this.immutable == "true"; }-*/; //
 }

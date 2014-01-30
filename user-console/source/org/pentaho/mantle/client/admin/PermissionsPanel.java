@@ -40,8 +40,10 @@ import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PermissionsPanel extends VerticalPanel {
 
@@ -49,6 +51,7 @@ public class PermissionsPanel extends VerticalPanel {
   private Map<String, List<String>> masterRoleMap = new HashMap<String, List<String>>();
   private Map<String, List<String>> newRoleAssignments = new HashMap<String, List<String>>();
   private ListBox rolesListBox;
+  private Set<String> immutableRoles = new HashSet<String>();
 
   public PermissionsPanel( ListBox rolesListBox ) {
     add( new Label( Messages.getString( "absCaption" ) ) );
@@ -78,6 +81,9 @@ public class PermissionsPanel extends VerticalPanel {
         }
       }
       masterRoleMap.put( roleName, logicalRoles );
+      if ( logicalRoleMap.getRoleAssignments().get( j ).isImmutable() ) {
+        immutableRoles.add( roleName );
+      }
     }
   }
 
@@ -94,6 +100,7 @@ public class PermissionsPanel extends VerticalPanel {
           for ( LogicalRoleInfo logicalRoleInfo : logicalRoles.values() ) {
             logicalRoleInfo.checkBox.setValue( ( logicalRoleAssignments != null )
                 && logicalRoleAssignments.contains( logicalRoleInfo.roleName ) );
+            logicalRoleInfo.checkBox.setEnabled( !immutableRoles.contains( roleName ) );
           }
         }
       }

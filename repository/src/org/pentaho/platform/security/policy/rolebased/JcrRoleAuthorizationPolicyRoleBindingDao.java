@@ -31,10 +31,7 @@ import org.springframework.util.Assert;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An {@link IRoleAuthorizationPolicyRoleBindingDao} implementation that uses JCR. Storage is done using nodes and
@@ -106,7 +103,7 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
   @Override
   public RoleBindingStruct getRoleBindingStruct( final ITenant tenant, final String locale ) {
     if ( ( tenant != null ) && !TenantUtils.isAccessibleTenant( tenant ) ) {
-      return new RoleBindingStruct( new HashMap<String, String>(), new HashMap<String, List<String>>() );
+      return new RoleBindingStruct( new HashMap<String, String>(), new HashMap<String, List<String>>(), new HashSet<String>() );
     }
     return (RoleBindingStruct) jcrTemplate.execute( new JcrCallback() {
       @Override

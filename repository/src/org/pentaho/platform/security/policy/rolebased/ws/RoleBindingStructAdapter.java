@@ -26,8 +26,10 @@ import org.pentaho.platform.util.messages.Messages;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Converts {@code RoleBindingStruct} into JAXB-safe object and vice-versa.
@@ -79,6 +81,9 @@ public class RoleBindingStructAdapter extends XmlAdapter<JaxbSafeRoleBindingStru
         }
         jaxbSafeRoleBindingStruct.bindingMapEntries = jaxbBindingMapEntries;
       }
+      if ( v.immutableRoles != null ) {
+        jaxbSafeRoleBindingStruct.immutableRoles = new HashSet<String>( v.immutableRoles );
+      }
       return jaxbSafeRoleBindingStruct;
     } catch ( Exception e ) {
       logger
@@ -95,6 +100,7 @@ public class RoleBindingStructAdapter extends XmlAdapter<JaxbSafeRoleBindingStru
   public RoleBindingStruct unmarshal( final JaxbSafeRoleBindingStruct v ) throws Exception {
     Map<String, String> logicalRoleNameMap = new HashMap<String, String>();
     Map<String, List<String>> bindingMap = new HashMap<String, List<String>>();
+    Set<String> immutableRoles = new HashSet<String>();
     try {
       if ( v.logicalRoleNameMapEntries != null ) {
         for ( StringKeyStringValueMapEntry jaxbEntry : v.logicalRoleNameMapEntries ) {
@@ -106,7 +112,10 @@ public class RoleBindingStructAdapter extends XmlAdapter<JaxbSafeRoleBindingStru
           bindingMap.put( jaxbEntry.key, jaxbEntry.value );
         }
       }
-      return new RoleBindingStruct( logicalRoleNameMap, bindingMap );
+      if ( v.immutableRoles != null ) {
+        immutableRoles.addAll( v.immutableRoles );
+      }
+      return new RoleBindingStruct( logicalRoleNameMap, bindingMap, immutableRoles );
     } catch ( Exception e ) {
       logger
           .error(
