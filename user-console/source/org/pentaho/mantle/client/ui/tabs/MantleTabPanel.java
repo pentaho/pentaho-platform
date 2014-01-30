@@ -593,17 +593,20 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         closeTab( curpos, true );
       }
     }
-    IFrameTabPanel curPanel = (IFrameTabPanel) getTab( curpos ).getContent();
-    if ( url.contains( curPanel.getUrl() ) ) {
-      closeTab( curpos, true );
-    }
-
-    for ( int i = getTabCount() - 1; i >= 0; i-- ) {
-      curPanel = (IFrameTabPanel) getTab( i ).getContent();
-
+    PentahoTab pt = getTab( curpos );
+    if(pt != null && pt.getContent() != null) {
+      IFrameTabPanel curPanel = (IFrameTabPanel) getTab( curpos ).getContent();
       if ( url.contains( curPanel.getUrl() ) ) {
-        closeTab( i, true );
-        break;
+        closeTab( curpos, true );
+      }
+
+      for ( int i = getTabCount() - 1; i >= 0; i-- ) {
+        curPanel = (IFrameTabPanel) getTab( i ).getContent();
+
+        if ( url.contains( curPanel.getUrl() ) ) {
+          closeTab( i, true );
+          break;
+        }
       }
     }
 
