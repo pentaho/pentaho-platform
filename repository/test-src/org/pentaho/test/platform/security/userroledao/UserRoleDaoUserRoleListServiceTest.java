@@ -45,6 +45,7 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -202,7 +203,7 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
   private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
-
+  private RepositoryFileProxyFactory repositoryFileProxyFactory;
   @BeforeClass
   public static void setUpClass() throws Exception {
     // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
@@ -227,7 +228,8 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     mp.define( ITenant.class, Tenant.class );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleAuthorizationPolicyRoleBindingDao );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-
+    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
+    
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
@@ -718,4 +720,5 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     }
   }
 
+  
 }
