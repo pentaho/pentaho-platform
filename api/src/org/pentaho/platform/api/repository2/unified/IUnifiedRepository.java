@@ -17,14 +17,14 @@
 
 package org.pentaho.platform.api.repository2.unified;
 
-import org.pentaho.platform.api.locale.IPentahoLocale;
-
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+
+import org.pentaho.platform.api.locale.IPentahoLocale;
 
 /**
  * Entry point into the unified repository. The finest grained object that can be read and written to this
@@ -65,7 +65,7 @@ public interface IUnifiedRepository {
    */
   @Deprecated
   RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden );
-  
+
   /**
    * Gets a tree rooted at path.
    * 
@@ -73,7 +73,7 @@ public interface IUnifiedRepository {
    *          Contains the information necessary to process the request.  See the {@link RepositoryRequest} class.
    * @return file or {@code null} if the file does not exist or access is denied
    */
-  RepositoryFileTree getTree( final RepositoryRequest repositoryRequest);
+  RepositoryFileTree getTree( final RepositoryRequest repositoryRequest );
 
   /**
    * Gets file as it was at the given version.
@@ -357,7 +357,7 @@ public interface IUnifiedRepository {
    * @return list of children (never {@code null})
    */
   @Deprecated
-  List<RepositoryFile> getChildren( final Serializable folderId, final String filter);
+  List<RepositoryFile> getChildren( final Serializable folderId, final String filter );
 
   /**
    * @Deprecated
@@ -374,7 +374,7 @@ public interface IUnifiedRepository {
    */
   @Deprecated
   List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles );
-  
+
   /**
    * Returns the children according to the specifications of the RepositoryRequest object
    * 
