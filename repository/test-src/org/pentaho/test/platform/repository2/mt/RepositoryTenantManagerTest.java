@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -314,6 +315,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
 
   private static TransactionTemplate jcrTransactionTemplate;
+  
+  private IUserRoleListService  userRoleListService;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -340,7 +343,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     mp.defineInstance( "authorizationPolicy", authorizationPolicy );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
-
+    mp.define( IUserRoleListService.class, TestUserRoleListService.class );
+    
     // Start the micro-platform
     mp.start();
 
@@ -846,5 +850,60 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     tenantManager.deleteTenant( mainTenant_1 );
     tenantManager.deleteTenant( mainTenant_2 );
     logout();
+  }
+  
+  class TestUserRoleListService implements IUserRoleListService {
+
+    @Override
+    public List<String> getAllRoles() {
+      List<String> roles = new ArrayList<String>();
+      roles.add("Authenticated");
+      roles.add("Administrator");
+      return roles;
+    }
+
+    @Override
+    public List<String> getSystemRoles() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getAllRoles( ITenant tenant ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getAllUsers() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getAllUsers( ITenant tenant ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getUsersInRole( ITenant tenant, String role ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getRolesForUser( ITenant tenant, String username ) {
+      if(username.equals( "admin" )) {
+        List<String> roles = new ArrayList<String>();
+        roles.add("Authenticated");
+        roles.add("Administrator");
+        return roles;
+      } else {
+        List<String> roles = new ArrayList<String>();
+        roles.add("Authenticated");
+        return roles;
+      }
+    }
   }
 }
