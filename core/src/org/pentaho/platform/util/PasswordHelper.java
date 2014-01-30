@@ -37,7 +37,7 @@ public class PasswordHelper {
   }
 
   public String getPassword( String input ) {
-    if ( input.startsWith( "ENC:" ) ) {
+    if ( input != null && input.startsWith( "ENC:" ) ) {
       try {
         return passwordService.decrypt( input.substring( 4 ) );
       } catch ( PasswordServiceException e ) {

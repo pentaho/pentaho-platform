@@ -25,8 +25,12 @@
 
   <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true"/>
 
+
+<!-- **SuperDevMode** == Uncomment this and re-build to get a SuperDevMode compatible build
   <add-linker name="xsiframe"/>
   <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+**SuperDevMode** -->
+
 
   <!-- Specify the app entry point class.                   -->
   <entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>

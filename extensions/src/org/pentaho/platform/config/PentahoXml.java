@@ -21,11 +21,13 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.XMLWriter;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.config.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -209,4 +211,18 @@ public class PentahoXml {
     return document;
   }
 
+  public boolean write( String path ){
+      try{
+          XMLWriter writer = new XMLWriter(
+                  new FileWriter( path )
+          );
+          writer.write(document);
+          writer.close();
+      }
+      catch( IOException e ){
+          return false;
+      }
+
+      return true;
+  }
 }

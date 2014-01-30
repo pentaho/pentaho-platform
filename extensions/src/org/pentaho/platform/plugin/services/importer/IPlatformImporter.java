@@ -33,5 +33,18 @@ public interface IPlatformImporter {
    */
   void importFile( IPlatformImportBundle bundle ) throws PlatformImportException;
 
+  /**
+   * Import the given IPlatformImportBundle into the system.
+   * 
+   * @param mimeTypes This is an array of mimetypes that the handler deals with
+   * @param extensions This is an array of extensions that the handler deals with, typically this is
+   * a fallback for cases where we do not have the mimeType of a file.  An example of this is
+   * when we upload pentaho specific file types via web browser, the extension is used instead of the
+   * mimeType.
+   * @param handler This is the handler that can import content for the provided mimeTypes/extensions
+   * 
+  **/
+  void addHandler( String mimeTypes[], String extensions[], IPlatformImportHandler handler );
+  
   IRepositoryImportLogger getRepositoryImportLogger();
 }
