@@ -24,6 +24,7 @@ import org.olap4j.OlapConnection;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.util.StringUtil;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -61,6 +62,11 @@ public class MDXOlap4jConnection implements IPentahoConnection {
     String url = props.getProperty( "url" );
     String driver = props.getProperty( "driver" );
 
+    // Fetch the user/password out of the properties so we can pass them
+    // as actual JDBC parameters.
+    String user = props.getProperty( "user", null );
+    String password = props.getProperty( "password", null );
+
     try {
       if ( connection != null ) {
         connection.close();
@@ -73,8 +79,17 @@ public class MDXOlap4jConnection implements IPentahoConnection {
         url = connectProperties.toString();
       }
 
+      // Make sure the driver is loaded into the local classloader.
       Class.forName( driver );
-      java.sql.Connection sqlConnection = DriverManager.getConnection( url );
+
+      // Create the connection through JDBC.
+      java.sql.Connection sqlConnection =
+        DriverManager.getConnection(
+          url,
+          user,
+          password);
+
+      // Unwrap into OlapConnection
       connection = sqlConnection.unwrap( org.olap4j.OlapConnection.class );
 
     } catch ( Exception e ) {

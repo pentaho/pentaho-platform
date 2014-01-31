@@ -19,19 +19,32 @@ package org.pentaho.platform.plugin.action.olap;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.PasswordHelper;
 import org.pentaho.platform.util.logging.Logger;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 public class Olap4jSystemListener implements IPentahoSystemListener {
   private List<Properties> olap4jConnectionList;
   private List<String> removeList;
+  private boolean isSecured = false;
 
   @Override public boolean startup( IPentahoSession session ) {
+    try {
+      if ( PentahoSystem.get( IUserRoleListService.class ) != null ) {
+        isSecured = true;
+      }
+    } catch ( Throwable t ) {
+      // That's ok. The API throws an exception and there is no method to check
+      // if security is on or off.
+    }
+
     IOlapService olapService = getOlapService( session );
     if ( olapService != null ) {
       addCatalogs( session, olapService );
@@ -40,10 +53,21 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
     return true;
   }
 
-  private void removeCatalogs( IPentahoSession session, IOlapService olapService ) {
-    for ( String catalogName : removeList ) {
+  private void removeCatalogs( final IPentahoSession session, final IOlapService olapService ) {
+    for ( final String catalogName : removeList ) {
+      final Callable<Void> callable = new Callable<Void>() {
+        public Void call() throws Exception {
+          olapService.removeCatalog( catalogName, session );
+          return null;
+        }
+      };
       try {
-        olapService.removeCatalog( catalogName, session );
+        if ( isSecured ) {
+          SecurityHelper.getInstance().runAsSystem( callable );
+        } else {
+          // There's no security available.
+          callable.call();
+        }
       } catch ( Exception e ) {
         Logger.warn( this, Messages.getInstance().getString(
           "Olap4jSystemListener.ERROR_00002_REMOVE_ERROR", catalogName ), e );
@@ -51,18 +75,32 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
     }
   }
 
-  private void addCatalogs( IPentahoSession session, IOlapService olapService ) {
-    for ( Properties properties : olap4jConnectionList ) {
+  private void addCatalogs( final IPentahoSession session, final IOlapService olapService ) {
+    for ( final Properties properties : olap4jConnectionList ) {
+      final Callable<Void> callable = new Callable<Void>() {
+        public Void call() throws Exception {
+          final String password = properties.getProperty( "password" );
+          olapService.addOlap4jCatalog(
+            properties.getProperty( "name" ),
+            properties.getProperty( "className" ),
+            properties.getProperty( "connectString" ),
+            properties.getProperty( "user" ),
+            password == null
+              ? null
+              : getPassword( password ),
+            new Properties(),
+            true,
+            session );
+          return null;
+        }
+      };
       try {
-        olapService.addOlap4jCatalog(
-          properties.getProperty( "name" ),
-          properties.getProperty( "className" ),
-          properties.getProperty( "connectString" ),
-          properties.getProperty( "user" ),
-          getPassword( properties.getProperty( "password" ) ),
-          new Properties(),
-          true,
-          session );
+        if ( isSecured ) {
+          SecurityHelper.getInstance().runAsSystem( callable );
+        } else {
+          // There's no security available.
+          callable.call();
+        }
       } catch ( Exception e ) {
         Logger.warn( this, Messages.getInstance().getString(
           "Olap4jSystemListener.ERROR_00001_ADD_ERROR", properties.getProperty( "name" ) ), e );
