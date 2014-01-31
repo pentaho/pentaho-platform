@@ -20,6 +20,7 @@ package org.pentaho.platform.plugin.action.olap;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -57,7 +58,7 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
     for ( final String catalogName : removeList ) {
       final Callable<Void> callable = new Callable<Void>() {
         public Void call() throws Exception {
-          olapService.removeCatalog( catalogName, session );
+          olapService.removeCatalog( catalogName, PentahoSessionHolder.getSession() );
           return null;
         }
       };
@@ -90,7 +91,7 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
               : getPassword( password ),
             new Properties(),
             true,
-            session );
+            PentahoSessionHolder.getSession() );
           return null;
         }
       };
