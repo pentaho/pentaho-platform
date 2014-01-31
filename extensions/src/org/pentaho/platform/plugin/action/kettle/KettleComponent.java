@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.plugin.action.kettle;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
@@ -467,6 +469,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
             // filesystem and file
             transMeta = new TransMeta( fileAddress, repository, true );
             transMeta.setFilename( fileAddress );
+          
+          } else if ( repository != null && repository.isConnected() ) {
+            
+            fileAddress = transformResource.getAddress();
+            
+            // load transformation resource from kettle/settings.xml configured repository
+            transMeta = loadTransformFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ) , FilenameUtils.getBaseName( fileAddress ), repository );
+            
           } else {
             String jobXmlStr = getResourceAsString( getResource( KettleComponent.TRANSFORMFILE ) );
             jobXmlStr = jobXmlStr.replaceAll( "\\$\\{pentaho.solutionpath\\}", solutionPath ); //$NON-NLS-1$
@@ -510,6 +520,16 @@ public class KettleComponent extends ComponentBase implements RowListener {
         String fileAddress = ""; //$NON-NLS-1$
         try {
           fileAddress = getResource( KettleComponent.JOBFILE ).getAddress();
+          
+          if ( repository != null && repository.isConnected() ) {
+            
+            solutionPath = StringUtils.EMPTY;
+            
+            // load job resource from kettle/settings.xml configured repository
+            jobMeta = loadJobFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ) , FilenameUtils.getBaseName( fileAddress ), repository );
+            
+          } else {
+          
           String jobXmlStr = getResourceAsString( getResource( KettleComponent.JOBFILE ) );
           // String jobXmlStr =
           // XmlW3CHelper.getContentFromSolutionResource(fileAddress);
@@ -538,6 +558,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
               }
               repository.disconnect();
             }
+          }
           }
         } catch ( Exception e ) {
           error( Messages.getInstance().getErrorString(
