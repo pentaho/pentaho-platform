@@ -30,6 +30,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -39,6 +40,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
@@ -51,6 +53,7 @@ public class MondrianCatalogRepositoryHelper {
     ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
   public static final String ETC_OLAP_SERVERS_JCR_FOLDER =
     ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+  private boolean isSecured = false;
 
   private IUnifiedRepository repository;
 
@@ -59,6 +62,14 @@ public class MondrianCatalogRepositoryHelper {
       throw new IllegalArgumentException();
     }
     this.repository = repository;
+    try {
+      if ( PentahoSystem.get( IUserRoleListService.class ) != null ) {
+        isSecured = true;
+      }
+    } catch ( Throwable t ) {
+      // That's ok. The API throws an exception and there is no method to check
+      // if security is on or off.
+    }
     initOlapServersFolder();
   }
 
@@ -119,12 +130,28 @@ public class MondrianCatalogRepositoryHelper {
     final RepositoryFile etcOlapServers =
       repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
     if ( etcOlapServers == null ) {
-      repository.createFolder(
-        repository.getFile(RepositoryFile.SEPARATOR + "etc" ).getId(),
-          new RepositoryFile.Builder( "olap-servers" )
-            .folder(true )
-            .build(),
-            "Creating olap-servers directory in /etc" );
+      final Callable<Void> callable = new Callable<Void>() {
+        public Void call() throws Exception {
+          repository.createFolder(
+            repository.getFile(RepositoryFile.SEPARATOR + "etc" ).getId(),
+              new RepositoryFile.Builder( "olap-servers" )
+                .folder(true )
+                .build(),
+                "Creating olap-servers directory in /etc" );
+          return null;
+        }
+      };
+      try {
+        if ( isSecured ) {
+          SecurityHelper.getInstance().runAsSystem( callable );
+        } else {
+          callable.call();
+        }
+      } catch ( Exception e ) {
+        throw new RuntimeException(
+          "Failed to create folder /etc/olap-servers in the repository.",
+          e);
+      }
     }
   }
 
