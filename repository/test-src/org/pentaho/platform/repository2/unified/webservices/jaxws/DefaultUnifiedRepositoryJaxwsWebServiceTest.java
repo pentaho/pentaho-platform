@@ -55,9 +55,11 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
@@ -188,7 +190,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
   private final String TENANT_ID_DUFF = "duff";
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
   DefaultBackingRepositoryLifecycleManager defaultBackingRepositoryLifecycleManager;
-
+  private IRepositoryFileDao repositoryFileDao;
   @BeforeClass
   public static void setUpClass() throws Exception {
     // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
@@ -243,6 +245,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
+    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
@@ -560,6 +563,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrProxy" );
     userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
+    repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
     pathConversionHelper = (IPathConversionHelper) applicationContext.getBean( "pathConversionHelper" );
     roleBindingDaoTarget =
         (IRoleAuthorizationPolicyRoleBindingDao) applicationContext

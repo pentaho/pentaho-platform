@@ -17,13 +17,13 @@
 
 package org.pentaho.platform.api.repository2.unified;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Immutable repository file. Use the {@link Builder} to create instances.
@@ -119,8 +119,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final String description;
 
   /**
-   * The locale string with which locale-sensitive fields (like title) are populated. Used in
-   * {@link #equals(Object)} calculation to guarantee caching works correctly. Read-only.
+   * The locale string with which locale-sensitive fields (like title) are populated. Used in {@link #equals(Object)}
+   * calculation to guarantee caching works correctly. Read-only.
    */
   private final String locale;
 
@@ -131,8 +131,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final String originalParentFolderPath;
 
   /**
-   * The date this file was deleted. If this file has been deleted (but not permanently deleted), then this field
-   * will be non-null. Read-only.
+   * The date this file was deleted. If this file has been deleted (but not permanently deleted), then this field will
+   * be non-null. Read-only.
    */
   private final Date deletedDate;
 
@@ -262,8 +262,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   }
 
   /*
-   * public Map<String, String> getTitleMap() { // defensive copy return titleMap == null ? null : new
-   * HashMap<String, String>(titleMap); }
+   * public Map<String, String> getTitleMap() { // defensive copy return titleMap == null ? null : new HashMap<String,
+   * String>(titleMap); }
    * 
    * public Map<String, String> getDescriptionMap() { // defensive copy return descriptionMap == null ? null : new
    * HashMap<String, String>(descriptionMap); }
@@ -342,13 +342,14 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder( final RepositoryFile other ) {
       this( other.getName() );
-      this.id( other.getId() ).path( other.getPath()).createdDate( other.getCreatedDate() ).creatorId( other.getCreatorId() ).fileSize(
-          other.getFileSize() ).folder( other.isFolder() ).lastModificationDate( other.getLastModifiedDate() ).versioned(
-          other.isVersioned() ).hidden( other.isHidden() ).versionId( other.getVersionId() ).locked( other.isLocked() ).lockDate(
-          other.getLockDate() ).lockOwner( other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() )
-          .description( other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
-              other.getOriginalParentFolderPath() ).deletedDate( other.getDeletedDate() ).localePropertiesMap(
-              other.getLocalePropertiesMap() );
+      this.id( other.getId() ).path( other.getPath() ).createdDate( other.getCreatedDate() ).creatorId(
+          other.getCreatorId() ).fileSize( other.getFileSize() ).folder( other.isFolder() ).lastModificationDate(
+          other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).versionId(
+          other.getVersionId() ).locked( other.isLocked() ).lockDate( other.getLockDate() ).lockOwner(
+          other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() ).description(
+          other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
+          other.getOriginalParentFolderPath() ).deletedDate( other.getDeletedDate() ).localePropertiesMap(
+          other.getLocalePropertiesMap() );
     }
 
     public RepositoryFile build() {

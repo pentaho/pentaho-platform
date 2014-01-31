@@ -31,9 +31,8 @@ public class RepositoryRequest {
    * for parameters not specified and breaks down the legacy "filter" parameters into it's component parts.
    */
   public RepositoryRequest() {
-    
   }
-  
+
   public RepositoryRequest( String path, Boolean showHidden, Integer depth, String legacyFilter ) {
     this.path = path;
     this.showHidden = showHidden == null ? false : showHidden;
@@ -120,7 +119,7 @@ public class RepositoryRequest {
   }
 
   private void setLegacyFilter( String legacyFilter ) {
-    this.workingFilter = (legacyFilter == null || StringUtils.isEmpty( legacyFilter )) ? "*" : legacyFilter;
+    this.workingFilter = ( legacyFilter == null || StringUtils.isEmpty( legacyFilter ) ) ? "*" : legacyFilter;
     parseOutFileTypes();
     parseOutIncludeExclude();
     childNodeFilter = workingFilter.isEmpty() ? null : workingFilter;
@@ -131,7 +130,6 @@ public class RepositoryRequest {
     return types;
   }
 
-  
   /**
    * Sets whether files, folders, or both are returned: ( FILES | FOLDERS | [default] FILES_FOLDERS )
    */
@@ -227,5 +225,5 @@ public class RepositoryRequest {
   public void setIncludeAcls( boolean includeAcls ) {
     this.includeAcls = includeAcls;
   }
-  
+
 }

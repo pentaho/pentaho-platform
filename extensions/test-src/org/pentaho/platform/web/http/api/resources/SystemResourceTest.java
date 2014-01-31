@@ -20,6 +20,7 @@ package org.pentaho.platform.web.http.api.resources;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.ISystemConfig;
@@ -27,6 +28,7 @@ import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -34,6 +36,7 @@ import org.springframework.core.io.FileSystemResource;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import static org.mockito.Mockito.mock;
@@ -51,10 +54,13 @@ public class SystemResourceTest {
   private static final String PENTAHO_XML_PATH = "/system/pentahoObjects.spring.xml"; //$NON-NLS-1$
 
   final String SYSTEM_FOLDER = "/system"; //$NON-NLS-1$
-
+  private MicroPlatform mp;
   @Before
   public void setUp() throws Exception {
-
+    mp = new MicroPlatform();
+    mp.defineInstance( IAuthorizationPolicy.class, new TestAuthorizationPolicy() );
+    mp.start();
+    
     ISystemConfig systemConfig = new SystemConfig();
     IConfiguration securityConfig = mock( IConfiguration.class );
     Properties props = new Properties();
@@ -157,5 +163,21 @@ public class SystemResourceTest {
     } else {
       return ALT_SOLUTION_PATH;
     }
+  }
+  
+  class TestAuthorizationPolicy implements IAuthorizationPolicy {
+
+    @Override
+    public boolean isAllowed( String actionName ) {
+      // TODO Auto-generated method stub
+      return true;
+    }
+
+    @Override
+    public List<String> getAllowedActions( String actionNamespace ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
   }
 }
