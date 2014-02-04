@@ -21,6 +21,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.PasswordHelper;
 
@@ -42,19 +43,25 @@ public class Olap4jSystemListenerTest {
         return new PasswordHelper( new Base64PasswordService() );
       }
     };
-    Properties properties1 = makeProperties( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "ENC:YVBhc3N3b3Jk" );
-    Properties properties2 = makeProperties( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
-    listener.setOlap4jConnectionList( Arrays.asList( properties1, properties2 ) );
-    listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection", "worthless" ) );
-    listener.startup( mockSession );
-    Mockito.verify( mockOlapService )
+    final IPentahoSession oSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession( mockSession );
+    try {
+      Properties properties1 = makeProperties( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "ENC:YVBhc3N3b3Jk" );
+      Properties properties2 = makeProperties( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
+      listener.setOlap4jConnectionList( Arrays.asList( properties1, properties2 ) );
+      listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection", "worthless" ) );
+      listener.startup( mockSession );
+      Mockito.verify( mockOlapService )
       .addOlap4jCatalog(
-        "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, mockSession );
-    Mockito.verify( mockOlapService )
+          "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, mockSession );
+      Mockito.verify( mockOlapService )
       .addOlap4jCatalog(
-        "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, mockSession );
-    Mockito.verify( mockOlapService ).removeCatalog( "defunctConnection", mockSession );
-    Mockito.verify( mockOlapService ).removeCatalog( "worthless", mockSession );
+          "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, mockSession );
+      Mockito.verify( mockOlapService ).removeCatalog( "defunctConnection", mockSession );
+      Mockito.verify( mockOlapService ).removeCatalog( "worthless", mockSession );
+    } finally {
+      PentahoSessionHolder.setSession( oSession );
+    }
 
   }
 
