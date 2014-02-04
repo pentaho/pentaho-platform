@@ -23,6 +23,13 @@
 <%@page import="java.net.URLClassLoader" %>
 <%@page import="java.util.Locale" %>
 <%@page import="java.util.ResourceBundle" %>
+<%@page import="org.pentaho.platform.engine.core.system.PentahoSystem" %>
+<%@page import="org.pentaho.platform.api.engine.IPluginManager" %>
+<%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
+
+<%
+  boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
+%>
 
 <%
   Locale effectiveLocale = request.getLocale();
@@ -46,12 +53,13 @@
   <meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
   <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
   <link rel='stylesheet' href='mantle/MantleStyle.css'/>
+  <%if ( hasDataAccessPlugin ) {%>
   <link rel="stylesheet" href="content/data-access/resources/gwt/datasourceEditorDialog.css"/>
+  <%}%>
   <link rel="stylesheet" href="mantle/Widgets.css"/>
 
   <!-- ANGULAR INCLUDES -->
-  <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations.css'/>  
-
+  <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations.css'/>
   <script language="javascript" type="text/javascript" src="webcontext.js?context=mantle"></script>
 
   <script type="text/javascript" src="mantle/nativeScripts.js"></script>
@@ -180,6 +188,8 @@
 </body>
 
 <script language='javascript' src='mantle/mantle.nocache.js'></script>
+<%if ( hasDataAccessPlugin ) {%>
 <script language='javascript' src='content/data-access/resources/gwt/DatasourceEditor.nocache.js'></script>
+<%}%>
 
 </html>
