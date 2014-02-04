@@ -91,10 +91,8 @@ import java.util.Map;
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
  *
  *
- * @deprecated In favor of IOlapService
  * @author mlowery
  */
-@Deprecated
 public class MondrianCatalogHelper implements IMondrianCatalogService {
 
   // ~ Static fields/initializers ======================================================================================

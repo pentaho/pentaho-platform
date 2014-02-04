@@ -379,10 +379,10 @@ public class MondrianCatalogRepositoryHelper {
       this.URL = data.getNode().getProperty( "URL" ).getString();
 
       final DataProperty userProp = data.getNode().getProperty( "user" );
-      this.user = userProp == null ? null : userProp.toString();
+      this.user = userProp == null ? null : userProp.getString();
 
       final DataProperty passwordProp = data.getNode().getProperty( "user" );
-      this.password = passwordProp == null ? null : passwordProp.toString();
+      this.password = passwordProp == null ? null : passwordProp.getString();
 
       this.properties = new Properties();
 
