@@ -1036,8 +1036,16 @@ a:active, a:hover {
   color: #698492;
 }
 
+.gwt-MenuBar-vertical tr:hover .gwt-MenuItem-selected, .gwt-MenuBar-vertical tr:hover .subMenuIcon-selected {
+    background-color: #dce7ed;
+}
+
 .gwt-MenuBar-vertical .gwt-MenuItem-selected:hover {
   background-color: #dce7ed;
+}
+
+.gwt-MenuBar-vertical .subMenuIcon-selected {
+    background-color: #d7e9cd;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-selected {
@@ -1065,7 +1073,7 @@ a:active, a:hover {
   background-color: #dce7ed;
 }
 
-gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
+.gwt-MenuBar-horizontal .gwt-MenuItem-selected:hover {
   background-color: #dce7ed;
 }
 
