@@ -134,21 +134,22 @@ public class SchedulesPanel extends SimplePanel {
           }
         } );
       }
-      if ( !StringUtils.isEmpty( filterDialog.getUserFilter() ) && !filterDialog.getUserFilter().equals( "ALL" ) ) {
+      final String showAll = Messages.getString( "showAll" );
+      if ( !StringUtils.isEmpty( filterDialog.getUserFilter() ) && !filterDialog.getUserFilter().equals( showAll ) ) {
         filters.add( new IJobFilter() {
           public boolean accept( JsJob job ) {
             return job.getUserName().equalsIgnoreCase( filterDialog.getUserFilter() );
           }
         } );
       }
-      if ( !StringUtils.isEmpty( filterDialog.getStateFilter() ) && !filterDialog.getStateFilter().equals( "ALL" ) ) {
+      if ( !StringUtils.isEmpty( filterDialog.getStateFilter() ) && !filterDialog.getStateFilter().equals( showAll ) ) {
         filters.add( new IJobFilter() {
           public boolean accept( JsJob job ) {
             return job.getState().toLowerCase().equalsIgnoreCase( filterDialog.getStateFilter() );
           }
         } );
       }
-      if ( !StringUtils.isEmpty( filterDialog.getTypeFilter() ) && !filterDialog.getTypeFilter().equals( "ALL" ) ) {
+      if ( !StringUtils.isEmpty( filterDialog.getTypeFilter() ) && !filterDialog.getTypeFilter().equals( showAll ) ) {
         filters.add( new IJobFilter() {
           public boolean accept( JsJob job ) {
             return job.getJobTrigger().getScheduleType().equalsIgnoreCase( filterDialog.getTypeFilter() );
