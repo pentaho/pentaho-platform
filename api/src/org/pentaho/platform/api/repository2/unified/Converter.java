@@ -16,7 +16,7 @@
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
-package org.pentaho.platform.plugin.services.importexport;
+package org.pentaho.platform.api.repository2.unified;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 

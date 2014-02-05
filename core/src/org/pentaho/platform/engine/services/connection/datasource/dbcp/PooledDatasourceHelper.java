@@ -50,7 +50,17 @@ public class PooledDatasourceHelper {
     try {
       ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
       IDatabaseDialectService databaseDialectService = PentahoSystem.get( IDatabaseDialectService.class );
+      if(databaseDialectService == null) {
+        Logger.warn( PooledDatasourceHelper.class,
+            "Unable to pool datasource with name " + databaseConnection.getName() + "Cause:Database Dialect Service is not available" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return null;
+      }
       IDatabaseDialect dialect = databaseDialectService.getDialect( databaseConnection );
+      if(dialect == null || dialect.getDatabaseType() == null) {
+        Logger.warn( PooledDatasourceHelper.class,
+            "Unable to pool datasource with name " + databaseConnection.getName() + "Cause:Unable to find Database Dialect" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return null;
+      }
       if ( databaseConnection.getDatabaseType().getShortName().equals( "GENERIC" ) ) { //$NON-NLS-1$
         driverClass = databaseConnection.getAttributes().get( GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS );
       } else {

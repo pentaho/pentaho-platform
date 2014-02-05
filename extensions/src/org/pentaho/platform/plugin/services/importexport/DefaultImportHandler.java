@@ -18,25 +18,6 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import org.apache.commons.collections.map.UnmodifiableMap;
-import org.apache.commons.collections.set.UnmodifiableSet;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.pdi.PDIImportUtil;
-import org.pentaho.platform.plugin.services.importexport.pdi.StreamToJobNodeConverter;
-import org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository.messages.Messages;
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -44,6 +25,23 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.map.UnmodifiableMap;
+import org.apache.commons.collections.set.UnmodifiableSet;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository.messages.Messages;
+import org.springframework.util.Assert;
 
 /**
  * Class Description
@@ -95,18 +93,6 @@ public class DefaultImportHandler implements ImportHandler {
     converters.put( "xml", streamConverter );
     converters.put( "cda", streamConverter ); //$NON-NLS-1$
 
-    try {
-      PDIImportUtil.connectToRepository( null );
-      final StreamToJobNodeConverter jobConverter = new StreamToJobNodeConverter( repository );
-      final StreamToTransNodeConverter transConverter = new StreamToTransNodeConverter( repository );
-      converters.put( "kjb", jobConverter );
-      converters.put( "ktr", transConverter );
-    } catch ( Exception e ) {
-      e.printStackTrace();
-      System.out.println( "No PDI Repository found, switching to standard converter." );
-      converters.put( "kjb", streamConverter );
-      converters.put( "ktr", streamConverter );
-    }
 
     // Determine the executable types (these will be the only types made visible in the repository)
     determineExecutableTypes();

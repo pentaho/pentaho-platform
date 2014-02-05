@@ -18,6 +18,12 @@
 
 package org.pentaho.platform.repository.solution.filebased;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs.FileContent;
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
@@ -27,15 +33,13 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.NameScope;
 import org.apache.commons.vfs.operations.FileOperations;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SolutionRepositoryVfsFileObject implements FileObject {
 
@@ -48,6 +52,8 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   private boolean fileInitialized;
 
   private RepositoryFile repositoryFile = null;
+  
+  private IRepositoryContentConverterHandler converterHandler;
 
   public SolutionRepositoryVfsFileObject( final String fileRef ) {
     super();
@@ -56,6 +62,13 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
   public IUnifiedRepository getRepository() {
     return REPOSITORY;
+  }
+
+  public IRepositoryContentConverterHandler getConverterHandler() {
+    if(converterHandler == null) {
+      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+    }
+    return converterHandler;
   }
 
   public String getFileRef() {
@@ -224,10 +237,21 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     return null;
   }
 
-  public InputStream getInputStream() throws FileSystemException {
+  public InputStream getInputStream() throws UnifiedRepositoryException, FileSystemException {
     InputStream inputStream = null;
     if ( exists() ) {
-      inputStream = REPOSITORY.getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+      String extension = FilenameUtils.getExtension( repositoryFile.getPath() );
+      // Try to get the converter for the extension. If there is not converter available then we will
+      //assume simple type and will get the data that way
+      if(getConverterHandler() != null) {
+        Converter converter = getConverterHandler().getConverter( extension );
+        if(converter != null) {
+          inputStream = converter.convert( repositoryFile.getId() );
+        }
+      }
+      if(inputStream == null) {
+        inputStream = REPOSITORY.getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+      }
     }
     return inputStream;
   }

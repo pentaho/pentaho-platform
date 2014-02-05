@@ -2,13 +2,22 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd"
-       default-lazy-init="true" >
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd 
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
     <bean id="streamConverter" class="org.pentaho.platform.plugin.services.importexport.StreamConverter">
         <constructor-arg ref="unifiedRepository"/>
+    </bean>
+
+    <bean id="IRepositoryContentConverterHandler" class="org.pentaho.platform.plugin.services.importer.DefaultRepositoryContentConverterHandler">
+        <constructor-arg ref="convertersMap"/>
+    <pen:publish as-type="INTERFACES">
+	      <pen:attributes>
+	        <pen:attr key="priority" value="50"/>
+	      </pen:attributes>
+    	</pen:publish>
     </bean>
 
     <bean id="ITenant" class="org.pentaho.platform.core.mt.Tenant" scope="prototype"/>

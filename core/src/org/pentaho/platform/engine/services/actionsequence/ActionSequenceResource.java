@@ -20,11 +20,14 @@ package org.pentaho.platform.engine.services.actionsequence;
 
 import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.HttpUtil;
 
@@ -34,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
 
 public class ActionSequenceResource implements org.pentaho.platform.api.engine.IActionSequenceResource {
 
@@ -184,6 +188,7 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
   @SuppressWarnings( { "resource", "deprecation" } )
   public static InputStream getInputStream( String filePath, Locale locale ) {
     InputStream inputStream = null;
+    
     if ( filePath.startsWith( "system" ) ) {
       File file = null;
       filePath = PentahoSystem.getApplicationContext().getSolutionPath( filePath );
@@ -219,12 +224,26 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
         }
       }
     } else {
+      // This is not a file from the system folder. User is trying to access a resource in the repository.
+      // Get the RepositoryContentConverterHandler
+      IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
       RepositoryFile repositoryFile = null;
       if ( locale == null ) {
         repositoryFile = getRepository().getFile( filePath );
+        String extension = FilenameUtils.getExtension( filePath );
         try {
-          inputStream =
+          // Try to get the converter for the extension. If there is not converter available then we will
+          //assume simple type and will get the data that way
+          if(converterHandler != null) {
+            Converter converter = converterHandler.getConverter( extension );
+            if(converter != null) {
+              inputStream = converter.convert( repositoryFile.getId() );
+            }
+          }
+          if(inputStream == null) {
+            inputStream =
               getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+          }
         } catch ( UnifiedRepositoryException ure ) {
           //ignored
         }
@@ -242,8 +261,18 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
               getRepository().getFile( baseName + "_" + language + "_" + country + "_" + variant + extension ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
           try {
             if ( repositoryFile != null ) {
-              inputStream =
+              // Try to get the converter for the extension. If there is not converter available then we will
+              //assume simple type and will get the data that way
+              if(converterHandler != null) {
+                Converter converter = converterHandler.getConverter( FilenameUtils.getExtension( filePath ) );
+                if(converter != null) {
+                  inputStream = converter.convert( repositoryFile.getId() );
+                }
+              }
+              if(inputStream == null) {
+                inputStream =
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+              } 
             }
           } catch ( UnifiedRepositoryException ure ) {
             //ignored
@@ -253,9 +282,18 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
           repositoryFile = getRepository().getFile( baseName + "_" + language + "_" + country + extension ); //$NON-NLS-1$//$NON-NLS-2$
           try {
             if ( repositoryFile != null ) {
-              inputStream =
+              // Try to get the converter for the extension. If there is not converter available then we will
+              //assume simple type and will get the data that way
+              if(converterHandler != null) {
+                Converter converter = converterHandler.getConverter( FilenameUtils.getExtension( filePath ) );
+                if(converter != null) {
+                  inputStream = converter.convert( repositoryFile.getId() );
+                }
+              }
+              if(inputStream == null) {
+                inputStream =
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
-            }
+              }             }
           } catch ( UnifiedRepositoryException ure ) {
             //ignored
           }
@@ -264,8 +302,18 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
           repositoryFile = getRepository().getFile( baseName + "_" + language + extension ); //$NON-NLS-1$
           try {
             if ( repositoryFile != null ) {
-              inputStream =
+              // Try to get the converter for the extension. If there is not converter available then we will
+              //assume simple type and will get the data that way
+              if(converterHandler != null) {
+                Converter converter = converterHandler.getConverter( FilenameUtils.getExtension( filePath ) );
+                if(converter != null) {
+                  inputStream = converter.convert( repositoryFile.getId() );
+                }
+              }
+              if(inputStream == null) {
+                inputStream =
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+              }
             }
           } catch ( UnifiedRepositoryException ure ) {
             //ignored
@@ -275,8 +323,18 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
           repositoryFile = getRepository().getFile( filePath );
           try {
             if ( repositoryFile != null ) {
-              inputStream =
+              // Try to get the converter for the extension. If there is not converter available then we will
+              //assume simple type and will get the data that way
+              if(converterHandler != null) {
+                Converter converter = converterHandler.getConverter( FilenameUtils.getExtension( filePath ) );
+                if(converter != null) {
+                  inputStream = converter.convert( repositoryFile.getId() );
+                }
+              }
+              if(inputStream == null) {
+                inputStream =
                   getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+              } 
             }
           } catch ( UnifiedRepositoryException ure ) {
             //ignored
