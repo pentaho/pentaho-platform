@@ -498,6 +498,11 @@ public class MondrianCatalogRepositoryHelper {
     final EnumSet<RepositoryFilePermission> perms,
     IPentahoSession session ) {
 
+    if ( session == null ) {
+      // No session is equivalent to root access.
+      return true;
+    }
+
     // If the connection doesn't exist yet and we're trying to create it,
     // we need to check the parent folder instead.
     final String path;

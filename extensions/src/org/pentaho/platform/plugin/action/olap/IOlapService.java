@@ -52,6 +52,11 @@ import org.pentaho.platform.api.engine.IPentahoSession;
  * or {@link #getCubes(String, String, IPentahoSession)}. These alternative methods
  * come at a higher price, since we will need to activate each of the configured
  * connections to populate the metadata.
+ *
+ * <p>Throughout the API, it is possible to pass a user's session. In that case,
+ * only the catalogs which are accessible to the specified user will be available.
+ * Passing 'null' as the sesison has the effect of granting root access and will
+ * allow access to all catalogs.
  */
 public interface IOlapService {
 

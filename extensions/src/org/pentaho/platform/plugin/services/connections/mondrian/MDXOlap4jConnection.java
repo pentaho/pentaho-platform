@@ -73,7 +73,7 @@ public class MDXOlap4jConnection implements IPentahoConnection {
       }
 
       // For Mondrian olap4j driver, we will also do role mapping
-      if ( driver.equals( "mondrian.olap4j.MondrianOlap4jDriver" ) ) {
+      if ( url.startsWith( "jdbc:mondrian" ) ) {
         Util.PropertyList connectProperties = Util.parseConnectString( url );
         MDXConnection.mapPlatformRolesToMondrianRolesHelper( connectProperties );
         url = connectProperties.toString();
