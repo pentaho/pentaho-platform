@@ -48,6 +48,20 @@ public interface IPlatformImportBundle {
   String getName();
 
   /**
+   * Path which may be used to indicate where a bundle belongs in the repository.
+   * 
+   * @param path
+   */
+  void setPath( String path );
+
+  /**
+   * Path which may be used to indicate where a bundle belongs in the repository.
+   * 
+   * @return path
+   */
+  String getPath();
+  
+  /**
    * Optional InputStream for content with a binary component.
    * 
    * @return optional InputStream
