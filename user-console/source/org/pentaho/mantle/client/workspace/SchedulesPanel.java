@@ -17,10 +17,38 @@
 
 package org.pentaho.mantle.client.workspace;
 
+import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
+import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.OutputLocationUtils;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
+import org.pentaho.mantle.client.images.ImageUtil;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -42,7 +70,9 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -54,31 +84,6 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
-import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.OutputLocationUtils;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.GenericEvent;
-import org.pentaho.mantle.client.images.ImageUtil;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.ui.PerspectiveManager;
-import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 public class SchedulesPanel extends SimplePanel {
 
@@ -1035,7 +1040,19 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void openOutputLocation( final String outputLocation ) {
+    final String url = GWT.getHostPageBaseURL() + "api/mantle/session-variable?key=scheduler_folder&value=" + outputLocation;
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.BROWSER_PERSPECTIVE );
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.POST, url );
+    try {
+      executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
+        public void onError( Request request, Throwable exception ) {
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+        } 
+      } );
+    } catch ( RequestException e ) {
+    }
     GenericEvent event = new GenericEvent();
     event.setEventSubType( "RefreshFolderEvent" );
     event.setStringParam( outputLocation );

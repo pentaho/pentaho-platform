@@ -33,6 +33,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
 import org.pentaho.platform.plugin.services.pluginmgr.IAdminContentConditionalLogic;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -271,5 +272,10 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   public Response getSessionVariable( @QueryParam( "key" ) String key ) {
     return Response.ok( getPentahoSession().getAttribute( key ) ).build();
   }
-
+  
+  @DELETE
+  @Path( "/session-variable" )
+  public Response clearSessionVariable( @QueryParam( "key" ) String key ) {
+    return Response.ok( getPentahoSession().removeAttribute( key ) ).build();
+  }
 }
