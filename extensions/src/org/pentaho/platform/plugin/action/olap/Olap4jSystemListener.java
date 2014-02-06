@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.plugin.action.olap;
 
+import mondrian.olap.Util;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -32,6 +33,7 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 public class Olap4jSystemListener implements IPentahoSystemListener {
+  private static final String PASSWORD = "password";
   private List<Properties> olap4jConnectionList;
   private List<String> removeList;
   private boolean isSecured = false;
@@ -48,13 +50,13 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
 
     IOlapService olapService = getOlapService( session );
     if ( olapService != null ) {
-      addCatalogs( session, olapService );
-      removeCatalogs( session, olapService );
+      addCatalogs( olapService );
+      removeCatalogs( olapService );
     }
     return true;
   }
 
-  private void removeCatalogs( final IPentahoSession session, final IOlapService olapService ) {
+  private void removeCatalogs( final IOlapService olapService ) {
     for ( final String catalogName : removeList ) {
       final Callable<Void> callable = new Callable<Void>() {
         public Void call() throws Exception {
@@ -76,15 +78,15 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
     }
   }
 
-  private void addCatalogs( final IPentahoSession session, final IOlapService olapService ) {
+  private void addCatalogs( final IOlapService olapService ) {
     for ( final Properties properties : olap4jConnectionList ) {
       final Callable<Void> callable = new Callable<Void>() {
         public Void call() throws Exception {
-          final String password = properties.getProperty( "password" );
+          final String password = properties.getProperty( PASSWORD );
           olapService.addOlap4jCatalog(
             properties.getProperty( "name" ),
             properties.getProperty( "className" ),
-            properties.getProperty( "connectString" ),
+            getConnectString( properties ),
             properties.getProperty( "user" ),
             password == null
               ? null
@@ -107,6 +109,15 @@ public class Olap4jSystemListener implements IPentahoSystemListener {
           "Olap4jSystemListener.ERROR_00001_ADD_ERROR", properties.getProperty( "name" ) ), e );
       }
     }
+  }
+
+  private String getConnectString( Properties properties ) {
+    String connectString = properties.getProperty( "connectString" );
+    Util.PropertyList connectMap = Util.parseConnectString( connectString );
+    if ( connectMap.get( PASSWORD ) != null ) {
+      connectMap.put( PASSWORD, getPassword( connectMap.get( PASSWORD ) ) );
+    }
+    return connectMap.toString();
   }
 
   private String getPassword( String password ) {
