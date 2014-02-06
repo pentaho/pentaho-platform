@@ -653,7 +653,8 @@ public class OlapServiceImpl implements IOlapService {
        * like DISCOVER_DATASOURCES) we can't use the role mapper, even if it
        * is present and configured.
        */
-      if ( mapper != null ) {
+      if ( session != null
+        && mapper != null ) {
         // Use the role mapper.
         try {
           effectiveRoles =
