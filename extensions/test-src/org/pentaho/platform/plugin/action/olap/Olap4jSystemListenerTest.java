@@ -46,17 +46,22 @@ public class Olap4jSystemListenerTest {
     final IPentahoSession oSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession( mockSession );
     try {
-      Properties properties1 = makeProperties( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "ENC:YVBhc3N3b3Jk" );
-      Properties properties2 = makeProperties( "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword" );
+      Properties properties1 = makeProperties(
+        "aName", "idk", "jdbc:mongolap:host=remote;user=admin;Password=ENC:YWRtaW4=;port=1234",
+        "aUser", "ENC:YVBhc3N3b3Jk" );
+      Properties properties2 = makeProperties(
+        "bName", "istilldk", "jdbc:mongolap:host=remoteb;user=admin;password=admin;port=1234", "bUser", "bPassword" );
       listener.setOlap4jConnectionList( Arrays.asList( properties1, properties2 ) );
       listener.setOlap4jConnectionRemoveList( Arrays.asList( "defunctConnection", "worthless" ) );
       listener.startup( mockSession );
       Mockito.verify( mockOlapService )
-      .addOlap4jCatalog(
-          "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword", new Properties(), true, mockSession );
+        .addOlap4jCatalog(
+          "aName", "idk", "jdbc:mongolap:host=remote; user=admin; Password=admin; port=1234", "aUser", "aPassword",
+          new Properties(), true, mockSession );
       Mockito.verify( mockOlapService )
-      .addOlap4jCatalog(
-          "bName", "istilldk", "jdbc:mongolap:host=remoteb", "bUser", "bPassword", new Properties(), true, mockSession );
+        .addOlap4jCatalog(
+          "bName", "istilldk", "jdbc:mongolap:host=remoteb; user=admin; password=admin; port=1234", "bUser",
+          "bPassword", new Properties(), true, mockSession );
       Mockito.verify( mockOlapService ).removeCatalog( "defunctConnection", mockSession );
       Mockito.verify( mockOlapService ).removeCatalog( "worthless", mockSession );
     } finally {
