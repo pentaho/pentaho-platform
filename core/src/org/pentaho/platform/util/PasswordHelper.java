@@ -26,6 +26,7 @@ import org.pentaho.platform.util.logging.Logger;
  * decrypts passwords that would likely be saved in a properties file.
  */
 public class PasswordHelper {
+  private static final String ENC = "ENC:";
   private IPasswordService passwordService;
 
   public PasswordHelper() {
@@ -37,7 +38,7 @@ public class PasswordHelper {
   }
 
   public String getPassword( String input ) {
-    if ( input != null && input.startsWith( "ENC:" ) ) {
+    if ( input != null && input.startsWith( ENC ) ) {
       try {
         return passwordService.decrypt( input.substring( 4 ) );
       } catch ( PasswordServiceException e ) {
@@ -46,5 +47,14 @@ public class PasswordHelper {
       }
     }
     return input;
+  }
+
+  public String encrypt( String password ) {
+    try {
+      return ENC + passwordService.encrypt( password );
+    } catch ( PasswordServiceException e ) {
+      Logger.error( this, "Exception encrypting password", e );
+      throw new RuntimeException( e );
+    }
   }
 }

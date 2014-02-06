@@ -25,10 +25,16 @@ public class PasswordHelperTest {
   public void testDecryptsWhenPasswordIndicatesEncryption() throws Exception {
     PasswordHelper helper = new PasswordHelper( new Base64PasswordService() );
     String contra = "uuddlrlrbas";
-    String drudia = "12345";
+    String druidia = "12345";
     Assert.assertEquals( contra, helper.getPassword( "ENC:dXVkZGxybHJiYXM=" ) );
-    Assert.assertEquals( drudia, helper.getPassword( drudia ) );
+    Assert.assertEquals( druidia, helper.getPassword( druidia ) );
     Assert.assertEquals( "", helper.getPassword( "" ) );
     Assert.assertNull(helper.getPassword( null ) );
+  }
+
+  @Test
+  public void testEncryptsPassword() throws Exception {
+    PasswordHelper helper = new PasswordHelper( new Base64PasswordService() );
+    Assert.assertEquals( "ENC:cGFzc3dvcmQ=", helper.encrypt( "password" ) );
   }
 }
