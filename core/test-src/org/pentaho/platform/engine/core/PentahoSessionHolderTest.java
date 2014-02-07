@@ -38,6 +38,7 @@ public class PentahoSessionHolderTest {
 
   @Test
   public void testStandaloneSessionLifecycle() {
+    PentahoSessionHolder.removeSession();
     assertNull( "session should be null at first", PentahoSessionHolder.getSession() );
 
     StandaloneSession session = new StandaloneSession();
@@ -54,7 +55,7 @@ public class PentahoSessionHolderTest {
     final IPentahoSession mockSession = mockery.mock( IPentahoSession.class );
     PentahoSessionHolder.setSession( mockSession );
     assertSame( mockSession, PentahoSessionHolder.getSession() );
-    PentahoSessionHolder.setSession( null );
+    PentahoSessionHolder.removeSession();
     assertNull( "session should be null", PentahoSessionHolder.getSession() );
   }
 

@@ -105,11 +105,7 @@ public class GlobalListPublisherTest extends TestCase {
     assertNotNull( globalParams );
     assertEquals( "testvalue2", globalParams.getParameter( "testoutput" ) );
 
-    engine.errorMsg = "test exception";
-    resultMsg = globals.publish( session );
-    assertEquals( Messages.getInstance().getString( "GlobalListsPublisher.USER_ERROR_PUBLISH_FAILED" )
-        + "test exception", resultMsg );
-    assertEquals( 3, engine.executeCount );
+    assertEquals( 2, engine.executeCount );
   }
 
 }
