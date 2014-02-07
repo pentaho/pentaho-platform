@@ -18,6 +18,7 @@
 package org.pentaho.mantle.client.workspace;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CaptionPanel;
@@ -75,6 +76,7 @@ public class FilterDialog extends PromptDialogBox {
 
     resourceSuggestBox.setWidth( "240px" );
     userListBox.setWidth( "200px" );
+    userListBox.getElement().getStyle().setTextTransform( Style.TextTransform.CAPITALIZE );
     scheduleStateListBox.setWidth( "200px" );
     scheduleTypeListBox.setWidth( "200px" );
 
@@ -101,10 +103,11 @@ public class FilterDialog extends PromptDialogBox {
     beforeDateBox.setEnabled( beforeCheckBox.getValue() );
     afterDateBox.setEnabled( afterCheckBox.getValue() );
 
+    final String showAll = Messages.getString( "showAll" );
     // user filter
     int selectedIndex = userListBox.getSelectedIndex();
     userListBox.clear();
-    userListBox.addItem( "ALL" );
+    userListBox.addItem( showAll );
     HashSet<String> uniqueUsers = new HashSet<String>();
     if ( jobs != null ) {
       for ( int i = 0; i < jobs.length(); i++ ) {
@@ -121,13 +124,13 @@ public class FilterDialog extends PromptDialogBox {
     selectedIndex = scheduleStateListBox.getSelectedIndex();
     scheduleStateListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
-    scheduleStateListBox.addItem( "ALL" );
-    scheduleStateListBox.addItem( "NORMAL" );
-    scheduleStateListBox.addItem( "PAUSED" );
-    scheduleStateListBox.addItem( "COMPLETE" );
-    scheduleStateListBox.addItem( "ERROR" );
-    scheduleStateListBox.addItem( "BLOCKED" );
-    scheduleStateListBox.addItem( "UNKNOWN" );
+    scheduleStateListBox.addItem( showAll );
+    scheduleStateListBox.addItem( "Normal" );
+    scheduleStateListBox.addItem( "Paused" );
+    scheduleStateListBox.addItem( "Complete" );
+    scheduleStateListBox.addItem( "Error" );
+    scheduleStateListBox.addItem( "Blocked" );
+    scheduleStateListBox.addItem( "Unknown" );
     scheduleStateListBox.setSelectedIndex( selectedIndex );
 
     // state filter
@@ -135,11 +138,11 @@ public class FilterDialog extends PromptDialogBox {
     selectedIndex = scheduleTypeListBox.getSelectedIndex();
     scheduleTypeListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
-    scheduleTypeListBox.addItem( "ALL" );
-    scheduleTypeListBox.addItem( "DAILY" );
-    scheduleTypeListBox.addItem( "WEEKLY" );
-    scheduleTypeListBox.addItem( "MONTHLY" );
-    scheduleTypeListBox.addItem( "YEARLY" );
+    scheduleTypeListBox.addItem( showAll );
+    scheduleTypeListBox.addItem( "Daily" );
+    scheduleTypeListBox.addItem( "Weekly" );
+    scheduleTypeListBox.addItem( "Monthly" );
+    scheduleTypeListBox.addItem( "Yearly" );
     scheduleTypeListBox.setSelectedIndex( selectedIndex );
 
     FlexTable filterPanel = new FlexTable();
