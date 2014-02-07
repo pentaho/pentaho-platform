@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 public class MockDataSourceService extends BaseDatasourceService {
 
-  private boolean throwExceptionOnGetConnection = false;
+  private static boolean throwExceptionOnGetConnection = false;
 
   /**
    * @param throwException
@@ -58,6 +58,15 @@ public class MockDataSourceService extends BaseDatasourceService {
    */
   public MockDataSourceService( boolean throwException ) {
     this.throwExceptionOnGetConnection = throwException;
+  }
+
+  /**
+   * @param exceptionOnGetConnection
+   *          If {@code true} the {@link MockDataSource} will throw a SQL exception when
+   *          {@code MockDataSource#getConnection()} is called
+   */
+  public static void setThrowExceptionOnGetConnection ( boolean exceptionOnGetConnection ) {
+    throwExceptionOnGetConnection = exceptionOnGetConnection;
   }
 
   /**

@@ -88,6 +88,11 @@ public class AuditEntryTest extends TestCase {
 
   public void testAuditHelper() throws Exception {
 
+    StandaloneObjectFactory factory = new StandaloneObjectFactory();
+    PentahoSystem.registerObjectFactory( factory );
+    factory.defineObject( IAuditEntry.class.getSimpleName(), TestAuditEntry.class.getName(),
+        StandaloneObjectFactory.Scope.GLOBAL );
+
     StandaloneSession session = new StandaloneSession( "testuser" );
     String messageType = "testtype";
     String messageName = "testname";
@@ -97,11 +102,16 @@ public class AuditEntryTest extends TestCase {
 
     AuditHelper.audit( null, session, messageType, messageName, messageTxtValue, duration, null );
 
-    TestAuditEntry entry = (TestAuditEntry) PentahoSystem.get( IAuditEntry.class, null );
-    assertEquals( "", entry.instId );
-    assertEquals( "", entry.jobId );
-    assertEquals( "testuser", entry.actor );
-    assertEquals( messageTxtValue, entry.messageTxtValue );
+    TestAuditEntry entry = (TestAuditEntry) factory.get( IAuditEntry.class, null );
+
+    assertNotNull("AuditEntry should not be null", entry);
+
+    if (entry != null) {
+      assertEquals( "", entry.instId );
+      assertEquals( "", entry.jobId );
+      assertEquals( "testuser", entry.actor );
+      assertEquals( messageTxtValue, entry.messageTxtValue );
+    }
   }
 
   public void testNullAuditEntry() {
