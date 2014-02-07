@@ -17,7 +17,11 @@
 
 package org.pentaho.mantle.client.dialogs.scheduling.validators;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
 import org.pentaho.mantle.client.dialogs.scheduling.RunOnceEditor;
+import org.pentaho.mantle.client.messages.Messages;
+
+import java.util.Date;
 
 public class RunOnceEditorValidator implements IUiValidator {
 
@@ -31,6 +35,15 @@ public class RunOnceEditorValidator implements IUiValidator {
     boolean isValid = true;
     if ( null == editor.getStartDate() ) {
       isValid = false;
+    } else {
+      final DateTimeFormat format = DateTimeFormat.getFormat( "MM-dd-yyyy" ); //$NON-NLS-1$
+      final String date = format.format( editor.getStartDate() );
+      final String dateTime = date + " " + editor.getStartTime(); //$NON-NLS-1$
+
+      if ( DateTimeFormat.getFormat( "MM-dd-yyyy hh:mm:ss a" ).parse( dateTime ).before( new Date() ) ) { //$NON-NLS-1$
+        isValid = false;
+        editor.setStartDateError( Messages.getString( "datePastNotAvailable" ) ); //$NON-NLS-1$
+      }
     }
     return isValid;
   }
