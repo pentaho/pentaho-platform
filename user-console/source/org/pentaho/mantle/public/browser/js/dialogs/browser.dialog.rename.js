@@ -131,6 +131,8 @@ pen.define([
     RenameDialog: null,
 
     CannotRenameDialog: null,
+    
+    RenameHomeDialog: null,
 
     overrideType: "file",
 
@@ -157,6 +159,28 @@ pen.define([
       this.initFileOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFile", RenameTemplates.dialogFileOverride), onOverrideOk, onOverrideShow);
       this.initRenameDialog();
       this.initCannotRenameDialog();
+      this.initRenameHomeDialog();
+    },
+
+		initRenameHomeDialog: function () {
+      var i18n = this.options.i18n;
+      var me = this;
+
+      var header = i18n.prop("cannotRenameHomeDialogTitle");
+
+      var body = i18n.prop("cannotRenameHomeDialogDescription");
+
+      var footer = DialogTemplates.centered_button({
+        ok: i18n.prop("close")
+      });
+
+      var cfg = Dialog.buildCfg("rename-home-dialog", header, body, footer, false);
+
+      this.RenameHomeDialog = new Dialog(cfg);
+      this.RenameHomeDialog.$dialog.find(".ok").bind("click", function () {
+        me.RenameHomeDialog.hide();
+      });
+
     },
 
     initCannotRenameDialog: function () {
@@ -296,7 +320,10 @@ pen.define([
     view: null,
 
     init: function (path, overrideType) {
-
+			if(path == window.top.HOME_FOLDER){
+				this.view.RenameHomeDialog.show();
+				return;
+			}
       var repoPath = path;
       while (repoPath.search("/") > -1) {
         repoPath = repoPath.replace("/", ":");
