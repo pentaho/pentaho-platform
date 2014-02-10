@@ -148,12 +148,12 @@ public class NewFolderCommand extends AbstractCommand {
                 setBrowseRepoDirty( Boolean.TRUE );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               } else {
-                MessageDialogBox dialogBox =
-                    new MessageDialogBox(
-                        Messages.getString( "error" ), Messages.getString( "couldNotCreateFolder", folderNameTextBox.getText() ), //$NON-NLS-1$ //$NON-NLS-2$
-                        false, false, true );
-                dialogBox.center();
-                event.setMessage( Messages.getString( "couldNotCreateFolder", folderNameTextBox.getText() ) );
+                event.setMessage(
+                    StringUtils.isEmpty( createFolderResponse.getText() )
+                        || Messages.getString( createFolderResponse.getText() ) == null
+                        ? Messages.getString( "couldNotCreateFolder", folderNameTextBox.getText() ) //$NON-NLS-1$
+                        : Messages.getString( createFolderResponse.getText(), folderNameTextBox.getText() )
+                );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
 
               }
