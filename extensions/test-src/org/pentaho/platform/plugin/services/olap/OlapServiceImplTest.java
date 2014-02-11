@@ -16,12 +16,20 @@ package org.pentaho.platform.plugin.services.olap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
+import mondrian.olap.CacheControl;
+import mondrian.olap.MondrianServer;
+import mondrian.rolap.RolapConnection;
+import mondrian.rolap.RolapConnectionProperties;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -32,20 +40,21 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
-public class OlapServiceTest extends TestCase {
+public class OlapServiceImplTest {
 
   IUnifiedRepository repository;
   String mondrianFolderPath;
   String olapFolderPath;
   IPentahoSession session;
   IOlapService olapService;
+  private MondrianServer server;
 
   /**
    * Default implementation of the hook which grants all access.
@@ -67,10 +76,7 @@ public class OlapServiceTest extends TestCase {
    */
   DefaultAccessImpl accessMock = new DefaultAccessImpl();
 
-  @Override
-  protected void setUp() throws Exception {
-
-    super.setUp();
+  @Before public void setUp() throws Exception {
 
     repository = mock( IUnifiedRepository.class );
 
@@ -91,9 +97,11 @@ public class OlapServiceTest extends TestCase {
     // Create a session as admin.
     session = new StandaloneSession( "admin" );
 
+    server = mock( MondrianServer.class );
+
     // Create the olap service. Make sure to override hasAccess with the
     // mock version.
-    olapService = new OlapServiceImpl( repository ) {
+    olapService = new OlapServiceImpl( repository, server ) {
       public boolean hasAccess(
         String path,
         EnumSet<RepositoryFilePermission> perms,
@@ -103,19 +111,74 @@ public class OlapServiceTest extends TestCase {
     };
   }
 
-  protected void tearDown() throws Exception {
+  @After public void tearDown() throws Exception {
     accessMock = new DefaultAccessImpl();
     repository = null;
     olapService = null;
     session = null;
-    super.tearDown();
+  }
+
+  private void stubCatalogValues() {
+    stubHostedServer();
+    stubRemoteServer();
+  }
+
+  private void stubRemoteServer() {
+    final String testServerPath =
+      mondrianFolderPath
+        + RepositoryFile.SEPARATOR
+        + "myHostedServer";
+    stubGetChildren( repository, olapFolderPath, "myServer" );
+    final String remoteServerPath =
+      olapFolderPath
+        + RepositoryFile.SEPARATOR
+        + "myServer";
+    stubGetFolder( repository, remoteServerPath );
+    stubGetChildren( repository, remoteServerPath, "metadata" );
+    final String remoteMetadataPath =
+      testServerPath
+        + RepositoryFile.SEPARATOR
+        + "metadata";
+    stubGetFile( repository, remoteMetadataPath );
+    stubGetData(
+      repository,
+      remoteMetadataPath
+        + RepositoryFile.SEPARATOR
+        + "myServer",
+      "server",
+      pathPropertyPair( "/server/name", "myServer" ),
+      pathPropertyPair( "/server/user", "myUser" ),
+      pathPropertyPair( "/server/password", "myPassword" ),
+      pathPropertyPair( "/server/URL", "myUrl" ),
+      pathPropertyPair( "/server/className", "someClass" ) );
+  }
+
+  private void stubHostedServer() {
+    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
+    final String testServerPath =
+      mondrianFolderPath
+        + RepositoryFile.SEPARATOR
+        + "myHostedServer";
+    stubGetFolder( repository, testServerPath );
+    stubGetChildren( repository, testServerPath, "metadata" );
+    final String metadataPath =
+      testServerPath
+        + RepositoryFile.SEPARATOR
+        + "metadata";
+    stubGetFile( repository, metadataPath );
+    stubGetData(
+      repository,
+      metadataPath,
+      "catalog",
+      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
   }
 
   /**
    * Verifies that we can create locally hosted mondrian instances.
    */
+  @Test
   public void testImportHosted() throws Exception {
-
     final String testFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "test-server";
     stubGetFileDoesNotExist( repository, testFolderPath );
     stubCreateFolder( repository, testFolderPath );
@@ -149,8 +212,8 @@ public class OlapServiceTest extends TestCase {
   /**
    * Verifies that we can add generic olap4j connections.
    */
+  @Test
   public void testImportOlap4j() throws Exception {
-
     final String testFolderPath = olapFolderPath + RepositoryFile.SEPARATOR + "test-server-2";
     stubCreateFolder( repository, testFolderPath );
 
@@ -185,8 +248,8 @@ public class OlapServiceTest extends TestCase {
   /**
    * Validates getting a list of remote catalogs.
    */
+  @Test
   public void testGetOlap4jCatalogs() throws Exception {
-
     stubGetChildren( repository, olapFolderPath, "myServer" );
 
     // Stub /etc/olap-servers/myServer
@@ -241,30 +304,9 @@ public class OlapServiceTest extends TestCase {
   /**
    * Validates getting a list of hosted catalogs.
    */
+  @Test
   public void testGetHostedCatalogs() throws Exception {
-
-    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
-
-    // Stub /etc/mondrian/myHostedServer
-    final String testServerPath =
-      mondrianFolderPath
-      + RepositoryFile.SEPARATOR
-      + "myHostedServer";
-    stubGetFolder( repository, testServerPath );
-    stubGetChildren( repository, testServerPath, "metadata" );
-
-    // Stub /etc/mondrian/myServer/myHostedServer
-    final String metadataPath =
-      testServerPath
-      + RepositoryFile.SEPARATOR
-      + "metadata";
-    stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath,
-      "catalog",
-      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubHostedServer();
 
     // Get a list of catalogs.
     final List<String> catalogs =
@@ -293,52 +335,9 @@ public class OlapServiceTest extends TestCase {
    * Validates getting a list of hosted catalogs. They must come
    * back sorted correctly.
    */
+  @Test
   public void testGetAllCatalogs() throws Exception {
-
-    // Stub the hosted server
-    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
-    final String testServerPath =
-      mondrianFolderPath
-      + RepositoryFile.SEPARATOR
-      + "myHostedServer";
-    stubGetFolder( repository, testServerPath );
-    stubGetChildren( repository, testServerPath, "metadata" );
-    final String metadataPath =
-      testServerPath
-      + RepositoryFile.SEPARATOR
-      + "metadata";
-    stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath,
-      "catalog",
-      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
-
-    // Stub the remote server
-    stubGetChildren( repository, olapFolderPath, "myServer" );
-    final String remoteServerPath =
-      olapFolderPath
-      + RepositoryFile.SEPARATOR
-      + "myServer";
-    stubGetFolder( repository, remoteServerPath );
-    stubGetChildren( repository, remoteServerPath, "metadata" );
-    final String remoteMetadataPath =
-      testServerPath
-      + RepositoryFile.SEPARATOR
-      + "metadata";
-    stubGetFile( repository, remoteMetadataPath );
-    stubGetData(
-      repository,
-      remoteMetadataPath
-      + RepositoryFile.SEPARATOR
-      + "myServer",
-      "server",
-      pathPropertyPair( "/server/name", "myServer" ),
-      pathPropertyPair( "/server/user", "myUser" ),
-      pathPropertyPair( "/server/password", "myPassword" ),
-      pathPropertyPair( "/server/URL", "myUrl" ),
-      pathPropertyPair( "/server/className", "someClass" ) );
+    stubCatalogValues();
 
     // Get a list of catalogs.
     final List<String> catalogs =
@@ -357,8 +356,8 @@ public class OlapServiceTest extends TestCase {
   /**
    * Validates getting a list of remote catalogs.
    */
+  @Test
   public void testRemoveOlap4jCatalogs() throws Exception {
-
     stubGetChildren( repository, olapFolderPath, "myServer" );
 
     // Stub /etc/olap-servers/myServer
@@ -421,30 +420,9 @@ public class OlapServiceTest extends TestCase {
   /**
    * Validates getting a list of hosted catalogs without having access to them.
    */
+  @Test
   public void testGetHostedCatalogsNoReadAccess() throws Exception {
-
-    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
-
-    // Stub /etc/mondrian/myHostedServer
-    final String testServerPath =
-      mondrianFolderPath
-      + RepositoryFile.SEPARATOR
-      + "myHostedServer";
-    stubGetFolder( repository, testServerPath );
-    stubGetChildren( repository, testServerPath, "metadata" );
-
-    // Stub /etc/mondrian/myServer/myHostedServer
-    final String metadataPath =
-      testServerPath
-      + RepositoryFile.SEPARATOR
-      + "metadata";
-    stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath,
-      "catalog",
-      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubHostedServer();
 
     // Stub the security
     accessMock = new DefaultAccessImpl() {
@@ -486,6 +464,7 @@ public class OlapServiceTest extends TestCase {
   /**
    * Validates getting a list of remote catalogs if we don't have access to them.
    */
+  @Test
   public void testGetOlap4jCatalogsWithoutAccess() throws Exception {
 
     stubGetChildren( repository, olapFolderPath, "myServer" );
@@ -554,52 +533,11 @@ public class OlapServiceTest extends TestCase {
    * Validates getting a list of all catalogs, but we can only access
    * the generic ones.
    */
+  @Test
   public void testGetAllCatalogsWithoutAccessToHostedOnes() throws Exception {
 
     // Stub the hosted server
-    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
-    final String testServerPath =
-      mondrianFolderPath
-      + RepositoryFile.SEPARATOR
-      + "myHostedServer";
-    stubGetFolder( repository, testServerPath );
-    stubGetChildren( repository, testServerPath, "metadata" );
-    final String metadataPath =
-      testServerPath
-      + RepositoryFile.SEPARATOR
-      + "metadata";
-    stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath,
-      "catalog",
-      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
-
-    // Stub the remote server
-    stubGetChildren( repository, olapFolderPath, "myServer" );
-    final String remoteServerPath =
-      olapFolderPath
-      + RepositoryFile.SEPARATOR
-      + "myServer";
-    stubGetFolder( repository, remoteServerPath );
-    stubGetChildren( repository, remoteServerPath, "metadata" );
-    final String remoteMetadataPath =
-      testServerPath
-      + RepositoryFile.SEPARATOR
-      + "metadata";
-    stubGetFile( repository, remoteMetadataPath );
-    stubGetData(
-      repository,
-      remoteMetadataPath
-      + RepositoryFile.SEPARATOR
-      + "myServer",
-      "server",
-      pathPropertyPair( "/server/name", "myServer" ),
-      pathPropertyPair( "/server/user", "myUser" ),
-      pathPropertyPair( "/server/password", "myPassword" ),
-      pathPropertyPair( "/server/URL", "myUrl" ),
-      pathPropertyPair( "/server/className", "someClass" ) );
+    stubCatalogValues();
 
     // Stub the security
     accessMock = new DefaultAccessImpl() {
@@ -630,6 +568,7 @@ public class OlapServiceTest extends TestCase {
   /**
    * Validates getting a list of remote catalogs.
    */
+  @Test
   public void testRemoveOlap4jCatalogsWithoutPermission() throws Exception {
 
     stubGetChildren( repository, olapFolderPath, "myServer" );
@@ -704,6 +643,7 @@ public class OlapServiceTest extends TestCase {
   /**
    * Verifies that we can create locally hosted mondrian instances.
    */
+  @Test
   public void testImportHostedOverwriteFlag() throws Exception {
 
     final String testFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "myHostedServer";
@@ -784,6 +724,7 @@ public class OlapServiceTest extends TestCase {
   /**
    * Verifies that we can create locally hosted mondrian instances.
    */
+  @Test
   public void testImportGenericOverwriteFlag() throws Exception {
 
     stubGetChildren( repository, olapFolderPath, "myServer" );
@@ -866,5 +807,32 @@ public class OlapServiceTest extends TestCase {
           pathPropertyPair( "/server/user", "user" ),
           pathPropertyPair( "/server/password", "password" ) ) ),
       anyString() );
+  }
+
+  @Test
+  public void testFlushesAllConnections() throws Exception {
+    stubHostedServer();
+    final Properties properties = new Properties();
+    properties.put(
+      RolapConnectionProperties.Locale.name(),
+      getLocale().toString() );
+    OlapConnection conn = mock( OlapConnection.class );
+    when( server.getConnection( "Pentaho", "myHostedServer", null, properties ) ).thenReturn( conn );
+    when( conn.isWrapperFor( any( Class.class ) ) ).thenReturn( true );
+    final RolapConnection rolapConn = mock( RolapConnection.class );
+    when( conn.unwrap( any( Class.class ) ) ).thenReturn( rolapConn );
+    final CacheControl cacheControl = mock( CacheControl.class );
+    when( rolapConn.getCacheControl( any( PrintWriter.class ) ) ).thenReturn( cacheControl );
+    olapService.flushAll( session );
+    verify( cacheControl ).flushSchemaCache();
+  }
+
+  private static Locale getLocale() {
+    final Locale locale = LocaleHelper.getLocale();
+    if ( locale != null ) {
+      return locale;
+    } else {
+      return Locale.getDefault();
+    }
   }
 }
