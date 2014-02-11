@@ -34,8 +34,9 @@ public class PasswordResourceTest {
     PasswordResource resource = getPasswordResource( policy );
     Mockito.when( policy.isAllowed( AdministerSecurityAction.NAME ) ).thenReturn( true );
     Response response = resource.encryptPassword( "password" );
-    Assert.assertEquals( "ENC:cGFzc3dvcmQ=", response.getEntity() );
+    Assert.assertTrue( response.getEntity().toString().contains( "ENC:cGFzc3dvcmQ=" ) );
     Assert.assertEquals( 200, response.getStatus() );
+    Assert.assertEquals( 200, resource.encryptionForm().getStatus() );
   }
 
   @Test
@@ -45,6 +46,7 @@ public class PasswordResourceTest {
     Mockito.when( policy.isAllowed( AdministerSecurityAction.NAME ) ).thenReturn( false );
     Response response = resource.encryptPassword( "password" );
     Assert.assertEquals( 401, response.getStatus() );
+    Assert.assertEquals( 401, resource.encryptionForm().getStatus() );
   }
 
   private PasswordResource getPasswordResource( final IAuthorizationPolicy policy ) {
