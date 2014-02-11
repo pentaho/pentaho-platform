@@ -18,6 +18,10 @@
 package org.pentaho.platform.plugin.action.olap.impl;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -38,7 +42,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import mondrian.olap.MondrianServer;
 import mondrian.olap.Role;
 import mondrian.olap.Util;
-import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
 import mondrian.server.MondrianServerRegistry;
@@ -123,15 +126,16 @@ public class OlapServiceImpl implements IOlapService {
    * at runtime.
    */
   public OlapServiceImpl() {
-    this( null );
+    this( null, null );
   }
 
   /**
    * Constructor for testing purposes. Takes a repository as a parameter.
    */
-  public OlapServiceImpl( IUnifiedRepository repo ) {
+  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server ) {
     this.repository = repo;
     this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
+    this.server = server;
 
     try {
       DefaultFileSystemManager dfsm = (DefaultFileSystemManager) VFS.getManager();
@@ -152,7 +156,7 @@ public class OlapServiceImpl implements IOlapService {
 
     try {
       UserDetailsService uds = PentahoSystem.get( UserDetailsService.class );
-      if (uds != null) {
+      if ( uds != null ) {
         isSec = true;
       } else {
         isSec = false;
@@ -496,16 +500,32 @@ public class OlapServiceImpl implements IOlapService {
       // Start by flushing the local cache.
       resetCache( session );
 
-      // Now flush the hosted server's caches.
-      getServer().getConnection( null, null, null )
-        .unwrap( RolapConnection.class )
-        .getCacheControl( null )
-        .flushSchemaCache();
-
+      flushHostedAndRemote( session );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
     } finally {
       writeLock.unlock();
+    }
+  }
+
+  private void flushHostedAndRemote( final IPentahoSession session )
+    throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    for ( String name : getCatalogNames( session ) ) {
+      OlapConnection connection = getConnection( name, session );
+      try {
+        //TODO: clean this up as per PPP-3223
+        Class<?> aClass = connection.getClass().getClassLoader().loadClass( "mondrian.rolap.RolapConnection" );
+        if ( connection.isWrapperFor( aClass ) ) {
+          Object unwrap = connection.unwrap( aClass );
+          Method getCacheControl = aClass.getMethod( "getCacheControl", PrintWriter.class );
+          Object cc = getCacheControl.invoke( unwrap, new PrintWriter( new StringWriter() ) );
+          Method flushSchemaCache = cc.getClass().getMethod( "flushSchemaCache" );
+          flushSchemaCache.invoke( cc );
+        }
+      } catch ( ClassNotFoundException e ) {
+        LOG.warn(
+          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_ROLAP_CONNECTION_NOT_FOUND" ), e );
+      }
     }
   }
 
@@ -629,7 +649,7 @@ public class OlapServiceImpl implements IOlapService {
 
     // Check if it is a remote server
     if ( getHelper().getOlap4jServers().contains( catalogName ) ) {
-      return makeOlap4jConnection( catalogName, session );
+      return makeOlap4jConnection( catalogName );
     }
 
     final StringBuilder roleName = new StringBuilder();
@@ -706,9 +726,7 @@ public class OlapServiceImpl implements IOlapService {
     }
   }
 
-  private OlapConnection makeOlap4jConnection(
-    String name,
-    IPentahoSession session ) {
+  private OlapConnection makeOlap4jConnection( String name ) {
     final Olap4jServerInfo olapServerInfo =
       getHelper().getOlap4jServerInfo( name );
     assert olapServerInfo != null;
