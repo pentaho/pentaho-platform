@@ -24,10 +24,16 @@ public class NodeRepositoryFileData implements IRepositoryFileData {
   private static final long serialVersionUID = 3986247263739435232L;
 
   private DataNode node;
+  private long dataSize = 0;
 
   public NodeRepositoryFileData( DataNode node ) {
     super();
     this.node = node;
+  }
+
+  public NodeRepositoryFileData( DataNode node, long dataSize ) {
+	  this(node);
+	  this.dataSize = dataSize;
   }
 
   public DataNode getNode() {
@@ -41,7 +47,8 @@ public class NodeRepositoryFileData implements IRepositoryFileData {
    */
   @Override
   public long getDataSize() {
-    return 0;
+    return dataSize;
   }
 
+  
 }
