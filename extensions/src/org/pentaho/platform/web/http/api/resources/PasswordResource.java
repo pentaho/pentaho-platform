@@ -22,10 +22,11 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.PasswordHelper;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -36,13 +37,30 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
  */
 @Path( "/password" )
 public class PasswordResource {
+  private static final String FORM_HTML =
+    "<html><body><form method='post'><input type=\"password\" name=\"password\"/>"
+      + "<input type=\"submit\" value=\"Submit\"/></form><br/>%s</body></html>";
+
+  @POST
+  @Path( "/encrypt" )
+  @Produces( MediaType.TEXT_HTML )
+  public Response encryptPassword( @FormParam( "password" ) String password ) {
+    if ( isAllowed() ) {
+      String encPwd = "";
+      if ( password != null ) {
+        encPwd = getPasswordHelper().encrypt( password );
+      }
+      return Response.ok( String.format( FORM_HTML, encPwd ) ).build();
+    }
+    return Response.status( UNAUTHORIZED ).build();
+  }
 
   @GET
   @Path( "/encrypt" )
-  @Produces( MediaType.TEXT_PLAIN )
-  public Response encryptPassword( @QueryParam( "password" ) String password ) {
+  @Produces( MediaType.TEXT_HTML )
+  public Response encryptionForm() {
     if ( isAllowed() ) {
-      return Response.ok( getPasswordHelper().encrypt( password ) ).build();
+      return Response.ok( String.format( FORM_HTML, "" ) ).build();
     }
     return Response.status( UNAUTHORIZED ).build();
   }
