@@ -230,6 +230,12 @@
 
   <!-- insert additional listeners -->
 
+  <!-- Last listener: PentahoSystemReadyListener, performs notification to plugins that the system
+	   has been started and is ready, spring has been initialized and all plugins have been loaded -->
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.PentahoSystemReadyListener</listener-class>
+  </listener>	
+
   <servlet>
     <servlet-name>ViewAction</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.ViewAction</servlet-class>
