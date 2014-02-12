@@ -127,7 +127,8 @@ public class XmlHelperTest extends TestCase {
         .assertEquals( "Error decoding after encoding", decodedXml, XmlHelper.decode( XmlHelper.encode( decodedXml ) ) ); //$NON-NLS-1$
   }
 
-  public void testXForm() throws TransformerException {
+  //Does not test functionality in the current code base
+  /*public void testXForm() throws TransformerException {
     try {
       InputStream inStrm = new FileInputStream( "test-res/solution/test/xml/XmlHelperTest1.xml" ); //$NON-NLS-1$
       String xslName = "CustomReportParametersForPortlet.xsl"; //$NON-NLS-1$
@@ -139,7 +140,7 @@ public class XmlHelperTest extends TestCase {
       System.out.println( "Exception thrown " + e.getMessage() ); //$NON-NLS-1$
       Assert.assertTrue( "Exception thrown " + e.getMessage(), false ); //$NON-NLS-1$
     }
-  }
+  }*/
 
   public void testFailureGetDocFromString() {
     try {
