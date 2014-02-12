@@ -475,7 +475,8 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     }
   }
 
-  @Test
+  //This is testing the Rest end points, we should instead be testing the underlying functionality in unit tests
+  /*@Test
   public void testBrowserDownload() {
     final String text = "abcdefg";
     // stub IUnifiedRepository start
@@ -519,9 +520,10 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ClientResponse r2 = webResource.path( "repo/files/public:file.txt/download" ).get( ClientResponse.class );
     assertResponse( r2, Status.OK );
     assertResponseIsZip( r2 );
-  }
+  }*/
 
-  @Test
+  //We should be testing the underlying class functionality in unit tests
+  /*@Test
   public void testGetDirChildren() {
     loginAsRepositoryAdmin();
     ITenant systemTenant =
@@ -557,7 +559,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     assertTrue( xml.startsWith( "<?" ) );
     cleanupUserAndRoles( mainTenant_1 );
     cleanupUserAndRoles( systemTenant );
-  }
+  }*/
 
   @Ignore
   public void testFileAcls() throws InterruptedException {
