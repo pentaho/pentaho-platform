@@ -20,6 +20,7 @@ package org.pentaho.platform.repository2.unified.fs;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.springframework.util.Assert;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   private FileSystemRepositoryFileDao repositoryFileDao;
@@ -137,7 +139,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public List<RepositoryFile> getDeletedFiles( Serializable folderId ) {
-    // TODO Auto-generated method stub
     return repositoryFileDao.getDeletedFiles( folderId, null );
   }
 
@@ -263,11 +264,25 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( List<RepositoryFile> files,
                                                                         Class<T> dataClass ) {
-    throw new UnsupportedOperationException();
+    Assert.notNull( files );
+    List<T> data = new ArrayList<T>( files.size() );
+    for ( RepositoryFile f : files ) {
+      Assert.notNull( f );
+      data.add( repositoryFileDao.getData( f.getId(), f.getVersionId(), dataClass ) );
+    }
+    return data;
   }
 
   public List<VersionSummary> getVersionSummaryInBatch( List<RepositoryFile> files ) {
-    throw new UnsupportedOperationException();
+    
+    Assert.notNull( files );
+    List<VersionSummary> versionSummaryList = new ArrayList<VersionSummary>( files.size() );
+    
+    for(RepositoryFile file : files){
+      versionSummaryList.add( getVersionSummary( file.getId(), file.getVersionId() ) );
+    }
+    
+    return versionSummaryList;
   }
 
   public void setFileMetadata( final Serializable fileId, Map<String, Serializable> metadataMap ) {

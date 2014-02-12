@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,10 +39,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -50,6 +53,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -156,8 +160,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
-    File folder = new File( repositoryRequest.getPath() );
-    for ( Iterator iterator = FileUtils.listFiles( folder, new WildcardFileFilter( repositoryRequest.getChildNodeFilter() ), null ).iterator(); iterator
+    File folder = new File( getPhysicalFileLocation( repositoryRequest.getPath() ) );
+    for ( Iterator<File> iterator = FileUtils.listFiles( folder, new WildcardFileFilter( repositoryRequest.getChildNodeFilter() ), null ).iterator(); iterator
         .hasNext(); ) {
       children.add( internalGetFile( (File) iterator.next() ) );
     }
@@ -184,7 +188,13 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     File f = new File( fileId.toString() );
     T data = null;
     try {
-      data = (T) new SimpleRepositoryFileData( new FileInputStream( f ), "UTF-8", "text/plain" );
+      if( SimpleRepositoryFileData.class.getName().equals( dataClass.getName() ) ){
+        data = (T) new SimpleRepositoryFileData ( new FileInputStream( f ), "UTF-8", "text/plain" );
+      
+      } else if( NodeRepositoryFileData.class.getName().equals( dataClass.getName() ) ) {
+        throw new UnsupportedOperationException( "This operation is not support by this repository" );
+      }
+      
     } catch ( FileNotFoundException e ) {
       throw new UnifiedRepositoryException( e );
     }
@@ -219,10 +229,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   public RepositoryFile getFile( String relPath ) {
     relPath = idToPath( relPath );
-    String physicalFileLocation =
-        relPath.equals( "/" ) ? rootDir.getAbsolutePath() : RepositoryFilenameUtils.concat( rootDir.getAbsolutePath(),
-            relPath.substring( RepositoryFilenameUtils.getPrefixLength( relPath ) ) );
-    return internalGetFile( new File( physicalFileLocation ) );
+    return internalGetFile( new File( getPhysicalFileLocation( relPath ) ) );
   }
 
   static String idToPath( String relPath ) {
@@ -273,20 +280,70 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
-    throw new UnsupportedOperationException( "This operation is not support by this repository" );
-  }
 
+    File root = new File( getPhysicalFileLocation( repositoryRequest.getPath() ) );
+    
+    //TODO ACL     
+    return getTree( root , repositoryRequest.getDepth().intValue() , 
+        repositoryRequest.getChildNodeFilter(), repositoryRequest.getTypes() );
+  }
+  
   @Deprecated
   public RepositoryFileTree getTree( String relPath, int depth, String filter, boolean showHidden ) {
-    throw new UnsupportedOperationException( "This operation is not support by this repository" );
+    
+    File root = new File( getPhysicalFileLocation( relPath ) );
+  
+    //TODO ACL     
+    return getTree( root , depth , filter , RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS );
   }
+  
+  private RepositoryFileTree getTree( final File file, final int depth, final String childNodeFilter, 
+      RepositoryRequest.FILES_TYPE_FILTER types ) {
+
+    RepositoryFile rootFile = internalGetFile( file );
+   
+    List<RepositoryFileTree> children;
+
+    if ( depth != 0 ) {
+      children = new ArrayList<RepositoryFileTree>();
+      
+      if ( file.isDirectory() ) {
+        
+        File[] childrenArray = file.listFiles();
+        
+        for( File child : childrenArray ){
+          
+          if( child.isFile() ){
+            
+            if( types == RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS || types == RepositoryRequest.FILES_TYPE_FILTER.FILES ){
+              children.add( new RepositoryFileTree( internalGetFile( child ), new ArrayList<RepositoryFileTree>() ) );
+            }
+            
+            continue;
+          }
+          
+          RepositoryFileTree repositoryChildFileTree = getTree( child, depth - 1, childNodeFilter, types );
+          if ( repositoryChildFileTree != null ) {
+            children.add( repositoryChildFileTree );
+          }
+        }
+      }
+      Collections.sort( children );
+    } else {
+      children = null;
+    }
+    return new RepositoryFileTree( rootFile, children );
+  }  
 
   public List<VersionSummary> getVersionSummaries( Serializable fileId ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
   public VersionSummary getVersionSummary( Serializable fileId, Serializable versionId ) {
-    throw new UnsupportedOperationException( "This operation is not support by this repository" );
+    RepositoryFile file = getFile( fileId, versionId );
+    List<String> labels = new ArrayList<String>();
+    return new VersionSummary(fileId, ( versionId != null ? versionId : fileId ) , 
+        false, file.getCreatedDate(), file.getCreatorId(), StringUtils.EMPTY,  labels );
   }
 
   public void lockFile( Serializable fileId, String message ) {
@@ -474,5 +531,20 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public RepositoryFile updateFolder( RepositoryFile file, String versionMessage ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
+  }
+  
+  private String getPhysicalFileLocation( String relPath ){
+    
+    if( StringUtils.isEmpty( relPath ) ){
+      return relPath;
+    }
+    
+    String physicalFileLocation =
+        relPath.equals( "/" ) ? rootDir.getAbsolutePath() : 
+          relPath.startsWith( rootDir.getAbsolutePath() ) ? relPath : 
+            RepositoryFilenameUtils.concat( rootDir.getAbsolutePath(),
+            relPath.substring( RepositoryFilenameUtils.getPrefixLength( relPath ) ) );
+    
+    return physicalFileLocation; 
   }
 }
