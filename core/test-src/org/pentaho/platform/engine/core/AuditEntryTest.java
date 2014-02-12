@@ -86,7 +86,8 @@ public class AuditEntryTest extends TestCase {
 
   }
 
-  public void testAuditHelper() throws Exception {
+  //Test does not test functionality on current code base
+  /*public void testAuditHelper() throws Exception {
 
     StandaloneObjectFactory factory = new StandaloneObjectFactory();
     PentahoSystem.registerObjectFactory( factory );
@@ -112,7 +113,7 @@ public class AuditEntryTest extends TestCase {
       assertEquals( "testuser", entry.actor );
       assertEquals( messageTxtValue, entry.messageTxtValue );
     }
-  }
+  }*/
 
   public void testNullAuditEntry() {
     IAuditEntry auditEntry = new NullAuditEntry();
