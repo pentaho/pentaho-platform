@@ -132,11 +132,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       String repositoryFilePath =
           RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( file.getPath() ), fileName );
 
-      // Validate against importing system related artifacts.
-      if ( isSystemPath( repositoryFilePath ) ) {
-        log.trace( "Skipping [" + repositoryFilePath + "], it is in admin / system folders" );
-        continue;
-      } else if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
+      if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
 
         byte[] bytes = IOUtils.toByteArray( file.getInputStream() );
         RepositoryFileImportBundle.Builder builder = cachedImports.get( repositoryFilePath );
