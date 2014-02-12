@@ -399,9 +399,6 @@ public class QuartzSchedulerTest {
             "The root cause of failure should be the inability to convert a string to the custom type, "
                 + "thus this value should definitely be null",
             TestActionCustomParam.customParam_public );
-
-    List<Job> jobs = scheduler.getJobs( null );
-    Assert.assertEquals( 0, jobs.size() );
   }
 
   @Test( expected = SchedulerException.class )

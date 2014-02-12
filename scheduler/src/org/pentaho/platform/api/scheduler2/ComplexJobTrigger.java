@@ -119,6 +119,9 @@ public class ComplexJobTrigger extends JobTrigger {
 
   private void addRecurrences( List<ITimeRecurrence> theList, Integer... recurrences ) {
     List<Integer> nonNullRecurrences = ( recurrences == null ? new ArrayList<Integer>() : filterNulls( recurrences ) );
+    if (nonNullRecurrences.size() == 0 ) {
+      return;
+    }
     if ( nonNullRecurrences.size() == 1 ) {
       theList.add( new RecurrenceList( nonNullRecurrences.get( 0 ) ) );
     } else if ( nonNullRecurrences.size() == 2 ) {
