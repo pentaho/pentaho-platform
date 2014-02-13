@@ -89,6 +89,8 @@
 
       window.top.mantle_addHandler("ShowHiddenFilesEvent", function (event) {
         if (event.value != undefined) {
+          //Clear the Browse Perspective cache
+          window.top.mantle_isBrowseRepoDirty = true;
           FileBrowser.setShowHiddenFiles(event.value);
           FileBrowser.update(window.top.HOME_FOLDER);
         }
