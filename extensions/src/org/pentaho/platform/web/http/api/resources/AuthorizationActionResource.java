@@ -39,17 +39,6 @@ import java.util.List;
 public class AuthorizationActionResource {
 
   @SuppressWarnings( "serial" )
-  private List<String> actionNames = new ArrayList<String>() {
-    {
-      add( "org.pentaho.security.administerSecurity" );
-      add( "org.pentaho.security.publish" );
-      add( "org.pentaho.repository.create" );
-      add( "org.pentaho.repository.read" );
-      add( "org.pentaho.scheduler.manage" );
-
-    }
-  };
-
   private List<IAuthorizationAction> authActionList;
 
   public AuthorizationActionResource() {
@@ -70,23 +59,22 @@ public class AuthorizationActionResource {
   @Produces( { MediaType.TEXT_PLAIN } )
   public Response validateAuth( @QueryParam( "authAction" ) String authAction ) {
 
+	
+
+	 // TODO The pen:list and PentahoSystem is not working at all so we are bypassing this valid change for now.
+	 // Once this is fixed we need to enable these. 
+	/*  
     boolean validInput = false;
+     for (IAuthorizationAction a : getActionList()) {
+    	 if (a.getName().equals(authAction))  {
+    		 validInput = true;
+    		 break;
+    	 }
+     }
 
-    /*
-     * for (IAuthorizationAction a : getActionList()) { if (a.getName().equals(authAction)) { validInput = true; break;
-     * }
-     * 
-     * }
-     */
-    for ( String s : actionNames ) {
-      if ( s.equals( authAction ) ) {
-        validInput = true;
-        break;
-      }
-
-    }
-
-    if ( validInput ) {
+	*/
+	  boolean validInput = true; 
+     if ( validInput ) {
       IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
       boolean isAllowed = policy.isAllowed( authAction );
       if ( isAllowed ) {
