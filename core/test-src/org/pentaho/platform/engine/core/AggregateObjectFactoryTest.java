@@ -123,4 +123,33 @@ public class AggregateObjectFactoryTest {
     assertEquals( "Higher Priority MimeTypeListener", republished.name );
 
   }
+
+    /**
+     *
+     * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice.
+     * This case tests that the AggregateObjectFactory's set implementation is working properly.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRegistration() throws Exception {
+
+        StandaloneSession session = new StandaloneSession();
+        StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+
+        ConfigurableApplicationContext context =
+                new FileSystemXmlApplicationContext( "test-res/solution/system/pentahoObjects.spring.xml" );
+
+        factory.init( null, context );
+
+        StandaloneSpringPentahoObjectFactory factory2 = new StandaloneSpringPentahoObjectFactory();
+        factory2.init(null, context );
+
+        AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+        aggFactory.registerObjectFactory( factory );
+        aggFactory.registerObjectFactory( factory2 );
+
+        List<MimeTypeListener> mimes = aggFactory.getAll( MimeTypeListener.class, session );
+        assertEquals( 5, mimes.size() );
+    }
 }

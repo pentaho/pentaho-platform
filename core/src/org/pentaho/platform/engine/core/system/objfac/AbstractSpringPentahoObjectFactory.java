@@ -602,4 +602,21 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     }
 
   }
+
+    @Override
+    public int hashCode() {
+        return this.beanFactory.getBeanFactory().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractSpringPentahoObjectFactory)) return false;
+
+        AbstractSpringPentahoObjectFactory that = (AbstractSpringPentahoObjectFactory) o;
+
+        if (!beanFactory.equals(that.beanFactory)) return false;
+
+        return true;
+    }
 }
