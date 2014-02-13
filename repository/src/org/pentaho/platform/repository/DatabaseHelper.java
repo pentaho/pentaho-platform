@@ -24,6 +24,7 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.encryption.Encr;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 
@@ -102,7 +103,7 @@ public class DatabaseHelper {
     rootNode.setProperty( PROP_DATABASE_NAME, setNull( databaseConnection.getDatabaseName() ) );
     rootNode.setProperty( PROP_PORT, new Long( port ) );
     rootNode.setProperty( PROP_USERNAME, setNull( databaseConnection.getUsername() ) );
-    rootNode.setProperty( PROP_PASSWORD, setNull( databaseConnection.getPassword() ) );
+    rootNode.setProperty( PROP_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(databaseConnection.getPassword()));
     rootNode.setProperty( PROP_SERVERNAME, setNull( databaseConnection.getInformixServername() ) );
     rootNode.setProperty( PROP_DATA_TBS, setNull( databaseConnection.getDataTablespace() ) );
     rootNode.setProperty( PROP_INDEX_TBS, setNull( databaseConnection.getIndexTablespace() ) );
@@ -224,7 +225,7 @@ public class DatabaseHelper {
     databaseConnection.setDatabaseName( getString( rootNode, PROP_DATABASE_NAME ) );
     databaseConnection.setDatabasePort( getString( rootNode, PROP_PORT ) );
     databaseConnection.setUsername( getString( rootNode, PROP_USERNAME ) );
-    databaseConnection.setPassword( getString( rootNode, PROP_PASSWORD ) );
+    databaseConnection.setPassword( Encr.decryptPasswordOptionallyEncrypted(getString(rootNode, PROP_PASSWORD)));
     databaseConnection.setInformixServername( getString( rootNode, PROP_SERVERNAME ) );
     databaseConnection.setDataTablespace( getString( rootNode, PROP_DATA_TBS ) );
     databaseConnection.setIndexTablespace( getString( rootNode, PROP_INDEX_TBS ) );
