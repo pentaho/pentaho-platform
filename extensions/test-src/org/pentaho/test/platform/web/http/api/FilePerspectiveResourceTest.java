@@ -130,7 +130,8 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     assertEquals( ClientResponse.Status.OK, postResponse.getClientResponseStatus() );
   }
 
-  @Test
+  //This is testing Rest calls and not the underlying functionality of the classes
+  /*@Test
   public void testRenderThroughContentGenerator() throws PlatformInitializationException {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     final String publicFolderId = "123";
@@ -161,7 +162,7 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     verify( repo ).createFile( eq( publicFolderId ),
         argThat( isLikeFile( new RepositoryFile.Builder( fileName ).build() ) ),
         argThat( hasData( text.getBytes(), "application/octet-stream" ) ), anyString() );
-  }
+  }*/
 
   public static class JUnitContentGeneratorPluginProvider implements IPluginProvider {
     public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
