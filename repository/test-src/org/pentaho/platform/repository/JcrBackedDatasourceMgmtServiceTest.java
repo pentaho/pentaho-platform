@@ -152,7 +152,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
     doReturn( f ).when( repo ).getFile( databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
     // stub out update file which requires a file to be returned
     doReturn( f ).when( repo )
-        .updateFile( argThat( isLikeFile( f ) ), any( NodeRepositoryFileData.class ), anyString() );
+        .updateFile( any( RepositoryFile.class ), any( NodeRepositoryFileData.class ), anyString() );
     IDatasourceMgmtService datasourceMgmtService =
         new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
 
