@@ -60,28 +60,67 @@
 
   <!-- JAX-RS beans -->
   <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>
+
+  <!-- JAX-RS beans -->
   <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.UserRoleDaoResource" scope="request">
-    <constructor-arg ref="IRoleAuthorizationPolicyRoleBindingDao" />
-    <constructor-arg ref="ITenantManager" />
-    <constructor-arg ref="singleTenantSystemAuthorities"/>
-    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg><pen:bean class="org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao" /></constructor-arg>
+    <constructor-arg><pen:bean class="org.pentaho.platform.api.mt.ITenantManager" /></constructor-arg>
+    <constructor-arg>
+      <pen:bean class="java.util.List">
+        <pen:attributes>
+          <pen:attr key="id" value="singleTenantSystemAuthorities"/>
+        </pen:attributes>
+      </pen:bean>
+    </constructor-arg>
+    <constructor-arg>
+      <pen:bean class="java.lang.String">
+        <pen:attributes>
+          <pen:attr key="id" value="singleTenantAdminAuthorityName"/>
+        </pen:attributes>
+      </pen:bean>
+    </constructor-arg>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.UserRoleListResource" scope="request">
-    <constructor-arg ref="singleTenantSystemAuthorities"/>
-    <constructor-arg ref="singleTenantAdminAuthorityName"/>
-	<constructor-arg ref="singleTenantAnonymousAuthorityName"/>    
-    <constructor-arg ref="extraSystemAuthorities"/>
+    <constructor-arg>
+      <pen:bean class="java.util.List">
+        <pen:attributes>
+          <pen:attr key="id" value="singleTenantSystemAuthorities"/>
+        </pen:attributes>
+      </pen:bean>
+    </constructor-arg>
+    <constructor-arg>
+      <pen:bean class="java.lang.String">
+        <pen:attributes>
+          <pen:attr key="id" value="singleTenantAdminAuthorityName"/>
+        </pen:attributes>
+      </pen:bean>
+    </constructor-arg>
+    <constructor-arg>
+      <pen:bean class="java.lang.String">
+        <pen:attributes>
+          <pen:attr key="id" value="singleTenantAnonymousAuthorityName"/>
+        </pen:attributes>
+      </pen:bean>
+    </constructor-arg>
+    <constructor-arg>
+      <pen:bean class="java.util.List">
+        <pen:attributes>
+          <pen:attr key="id" value="extraSystemAuthorities"/>
+        </pen:attributes>
+      </pen:bean>
+    </constructor-arg>
   </bean>
+
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
-	<property name="whitelist" ref="downloadWhitelist" />
+  <property name="whitelist"><pen:bean class="org.pentaho.platform.repository.RepositoryDownloadWhitelist" /></property>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.BlockoutResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request">
-	<property name="whitelist" ref="downloadWhitelist" />
+  <property name="whitelist"><pen:bean class="org.pentaho.platform.repository.RepositoryDownloadWhitelist" /></property>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
@@ -101,6 +140,12 @@
   <bean class="org.pentaho.platform.web.http.api.resources.UserConsoleResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.UserSettingsResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryPublishResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.AuthorizationActionResource" scope="request"/>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.AuthorizationActionResource" scope="request">
+    <constructor-arg>
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
+    </constructor-arg>
+  </bean>
+
   <bean class="org.pentaho.platform.web.http.api.resources.PasswordResource" scope="request"/>
 </beans>

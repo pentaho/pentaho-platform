@@ -19,31 +19,33 @@
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * A Registry for published Spring beans. Also allows for looking up the names of all beans registered for a given
- * type in the given Spring bean factory
- * 
+ * A Registry for published Spring beans. Also allows for looking up the names of all beans registered for a given type
+ * in the given Spring bean factory
+ * <p/>
  * User: nbaker Date: 3/27/13
  */
 public class PublishedBeanRegistry {
 
   private static Map<Object, Map<Class<?>, List<String>>> classToBeanMap = Collections
-      .synchronizedMap( new WeakHashMap<Object, Map<Class<?>, List<String>>>() );
+    .synchronizedMap( new WeakHashMap<Object, Map<Class<?>, List<String>>>() );
 
   private static Map<ListableBeanFactory, Object> factoryMarkerCache = Collections
-      .synchronizedMap( new WeakHashMap<ListableBeanFactory, Object>() );
+    .synchronizedMap( new WeakHashMap<ListableBeanFactory, Object>() );
 
   /**
    * Register a bean for the given class. The factoryMarker is a UUID associated with the originating BeanFactory
-   * 
+   *
    * @param beanName
    * @param clazz
    * @param factoryMarker
@@ -74,7 +76,7 @@ public class PublishedBeanRegistry {
 
   /**
    * Returns the names of beans registered in the given factory for the specified type
-   * 
+   *
    * @param registry
    * @param type
    * @return
@@ -88,7 +90,7 @@ public class PublishedBeanRegistry {
       throw new IllegalArgumentException( "Type cannot be null" );
     }
     if ( registry.containsBean( Const.FACTORY_MARKER ) == false ) {
-      return new String[] {};
+      return new String[] { };
     }
 
     Map<Class<?>, List<String>> map;
@@ -100,17 +102,38 @@ public class PublishedBeanRegistry {
     }
     // }
     if ( map == null ) {
-      return new String[] {};
+      return new String[] { };
     }
 
     List<String> beansImplementingType = map.get( type );
     if ( beansImplementingType == null ) {
-      return new String[] {};
+      return new String[] { };
     }
-    return beansImplementingType.toArray( new String[beansImplementingType.size()] );
+    return beansImplementingType.toArray( new String[ beansImplementingType.size() ] );
   }
 
   public static void registerFactory( ApplicationContext applicationContext ) {
-    factoryMarkerCache.put( applicationContext, applicationContext.getBean( Const.FACTORY_MARKER ) );
+    Object markerBean = null;
+    try {
+      // The marker may not be present if there are no published beans from this factory.
+      markerBean = applicationContext.getBean( Const.FACTORY_MARKER );
+    } catch ( NoSuchBeanDefinitionException ignored ) {
+      // ignore
+    }
+    if ( markerBean == null ) {
+      // The applicationContext has been declared to be registered, but no beans are actually published. Ignoring this
+      // applicationContext
+      return;
+    }
+    factoryMarkerCache.put( applicationContext, markerBean );
+  }
+
+  /**
+   * Return the list of registered BeanFactories
+   *
+   * @return list of factories
+   */
+  public static Set<ListableBeanFactory> getRegisteredFactories() {
+    return factoryMarkerCache.keySet();
   }
 }

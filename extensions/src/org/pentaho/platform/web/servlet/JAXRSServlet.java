@@ -28,8 +28,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.servlet.ServletException;
@@ -131,7 +129,6 @@ public class JAXRSServlet extends SpringServlet {
   }
 
   protected ApplicationContext getAppContext() {
-    WebApplicationContext parent = WebApplicationContextUtils.getRequiredWebApplicationContext( getServletContext() );
 
     ConfigurableWebApplicationContext wac = new XmlWebApplicationContext() {
       @Override
@@ -139,7 +136,7 @@ public class JAXRSServlet extends SpringServlet {
         return new FileSystemResource( new File( path ) );
       }
     };
-    wac.setParent( parent );
+
     wac.setServletContext( getServletContext() );
     wac.setServletConfig( getServletConfig() );
     wac.setNamespace( getServletName() );

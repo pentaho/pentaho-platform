@@ -26,6 +26,7 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.core.system.objfac.spring.PublishedBeanRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
@@ -61,7 +62,7 @@ public class AggregateObjectFactoryTest {
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
 
     ConfigurableApplicationContext context =
-        new FileSystemXmlApplicationContext( "test-res/solution/system/pentahoObjects.spring.xml" );
+      new FileSystemXmlApplicationContext( "test-res/solution/system/pentahoObjects.spring.xml" );
 
     factory.init( null, context );
 
@@ -71,7 +72,7 @@ public class AggregateObjectFactoryTest {
     StandaloneObjectFactory factory3 = new StandaloneObjectFactory();
     factory3.init( null, null );
     factory3.defineObject( "MimeTypeListener", MimeTypeListener.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
     AggregateObjectFactory aggFactory = new AggregateObjectFactory();
     aggFactory.registerObjectFactory( factory3 );
@@ -93,14 +94,14 @@ public class AggregateObjectFactoryTest {
     PentahoSystem.registerObjectFactory( factory );
 
     MimeTypeListener republished =
-        PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "republished", "true" ) );
+      PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "republished", "true" ) );
     assertNotNull( republished );
 
     assertEquals( "Higher Priority MimeTypeListener", republished.name );
 
     IMimeTypeListener republishedAsInterface =
-        PentahoSystem.get( IMimeTypeListener.class, session, Collections
-            .singletonMap( "republishedAsInterface", "true" ) );
+      PentahoSystem.get( IMimeTypeListener.class, session, Collections
+        .singletonMap( "republishedAsInterface", "true" ) );
     assertNotNull( republishedAsInterface );
     assertEquals( "Higher Priority MimeTypeListener", ( (MimeTypeListener) republishedAsInterface ).name );
 
@@ -117,39 +118,80 @@ public class AggregateObjectFactoryTest {
     PentahoSystem.registerObjectFactory( factory );
 
     MimeTypeListener republished =
-        PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "someValue" ) );
+      PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "someValue" ) );
     assertNotNull( republished );
 
     assertEquals( "Higher Priority MimeTypeListener", republished.name );
 
   }
 
-    /**
-     *
-     * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice.
-     * This case tests that the AggregateObjectFactory's set implementation is working properly.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testRegistration() throws Exception {
+  @Test
+  public void testGetById() throws Exception {
 
-        StandaloneSession session = new StandaloneSession();
-        StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+    StandaloneSession session = new StandaloneSession();
+    StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+    factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
 
-        ConfigurableApplicationContext context =
-                new FileSystemXmlApplicationContext( "test-res/solution/system/pentahoObjects.spring.xml" );
+    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+    aggFactory.registerObjectFactory( factory );
 
-        factory.init( null, context );
+    MimeTypeListener info = aggFactory.get( MimeTypeListener.class, session, Collections.singletonMap( "id", "someID" ) );
+    assertNotNull( info );
 
-        StandaloneSpringPentahoObjectFactory factory2 = new StandaloneSpringPentahoObjectFactory();
-        factory2.init(null, context );
+  }
 
-        AggregateObjectFactory aggFactory = new AggregateObjectFactory();
-        aggFactory.registerObjectFactory( factory );
-        aggFactory.registerObjectFactory( factory2 );
+  /**
+   * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice.
+   * This
+   * case tests that the AggregateObjectFactory's set implementation is working properly.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testRegistration() throws Exception {
 
-        List<MimeTypeListener> mimes = aggFactory.getAll( MimeTypeListener.class, session );
-        assertEquals( 5, mimes.size() );
-    }
+    StandaloneSession session = new StandaloneSession();
+    StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+
+    ConfigurableApplicationContext context =
+      new FileSystemXmlApplicationContext( "test-res/solution/system/pentahoObjects.spring.xml" );
+
+    factory.init( null, context );
+
+    StandaloneSpringPentahoObjectFactory factory2 = new StandaloneSpringPentahoObjectFactory();
+    factory2.init( null, context );
+
+    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+    aggFactory.registerObjectFactory( factory );
+    aggFactory.registerObjectFactory( factory2 );
+
+    List<MimeTypeListener> mimes = aggFactory.getAll( MimeTypeListener.class, session );
+    assertEquals( 5, mimes.size() );
+  }
+
+  /**
+   * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice.
+   * This
+   * case tests that the AggregateObjectFactory's set implementation is working properly.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testRegisteredButNotPublishingAnythingApplicationContext() throws Exception {
+
+    StandaloneSession session = new StandaloneSession();
+    StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+
+    ConfigurableApplicationContext context =
+      new FileSystemXmlApplicationContext( "test-res/solution/system/registeredButNotPublishing.spring.xml" );
+
+    // this was causing an exception.
+    factory.init( null, context );
+
+    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+    aggFactory.registerObjectFactory( factory );
+    assertEquals(0,PublishedBeanRegistry.getRegisteredFactories().size());
+
+  }
+
 }

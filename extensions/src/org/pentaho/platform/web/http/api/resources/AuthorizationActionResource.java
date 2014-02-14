@@ -27,15 +27,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Resource deals with the Authorization Action in the platform. 
- * @author rmansoor
+ * Resource deals with the Authorization Action in the platform.
  *
+ * @author rmansoor
  */
-@Path("/authorization/action")
+@Path( "/authorization/action" )
 public class AuthorizationActionResource {
 
   @SuppressWarnings( "serial" )
@@ -48,9 +47,10 @@ public class AuthorizationActionResource {
 
     this.authActionList = authActionList;
   }
-  
+
   /**
    * Validates if a current user is authorized to perform a specific action
+   *
    * @param authAction Authorization Action to be validated
    * @return "true" or "false"
    */
@@ -59,22 +59,16 @@ public class AuthorizationActionResource {
   @Produces( { MediaType.TEXT_PLAIN } )
   public Response validateAuth( @QueryParam( "authAction" ) String authAction ) {
 
-	
 
-	 // TODO The pen:list and PentahoSystem is not working at all so we are bypassing this valid change for now.
-	 // Once this is fixed we need to enable these. 
-	/*  
     boolean validInput = false;
-     for (IAuthorizationAction a : getActionList()) {
-    	 if (a.getName().equals(authAction))  {
-    		 validInput = true;
-    		 break;
-    	 }
-     }
+    for ( IAuthorizationAction a : getActionList() ) {
+      if ( a.getName().equals( authAction ) ) {
+        validInput = true;
+        break;
+      }
+    }
 
-	*/
-	  boolean validInput = true; 
-     if ( validInput ) {
+    if ( validInput ) {
       IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
       boolean isAllowed = policy.isAllowed( authAction );
       if ( isAllowed ) {

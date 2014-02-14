@@ -67,7 +67,7 @@ PentahoSystem which is initialized after Spring
     </pen:publish>
   </bean>
 
-  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton">
+  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton" id="someID">
     <property name="name" value="Test Attr3"/>
     <pen:publish as-type="ALL">
       <pen:attributes>
