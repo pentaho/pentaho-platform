@@ -36,7 +36,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.test.platform.engine.security.MockSecurityHelper;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -120,6 +122,9 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
       // initting spring's app context
       springApplicationContext.getBean( "pentahoSystemProxy" ); //$NON-NLS-1$
 
+      //Initialize SecurityHelper with a mock for testing
+      SecurityHelper.setMockInstance(new MockSecurityHelper());
+
       initOk = PentahoSystem.init( applicationContext );
     } else {
       initOk = true;
@@ -129,7 +134,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
   }
 
   private ApplicationContext getSpringApplicationContext() {
-
+    //todo
     String[] fns =
     {
       "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
