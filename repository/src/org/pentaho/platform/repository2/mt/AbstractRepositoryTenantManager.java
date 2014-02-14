@@ -35,6 +35,7 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
@@ -79,29 +80,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
   protected List<String> singleTenantAuthenticatedAuthorityRoleBindingList;
 
-  protected IPathConversionHelper pathConversionHelper = new IPathConversionHelper() {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper#absToRel(java.lang.String)
-     */
-    @Override
-    public String absToRel( String absPath ) {
-      return absPath;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper#relToAbs(java.lang.String)
-     */
-    @Override
-    public String relToAbs( String relPath ) {
-      return relPath;
-    }
-
-  };
+  protected IPathConversionHelper pathConversionHelper = new DefaultPathConversionHelper();
 
   protected AbstractRepositoryTenantManager( final IRepositoryFileDao contentDao, final IUserRoleDao userRoleDao,
       final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
@@ -205,7 +184,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
         && (Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         Tenant tenant = new Tenant( repoFile.getPath(), isTenantEnabled( session, repoFile.getId() ) );
         if ( includeDisabledTenants || tenant.isEnabled() ) {
-          children.add( new Tenant( repoFile.getPath(), isTenantEnabled( session, repoFile.getId() ) ) );
+          children.add( new Tenant( pathConversionHelper.relToAbs(repoFile.getPath()), isTenantEnabled(session, repoFile.getId()) ) );
         }
 
       }
