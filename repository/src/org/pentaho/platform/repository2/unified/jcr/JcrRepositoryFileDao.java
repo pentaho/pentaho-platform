@@ -61,7 +61,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
@@ -94,7 +93,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private IRepositoryDefaultAclHandler defaultAclHandler;
 
-  private RepositoryAccessVoterManager accessVoterManager;
+  private IRepositoryAccessVoterManager accessVoterManager;
 
   // ~ Constructors
   // ====================================================================================================
@@ -119,7 +118,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       final List<ITransformer<IRepositoryFileData>> transformers, final ILockHelper lockHelper,
       final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
       final IRepositoryFileAclDao aclDao, final IRepositoryDefaultAclHandler defaultAclHandler,
-      final RepositoryAccessVoterManager accessVoterManager ) {
+      final IRepositoryAccessVoterManager accessVoterManager ) {
     this( jcrTemplate, transformers, lockHelper, deleteHelper, pathConversionHelper, aclDao, defaultAclHandler );
     this.accessVoterManager = accessVoterManager;
   }
