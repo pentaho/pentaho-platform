@@ -47,7 +47,6 @@
     <property name="transactionManager" ref="jcrTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
-        org.pentaho.platform.api.mt.ITenantManager.createTenant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.getChildTenants=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.updateTentant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.deleteTenant=PROPAGATION_REQUIRED
@@ -458,7 +457,7 @@
 
   <bean id="jcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
-    <property name="allowCreate" value="false"/>
+    <property name="allowCreate" value="true"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
 
@@ -544,35 +543,35 @@
 
 
   <!-- Built-In ABS Logical Roles -->
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction">
-    <pen:publish as-type="INTERFACES">
+    <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction" id="RepositoryReadAction">
+  <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="50"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" id="RepositoryCreateAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="40"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction" id="SchedulerAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="30"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" id="AdministerSecurityAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="20"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction" id="PublishAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="0"/>
@@ -580,12 +579,22 @@
     </pen:publish>
   </bean>
 
+    <!-- This is a temporary workaround for a problem where the Actions are not
+    being registered with Pentaho system for unit tests -->
+    <util:list id="AuthorizationActions">
+        <ref local="RepositoryReadAction"/>
+        <ref local="RepositoryCreateAction"/>
+        <ref local="SchedulerAction"/>
+        <ref local="AdministerSecurityAction"/>
+        <ref local="PublishAction"/>
+    </util:list>
+
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
-      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
+        <ref local="AuthorizationActions"/>
     </entry>
     <entry key-ref="superAdminAuthorityName">
-      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
+      <ref local="AuthorizationActions"/>
     </entry>
   </util:map>
 
@@ -602,6 +611,8 @@
 
   <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
     <value>org.pentaho.repository.read</value>
+    <value>org.pentaho.repository.create</value>
+    <value>org.pentaho.scheduler.manage</value>    
   </util:list>
 
   <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -764,27 +775,7 @@
   </bean>
 
   <!-- IUserRoleDao implementation -->
-  <bean id="userRoleDao" class="org.pentaho.platform.security.userroledao.jackrabbit.JcrUserRoleDao">
-    <constructor-arg ref="adminJcrTemplate"/>
-    <constructor-arg ref="tenantedUserNameUtils"/>
-    <constructor-arg ref="tenantedRoleNameUtils"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-    <constructor-arg ref="singleTenantAdminAuthorityName"/>
-    <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="repositoryFileAclDao"/>
-    <constructor-arg ref="repositoryFileDao"/>
-    <constructor-arg ref="pathConversionHelper"/>
-    <constructor-arg ref="lockHelper"/>
-    <constructor-arg ref="defaultAclHandler"/>
-    <constructor-arg ref="singleTenantSystemAuthorities"/>
-    <constructor-arg ref="extraRoles"/>
-    <constructor-arg>
-      <bean class="org.springframework.security.providers.dao.cache.NullUserCache"/>
-    </constructor-arg>
-  </bean>
-
-  <!-- IUserRoleDao implementation -->
-  <bean id="mockUserRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
+  <bean id="userRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
@@ -807,5 +798,9 @@
         <ref bean="anonymousRole"/>
       </list>
     </property>
+  </bean>
+  <bean id="RepositoryFileProxyFactory" class="org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="repositoryFileDao"/>
   </bean>
 </beans>

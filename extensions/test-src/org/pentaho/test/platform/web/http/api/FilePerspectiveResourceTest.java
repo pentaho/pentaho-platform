@@ -130,6 +130,12 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     assertEquals( ClientResponse.Status.OK, postResponse.getClientResponseStatus() );
   }
 
+  @Test
+  public void testDummy()  {
+	  
+  }
+
+  
   //This is testing Rest calls and not the underlying functionality of the classes
   /*@Test
   public void testRenderThroughContentGenerator() throws PlatformInitializationException {
