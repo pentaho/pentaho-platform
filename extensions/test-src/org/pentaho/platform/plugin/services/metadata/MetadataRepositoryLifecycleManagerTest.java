@@ -18,7 +18,23 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
+import static junit.framework.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,6 +42,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -39,6 +56,7 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -49,6 +67,8 @@ import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
@@ -59,6 +79,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.security.Authentication;
@@ -71,14 +92,6 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import javax.jcr.Repository;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static junit.framework.Assert.*;
 
 /**
  * Class Description User: dkincade
@@ -127,6 +140,8 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
   private String sysAdminAuthorityName;
 
   private String sysAdminUserName;
+  
+  private String superAdminRoleName;
 
   private IRepositoryFileDao repositoryFileDao;
 
@@ -142,6 +157,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
   private static TransactionTemplate jcrTransactionTemplate;
+  private JcrTemplate jcrTemplate;
 
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
@@ -172,6 +188,8 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     mp.defineInstance( "tenantedUserNameUtils", tenantedUserNameUtils );
     mp.defineInstance( "tenantedRoleNameUtils", tenantedRoleNameUtils );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
+    mp.define( IConfiguration.class, SystemConfig.class );
+    mp.defineInstance("RepositoryFileProxyFactory", new RepositoryFileProxyFactory(this.jcrTemplate, this.repositoryFileDao));    
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao( userRoleDao );
     List<String> systemRoles = new ArrayList<String>();
@@ -185,6 +203,8 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     ( (UserRoleDaoUserRoleListService) userRoleListService ).setUserDetailsService( userDetailsService );
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.start();
+    loginAsRepositoryAdmin();
+    setAclManagement();
     logout();
     startupCalled = true;
   }
@@ -225,15 +245,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   @Test
   public void testDoNewTenant() throws Exception {
-    IPentahoSession currentSession = PentahoSessionHolder.getSession();
-    testTenant = new Tenant( TEST_TENANT_ID, true );
-    try {
-      metadataRepositoryLifecycleManager.newTenant( testTenant );
-      fail( "The /etc folder is not setup and this should cause a failure" );
-    } catch ( Exception success ) {
-      assertEquals( currentSession, PentahoSessionHolder.getSession() );
-    }
-
     loginAsRepositoryAdmin();
     ITenant systemTenant =
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName,
@@ -294,30 +305,32 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     adminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );
     sysAdminAuthorityName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
+    superAdminRoleName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     roleBindingDaoTarget =
         (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
             .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrTxn" );
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
-    userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDaoTxn" );
+    userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedUserNameUtils" );
     tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedRoleNameUtils" );
     metadataRepositoryLifecycleManager =
         (IBackingRepositoryLifecycleManager) applicationContext.getBean( "metadataRepositoryLifecycleManager" );
     jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean( "jcrTransactionTemplate" );
     repo = (IUnifiedRepository) applicationContext.getBean( "unifiedRepository" );
-    TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDaoTxn" );
+    TestPrincipalProvider.userRoleDao = userRoleDao;
     TestPrincipalProvider.adminCredentialsStrategy =
         (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
     TestPrincipalProvider.repository = (Repository) applicationContext.getBean( "jcrRepository" );
+    jcrTemplate = (JcrTemplate) applicationContext.getBean("jcrTemplate");
   }
 
   protected void loginAsRepositoryAdmin() {
     StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
     pentahoSession.setAuthenticated( repositoryAdminUsername );
     final GrantedAuthority[] repositoryAdminAuthorities =
-        new GrantedAuthority[] { new GrantedAuthorityImpl( sysAdminAuthorityName ) };
+        new GrantedAuthority[] { new GrantedAuthorityImpl( superAdminRoleName ) };
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails =
         new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
@@ -327,6 +340,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( repositoryAdminAuthentication );
   }
+  
 
   protected void logout() {
     PentahoSessionHolder.removeSession();
@@ -393,4 +407,24 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );
   }
+  
+  private void setAclManagement() {
+	    testJcrTemplate.execute( new JcrCallback() {
+	      @Override
+	      public Object doInJcr( Session session ) throws IOException, RepositoryException {
+	        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+	        Workspace workspace = session.getWorkspace();
+	        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
+	        try {
+	          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
+	        } catch ( AccessControlException ace ) {
+	          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
+	              new String[0] );
+	        }
+	        session.save();
+	        return null;
+	      }
+	    } );
+	  }
+
 }
