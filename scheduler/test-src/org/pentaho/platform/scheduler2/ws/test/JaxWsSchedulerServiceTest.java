@@ -342,14 +342,12 @@ public class JaxWsSchedulerServiceTest {
 
   @Test( timeout = 1000 * 5 * 60 )
   public void testUpdateComplexJob() throws SchedulerException {
-    Calendar startDate = Calendar.getInstance();
-    Calendar endDate = Calendar.getInstance();
-    int endHour = ( endDate.get( Calendar.HOUR_OF_DAY ) + 5 ) % 24;
-    endDate.set( Calendar.HOUR_OF_DAY, endHour );
+	long start  = System.currentTimeMillis() + 1000;
+	long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
     int startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 10 ) % 60;
     ComplexJobTrigger jobTrigger = new ComplexJobTrigger();
-    jobTrigger.setStartTime( startDate.getTime() );
-    jobTrigger.setEndTime( endDate.getTime() );
+    jobTrigger.setStartTime( new Date(start) );
+    jobTrigger.setEndTime( new Date(end) );
     jobTrigger.setMinuteRecurrence( new IncrementalRecurrence( startingMinute, 1 ) );
     jobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
     System.out.println( jobTrigger.toString() );
@@ -360,15 +358,11 @@ public class JaxWsSchedulerServiceTest {
 
     jobTrigger = new ComplexJobTrigger();
 
-    startDate = Calendar.getInstance();
-    int startHour = ( startDate.get( Calendar.HOUR_OF_DAY ) + 2 ) % 24;
-    startDate.set( Calendar.HOUR_OF_DAY, startHour );
-    jobTrigger.setStartTime( startDate.getTime() );
+	start  = System.currentTimeMillis() + 2*1000;
+	end = System.currentTimeMillis() + 1000 + 7*60*60*100;
 
-    endDate = Calendar.getInstance();
-    endHour = ( endDate.get( Calendar.HOUR_OF_DAY ) + 7 ) % 24;
-    endDate.set( Calendar.HOUR_OF_DAY, endHour );
-    jobTrigger.setEndTime( endDate.getTime() );
+    jobTrigger.setStartTime( new Date(start) );
+    jobTrigger.setEndTime( new Date(end) );
 
     startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 20 ) % 60;
     jobTrigger.setMinuteRecurrence( new IncrementalRecurrence( startingMinute, 5 ) );
@@ -388,27 +382,18 @@ public class JaxWsSchedulerServiceTest {
         .getIncrement() );
     Assert.assertTrue( job.getJobParams().containsKey( "newKey" ) );
 
-    startDate = Calendar.getInstance();
-    startDate.setTime( jobTrigger.getStartTime() );
-    Assert.assertEquals( startHour, startDate.get( Calendar.HOUR_OF_DAY ) );
+    Assert.assertEquals( new Date(start), jobTrigger.getStartTime() );
 
-    endDate = Calendar.getInstance();
-    endDate.setTime( jobTrigger.getEndTime() );
-    Assert.assertEquals( endHour, endDate.get( Calendar.HOUR_OF_DAY ) );
+    Assert.assertEquals( new Date(end), jobTrigger.getEndTime() );
   }
 
   @Test
   public void testUpdateSimpleJob() throws SchedulerException {
-    Calendar startDate = Calendar.getInstance();
-    int startHour = ( startDate.get( Calendar.HOUR_OF_DAY ) + 1 ) % 24;
-    startDate.set( Calendar.HOUR_OF_DAY, startHour );
-    Calendar endDate = Calendar.getInstance();
-    int endHour = ( endDate.get( Calendar.HOUR_OF_DAY ) + 5 ) % 24;
-    endDate.set( Calendar.HOUR_OF_DAY, endHour );
-
+	long start  = System.currentTimeMillis() + 1000;
+	long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
     SimpleJobTrigger jobTrigger = new SimpleJobTrigger();
-    jobTrigger.setStartTime( startDate.getTime() );
-    jobTrigger.setEndTime( endDate.getTime() );
+    jobTrigger.setStartTime( new Date(start) );
+    jobTrigger.setEndTime( new Date(end) );
     jobTrigger.setRepeatInterval( 10 );
     jobTrigger.setRepeatCount( 20 );
     System.out.println( jobTrigger.toString() );
@@ -419,15 +404,11 @@ public class JaxWsSchedulerServiceTest {
 
     jobTrigger = new SimpleJobTrigger();
 
-    startDate = Calendar.getInstance();
-    startHour = ( startDate.get( Calendar.HOUR_OF_DAY ) + 2 ) % 24;
-    startDate.set( Calendar.HOUR_OF_DAY, startHour );
-    jobTrigger.setStartTime( startDate.getTime() );
+	start  = System.currentTimeMillis() + 1000;
+	end = System.currentTimeMillis() + 1000 + 5*60*60*100;
 
-    endDate = Calendar.getInstance();
-    endHour = ( endDate.get( Calendar.HOUR_OF_DAY ) + 7 ) % 24;
-    endDate.set( Calendar.HOUR_OF_DAY, endHour );
-    jobTrigger.setEndTime( endDate.getTime() );
+    jobTrigger.setStartTime( new Date(start));
+    jobTrigger.setEndTime( new Date(end) );
 
     jobTrigger.setRepeatInterval( 40 );
     jobTrigger.setRepeatCount( 50 );
@@ -444,12 +425,9 @@ public class JaxWsSchedulerServiceTest {
     Assert.assertEquals( 50, jobTrigger.getRepeatCount() );
     Assert.assertTrue( job.getJobParams().containsKey( "newKey" ) );
 
-    startDate = Calendar.getInstance();
-    startDate.setTime( jobTrigger.getStartTime() );
-    Assert.assertEquals( startHour, startDate.get( Calendar.HOUR_OF_DAY ) );
+    jobTrigger.getStartTime() ;
+    Assert.assertEquals( new Date(start), jobTrigger.getStartTime());
 
-    endDate = Calendar.getInstance();
-    endDate.setTime( jobTrigger.getEndTime() );
-    Assert.assertEquals( endHour, endDate.get( Calendar.HOUR_OF_DAY ) );
+    Assert.assertEquals( new Date(end), jobTrigger.getEndTime() );
   }
 }
