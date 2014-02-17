@@ -19,12 +19,15 @@ package org.pentaho.test.platform.engine.security;
 
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
+import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.ISolutionFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 
 import java.util.Stack;
 import java.util.concurrent.Callable;
@@ -70,7 +73,8 @@ public class MockSecurityHelper implements ISecurityHelper {
   }
 
   public boolean isPentahoAdministrator( final IPentahoSession session ) {
-    return false;
+    IAclVoter voter = PentahoSystem.get( IAclVoter.class );
+    return voter.isPentahoAdministrator( session );
   }
 
   public boolean isGranted( final IPentahoSession session, final GrantedAuthority role ) {
@@ -94,11 +98,11 @@ public class MockSecurityHelper implements ISecurityHelper {
   }
 
   public Authentication getAuthentication() {
-    return null;
+    return SecurityContextHolder.getContext().getAuthentication();
   }
 
   public Authentication getAuthentication( final IPentahoSession ignoredSession, final boolean ignoredAllowAnonymous ) {
-    return null;
+    return getAuthentication();
   }
 
   public <T> T runAsSystem( final Callable<T> callable ) throws Exception {
