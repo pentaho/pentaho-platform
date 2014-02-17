@@ -22,7 +22,7 @@
     <!--
 	This is the URL to the user guide
     -->
-  <documentation-url>docs/InformationMap.html</documentation-url> 
+  <documentation-url>docs/InformationMap.jsp</documentation-url>
 
 	<log-file>server.log</log-file>
 	<log-level>DEBUG</log-level>
