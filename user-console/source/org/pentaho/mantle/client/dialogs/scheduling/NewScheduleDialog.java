@@ -47,6 +47,7 @@ import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialo
 import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.utils.NameUtils;
 import org.pentaho.mantle.client.workspace.JsJob;
 
 public class NewScheduleDialog extends PromptDialogBox {
@@ -186,12 +187,10 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   protected void onOk() {
     String name = scheduleNameTextBox.getText();
-    String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$"; //$NON-NLS-1$
-    // make sure it matches regex
-    if ( !name.matches( alphaNumeric ) ) {
+    if ( !NameUtils.isRepositoryObjectNameValid( name ) ) {
       MessageDialogBox errorDialog =
           new MessageDialogBox(
-              Messages.getString( "error" ), Messages.getString( "enterAlphaNumeric", name ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+              Messages.getString( "error" ), Messages.getString( "prohibitedNameSymbols", name ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
       errorDialog.center();
       return;
     }

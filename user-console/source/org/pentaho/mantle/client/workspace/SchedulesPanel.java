@@ -42,13 +42,11 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -56,6 +54,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
@@ -70,7 +69,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
@@ -888,7 +886,7 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void editJob( JsJob editJob ) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + editJob.getJobId();
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( editJob.getJobId() );
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
