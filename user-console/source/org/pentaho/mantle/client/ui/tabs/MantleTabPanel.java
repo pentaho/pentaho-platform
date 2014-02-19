@@ -537,8 +537,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     // let's only keep 5 of these guys around so at least some of the resources
     // can be cleaned up (maybe just wishful thinking)
     Widget w = closeTab.getContent();
-    if (w instanceof IFrameTabPanel && freeFrames.size() < 5) {
-      freeFrames.add((IFrameTabPanel)w);      
+    if ( w instanceof IFrameTabPanel && freeFrames.size() < 5 ) {
+      // wipe out any file info so it doesn't impact future usages of this frame
+      SolutionFileInfo sfi = null;
+      IFrameTabPanel iFrameTabPanel = ( IFrameTabPanel ) w;
+      iFrameTabPanel.setFileInfo( sfi );
+      freeFrames.add( iFrameTabPanel );
     }
     
     if ( getTabCount() == 0 ) {
