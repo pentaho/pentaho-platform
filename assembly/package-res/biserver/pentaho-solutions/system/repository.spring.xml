@@ -479,18 +479,26 @@
   </bean>
 
   <!-- The set of authorities that are considered system and cannot be removed -->
-  <util:list id="singleTenantSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
-    <ref bean="singleTenantAuthenticatedAuthorityName" />
-    <ref bean="singleTenantAdminAuthorityName" />
-    <ref bean="singleTenantAnonymousAuthorityName" />
-    <!-- <pen:publish as-type="INTERFACES"/> -->
-  </util:list>
+  <bean class="java.util.ArrayList" id="singleTenantSystemAuthorities">
+     <constructor-arg>
+      <util:list list-class="java.util.ArrayList" value-type="java.lang.String">
+        <ref bean="singleTenantAuthenticatedAuthorityName" />
+        <ref bean="singleTenantAdminAuthorityName" />
+        <ref bean="singleTenantAnonymousAuthorityName" />
+      </util:list>
+     </constructor-arg>
+     <pen:publish as-type="INTERFACES"/>
+  </bean>
 
-  <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
-    <ref bean="singleTenantAuthenticatedAuthorityName" />
-    <ref bean="singleTenantAnonymousAuthorityName" />
-    <!-- <pen:publish as-type="INTERFACES"/> -->
-  </util:list>
+  <bean class="java.util.ArrayList" id="extraSystemAuthorities">
+     <constructor-arg>
+      <util:list list-class="java.util.ArrayList" value-type="java.lang.String">
+        <ref bean="singleTenantAuthenticatedAuthorityName" />
+        <ref bean="singleTenantAnonymousAuthorityName" />
+      </util:list>
+     </constructor-arg>
+     <pen:publish as-type="INTERFACES"/>
+  </bean>
 
 
   <bean id="superAdminAuthorityName" class="java.lang.String">
