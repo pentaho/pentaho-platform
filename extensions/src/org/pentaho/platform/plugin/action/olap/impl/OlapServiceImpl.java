@@ -522,9 +522,9 @@ public class OlapServiceImpl implements IOlapService {
           Method flushSchemaCache = cc.getClass().getMethod( "flushSchemaCache" );
           flushSchemaCache.invoke( cc );
         }
-      } catch ( ClassNotFoundException e ) {
+      } catch ( Exception e ) {
         LOG.warn(
-          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_ROLAP_CONNECTION_NOT_FOUND" ), e );
+          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
       }
     }
   }
