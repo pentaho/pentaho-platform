@@ -245,6 +245,7 @@
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>
+    <pen:publish as-type="INTERFACES"/>
   </bean>
 
 
@@ -450,26 +451,31 @@
   <!-- See Jackrabbit repository.xml adminId -->
   <bean id="repositoryAdminUsername" class="java.lang.String">
     <constructor-arg value="${repository.repositoryAdminUsername}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <!-- This token allows Jackrabbit to trust that this application has already authenticated the user. -->
   <bean id="jcrPreAuthenticationToken" class="java.lang.String">
     <constructor-arg value="ZchBOvP8q9FQ"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <!-- The name of the authority which is granted to all authenticated users of a particular tenant. -->
   <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
     <constructor-arg value="${repository.singleTenantAuthenticatedAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
     <constructor-arg value="${repository.singleTenantAdminAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
   <bean id="singleTenantAnonymousAuthorityName" class="java.lang.String">
     <constructor-arg value="${repository.singleTenantAnonymousAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <!-- The set of authorities that are considered system and cannot be removed -->
@@ -477,32 +483,39 @@
     <ref bean="singleTenantAuthenticatedAuthorityName" />
     <ref bean="singleTenantAdminAuthorityName" />
     <ref bean="singleTenantAnonymousAuthorityName" />
+     <pen:publish as-type="INTERFACES"/>
   </util:list>
 
   <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
     <ref bean="singleTenantAuthenticatedAuthorityName" />
     <ref bean="singleTenantAnonymousAuthorityName" />
+     <pen:publish as-type="INTERFACES"/>
   </util:list>
 
 
   <bean id="superAdminAuthorityName" class="java.lang.String">
     <constructor-arg value="${repository.superAdminAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <bean id="superAdminUserName" class="java.lang.String">
     <constructor-arg value="${repository.superAdminUserName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <bean id="systemTenantAdminUserName" class="java.lang.String">
     <constructor-arg value="${repository.systemTenantAdminUserName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <bean id="systemTenantAdminPassword" class="java.lang.String">
     <constructor-arg value="${repository.systemTenantAdminPassword}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <bean id="singleTenantAdminUserName" class="java.lang.String">
     <constructor-arg value="${repository.singleTenantAdminUserName}"/>
+    <pen:publish as-type="CLASSES"/>
   </bean>
 
   <!-- Used in code that doesn't use Spring's transaction interception. -->
@@ -831,6 +844,7 @@
         <idref local="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"/>
       </list>
     </property>
+    <pen:publish as-type="INTERFACES"/>
   </bean>
 
   <!-- 
