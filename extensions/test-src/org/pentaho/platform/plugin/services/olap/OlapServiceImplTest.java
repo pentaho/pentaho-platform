@@ -827,6 +827,27 @@ public class OlapServiceImplTest {
     verify( cacheControl ).flushSchemaCache();
   }
 
+  @Test
+  public void testFlushProceedsOnException() throws Exception {
+    stubHostedServer();
+    final Properties properties = new Properties();
+    properties.put(
+      RolapConnectionProperties.Locale.name(),
+      getLocale().toString() );
+    OlapConnection conn = mock( OlapConnection.class );
+    when( server.getConnection( "Pentaho", "myHostedServer", null, properties ) ).thenReturn( conn );
+    when( conn.isWrapperFor( any( Class.class ) ) ).thenReturn( true );
+    final RolapConnection rolapConn = mock( RolapConnection.class );
+    when( conn.unwrap( any( Class.class ) ) ).thenReturn( rolapConn );
+    when( rolapConn.getCacheControl( any( PrintWriter.class ) ) ).thenThrow(
+      new RuntimeException( "something happend" ) );
+    try {
+      olapService.flushAll( session );
+    } catch ( IOlapServiceException e ) {
+      fail( "Exception shouldn't have made it this far." );
+    }
+  }
+
   private static Locale getLocale() {
     final Locale locale = LocaleHelper.getLocale();
     if ( locale != null ) {
