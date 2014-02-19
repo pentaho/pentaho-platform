@@ -483,13 +483,13 @@
     <ref bean="singleTenantAuthenticatedAuthorityName" />
     <ref bean="singleTenantAdminAuthorityName" />
     <ref bean="singleTenantAnonymousAuthorityName" />
-     <pen:publish as-type="INTERFACES"/>
+    <!-- <pen:publish as-type="INTERFACES"/> -->
   </util:list>
 
   <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
     <ref bean="singleTenantAuthenticatedAuthorityName" />
     <ref bean="singleTenantAnonymousAuthorityName" />
-     <pen:publish as-type="INTERFACES"/>
+    <!-- <pen:publish as-type="INTERFACES"/> -->
   </util:list>
 
 
