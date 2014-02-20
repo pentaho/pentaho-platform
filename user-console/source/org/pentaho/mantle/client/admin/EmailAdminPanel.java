@@ -37,6 +37,7 @@ public class EmailAdminPanel extends SimplePanel {
   protected CheckBox useStartTLSCheckBox;
   protected CheckBox useSSLCheckBox;
   protected TextBox fromAddressTextBox;
+  protected TextBox fromNameTextBox;
   protected CheckBox authenticationCheckBox;
   protected TextBox userNameTextBox;
   protected PasswordTextBox passwordTextBox;
@@ -123,11 +124,18 @@ public class EmailAdminPanel extends SimplePanel {
     vSpacer.setHeight( "10px" );
     mailPanel.add( vSpacer );
 
-    mailPanel.add( new Label( Messages.getString( "protocol" ) + ":" ) );
+    HorizontalPanel protocolHbox = new HorizontalPanel();
+    protocolHbox.add( new Label( Messages.getString( "protocol" ) + ":" ) );
+
+    hSpacer = new SimplePanel();
+    hSpacer.setWidth( "15px" );
+    protocolHbox.add( hSpacer );
+
     protocolsListBox = new ListBox();
     protocolsListBox.addItem( Messages.getString( "smtp" ) );
     protocolsListBox.addItem( Messages.getString( "smtps" ) );
-    mailPanel.add( protocolsListBox );
+    protocolHbox.add( protocolsListBox );
+    mailPanel.add(protocolHbox);
 
     vSpacer = new SimplePanel();
     vSpacer.setHeight( "10px" );
@@ -138,6 +146,16 @@ public class EmailAdminPanel extends SimplePanel {
     fromAddressTextBox = new TextBox();
     fromAddressTextBox.setWidth( "220px" );
     mailPanel.add( fromAddressTextBox );
+
+    vSpacer = new SimplePanel();
+    vSpacer.setHeight( "10px" );
+    mailPanel.add( vSpacer );
+
+    Label emailFromName = new Label( Messages.getString( "emailFromNameLabel" ) );
+    mailPanel.add( emailFromName );
+    fromNameTextBox = new TextBox();
+    fromNameTextBox.setWidth( "220px" );
+    mailPanel.add( fromNameTextBox );
 
     vSpacer = new SimplePanel();
     vSpacer.setHeight( "10px" );

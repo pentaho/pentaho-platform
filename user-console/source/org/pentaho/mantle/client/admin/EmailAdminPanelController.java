@@ -111,6 +111,13 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       }
     } );
 
+    fromNameTextBox.addKeyUpHandler( new KeyUpHandler() {
+      public void onKeyUp( final KeyUpEvent keyUpEvent ) {
+        emailConfig.setFromName( fromNameTextBox.getValue() );
+        isDirty = true;
+      }
+    } );
+
     userNameTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         emailConfig.setUserId( userNameTextBox.getValue() );
@@ -211,6 +218,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
           useStartTLSCheckBox.setValue( Boolean.parseBoolean( emailConfig.isUseStartTls() + "" ) );
           useSSLCheckBox.setValue( Boolean.parseBoolean( emailConfig.isUseSsl() + "" ) );
           fromAddressTextBox.setValue( emailConfig.getDefaultFrom() );
+          fromNameTextBox.setValue( emailConfig.getFromName() );
           userNameTextBox.setValue( emailConfig.getUserId() );
 
           // If password is non-empty.. disable the text-box
