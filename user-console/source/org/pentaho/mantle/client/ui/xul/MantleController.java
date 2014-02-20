@@ -433,6 +433,9 @@ public class MantleController extends AbstractXulEventHandler {
     UserSettingsManager.getInstance().getUserSettings( new AsyncCallback<JsArray<JsSetting>>() {
 
       public void onSuccess( JsArray<JsSetting> result ) {
+        if( result == null ){
+          return;
+        }
         JsSetting setting;
         for ( int j = 0; j < result.length(); j++ ) {
           setting = result.get( j );
