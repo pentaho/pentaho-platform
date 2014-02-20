@@ -105,6 +105,7 @@ public class NewScheduleDialog extends PromptDialogBox {
     scheduleNameLabelPanel.add( scheduleNameInfoLabel );
 
     String defaultName = filePath.substring( filePath.lastIndexOf( "/" ) + 1, filePath.lastIndexOf( "." ) );
+    defaultName = defaultName.replaceAll( "[^\\w\\s]", "" );
     scheduleNameTextBox.getElement().setId( "schedule-name-input" );
     scheduleNameTextBox.setText( defaultName );
 
