@@ -33,8 +33,6 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
@@ -42,8 +40,6 @@ import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;
 
 public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
-
-  private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
 
   private static final String PENTAHO_SCHEDULE = "pentaho-schedule-create"; //$NON-NLS-1$
 
@@ -221,7 +217,7 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
   }
 
   public String getName() {
-    return MSGS.scheduleEdit();
+    return Messages.getString( "schedule.scheduleEdit" );
   }
 
   private boolean isValidConfig() {

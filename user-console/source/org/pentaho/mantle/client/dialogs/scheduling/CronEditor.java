@@ -24,11 +24,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.controls.DateRangeEditor;
 import org.pentaho.gwt.widgets.client.controls.ErrorLabel;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil;
+import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.Date;
 
@@ -44,14 +43,13 @@ public class CronEditor extends VerticalPanel implements IChangeHandler {
   private DateRangeEditor dateRangeEditor = null;
   private ErrorLabel cronLabel = null;
   private ICallback<IChangeHandler> onChangeHandler;
-  private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
 
   public CronEditor() {
     super();
     setWidth( "100%" ); //$NON-NLS-1$
 
-    Label l = new Label( MSGS.cronLabel() );
-    l.setStylePrimaryName( CRON_LABEL );
+    Label l = new Label( Messages.getString( "schedule.cronLabel" ) );
+      l.setStylePrimaryName( CRON_LABEL );
     cronLabel = new ErrorLabel( l );
 
     add( cronLabel );

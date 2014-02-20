@@ -23,8 +23,6 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -35,8 +33,6 @@ import java.util.StringTokenizer;
  * 
  */
 public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
-
-  private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
 
   private static final String PENTAHO_SCHEDULE = "pentaho-schedule-create"; //$NON-NLS-1$
 
@@ -214,7 +210,7 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
    */
   public String getName() {
     // TODO Auto-generated method stub
-    return MSGS.scheduleEdit();
+    return Messages.getString( "schedule.scheduleEdit" );
   }
 
   public void setParametersUrl( String url ) {

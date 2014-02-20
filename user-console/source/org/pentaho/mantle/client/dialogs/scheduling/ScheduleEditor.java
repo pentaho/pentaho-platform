@@ -47,8 +47,6 @@ import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.controls.TimePicker;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.utils.CronExpression;
@@ -59,6 +57,7 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.TimeOfDay;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
 import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.TemporalValue;
+import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.Date;
 import java.util.EnumSet;
@@ -97,18 +96,20 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     }
   }
 
-  private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
-
   protected static final String SCHEDULE_LABEL = "schedule-label"; //$NON-NLS-1$
 
   protected static final String SCHEDULE_EDITOR_CAPTION_PANEL = "schedule-editor-caption-panel"; //$NON-NLS-1$
 
   public enum ScheduleType {
-    RUN_ONCE( 0, MSGS.runOnce() ), SECONDS( 1, MSGS.seconds() ),
-    MINUTES( 2, MSGS.minutes() ), HOURS( 3, MSGS.hours() ), DAILY(
-        4, MSGS.daily() ), WEEKLY( 5, MSGS.weekly() ), MONTHLY( 6, MSGS.monthly() ),
-    YEARLY( 7, MSGS.yearly() ), CRON(
-        8, MSGS.cron() );
+    RUN_ONCE( 0, Messages.getString( "schedule.runOnce" ) ),
+    SECONDS( 1, Messages.getString( "schedule.seconds" ) ),
+    MINUTES( 2, Messages.getString( "schedule.minutes" ) ),
+    HOURS( 3, Messages.getString( "schedule.hours" ) ),
+    DAILY( 4, Messages.getString( "schedule.daily" ) ),
+    WEEKLY( 5, Messages.getString( "schedule.weekly" ) ),
+    MONTHLY( 6, Messages.getString( "schedule.monthly" ) ),
+    YEARLY( 7, Messages.getString( "schedule.yearly" ) ),
+    CRON(8, Messages.getString( "schedule.cron" ) );
 
     private ScheduleType( int value, String name ) {
       this.value = value;
@@ -144,7 +145,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
           return v;
         }
       }
-      throw new EnumException( MSGS.invalidTemporalValue( scheduleValue.toString() ) );
+      throw new EnumException( Messages.getString( "schedule.invalidTemporalValue", scheduleValue.toString() ) );
     }
   } /* end enum */
 
@@ -183,7 +184,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
 
   private ListBox minutesListBox = null;
 
-  protected Button blockoutCheckButton = new Button( MSGS.viewBlockoutTimes() );
+  protected Button blockoutCheckButton = new Button( Messages.getString( "schedule.viewBlockoutTimes" ) );
 
   protected ListBox timeZonePicker = null;
 
@@ -195,7 +196,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     setStylePrimaryName( "scheduleEditor" ); //$NON-NLS-1$
 
     scheduleCombo = createScheduleCombo();
-    Label l = new Label( MSGS.recurrenceColon() );
+    Label l = new Label( Messages.getString( "schedule.recurrenceColon" ) );
     l.setStyleName( SCHEDULE_LABEL );
     add( l );
     add( scheduleCombo );
@@ -239,21 +240,21 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       daysListBox.getElement().setId( "daysListBox" ); //$NON-NLS-1$
       populateListItems( daysListBox, daysList, 0, 365 );
 
-      final Label daysLabel = new Label( MSGS.dayOrDays() );
+      final Label daysLabel = new Label( Messages.getString( "schedule.dayOrDays" ) );
       daysLabel.getElement().setAttribute( "for", daysListBox.getElement().getId() ); //$NON-NLS-1$
 
       hoursListBox = new ListBox();
       hoursListBox.getElement().setId( "hoursListBox" ); //$NON-NLS-1$
       populateListItems( hoursListBox, hoursList, 0, 24 );
 
-      final Label hoursLabel = new Label( MSGS.hourOrHours() );
+      final Label hoursLabel = new Label( Messages.getString( "schedule.hourOrHours" ) );
       hoursLabel.getElement().setAttribute( "for", hoursListBox.getElement().getId() ); //$NON-NLS-1$
 
       minutesListBox = new ListBox();
       minutesListBox.getElement().setId( "minutesListBox" ); //$NON-NLS-1$
       populateListItems( minutesListBox, minutesList, 0, 60 );
 
-      final Label minutesLabel = new Label( MSGS.minuteOrMinutes() );
+      final Label minutesLabel = new Label( Messages.getString( "schedule.minuteOrMinutes" ) );
       minutesLabel.getElement().setAttribute( "for", minutesListBox.getElement().getId() ); //$NON-NLS-1$
 
       final HorizontalPanel durationPanel = new HorizontalPanel();
@@ -321,7 +322,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
        * Radio Buttons for duration
        */
       this.durationRadioButton = new RadioButton( "durationRadioGroup", "durationRadioButton" ); //$NON-NLS-1$ //$NON-NLS-2$
-      this.durationRadioButton.setText( MSGS.duration() );
+      this.durationRadioButton.setText( Messages.getString( "schedule.duration" ) );
       this.durationRadioButton.setValue( Boolean.TRUE );
       this.durationRadioButton.addClickHandler( new ClickHandler() {
 
@@ -333,7 +334,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       } );
 
       this.endTimeRadioButton = new RadioButton( "durationRadioGroup", "endTimeRadioButton" ); //$NON-NLS-1$ //$NON-NLS-2$
-      this.endTimeRadioButton.setText( MSGS.endTime() );
+      this.endTimeRadioButton.setText( Messages.getString( "schedule.endTime" ) );
       this.endTimeRadioButton.addClickHandler( new ClickHandler() {
 
         @Override
@@ -356,7 +357,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       endsPanel.add( durationPanel );
 
       // Blockout period
-      CaptionPanel blockoutStartCaptionPanel = new CaptionPanel( MSGS.startTime() );
+      CaptionPanel blockoutStartCaptionPanel = new CaptionPanel( Messages.getString( "schedule.startTime" ) );
       HorizontalPanel blockoutStartPanel = new HorizontalPanel();
       blockoutStartPanel.add( getStartTimePicker() );
       timeZonePicker = new ListBox();
@@ -369,7 +370,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       populateTimeZonePicker();
 
       // Ends Caption Panel
-      CaptionPanel endCaptionPanel = new CaptionPanel( MSGS.endsCaptionTitle() );
+      CaptionPanel endCaptionPanel = new CaptionPanel( Messages.getString( "schedule.endsCaptionTitle" ) );
       endCaptionPanel.add( endsPanel );
 
       VerticalPanel blockoutPanel = new VerticalPanel();
@@ -587,7 +588,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   }
 
   protected Widget createStartTimePanel() {
-    CaptionPanel startTimeGB = new CaptionPanel( MSGS.startTime() );
+    CaptionPanel startTimeGB = new CaptionPanel( Messages.getString( "schedule.startTime" ) );
     startTimeGB.setStyleName( SCHEDULE_EDITOR_CAPTION_PANEL );
 
     startTimeGB.add( getStartTimePicker() );
@@ -618,7 +619,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       case CRON:
         return cronEditor.getCronString();
       default:
-        throw new RuntimeException( MSGS.invalidRunType( getScheduleType().toString() ) );
+        throw new RuntimeException( Messages.getString( "schedule.invalidRunType", getScheduleType().toString() ) );
     }
   }
 
@@ -770,7 +771,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       case CRON:
         return cronEditor.getStartTime();
       default:
-        throw new RuntimeException( MSGS.invalidRunType( getScheduleType().toString() ) );
+        throw new RuntimeException( Messages.getString( "schedule.invalidRunType", getScheduleType().toString() ) );
     }
   }
 
@@ -808,7 +809,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       case CRON:
         return cronEditor.getStartDate();
       default:
-        throw new RuntimeException( MSGS.invalidRunType( getScheduleType().toString() ) );
+        throw new RuntimeException( Messages.getString( "schedule.invalidRunType", getScheduleType().toString() ) );
     }
   }
 
@@ -832,7 +833,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       case CRON:
         return cronEditor.getEndDate();
       default:
-        throw new RuntimeException( MSGS.invalidRunType( getScheduleType().toString() ) );
+        throw new RuntimeException( Messages.getString( "schedule.invalidRunType", getScheduleType().toString() ) );
     }
   }
 
