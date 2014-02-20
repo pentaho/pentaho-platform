@@ -1048,7 +1048,8 @@ pen.define([
   var FileBrowserFileListView = Backbone.View.extend({
     events: {
       "click div.file": "clickFile",
-      "dblclick div.file": "doubleClickFile"
+      "dblclick div.file": "doubleClickFile",
+      "click": "clickBody"
     },
 
     initialize: function () {
@@ -1093,6 +1094,9 @@ pen.define([
     },
 
     clickFile: function (event) {
+			//don't want to stop propagation of the event, but need to notify clickBody listener
+			//that the event was handled and we don't need to deselect a file
+			this.model.set("desel", 1);
       var $target = $(event.currentTarget).eq(0);
       //BISERVER-9259 - added time parameter to force change event
       this.model.set("clicked", {
@@ -1120,6 +1124,16 @@ pen.define([
       if (FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
         this.model.get("openFileHandler")(path, "run");
       }
+    },
+    
+    clickBody: function (event) {
+      if(!this.model.get("desel")){
+				$(".file.selected").removeClass("selected");
+				if(FileBrowser.fileBrowserModel.getLastClick() == 'file'){
+					FileBrowser.fileBrowserModel.set("lastClick", "empty");
+				}
+			}
+      this.model.set("desel", 0);
     },
 
     updateFileList: function () {
