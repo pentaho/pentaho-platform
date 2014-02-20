@@ -511,8 +511,9 @@ public class OlapServiceImpl implements IOlapService {
   private void flushHostedAndRemote( final IPentahoSession session )
     throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     for ( String name : getCatalogNames( session ) ) {
-      OlapConnection connection = getConnection( name, session );
+      OlapConnection connection = null;
       try {
+        connection = getConnection( name, session );
         //TODO: clean this up as per PPP-3223
         Class<?> aClass = connection.getClass().getClassLoader().loadClass( "mondrian.rolap.RolapConnection" );
         if ( connection.isWrapperFor( aClass ) ) {
@@ -525,6 +526,10 @@ public class OlapServiceImpl implements IOlapService {
       } catch ( Exception e ) {
         LOG.warn(
           Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
+      } finally {
+        if ( connection != null ) {
+          connection.close();
+        }
       }
     }
   }
