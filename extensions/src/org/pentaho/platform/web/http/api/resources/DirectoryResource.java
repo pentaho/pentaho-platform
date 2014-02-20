@@ -64,6 +64,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
     String path = FileResource.idToPath( pathId );
     String[] folders = path.split( "[" + FileResource.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
     RepositoryFileDto parentDir = repoWs.getFile( FileResource.PATH_SEPARATOR );
+    boolean dirCreated = false;
     for ( String folder : folders ) {
       String currentFolderPath = ( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder ).substring( 1 );
       if ( !currentFolderPath.startsWith( FileResource.PATH_SEPARATOR ) ) {
@@ -76,10 +77,12 @@ public class DirectoryResource extends AbstractJaxRSResource {
         currentFolder.setName( decode( folder ) );
         currentFolder.setPath( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder );
         currentFolder = repoWs.createFolder( parentDir.getId(), currentFolder, currentFolderPath );
+        dirCreated = true;
       }
       parentDir = currentFolder;
     }
-    return Response.ok().build();
+    return dirCreated ? Response.ok().build() : Response.status( Response.Status.CONFLICT )
+        .entity( "couldNotCreateFolderDuplicate" ).build();
   }
 
   private String decode( String folder ) {
