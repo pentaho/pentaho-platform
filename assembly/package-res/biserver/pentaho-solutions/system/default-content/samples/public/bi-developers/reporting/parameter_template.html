@@ -102,5 +102,30 @@
 			document.getElementById('go').style.display = 'none';
 		}
 	]]></script>
+	
+	<script><![CDATA[
+		function parseGetParams(){
+			var RESULT = {};
+			var PAIRS = window.location.search.substring(1).split("&");
+			for(var i=0; i<PAIRS.length; i++) {
+				var getVar = PAIRS[i].split("=");
+				RESULT[getVar[0]] = typeof(getVar[1])=="undefined" ? "" : getVar[1];
+			}
+			return RESULT;
+			}
+
+		function setRadioCheckByName(name) {
+			var value = parseGetParams()[name];
+			if(!value) exit();
+			elList = document.getElementsByName(name);
+			for (var i = 0; i < elList.length; i++){
+				if(elList[i].value==value){
+				elList[i].checked=true;
+				}
+			}
+		} 
+
+		setRadioCheckByName("REGION");
+	]]></script>
    
 </html>
