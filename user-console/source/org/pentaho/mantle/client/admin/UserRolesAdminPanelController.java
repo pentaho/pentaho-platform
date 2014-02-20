@@ -449,7 +449,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     }
   }
 
-  private void processLDAPmode() {
+  private void processLDAPOrJDBCmode() {
     final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider";
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -461,13 +461,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean usingLDAP = !response.getText().contains( "ldap" );
-          usersLabelPanel.setVisible( usingLDAP );
-          usersPanel.setVisible( usingLDAP );
-          newRoleButton.setVisible( usingLDAP );
-          deleteRoleButton.setVisible( usingLDAP );
+          boolean usingLDAPOrJDBC = (response.getText().contains( "ldap" ) || response.getText().contains( "jdbc" ));
+          usersLabelPanel.setVisible( !usingLDAPOrJDBC );
+          usersPanel.setVisible( !usingLDAPOrJDBC );
+          newRoleButton.setVisible( !usingLDAPOrJDBC );
+          deleteRoleButton.setVisible( !usingLDAPOrJDBC );
 
-          if ( !usingLDAP ) {
+          if ( usingLDAPOrJDBC ) {
             mainTabPanel.getTab( 0 ).setVisible( false );
             mainTabPanel.selectTab( 1 );
           } else {
@@ -525,7 +525,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   // -- ISysAdminPanel implementation.
 
   public void activate() {
-    processLDAPmode();
+    processLDAPOrJDBCmode();
     initializeActionBaseSecurityElements();
     initializeAvailableUsers( null );
 
