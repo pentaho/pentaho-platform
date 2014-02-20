@@ -105,7 +105,7 @@ public class FilterDialog extends PromptDialogBox {
 
     final String showAll = Messages.getString( "showAll" );
     // user filter
-    int selectedIndex = userListBox.getSelectedIndex();
+    int selectedIndex = getSelectedIndex( userListBox );
     userListBox.clear();
     userListBox.addItem( showAll );
     HashSet<String> uniqueUsers = new HashSet<String>();
@@ -121,7 +121,7 @@ public class FilterDialog extends PromptDialogBox {
 
     // state filter
     scheduleStateListBox.setVisibleItemCount( 1 );
-    selectedIndex = scheduleStateListBox.getSelectedIndex();
+    selectedIndex = getSelectedIndex( scheduleStateListBox );
     scheduleStateListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
     scheduleStateListBox.addItem( showAll );
@@ -135,7 +135,7 @@ public class FilterDialog extends PromptDialogBox {
 
     // state filter
     scheduleTypeListBox.setVisibleItemCount( 1 );
-    selectedIndex = scheduleTypeListBox.getSelectedIndex();
+    selectedIndex = getSelectedIndex( scheduleTypeListBox );
     scheduleTypeListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
     scheduleTypeListBox.addItem( showAll );
@@ -197,4 +197,11 @@ public class FilterDialog extends PromptDialogBox {
     return afterCheckBox;
   }
 
+  private int getSelectedIndex( ListBox listBox ) {
+    int selectedIndex = listBox.getSelectedIndex();
+    if ( selectedIndex == -1 ) {
+      selectedIndex = 0;
+    }
+    return selectedIndex;
+  }
 }
