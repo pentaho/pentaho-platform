@@ -32,7 +32,9 @@ import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +65,37 @@ public class ExportManifestEntity {
     createEntityAcl( repositoryFileAcl );
     rawExportManifestProperty.setEntityMetaData( entityMetaData );
     rawExportManifestProperty.setEntityAcl( entityAcl );
+  }
+
+  protected ExportManifestEntity(File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
+    this();
+    ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
+    createEntityMetaData(file, userId, projectId, isFolder, isHidden);
+    createEntityAcl(userId);
+    rawExportManifestProperty.setEntityMetaData( entityMetaData );
+    rawExportManifestProperty.setEntityAcl( entityAcl );
+  }
+  
+  private void createEntityAcl( String userId ) {
+    entityAcl = new EntityAcl();
+    entityAcl.setEntriesInheriting( true );
+  }
+
+  private void createEntityMetaData( File file, String userId , String projectId, Boolean isFolder, Boolean isHidden ) {
+    if (LocaleHelper.getLocale() == null) {
+      LocaleHelper.setLocale( Locale.getDefault() );
+    }
+    entityMetaData = new EntityMetaData();
+    entityMetaData.setCreatedBy( userId );
+    entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( new Date() ) );
+    entityMetaData.setDescription( "Project folder for AgileBi Project named: " + projectId );
+    entityMetaData.setIsHidden( isHidden );
+    entityMetaData.setIsFolder( isFolder );
+    entityMetaData.setLocale(  LocaleHelper.getLocale().toString()  );
+    entityMetaData.setName( file.getName() );
+    entityMetaData.setPath( file.getPath() );
+    entityMetaData.setTitle( file.getName() );
+    setPath( file.getPath() );
   }
 
   private void createEntityMetaData( String rootFolder, RepositoryFile repositoryFile )

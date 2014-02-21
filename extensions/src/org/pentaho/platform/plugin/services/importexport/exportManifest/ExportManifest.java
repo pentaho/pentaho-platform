@@ -33,7 +33,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -89,6 +91,11 @@ public class ExportManifest {
     this.add( exportManifestEntity );
   }
 
+  public void add(File file, String userId, String projectId, Boolean isFolder, Boolean isHidden) throws ExportManifestFormatException {
+    ExportManifestEntity exportManifestEntity = new ExportManifestEntity(file, userId, projectId, isFolder, isHidden);
+    this.add( exportManifestEntity );
+  }
+  
   private void add( ExportManifestEntity exportManifestEntity ) throws ExportManifestFormatException {
     if ( exportManifestEntity.isValid() ) {
       exportManifestEntities.put( exportManifestEntity.getPath(), exportManifestEntity );
