@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
@@ -50,9 +51,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private IUnifiedRepository unifiedRepository;
 
-  public LocaleImportHandler( List<String> artifacts, List<String> approvedExtensionList,
-      List<String> hiddenExtensionList ) {
-    super( approvedExtensionList, hiddenExtensionList );
+  public LocaleImportHandler( List<MimeType> mimeTypes, List<String> artifacts ) {
+    super( mimeTypes );
     this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
     this.artifacts = artifacts;
   }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ImportHandlerMimeTypeDefinitions xmlns:tns="http://www.pentaho.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pentaho.com/schema/ MimeTypeDefinitions.xsd ">
+  <ImportHandler class="">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition converter="streamConverter" hidden="false" locale="false" mimeType="">
+        <extension>extension</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+</tns:ImportHandlerMimeTypeDefinitions>

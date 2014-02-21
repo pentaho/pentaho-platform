@@ -17,7 +17,10 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 
 /**
  * Resolves mime-types by extension.
@@ -26,30 +29,34 @@ import java.util.Map;
  */
 public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
 
-  private Map<String, String> extensionToMimeMap;
+  private Map<String, MimeType> extensionToMimeMap = new HashMap<String, MimeType>();
 
-  public NameBaseMimeResolver( Map<String, String> extensionToMimeMap ) {
-    if ( extensionToMimeMap == null ) {
-      throw new IllegalStateException( "Missing extension map" );
-    }
-    this.extensionToMimeMap = extensionToMimeMap;
+  public NameBaseMimeResolver() {
   }
 
   @Override
-  public void addExtensionForMime( String extension, String mimeType ) {
-    extensionToMimeMap.put( extension, mimeType );
+  public String resolveMimeForFileName( String fileName ) {
+    return extensionToMimeMap.get( extractExtension( fileName ) ).getName();
   }
   
   @Override
   public String resolveMimeForBundle( IPlatformImportBundle bundle ) {
-    return ( bundle.getMimeType() != null ) ? bundle.getMimeType() : extensionToMimeMap.get( extractExtension( bundle
-        .getName() ) );
+    if ( bundle.getMimeType() != null ) {
+      return bundle.getMimeType();
+    } else {
+      MimeType mimeType = extensionToMimeMap.get( extractExtension( bundle.getName() ) );
+      if ( mimeType == null ) {
+        return null;
+      }
+      return mimeType.getName();
+    }
   }
-
-  public String resolveMimeForFileName( String fileName ) {
+  
+  @Override
+  public MimeType resolveMimeTypeForFileName( String fileName ) {
     return extensionToMimeMap.get( extractExtension( fileName ) );
   }
-
+  
   private String extractExtension( String name ) {
     if ( name == null ) {
       return null;
@@ -61,4 +68,10 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
     return name.substring( idx + 1 );
   }
 
+  @Override
+  public void addMimeType( MimeType mimeType ) {
+    for ( String extension : mimeType.getExtensions() ) {
+      extensionToMimeMap.put( extension, mimeType );
+    }
+  }
 }

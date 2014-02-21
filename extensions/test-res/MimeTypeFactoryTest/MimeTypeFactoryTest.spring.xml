@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd 
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+	default-lazy-init="true">
+	
+	<bean id="streamConverter"
+		class="org.pentaho.platform.plugin.services.importexport.StreamConverter">
+		<constructor-arg>
+			<null />
+		</constructor-arg>
+		<pen:publish as-type="INTERFACES">
+			<pen:attributes>
+				<pen:attr key="name" value="streamConverter" />
+			</pen:attributes>
+		</pen:publish>
+	</bean>
+
+	<bean id="PDITransformationStreamConverter"
+		class="org.pentaho.platform.plugin.services.importexport.StreamConverter">
+		<constructor-arg>
+			<null />
+		</constructor-arg>
+		<pen:publish as-type="INTERFACES">
+			<pen:attributes>
+				<pen:attr key="name" value="PDITransformationStreamConverter" />
+			</pen:attributes>
+		</pen:publish>
+	</bean>
+
+	<bean id="PDIJobStreamConverter"
+		class="org.pentaho.platform.plugin.services.importexport.StreamConverter">
+		<constructor-arg>
+			<null />
+		</constructor-arg>
+		<pen:publish as-type="INTERFACES">
+			<pen:attributes>
+				<pen:attr key="name" value="PDIJobStreamConverter" />
+			</pen:attributes>
+		</pen:publish>
+	</bean>
+
+	<bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" scope="singleton"/>
+</beans>

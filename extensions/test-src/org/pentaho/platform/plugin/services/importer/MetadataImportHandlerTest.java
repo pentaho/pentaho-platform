@@ -21,14 +21,19 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +43,7 @@ public class MetadataImportHandlerTest {
 
   IRepositoryImportLogger importLogger;
 
-  Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
+  List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
 
   Mockery context;
 
@@ -56,12 +61,20 @@ public class MetadataImportHandlerTest {
     context = new Mockery();
     metadataImporter = context.mock( IPentahoMetadataDomainRepositoryImporter.class );
 
-    metadataHandler = new MetadataImportHandler( metadataImporter );
-    handlers.put( "text/xmi+xml", metadataHandler );
+    MicroPlatform microPlatform = new MicroPlatform();
+    NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
+    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
 
-    Map<String, String> mimes = new HashMap<String, String>();
-    mimes.put( "xmi", "text/xmi+xml" );
-    importer = new PentahoPlatformImporter( handlers, new NameBaseMimeResolver( mimes ) );
+    List<MimeType> mimeList = new ArrayList<MimeType>();
+    mimeList.add( new MimeType( "text/xmi+xml", "xmi" ) );
+    
+    metadataHandler = new MetadataImportHandler( mimeList, metadataImporter );
+    
+    handlers.add( metadataHandler );
+
+    importer =
+        new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
+            new HashMap<String, Converter>() ) );
     importer.setRepositoryImportLogger( importLogger );
   }
 

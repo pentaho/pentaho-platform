@@ -17,38 +17,41 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 
 public class SolutionFileImportHelper {
 
-  private List<String> hiddenExtensionList;
-  private List<String> approvedExtensionList;
+  IPlatformImportMimeResolver mimeResolver;
 
-  SolutionFileImportHelper( List<String> hiddenExtensionList, List<String> approvedExtensionList ) {
-    this.hiddenExtensionList = new ArrayList<String>( hiddenExtensionList );
-    this.approvedExtensionList = new ArrayList<String>( approvedExtensionList );
+  SolutionFileImportHelper() {
+    mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
+  }
+
+  public String getMime( String fileName ) {
+    return mimeResolver.resolveMimeForFileName( fileName );
+  }
+  
+  public MimeType getMimeType( String fileName ) {
+    return mimeResolver.resolveMimeTypeForFileName( fileName );
   }
 
   public boolean isInApprovedExtensionList( String fileName ) {
     boolean isInTheApprovedExtensionList = false;
-    for ( String extension : approvedExtensionList ) {
-      if ( fileName.endsWith( extension ) ) {
-        isInTheApprovedExtensionList = true;
-        break;
-      }
+    MimeType mimeType = getMimeType( fileName );
+    if ( mimeType != null ) {
+      isInTheApprovedExtensionList = ( mimeType.getConverter() != null );
     }
     return isInTheApprovedExtensionList;
   }
 
   public boolean isInHiddenList( String fileName ) {
     boolean isInTheHiddenList = false;
-    for ( String extension : hiddenExtensionList ) {
-      if ( fileName.endsWith( extension ) ) {
-        isInTheHiddenList = true;
-        break;
-      }
+    MimeType mimeType = getMimeType( fileName );
+    if ( mimeType != null ) {
+      isInTheHiddenList = mimeType.isHidden();
     }
     return isInTheHiddenList;
+
   }
 }

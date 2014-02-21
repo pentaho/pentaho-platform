@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ImportHandlerMimeTypeDefinitions xmlns:tns="http://www.pentaho.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pentaho.com/schema/ImportHandlerMimeTypeDefinitions.xsd ">
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/internet-shortcut" converter="streamConverter" hidden="false" locale="false">
+        <extension>url</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.ms-excel">
+        <extension>xls</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.dashboard">
+        <extension>xdash</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
+        <extension>prpt</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="image/gif" hidden="true">
+        <extension>gif</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="image/jpeg" hidden="true">
+        <extension>jpg</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="image/png" hidden="true">
+        <extension>png</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="image/svg+xml" hidden="true">
+        <extension>svg</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="text/css" hidden="true">
+        <extension>css</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="text/html" hidden="true">
+        <extension>htm</extension>
+        <extension>html</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="text/javascript" hidden="true">
+        <extension>js</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="text/plain" hidden="true">
+        <extension>properties</extension>
+        <extension>sql</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="text/xml">
+        <extension>cda</extension>
+        <extension>cdfde</extension>
+        <extension>cfg.xml</extension>
+        <extension>jrxml</extension>
+        <extension>kcs</extension>
+        <extension>kdb</extension>
+        <extension>kps</extension>
+        <extension>ksl</extension>
+        <extension>report</extension>
+        <extension>rptdesign</extension>
+        <extension>wcdf</extension>
+        <extension>xanalyzer</extension>
+        <extension>xcdf</extension>
+        <extension>xjpivot</extension>
+        <extension>xml</extension>
+        <extension>xreportspec</extension>
+      </MimeTypeDefinition>      
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.SolutionImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.solution-repository">
+        <extension>zip</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="com.pentaho.repository.importexport.PDIImportFileHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="true">
+        <extension>kjb</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.transformation" converter="PDIJobStreamConverter" hidden="true">
+        <extension>ktr</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.MondrianImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.mondrian+xml">
+        <extension>mondrian+xml</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.XActionImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.xaction">
+        <extension>xaction</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.LocaleImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="text/locale" hidden="true">
+        <extension>locale</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.MetadataImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="text/xmi+xml">
+        <extension>xmi</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
+        <extension>prpti</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler> 
+  
+</tns:ImportHandlerMimeTypeDefinitions>
