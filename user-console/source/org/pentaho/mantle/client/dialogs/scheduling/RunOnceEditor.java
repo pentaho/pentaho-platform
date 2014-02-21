@@ -26,8 +26,6 @@ import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
 import org.pentaho.gwt.widgets.client.controls.DatePickerEx;
 import org.pentaho.gwt.widgets.client.controls.TimePicker;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil;
@@ -42,7 +40,6 @@ import java.util.Date;
 
 public class RunOnceEditor extends VerticalPanel implements IChangeHandler {
 
-  private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
   private static final String SCHEDULER_CAPTION_PANEL = "schedule-editor-caption-panel"; //$NON-NLS-1$
 
   private TimePicker startTimePicker = null;
@@ -58,7 +55,7 @@ public class RunOnceEditor extends VerticalPanel implements IChangeHandler {
   public RunOnceEditor( final TimePicker startTimePicker ) {
     setWidth( "100%" ); //$NON-NLS-1$
 
-    CaptionPanel startDateCaptionPanel = new CaptionPanel( MSGS.startDate() );
+    CaptionPanel startDateCaptionPanel = new CaptionPanel( Messages.getString( "schedule.startDate" ) );
     startDateCaptionPanel.setStyleName( SCHEDULER_CAPTION_PANEL );
     startDateCaptionPanel.add( startDatePicker.getDatePicker() );
     add( startDateCaptionPanel );

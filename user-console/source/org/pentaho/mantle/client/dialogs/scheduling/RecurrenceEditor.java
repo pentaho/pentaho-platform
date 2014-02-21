@@ -35,8 +35,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.controls.DateRangeEditor;
 import org.pentaho.gwt.widgets.client.controls.ErrorLabel;
 import org.pentaho.gwt.widgets.client.controls.TimePicker;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
-import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.utils.CronParseException;
@@ -49,6 +47,7 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.TimeOfDay;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
+import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,8 +64,6 @@ import java.util.Map;
 
 @SuppressWarnings( "deprecation" )
 public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
-
-  private static final WidgetsLocalizedMessages MSGS = WidgetsLocalizedMessagesSingleton.getInstance().getMessages();
 
   private static final String SCHEDULE_EDITOR_CAPTION_PANEL = "schedule-editor-caption-panel"; //$NON-NLS-1$
   private static final String DOW_CHECKBOX = "day-of-week-checkbox"; //$NON-NLS-1$
@@ -100,9 +97,13 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
   private Map<TemporalValue, Panel> temporalPanelMap = new LinkedHashMap<TemporalValue, Panel>();
 
   public enum TemporalValue {
-    SECONDS( 0, MSGS.seconds() ), MINUTES( 1, MSGS.minutes() ),
-    HOURS( 2, MSGS.hours() ), DAILY( 3, MSGS.daily() ), WEEKLY(
-        4, MSGS.weekly() ), MONTHLY( 5, MSGS.monthly() ), YEARLY( 6, MSGS.yearly() );
+    SECONDS( 0, Messages.getString( "schedule.seconds" ) ),
+      MINUTES( 1, Messages.getString( "schedule.minutes" ) ),
+      HOURS( 2, Messages.getString( "schedule.hours" ) ),
+      DAILY( 3, Messages.getString( "schedule.daily" ) ),
+      WEEKLY( 4, Messages.getString( "schedule.weekly" ) ),
+      MONTHLY( 5, Messages.getString( "schedule.monthly" ) ),
+      YEARLY( 6, Messages.getString( "schedule.yearly" ) );
 
     private TemporalValue( int value, String name ) {
       this.value = value;
@@ -137,7 +138,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
           return v;
         }
       }
-      throw new EnumException( MSGS.invalidTemporalValue( temporalValue ) );
+      throw new EnumException( Messages.getString( "schedule.invalidTemporalValue", temporalValue ) );
     }
   } /* end enum */
 
@@ -317,7 +318,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
   private Widget createRecurrencePanel() {
 
-    CaptionPanel recurrenceGB = new CaptionPanel( MSGS.recurrencePattern() );
+    CaptionPanel recurrenceGB = new CaptionPanel( Messages.getString( "schedule.recurrencePattern" ) );
     recurrenceGB.setStyleName( SCHEDULE_EDITOR_CAPTION_PANEL );
 
     deckPanel = new DeckPanel();
@@ -368,12 +369,12 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
     public SimpleRecurrencePanel( String strLabel ) {
 
       HorizontalPanel hp = new HorizontalPanel();
-      Label l = new Label( MSGS.every() );
+      Label l = new Label( Messages.getString( "schedule.every" ) );
       l.setStyleName( "startLabel" ); //$NON-NLS-1$
       hp.add( l );
 
       valueTb.setWidth( "3em" ); //$NON-NLS-1$
-      valueTb.setTitle( MSGS.numberOfXToRepeat( strLabel ) );
+      valueTb.setTitle( Messages.getString( "schedule.numberOfXToRepeat", strLabel ) );
       hp.add( valueTb );
 
       l = new Label( strLabel );
@@ -433,27 +434,28 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
   public class SecondlyRecurrenceEditor extends SimpleRecurrencePanel {
     public SecondlyRecurrenceEditor() {
-      super( MSGS.seconds() );
+      super( Messages.getString( "schedule.seconds" ) );
     }
   }
 
   public class MinutelyRecurrenceEditor extends SimpleRecurrencePanel {
     public MinutelyRecurrenceEditor() {
-      super( MSGS.minutesLabel() );
+      super( Messages.getString( "schedule.minuteOrMinutes" ) );
     }
   }
 
   public class HourlyRecurrenceEditor extends SimpleRecurrencePanel {
     public HourlyRecurrenceEditor() {
-      super( MSGS.hoursLabel() );
+      super( Messages.getString( "schedule.hourOrHours" ) );
     }
   }
 
   public class DailyRecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
     private TextBox repeatValueTb = new TextBox();
-    private RadioButton everyNDaysRb = new RadioButton( DAILY_RB_GROUP, MSGS.every() );
-    private RadioButton everyWeekdayRb = new RadioButton( DAILY_RB_GROUP, MSGS.everyWeekDay() );
+    private RadioButton everyNDaysRb = new RadioButton( DAILY_RB_GROUP, Messages.getString( "schedule.every" ) );
+    private RadioButton everyWeekdayRb = new RadioButton( DAILY_RB_GROUP,
+      Messages.getString( "schedule.everyWeekDay" ) );
     private ErrorLabel repeatLabel = null;
     private ICallback<IChangeHandler> onChangeHandler;
 
@@ -464,10 +466,10 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       hp.add( everyNDaysRb );
 
       repeatValueTb.setWidth( "3em" ); //$NON-NLS-1$
-      repeatValueTb.setTitle( MSGS.numDaysToRepeat() );
+      repeatValueTb.setTitle( Messages.getString( "schedule.numDaysToRepeat" ) );
       hp.add( repeatValueTb );
 
-      Label l = new Label( MSGS.daysLabel() );
+      Label l = new Label( Messages.getString( "schedule.dayOrDays" ) );
       l.setStyleName( "endLabel" ); //$NON-NLS-1$
       hp.add( l );
       repeatLabel = new ErrorLabel( hp );
@@ -561,7 +563,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
     public WeeklyRecurrenceEditor() {
       setStyleName( "weeklyRecurrencePanel" ); //$NON-NLS-1$
 
-      Label l = new Label( MSGS.recurEveryWeek() );
+      Label l = new Label( Messages.getString( "schedule.recurEveryWeek" ) );
       everyWeekOnLabel = new ErrorLabel( l );
       l.setStyleName( "startLabel" ); //$NON-NLS-1$
       add( everyWeekOnLabel );
@@ -697,8 +699,8 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
   public class MonthlyRecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
-    private RadioButton dayNOfMonthRb = new RadioButton( MONTHLY_RB_GROUP, MSGS.day() );
-    private RadioButton nthDayNameOfMonthRb = new RadioButton( MONTHLY_RB_GROUP, MSGS.the() );
+    private RadioButton dayNOfMonthRb = new RadioButton( MONTHLY_RB_GROUP, Messages.getString( "schedule.day" ) );
+    private RadioButton nthDayNameOfMonthRb = new RadioButton( MONTHLY_RB_GROUP, Messages.getString( "schedule.the" ) );
     private TextBox dayOfMonthTb = new TextBox();
     private ListBox whichWeekLb = createWhichWeekListBox();
     private ListBox dayOfWeekLb = createDayOfWeekListBox();
@@ -714,7 +716,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       hp.add( dayNOfMonthRb );
       dayOfMonthTb.setWidth( "3em" ); //$NON-NLS-1$
       hp.add( dayOfMonthTb );
-      Label l = new Label( MSGS.ofEveryMonth() );
+      Label l = new Label( Messages.getString( "schedule.ofEveryMonth" ) );
       l.setStyleName( "endLabel" ); //$NON-NLS-1$
       hp.add( l );
 
@@ -727,7 +729,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       hp.add( whichWeekLb );
 
       hp.add( dayOfWeekLb );
-      l = new Label( MSGS.ofEveryMonth() );
+      l = new Label( Messages.getString( "schedule.ofEveryMonth" ) );
       l.setStyleName( "endLabel" ); //$NON-NLS-1$
       hp.add( l );
       add( hp );
@@ -835,8 +837,9 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
   public class YearlyRecurrenceEditor extends VerticalPanel implements IChangeHandler {
 
-    private RadioButton everyMonthOnNthDayRb = new RadioButton( YEARLY_RB_GROUP, MSGS.every() );
-    private RadioButton nthDayNameOfMonthNameRb = new RadioButton( YEARLY_RB_GROUP, MSGS.the() );
+    private RadioButton everyMonthOnNthDayRb = new RadioButton( YEARLY_RB_GROUP,
+      Messages.getString( "schedule.every" ) );
+    private RadioButton nthDayNameOfMonthNameRb = new RadioButton( YEARLY_RB_GROUP, Messages.getString( "schedule.the" ) );
     private TextBox dayOfMonthTb = new TextBox();
     private ListBox monthOfYearLb0 = createMonthOfYearListBox();
     private ListBox monthOfYearLb1 = createMonthOfYearListBox();
@@ -866,7 +869,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       p.add( nthDayNameOfMonthNameRb );
       p.add( whichWeekLb );
       p.add( dayOfWeekLb );
-      Label l = new Label( MSGS.of() );
+      Label l = new Label( Messages.getString( "schedule.of" ) );
       l.setStyleName( "middleLabel" ); //$NON-NLS-1$
       p.add( l );
       p.add( monthOfYearLb1 );
@@ -1063,7 +1066,8 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       case DAILY:
         return TimeUtil.daysToSecs( Long.parseLong( dailyEditor.getRepeatValue() ) );
       default:
-        throw new RuntimeException( MSGS.invalidTemporalValueInGetRepeatInSecs( temporalState.toString() ) );
+        throw new RuntimeException(
+          Messages.getString( "schedule.invalidTemporalValueInGetRepeatInSecs", temporalState.toString() ) );
     }
   }
 
@@ -1090,7 +1094,8 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       case YEARLY:
         return getYearlyCronString();
       default:
-        throw new RuntimeException( MSGS.invalidTemporalValueInGetCronString( temporalState.toString() ) );
+        throw new RuntimeException(
+          Messages.getString( "schedule.invalidTemporalValueInGetCronString", temporalState.toString() ) );
     }
   }
 
@@ -1170,7 +1175,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
       try {
         cronStr = CronParser.recurrenceStringToCronString( recurrenceSb.toString() );
       } catch ( CronParseException e ) {
-        throw new RuntimeException( MSGS.invalidRecurrenceString( recurrenceSb.toString() ) );
+        throw new RuntimeException( Messages.getString( "schedule.invalidRecurrenceString", recurrenceSb.toString() ) );
       }
       return cronStr;
     }
@@ -1185,7 +1190,7 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
     try {
       cronStr = CronParser.recurrenceStringToCronString( recurrenceSb.toString() );
     } catch ( CronParseException e ) {
-      throw new RuntimeException( MSGS.invalidRecurrenceString( recurrenceSb.toString() ) );
+      throw new RuntimeException( Messages.getString( "schedule.invalidRecurrenceString", recurrenceSb.toString() ) );
     }
     return cronStr;
 
@@ -1209,12 +1214,12 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
             .append( SPACE ).append( dayOfWeek );
       }
     } else {
-      throw new RuntimeException( MSGS.noRadioBtnsSelected() );
+      throw new RuntimeException( Messages.getString( "schedule.noRadioBtnsSelected" ) );
     }
     try {
       cronStr = CronParser.recurrenceStringToCronString( recurrenceSb.toString() );
     } catch ( CronParseException e ) {
-      throw new RuntimeException( MSGS.invalidRecurrenceString( recurrenceSb.toString() ) );
+      throw new RuntimeException( Messages.getString( "schedule.invalidRecurrenceString", recurrenceSb.toString() ) );
     }
     return cronStr;
   }
@@ -1241,12 +1246,12 @@ public class RecurrenceEditor extends VerticalPanel implements IChangeHandler {
             .append( SPACE ).append( dayOfWeek ).append( SPACE ).append( monthOfYear );
       }
     } else {
-      throw new RuntimeException( MSGS.noRadioBtnsSelected() );
+      throw new RuntimeException( Messages.getString( "schedule.noRadioBtnsSelected" ) );
     }
     try {
       cronStr = CronParser.recurrenceStringToCronString( recurrenceSb.toString() );
     } catch ( CronParseException e ) {
-      throw new RuntimeException( MSGS.invalidRecurrenceString( recurrenceSb.toString() ) );
+      throw new RuntimeException( Messages.getString( "schedule.invalidRecurrenceString", recurrenceSb.toString() ) );
     }
     return cronStr;
   }
