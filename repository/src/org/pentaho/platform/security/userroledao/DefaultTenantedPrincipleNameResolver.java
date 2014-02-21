@@ -85,16 +85,15 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
   }
 
   @Override
-  public boolean isValid(String principleId) {
-
-    int delimiterIndex = principleId.lastIndexOf(getDelimeter());
-    if ( delimiterIndex >= 0) {
-      return true;
+  public boolean isValid( String principleId ) {
+    if ( principleId.contains( getDelimeter() ) ) {
+      int pentahoRootFolderNameIndex = principleId.lastIndexOf( ServerRepositoryPaths.getPentahoRootFolderName() );
+      String delim = principleId.substring( pentahoRootFolderNameIndex-2, pentahoRootFolderNameIndex-1 );
+      if ( delim.equals( getDelimeter() ) ) {
+        return true;
+      }
     }
-    else {
-      return false;
-    }
-
+    return false;
   }
 
   private boolean isTenantValid(String tenantName) {
