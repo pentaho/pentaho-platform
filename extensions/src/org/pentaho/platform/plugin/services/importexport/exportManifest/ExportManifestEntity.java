@@ -67,10 +67,10 @@ public class ExportManifestEntity {
     rawExportManifestProperty.setEntityAcl( entityAcl );
   }
 
-  protected ExportManifestEntity(String rootFolder, File file, String userId, String projectId) {
+  protected ExportManifestEntity(File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
     this();
     ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
-    createEntityMetaData(rootFolder, file, userId, projectId);
+    createEntityMetaData(file, userId, projectId, isFolder, isHidden);
     createEntityAcl(userId);
     rawExportManifestProperty.setEntityMetaData( entityMetaData );
     rawExportManifestProperty.setEntityAcl( entityAcl );
@@ -81,21 +81,21 @@ public class ExportManifestEntity {
     entityAcl.setEntriesInheriting( true );
   }
 
-  private void createEntityMetaData( String rootFolder, File file, String userId , String projectId) {
+  private void createEntityMetaData( File file, String userId , String projectId, Boolean isFolder, Boolean isHidden ) {
     if (LocaleHelper.getLocale() == null) {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
     entityMetaData = new EntityMetaData();
     entityMetaData.setCreatedBy( userId );
-    entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar(new Date()));
-    entityMetaData.setDescription("Project folder for AgileBi Project named: " + projectId);
-    entityMetaData.setIsHidden(false);
-    entityMetaData.setIsFolder( true );
+    entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( new Date() ) );
+    entityMetaData.setDescription( "Project folder for AgileBi Project named: " + projectId );
+    entityMetaData.setIsHidden( isHidden );
+    entityMetaData.setIsFolder( isFolder );
     entityMetaData.setLocale(  LocaleHelper.getLocale().toString()  );
     entityMetaData.setName( file.getName() );
-    entityMetaData.setPath( rootFolder + file.getPath() );
+    entityMetaData.setPath( file.getPath() );
     entityMetaData.setTitle( file.getName() );
-    setPath( rootFolder + file.getPath() );
+    setPath( file.getPath() );
   }
 
   private void createEntityMetaData( String rootFolder, RepositoryFile repositoryFile )

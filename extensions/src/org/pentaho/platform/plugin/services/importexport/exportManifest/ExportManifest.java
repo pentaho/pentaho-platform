@@ -91,8 +91,8 @@ public class ExportManifest {
     this.add( exportManifestEntity );
   }
 
-  public void add(File file, String userId, String projectId) throws ExportManifestFormatException {
-    ExportManifestEntity exportManifestEntity = new ExportManifestEntity("/", file, userId, projectId);
+  public void add(File file, String userId, String projectId, Boolean isFolder, Boolean isHidden) throws ExportManifestFormatException {
+    ExportManifestEntity exportManifestEntity = new ExportManifestEntity(file, userId, projectId, isFolder, isHidden);
     this.add( exportManifestEntity );
   }
   
