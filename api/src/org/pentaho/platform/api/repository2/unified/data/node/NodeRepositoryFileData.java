@@ -32,8 +32,8 @@ public class NodeRepositoryFileData implements IRepositoryFileData {
   }
 
   public NodeRepositoryFileData( DataNode node, long dataSize ) {
-	  this(node);
-	  this.dataSize = dataSize;
+    this( node );
+    this.dataSize = dataSize;
   }
 
   public DataNode getNode() {
@@ -50,5 +50,4 @@ public class NodeRepositoryFileData implements IRepositoryFileData {
     return dataSize;
   }
 
-  
 }

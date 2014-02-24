@@ -18,6 +18,10 @@
 
 package org.pentaho.platform.repository;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.repository.RepositoryObjectType;
@@ -33,10 +37,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
@@ -55,8 +55,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
   public JcrBackedDatasourceMgmtService() {
   }
 
-  public JcrBackedDatasourceMgmtService( IUnifiedRepository repository,
-                                         IDatabaseDialectService databaseDialectService ) {
+  public JcrBackedDatasourceMgmtService( IUnifiedRepository repository, IDatabaseDialectService databaseDialectService ) {
     super();
     this.repository = repository;
     cachedReservedChars = repository.getReservedChars();
@@ -286,8 +285,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
       if ( file != null ) {
         file =
-            new RepositoryFile.Builder( file ).versionId( file.getVersionId() ).id( databaseConnection.getId() ).title( RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() )
-                .build();
+            new RepositoryFile.Builder( file ).versionId( file.getVersionId() ).id( databaseConnection.getId() ).title(
+                RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).build();
         file =
             repository.updateFile( file, new NodeRepositoryFileData( databaseHelper
                 .databaseConnectionToDataNode( databaseConnection ) ), null );
@@ -330,7 +329,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
   private List<RepositoryFile> getRepositoryFiles() {
     Serializable folderId = getDatabaseParentFolderId();
     if ( folderId != null ) {
-      return repository.getChildren( folderId, "*" + RepositoryObjectType.DATABASE.getExtension());
+      return repository.getChildren( folderId, "*" + RepositoryObjectType.DATABASE.getExtension() );
     } else {
       return null;
     }

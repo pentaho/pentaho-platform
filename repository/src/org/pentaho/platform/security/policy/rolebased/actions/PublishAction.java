@@ -26,15 +26,15 @@ import java.util.ResourceBundle;
 public class PublishAction extends AbstractAuthorizationAction {
   public static final String NAME = "org.pentaho.security.publish";
   ResourceBundle resourceBundle;
-  
+
   @Override
   public String getName() {
     return NAME;
   }
 
   @Override
-  public String getLocalizedDisplayName(String localeString) {
-    resourceBundle = getResourceBundle(localeString);
+  public String getLocalizedDisplayName( String localeString ) {
+    resourceBundle = getResourceBundle( localeString );
     return resourceBundle.getString( NAME );
   }
 }
