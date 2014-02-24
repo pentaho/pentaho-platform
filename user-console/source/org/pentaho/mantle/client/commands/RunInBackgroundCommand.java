@@ -155,8 +155,20 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
     final String filePath = ( this.getSolutionPath() != null ) ? this.getSolutionPath() : repositoryFile.getPath();
     String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) ); //$NON-NLS-1$ //$NON-NLS-2$
-    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repo/files/" //$NON-NLS-1$
-        + urlPath + "/parameterizable" ); //$NON-NLS-1$
+    
+    RequestBuilder scheduleFileRequestBuilder;
+    final boolean isXAction;
+    
+    if ((urlPath != null) && (urlPath.endsWith( "xaction" ))){
+      isXAction = true;
+      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repos/" + urlPath
+          + "/parameterUi" );
+    } else {
+      isXAction = false;
+      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath
+          + "/parameterizable" );
+    }
+    
     scheduleFileRequestBuilder.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
@@ -190,8 +202,17 @@ public class RunInBackgroundCommand extends AbstractCommand {
             // BISERVER-9321
             scheduleRequest.put( "runInBackground", JSONBoolean.getInstance( true ) );
 
-            final boolean hasParams = Boolean.parseBoolean( response.getText() );
+            String responseMessage = response.getText();
+            final boolean hasParams;
 
+            if (isXAction){
+              int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
+              int NumOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
+              hasParams = numOfInputs - NumOfHiddenInputs > 0 ? true : false;
+            } else {
+              hasParams = Boolean.parseBoolean( response.getText() );
+            }
+            
             RequestBuilder emailValidRequest =
                 new RequestBuilder( RequestBuilder.GET, contextURL + "api/emailconfig/isValid" ); //$NON-NLS-1$
             emailValidRequest.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$

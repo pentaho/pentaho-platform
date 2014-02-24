@@ -199,9 +199,20 @@ public class NewScheduleDialog extends PromptDialogBox {
     // check if has parameterizable
     WaitPopup.getInstance().setVisible( true );
     String urlPath = filePath.replaceAll( "/", ":" );
-    RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repo/files/" + urlPath
-            + "/parameterizable" );
+    
+    RequestBuilder scheduleFileRequestBuilder;
+    final boolean isXAction;
+    
+    if ((urlPath != null) && (urlPath.endsWith( "xaction" ))){
+      isXAction = true;
+      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repos/" + urlPath
+          + "/parameterUi" );
+    } else {
+      isXAction = false;
+      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repo/files/" + urlPath
+          + "/parameterizable" );
+    }
+
     scheduleFileRequestBuilder.setHeader( "accept", "text/plain" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
@@ -213,11 +224,21 @@ public class NewScheduleDialog extends PromptDialogBox {
               new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
           dialogBox.center();
         }
-
+        
         public void onResponseReceived( Request request, Response response ) {
           WaitPopup.getInstance().setVisible( false );
           if ( response.getStatusCode() == Response.SC_OK ) {
-            final boolean hasParams = Boolean.parseBoolean( response.getText() );
+            String responseMessage = response.getText();
+            boolean hasParams;
+
+            if (isXAction){
+              int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
+              int NumOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
+              hasParams = numOfInputs - NumOfHiddenInputs > 0 ? true : false;
+            } else {
+              hasParams = Boolean.parseBoolean( response.getText() );
+            }
+            
             if ( jsJob != null ) {
               jsJob.setJobName( scheduleNameTextBox.getText() );
               jsJob.setOutputPath( scheduleLocationTextBox.getText(), scheduleNameTextBox.getText() );
