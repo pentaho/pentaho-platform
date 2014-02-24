@@ -132,11 +132,11 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     String userToSearch = username;
     // Extract Tenant from the user name
     ITenant tenantFromUser = JcrTenantUtils.getTenant( username, true );
-    if(tenantFromUser == null || tenantFromUser.getId() == null) {
+    if ( tenantFromUser == null || tenantFromUser.getId() == null ) {
       // No tenant information in the user name so we check the tenant argument
-      if(tenant == null || tenant.getId() == null) {
-      // No tenant provided so we assume default tenant
-        tenant = JcrTenantUtils.getDefaultTenant();  
+      if ( tenant == null || tenant.getId() == null ) {
+        // No tenant provided so we assume default tenant
+        tenant = JcrTenantUtils.getDefaultTenant();
       }
       userToSearch = usernamePrincipalResolver.getPrincipleId( tenant, username );
     }

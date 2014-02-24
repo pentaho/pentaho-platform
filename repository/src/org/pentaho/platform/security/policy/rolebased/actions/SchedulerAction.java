@@ -26,15 +26,15 @@ import java.util.ResourceBundle;
 public class SchedulerAction extends AbstractAuthorizationAction {
   public static final String NAME = "org.pentaho.scheduler.manage";
   ResourceBundle resourceBundle;
-  
+
   @Override
   public String getName() {
     return NAME;
   }
 
   @Override
-  public String getLocalizedDisplayName(String localeString) {
-    resourceBundle = getResourceBundle(localeString);
+  public String getLocalizedDisplayName( String localeString ) {
+    resourceBundle = getResourceBundle( localeString );
     return resourceBundle.getString( NAME );
   }
 }

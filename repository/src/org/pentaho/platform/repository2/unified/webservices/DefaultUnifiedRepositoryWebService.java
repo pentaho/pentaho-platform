@@ -61,7 +61,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   protected RepositoryFileAclAceAdapter repositoryFileAclAceAdapter = new RepositoryFileAclAceAdapter();
 
   protected VersionSummaryAdapter versionSummaryAdapter = new VersionSummaryAdapter();
-  
+
   protected RepositoryFileTreeAdapter repositoryFileTreeAdapter;
 
   // ~ Constructors
@@ -83,7 +83,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     super();
     this.repo = repo;
   }
-  
+
   @Override
   public List<RepositoryFileDto> getChildrenFromRequest( RepositoryRequest repositoryRequest ) {
     return marshalFiles( repo.getChildren( repositoryRequest ), repositoryRequest );
@@ -100,7 +100,8 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   @Deprecated
-  public List<RepositoryFileDto> getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
+  public List<RepositoryFileDto>
+    getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
     return marshalFiles( repo.getChildren( new RepositoryRequest( folderId, showHiddenFiles, 0, filter ) ) );
   }
 
@@ -152,12 +153,12 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     RepositoryRequest repositoryRequest = new RepositoryRequest( path, showHidden, depth, filter );
     return getTreeFromRequest( repositoryRequest );
   }
-  
+
   public RepositoryFileTreeDto getTreeFromRequest( final RepositoryRequest repositoryRequest ) {
-    //RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
-    
+    // RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
+
     RepositoryFileTree tree = repo.getTree( repositoryRequest );
-    
+
     // Filter system folders from non-admin users.
     // PDI uses this web-service and system folders must be returned to admin repository database connections.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
@@ -174,11 +175,11 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
       files.add( file );
     }
     tree = new RepositoryFileTree( tree.getFile(), files );
-    if(tree == null) {
+    if ( tree == null ) {
       return null;
     }
 
-    return new RepositoryFileTreeAdapter( repositoryRequest ).marshal(tree);
+    return new RepositoryFileTreeAdapter( repositoryRequest ).marshal( tree );
   }
 
   private List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files ) {
@@ -188,7 +189,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     }
     return fileDtos;
   }
-  
+
   private List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files, RepositoryRequest repositoryRequest ) {
     ArrayList<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>();
     RepositoryFileAdapter filteringRepositoryFileAdapter = new RepositoryFileAdapter( repositoryRequest );

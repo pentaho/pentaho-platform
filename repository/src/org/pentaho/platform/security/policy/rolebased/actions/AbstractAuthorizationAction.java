@@ -14,7 +14,7 @@ import org.pentaho.platform.security.policy.rolebased.messages.Messages;
  */
 public abstract class AbstractAuthorizationAction implements IAuthorizationAction {
 
-  protected ResourceBundle getResourceBundle(String localeString) {
+  protected ResourceBundle getResourceBundle( String localeString ) {
     final String UNDERSCORE = "_"; //$NON-NLS-1$
     Locale locale;
     if ( localeString == null ) {

@@ -29,25 +29,26 @@ import java.util.Map;
 public interface IRepositoryContentConverterHandler {
 
   /**
-   * Retrieves a map of content converters. Key is the extension and the value is the 
-   * converter for that extension.
+   * Retrieves a map of content converters. Key is the extension and the value is the converter for that extension.
+   * 
    * @return map of converters and extensions
    */
   Map<String, Converter> getConverters();
-  
+
   /**
    * Retrieves a particular converter based on the extension provided
+   * 
    * @param extension
    * @return content converter
    */
-  Converter getConverter(String extension);
-  
+  Converter getConverter( String extension );
+
   /**
    * Adds a new converter with the extension to the platform
    * 
    * @param extension
    * @param converter
    */
-  void addConverter(String extension, Converter converter);
-  
+  void addConverter( String extension, Converter converter );
+
 }

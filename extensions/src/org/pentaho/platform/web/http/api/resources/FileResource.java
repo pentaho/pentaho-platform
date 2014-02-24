@@ -155,10 +155,11 @@ public class FileResource extends AbstractJaxRSResource {
     return path;
   }
 
-
   /**
    * Moves the list of files to the user's trash folder
-   * @param params List of the files to be deleted
+   * 
+   * @param params
+   *          List of the files to be deleted
    * @return
    */
   @PUT
@@ -179,7 +180,9 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Permanently deletes the selected list of files from the repository
-   * @param params list of files to be deleted
+   * 
+   * @param params
+   *          list of files to be deleted
    * @return
    */
   @PUT
@@ -200,7 +203,9 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Restore the selected list of files from the user's trash folder to their original location
-   * @param params list of files to be restored
+   * 
+   * @param params
+   *          list of files to be restored
    * @return
    */
   @PUT
@@ -221,8 +226,11 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Creates a new file with the provided contents at a given path
-   * @param pathId (colon separated path for the repository file)
-   * @param fileContents (content of the file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param fileContents
+   *          (content of the file)
    * @return
    * @throws IOException
    */
@@ -241,9 +249,12 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Copy selected list of files to a new specified location
    * 
-   * @param pathId (colon separated path for the repository file)
-   * @param mode    (MODE_OVERWITE or MODE_NO_OVERWRITE)
-   * @param params  (List of files to be copied) 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param mode
+   *          (MODE_OVERWITE or MODE_NO_OVERWRITE)
+   * @param params
+   *          (List of files to be copied)
    * @return
    */
   @PUT
@@ -269,10 +280,10 @@ public class FileResource extends AbstractJaxRSResource {
               RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
               RepositoryFile destFile = getRepository().getFile( destDir.getPath() + PATH_SEPARATOR + fileName );
               if ( destFile == null ) { // destFile doesn't exist so we'll create it.
-                RepositoryFile duplicateFile = new RepositoryFile.Builder( fileName )
-                    .hidden( sourceFile.isHidden() ).build();
-                final RepositoryFile repositoryFile = getRepository()
-                    .createFile( destDir.getId(), duplicateFile, data, acl, null );
+                RepositoryFile duplicateFile =
+                    new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).build();
+                final RepositoryFile repositoryFile =
+                    getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
                 getRepository()
                     .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
               } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
@@ -326,13 +337,13 @@ public class FileResource extends AbstractJaxRSResource {
             if ( !sourceFile.getName().equals( sourceFile.getTitle() ) ) {
               duplicateFile =
                   new RepositoryFile.Builder( fileName ).title( RepositoryFile.DEFAULT_LOCALE,
-                    sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() ).build();
+                      sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() ).build();
             } else {
               duplicateFile = new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).build();
             }
 
-            final RepositoryFile repositoryFile = getRepository()
-                .createFile( destDir.getId(), duplicateFile, data, acl, null );
+            final RepositoryFile repositoryFile =
+                getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
             getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
           }
         }
@@ -397,7 +408,7 @@ public class FileResource extends AbstractJaxRSResource {
       }
     };
     return Response.ok( streamingOutput, is.getMimeType() ).header( "Content-Disposition",
-      "inline; filename=\"" + repoFile.getName() + "\"" ).build();
+        "inline; filename=\"" + repoFile.getName() + "\"" ).build();
   }
 
   // Overloaded this method to try and minimize calls to the repo
@@ -463,7 +474,9 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Determines whether a selected file supports parameters or not
-   * @param pathId (colon separated path for the repository file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return ("true" or "false")
    * @throws FileNotFoundException
    */
@@ -471,16 +484,15 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/parameterizable" )
   @Produces( TEXT_PLAIN )
   // have to accept anything for browsers to work
-  public
-  String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
+    public
+    String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
     RepositoryFile repositoryFile = getRepository().getFile( FileResource.idToPath( pathId ) );
     if ( repositoryFile != null ) {
       try {
         hasParameterUi =
             ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().indexOf( '.' ) + 1 ),
-              "parameterUi" ) != null );
+                repositoryFile.getName().substring( repositoryFile.getName().indexOf( '.' ) + 1 ), "parameterUi" ) != null );
       } catch ( NoSuchBeanDefinitionException e ) {
         // Do nothing.
       }
@@ -517,10 +529,8 @@ public class FileResource extends AbstractJaxRSResource {
                 continue;
               }
               Element attrib =
-                  (Element) elem
-                      .selectSingleNode(
-                        "attribute[@namespace='http://reporting.pentaho"
-                          + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
+                  (Element) elem.selectSingleNode( "attribute[@namespace='http://reporting.pentaho"
+                      + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
               if ( attrib == null || !"system".equals( attrib.attributeValue( "value" ) ) ) {
                 hasParameters = true;
               }
@@ -534,24 +544,25 @@ public class FileResource extends AbstractJaxRSResource {
     return Boolean.toString( hasParameters );
   }
 
-
   /**
-   * Download the selected file from the repository.  In order to download file from the repository, the user
-   * needs to have Publish action
+   * Download the selected file from the repository. In order to download file from the repository, the user needs to
+   * have Publish action
    * 
-   * @param pathId (colon separated path for the repository file)
-   * @param strWithManifest (download file with manifest)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param strWithManifest
+   *          (download file with manifest)
    * 
    * @return
-
+   * 
    * @throws FileNotFoundException
    */
   @GET
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
   // have to accept anything for browsers to work
-  public
-  Response doGetFileOrDirAsDownload( @PathParam( "pathId" ) String pathId,
+    public
+    Response doGetFileOrDirAsDownload( @PathParam( "pathId" ) String pathId,
         @QueryParam( "withManifest" ) String strWithManifest ) throws FileNotFoundException {
 
     // you have to have PublishAction in order to download
@@ -616,12 +627,12 @@ public class FileResource extends AbstractJaxRSResource {
       // create response
       response =
           Response.ok( streamingOutput, APPLICATION_ZIP ).header( "Content-Disposition",
-            "attachment; filename=" + quotedFileName ).build();
+              "attachment; filename=" + quotedFileName ).build();
 
       return response;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-        "FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
+          "FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
 
@@ -630,7 +641,9 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
    * document
-   * @param pathId (colon separated path for the repository file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return
    * @throws FileNotFoundException
    */
@@ -638,8 +651,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/inline" )
   @Produces( WILDCARD )
   // have to accept anything for browsers to work
-  public
-  Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
+    public
+    Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     String path = null;
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
@@ -690,16 +703,19 @@ public class FileResource extends AbstractJaxRSResource {
       return response;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-        "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
+          "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
 
   }
-  
+
   /**
    * Save the acls of the selected file to the repository
-   * @param pathId (colon separated path for the repository file)
-   * @param acl  Acl of the repository file <code> RepositoryFileAclDto </code>
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param acl
+   *          Acl of the repository file <code> RepositoryFileAclDto </code>
    * @return
    */
 
@@ -715,8 +731,11 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Store content creator of the selected repository file
-   * @param pathId (colon separated path for the repository file)
-   * @param contentCreator <code> RepositoryFileDto </code>
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param contentCreator
+   *          <code> RepositoryFileDto </code>
    * @return
    */
   @PUT
@@ -735,9 +754,10 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves the list of locale map for the selected repository file 
+   * Retrieves the list of locale map for the selected repository file
    * 
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return
    */
   @GET
@@ -758,8 +778,9 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of locale properties for a given locale
    * 
-   * @param pathId (colon separated path for the repository file)
-   * @param locale 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param locale
    * @return
    */
   @GET
@@ -782,9 +803,12 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Save list of locale properties for a given locale
-   * @param pathId (colon separated path for the repository file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @param locale
-   * @param properties list of <code> StringKeyStringValueDto </code>
+   * @param properties
+   *          list of <code> StringKeyStringValueDto </code>
    * @return
    */
   @PUT
@@ -810,7 +834,9 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Delete the locale for the selected file and locale
-   * @param pathId (colon separated path for the repository file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @param locale
    * @return
    */
@@ -828,7 +854,6 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-
   @GET
   @Path( "/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -839,8 +864,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user has permissions to the selected files
    * 
-   * @param pathId (colon separated path for the repository file)
-   * @param permissions (list of permissions to be checked)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param permissions
+   *          (list of permissions to be checked)
    * @return
    */
   @GET
@@ -860,16 +887,17 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Check whether the current user has specific permission on the selected repository file 
-   * @param pathId (colon separated path for the repository file)
-   * @param permissions 
+   * Check whether the current user has specific permission on the selected repository file
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param permissions
    * @return
    */
   @GET
   @Path( "{pathId : .+}/canAccess" )
   @Produces( TEXT_PLAIN )
-  public String doGetCanAccess( @PathParam( "pathId" ) String pathId,
-                                @QueryParam( "permissions" ) String permissions ) {
+  public String doGetCanAccess( @PathParam( "pathId" ) String pathId, @QueryParam( "permissions" ) String permissions ) {
     StringTokenizer tokenizer = new StringTokenizer( permissions, "|" );
     List<Integer> permissionList = new ArrayList<Integer>();
     while ( tokenizer.hasMoreTokens() ) {
@@ -913,21 +941,23 @@ public class FileResource extends AbstractJaxRSResource {
         && getPolicy().isAllowed( AdministerSecurityAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
- /**
+  /**
    * Checks whether the current user can create content in the repository
    * 
    * @return
    */
   @GET
-  @Path("/canCreate")
-  @Produces(TEXT_PLAIN)
+  @Path( "/canCreate" )
+  @Produces( TEXT_PLAIN )
   public String doGetCanCreate() {
-        return getPolicy().isAllowed(RepositoryCreateAction.NAME)? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return getPolicy().isAllowed( RepositoryCreateAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
-  
+
   /**
    * Retrieves the acls of the selected repository file
-   * @param pathId (colon separated path for the repository file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return <code> RepositoryFileAclDto </code>
    */
   @GET
@@ -945,8 +975,10 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Retrieves the properties of a selected repository file
-   * @param pathId (colon separated path for the repository file)
-   * @return  file properties object <code> RepositoryFileDto </code>
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
   @Path( "{pathId : .+}/properties" )
@@ -957,8 +989,10 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Retrieves the file by creator id
-   * @param pathId (colon separated path for the repository file)
-   * @return  file properties object <code> RepositoryFileDto </code>
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
   @Path( "{pathId : .+}/creator" )
@@ -977,10 +1011,12 @@ public class FileResource extends AbstractJaxRSResource {
       return null;
     }
   }
-  
+
   /**
    * Retrieve the list of executed contents for a selected content from the repository.
-   * @param pathId (colon separated path for the repository file)
+   * 
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return list of <code> RepositoryFileDto </code>
    */
   @GET
@@ -1013,8 +1049,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the executed contents for a selected repository file and a given user
    * 
-   * @param pathId (colon separated path for the repository file)
-   * @param user (user of the platform)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param user
+   *          (user of the platform)
    * @return list of <code> RepositoryFileDto </code>
    */
   @GET
@@ -1046,7 +1084,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of execute content by lineage id. 
+   * Retrieve the list of execute content by lineage id.
    * 
    * @param lineageId
    * @return list of <code> RepositoryFileDto </code>
@@ -1072,15 +1110,16 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return content;
   }
-  
-  
 
   /**
-   * Retrieve the list of files from root of the repository.  
+   * Retrieve the list of files from root of the repository.
    * 
-   * @param depth (how many level should the search go)
-   * @param filter (filter to be applied for search)
-   * @param showHidden (include or exclude hidden files from the file list)
+   * @param depth
+   *          (how many level should the search go)
+   * @param filter
+   *          (filter to be applied for search)
+   * @param showHidden
+   *          (include or exclude hidden files from the file list)
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
@@ -1088,15 +1127,15 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RepositoryFileTreeDto doGetRootTree( @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
-      @DefaultValue("false") @QueryParam( "includeAcls" ) Boolean includeAcls ) {
+      @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
     return doGetTree( PATH_SEPARATOR, depth, filter, showHidden, includeAcls );
   }
 
-
   /**
-   * Retrieve the list of files from root of the repository.  
+   * Retrieve the list of files from root of the repository.
    * 
-   * @param filter (filter to be applied for search)
+   * @param filter
+   *          (filter to be applied for search)
    * @return list of files <code> RepositoryFileDto </code>
    */
   @GET
@@ -1165,9 +1204,9 @@ public class FileResource extends AbstractJaxRSResource {
       }
     }
 
-    RepositoryRequest repositoryRequest = new RepositoryRequest(path, showHidden, depth, filter);
+    RepositoryRequest repositoryRequest = new RepositoryRequest( path, showHidden, depth, filter );
     repositoryRequest.setIncludeAcls( includeAcls );
-    
+
     RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
     List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
 
@@ -1177,7 +1216,7 @@ public class FileResource extends AbstractJaxRSResource {
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
     }
-      
+
     for ( RepositoryFileTreeDto child : tree.getChildren() ) {
       RepositoryFileDto file = child.getFile();
       Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
@@ -1189,14 +1228,13 @@ public class FileResource extends AbstractJaxRSResource {
       }
     }
     tree.setChildren( filteredChildren );
-    
+
     return tree;
   }
 
-  
   /**
-   * Retrieve the children of the selected repository file.  This is a recursive search with a selected level
-   * depth and filter  
+   * Retrieve the children of the selected repository file. This is a recursive search with a selected level depth and
+   * filter
    * 
    * @param pathId
    *          The path from the root folder to the root node of the tree to return using colon characters in place of /
@@ -1222,8 +1260,8 @@ public class FileResource extends AbstractJaxRSResource {
    *          <p>
    *          Example:
    *          <p>
-   *          http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/children?showHidden=false&filter=*|FILES
-   *          |includeMembers=name,fileSize,description,folder,id,title
+   *          http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/children?showHidden=false&filter=*|
+   *          FILES |includeMembers=name,fileSize,description,folder,id,title
    *          <p>
    *          will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
    *          include the name, filesize, description, id and title.
@@ -1239,8 +1277,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
-      @DefaultValue("false") @QueryParam( "includeAcls" ) Boolean includeAcls ) {
-    
+      @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
+
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
 
@@ -1248,9 +1286,9 @@ public class FileResource extends AbstractJaxRSResource {
       RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
       repositoryRequest.setIncludeAcls( includeAcls );
       repositoryFileDtoList = getRepoWs().getChildrenFromRequest( repositoryRequest );
-      
+
       // BISERVER-9599 - Use special sort order
-      if (isShowingTitle( repositoryRequest ) ) {
+      if ( isShowingTitle( repositoryRequest ) ) {
         Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
         collator.setStrength( Collator.PRIMARY ); // ignore case
         sortByLocaleTitle( collator, repositoryFileDtoList );
@@ -1258,6 +1296,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return repositoryFileDtoList;
   }
+
   /**
    * Retrieve the list of files in the user's trash folder
    * 
@@ -1271,9 +1310,10 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the metadata of the selected repository file. 
+   * Retrieve the metadata of the selected repository file.
    * 
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return list of <code> StringKeyStringValueDto </code>
    */
   @GET
@@ -1316,8 +1356,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Rename the name of the selected file
    * 
-   * @param pathId (colon separated path for the repository file) 
-   * @param newName (New name of the file)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param newName
+   *          (New name of the file)
    * @return
    */
   @PUT
@@ -1371,11 +1413,13 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Store the metadata of the selected fle. Even though the hidden flag is a property of the file node itself,
-   * and not the metadata child, it is considered metadata from PUC and is included in the setMetadata call
+   * Store the metadata of the selected fle. Even though the hidden flag is a property of the file node itself, and not
+   * the metadata child, it is considered metadata from PUC and is included in the setMetadata call
    * 
-   * @param pathId (colon separated path for the repository file)
-   * @param metadata (list of name value pair of metadata)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param metadata
+   *          (list of name value pair of metadata)
    * @return
    */
   @PUT
@@ -1390,8 +1434,8 @@ public class FileResource extends AbstractJaxRSResource {
       boolean canManage =
           PentahoSessionHolder.getSession().getName().equals( fileAcl.getOwner() )
               || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
-                    && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-                      AdministerSecurityAction.NAME ) );
+                  && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
+                  AdministerSecurityAction.NAME ) );
 
       if ( !canManage ) {
 
@@ -1508,14 +1552,14 @@ public class FileResource extends AbstractJaxRSResource {
 
   private void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
-    if ( repositoryFileDtoList == null ||  repositoryFileDtoList.size() <= 0 ) {
+    if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
       return;
     }
 
     for ( RepositoryFileDto rft : repositoryFileDtoList ) {
       Collections.sort( repositoryFileDtoList, new Comparator<RepositoryFileDto>() {
         @Override
-        public int compare(RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
+        public int compare( RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
           String title1 = repositoryFile.getTitle();
           String title2 = repositoryFile2.getTitle();
 
@@ -1529,7 +1573,6 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  
   public RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
@@ -1561,7 +1604,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return repoWs;
   }
-  
+
   private boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
     if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
       if ( repositoryRequest.getExcludeMemberSet().contains( "title" ) ) {

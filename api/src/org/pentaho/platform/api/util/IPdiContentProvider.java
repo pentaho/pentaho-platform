@@ -3,12 +3,12 @@ package org.pentaho.platform.api.util;
 public interface IPdiContentProvider {
 
   /**
-   *  When a user creates a input parameter but does not want it to be written by others, 
-   *  it uses the syntax of an "_" (underscore) as prefix; so, if a user creates input 
-   *  parameter "_name", then the other users looking at it will know that they should not change it. 
+   * When a user creates a input parameter but does not want it to be written by others, it uses the syntax of an "_"
+   * (underscore) as prefix; so, if a user creates input parameter "_name", then the other users looking at it will know
+   * that they should not change it.
    */
   public static final String PROTECTED_PARAMETER_PREFIX = "_";
-  
+
   /**
    * given a ktr/kjb filePath, looks in its metadata for the existence of user input parameters, required to properly
    * execute
