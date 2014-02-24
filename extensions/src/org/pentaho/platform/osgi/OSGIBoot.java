@@ -53,6 +53,13 @@ public class OSGIBoot implements IPentahoSystemListener {
     String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
 
     final String sep = File.separator;
+
+    // set the location of the log4j config file, since OSGI won't pick up the one in webapp
+    System.setProperty( "log4j.configuration", "file:" + solutionRootPath + "/system/osgi/log4j.xml" );
+    // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
+    // same one used when instatiating appenders.
+    System.setProperty( "log4j.ignoreTCL", "true" );
+
     Properties osgiProps = new Properties();
     File propsFile = new File( solutionRootPath + sep + "system" + sep + "osgi" + sep + "config.properties" );
     if ( propsFile.exists() ) {
@@ -115,8 +122,8 @@ public class OSGIBoot implements IPentahoSystemListener {
 
       logger.debug( "Installing bundles" );
       for ( File bundleDirectory : bundleDirectories ) {
-        if(bundleDirectory.exists() == false){
-          logger.warn("Bundle directory: "+bundleDirectory.getName()+" does not exist");
+        if ( bundleDirectory.exists() == false ) {
+          logger.warn( "Bundle directory: " + bundleDirectory.getName() + " does not exist" );
           continue;
         }
         for ( File f : bundleDirectory.listFiles() ) {
