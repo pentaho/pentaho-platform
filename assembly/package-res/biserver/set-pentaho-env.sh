@@ -39,7 +39,7 @@ setPentahoEnv() {
   DIR_REL=`dirname $0`
   cd $DIR_REL
   DIR=`pwd`
-  cd -
+  #cd -
 	
   if [ -n "$PENTAHO_JAVA" ]; then
     __LAUNCHER="$PENTAHO_JAVA"
