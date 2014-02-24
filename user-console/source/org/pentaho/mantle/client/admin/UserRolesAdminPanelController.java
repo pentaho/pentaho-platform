@@ -33,7 +33,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -44,6 +43,8 @@ import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
@@ -244,6 +245,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   // -- Remote Calls.
 
   private void initializeRoles( final String defaultValue, String serviceUrl, final ListBox listBox ) {
+    initializeList( "roles", defaultValue, serviceUrl, listBox );
+  }
+
+  private void initializeAvailableUsers( final String defaultValue ) {
+    initializeList( "users", defaultValue, "api/userroledao/users", usersListBox );
+  }
+
+  private void initializeList( final String type, final String defaultValue, String serviceUrl
+      , final ListBox listBox ) {
     final String url = GWT.getHostPageBaseURL() + serviceUrl;
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -258,16 +268,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         public void onResponseReceived( Request request, Response response ) {
           listBox.clear();
           NativeEvent event = com.google.gwt.dom.client.Document.get().createChangeEvent();
-          String txt = response.getText();
-          Document doc = XMLParser.parse( txt );
-          NodeList roles = doc.getElementsByTagName( "roles" );
-          for ( int i = 0; i < roles.getLength(); i++ ) {
-            Node roleNode = roles.item( i );
-            String role = roleNode.getFirstChild().getNodeValue();
+
+          for ( String role : getSortedItems( type, response ) ) {
             listBox.addItem( role );
             if ( !StringUtils.isEmpty( defaultValue ) ) {
               if ( role.equals( defaultValue ) ) {
-                listBox.setSelectedIndex( i );
+                listBox.setSelectedIndex( listBox.getItemCount() - 1 );
                 DomEvent.fireNativeEvent( event, listBox );
               }
             }
@@ -283,44 +289,17 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     }
   }
 
-  private void initializeAvailableUsers( final String defaultValue ) {
-    final String url = GWT.getHostPageBaseURL() + "api/userroledao/users";
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-    executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-    executableTypesRequestBuilder.setHeader( "accept", "application/xml" );
-    try {
-      executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
-
-        public void onError( Request request, Throwable exception ) {
-          displayErrorInMessageBox( Messages.getString( "Error" ), exception.getLocalizedMessage() );
-        }
-
-        public void onResponseReceived( Request request, Response response ) {
-          usersListBox.clear();
-          NativeEvent event = com.google.gwt.dom.client.Document.get().createChangeEvent();
-          String txt = response.getText();
-          Document doc = XMLParser.parse( txt );
-          NodeList users = doc.getElementsByTagName( "users" );
-          for ( int i = 0; i < users.getLength(); i++ ) {
-            Node userNode = users.item( i );
-            String user = userNode.getFirstChild().getNodeValue();
-            usersListBox.addItem( user );
-            if ( !StringUtils.isEmpty( defaultValue ) ) {
-              if ( user.equals( defaultValue ) ) {
-                usersListBox.setSelectedIndex( i );
-                DomEvent.fireNativeEvent( event, usersListBox );
-              }
-            }
-          }
-          if ( usersListBox.getSelectedIndex() == -1 && usersListBox.getItemCount() > 0 ) {
-            usersListBox.setSelectedIndex( 0 );
-            DomEvent.fireNativeEvent( event, usersListBox );
-          }
-        }
-      } );
-    } catch ( RequestException e ) {
-      displayErrorInMessageBox( Messages.getString( "Error" ), e.getLocalizedMessage() );
+  private List<String> getSortedItems( String type, Response response ) {
+    String txt = response.getText();
+    Document doc = XMLParser.parse( txt );
+    NodeList items = doc.getElementsByTagName( type );
+    final List<String> itemsSorted = new ArrayList<String>();
+    for ( int i = 0; i < items.getLength(); i++ ) {
+      itemsSorted.add( items.item( i ).getFirstChild().getNodeValue() );
     }
+    Collections.sort( itemsSorted );
+
+    return itemsSorted;
   }
 
   private void getRolesForUser( String user ) {
@@ -337,12 +316,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
         public void onResponseReceived( Request request, Response response ) {
           selectedRolesListBox.clear();
-          String txt = response.getText();
-          Document doc = XMLParser.parse( txt );
-          NodeList roles = doc.getElementsByTagName( "roles" );
-          for ( int i = 0; i < roles.getLength(); i++ ) {
-            Node roleNode = roles.item( i );
-            String role = roleNode.getFirstChild().getNodeValue();
+
+          for ( String role : getSortedItems( "roles", response ) ) {
             selectedRolesListBox.addItem( role );
           }
 
@@ -389,12 +364,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
         public void onResponseReceived( Request request, Response response ) {
           selectedMembersListBox.clear();
-          String txt = response.getText();
-          Document doc = XMLParser.parse( txt );
-          NodeList users = doc.getElementsByTagName( "users" );
-          for ( int i = 0; i < users.getLength(); i++ ) {
-            Node userNode = users.item( i );
-            String user = userNode.getFirstChild().getNodeValue();
+
+          for ( String user : getSortedItems( "users", response ) ) {
             selectedMembersListBox.addItem( user );
           }
 
