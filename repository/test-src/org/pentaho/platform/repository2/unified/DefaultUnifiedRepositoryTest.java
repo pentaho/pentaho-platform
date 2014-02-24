@@ -3858,6 +3858,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull( struct.logicalRoleNameMap );
     assertEquals( 5, struct.logicalRoleNameMap.size() );
     assertEquals( "Create Content", struct.logicalRoleNameMap.get( RepositoryCreateAction.NAME ) );
+
+    assertNotNull( struct.immutableRoles );
+    assertEquals( 2, struct.immutableRoles.size() );
+    assertTrue( struct.immutableRoles.contains( superAdminRoleName ) );
+    assertTrue( struct.immutableRoles.contains( tenantAdminRoleName ) );
   }
 
   private RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
