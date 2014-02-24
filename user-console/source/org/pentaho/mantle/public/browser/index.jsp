@@ -83,8 +83,30 @@
       FileBrowser.setShowDescriptions(showDescriptions);
       FileBrowser.setCanDownload(canDownload);
       FileBrowser.setCanPublish(canPublish);
-      FileBrowser.update(window.top.HOME_FOLDER);
-
+      
+      var open_dir = window.top.HOME_FOLDER;
+      
+      $.ajax({
+				url: CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder",
+				type: "GET",
+				cache: false,
+				async: true,
+				success: function (response) {
+					if(response != null && response.length > 0){
+						open_dir = decodeURIComponent(response);
+							$.ajax({
+							url: CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder",
+							type: "DELETE",
+							cache: false,
+							async: true,
+							success: function (response) {
+							}
+						});
+					}
+					FileBrowser.update(open_dir);
+				}
+			});
+      
       if (window.top.mantle_addHandler == undefined) return;
 
       window.top.mantle_addHandler("ShowHiddenFilesEvent", function (event) {
