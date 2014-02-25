@@ -792,6 +792,10 @@ public class CommandLineProcessor {
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY" ),
             Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME" ), false, true );
     String effPath = path.replaceAll( "/", ":" );
+    if ( effPath.lastIndexOf( ":" ) == effPath.length() - 1 // remove trailing slash
+        && effPath.length() > 1  ) { // allow user to enter "--path=/"
+      effPath = effPath.substring( 0, effPath.length() - 1 );
+    }
     String logFile =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
@@ -805,7 +809,8 @@ public class CommandLineProcessor {
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
 
     if ( !isValidExportPath( filepath, logFile ) ) {
-      return;
+      throw new ParseException( Messages.getInstance().getString( "CommandLineProcessor.ERROR_0005_INVALID_FILE_PATH"
+          , filepath ) );
     }
 
     initRestService();
@@ -829,6 +834,12 @@ public class CommandLineProcessor {
         System.out.println( message );
         writeFile( message, logFile );
       }
+    } else {
+      System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
+      if ( response != null && response.getStatus() == 404 ) {
+        throw new ParseException( Messages.getInstance().getErrorString(
+            "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path ) );
+      }
     }
   }
 
@@ -838,7 +849,7 @@ public class CommandLineProcessor {
 
     if ( filePath != null && filePath.toLowerCase().endsWith( ".zip" ) ) {
 
-      int fileNameIdx = filePath.lastIndexOf( "/" );
+      int fileNameIdx = filePath.replace( "\\", "/" ).lastIndexOf( "/" );
       if ( fileNameIdx >= 0 ) {
         String directoryPath = filePath.substring( 0, fileNameIdx );
 
