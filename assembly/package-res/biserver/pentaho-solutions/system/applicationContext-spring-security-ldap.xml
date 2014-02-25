@@ -91,6 +91,7 @@
         <constructor-arg>
             <ref local="ldapRoleMap"/>
         </constructor-arg>
+        <constructor-arg value="${ldap.allAuthoritiesSearch.roleAttribute}"/>
     </bean>
 
   <!--
