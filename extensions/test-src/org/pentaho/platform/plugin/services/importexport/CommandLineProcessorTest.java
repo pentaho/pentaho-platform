@@ -18,16 +18,39 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import junit.framework.TestCase;
+import com.sun.jersey.test.framework.AppDescriptor;
+import com.sun.jersey.test.framework.JerseyTest;
+import com.sun.jersey.test.framework.WebAppDescriptor;
+import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
+import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Class Description
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class CommandLineProcessorTest extends TestCase {
+public class CommandLineProcessorTest extends JerseyTest {
   private static String VALID_URL_OPTION = "--url=http://localhost:8080/pentaho";
   private static String FILE_SYSTEM_SOURCE_OPTION = "--source=file-system";
   private static String VALID_IMPORT_COMMAND_LINE = "--import --type=files --source=file-system --username=admin "
@@ -41,6 +64,33 @@ public class CommandLineProcessorTest extends TestCase {
           + "--legacy-db-url=jdbc:mysql://localhost/hibernate --legacy-db-username=hibuser "
           + "--legacy-db-password=password " + VALID_LEGACY_DB_CHARSET_OPTION;
 
+  private String tmpZipFileName;
+  private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
+      "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).addFilter(
+      PentahoRequestContextFilter.class, "pentahoRequestContextFilter" ).build();
+
+  public CommandLineProcessorTest() throws IOException {
+    final TemporaryFolder tmpFolder = new TemporaryFolder();
+    tmpFolder.create();
+    tmpZipFileName = tmpFolder.getRoot().getAbsolutePath() + File.separator + "test.zip";
+
+    MicroPlatform mp = new MicroPlatform( "test-src/solution" );
+    mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
+    mp.define( ISolutionEngine.class, SolutionEngine.class );
+    mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class
+        , IPentahoDefinableObjectFactory.Scope.GLOBAL );
+    mp.define( IAuthorizationPolicy.class, TestAuthorizationPolicy.class );
+    mp.define( DefaultExportHandler.class, DefaultExportHandler.class );
+
+    FileSystemBackedUnifiedRepository repo =
+        (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
+    repo.setRootDir( new File( "test-src/solution" ) );
+
+    StandaloneSession session = new StandaloneSession();
+    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
+    PentahoSessionHolder.setSession( session );
+  }
+
   private static final String[] toStringArray( final String s ) {
     return StringUtils.split( s, ' ' );
   }
@@ -49,6 +99,7 @@ public class CommandLineProcessorTest extends TestCase {
     return StringUtils.split( s1 + " " + s2, ' ' );
   }
 
+  @Test
   public void testInvalidCommandLineParameters() throws Exception {
     CommandLineProcessor.main( new String[] {} );
     assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );
@@ -67,23 +118,83 @@ public class CommandLineProcessorTest extends TestCase {
     assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );
   }
 
+  @Test
   public void testGetProperty() throws Exception {
 
   }
 
+  @Test
   public void testGetOptionValue() throws Exception {
 
   }
 
+  @Test
   public void testGetImportProcessor() throws Exception {
 
   }
 
+  @Test
   public void testGetImportSource() throws Exception {
 
   }
 
+  @Test
   public void testAddImportHandlers() throws Exception {
 
+  }
+
+  @Test
+  public void testExportFileParameter() throws Exception {
+    final String baseOptions = "-e -a " + getBaseUrl() + " -u admin -p password -f \"/test\"";
+    String fileOption;
+
+    // correct file path
+    fileOption = "-fp " + tmpZipFileName;
+    CommandLineProcessor.main( toStringArray( baseOptions, fileOption ) );
+    assertNull( CommandLineProcessor.getException() );
+
+    // incorrect file path
+    fileOption = "-fp test.zip";
+    CommandLineProcessor.main( toStringArray( baseOptions, fileOption ) );
+    assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );
+  }
+
+  @Test
+  public void testExportPathParameter() throws Exception {
+    final String baseOptions = "-e -a " + getBaseUrl() + " -u admin -p password -fp " + tmpZipFileName;
+    String pathOption;
+
+    //correct path
+    pathOption = "-f \"/test\"";
+    CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
+    assertNull( CommandLineProcessor.getException() );
+
+    //path with trailing slash
+    pathOption = "-f \"/test/\"";
+    CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
+    assertNull( CommandLineProcessor.getException() );
+
+    //path that doesn't exist
+    pathOption = "-f \"/path_that_not_exists\"";
+    CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
+    assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );
+  }
+
+  @Override
+  protected AppDescriptor configure() {
+    return webAppDescriptor;
+  }
+
+  @Override
+  protected TestContainerFactory getTestContainerFactory() {
+    return new GrizzlyWebTestContainerFactory();
+  }
+
+  private String getBaseUrl() {
+    String baseUrl = getBaseURI().toString();
+    if ( baseUrl.endsWith( "/" ) ) {
+      baseUrl = baseUrl.substring( 0, baseUrl.length() - 1 );
+    }
+    return baseUrl;
   }
 }
