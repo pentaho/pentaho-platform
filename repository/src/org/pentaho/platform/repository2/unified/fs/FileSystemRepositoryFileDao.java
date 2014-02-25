@@ -167,7 +167,21 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
-    return getChildren( folderId, filter, false);
+    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    File folder = new File(folderId.toString());
+ 
+    for (Iterator iterator = FileUtils.listFiles(folder, new WildcardFileFilter(filter), null).iterator(); iterator.hasNext();) {
+
+      RepositoryFile f = internalGetFile((File) iterator.next());
+
+      if( f != null ){
+
+        if( !f.isHidden() || showHiddenFiles ){
+            children.add( f );    
+        } 
+      }
+    }
+    return children;
   }
 
   @SuppressWarnings( "unchecked" )
