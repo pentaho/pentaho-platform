@@ -85,14 +85,14 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       public void onValueChange( final ValueChangeEvent<Boolean> booleanValueChangeEvent ) {
         emailConfig.setAuthenticate( booleanValueChangeEvent.getValue() );
         authenticationPanel.setVisible( booleanValueChangeEvent.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
     smtpHostTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         emailConfig.setSmtpHost( smtpHostTextBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
@@ -100,14 +100,14 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         Short port = isPortValid( portTextBox.getValue() ) ? Short.parseShort( portTextBox.getValue() ) : -1;
         emailConfig.setSmtpPort( port );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
     fromAddressTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         emailConfig.setDefaultFrom( fromAddressTextBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
@@ -121,28 +121,28 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     userNameTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         emailConfig.setUserId( userNameTextBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
     useSSLCheckBox.addValueChangeHandler( new ValueChangeHandler<Boolean>() {
       public void onValueChange( final ValueChangeEvent<Boolean> booleanValueChangeEvent ) {
         emailConfig.setUseSsl( useSSLCheckBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
     useStartTLSCheckBox.addValueChangeHandler( new ValueChangeHandler<Boolean>() {
       public void onValueChange( final ValueChangeEvent<Boolean> booleanValueChangeEvent ) {
         emailConfig.setUseStartTls( useStartTLSCheckBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
     protocolsListBox.addChangeHandler( new ChangeHandler() {
       public void onChange( final ChangeEvent changeEvent ) {
         emailConfig.setSmtpProtocol( protocolsListBox.getItemText( protocolsListBox.getSelectedIndex() ) );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
@@ -155,7 +155,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     passwordTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         emailConfig.setPassword( passwordTextBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
   }
@@ -166,7 +166,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     if ( !StringUtils.isEmpty( passwordTextBox.getValue() ) ) {
       passwordTextBox.setEnabled( false );
     }
-    isDirty = true;
+    setDirty( true );
   }
 
   // -- Remote Calls.
@@ -182,7 +182,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          isDirty = false;
+          setDirty( false );
         }
       } );
     } catch ( RequestException e ) {
@@ -245,7 +245,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
   // -- ISysAdminPanel implementation.
 
   public void activate() {
-    isDirty = false;
+    setDirty( false );
     getEmailConfig();
   }
 
@@ -262,11 +262,10 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
         public void onClose( XulComponent component, XulDialogCallback.Status status, String value ) {
           if ( status == XulDialogCallback.Status.ACCEPT ) {
+            setEmailConfig();
             callback.onSuccess( true );
-          }
-          if ( status == XulDialogCallback.Status.CANCEL ) {
-            MantleXul.getInstance().selectAdminCatTreeTreeItem( Messages.getString( "emailSmtpServer" ) );
-            callback.onSuccess( false );
+          } else if ( status == XulDialogCallback.Status.CANCEL ) {
+            callback.onSuccess( true );
           }
         }
 
@@ -277,5 +276,10 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     } else {
       callback.onSuccess( true );
     }
+  }
+
+  private void setDirty( boolean isDirty ) {
+    this.isDirty = isDirty;
+    saveButton.setEnabled( isDirty );
   }
 }
