@@ -160,8 +160,7 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
       }
     }
 
-    return null;
-    //throw new ClassNotFoundException( beanClassName );
+    throw new ClassNotFoundException( beanClassName );
   }
 
   private IPluginManager getPluginManager() {
