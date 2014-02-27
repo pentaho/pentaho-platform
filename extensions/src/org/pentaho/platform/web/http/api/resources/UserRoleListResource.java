@@ -39,6 +39,11 @@ public class UserRoleListResource extends AbstractJaxRSResource  {
   }
 
   public UserRoleListResource(final ArrayList<String> systemRoles, final String adminRole,
+      final ArrayList<String> extraRoles) {
+    this(systemRoles, adminRole, PentahoSystem.get( String.class, "singleTenantAnonymousAuthorityName", PentahoSessionHolder.getSession() ), extraRoles);
+  }
+  
+  public UserRoleListResource(final ArrayList<String> systemRoles, final String adminRole,
       final String anonymousRole , final ArrayList<String> extraRoles) {
 
     this.systemRoles = systemRoles;
