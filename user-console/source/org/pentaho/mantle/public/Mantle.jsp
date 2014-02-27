@@ -16,6 +16,7 @@
 --%>
 
 <!DOCTYPE html>
+<%@page pageEncoding="UTF-8" %>
 <%@page import="org.apache.commons.lang.StringUtils" %>
 <%@page import="org.owasp.esapi.ESAPI" %>
 <%@page import="org.pentaho.platform.util.messages.LocaleHelper" %>
