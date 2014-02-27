@@ -114,7 +114,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     fromNameTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
         emailConfig.setFromName( fromNameTextBox.getValue() );
-        isDirty = true;
+        setDirty( true );
       }
     } );
 
