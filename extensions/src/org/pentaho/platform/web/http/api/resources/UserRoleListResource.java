@@ -42,7 +42,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 /**
  * UserRoleList resource manage platform's implementation <code> IUserRoleListService </code>
  * 
- *
+ * 
  */
 @Path( "/userrolelist/" )
 public class UserRoleListResource extends AbstractJaxRSResource {
@@ -60,11 +60,16 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   public UserRoleListResource( final ArrayList<String> systemRoles, final String adminRole,
-      final String anonymousRole , final ArrayList<String> extraRoles ) {
+      final ArrayList<String> extraRoles ) {
+    this( systemRoles, adminRole, PentahoSystem.get( String.class, "singleTenantAnonymousAuthorityName",
+        PentahoSessionHolder.getSession() ), extraRoles );
+  }
 
+  public UserRoleListResource( final ArrayList<String> systemRoles, final String adminRole, final String anonymousRole,
+      final ArrayList<String> extraRoles ) {
     this.systemRoles = systemRoles;
     this.adminRole = adminRole;
-    this.anonymousRole = anonymousRole;    
+    this.anonymousRole = anonymousRole;
     this.extraRoles = extraRoles;
   }
 
@@ -83,7 +88,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the list of roles in the platform. 
+   * Returns the list of roles in the platform.
    * 
    * @return list of roles
    * 
@@ -110,7 +115,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     if ( allRoles.contains( anonymousRole ) ) {
       allRoles.remove( anonymousRole );
     }
-    
 
     return new RoleListWrapper( allRoles );
   }
@@ -118,7 +122,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Returns the list of users in the platform
    * 
-   * @return list of users 
+   * @return list of users
    * 
    * @throws Exception
    */
@@ -134,7 +138,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Returns list of roles in the platform
    * 
    * @return list of roles
-   *
+   * 
    * @throws Exception
    */
   @GET
@@ -163,7 +167,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns roles identified as "system roles" from the repository 
+   * Returns roles identified as "system roles" from the repository
    * 
    * 
    * @return system roles
