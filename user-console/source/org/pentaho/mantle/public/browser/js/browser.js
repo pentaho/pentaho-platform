@@ -369,7 +369,8 @@ define([
     updateFileList: function () {
       var myself = this;
       //trigger file list update
-      myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"));
+      myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"),  {silent:true});
+      myself.get("fileListModel").trigger('change:path');
 
     },
 
@@ -611,13 +612,19 @@ define([
           if(!window.top.mantle_isBrowseRepoDirty){
             if(myself.get("cachedData") != undefined) {
               if(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] != undefined){
-                myself.set("data",myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+            	//force event in case data was not changed
+                myself.set("data",myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")], {silent:true});
+                myself.trigger("change:data");
                 xhr.abort();
+                if (myself.get("path") == ".trash") {
+    	          if (myself.get("deletedFiles") == "") {					
+    		        FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
+    	          }
+                }
                 myself.set("runSpinner", false);
               }
             }
           }
-
         }
       });
     },
@@ -857,10 +864,20 @@ define([
     },
 
     checkButtonsEnabled: function () {
+      //save purge button state
+      if (this.fileListView.model.get("path") == ".trash") {
+        var purgeDisabled = $('#purge').attr('disabled');  
+      }
+      
       //disable all buttons on start
       $("button.btn.btn-block[disabled=disabled]").each(function () {
         $(this).removeAttr("disabled");
       });
+      
+      //restore purge button state
+      if (this.fileListView.model.get("path") == ".trash") {
+        $('#purge').attr('disabled', purgeDisabled);
+      }
     }
   });
 

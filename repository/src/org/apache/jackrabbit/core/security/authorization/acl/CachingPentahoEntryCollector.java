@@ -358,6 +358,10 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
     super.notifyListeners( modifications );
   }
 
+  public void clearCache( IPentahoSession session ) {
+    flushCachesOfSession( session );
+  }
+
   /**
    * A place holder for a yet to be computed {@link Entries} result
    */
