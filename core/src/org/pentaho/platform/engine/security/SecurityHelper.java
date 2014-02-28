@@ -63,7 +63,9 @@ public class SecurityHelper implements ISecurityHelper {
   /**
    * The default instance of this singleton
    */
-  private static final ISecurityHelper instance = new SecurityHelper();
+  private static ISecurityHelper instance = new SecurityHelper();
+  private static ISecurityHelper mockInstance;
+
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
   private IAclVoter aclVoter;
   private UserDetailsService userDetailsService;
@@ -71,10 +73,22 @@ public class SecurityHelper implements ISecurityHelper {
   
 
   /**
-   * Returns the one-and-only default instance
+   * Returns the default instance, if the test instance is not null return the test instance
    */
   public static ISecurityHelper getInstance() {
+    if (mockInstance != null) {
+      return mockInstance;
+    }
+
     return instance;
+  }
+
+  /**
+   * Set the mockInstance, this should only be used for testing
+   * @param mockInstanceValue the test implementation of SecurityHelper
+   */
+  public static void setMockInstance (ISecurityHelper mockInstanceValue) {
+      mockInstance = mockInstanceValue;
   }
 
   /**
