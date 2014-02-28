@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2014 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -13,18 +13,24 @@
 
 package org.pentaho.platform.web.servlet;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Callable;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import mondrian.olap.Connection;
 import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
 import mondrian.olap.MondrianServer;
-import mondrian.server.DynamicContentFinder;
 import mondrian.server.FileRepository;
 import mondrian.server.RepositoryContentFinder;
-import mondrian.spi.CatalogLocator;
-import mondrian.spi.impl.ServletContextCatalogLocator;
-import mondrian.xmla.XmlaException;
-import mondrian.xmla.XmlaHandler.ConnectionFactory;
-import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
+
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileSystemException;
@@ -32,7 +38,9 @@ import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.tree.DefaultElement;
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
@@ -54,14 +62,14 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Callable;
+import mondrian.server.DynamicContentFinder;
+import mondrian.spi.CatalogLocator;
+import mondrian.spi.impl.ServletContextCatalogLocator;
+import mondrian.xmla.XmlaException;
+import mondrian.xmla.XmlaHandler.ConnectionFactory;
+import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
+
+import static org.apache.commons.collections.CollectionUtils.*;
 
 /**
  * Filters out <code>DataSource</code> elements that are not XMLA-related.
@@ -141,7 +149,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
                   .debug( Messages.getInstance().getString( "PentahoXmlaServlet.DEBUG_ORIG_DOC", originalDocument.asXML() ) ); //$NON-NLS-1$
               }
               Document modifiedDocument = (Document) originalDocument.clone();
-              List<Node> nodesToRemove = modifiedDocument.selectNodes( "/DataSources/DataSource/Catalogs/Catalog[contains(DataSourceInfo, 'EnableXmla=False')]" ); //$NON-NLS-1$
+              List<Node> nodesToRemove = getNodesToRemove( modifiedDocument );
               if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
                 PentahoXmlaServlet.logger.debug( Messages.getInstance().getString(
                   "PentahoXmlaServlet.DEBUG_NODES_TO_REMOVE", String.valueOf( nodesToRemove.size() ) ) ); //$NON-NLS-1$
@@ -157,6 +165,28 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
               PentahoXmlaServlet.logger.error( Messages.getInstance().getString( "PentahoXmlaServlet.ERROR_0004_UNABLE_TO_GET_DOCUMENT_FROM_STRING" ), e ); //$NON-NLS-1$
               return null;
             }
+          }
+
+          private List<Node> getNodesToRemove( Document doc ) {
+            List<Node> nodesToRemove =  doc.selectNodes( "/DataSources/DataSource/Catalogs/Catalog" );
+            filter( nodesToRemove,
+              new Predicate() {
+                @Override
+                public boolean evaluate( Object o ) {
+                  Element el = ( (DefaultElement) o ).element( "DataSourceInfo" );
+
+                  if ( el == null || el.getText() == null || el.getTextTrim().length() == 0 ) {
+                    throw new XmlaException(
+                      SERVER_FAULT_FC,
+                      UNKNOWN_ERROR_CODE,
+                      UNKNOWN_ERROR_FAULT_FS,
+                      new MondrianException(
+                        "DataSourceInfo not defined for " + ( (DefaultElement) o ).attribute( "name" ).getText() ) );
+                  }
+                  return el.getText().matches( "(?i).*EnableXmla=['\"]?false['\"]?" );
+                }
+              } );
+            return nodesToRemove;
           }
         } );
     }
