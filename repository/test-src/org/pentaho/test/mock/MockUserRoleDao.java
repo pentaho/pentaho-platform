@@ -18,6 +18,14 @@
 
 package org.pentaho.test.mock;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -30,15 +38,6 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class MockUserRoleDao implements IUserRoleDao {
 
@@ -64,7 +63,7 @@ public class MockUserRoleDao implements IUserRoleDao {
       tenants.add( tenant );
       tenantUsers.put( tenant, new HashSet<IPentahoUser>() );
       tenantRoles.put( tenant, new HashSet<IPentahoRole>() );
-      createRole( tenant, authenticatedRoleName, "", new String[0] );
+      //createRole( tenant, authenticatedRoleName, "", new String[0] );
     }
   }
 
@@ -79,11 +78,29 @@ public class MockUserRoleDao implements IUserRoleDao {
     }
 
     addTenant( tenant );
-    MockPentahoRole role = new MockPentahoRole( tenant, roleName, description );
+
+    MockPentahoRole role = null;
+    HashSet<IPentahoRole> set = tenantRoles.get( tenant );
+    if ( set != null ) {
+      for ( IPentahoRole iRole : set ) {
+        if ( iRole.getName() == roleName ) {
+          role = (MockPentahoRole) iRole;
+        }
+      }
+    }
+
+    if (role == null) {
+     role = new MockPentahoRole( tenant, roleName, description );
+    }
+
     if ( !tenantRoles.get( tenant ).contains( role ) ) {
       tenantRoles.get( tenant ).add( role );
       roleMembers.put( role, new HashSet<IPentahoUser>() );
     }
+    else {
+      throw new AlreadyExistsException(roleName.toString());
+    }
+
     setRoleMembers( tenant, roleName, memberUserNames );
     return role;
   }
@@ -99,10 +116,13 @@ public class MockUserRoleDao implements IUserRoleDao {
     }
 
     addTenant( tenant );
+    //TODO: Same logic as role
     MockPentahoUser user = new MockPentahoUser( tenant, username, password, description, true );
     if ( !tenantUsers.get( tenant ).contains( user ) ) {
       tenantUsers.get( tenant ).add( user );
       userRoles.put( user, new HashSet<IPentahoRole>() );
+    } else {
+      throw new AlreadyExistsException( username );
     }
     setUserRoles( tenant, username, roles );
     return user;
@@ -113,18 +133,24 @@ public class MockUserRoleDao implements IUserRoleDao {
   }
 
   public void deleteRole( IPentahoRole role ) throws NotFoundException, UncategorizedUserRoleDaoException {
-    tenantRoles.get( role.getTenant() ).remove( role );
+    boolean removed = tenantRoles.get( role.getTenant() ).remove( role );
     roleMembers.remove( role );
     for ( HashSet<IPentahoRole> roles : userRoles.values() ) {
       roles.remove( role );
     }
+    if ( !removed ) {
+      throw new NotFoundException( role.getName() );
+    }
   }
 
   public void deleteUser( IPentahoUser user ) throws NotFoundException, UncategorizedUserRoleDaoException {
-    tenantUsers.get( user.getTenant() ).remove( user );
+    boolean removed = tenantUsers.get( user.getTenant() ).remove( user );
     userRoles.remove( user );
     for ( HashSet<IPentahoUser> users : roleMembers.values() ) {
       users.remove( user );
+    }
+    if ( !removed ) {
+      throw new NotFoundException( user.getUsername() );
     }
   }
 
@@ -180,11 +206,7 @@ public class MockUserRoleDao implements IUserRoleDao {
   }
 
   public List<IPentahoRole> getRoles( ITenant tenant ) throws UncategorizedUserRoleDaoException {
-    if ( JcrTenantUtils.getCurrentTenant() != null && JcrTenantUtils.getCurrentTenant().equals( tenant ) ) {
-      return Collections.list( Collections.enumeration( tenantRoles.get( tenant ) ) );
-    } else {
-      return Collections.emptyList();
-    }
+    return Collections.list( Collections.enumeration( tenantRoles.get( tenant ) ) );
   }
 
   public IPentahoUser getUser( ITenant tenant, String userName ) throws UncategorizedUserRoleDaoException {
@@ -239,21 +261,25 @@ public class MockUserRoleDao implements IUserRoleDao {
   }
 
   public List<IPentahoUser> getUsers( ITenant tenant ) throws UncategorizedUserRoleDaoException {
-    if ( JcrTenantUtils.getCurrentTenant() != null && JcrTenantUtils.getCurrentTenant().equals( tenant ) ) {
-      return Collections.list( Collections.enumeration( tenantUsers.get( tenant ) ) );
-    } else {
-      return Collections.emptyList();
-    }
+    return Collections.list( Collections.enumeration( tenantUsers.get( tenant ) ) );
   }
 
   public void setPassword( ITenant tenant, String userName, String password ) throws NotFoundException,
     UncategorizedUserRoleDaoException {
-    throw new UnsupportedOperationException();
+    IPentahoUser user = getUser( tenant, userName );
+    if ( user == null ) {
+      throw new NotFoundException( userName );
+    }
+    user.setPassword( password );
   }
 
   public void setRoleDescription( ITenant tenant, String roleName, String description ) throws NotFoundException,
     UncategorizedUserRoleDaoException {
-    throw new UnsupportedOperationException();
+    IPentahoRole role = getRole( tenant, roleName );
+    if ( role == null ) {
+      throw new NotFoundException( roleName );
+    }
+    role.setDescription( description );
   }
 
   public void setRoleMembers( ITenant tenant, String roleName, String[] userNames ) throws NotFoundException,
@@ -272,6 +298,7 @@ public class MockUserRoleDao implements IUserRoleDao {
     if ( userNames != null ) {
       for ( String userName : userNames ) {
         IPentahoUser user = getUser( tenant, userName );
+        userRoles.get( user ).add( role );        
         if ( user != null ) {
           users.add( user );
         }
@@ -281,7 +308,11 @@ public class MockUserRoleDao implements IUserRoleDao {
 
   public void setUserDescription( ITenant tenant, String userName, String description ) throws NotFoundException,
     UncategorizedUserRoleDaoException {
-    throw new UnsupportedOperationException();
+    IPentahoUser user = getUser( tenant, userName );
+    if ( user == null ) {
+      throw new NotFoundException( userName );
+    }
+    user.setDescription( description );
   }
 
   public void setUserRoles( ITenant tenant, String userName, String[] roleNames ) throws NotFoundException,
@@ -300,7 +331,11 @@ public class MockUserRoleDao implements IUserRoleDao {
     }
     roleSet.add( authenticatedRoleName );
 
+    IPentahoRole authRole = getRole( tenant, authenticatedRoleName );
+    
     IPentahoUser user = getUser( tenant, userName );
+    roleMembers.get( authRole ).add( user );   
+    
     HashSet<IPentahoRole> roles = userRoles.get( user );
     roles.clear();
     for ( String roleName : roleSet ) {
@@ -308,6 +343,7 @@ public class MockUserRoleDao implements IUserRoleDao {
       if ( role != null ) {
         roles.add( role );
       }
+      roleMembers.get( role ).add( user );      
     }
   }
 

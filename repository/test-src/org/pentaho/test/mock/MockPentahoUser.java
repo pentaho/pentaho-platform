@@ -18,6 +18,7 @@
 
 package org.pentaho.test.mock;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.mt.ITenant;
 
@@ -80,6 +81,23 @@ public class MockPentahoUser implements IPentahoUser {
     this.enabled = enabled;
   }
 
+  public boolean equals( Object obj ) {
+    if ( obj instanceof MockPentahoUser == false ) {
+      return false;
+    }
+    if ( this == obj ) {
+      return true;
+    }
+    MockPentahoUser rhs = (MockPentahoUser) obj;
+    boolean result;
+    if ( ( getTenant() == null ) && ( rhs.getTenant() == null ) ) {
+      result = new EqualsBuilder().append( userName, rhs.userName ).isEquals();
+    } else {
+      result = new EqualsBuilder().append( userName, rhs.userName ).append( tenant, rhs.tenant ).isEquals();
+    }
+    return result;
+  }  
+  
   public int hashCode() {
     if ( ( tenant != null ) && ( tenant.getId() != null ) ) {
       return tenant.getId().concat( userName ).hashCode();
