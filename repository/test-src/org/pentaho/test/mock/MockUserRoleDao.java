@@ -298,6 +298,9 @@ public class MockUserRoleDao implements IUserRoleDao {
     if ( userNames != null ) {
       for ( String userName : userNames ) {
         IPentahoUser user = getUser( tenant, userName );
+        if ( !userRoles.containsKey( user ) ) {
+          userRoles.put( user, new HashSet<IPentahoRole>() );
+        }
         userRoles.get( user ).add( role );        
         if ( user != null ) {
           users.add( user );

@@ -17,6 +17,22 @@
 
 package org.pentaho.test.platform.security.userroledao;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
@@ -38,7 +54,6 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -68,21 +83,6 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 /**
  * Unit test for {@link UserRoleDaoUserRoleListService}.
  * 
@@ -98,6 +98,9 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String MAIN_TENANT_2 = "maintenant2";
 
+  private ITenant mainTenant_1;
+  private ITenant mainTenant_2;  
+  
   public static final String PASSWORD_1 = "password1"; //$NON-NLS-1$
   public static final String PASSWORD_2 = "password2"; //$NON-NLS-1$
   public static final String PASSWORD_3 = "password3"; //$NON-NLS-1$
@@ -197,13 +200,10 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
   private IAuthorizationPolicy authorizationPolicy;
   private MicroPlatform mp;
   private IRepositoryFileDao repositoryFileDao;
-  private IUnifiedRepository repo;
-  private Repository repository = null;
   private ITenant systemTenant = null;
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
   private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
-  private RepositoryFileProxyFactory repositoryFileProxyFactory;
   @BeforeClass
   public static void setUpClass() throws Exception {
     // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
@@ -257,17 +257,22 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     } );
   }
 
-  private void cleanupUserAndRoles( String userName, ITenant tenant ) {
-    login( userName, tenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    for ( IPentahoRole role : userRoleDao.getRoles() ) {
-      userRoleDao.deleteRole( role );
+  private void cleanupTenant( final ITenant tenant ) {
+    if ( tenant == null ) {
+      return;
     }
-    for ( IPentahoUser user : userRoleDao.getUsers() ) {
-      userRoleDao.deleteUser( user );
+    loginAsRepositoryAdmin();
+    for ( IPentahoRole role : userRoleDao.getRoles( tenant ) ) {
+    	userRoleDao.deleteRole( role );
     }
-    logout();
-  }
-
+    for ( IPentahoUser user : userRoleDao.getUsers( tenant ) ) {
+    	userRoleDao.deleteUser( user );
+    }
+    if ( tenant != null ) {
+      tenantManager.deleteTenant( tenant );
+    }
+  }  
+  
   /*
    * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null
    * && tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
@@ -278,6 +283,10 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
    */
   @After
   public void tearDown() throws Exception {
+    cleanupTenant( mainTenant_2 );
+    cleanupTenant( mainTenant_1 );
+    cleanupTenant( systemTenant );  	  
+	  
     // Deleting all user and roles and tenant
     // null out fields to get back memory
     authorizationPolicy = null;
@@ -296,7 +305,6 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     }
 
     // null out fields to get back memory
-    repo = null;
     tenantManager = null;
 
   }
@@ -358,8 +366,6 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
     userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDaoTxn" );
     TestPrincipalProvider.userRoleDao = userRoleDao;
-    repo = (IUnifiedRepository) applicationContext.getBean( "unifiedRepository" );
-    repository = (Repository) applicationContext.getBean( "jcrRepository" );
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedUserNameUtils" );
     tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedRoleNameUtils" );
     roleAuthorizationPolicyRoleBindingDao =
@@ -370,31 +376,31 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
   @Test
   public void testGetAllAuthorities() {
     loginAsRepositoryAdmin();
-    ITenant systemTenant =
+    systemTenant =
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
       tenantAuthenticatedAuthorityName } );
-    ITenant mainTenant_1 =
+    mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_1, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
-    ITenant mainTenant_2 =
+    mainTenant_2 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_2, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_2, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
 
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    IPentahoRole pentahoRole = userRoleDao.createRole( mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null );
-    pentahoRole = userRoleDao.createRole( mainTenant_1, ROLE_2, ROLE_DESCRIPTION_2, null );
-    pentahoRole = userRoleDao.createRole( mainTenant_1, ROLE_3, ROLE_DESCRIPTION_3, null );
+    userRoleDao.createRole( mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null );
+    userRoleDao.createRole( mainTenant_1, ROLE_2, ROLE_DESCRIPTION_2, null );
+    userRoleDao.createRole( mainTenant_1, ROLE_3, ROLE_DESCRIPTION_3, null );
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    pentahoRole = userRoleDao.createRole( mainTenant_2, ROLE_4, ROLE_DESCRIPTION_4, null );
-    pentahoRole = userRoleDao.createRole( mainTenant_2, ROLE_5, ROLE_DESCRIPTION_5, null );
-    pentahoRole = userRoleDao.createRole( mainTenant_2, ROLE_6, ROLE_DESCRIPTION_6, null );
-    pentahoRole = userRoleDao.createRole( mainTenant_2, ROLE_7, ROLE_DESCRIPTION_7, null );
+    userRoleDao.createRole( mainTenant_2, ROLE_4, ROLE_DESCRIPTION_4, null );
+    userRoleDao.createRole( mainTenant_2, ROLE_5, ROLE_DESCRIPTION_5, null );
+    userRoleDao.createRole( mainTenant_2, ROLE_6, ROLE_DESCRIPTION_6, null );
+    userRoleDao.createRole( mainTenant_2, ROLE_7, ROLE_DESCRIPTION_7, null );
 
     List<String> systemRoles = Arrays.asList( new String[] { "Admin" } );
     List<String> extraRoles = Arrays.asList( new String[] { "Authenticated", "Anonymous" } );
@@ -415,70 +421,62 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
 
     
     assertTrue( allRolesForDefaultTenant.size() == 2 + DEFAULT_ROLE_COUNT );
-    assertTrue( allRolesForTenant.size() == 2 );
+    assertEquals( 3 + DEFAULT_ROLE_COUNT, allRolesForTenant.size() );
 
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
     allRolesForDefaultTenant = service.getAllRoles();
     allRolesForTenant = service.getAllRoles( mainTenant_1 );
     assertTrue( allRolesForDefaultTenant.size() == 3 + DEFAULT_ROLE_COUNT );
-    assertTrue( allRolesForTenant.size() == 2 );
+    assertEquals( 2 + DEFAULT_ROLE_COUNT, allRolesForTenant.size() );
 
     allRolesForTenant = service.getAllRoles( mainTenant_2 );
-    assertTrue( allRolesForTenant.size() == 3 + DEFAULT_ROLE_COUNT );
+    assertEquals( 3 + DEFAULT_ROLE_COUNT, allRolesForTenant.size() );
 
     allRolesForTenant = service.getAllRoles( mainTenant_1 );
-    assertTrue( allRolesForTenant.size() == 2 );
+    assertEquals( 2 + DEFAULT_ROLE_COUNT, allRolesForTenant.size() );
 
     logout();
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
 
     allRolesForTenant = service.getAllRoles( mainTenant_1 );
-    assertTrue( allRolesForTenant.size() == 2 + DEFAULT_ROLE_COUNT );
+    assertEquals( 2 + DEFAULT_ROLE_COUNT, allRolesForTenant.size() );
 
     allRolesForTenant = service.getAllRoles( mainTenant_2 );
-    assertTrue( allRolesForTenant.size() == 2 );
+    assertEquals( 3 + DEFAULT_ROLE_COUNT, allRolesForTenant.size() );
 
-    cleanupUserAndRoles( "admin", mainTenant_1 );
-    cleanupUserAndRoles( "admin", mainTenant_2 );
-    cleanupUserAndRoles( sysAdminUserName, systemTenant );
-    // tenantManager.deleteTenant(mainTenant_1);
-    // tenantManager.deleteTenant(mainTenant_2);
-    // tenantManager.deleteTenant(systemTenant);
   }
 
   @Test
   public void testGetAllUsernames() {
     loginAsRepositoryAdmin();
-    ITenant systemTenant =
+    systemTenant =
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
       tenantAuthenticatedAuthorityName } );
-    ITenant mainTenant_1 =
+    mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_1, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
-    ITenant mainTenant_2 =
+    mainTenant_2 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_2, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_2, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
 
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    IPentahoUser pentahoUser = userRoleDao.createUser( mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null );
-    pentahoUser = userRoleDao.createUser( mainTenant_1, USER_3, PASSWORD_3, USER_DESCRIPTION_3, null );
-    pentahoUser =
-        userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_4 ), PASSWORD_4,
+    userRoleDao.createUser( mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null );
+    userRoleDao.createUser( mainTenant_1, USER_3, PASSWORD_3, USER_DESCRIPTION_3, null );
+    userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_4 ), PASSWORD_4,
             USER_DESCRIPTION_4, null );
-    pentahoUser = userRoleDao.createUser( null, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null );
-    pentahoUser =
-        userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_6 ), PASSWORD_6,
+    userRoleDao.createUser( null, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null );
+    userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_6 ), PASSWORD_6,
             USER_DESCRIPTION_6, null );
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    pentahoUser = userRoleDao.createUser( mainTenant_2, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null );
-    pentahoUser = userRoleDao.createUser( null, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null );
+    userRoleDao.createUser( mainTenant_2, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null );
+    userRoleDao.createUser( null, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null );
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao( userRoleDao );
 
@@ -497,80 +495,72 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     List<String> allUserForDefaultTenant = service.getAllUsers();
     List<String> allUserForTenant = service.getAllUsers( mainTenant_2 );
 
-    assertTrue( allUserForDefaultTenant.size() == 5 + DEFAULT_USER_COUNT );
-    assertTrue( allUserForTenant.size() == 0 );
+    assertEquals( 5 + DEFAULT_USER_COUNT, allUserForDefaultTenant.size() );
+    assertEquals( 2 + DEFAULT_USER_COUNT, allUserForTenant.size() );
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
     allUserForDefaultTenant = service.getAllUsers();
     allUserForTenant = service.getAllUsers( mainTenant_1 );
 
     assertTrue( allUserForDefaultTenant.size() == 2 + DEFAULT_USER_COUNT );
-    assertTrue( allUserForTenant.size() == 0 );
+    assertEquals( 5 + DEFAULT_USER_COUNT, allUserForTenant.size() );
 
     allUserForTenant = service.getAllUsers( mainTenant_1 );
 
-    assertTrue( allUserForTenant.size() == 0 );
+    assertEquals( 5 + DEFAULT_USER_COUNT, allUserForTenant.size() );
     allUserForTenant = service.getAllUsers( mainTenant_2 );
-    assertTrue( allUserForTenant.size() == 2 + DEFAULT_USER_COUNT );
+    assertEquals( 2 + DEFAULT_USER_COUNT, allUserForTenant.size() );
     logout();
 
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
     allUserForTenant = service.getAllUsers( mainTenant_1 );
-    assertTrue( allUserForTenant.size() == 5 + DEFAULT_USER_COUNT );
+    assertEquals( 5 + DEFAULT_USER_COUNT, allUserForTenant.size() );
 
     allUserForTenant = service.getAllUsers( mainTenant_2 );
-    assertTrue( allUserForTenant.size() == 0 );
-
-    cleanupUserAndRoles( "admin", mainTenant_1 );
-    cleanupUserAndRoles( "admin", mainTenant_2 );
-    cleanupUserAndRoles( sysAdminUserName, systemTenant );
-
+    assertEquals( 2 + DEFAULT_USER_COUNT, allUserForTenant.size() );
   }
 
   @Test
   public void testGetAuthoritiesForUser() {
     loginAsRepositoryAdmin();
-    ITenant systemTenant =
+    systemTenant =
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
       tenantAuthenticatedAuthorityName } );
-    ITenant mainTenant_1 =
+    mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_1, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
-    ITenant mainTenant_2 =
+    mainTenant_2 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_2, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_2, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
 
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    IPentahoUser pentahoUser = userRoleDao.createUser( mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null );
-    pentahoUser =
-        userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_3 ), PASSWORD_3,
+    userRoleDao.createUser( mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null );
+    userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_3 ), PASSWORD_3,
             USER_DESCRIPTION_3, null );
-    pentahoUser = userRoleDao.createUser( null, USER_4, PASSWORD_4, USER_DESCRIPTION_4, null );
+    userRoleDao.createUser( null, USER_4, PASSWORD_4, USER_DESCRIPTION_4, null );
     logout();
 
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    pentahoUser = userRoleDao.createUser( mainTenant_2, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null );
-    pentahoUser =
-        userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_2, USER_6 ), PASSWORD_6,
+    userRoleDao.createUser( mainTenant_2, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null );
+    userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_2, USER_6 ), PASSWORD_6,
             USER_DESCRIPTION_6, null );
 
     logout();
 
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    IPentahoRole pentahoRole = userRoleDao.createRole( mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null );
-    pentahoRole =
-        userRoleDao.createRole( null, tenantedRoleNameUtils.getPrincipleId( mainTenant_1, ROLE_2 ), ROLE_DESCRIPTION_2,
+    userRoleDao.createRole( mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null );
+    userRoleDao.createRole( null, tenantedRoleNameUtils.getPrincipleId( mainTenant_1, ROLE_2 ), ROLE_DESCRIPTION_2,
             null );
-    pentahoRole = userRoleDao.createRole( null, ROLE_3, ROLE_DESCRIPTION_3, null );
+    userRoleDao.createRole( null, ROLE_3, ROLE_DESCRIPTION_3, null );
     logout();
 
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    pentahoRole = userRoleDao.createRole( mainTenant_2, ROLE_4, ROLE_DESCRIPTION_4, null );
+    userRoleDao.createRole( mainTenant_2, ROLE_4, ROLE_DESCRIPTION_4, null );
     userRoleDao.setUserRoles( null, USER_5, new String[] { ROLE_4 } );
     userRoleDao.setUserRoles( null, tenantedUserNameUtils.getPrincipleId( mainTenant_2, USER_6 ),
         new String[] { ROLE_4 } );
@@ -619,53 +609,47 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     assertTrue( rolesForUser_2_1_1.size() == 4 );
     assertTrue( rolesForUser_3.size() == 3 );
     assertTrue( rolesForUser_4.size() == 2 );
-
-    cleanupUserAndRoles( "admin", mainTenant_1 );
-    cleanupUserAndRoles( "admin", mainTenant_2 );
-    cleanupUserAndRoles( sysAdminUserName, systemTenant );
   }
 
   @Test
   public void testGetUsernamesInRole() {
     loginAsRepositoryAdmin();
-    ITenant systemTenant =
+    systemTenant =
         tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(),
           tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
       tenantAuthenticatedAuthorityName } );
-    ITenant mainTenant_1 =
+    mainTenant_1 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_1, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
-    ITenant mainTenant_2 =
+    mainTenant_2 =
         tenantManager.createTenant( systemTenant, MAIN_TENANT_2, tenantAdminAuthorityName,
             tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_2, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
 
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    IPentahoUser pentahoUser = userRoleDao.createUser( mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null );
-    pentahoUser = userRoleDao.createUser( null, USER_3, PASSWORD_3, USER_DESCRIPTION_3, null );
-    pentahoUser =
-        userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_4 ), PASSWORD_4,
+    userRoleDao.createUser( mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null );
+    userRoleDao.createUser( null, USER_3, PASSWORD_3, USER_DESCRIPTION_3, null );
+    userRoleDao.createUser( null, tenantedUserNameUtils.getPrincipleId( mainTenant_1, USER_4 ), PASSWORD_4,
             USER_DESCRIPTION_4, null );
-    pentahoUser = userRoleDao.createUser( mainTenant_1, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null );
-    pentahoUser = userRoleDao.createUser( mainTenant_1, USER_6, PASSWORD_6, USER_DESCRIPTION_6, null );
+    userRoleDao.createUser( mainTenant_1, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null );
+    userRoleDao.createUser( mainTenant_1, USER_6, PASSWORD_6, USER_DESCRIPTION_6, null );
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    pentahoUser = userRoleDao.createUser( mainTenant_2, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null );
-    pentahoUser = userRoleDao.createUser( mainTenant_2, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null );
+    userRoleDao.createUser( mainTenant_2, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null );
+    userRoleDao.createUser( mainTenant_2, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null );
     logout();
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    IPentahoRole pentahoRole = userRoleDao.createRole( mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null );
-    pentahoRole = userRoleDao.createRole( null, ROLE_2, ROLE_DESCRIPTION_2, null );
-    pentahoRole =
-        userRoleDao.createRole( null, tenantedRoleNameUtils.getPrincipleId( mainTenant_1, ROLE_3 ), ROLE_DESCRIPTION_3,
+    userRoleDao.createRole( mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null );
+    userRoleDao.createRole( null, ROLE_2, ROLE_DESCRIPTION_2, null );
+    userRoleDao.createRole( null, tenantedRoleNameUtils.getPrincipleId( mainTenant_1, ROLE_3 ), ROLE_DESCRIPTION_3,
             null );
     logout();
     login( "admin", mainTenant_2, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    pentahoRole = userRoleDao.createRole( mainTenant_2, ROLE_4, ROLE_DESCRIPTION_4, null );
+    userRoleDao.createRole( mainTenant_2, ROLE_4, ROLE_DESCRIPTION_4, null );
     logout();
     login( "admin", mainTenant_1, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
     userRoleDao.setRoleMembers( null, ROLE_1, new String[] { USER_2, USER_3, USER_4 } );
@@ -706,19 +690,6 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     assertTrue( usersInRole_4.size() == 1 );
 
     logout();
-
-    cleanupUserAndRoles( "admin", mainTenant_1 );
-    cleanupUserAndRoles( "admin", mainTenant_2 );
-    cleanupUserAndRoles( sysAdminUserName, systemTenant );
   }
 
-  private static void traverseNodes( Node node, int currentLevel ) throws Exception {
-    System.out.println( node.getPath() );
-    NodeIterator children = node.getNodes();
-    while ( children.hasNext() ) {
-      traverseNodes( children.nextNode(), currentLevel + 1 );
-    }
-  }
-
-  
 }
