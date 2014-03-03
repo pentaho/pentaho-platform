@@ -98,7 +98,7 @@ public class JcrTenantUtils {
     if (nameUtils != null) {
       tenant = nameUtils.getTenant(principalId);
     }
-    if (tenant == null || tenant.getId() == null) {
+    if ( tenant == null || tenant.getId() == null || !tenant.getId().startsWith("/") ) {
       tenant = getCurrentTenant();
     }
     if(tenant == null || tenant.getId() == null) {

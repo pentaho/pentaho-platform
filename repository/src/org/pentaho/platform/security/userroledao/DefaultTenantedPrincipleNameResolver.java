@@ -23,10 +23,12 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
 
   public ITenant getTenant(String principalId) {
     String tenantName = null;
-    int delimiterIndex = principalId.lastIndexOf(getDelimeter());
-    if ( delimiterIndex >= 0) {
-      tenantName = (getUserNameFollowsTenantName() ? principalId.substring(0, delimiterIndex - 1) : principalId.substring(delimiterIndex + 1));
-      if(!isTenantValid(tenantName)) {
+    int delimiterIndex = principalId.lastIndexOf( getDelimeter() + "/" );
+    if ( delimiterIndex >= 0 ) {
+      tenantName =
+          ( getUserNameFollowsTenantName() ? principalId.substring( 0, delimiterIndex - 1 ) : principalId
+              .substring( delimiterIndex + 1 ) );
+      if ( !isTenantValid( tenantName ) ) {
         tenantName = null;
       }
     }
@@ -35,9 +37,9 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
 
   public String getPrincipleName(String principalId) {
     String userName = principalId;
-    int delimiterIndex = principalId.lastIndexOf(getDelimeter());
-    if ( delimiterIndex >= 0) {
-      if (getUserNameNaturallyContainsEmbeddedTenantName()) {
+    int delimiterIndex = principalId.lastIndexOf( getDelimeter() + "/" );
+    if ( delimiterIndex >= 0 ) {
+      if ( getUserNameNaturallyContainsEmbeddedTenantName() ) {
         userName = principalId;
       } else {
         userName = (getUserNameFollowsTenantName() ?  principalId.substring(delimiterIndex + 1) : principalId.substring(0, delimiterIndex));
