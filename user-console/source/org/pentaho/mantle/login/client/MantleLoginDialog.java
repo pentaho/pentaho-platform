@@ -18,8 +18,6 @@
 package org.pentaho.mantle.login.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -45,14 +43,10 @@ import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.i18n.PropertiesUtil;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.login.client.messages.Messages;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class MantleLoginDialog extends PromptDialogBox {
 
@@ -63,153 +57,98 @@ public class MantleLoginDialog extends PromptDialogBox {
   private CheckBox newWindowChk = new CheckBox();
   private String returnLocation = null;
 
-  private static boolean showUsersList = false;
   private static boolean showNewWindowOption = true;
-  private static boolean openInNewWindowDefault = false;
-
-  private static LinkedHashMap<String, String[]> defaultUsers = new LinkedHashMap<String, String[]>();
-
-  private final IDialogCallback myCallback = new IDialogCallback() {
-
-    public void cancelPressed() {
-    }
-
-    @SuppressWarnings( "deprecation" )
-    public void okPressed() {
-      String path = Window.Location.getPath();
-      if ( !path.endsWith( "/" ) ) { //$NON-NLS-1$
-        path = path.substring( 0, path.lastIndexOf( "/" ) + 1 ); //$NON-NLS-1$
-      }
-      RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, path + "j_spring_security_check" ); //$NON-NLS-1$
-      builder.setHeader( "Content-Type", "application/x-www-form-urlencoded" ); //$NON-NLS-1$ //$NON-NLS-2$
-      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      RequestCallback callback = new RequestCallback() {
-
-        public void onError( Request request, Throwable exception ) {
-          outerCallback.onFailure( exception );
-        }
-
-        public void onResponseReceived( Request request, Response response ) {
-
-          try {
-            final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
-            RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-            requestBuilder.setHeader( "accept", "text/plain" );
-            requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-            requestBuilder.sendRequest( null, new RequestCallback() {
-
-              public void onError( Request request, final Throwable caught ) {
-                MessageDialogBox errBox =
-                    new MessageDialogBox(
-                        Messages.getString( "loginError" ), Messages.getString( "authFailed" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
-                errBox.setCallback( new IDialogCallback() {
-                  public void cancelPressed() {
-                  }
-
-                  public void okPressed() {
-                    outerCallback.onFailure( caught );
-                  }
-                } );
-                errBox.show();
-              }
-
-              public void onResponseReceived( Request request, Response response ) {
-                if ( "true".equalsIgnoreCase( response.getText() ) ) {
-                  long year = 1000 * 60 * 60 * 24 * 365;
-                  // one year into the future
-                  Date expirationDate = new Date( System.currentTimeMillis() + year );
-                  Cookies.setCookie( "loginNewWindowChecked", "" + newWindowChk.getValue(), expirationDate ); //$NON-NLS-1$ //$NON-NLS-2$
-                  outerCallback.onSuccess( newWindowChk != null && newWindowChk.getValue() );
-                } else {
-                  outerCallback.onFailure( new Throwable( Messages.getString( "authFailed" ) ) ); //$NON-NLS-1$
-                }
-              }
-
-            } );
-          } catch ( final RequestException e ) {
-            MessageDialogBox errBox =
-                new MessageDialogBox(
-                    Messages.getString( "loginError" ), Messages.getString( "authFailed" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
-            errBox.setCallback( new IDialogCallback() {
-              public void cancelPressed() {
-              }
-
-              public void okPressed() {
-                outerCallback.onFailure( e );
-              }
-            } );
-            errBox.show();
-          }
-        }
-      };
-      try {
-        String username = userTextBox.getText();
-        String password = passwordTextBox.getText();
-        builder
-            .sendRequest(
-              "j_username=" + URL.encodeComponent( username ) + "&j_password=" + URL.encodeComponent( password ),
-              callback ); //$NON-NLS-1$ //$NON-NLS-2$
-      } catch ( RequestException e ) {
-        e.printStackTrace();
-      }
-    }
-
-  };
 
   public MantleLoginDialog() {
     super( Messages.getString( "login" ), Messages.getString( "login" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    setCallback( myCallback );
-    getLoginSettingsAndShow( false );
-    super.setStylePrimaryName( "pentaho-dialog" );
-  }
+    IDialogCallback myCallback = new IDialogCallback() {
 
-  public void getLoginSettingsAndShow( final boolean showUsersListDefault ) {
-    // we can override showUsersList with a setting in loginsettings.properties (not present by default)
-    showUsersList = showUsersListDefault;
-    RequestBuilder requestBuilder =
-        new RequestBuilder( RequestBuilder.GET, GWT.getModuleBaseURL() + "loginsettings.properties" ); //$NON-NLS-1$
-    try {
-      requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      requestBuilder.sendRequest( null, new RequestCallback() {
-        public void onError( Request request, Throwable exception ) {
-          setContent( buildLoginPanel( false ) );
-          if ( isAttached() && isVisible() ) {
-            center();
-          }
-        }
-
-        public void onResponseReceived( Request request, Response response ) {
-          String propertiesFileText = response.getText();
-          // build a simple map of key/value pairs from the properties file
-          HashMap<String, String> settings = PropertiesUtil.buildProperties( propertiesFileText );
-          StringTokenizer useridTokenizer = new StringTokenizer( settings.get( "userIds" ), ',' ); //$NON-NLS-1$
-          StringTokenizer passwordTokenizer = new StringTokenizer( settings.get( "userPasswords" ), ',' ); //$NON-NLS-1$
-          StringTokenizer userdisplayTokenizer = new StringTokenizer( settings.get( "userDisplayNames" ), ',' ); //$NON-NLS-1$
-          // build default users list
-          defaultUsers.clear();
-          defaultUsers.put( Messages.getString( "selectUser" ), new String[] { "", "" } ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-          for ( int i = 0; i < useridTokenizer.countTokens(); i++ ) {
-            defaultUsers.put( userdisplayTokenizer.tokenAt( i ), new String[] { useridTokenizer.tokenAt( i ).trim(),
-              passwordTokenizer.tokenAt( i ).trim() } ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-          }
-          // provide the opportunity to override showUsersList with a setting
-          if ( settings.get( "showUsersList" ) != null ) { //$NON-NLS-1$
-            showUsersList = "true".equalsIgnoreCase( settings.get( "showUsersList" ) ); //$NON-NLS-1$ //$NON-NLS-2$
-          }
-          // get the default 'open in new window' flag, this is the default, overridden by a cookie
-          openInNewWindowDefault = "true".equalsIgnoreCase( settings.get( "openInNewWindow" ) ); //$NON-NLS-1$ //$NON-NLS-2$
-          setContent( buildLoginPanel( openInNewWindowDefault ) );
-          if ( isAttached() && isVisible() ) {
-            center();
-          }
-        }
-      } );
-    } catch ( RequestException e ) {
-      setContent( buildLoginPanel( openInNewWindowDefault ) );
-      if ( isAttached() && isVisible() ) {
-        center();
+      public void cancelPressed() {
       }
-    }
+
+      @SuppressWarnings( "deprecation" )
+      public void okPressed() {
+        String path = Window.Location.getPath();
+        if ( !path.endsWith( "/" ) ) { //$NON-NLS-1$
+          path = path.substring( 0, path.lastIndexOf( "/" ) + 1 ); //$NON-NLS-1$
+        }
+        RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, path + "j_spring_security_check" ); //$NON-NLS-1$
+        builder.setHeader( "Content-Type", "application/x-www-form-urlencoded" ); //$NON-NLS-1$ //$NON-NLS-2$
+        builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+        RequestCallback callback = new RequestCallback() {
+
+          public void onError( Request request, Throwable exception ) {
+            outerCallback.onFailure( exception );
+          }
+
+          public void onResponseReceived( Request request, Response response ) {
+
+            try {
+              final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
+              RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+              requestBuilder.setHeader( "accept", "text/plain" );
+              requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+              requestBuilder.sendRequest( null, new RequestCallback() {
+
+                public void onError( Request request, final Throwable caught ) {
+                  MessageDialogBox errBox =
+                      new MessageDialogBox(
+                          Messages.getString( "loginError" ), Messages.getString( "authFailed" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+                  errBox.setCallback( new IDialogCallback() {
+                    public void cancelPressed() {
+                    }
+
+                    public void okPressed() {
+                      outerCallback.onFailure( caught );
+                    }
+                  } );
+                  errBox.show();
+                }
+
+                public void onResponseReceived( Request request, Response response ) {
+                  if ( "true".equalsIgnoreCase( response.getText() ) ) {
+                    long year = 1000 * 60 * 60 * 24 * 365;
+                    // one year into the future
+                    Date expirationDate = new Date( System.currentTimeMillis() + year );
+                    Cookies.setCookie( "loginNewWindowChecked", "" + newWindowChk.getValue(), expirationDate ); //$NON-NLS-1$ //$NON-NLS-2$
+                    outerCallback.onSuccess( newWindowChk != null && newWindowChk.getValue() );
+                  } else {
+                    outerCallback.onFailure( new Throwable( Messages.getString( "authFailed" ) ) ); //$NON-NLS-1$
+                  }
+                }
+
+              } );
+            } catch ( final RequestException e ) {
+              MessageDialogBox errBox =
+                  new MessageDialogBox(
+                      Messages.getString( "loginError" ), Messages.getString( "authFailed" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+              errBox.setCallback( new IDialogCallback() {
+                public void cancelPressed() {
+                }
+
+                public void okPressed() {
+                  outerCallback.onFailure( e );
+                }
+              } );
+              errBox.show();
+            }
+          }
+        };
+        try {
+          String username = userTextBox.getText();
+          String password = passwordTextBox.getText();
+          builder
+              .sendRequest(
+                  "j_username=" + URL.encodeComponent( username ) + "&j_password=" + URL.encodeComponent( password ),
+                  callback ); //$NON-NLS-1$ //$NON-NLS-2$
+        } catch ( RequestException e ) {
+          e.printStackTrace();
+        }
+      }
+
+    };
+    setCallback( myCallback );
+    super.setStylePrimaryName( "pentaho-dialog" );
   }
 
   public MantleLoginDialog( AsyncCallback<Boolean> callback, boolean showNewWindowOption ) {
@@ -264,17 +203,6 @@ public class MantleLoginDialog extends PromptDialogBox {
     credentialsPanel.setHorizontalAlignment( HasHorizontalAlignment.ALIGN_LEFT );
     credentialsPanel.setVerticalAlignment( HasVerticalAlignment.ALIGN_TOP );
     SimplePanel spacer;
-    if ( showUsersList ) {
-      // populate default users list box
-      addDefaultUsers();
-      Label sampleUsersLabel = new Label( Messages.getString( "sampleUser" ) + ":" );
-      sampleUsersLabel.setStyleName( "login-panel-label" );
-      credentialsPanel.add( sampleUsersLabel ); //$NON-NLS-1$ //$NON-NLS-2$
-      credentialsPanel.add( usersListBox );
-      spacer = new SimplePanel();
-      spacer.setHeight( "8px" ); //$NON-NLS-1$
-      credentialsPanel.add( spacer );
-    }
 
     Label usernameLabel = new Label( Messages.getString( "username" ) + ":" );
     usernameLabel.setStyleName( "login-panel-label" );
@@ -356,21 +284,6 @@ public class MantleLoginDialog extends PromptDialogBox {
     outerCallback = callback;
   }
 
-  public void addDefaultUsers() {
-    usersListBox.clear();
-    for ( Map.Entry<String, String[]> entry : defaultUsers.entrySet() ) {
-      usersListBox.addItem( entry.getKey() );
-    }
-    usersListBox.addChangeHandler( new ChangeHandler() {
-
-      public void onChange( ChangeEvent event ) {
-        String key = usersListBox.getValue( usersListBox.getSelectedIndex() );
-        userTextBox.setText( defaultUsers.get( key )[0] );
-        passwordTextBox.setText( defaultUsers.get( key )[1] );
-      }
-    } );
-  }
-
   public String getReturnLocation() {
     return returnLocation;
   }
@@ -379,7 +292,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     this.returnLocation = returnLocation;
     // the return location might have a parameter in the url to configure options,
     // so we must rebuild the UI if the return location is changed
-    setContent( buildLoginPanel( openInNewWindowDefault ) );
+    setContent( buildLoginPanel( false ) );
   }
 
 }
