@@ -92,6 +92,9 @@ var defaultDateFormat = "mdy"    // valid values are "mdy", "dmy", and "ymd"
 var dateSeparator = defaultDateSeparator;
 var dateFormat = defaultDateFormat;
 
+var invalidCharacters = "/\\:[]*'\"|,;?<>";
+var invalidCharactersRegExp = /[/\\:\[\]*'"|,;?<>]/;
+
 /**
 This is the main function you'll call from the onClick event of a button.
 Normally, you'll have something like this on your HTML page:
