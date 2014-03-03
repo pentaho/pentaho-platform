@@ -115,12 +115,12 @@ public class UserRolesAdminPanel extends SimplePanel {
     hSpacer.setWidth( "100%" );
     labelAndButtonsPanel.add( hSpacer );
     labelAndButtonsPanel.setCellWidth( hSpacer, "100%" );
-    newUserButton = new ThemeableImageButton( addButtonStyles, null, null );
+    newUserButton = new ThemeableImageButton( addButtonStyles, null, Messages.getString( "new" ) );
     labelAndButtonsPanel.add( newUserButton );
     hSpacer = new SimplePanel();
     hSpacer.setWidth( "7px" );
     labelAndButtonsPanel.add( hSpacer );
-    deleteUserButton = new ThemeableImageButton( removeButtonStyles, null, null );
+    deleteUserButton = new ThemeableImageButton( removeButtonStyles, null, Messages.getString( "delete" ) );
     labelAndButtonsPanel.add( deleteUserButton );
 
     usersListBox = new ListBox( true );
@@ -285,12 +285,12 @@ public class UserRolesAdminPanel extends SimplePanel {
     hSpacer.setWidth( "100%" );
     labelAndButtonsPanel.add( hSpacer );
     labelAndButtonsPanel.setCellWidth( hSpacer, "100%" );
-    newRoleButton = new ThemeableImageButton( addButtonStyles, null, null );
+    newRoleButton = new ThemeableImageButton( addButtonStyles, null, Messages.getString( "new" ) );
     labelAndButtonsPanel.add( newRoleButton );
     hSpacer = new SimplePanel();
     hSpacer.setWidth( "7px" );
     labelAndButtonsPanel.add( hSpacer );
-    deleteRoleButton = new ThemeableImageButton( removeButtonStyles, null, null );
+    deleteRoleButton = new ThemeableImageButton( removeButtonStyles, null, Messages.getString( "delete" ) );
     labelAndButtonsPanel.add( deleteRoleButton );
 
     rolesListBox = new ListBox( true );
