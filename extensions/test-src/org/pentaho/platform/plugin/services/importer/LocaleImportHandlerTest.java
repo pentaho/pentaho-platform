@@ -18,22 +18,26 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.jmock.Mockery;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class LocaleImportHandlerTest {
 
   PentahoPlatformImporter importer;
+  LocaleFilesProcessor localeFilesProcessor;
 
   @Before
   public void setUp() throws Exception {
@@ -41,35 +45,41 @@ public class LocaleImportHandlerTest {
     MicroPlatform microPlatform = new MicroPlatform();
     Mockery context = new Mockery();
 
-    Map<String, String> mimeMap = new HashMap<String, String>();
-    mimeMap.put( "locale", "text/locale" );
-    microPlatform.defineInstance( NameBaseMimeResolver.class, new NameBaseMimeResolver( mimeMap ) );
+    NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
+    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
+    
+    IRepositoryContentConverterHandler converterHandler =
+        new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
+    
+    List<MimeType> localeMimeList = new ArrayList<MimeType>();
+    localeMimeList.add( new MimeType( "text/locale", "locale" ) );
+    
+    List<MimeType> mimeList = new ArrayList<MimeType>();
+    nameResolver.addMimeType( new MimeType( "text/prptMimeType", "prpt" ) );
+    nameResolver.addMimeType( new MimeType( "text/xactionMimeType", "xaction" ) );
 
-    IPlatformImportMimeResolver nameBaseMimeResolver = context.mock( IPlatformImportMimeResolver.class );
-    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameBaseMimeResolver );
+    MimeType mimeType = new MimeType( "text/xml", "xml");
+    mimeType.setHidden(true);
+    nameResolver.addMimeType(  mimeType );
 
+    mimeType = new MimeType( "image/png", "png");
+    mimeType.setHidden(true);
+    nameResolver.addMimeType(  mimeType );
+    
+    
     List<String> allowedArtifacts = new ArrayList<String>();
     allowedArtifacts.add( "xaction" );
     allowedArtifacts.add( "url" );
 
-    List<String> approvedExtensionsList = new ArrayList<String>();
-    approvedExtensionsList.add( ".prpt" );
-    approvedExtensionsList.add( ".xaction" );
+    LocaleImportHandler localeImportHandler = new LocaleImportHandler( localeMimeList, allowedArtifacts );
 
-    List<String> hiddenExtensionsList = new ArrayList<String>();
-    hiddenExtensionsList.add( ".xml" );
-    hiddenExtensionsList.add( ".png" );
+    List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
+    handlers.add( localeImportHandler );
 
-    LocaleImportHandler localeImportHandler =
-        new LocaleImportHandler( allowedArtifacts, approvedExtensionsList, hiddenExtensionsList );
-
-    Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
-    handlers.put( "text/locale", localeImportHandler );
-
-    Map<String, String> mimes = new HashMap<String, String>();
-    mimes.put( "locale", "text/locale" );
-    importer = new PentahoPlatformImporter( handlers, new NameBaseMimeResolver( mimes ) );
+    importer = new PentahoPlatformImporter( handlers, converterHandler );
     importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
+    
+    localeFilesProcessor = new LocaleFilesProcessor();
   }
 
   @Test
@@ -79,13 +89,19 @@ public class LocaleImportHandlerTest {
     localeContent.append( "name=Test" );
     localeContent.append( "\n" );
     localeContent.append( "description=Test description" );
-
-    RepositoryFile file = new RepositoryFile.Builder( "test.properties" ).build();
-    RepositoryFileBundle repoFileBundle = new RepositoryFileBundle( file, null, "", null, "UTF-8", null );
-
-    LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
-    localeFilesProcessor.isLocaleFile( repoFileBundle, "/", localeContent.toString().getBytes() );
+    
+    Assert.assertTrue( processIsLocalFile( "test.properties", localeContent ) );
+    Assert.assertFalse( processIsLocalFile( "test.bla", localeContent ) );
+    
+    localeContent = new StringBuffer("bla bla");
+    Assert.assertFalse( processIsLocalFile( "test.properties", localeContent ) );
 
     localeFilesProcessor.processLocaleFiles( importer );
+  }
+  
+  private boolean processIsLocalFile( String fileName, StringBuffer localeContent ) throws Exception {
+    RepositoryFile file = new RepositoryFile.Builder( fileName ).build();
+    RepositoryFileBundle repoFileBundle = new RepositoryFileBundle( file, null, "", null, "UTF-8", null );
+    return localeFilesProcessor.isLocaleFile( repoFileBundle, "/", localeContent.toString().getBytes() );
   }
 }

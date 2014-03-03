@@ -166,7 +166,7 @@ public class LocaleFilesProcessor {
 
   public void processLocaleFiles( IPlatformImporter importer ) throws PlatformImportException {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-    NameBaseMimeResolver mimeResolver = PentahoSystem.get( NameBaseMimeResolver.class );
+    IPlatformImportMimeResolver mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
     String mimeType = mimeResolver.resolveMimeForFileName( FILE_LOCALE_RESOLVER );
 
     for ( LocaleFileDescriptor localeFile : localeFiles ) {

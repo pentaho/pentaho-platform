@@ -17,6 +17,12 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,17 +30,12 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.InitializationException;
 import org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.zip.ZipInputStream;
 
 /**
  * This is a special handler that will extract the title and description from the meta.xml - uses the parent class s to
@@ -45,8 +46,8 @@ import java.util.zip.ZipInputStream;
  */
 public class PRPTImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
-  public PRPTImportHandler( List<String> approvedExtensionList, List<String> hiddenExtensionList ) {
-    super( approvedExtensionList, hiddenExtensionList );
+  public PRPTImportHandler( List<MimeType> mimeTypes ) {
+    super( mimeTypes );
   }
 
   private static final Log log = LogFactory.getLog( PRPTImportHandler.class );

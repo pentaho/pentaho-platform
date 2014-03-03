@@ -26,6 +26,7 @@ package org.pentaho.platform.plugin.services.importer;
  */
 
 import mondrian.util.Pair;
+
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -35,11 +36,14 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -53,13 +57,15 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   private static final String DATA_SOURCE = "DataSource";
   private static final String PROVIDER = "Provider";
-
+  
+  private List<MimeType> mimeTypes;
   IMondrianCatalogService mondrianRepositoryImporter;
 
-  public MondrianImportHandler( final IMondrianCatalogService mondrianImporter ) {
+  public MondrianImportHandler( List<MimeType> mimeTypes, final IMondrianCatalogService mondrianImporter ) {
     if ( mondrianImporter == null ) {
       throw new IllegalArgumentException();
     }
+    this.mimeTypes = mimeTypes;
     this.mondrianRepositoryImporter = mondrianImporter;
   }
 
@@ -191,5 +197,10 @@ public class MondrianImportHandler implements IPlatformImportHandler {
         new MondrianCatalog( catName, sb.toString(), provider + ":" + RepositoryFile.SEPARATOR + catName, null, null );
 
     return catalog;
+  }
+
+  @Override
+  public List<MimeType> getMimeTypes() {
+    return mimeTypes;
   }
 }

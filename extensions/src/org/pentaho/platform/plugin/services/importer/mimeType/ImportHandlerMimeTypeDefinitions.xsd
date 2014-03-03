@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.pentaho.com/schema/"
+	targetNamespace="http://www.pentaho.com/schema/">
+
+	<element name="ImportHandlerMimeTypeDefinitions" type="tns:ImportHandlerMimeTypeDefinitionsDto">
+	</element>
+
+	<complexType name="ImportHandlerMimeTypeDefinitionsDto">
+		<sequence>
+			<element name="ImportHandler" type="tns:ImportHandlerDto"
+				minOccurs="1" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ImportHandlerDto">
+		<sequence>
+			<element name="MimeTypeDefinitions" type="tns:MimeTypeDefinitionsDto"
+				minOccurs="1" maxOccurs="1" />
+		</sequence>
+		<attribute name="class" type="string" use="required" />
+	</complexType>
+
+	<complexType name="MimeTypeDefinitionsDto">
+		<sequence>
+			<element name="MimeTypeDefinition" type="tns:MimeTypeDefinitionDto"
+				minOccurs="1" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="MimeTypeDefinitionDto">
+		<sequence>
+			<element name="extension" minOccurs="1" maxOccurs="unbounded"
+				type="string" />
+		</sequence>
+		<attribute name="mimeType" type="string" use="required" />
+		<attribute name="hidden" type="boolean" default="false" />
+		<attribute name="locale" type="boolean" default="false" />
+		<attribute name="converter" type="string" default="streamConverter" />
+	</complexType>
+</schema>

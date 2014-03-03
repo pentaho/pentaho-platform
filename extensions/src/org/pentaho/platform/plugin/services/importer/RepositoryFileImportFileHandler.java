@@ -19,8 +19,9 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -35,6 +36,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -50,18 +52,15 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private ThreadLocal<ImportSession> importSession = new ThreadLocal<ImportSession>();
 
   private static final Messages messages = Messages.getInstance();
-  private SolutionFileImportHelper solutionHelper;
+  private SolutionFileImportHelper solutionHelper = new SolutionFileImportHelper();
+  private HashMap<String, MimeType> mimeTypeMap = new HashMap<String, MimeType>();
 
-  public RepositoryFileImportFileHandler( List<String> approvedExtensionList, List<String> hiddenExtensionList ) {
-    if ( approvedExtensionList != null && approvedExtensionList.size() > 0 && hiddenExtensionList != null
-        && hiddenExtensionList.size() > 0 ) {
-      this.solutionHelper = new SolutionFileImportHelper( hiddenExtensionList, approvedExtensionList );
-    } else {
-      throw new IllegalStateException( "ApprovedExtensionList and HiddenExtensionList can not be null" );
+  public RepositoryFileImportFileHandler( List<MimeType> mimeTypes ) {
+    for ( MimeType mimeType : mimeTypes ) {
+      this.mimeTypeMap.put( mimeType.getName(), mimeType );
     }
   }
 
-  private Map<String, Converter> converters;
   IRepositoryDefaultAclHandler defaultAclHandler;
 
   public Log getLogger() {
@@ -179,8 +178,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Copy the file into the repository
     try {
       getLogger().trace( "copying file to repository: " + name );
-
-      Converter converter = converters.get( ext );
+      
+      if (mimeTypeMap.get( mimeType ) == null) {
+        getLogger().debug( "Skipping file - mime type of " + mimeType + " is not registered :" + name);
+      }
+      Converter converter = mimeTypeMap.get( mimeType ).getConverter();
       if ( converter == null ) {
         getLogger().debug( "Skipping file without converter: " + name );
         return false;
@@ -384,10 +386,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     this.repository = repository;
   }
 
-  public void setConverters( Map<String, Converter> converters ) {
-    this.converters = converters;
-  }
-
   public void setDefaultAclHandler( IRepositoryDefaultAclHandler defaultAclHandler ) {
     this.defaultAclHandler = defaultAclHandler;
   }
@@ -427,6 +425,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     }
     getImportSession().getFoldersCreatedImplicitly().add( folderPath );
     return repoFile;
+  }
+
+  @Override
+  public List<MimeType> getMimeTypes() {
+    return new ArrayList<MimeType>( mimeTypeMap.values() );
   }
 
 }

@@ -27,6 +27,7 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -34,6 +35,7 @@ import org.pentaho.platform.repository.messages.Messages;
 
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Class Description
@@ -47,10 +49,14 @@ public class MetadataImportHandler implements IPlatformImportHandler {
 
   // The name of the property used to determine if metadata source was a DSW
   private static final String DSW_SOURCE_PROPERTY = "AGILE_BI_GENERATED_SCHEMA";
-
+  
+  private List<MimeType> mimeTypes;
+  
   IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
-  public MetadataImportHandler( final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {
+  public MetadataImportHandler( List<MimeType> mimeTypes,
+      final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {
+    this.mimeTypes = mimeTypes;
     if ( metadataImporter == null ) {
       throw new IllegalArgumentException();
     }
@@ -177,6 +183,11 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       log.error( errorMessage, e );
       throw new PlatformImportException( errorMessage, e );
     }
+  }
+
+  @Override
+  public List<MimeType> getMimeTypes() {
+    return mimeTypes;
   }
 
 }

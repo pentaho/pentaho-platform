@@ -28,6 +28,7 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
@@ -55,17 +56,17 @@ import java.util.zip.ZipInputStream;
 public class SolutionImportHandler implements IPlatformImportHandler {
 
   private static final Log log = LogFactory.getLog( SolutionImportHandler.class );
-  private IPlatformImportMimeResolver mimeResolver;
+
   private static final String sep = ";";
   private Map<String, RepositoryFileImportBundle.Builder> cachedImports;
   private SolutionFileImportHelper solutionHelper;
+  private List<MimeType> mimeTypes;
 
-  public SolutionImportHandler( IPlatformImportMimeResolver mimeResolver, List<String> visibleList,
-      List<String> hiddenList ) {
-    this.mimeResolver = mimeResolver;
-    this.solutionHelper = new SolutionFileImportHelper( hiddenList, visibleList );
+  public SolutionImportHandler ( List<MimeType> mimeTypes ) {
+    this.mimeTypes = mimeTypes; 
+    this.solutionHelper = new SolutionFileImportHelper( );
   }
-
+  
   public ImportSession getImportSession() {
     return ImportSession.getSession();
   }
@@ -158,7 +159,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           continue;
         }
         bundleBuilder.input( bundleInputStream );
-        bundleBuilder.mime( mimeResolver.resolveMimeForFileName( fileName ) );
+        bundleBuilder.mime( solutionHelper.getMime( fileName ) );
         String filePath = ( file.getPath().equals( "/" ) || file.getPath().equals( "\\" ) ) ? "" : file.getPath();
         repositoryFilePath = RepositoryFilenameUtils.concat( importBundle.getPath(), filePath );
       }
@@ -316,5 +317,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     public List<IRepositoryFileBundle> getFiles() {
       return this.files;
     }
+  }
+
+  @Override
+  public List<MimeType> getMimeTypes() {
+    return mimeTypes;
   }
 }

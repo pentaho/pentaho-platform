@@ -151,10 +151,12 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
     if ( clazz != null ) {
       return clazz;
     }
-    for ( String s : getPluginManager().getRegisteredPlugins() ) {
-      clazz = loadClassFromClassloader( getPluginManager().getClassLoader( s ), beanClassName );
-      if ( clazz != null ) {
-        return clazz;
+    if (getPluginManager() != null) {
+      for ( String s : getPluginManager().getRegisteredPlugins() ) {
+        clazz = loadClassFromClassloader( getPluginManager().getClassLoader( s ), beanClassName );
+        if ( clazz != null ) {
+          return clazz;
+        }
       }
     }
 
