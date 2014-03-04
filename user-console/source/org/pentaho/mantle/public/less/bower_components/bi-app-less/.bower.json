@@ -1,0 +1,14 @@
+{
+  "name": "bi-app-less",
+  "homepage": "https://github.com/anasnakawa/bi-app-less",
+  "_release": "1864461740",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "1864461740d7a151755bbc369d8cabdbf41bf57a"
+  },
+  "_source": "git://github.com/anasnakawa/bi-app-less.git",
+  "_target": "*",
+  "_originalSource": "bi-app-less",
+  "_direct": true
+}
