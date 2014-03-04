@@ -107,6 +107,13 @@ pen.define(["common-ui/jquery-i18n"], function (context) {
           path = myself.getUrlBase() + overlay.resourceBundleUri,
           locale = myself.getUrlVars()["locale"];
 
+      if( !locale ) {
+        // look to see if locale is set on the page in a meta tag
+        if($("meta[name='locale']")) {
+          locale = $("meta[name='locale']").attr("content");
+        }
+      }
+
       jQuery.i18n.properties({
         name: path,
         mode: 'map',
