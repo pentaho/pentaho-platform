@@ -1,7 +1,5 @@
 package org.pentaho.platform.assembly;
 
-//import org.lesscss.logging.LessLogger;
-//import org.lesscss.logging.LessLoggerFactory;
 import org.apache.tools.ant.DirectoryScanner;
 import org.lesscss.*;
 import org.apache.tools.ant.Task;

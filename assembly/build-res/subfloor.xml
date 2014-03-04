@@ -393,20 +393,6 @@ TYPICAL TARGET SEQUENCE
     </fileset>
   </path>
 
-    <path id="dev.classpath">
-        <fileset dir="${dist.dir}">
-            <include name="*.jar" />
-        </fileset>
-        <fileset dir="${devlib.dir}">
-            <include name="**/*.jar" />
-        </fileset>
-        <fileset dir="${lib.dir}">
-            <include name="**/*.jar" />
-        </fileset>
-        <pathelement path="${classes.dir}" />
-    </path>
-
-
   <!--=======================================================================
       default
       
@@ -2036,14 +2022,4 @@ TYPICAL TARGET SEQUENCE
     <sonar:sonar key="${ivy.artifact.group}:${ivy.artifact.id}" version="${project.revision}" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 
-  <target name="compile-less-css" description="Compile LESS files to CSS format">
-    <taskdef classpathref="dev.classpath" name="lesscss" classname="org.pentaho.platform.assembly.LessToCssCompiler" />
-    <echo>Compiling LESS to CSS...</echo>
-    <lesscss
-      sourceDirectory="D:\Projects\Github\pentaho_5.0\pentaho-platform\user-console\source\org\pentaho\mantle\public\browser\less2"
-      outputDirectory="D:\Projects\Github\pentaho_5.0\pentaho-platform\user-console\source\org\pentaho\mantle\public\browser\less2"
-     >
-    </lesscss>
-  </target>
-  
 </project>

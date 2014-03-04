@@ -76,6 +76,16 @@
   <property name="fragment-bundles.dir" value="${stage.dir.solutions}/system/osgi/fragment_bundles"/>
   <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
 
+  <path id="dev.classpath">
+    <fileset dir="${dist.dir}">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <pathelement path="${classes.dir}" />
+  </path>
+
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -294,7 +304,7 @@
   <!-- =================================
           target: assemble-pentaho-webapp
          ================================= -->
-  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions">
+  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions,subfloor.compile">
     <!-- Copy the base configuration -->
     <copy todir="${stage.dir.server}">
       <fileset dir="${package.res.dir}/biserver">
@@ -310,6 +320,34 @@
     <unzip dest="${prep.pentaho.war.dir}">
       <fileset dir="${lib.dir}" includes="pentaho-user-console-package-*.zip" />
     </unzip>
+
+    <!-- Compile LESS to CSS -->
+    <taskdef classpathref="dev.classpath" name="lesscss" classname="org.pentaho.platform.assembly.LessToCssCompiler" />
+
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/browser/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/browser/css"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/home/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/home/css"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/themes/crystal/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/themes/crystal"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/themes/onyx/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/themes/onyx"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/themes/slate/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/themes/slate"
+      />
 
     <!-- Add general libs -->
     <copy todir="${prep.pentaho.war.lib.dir}">
