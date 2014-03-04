@@ -6,7 +6,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
-    <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" lazy-init="false"/>
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer"
+        lazy-init="false"/>
 
 
     <bean id="propertyPlaceholderConfigurerRepository"
@@ -553,21 +554,21 @@
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction" id="SchedulerAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="30"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" id="AdministerSecurityAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="20"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction" id="PublishAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="0"/>
@@ -575,12 +576,22 @@
     </pen:publish>
   </bean>
 
+    <!-- This is a temporary workaround for a problem where the Actions are not
+    being registered with Pentaho system for unit tests -->
+    <util:list id="AuthorizationActions">
+        <ref local="RepositoryReadAction"/>
+        <ref local="RepositoryCreateAction"/>
+        <ref local="SchedulerAction"/>
+        <ref local="AdministerSecurityAction"/>
+        <ref local="PublishAction"/>
+    </util:list>
+
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
-	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+        <ref local="AuthorizationActions"/>
     </entry>
     <entry key-ref="superAdminAuthorityName">
-	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+      <ref local="AuthorizationActions"/>
     </entry>
   </util:map>
 
@@ -755,27 +766,7 @@
   </bean>
   
   <!-- IUserRoleDao implementation -->
-  <bean id="userRoleDao" class="org.pentaho.platform.security.userroledao.jackrabbit.JcrUserRoleDao">
-    <constructor-arg ref="adminJcrTemplate"/>
-    <constructor-arg ref="tenantedUserNameUtils"/>
-    <constructor-arg ref="tenantedRoleNameUtils"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
-    <constructor-arg ref="singleTenantAdminAuthorityName"/>
-    <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="repositoryFileAclDao"/>
-    <constructor-arg ref="repositoryFileDao"/>
-    <constructor-arg ref="pathConversionHelper"/>
-    <constructor-arg ref="lockHelper"/>
-    <constructor-arg ref="defaultAclHandler" />
-    <constructor-arg ref="singleTenantSystemAuthorities"/>
-    <constructor-arg ref="extraRoles"/>
-    <constructor-arg>
-      <bean class="org.springframework.security.providers.dao.cache.NullUserCache"/>
-    </constructor-arg>
-  </bean>
-
-  <!-- IUserRoleDao implementation -->
-  <bean id="mockUserRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
+  <bean id="userRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
 	<constructor-arg ref="tenantedUserNameUtils"/>            
 	<constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
