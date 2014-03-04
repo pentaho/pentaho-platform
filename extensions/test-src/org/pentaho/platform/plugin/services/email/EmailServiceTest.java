@@ -12,25 +12,28 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2012 Pentaho Corporation. All rights reserved.
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.services.email;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.ws.rs.core.Response;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IApplicationContext;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.EmailResource;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Unit tests the EmailResource REST services
@@ -41,9 +44,13 @@ public class EmailServiceTest extends TestCase {
 
   private File tempDir = null;
   private File defaultConfigFile = null;
-
+  private MicroPlatform mp;
   @Override
   public void setUp() throws Exception {
+    mp = new MicroPlatform();
+    mp.defineInstance( IAuthorizationPolicy.class, new TestAuthorizationPolicy() );
+    mp.start();
+
     // Setup the temp directory
     tempDir = File.createTempFile("EmailServiceTest", "");
     assertTrue("Error setting up testing scenario", tempDir.delete());
@@ -66,6 +73,7 @@ public class EmailServiceTest extends TestCase {
       new EmailResource(null);
       fail("Null file should throw an exception");
     } catch (IllegalArgumentException success) {
+      // ignore
     }
 
     // Parent directory doesn't exist
@@ -74,6 +82,7 @@ public class EmailServiceTest extends TestCase {
       new EmailService(new File(tempFile, "email_config.xml"));
       fail("Exception should be thrown when parent directory of file provided doesn't exist");
     } catch (IllegalArgumentException success) {
+      // ignore
     }
 
     // File exists but is a directory
@@ -81,6 +90,7 @@ public class EmailServiceTest extends TestCase {
       new EmailService(tempDir);
       fail("Exception should be thrown when providing a filename that is a directory");
     } catch (IllegalArgumentException success) {
+      // ignore
     }
 
     // Parent exists, but is not a directory
@@ -90,9 +100,9 @@ public class EmailServiceTest extends TestCase {
       new EmailService(new File(tempFile, "email_config.xml"));
       fail("Exception should be thrown when parent directory exists but is a file");
     } catch (IllegalArgumentException success) {
+      // ignore
     }
 
-    {
       // File doesn't exist (but is ok)
       final File tempFile = new File(tempDir, "temp.xml");
       assertFalse("Testing scenario not setup correctly", tempFile.exists());
@@ -101,13 +111,12 @@ public class EmailServiceTest extends TestCase {
       // File exists (but it is ok)
       assertTrue("Testing scenario could not be setup correctly", tempFile.createNewFile());
       new EmailService(tempFile);
-    }
 
     // Default parameters
-    {
+
       // This should work
       new EmailResource();
-    }
+
   }
 
   public void testEmailConfig() throws Exception {
@@ -150,6 +159,7 @@ public class EmailServiceTest extends TestCase {
       emailResource.sendEmailTest(blankEmailConfig);
       fail("Testing with a blank email config should fail");
     } catch (Throwable success) {
+      // ignore
     }
   }
 
@@ -264,5 +274,21 @@ public class EmailServiceTest extends TestCase {
                                final boolean trackFile) throws IOException {
       return null;
     }
+  }
+  
+  class TestAuthorizationPolicy implements IAuthorizationPolicy {
+
+    @Override
+    public boolean isAllowed( String actionName ) {
+      // TODO Auto-generated method stub
+      return true;
+    }
+
+    @Override
+    public List<String> getAllowedActions( String actionNamespace ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
   }
 }

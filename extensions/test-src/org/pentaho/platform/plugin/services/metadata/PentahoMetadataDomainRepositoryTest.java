@@ -213,12 +213,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepository.getDomain(null);
       fail("Null domainID should throw exception");
     } catch (Exception success) {
+      //ignored
     }
 
     try {
       domainRepository.getDomain("");
       fail("Empty domainID should throw exception");
     } catch (Exception success) {
+      //ignored
     }
 
     assertNull(domainRepository.getDomain("doesn't exist"));
@@ -433,6 +435,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepository.removeDomain("");
       fail("should throw exception");
     } catch (IllegalArgumentException success) {
+      //ignore
     }
 
     // Create a domain that starts with "steel-wheels" to try to mess up any of the following tests

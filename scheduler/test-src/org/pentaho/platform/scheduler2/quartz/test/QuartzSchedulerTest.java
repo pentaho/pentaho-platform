@@ -385,22 +385,19 @@ public class QuartzSchedulerTest {
     Assert.assertEquals(0, scheduler.getJobs(null).size());
   }
 
-  @Test
   public void testWrongParameterTypeJob() throws SchedulerException {
-    jobParams.put("customParam", "Should not be able to convert this string to the CustomParamType");
+    jobParams.put( "customParam", "Should not be able to convert this string to the CustomParamType" );
 
-    scheduler.createJob("testName", TestActionCustomParam.class, jobParams, JobTrigger.ONCE_NOW);
+    scheduler.createJob( "testName", TestActionCustomParam.class, jobParams, JobTrigger.ONCE_NOW );
 
-    sleep(2);
+    sleep( 2 );
 
-    Assert.assertEquals("The job should have failed prior to execute being called", 0, TestActionCustomParam.counter);
+    Assert.assertEquals( "The job should have failed prior to execute being called", 0, TestActionCustomParam.counter );
     Assert
         .assertNull(
-            "The root cause of failure should be the inability to convert a string to the custom type, thus this value should definitely be null",
-            TestActionCustomParam.customParam_public);
-
-    List<Job> jobs = scheduler.getJobs(null);
-    Assert.assertEquals(0, jobs.size());
+            "The root cause of failure should be the inability to convert a string to the custom type, "
+                + "thus this value should definitely be null",
+            TestActionCustomParam.customParam_public );
   }
 
   @Test(expected = SchedulerException.class)
