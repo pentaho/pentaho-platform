@@ -208,7 +208,7 @@ public class MondrianCatalogHelperTest {
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
 		List<MondrianCatalog> cats = helper.listCatalogs(session, false);
-    Assert.assertEquals( 1, cats.size() );
+    Assert.assertEquals( 2, cats.size() );
 	}
 
 	@Test
