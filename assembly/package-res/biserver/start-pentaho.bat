@@ -13,10 +13,11 @@ set CATALINA_HOME=%~dp0tomcat
 
 SET BITS=64
 for /f %%a in ('echo %PROCESSOR_ARCHITECTURE% ^| "%SystemRoot%\system32\find" /c "64"') do if not "%%a"=="1" SET BITS=32
+set ALLOW_TOMCAT_ENCODING=-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true -Dorg.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH=true
 IF "%BITS%" == "64" (
-  set CATALINA_OPTS=-Xms1024m -Xmx2048m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+  set CATALINA_OPTS=-Xms1024m -Xmx2048m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 %ALLOW_TOMCAT_ENCODING%
 ) ELSE (
-  set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+  set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 %ALLOW_TOMCAT_ENCODING%
 )
 
 rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
