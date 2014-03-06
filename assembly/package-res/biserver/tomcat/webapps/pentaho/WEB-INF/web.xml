@@ -576,7 +576,11 @@
       <transport-guarantee>NONE</transport-guarantee>
     </user-data-constraint>
   </security-constraint>
-
+  
+  <security-role>
+		<description>Non-Existent Role - this prevents direct access to JSPs</description>
+		<role-name>PENTAHO_ADMIN</role-name>
+	</security-role>
 
 	<error-page>
 		<error-code>404</error-code>
