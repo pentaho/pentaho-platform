@@ -54,7 +54,8 @@ public class HsqlDatabaseStarterBean {
   private Server hsqlServer;
 
   private int port = 9001; // Default Port
-
+  private int failoverPort = port;
+  
   private Map<String, String> databases = new LinkedHashMap<String, String>();
 
   private boolean allowFailoverToDefaultPort;
@@ -62,10 +63,10 @@ public class HsqlDatabaseStarterBean {
   protected boolean checkPort() {
     if ((port < 0) || (port > 65535)) {
       if (allowFailoverToDefaultPort) {
-        logger.error(Messages.getErrorString("HsqlDatabaseStarterBean.ERROR_0004_INVALID_PORT")); //$NON-NLS-1$
-        port = 9001;
+        logger.error(Messages.getErrorString("HsqlDatabaseStarterBean.ERROR_0004_INVALID_PORT", ""+failoverPort)); //$NON-NLS-1$
+        port = failoverPort;
       } else {
-        return logFailure("HsqlDatabaseStarterBean.ERROR_0004_INVALID_PORT"); //$NON-NLS-1$
+        return logFailure("HsqlDatabaseStarterBean.ERROR_0004_INVALID_PORT", ""+failoverPort); //$NON-NLS-1$
       }
     }
 
@@ -73,13 +74,13 @@ public class HsqlDatabaseStarterBean {
       ServerSocket sock = new ServerSocket(port);
       sock.close();
     } catch (IOException ex1) {
-      if (port == 9001) {
+      if (port == failoverPort) {
         return logFailure("HsqlDatabaseStarterBean.ERROR_0006_DEFAULT_PORT_IN_USE"); //$NON-NLS-1$
       } else {
         if (allowFailoverToDefaultPort) {
           logger.error(Messages.getErrorString(
-              "HsqlDatabaseStarterBean.ERROR_0005_SPECIFIED_PORT_IN_USE", Integer.toString(port))); //$NON-NLS-1$
-          port = 9001;
+              "HsqlDatabaseStarterBean.ERROR_0005_SPECIFIED_PORT_IN_USE", Integer.toString(port), "" + failoverPort)); //$NON-NLS-1$
+          port = failoverPort;
           try {
             ServerSocket sock = new ServerSocket(port);
             sock.close();
@@ -245,6 +246,14 @@ public class HsqlDatabaseStarterBean {
     return port;
   }
 
+  public void setFailoverPort(int value) {
+    failoverPort = value;
+  }
+
+  public int getFailoverPort() {
+    return failoverPort;
+  }
+  
   public Map<String, String> getDatabases() {
     return databases;
   }
