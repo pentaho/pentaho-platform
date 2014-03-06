@@ -24,6 +24,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
@@ -31,11 +33,12 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.TextBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
@@ -89,37 +92,42 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       }
     } );
 
-    smtpHostTextBox.addKeyUpHandler( new KeyUpHandler() {
-      public void onKeyUp( final KeyUpEvent keyUpEvent ) {
+    prepareTextBox( smtpHostTextBox, new ChangeHandler() {
+      @Override
+      public void onChange( ChangeEvent event ) {
         emailConfig.setSmtpHost( smtpHostTextBox.getValue() );
         setDirty( true );
       }
     } );
 
-    portTextBox.addKeyUpHandler( new KeyUpHandler() {
-      public void onKeyUp( final KeyUpEvent keyUpEvent ) {
+    prepareTextBox( portTextBox, new ChangeHandler() {
+      @Override
+      public void onChange( ChangeEvent event ) {
         Short port = isPortValid( portTextBox.getValue() ) ? Short.parseShort( portTextBox.getValue() ) : -1;
         emailConfig.setSmtpPort( port );
         setDirty( true );
       }
     } );
 
-    fromAddressTextBox.addKeyUpHandler( new KeyUpHandler() {
-      public void onKeyUp( final KeyUpEvent keyUpEvent ) {
+    prepareTextBox( fromAddressTextBox, new ChangeHandler() {
+      @Override
+      public void onChange( ChangeEvent event ) {
         emailConfig.setDefaultFrom( fromAddressTextBox.getValue() );
         setDirty( true );
       }
     } );
 
-    fromNameTextBox.addKeyUpHandler( new KeyUpHandler() {
-      public void onKeyUp( final KeyUpEvent keyUpEvent ) {
+    prepareTextBox( fromNameTextBox, new ChangeHandler() {
+      @Override
+      public void onChange( ChangeEvent event ) {
         emailConfig.setFromName( fromNameTextBox.getValue() );
         setDirty( true );
       }
     } );
 
-    userNameTextBox.addKeyUpHandler( new KeyUpHandler() {
-      public void onKeyUp( final KeyUpEvent keyUpEvent ) {
+    prepareTextBox( userNameTextBox, new ChangeHandler() {
+      @Override
+      public void onChange( ChangeEvent event ) {
         emailConfig.setUserId( userNameTextBox.getValue() );
         setDirty( true );
       }
@@ -281,5 +289,28 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
   private void setDirty( boolean isDirty ) {
     this.isDirty = isDirty;
     saveButton.setEnabled( isDirty );
+  }
+
+  private void prepareTextBox( final TextBox textBox, final ChangeHandler changeHandler ) {
+    textBox.addKeyUpHandler( new KeyUpHandler() {
+      @Override
+      public void onKeyUp( KeyUpEvent event ) {
+        changeHandler.onChange( null );
+      }
+    } );
+    textBox.addMouseUpHandler( new MouseUpHandler() {
+      @Override
+      public void onMouseUp( MouseUpEvent event ) {
+        final String oldValue = textBox.getValue();
+        new Timer() { // set timer for IE 'x' clear input button.
+          @Override
+          public void run() {
+            if ( !oldValue.equals( textBox.getValue() ) ) {
+              changeHandler.onChange( null );
+            }
+          }
+        } .schedule( 100 );
+      }
+    } );
   }
 }
