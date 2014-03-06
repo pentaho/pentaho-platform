@@ -1130,7 +1130,10 @@ pen.define([
       if(!this.model.get("desel")){
 				$(".file.selected").removeClass("selected");
 				if(FileBrowser.fileBrowserModel.getLastClick() == 'file'){
-					FileBrowser.fileBrowserModel.set("lastClick", "empty");
+					FileBrowser.fileBrowserModel.set("lastClick", "folder");
+					$(".file.selected").removeClass("selected");
+					$(".folder.secondarySelected").addClass("selected");
+					$(".folder.secondarySelected").removeClass("secondarySelected");					
 				}
 			}
       this.model.set("desel", 0);
