@@ -77,10 +77,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 //    System.err.println("tempDir = " + tempDir.getAbsolutePath());
 //    repository = new FileSystemBackedUnifiedRepository(tempDir);
 //    new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
+    repository.deleteFile(new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null).getId(), true, null);
     assertNotNull(new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null));
 
     final MockXmiParser xmiParser = new MockXmiParser();
     domainRepository = createDomainRepository(repository, null, xmiParser, null);
+    while (domainRepository.getDomainIds().size() > 0) {
+      domainRepository.removeDomain(domainRepository.getDomainIds().iterator().next());
+    }
   }
 
   public void tearDown() throws Exception {
@@ -409,13 +413,6 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   }
 */
   public void testGetDomainIds() throws Exception {
-    final Set<String> emptyDomainList = domainRepository.getDomainIds();
-    assertNotNull(emptyDomainList);
-
-    domainRepository.removeDomain("steel-wheels_test");
-    domainRepository.removeDomain(STEEL_WHEELS);
-    domainRepository.removeDomain(SAMPLE_DOMAIN_ID);
-    
     domainRepository.storeDomain(new MockDomain(SAMPLE_DOMAIN_ID), true);
     final Set<String> domainIds1 = domainRepository.getDomainIds();
     assertNotNull(domainIds1);
@@ -445,27 +442,27 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     // Get the current number of files
     final RepositoryFile folder = domainRepository.getMetadataDir();
-    final int originalFileCount = repository.getChildren(folder.getId()).size();
+    final int originalFileCount = repository.getChildren(folder.getId(), "*").size();
     int fileCount = originalFileCount;
 
     // Add steel-wheels and some properties files
     domainRepository.storeDomain(new MockDomain(STEEL_WHEELS), true);
-    assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(++fileCount, repository.getChildren(folder.getId(), "*").size());
     domainRepository.addLocalizationFile(STEEL_WHEELS, "en", EMPTY_PROPERTIES);
-    assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(++fileCount, repository.getChildren(folder.getId(), "*").size());
     domainRepository.addLocalizationFile(STEEL_WHEELS, "en_US", EMPTY_PROPERTIES);
-    assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(++fileCount, repository.getChildren(folder.getId(), "*").size());
     domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", EMPTY_PROPERTIES);
-    assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(++fileCount, repository.getChildren(folder.getId(), "*").size());
 
     // Test the delete
     domainRepository.removeDomain("fake");
-    assertEquals(fileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(fileCount, repository.getChildren(folder.getId(), "*").size());
     domainRepository.removeDomain(STEEL_WHEELS);
-    assertEquals(originalFileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(originalFileCount, repository.getChildren(folder.getId(), "*").size());
     assertNull(domainRepository.getDomain(STEEL_WHEELS));
     domainRepository.removeDomain(STEEL_WHEELS);
-    assertEquals(originalFileCount, repository.getChildren(folder.getId()).size());
+    assertEquals(originalFileCount, repository.getChildren(folder.getId(), "*").size());
   }
 
   /*

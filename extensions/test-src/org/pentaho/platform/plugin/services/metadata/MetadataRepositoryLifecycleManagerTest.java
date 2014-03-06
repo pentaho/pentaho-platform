@@ -63,7 +63,6 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
@@ -104,10 +103,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   public static final String SINGLE_TENANT_AUTHENTICATED_AUTHORITY_NAME = "Authenticated";
 
-  private static final String TEST_TENANT_ID = "Pentaho";
-
-  private static final String TEST_USER_ID = "admin";
-
   private static MicroPlatform mp = new MicroPlatform();
 
   public static final String MAIN_TENANT_1 = "maintenant1";
@@ -136,19 +131,9 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   private ITenantManager tenantManager;
 
-  private String sysAdminAuthorityName;
-
   private String sysAdminUserName;
   
   private String superAdminRoleName;
-
-  private IRepositoryFileDao repositoryFileDao;
-
-  private Repository repository = null;
-
-  private ITenant systemTenant = null;
-
-  private ITenant testTenant;
 
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
@@ -156,7 +141,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
   private static TransactionTemplate jcrTransactionTemplate;
-  private JcrTemplate jcrTemplate;
 
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
@@ -301,7 +285,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
     tenantAuthenticatedAuthorityName = (String) applicationContext.getBean( "singleTenantAuthenticatedAuthorityName" );
     adminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );
-    sysAdminAuthorityName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
     superAdminRoleName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
@@ -309,7 +292,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
         (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
             .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrTxn" );
-    repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
     userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedUserNameUtils" );
     tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedRoleNameUtils" );
@@ -321,7 +303,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     TestPrincipalProvider.adminCredentialsStrategy =
         (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
     TestPrincipalProvider.repository = (Repository) applicationContext.getBean( "jcrRepository" );
-    jcrTemplate = (JcrTemplate) applicationContext.getBean("jcrTemplate");
   }
 
   protected void loginAsRepositoryAdmin() {
