@@ -80,24 +80,27 @@ public class HsqldbStarterBeanTest {
     }
 
     // Test failover
+    int failoverPort = findAvailablePort( 9999 );
+
     starterBean.setAllowPortFailover( true );
+    starterBean.setFailoverPort( failoverPort );
 
     // Invalid or In Use Ports
     starterBean.setPort( -1 );
-    Assert.assertTrue( starterBean.checkPort() ); // Should failover to 9001 - Invalid port (negative)
-    Assert.assertEquals( 9001, starterBean.getPort() );
+    Assert.assertTrue( starterBean.checkPort() ); // Should failover to failoverPort - Invalid port (negative)
+    Assert.assertEquals( failoverPort, starterBean.getPort() );
 
     starterBean.setPort( 65539 );
-    Assert.assertTrue( starterBean.checkPort() ); // Should failover to 9001 - Invalid port (too high)
-    Assert.assertEquals( 9001, starterBean.getPort() );
+    Assert.assertTrue( starterBean.checkPort() ); // Should failover to failoverPort - Invalid port (too high)
+    Assert.assertEquals( failoverPort, starterBean.getPort() );
 
     // Block the port again, and try to start on that port
     try {
       ServerSocket sock = new ServerSocket( portTry ); // lock the port
       // sock.bind(null);
       starterBean.setPort( portTry );
-      Assert.assertTrue( starterBean.checkPort() ); // should failover - port in use to failover to 9001
-      Assert.assertEquals( 9001, starterBean.getPort() );
+      Assert.assertTrue( starterBean.checkPort() ); // should failover - port in use to failover to failoverPort
+      Assert.assertEquals( failoverPort, starterBean.getPort() );
       sock.close();
     } catch ( IOException ex ) {
       Assert.fail( ex.getMessage() );
@@ -165,9 +168,9 @@ public class HsqldbStarterBeanTest {
 
       // Make sure that the port is now in use...
       try {
-        @SuppressWarnings( "unused" )
         ServerSocket sock = new ServerSocket( port );
         Assert.fail( "Port was available - server not really started" );
+        sock.close();
       } catch ( IOException expected ) {
         //ignore
       }
