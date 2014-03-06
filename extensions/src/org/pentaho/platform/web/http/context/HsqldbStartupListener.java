@@ -72,7 +72,7 @@ public class HsqldbStartupListener implements ServletContextListener {
         portNum = Integer.parseInt( port );
         starterBean.setPort( portNum );
       } catch ( NumberFormatException ex ) {
-        logger.error( Messages.getErrorString( "HsqldbStartupListener.ERROR_0004_INVALID_PORT" ) ); //$NON-NLS-1$
+        logger.error( Messages.getErrorString( "HsqldbStartupListener.ERROR_0004_INVALID_PORT", "9001" ) ); //$NON-NLS-1$
         port = null; // force check default port
       }
     }
