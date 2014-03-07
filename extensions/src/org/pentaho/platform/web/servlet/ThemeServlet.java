@@ -29,6 +29,7 @@ import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.ui.ThemeResource;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -103,24 +104,28 @@ public class ThemeServlet extends ServletBase {
       String effectiveLocale = null;
       boolean isRtl = false;
 
+      if (LocaleHelper.getLocale() != null) {
+        effectiveLocale = LocaleHelper.getLocale().toString();
+      }
+
       if ( httpSession != null ) {
-        String localeOverride = (String) httpSession.getAttribute( "locale_override" ); //$NON-NLS-1$
-        String locale = req.getParameter("locale");
+        String localeOverride = (String) httpSession.getAttribute( "locale_override" );
 
         if ( !StringUtils.isEmpty( localeOverride ) ) {
           effectiveLocale = ESAPI.encoder().encodeForHTMLAttribute(localeOverride);
         }
-        if ( !StringUtils.isEmpty( locale ) ) {
-          effectiveLocale = ESAPI.encoder().encodeForHTMLAttribute(locale);
+        if ( !StringUtils.isEmpty( req.getParameter("locale") ) ) {
+          effectiveLocale = ESAPI.encoder().encodeForHTMLAttribute(req.getParameter("locale"));
         }
-        if(effectiveLocale != null) {
-          isRtl = effectiveLocale.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
-        }
-//      System.out.println("================================== ThemeServlet ==================================");
-//      System.out.println(" ---> effectiveLocale = " + effectiveLocale);
-//      System.out.println(" ---> isRtl = " + isRtl);
-//      System.out.println("================================== ThemeServlet ==================================");
       }
+
+      if(effectiveLocale != null) {
+        isRtl = effectiveLocale.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
+      }
+//    System.out.println("================================== ThemeServlet ==================================");
+//    System.out.println(" ---> effectiveLocale = " + effectiveLocale);
+//    System.out.println(" ---> isRtl = " + isRtl);
+//    System.out.println("================================== ThemeServlet ==================================");
 
       for ( String systemThemeName : themeManager.getSystemThemeIds() ) {
         Theme theme = themeManager.getSystemTheme( systemThemeName );
