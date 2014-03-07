@@ -14,6 +14,9 @@
       <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
         <extension>prpt</extension>
       </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.schedule">
+        <extension>qtz</extension>
+      </MimeTypeDefinition>
       <MimeTypeDefinition mimeType="image/gif" hidden="true">
         <extension>gif</extension>
       </MimeTypeDefinition>
