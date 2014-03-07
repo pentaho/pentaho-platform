@@ -23,6 +23,9 @@
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" %>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" %>
 <%@page import="java.util.List" %>
+<%@page import="org.apache.commons.lang.StringUtils" %>
+<%@page import="org.owasp.esapi.ESAPI" %>
+<%@page import="java.util.Locale" %>
 <%
   boolean canCreateContent = PentahoSystem.get( IAuthorizationPolicy.class, PentahoSessionHolder.getSession() )
       .isAllowed( RepositoryCreateAction.NAME );
@@ -30,6 +33,29 @@
       .isAllowed( AdministerSecurityAction.NAME );
   List<String> pluginIds =
       PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins();
+
+  /**
+  System.out.println("home ======================================= home");
+  **/
+  Locale effectiveLocale = request.getLocale();
+  /**
+  System.out.println(" ==> effectiveLocale.toString() : " + effectiveLocale.toString());
+  **/
+  boolean isRtl = false;
+  String locale1 = ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString());
+
+  if ( !StringUtils.isEmpty( (String)session.getAttribute( "locale_override" ) ) ) {
+    /**
+    System.out.println(" ==> session.getAttribute(locale_override) : " + (String)session.getAttribute( "locale_override" ));
+    **/
+    locale1 = ESAPI.encoder().encodeForHTMLAttribute((String)session.getAttribute( "locale_override" ));
+  }
+
+  isRtl = locale1.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
+  /**
+  System.out.println(" ==> isRtl : " + isRtl);
+  System.out.println("home ======================================= home");
+  **/
 %>
 <html lang="en" class="bootstrap">
 <head>
@@ -38,7 +64,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Le styles -->
-  <link href="css/home.css" rel="stylesheet">
+  <%if ( isRtl ) {%>
+    <link href="css/home_rtl.css" rel="stylesheet">
+  <%} else {%>
+    <link href="css/home_ltr.css" rel="stylesheet">
+  <%}%>
 
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <themes root-folder="themes">
   <onyx>
-    <file>mantleOnyx.css</file>
+    <file>mantleOnyx_ltr.css</file>
+    <file>mantleOnyx_rtl.css</file>
   </onyx>
   <slate>
-    <file>mantleSlate.css</file>
+    <file>mantleSlate_ltr.css</file>
+    <file>mantleSlate_rtl.css</file>
   </slate>
   <crystal>
-    <file>mantleCrystal.css</file>
+    <file>mantleCrystal_ltr.css</file>
+    <file>mantleCrystal_rtl.css</file>
   </crystal>
 </themes>

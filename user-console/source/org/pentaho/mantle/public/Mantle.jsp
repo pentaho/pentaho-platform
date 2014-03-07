@@ -44,6 +44,26 @@
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
   ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );
 
+  /**
+  System.out.println("=======================================");
+  System.out.println(" ==> effectiveLocale.toString() : " + effectiveLocale.toString());
+  **/
+  boolean isRtl = false;
+  String locale1 = ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString());
+
+  if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
+    /**
+    System.out.println(" ==> request.getParameter(locale) : " + request.getParameter( "locale" ));
+    **/
+    locale1 = ESAPI.encoder().encodeForHTMLAttribute(request.getParameter( "locale" ).toString());
+  }
+
+  isRtl = locale1.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
+  /**
+  System.out.println(" ==> isRtl : " + isRtl);
+  System.out.println("=======================================");
+  **/
+
 %>
 
 <html>
@@ -52,7 +72,11 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
   <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
-  <link rel='stylesheet' href='mantle/MantleStyle.css'/>
+  <%if ( isRtl ) {%>
+    <link rel='stylesheet' href='mantle/MantleStyle_rtl.css'/>
+  <%} else {%>
+    <link rel='stylesheet' href='mantle/MantleStyle_ltr.css'/>
+  <%}%>
   <%if ( hasDataAccessPlugin ) {%>
   <link rel="stylesheet" href="content/data-access/resources/gwt/datasourceEditorDialog.css"/>
   <%}%>
