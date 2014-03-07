@@ -25,8 +25,8 @@ import org.springframework.util.Assert;
 import java.util.List;
 
 /**
- * An {@link IBackingRepositoryLifecycleManager} that does nothing itself but instead delegates to an ordered
- * collection of other {@link IBackingRepositoryLifecycleManager} instances.
+ * An {@link IBackingRepositoryLifecycleManager} that does nothing itself but instead delegates to an ordered collection of other
+ * {@link IBackingRepositoryLifecycleManager} instances.
  * 
  * @author mlowery
  */
@@ -100,4 +100,12 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
     return null;
   }
 
+  public void addLifeCycleManager( IBackingRepositoryLifecycleManager manager ) {
+    managers.add( manager );
+  }
+
+  public void removeLifeCycleManager( IBackingRepositoryLifecycleManager manager ) {
+    managers.remove( manager );
+  }  
+  
 }
