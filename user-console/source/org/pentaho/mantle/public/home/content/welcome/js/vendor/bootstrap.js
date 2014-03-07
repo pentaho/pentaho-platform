@@ -1351,6 +1351,9 @@
       $tip.find('.popover-content')[this.options.html ? 'html' : 'text'](content)
 
       $tip.removeClass('fade top bottom left right in')
+      // IE8 doesn't accept hiding via the `:empty` pseudo selector, we have to do
+			// this manually by checking the contents.
+			if (!$tip.find('.popover-title').html()) $tip.find('.popover-title').hide()
     }, hasContent: function () {
       return this.getTitle() || this.getContent()
     }, getContent: function () {
