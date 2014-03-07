@@ -83,4 +83,15 @@ public interface IBackingRepositoryLifecycleManager {
   void addMetadataToRepository( final String metadataProperty );
 
   Boolean doesMetadataExists( final String metadataProperty );
+  
+  /**
+   * @param manager the IBackingRepositoryLifecycleManager to add to the list of managers
+   */
+  void addLifeCycleManager( IBackingRepositoryLifecycleManager manager );
+
+  /**
+   * @param manager the IBackingRepositoryLifecycleManager to remove from the list of managers
+   */
+  void removeLifeCycleManager( IBackingRepositoryLifecycleManager manager );
+  
 }
