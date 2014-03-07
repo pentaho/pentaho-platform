@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.5" jmeter="2.10 r1533061">
+<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="BI Server Web Service API Test (extensions)" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -74,7 +74,7 @@
           <boolProp name="CookieManager.clearEachIteration">false</boolProp>
         </CookieManager>
         <hashTree/>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="5.0 Baseline" enabled="false"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="5.0 Baseline" enabled="true"/>
         <hashTree>
           <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Login" enabled="true">
             <boolProp name="TransactionController.parent">true</boolProp>
@@ -5378,12 +5378,12 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/createRole?roleName=JmeterTest&amp;tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/createRole?roleName=JmeterTest</stringProp>
               <stringProp name="HTTPSampler.method">PUT</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
               <boolProp name="HTTPSampler.BROWSER_COMPATIBLE_MULTIPART">true</boolProp>
               <stringProp name="HTTPSampler.implementation">Java</stringProp>
               <boolProp name="HTTPSampler.monitor">false</boolProp>
@@ -5456,7 +5456,7 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/createUser?tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/createUser</stringProp>
               <stringProp name="HTTPSampler.method">PUT</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -5523,7 +5523,7 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/assignAllRolesToUser?userName=jmetertest&amp;tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/assignAllRolesToUser?userName=jmetertest</stringProp>
               <stringProp name="HTTPSampler.method">PUT</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -5657,7 +5657,7 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/assignRoleToUser?userName=jmetertest&amp;roleNames=jmetertest&amp;tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/assignRoleToUser?userName=jmetertest&amp;roleNames=jmetertest</stringProp>
               <stringProp name="HTTPSampler.method">PUT</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -5724,7 +5724,7 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/assignUserToRole?userNames=jmetertest&amp;roleName=jmetertest&amp;tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/assignUserToRole?userNames=jmetertest&amp;roleName=jmetertest</stringProp>
               <stringProp name="HTTPSampler.method">PUT</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -5944,7 +5944,7 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/roleMembers?roleName=jmetertest&amp;tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/roleMembers?roleName=jmetertest</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -6096,7 +6096,7 @@ return(filename);
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/userRoles?userName=jmetertest&amp;tenant=</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/userroledao/userRoles?userName=jmetertest</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -7730,7 +7730,7 @@ return(filename);
             </hashTree>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="BISERVER-10748" enabled="true">
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="BISERVER-10748" enabled="false">
           <stringProp name="TestPlan.comments">Extend browse service call to identify folders with write permission</stringProp>
         </GenericController>
         <hashTree>
