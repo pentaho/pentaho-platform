@@ -23,6 +23,7 @@ import org.pentaho.metadata.model.concept.security.Security;
 import org.pentaho.metadata.model.concept.security.SecurityOwner;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.springframework.security.GrantedAuthorityImpl;
 
@@ -50,6 +51,10 @@ public class PentahoMetadataAclHolder implements IAclHolder {
             accessControls.add( new PentahoAclEntry( new GrantedAuthorityImpl( secOwn.getOwnerName() ), rights ) );
           }
         }
+      } else {
+        //If here the metadata did not have security properties.  This is considered a "no security"
+        //scenario.
+        accessControls.add( new PentahoAclEntry( PentahoSessionHolder.getSession().getName(), 31 ) );
       }
     } catch ( Throwable th ) {
       // Just being paranoid here in case something doesn't support it.
