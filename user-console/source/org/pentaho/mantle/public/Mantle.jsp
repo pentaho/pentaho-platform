@@ -65,9 +65,11 @@
 
   <script type="text/javascript" src="mantle/nativeScripts.js"></script>
   <script type="text/javascript">
+    try{
     if (window.opener && window.opener.reportWindowOpened != undefined) {
       window.opener.reportWindowOpened();
     }
+    } catch(/* XSS */ ignored){}
 
     var dataAccessAvailable = false; //Used by child iframes to tell if data access is available.
     /* this function is called by the gwt code when initing, if the user has permission */
