@@ -46,7 +46,8 @@
   System.out.println("browser ======================================= browser");
   **/
 %>
-<html lang="en" class="bootstrap">
+<html lang="en" class="bootstrap" <%if ( isRtl ) {%> dir="RTL" <%}%> >
+
 <head>
 <meta charset="utf-8" class="bootstrap">
 <title>Browse Files</title>
