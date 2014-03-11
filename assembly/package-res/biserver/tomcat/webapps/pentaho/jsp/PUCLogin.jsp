@@ -162,7 +162,7 @@
             </div>
             <div class="input-container">
               <label>&nbsp;</label>
-              <button type="submit" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+              <button type="submit" id="loginbtn" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
               <input type="hidden" name="locale" value="en_US">
             </div>
           </div>
