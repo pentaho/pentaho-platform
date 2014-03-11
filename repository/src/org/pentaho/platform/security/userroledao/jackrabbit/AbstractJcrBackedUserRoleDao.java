@@ -503,9 +503,13 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return getRoles( session, tenant, false );
   }
 
-  public List<IPentahoRole> getRoles( Session session, final ITenant theTenant, boolean includeSubtenants )
+  public List<IPentahoRole> getRoles( Session session, ITenant theTenant, boolean includeSubtenants )
     throws RepositoryException {
     ArrayList<IPentahoRole> roles = new ArrayList<IPentahoRole>();
+    if( theTenant == null || theTenant.getId() == null ) {
+      theTenant = JcrTenantUtils.getTenant();
+    }
+
     if ( TenantUtils.isAccessibleTenant( theTenant ) ) {
       UserManager userMgr = getUserManager( theTenant, session );
       pPrincipalName = ( (SessionImpl) session ).getJCRName( P_PRINCIPAL_NAME );
@@ -532,9 +536,12 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return getUsers( session, tenant, false );
   }
 
-  public List<IPentahoUser> getUsers( Session session, final ITenant theTenant, boolean includeSubtenants )
+  public List<IPentahoUser> getUsers( Session session, ITenant theTenant, boolean includeSubtenants )
     throws RepositoryException {
     ArrayList<IPentahoUser> users = new ArrayList<IPentahoUser>();
+    if( theTenant == null || theTenant.getId() == null ) {
+      theTenant = JcrTenantUtils.getTenant();
+    }
     if ( TenantUtils.isAccessibleTenant( theTenant ) ) {
       UserManager userMgr = getUserManager( theTenant, session );
       pPrincipalName = ( (SessionImpl) session ).getJCRName( P_PRINCIPAL_NAME );
