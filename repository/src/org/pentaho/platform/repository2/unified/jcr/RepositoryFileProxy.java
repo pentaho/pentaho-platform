@@ -86,12 +86,51 @@ public class RepositoryFileProxy extends RepositoryFile {
 
   @Override
   public int compareTo( RepositoryFile other ) {
-    return super.compareTo( other ); // To change body of overridden methods use File | Settings | File Templates.
+    if ( other == null ) {
+      throw new NullPointerException(); // per Comparable contract
+    }
+    if ( equals( other ) ) {
+      return 0;
+    }
+    // either this or other has a null id; fall back on name
+    return getTitle().compareTo( other.getTitle() );
   }
 
   @Override
   public boolean equals( Object obj ) {
-    return super.equals( obj ); // To change body of overridden methods use File | Settings | File Templates.
+    if ( this == obj ) {
+      return true;
+    }
+    if ( obj == null ) {
+      return false;
+    }
+    if ( getClass() != obj.getClass() ) {
+      return false;
+    }
+    RepositoryFile other = (RepositoryFile) obj;
+    if ( this.getId() == null ) {
+      if ( other.getId() != null ) {
+        return false;
+      }
+    } else if ( !this.getId().equals( other.getId() ) ) {
+      return false;
+    }
+    if ( this.getLocale() == null ) {
+      if ( other.getLocale() != null ) {
+        return false;
+      }
+    } else if ( !this.getLocale().equals( other.getLocale()) ) {
+      return false;
+    }
+    if ( this.getVersionId() == null ) {
+      if ( other.getVersionId() != null ) {
+        return false;
+      }
+    } else if ( !this.getVersionId().equals( other.getVersionId()) ) {
+      return false;
+    }
+    return true;
+//    return super.equals( obj ); // To change body of overridden methods use File | Settings | File Templates.
   }
 
   @Override
@@ -449,7 +488,12 @@ public class RepositoryFileProxy extends RepositoryFile {
 
   @Override
   public int hashCode() {
-    return super.hashCode(); // To change body of overridden methods use File | Settings | File Templates.
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.getId() == null ) ? 0 : this.getId().hashCode() );
+    result = prime * result + ( ( this.getLocale() == null ) ? 0 : this.getLocale().hashCode() );
+    result = prime * result + ( ( this.getVersionId() == null ) ? 0 : this.getVersionId().hashCode() );
+    return result;
   }
 
   @Override

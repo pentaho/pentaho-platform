@@ -57,6 +57,8 @@ public class DefaultImportHandler implements ImportHandler {
   private Set<String> executableTypes;
   private HashMap<String, Serializable> parentIdCache;
 
+  private ImportSession importSession = ImportSession.getSession();
+
   public DefaultImportHandler( final IUnifiedRepository repository ) {
     // Validate and save the repository
     if ( null == repository ) {
@@ -254,14 +256,23 @@ public class DefaultImportHandler implements ImportHandler {
     try {
       log.trace( "copying file to repository: " + bundlePathName );
       IRepositoryFileData data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
+      RepositoryFile repositoryFile;
+
       if ( null == file ) {
         final boolean hidden = !executableTypes.contains( ext.toLowerCase() );
         log.trace( "\tsetting hidden=" + hidden + " for file with extension " + ext.toLowerCase() );
-        createFile( bundle, repositoryPath, hidden, data, comment );
+        repositoryFile = createFile( bundle, repositoryPath, hidden, data, comment );
+
       } else {
-        repository.updateFile( file, data, comment );
+        repositoryFile = repository.updateFile( file, data, comment );
       }
+
+      if(repositoryFile != null){
+        importSession.addImportedRepositoryFile( repositoryFile );
+      }
+
       return true;
+
     } catch ( IOException e ) {
       log.warn( messages.getString( "DefaultImportHandler.WARN_0003_IOEXCEPTION", name ), e ); // TODO make sure string
                                                                                                // exists

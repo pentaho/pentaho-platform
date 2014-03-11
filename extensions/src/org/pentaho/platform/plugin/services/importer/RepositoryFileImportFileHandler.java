@@ -188,16 +188,22 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         return false;
       }
 
+      RepositoryFile repositoryFile;
+
       IRepositoryFileData data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
       if ( null == file ) {
-        RepositoryFile repositoryFile = createFile( bundle, repositoryPath, data );
+        repositoryFile = createFile( bundle, repositoryPath, data );
         if ( repositoryFile != null ) {
           updateAclFromBundle( true, bundle, repositoryFile );
         }
 
       } else {
-        RepositoryFile repositoryFile = repository.updateFile( file, data, bundle.getComment() );
+        repositoryFile = repository.updateFile( file, data, bundle.getComment() );
         updateAclFromBundle( false, bundle, repositoryFile );
+      }
+
+      if( repositoryFile != null ){
+        getImportSession().addImportedRepositoryFile( repositoryFile );
       }
 
       return true;
