@@ -22,18 +22,28 @@ import java.util.List;
 
 import org.pentaho.platform.api.repository2.unified.Converter;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 /**
  * Hold mime type name and extensions associated with it.
  * 
  * @author tkafalas
  * 
  */
+@XmlRootElement
 public class MimeType {
   private String name;
   private List<String> extensions = new ArrayList<String>();
   private boolean hidden;
   private boolean locale;
+
+  @XmlTransient
   private Converter converter;
+
+  public MimeType(){
+
+  }
 
   public MimeType( String name, List<String> extensions ) {
     this.name = name;
@@ -78,6 +88,7 @@ public class MimeType {
     this.locale = locale;
   }
 
+  @XmlTransient
   public Converter getConverter() {
     return converter;
   }

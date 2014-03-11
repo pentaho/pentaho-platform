@@ -8,8 +8,14 @@
       <MimeTypeDefinition mimeType="application/vnd.ms-excel">
         <extension>xls</extension>
       </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.analyzer">
+        <extension>xanalyzer</extension>
+      </MimeTypeDefinition>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.dashboard">
         <extension>xdash</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.kettle-transformation">
+        <extension>ktr</extension>
       </MimeTypeDefinition>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
         <extension>prpt</extension>
@@ -53,11 +59,9 @@
 		<extension>kjb</extension>
         <extension>kps</extension>
         <extension>ksl</extension>
-		<extension>ktr</extension>
         <extension>report</extension>
         <extension>rptdesign</extension>
         <extension>wcdf</extension>
-        <extension>xanalyzer</extension>
         <extension>xcdf</extension>
         <extension>xjpivot</extension>
         <extension>xml</extension>

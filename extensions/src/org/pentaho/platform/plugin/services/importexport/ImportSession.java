@@ -20,6 +20,7 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
@@ -46,6 +47,7 @@ public class ImportSession {
   private boolean retainOwnership;
   private boolean overwriteAclSettings;
   private String currentManifestKey;
+  private HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
 
   private static ThreadLocal<ImportSession> sessions = new ThreadLocal<ImportSession>();
 
@@ -231,4 +233,21 @@ public class ImportSession {
     setRetainOwnership( retainOwnershipFlag );
     setOverwriteAclSettings( overwriteAclSettingsFlag );
   }
+
+  /**
+   *
+   * @param repositoryFile
+   */
+  public void addImportedRepositoryFile( RepositoryFile repositoryFile ){
+    importedRepositoryFiles.add( repositoryFile );
+  }
+
+  /**
+   *
+   * @return
+   */
+  public HashSet<RepositoryFile> getImportedRepositoryFiles(){
+    return importedRepositoryFiles;
+  }
+
 }

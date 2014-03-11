@@ -104,6 +104,14 @@ public class ExportManifest {
     }
   }
 
+  /**
+   * Return entire map of export manifest entities
+   * @return
+   */
+  public HashMap<String, ExportManifestEntity> getExportManifestEntities() {
+    return exportManifestEntities;
+  }
+
   public ExportManifestEntity getExportManifestEntity( String path ) {
     return exportManifestEntities.get( path );
   }
