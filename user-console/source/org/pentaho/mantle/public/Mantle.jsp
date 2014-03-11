@@ -49,7 +49,7 @@
 
 <html>
 <head>
-  <title>Pentaho User Console</title>
+  <title><%= properties.getString("productName") %></title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
   <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
