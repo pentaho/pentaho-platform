@@ -67,6 +67,7 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository
@@ -159,6 +160,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
       if( isPdiFile( file ) ){
     	  parameterMap = handlePDIScheduling( file, parameterMap );
       }
+
+      parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
       
       if ( hasInputFile ) {
         SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );

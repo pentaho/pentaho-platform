@@ -53,6 +53,8 @@ public class LocaleHelper {
 
   private static String textDirection = LocaleHelper.LEFT_TO_RIGHT;
 
+  public static final String USER_LOCALE_PARAM = "user_locale";
+
   public static void setDefaultLocale( final Locale newLocale ) {
 
     LocaleHelper.defaultLocale = newLocale;
