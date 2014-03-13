@@ -1,0 +1,47 @@
+<action-sequence>
+  <name>ContentOutputTest.xaction</name>
+  <title>Content Output Component Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+
+  <documentation>
+    <author>Marc Batchelor</author>
+    <description>Simple test of the content output component</description>
+    <help>Test.</help>
+  </documentation>
+
+  <inputs>
+    <CONTENTOUTPUT type="string">
+      <default-value><![CDATA[This is sample output from the content-output component.]]>
+      </default-value>
+    </CONTENTOUTPUT>
+  </inputs>
+
+  <outputs>
+    <content type="content">
+    		<destinations>
+    			<file>file:///c:/tmp/VFSOutputTest.testFileOutput.txt</file>
+    			<!--<file>vfs-ftp://jdixon:mypassword@prosource.pentaho.org/release/VFSOutputTest.testFileOutput.txt</file>-->
+    		</destinations>
+    </content> 
+	</outputs>
+
+  <resources/>
+
+  <actions>
+      <action-definition>
+        <action-name>Content Output Test</action-name>
+        <action-inputs>
+          <CONTENTOUTPUT type="string" />
+        </action-inputs>
+        <action-outputs>
+          <content type="string" />
+        </action-outputs>
+        <logging-level>DEBUG</logging-level>
+        <component-name>org.pentaho.plugin.core.ContentOutputComponent</component-name>
+        <component-definition>
+          <mime-type>text/html</mime-type>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

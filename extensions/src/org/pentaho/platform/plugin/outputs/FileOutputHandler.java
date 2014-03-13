@@ -17,6 +17,12 @@
 
 package org.pentaho.platform.plugin.outputs;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository.IContentItem;
@@ -24,25 +30,27 @@ import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-
 public class FileOutputHandler extends BaseOutputHandler {
   protected static final Log logger = LogFactory.getLog( FileOutputHandler.class );
 
   @Override
   public IContentItem getFileOutputContentItem() {
-
+    
     String contentRef = getContentRef();
     File file = new File( contentRef );
     File dir = file.getParentFile();
     if ( ( dir != null ) && !dir.exists() ) {
       boolean result = dir.mkdirs();
       if ( !result ) {
-        logger.error( Messages.getInstance().getErrorString(
-            "FileOutputHandler.ERROR_0001_COULD_NOT_CREATE_DIRECTORY", dir.getAbsolutePath() ) ); //$NON-NLS-1$
-        return null;
+        try {
+          URI uri = new URI( contentRef );
+          file = new File( uri );
+          dir = file.getParentFile();
+        } catch ( URISyntaxException e ) {
+          logger.error( Messages.getInstance().getErrorString(
+              "FileOutputHandler.ERROR_0001_COULD_NOT_CREATE_DIRECTORY", dir.getAbsolutePath() ) ); //$NON-NLS-1$
+          return null;
+        }
       }
     }
     try {
