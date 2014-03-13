@@ -102,4 +102,21 @@ public class MimeType {
       this.extensions.add( extension );
     }
   }
+  
+  public String toString(){
+    StringBuilder sb = new StringBuilder();
+    sb.append( "name:" ).append( name );
+    sb.append( ",extensions:[" );
+    for ( String extension : extensions ) {
+      if ( !sb.substring( sb.length() - 1 ).equals( "[" ) ) {
+        sb.append( "," );
+      }
+      sb.append( extension );
+    }
+    sb.append( "]" );
+    sb.append( ",hidden:" ).append( hidden );
+    sb.append( ",locale:" ).append( locale );
+    sb.append( ",converter:" ).append( converter );
+    return sb.toString();
+  }
 }
