@@ -472,6 +472,29 @@
     <unzip dest="${stage.dir.solutions}/system" overwrite="true">
       <fileset file="${plugins.dir}/*.zip" />
     </unzip>
+
+    <taskdef classpathref="dev.classpath" name="lesscss" classname="org.pentaho.platform.assembly.LessToCssCompiler" />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/css"
+    />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/native/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/native"
+    />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/replaceable/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/replaceable"
+    />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/sample1/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/sample1"
+    />
+
   </target>
 
   <!-- - - - - - - - - - - - - - - - - -
