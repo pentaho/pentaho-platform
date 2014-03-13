@@ -90,7 +90,7 @@
 	<bean id="importHandlers" class="java.util.ArrayList">
 		<constructor-arg>
 			<util:list list-class="java.util.ArrayList"
-				value-type="org.pentaho.platform.plugin.services.importer.IPlatformInputHandler">
+				value-type="org.pentaho.platform.plugin.services.importer.IPlatformImportHandler">
 				<ref bean="defaultImportHandler" />
 
 				<bean
