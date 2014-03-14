@@ -42,7 +42,6 @@
 	<bean id="DefaultExportHandler"
 		class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
 		<property name="repository" ref="unifiedRepository" />
-		<property name="converters" ref="convertersMap" />
 		<property name="localeExportList">
 			<list>
 				<value>.xanalyzer</value>
