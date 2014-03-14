@@ -29,9 +29,13 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.utils.NameUtils;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
 public class UserDialog extends GwtDialog {
 
@@ -106,16 +110,32 @@ public class UserDialog extends GwtDialog {
 
     return hp;
   }
-
+  
+  private boolean nameIsValid(String name) {
+    if ( !NameUtils.isRepositoryObjectNameValid( name ) ) {
+      GwtMessageBox messageBox = new GwtMessageBox();
+      messageBox.setTitle( Messages.getString( "error" ) );
+      messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", name ) );
+      messageBox.setButtons( new Object[ GwtMessageBox.ACCEPT ] );
+      messageBox.setWidth( 300 );
+      messageBox.show();
+      return false;
+    }
+    return true;
+  }
+  
   class AcceptListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       String name = nameTextBox.getText();
       String password = passwordTextBox.getText();
-      controller.saveUser( name, password );
-      hide();
+      
+      if (nameIsValid( name )){
+        controller.saveUser( name, password );
+        hide();
+      }
     }
   }
-
+    
   class CancelListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       hide();
