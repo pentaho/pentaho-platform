@@ -83,7 +83,11 @@
   <link rel="stylesheet" href="mantle/Widgets.css"/>
 
   <!-- ANGULAR INCLUDES -->
-  <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations.css'/>
+  <%if ( isRtl ) {%>
+      <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations_rtl.css'/>
+    <%} else {%>
+      <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations_ltr.css'/>
+    <%}%>
   <script language="javascript" type="text/javascript" src="webcontext.js?context=mantle"></script>
 
   <script type="text/javascript" src="mantle/nativeScripts.js"></script>
