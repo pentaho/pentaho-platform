@@ -37,7 +37,6 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportMimeResolver;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -76,7 +75,7 @@ public class RepositoryImportResource {
       @FormDataParam( "overwriteAclPermissions" ) String overwriteAclPermissions,
       @FormDataParam( "applyAclPermissions" ) String applyAclPermission,
       @FormDataParam( "retainOwnership" ) String retainOwnership, @FormDataParam( "charSet" ) String charSet,
-      @FormDataParam( "logLevel" ) String logLevel, @FormDataParam( "fileUpload" )
+      @FormDataParam( "fileUpload" )
     FormDataContentDisposition fileInfo ) {
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
@@ -89,7 +88,6 @@ public class RepositoryImportResource {
       boolean applyAclSettingsFlag = ( "true".equals( applyAclPermission ) ? true : false );
       boolean retainOwnershipFlag = ( "true".equals( retainOwnership ) ? true : false );
 
-      Level level = Level.toLevel( logLevel );
       ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag,
         overwriteAclSettingsFlag );
 
@@ -118,7 +116,7 @@ public class RepositoryImportResource {
       }
 
       logJobStarted = true;
-      importLogger.startJob( importLoggerStream, uploadDir, level );
+      importLogger.startJob( importLoggerStream, uploadDir, Level.WARN );
       importer.importFile( bundle );
 
       // Flush the Mondrian cache to show imported data-sources.
