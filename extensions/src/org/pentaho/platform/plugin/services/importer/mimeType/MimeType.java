@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * 
  */
 @XmlRootElement
-public class MimeType {
+public class MimeType implements Comparable<MimeType> {
   private String name;
   private List<String> extensions = new ArrayList<String>();
   private boolean hidden;
@@ -119,4 +119,38 @@ public class MimeType {
     sb.append( ",converter:" ).append( converter );
     return sb.toString();
   }
+
+  public int compareTo( MimeType o ) {
+    return name.compareTo( o.name );
+  }
+  
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( name == null ) ? 0 : name.hashCode() );
+    return result;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( this == obj ) {
+      return true;
+    }
+    if ( obj == null ) {
+      return false;
+    }
+    if ( getClass() != obj.getClass() ) {
+      return false;
+    }
+    MimeType other = ( MimeType ) obj;
+    if ( name == null ) {
+      if ( other.name != null ) {
+        return false;
+      }
+    } else if ( !name.equals( other.name ) ) {
+      return false;
+    }
+    return true;
+  }
+  
+  
 }
