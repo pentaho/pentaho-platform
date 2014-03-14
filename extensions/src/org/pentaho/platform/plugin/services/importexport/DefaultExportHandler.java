@@ -46,8 +46,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 public class DefaultExportHandler implements ExportHandler {
@@ -73,7 +75,11 @@ public class DefaultExportHandler implements ExportHandler {
       log.debug( "Skipping file without extension: " + name );
     }
 
-    // Find the converter - defined in spring xml
+    // Find the converter - defined in spring xml by import handlers
+    if (converters == null) {
+      IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+      converters = converterHandler.getConverters();
+    }
     final Converter converter = converters.get( ext );
     if ( converter == null ) {
       log.debug( "Skipping file without converter: " + name );

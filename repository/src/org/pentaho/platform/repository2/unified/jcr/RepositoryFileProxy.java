@@ -111,6 +111,10 @@ public class RepositoryFileProxy extends RepositoryFile {
     if ( this.getId() == null ) {
       if ( other.getId() != null ) {
         return false;
+      } else if ( this.getPath() != null ) {
+        if ( !other.getPath().equals( this.getPath() ) ) {
+          return false;
+        }
       }
     } else if ( !this.getId().equals( other.getId() ) ) {
       return false;
