@@ -71,10 +71,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     // System.err.println("tempDir = " + tempDir.getAbsolutePath());
     // repository = new FileSystemBackedUnifiedRepository(tempDir);
     // new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
+    repository.deleteFile( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ).getId(), true, null );
     assertNotNull( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ) );
 
     final MockXmiParser xmiParser = new MockXmiParser();
     domainRepository = createDomainRepository( repository, null, xmiParser, null );
+    while ( domainRepository.getDomainIds().size() > 0 ) {
+      domainRepository.removeDomain( domainRepository.getDomainIds().iterator().next() );
+    }    
   }
 
   public void tearDown() throws Exception {

@@ -39,7 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -53,7 +52,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -228,7 +226,6 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFile getFile( String relPath ) {
-    relPath = idToPath( relPath );
     return internalGetFile( new File( getPhysicalFileLocation( relPath ) ) );
   }
 
@@ -539,11 +536,14 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       return relPath;
     }
     
-    String physicalFileLocation =
-        relPath.equals( "/" ) ? rootDir.getAbsolutePath() : 
-          relPath.startsWith( rootDir.getAbsolutePath() ) ? relPath : 
-            RepositoryFilenameUtils.concat( rootDir.getAbsolutePath(),
-            relPath.substring( RepositoryFilenameUtils.getPrefixLength( relPath ) ) );
+    String physicalFileLocation = relPath;
+    if ( relPath.equals( "/" ) ) {
+      physicalFileLocation = rootDir.getAbsolutePath();
+    } else if ( relPath.startsWith( rootDir.getAbsolutePath() ) ) {
+      physicalFileLocation = relPath;
+    } else {
+      physicalFileLocation = RepositoryFilenameUtils.concat( rootDir.getAbsolutePath(), relPath.substring( RepositoryFilenameUtils.getPrefixLength( relPath ) ) );
+    }
     
     return physicalFileLocation; 
   }

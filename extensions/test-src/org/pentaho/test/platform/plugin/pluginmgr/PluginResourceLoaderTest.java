@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -163,11 +164,12 @@ public class PluginResourceLoaderTest {
   }
 
   @Test
-  public void testFindResources_propertyFiles() {
+  public void testFindResources_propertyFiles() throws URISyntaxException {
     List<URL> urls = resLoader.findResources( pluginClass, "*properties*" );
     boolean propFile1Found = false, propFile2Found = false;
     for ( URL url : urls ) {
-      String fileName = url.getPath().substring( 1 + url.getPath().lastIndexOf( File.separator ) );
+      File f = new File ( url.toURI() );
+      String fileName = f.getName();
       if ( "pluginResourceTest-inresources.properties".equals( fileName ) ) {
         propFile1Found = true;
       }
