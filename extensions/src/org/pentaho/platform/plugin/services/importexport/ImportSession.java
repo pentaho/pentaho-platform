@@ -28,13 +28,14 @@ import org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHan
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * General purpose objects whose lifecycle is that of an formal import session
- * 
+ *
  * @author TKafalas
- * 
  */
 public class ImportSession {
 
@@ -48,6 +49,7 @@ public class ImportSession {
   private boolean overwriteAclSettings;
   private String currentManifestKey;
   private HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
+  private List<String> importedScheduleJobIds = new ArrayList<String>();
 
   private static ThreadLocal<ImportSession> sessions = new ThreadLocal<ImportSession>();
 
@@ -79,7 +81,7 @@ public class ImportSession {
   /**
    * Check if the file is hidden by manifest definition and import flags. Returns null if the manifest is not present or
    * the manifest is being ignored.
-   * 
+   *
    * @param isApplyAclSettings
    * @param isRetainOwnership
    * @param filePath
@@ -87,7 +89,7 @@ public class ImportSession {
    */
   public Boolean isFileHidden( String filePath ) {
     if ( ( applyAclSettings || retainOwnership ) && manifest != null
-        && manifest.getExportManifestEntity( filePath ) != null ) {
+      && manifest.getExportManifestEntity( filePath ) != null ) {
       return manifest.getExportManifestEntity( filePath ).getRepositoryFile().isHidden();
     }
     return null;
@@ -121,8 +123,7 @@ public class ImportSession {
   }
 
   /**
-   * @param skippedFiles
-   *          the skippedFiles to set
+   * @param skippedFiles the skippedFiles to set
    */
   public void setSkippedFiles( HashSet<String> skippedFiles ) {
     this.skippedFiles = skippedFiles;
@@ -143,8 +144,7 @@ public class ImportSession {
   }
 
   /**
-   * @param manifest
-   *          the manifest to set
+   * @param manifest the manifest to set
    */
   public void setManifest( ExportManifest manifest ) {
     this.manifest = manifest;
@@ -158,8 +158,7 @@ public class ImportSession {
   }
 
   /**
-   * @param applyAclSettings
-   *          the applyAclSettings to set
+   * @param applyAclSettings the applyAclSettings to set
    */
   public void setApplyAclSettings( boolean applyAclSettings ) {
     this.applyAclSettings = applyAclSettings;
@@ -173,8 +172,7 @@ public class ImportSession {
   }
 
   /**
-   * @param retainOwnership
-   *          the retainOwnership to set
+   * @param retainOwnership the retainOwnership to set
    */
   public void setRetainOwnership( boolean retainOwnership ) {
     this.retainOwnership = retainOwnership;
@@ -188,8 +186,7 @@ public class ImportSession {
   }
 
   /**
-   * @param overwriteAclSettings
-   *          the overwriteAclSettings to set
+   * @param overwriteAclSettings the overwriteAclSettings to set
    */
   public void setOverwriteAclSettings( boolean overwriteAclSettings ) {
     this.overwriteAclSettings = overwriteAclSettings;
@@ -203,8 +200,7 @@ public class ImportSession {
   }
 
   /**
-   * @param Set
-   *          the key for looking up the current file in the manifest
+   * @param Set the key for looking up the current file in the manifest
    */
   public void setCurrentManifestKey( String currentManifestKey ) {
     this.currentManifestKey = currentManifestKey;
@@ -222,32 +218,43 @@ public class ImportSession {
 
   /**
    * Sets the AclProperties.
-   * 
+   *
    * @param applyAclSettingsFlag
    * @param retainOwnershipFlag
    * @param overwriteAclSettingsFlag
    */
   public void setAclProperties( boolean applyAclSettingsFlag, boolean retainOwnershipFlag,
-      boolean overwriteAclSettingsFlag ) {
+                                boolean overwriteAclSettingsFlag ) {
     setApplyAclSettings( applyAclSettingsFlag );
     setRetainOwnership( retainOwnershipFlag );
     setOverwriteAclSettings( overwriteAclSettingsFlag );
   }
 
   /**
-   *
    * @param repositoryFile
    */
-  public void addImportedRepositoryFile( RepositoryFile repositoryFile ){
+  public void addImportedRepositoryFile( RepositoryFile repositoryFile ) {
     importedRepositoryFiles.add( repositoryFile );
   }
 
   /**
-   *
    * @return
    */
-  public HashSet<RepositoryFile> getImportedRepositoryFiles(){
+  public HashSet<RepositoryFile> getImportedRepositoryFiles() {
     return importedRepositoryFiles;
   }
 
+  /**
+   * @param jobId
+   */
+  public void addImportedScheduleJobId( String jobId ) {
+    importedScheduleJobIds.add( jobId );
+  }
+
+  /**
+   * @return
+   */
+  public List<String> getImportedScheduleJobIds() {
+    return importedScheduleJobIds;
+  }
 }

@@ -41,6 +41,7 @@ import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,11 +63,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   private SolutionFileImportHelper solutionHelper;
   private List<MimeType> mimeTypes;
 
-  public SolutionImportHandler ( List<MimeType> mimeTypes ) {
-    this.mimeTypes = mimeTypes; 
-    this.solutionHelper = new SolutionFileImportHelper( );
+  public SolutionImportHandler( List<MimeType> mimeTypes ) {
+    this.mimeTypes = mimeTypes;
+    this.solutionHelper = new SolutionFileImportHelper();
   }
-  
+
   public ImportSession getImportSession() {
     return ImportSession.getSession();
   }
@@ -94,8 +95,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         String domainId = exportManifestMetadata.getDomainId();
         boolean overWriteInRepository = true;
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF-8" ).hidden( false ).overwriteFile(
-              overWriteInRepository ).mime( "text/xmi+xml" ).withParam( "domain-id", domainId );
+          new RepositoryFileImportBundle.Builder().charSet( "UTF-8" ).hidden( false ).overwriteFile(
+            overWriteInRepository ).mime( "text/xmi+xml" ).withParam( "domain-id", domainId );
 
         cachedImports.put( exportManifestMetadata.getFile(), bundleBuilder );
 
@@ -113,13 +114,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
 
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
-              true ).mime( "application/vnd.pentaho.mondrian+xml" )
-                .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
-                                                                                                        // definitely
-                                                                                                        // named wrong
-                                                                                                        // at the very
-                                                                                                        // least.
+          new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
+            true ).mime( "application/vnd.pentaho.mondrian+xml" )
+            .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
+        // definitely
+        // named wrong
+        // at the very
+        // least.
         // pass as param if not in parameters string
         String xmlaEnabled = "" + exportManifestMondrian.isXmlaEnabled();
         bundleBuilder.withParam( "EnableXmla", xmlaEnabled );
@@ -131,7 +132,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     for ( IRepositoryFileBundle file : importSource.getFiles() ) {
       String fileName = file.getFile().getName();
       String repositoryFilePath =
-          RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( file.getPath() ), fileName );
+        RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( file.getPath() ), fileName );
 
       if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
 
@@ -199,7 +200,18 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       if ( scheduleList != null ) {
         SchedulerResource schedulerResource = new SchedulerResource();
         for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
-          schedulerResource.createJob( jobScheduleRequest );
+          try {
+            Response response = schedulerResource.createJob( jobScheduleRequest );
+            if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+              if ( response.getEntity() != null ) {
+                // get the schedule job id from the response and add it to the import session
+                ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+              }
+            }
+          } catch ( Exception e ) {
+            throw new PlatformImportException( Messages.getInstance()
+              .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+          }
         }
       }
 
@@ -209,12 +221,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
         for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
           try {
-            IDatabaseConnection existingDBConnection = datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName()); 
-            if(existingDBConnection != null && existingDBConnection.getName() != null) {
+            IDatabaseConnection existingDBConnection =
+              datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
+            if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
               databaseConnection.setId( existingDBConnection.getId() );
               datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
             } else {
-              datasourceMgmtSvc.createDatasource( databaseConnection );  
+              datasourceMgmtSvc.createDatasource( databaseConnection );
             }
           } catch ( Exception e ) {
             e.printStackTrace();
@@ -231,7 +244,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
    * Determines if the file or folder should be hidden. If there is a manifest entry for the file, and we are not
    * ignoring the manifest, then set the hidden flag based on the manifest. Otherwise use the blacklist to determine if
    * it is hidden.
-   * 
+   *
    * @param bundle
    * @param filePath
    * @return true if file/folder should be hidden, false otherwise
@@ -247,8 +260,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   private boolean isSystemDir( final String[] split, final int index ) {
-    return ( split != null && index < split.length && ( StringUtils.equals( split[index], "system" ) || StringUtils
-        .equals( split[ index ], "admin" ) ) );
+    return ( split != null && index < split.length && ( StringUtils.equals( split[ index ], "system" ) || StringUtils
+      .equals( split[ index ], "admin" ) ) );
   }
 
   class SolutionRepositoryImportSource {
@@ -282,12 +295,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
           File file = new File( entryName );
           RepositoryFile repoFile =
-              new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
+            new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
           String parentDir =
-              new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
-                  + RepositoryFile.SEPARATOR;
+            new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
+              + RepositoryFile.SEPARATOR;
           IRepositoryFileBundle repoFileBundle =
-              new RepositoryFileBundle( repoFile, null, parentDir, tempFile, "UTF-8", null );
+            new RepositoryFileBundle( repoFile, null, parentDir, tempFile, "UTF-8", null );
 
           if ( file.getName().equals( "exportManifest.xml" ) ) {
             initializeAclManifest( repoFileBundle );
