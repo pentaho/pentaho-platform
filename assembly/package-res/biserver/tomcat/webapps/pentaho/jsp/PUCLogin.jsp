@@ -150,7 +150,7 @@
     <div id="login-form-container">
       <div id="animate-wrapper">
         <h1><%=Messages.getInstance().getString("UI.PUC.LOGIN.TITLE")%></h1>
-        <form name="login" id="login" action="j_spring_security_check" method="POST">
+        <form name="login" id="login" action="j_spring_security_check" method="POST" onkeyup="if(window.event && window.event.keyCode && window.event.keyCode==13){var buttonToClick = document.getElementById('loginbtn'); if(buttonToClick){ buttonToClick.click();}}">
           <div class="row-fluid nowrap">
             <div class="input-container">
               <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></label>
@@ -303,12 +303,14 @@
         }
         // fail
         $("#loginError").show();
+        $("#loginError button").focus();
       },
 
       success:function(data, textStatus, jqXHR){
         if (data.indexOf("j_spring_security_check") != -1) {
           // fail
           $("#loginError").show();
+          $("#loginError button").focus();
           return false;
         } else {
           document.getElementById("j_password").value = "";
