@@ -108,6 +108,10 @@ pen.define([
         }
       });
       return isExecutable && canEdit;
+    },
+    
+    isUserHomeFolder: function(path) {
+			return path.indexOf('/home') == 0 && path.lastIndexOf('/') == 5;
     }
   };
 

@@ -320,7 +320,7 @@ pen.define([
     view: null,
 
     init: function (path, overrideType) {
-			if(path == window.top.HOME_FOLDER){
+			if( BrowserUtils.isUserHomeFolder( path ) ){
 				this.view.RenameHomeDialog.show();
 				return;
 			}
