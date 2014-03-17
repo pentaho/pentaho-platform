@@ -29,6 +29,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
@@ -174,6 +175,42 @@ public class UnifiedRepositoryTestUtils {
     doReturn( file ).when( repo ).getFile( path );
   }
 
+  /**
+   * Stubs a {@code getChildren} call. {@code childrenNames} is zero or more file/folder names. A folder is
+   * indicated by a trailing forward slash.
+   * 
+   * <p>
+   * Example:
+   * </p>
+   * 
+   * <pre>
+   * stubGetChildren( repo, &quot;/public&quot;, &quot;hello/&quot;, &quot;file1.txt&quot; );
+   * </pre>
+   */
+ 
+  public static void stubGetChildren(final IUnifiedRepository repo, RepositoryRequest request, final String... childrenNames ) {
+    List<RepositoryFile> children = new ArrayList<RepositoryFile>( childrenNames.length );
+    for ( String childName : childrenNames ) {
+      if ( childName.startsWith( RepositoryFile.SEPARATOR ) ) {
+        throw new IllegalArgumentException( "child names must not begin with a forward slash" );
+      }
+      final String fullChildPath =
+          request.getPath()
+              + RepositoryFile.SEPARATOR
+              + ( childName.endsWith( RepositoryFile.SEPARATOR ) ? StringUtils.substringBefore( childName,
+                  RepositoryFile.SEPARATOR ) : childName );
+      RepositoryFile child = null;
+      if ( childName.endsWith( RepositoryFile.SEPARATOR ) ) {
+        child = makeFolderObject( fullChildPath, true );
+      } else {
+        child = makeFileObject( fullChildPath, true );
+      }
+      children.add( child );
+    }
+    doReturn( children ).when( repo ).getChildren( request );
+    
+  }
+  
   /**
    * Stubs a {@code getChildren} call. {@code childrenNames} is zero or more file/folder names. A folder is
    * indicated by a trailing forward slash.
