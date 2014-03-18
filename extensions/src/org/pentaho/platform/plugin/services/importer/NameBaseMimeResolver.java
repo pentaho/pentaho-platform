@@ -36,9 +36,10 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
 
   @Override
   public String resolveMimeForFileName( String fileName ) {
-    return extensionToMimeMap.get( extractExtension( fileName ) ).getName();
+    final MimeType mimeType = extensionToMimeMap.get( extractExtension( fileName ) );
+    return mimeType == null ? null : mimeType.getName();
   }
-  
+
   @Override
   public String resolveMimeForBundle( IPlatformImportBundle bundle ) {
     if ( bundle.getMimeType() != null ) {
@@ -51,12 +52,12 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
       return mimeType.getName();
     }
   }
-  
+
   @Override
   public MimeType resolveMimeTypeForFileName( String fileName ) {
     return extensionToMimeMap.get( extractExtension( fileName ) );
   }
-  
+
   private String extractExtension( String name ) {
     if ( name == null ) {
       return null;

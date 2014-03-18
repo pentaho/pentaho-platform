@@ -87,7 +87,7 @@ public class ImportDialog extends PromptDialogBox {
           if ( result.contains( "INVALID_MIME_TYPE" ) == true ) {
             messageTextBox = new HTML( Messages.getString( "uploadInvalidFileTypeQuestion", result ) );
           } else {
-            messageTextBox = new HTML( Messages.getString( "uploadUnsuccessful", result ) );
+            messageTextBox = new HTML( result );
           }
 
           PromptDialogBox dialogBox =
@@ -96,7 +96,7 @@ public class ImportDialog extends PromptDialogBox {
           dialogBox.setContent( messageTextBox );
           dialogBox.center();
         }
-        
+
         // if mantle_isBrowseRepoDirty=true: do getChildren call 
         // if mantle_isBrowseRepoDirty=false: use stored fileBrowserModel in myself.get("cachedData")
         setBrowseRepoDirty( Boolean.TRUE );
@@ -284,10 +284,6 @@ public class ImportDialog extends PromptDialogBox {
     retainOwnershipDropDown.setVisibleRowCount( 1 );
     disclosureContent.add( retainOwnershipDropDown );
 
-    spacer = new VerticalPanel();
-    spacer.setHeight( "4px" );
-    disclosureContent.add( spacer );
-
     ChangeHandler overwriteFileHandler = new ChangeHandler() {
       @Override
       public void onChange( ChangeEvent event ) {
@@ -305,31 +301,6 @@ public class ImportDialog extends PromptDialogBox {
       }
     };
     overwriteFileDropDown.addHandler( overwriteFileHandler, ChangeEvent.getType() );
-
-    HTML loggingLabel = new HTML( Messages.getString( "logging" ) );
-    loggingLabel.setStyleName( "gwt-Label" );
-    disclosureContent.add( loggingLabel );
-
-    final CustomListBox loggingDropDown = new CustomListBox();
-    loggingDropDown.addHandler( new ChangeHandler() {
-
-      @Override
-      public void onChange( ChangeEvent event ) {
-        String value = loggingDropDown.getSelectedItem().getValue().toString();
-        logLevel.setValue( value );
-      }
-    }, ChangeEvent.getType() );
-    DefaultListItem noneListItem = new DefaultListItem( Messages.getString( "none" ) );
-    noneListItem.setValue( "WARN" );
-    loggingDropDown.addItem( noneListItem );
-    DefaultListItem shortListItem = new DefaultListItem( Messages.getString( "short" ) );
-    shortListItem.setValue( "INFO" );
-    loggingDropDown.addItem( shortListItem );
-    DefaultListItem debugListItem = new DefaultListItem( Messages.getString( "verbose" ) );
-    debugListItem.setValue( "TRACE" );
-    loggingDropDown.addItem( debugListItem );
-    loggingDropDown.setVisibleRowCount( 1 );
-    disclosureContent.add( loggingDropDown );
 
     mainPanel.add( disclosureContent );
     disclosurePanel.setContent( mainPanel );
@@ -381,7 +352,7 @@ public class ImportDialog extends PromptDialogBox {
       }
     }
   }
-  
+
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
     $wnd.mantle_isBrowseRepoDirty=isDirty;
