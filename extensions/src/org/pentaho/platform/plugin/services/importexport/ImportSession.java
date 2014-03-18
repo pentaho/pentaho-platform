@@ -62,6 +62,16 @@ public class ImportSession {
     return session;
   }
 
+  /**
+   * Clear out any collections, most likely before starting a new import
+   */
+  public void initialize(){
+    importedRepositoryFiles.clear();
+    importedScheduleJobIds.clear();
+    skippedFiles.clear();
+    foldersCreatedImplicitly.clear();
+  }
+
   public Log getLogger() {
     if ( log == null ) {
       IRepositoryImportLogger logger = PentahoSystem.get( IPlatformImporter.class ).getRepositoryImportLogger();
