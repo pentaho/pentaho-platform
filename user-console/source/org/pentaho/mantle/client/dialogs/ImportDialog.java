@@ -83,20 +83,22 @@ public class ImportDialog extends PromptDialogBox {
         ImportDialog.this.hide();
         String result = sce.getResults();
         if ( result.length() > 5 ) {
-          final HTML messageTextBox;
+          HTML messageTextBox = null;
           if ( result.contains( "INVALID_MIME_TYPE" ) == true ) {
             messageTextBox = new HTML( Messages.getString( "uploadInvalidFileTypeQuestion", result ) );
           } else {
-            messageTextBox = new HTML( Messages.getString( "uploadUnsuccessful", result ) );
+            logWindow(result, Messages.getString("importLogWindowTitle"));
           }
 
-          PromptDialogBox dialogBox =
-              new PromptDialogBox( Messages.getString( "uploadUnsuccessful" ), Messages.getString( "close" ), null,
-                  true, true );
-          dialogBox.setContent( messageTextBox );
-          dialogBox.center();
+          if ( messageTextBox != null ) {
+            PromptDialogBox dialogBox =
+                new PromptDialogBox( Messages.getString( "uploadUnsuccessful" ), Messages.getString( "close" ), null,
+                    true, true );
+            dialogBox.setContent( messageTextBox );
+            dialogBox.center();
+          }
         }
-        
+
         // if mantle_isBrowseRepoDirty=true: do getChildren call 
         // if mantle_isBrowseRepoDirty=false: use stored fileBrowserModel in myself.get("cachedData")
         setBrowseRepoDirty( Boolean.TRUE );
@@ -354,6 +356,14 @@ public class ImportDialog extends PromptDialogBox {
   native void jsClickUpload( Element uploadElement ) /*-{
                                                      uploadElement.click();
                                                      }-*/;
+
+  private static native void logWindow(String innerText, String windowTitle) /*-{
+  	var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
+  	var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
+  	  <html><head><title>' + windowTitle + '</title></head><body bgcolor="#FFFFFF" topmargin="6" leftmargin="6">'
+  	  + innerText + "</body></html>";
+    logWindow.document.write(htmlText);
+  }-*/;
 
   private void setFormAction() {
     String moduleBaseURL = GWT.getModuleBaseURL();
