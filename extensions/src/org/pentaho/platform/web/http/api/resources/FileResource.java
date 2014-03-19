@@ -264,6 +264,9 @@ public class FileResource extends AbstractJaxRSResource {
     if ( mode == null ) {
       mode = MODE_RENAME;
     }
+    if ( !getPolicy().isAllowed( RepositoryCreateAction.NAME ) ) {
+      return Response.status( FORBIDDEN ).build();
+    }
     try {
       String path = idToPath( pathId );
       RepositoryFile destDir = getRepository().getFile( path );
@@ -349,8 +352,8 @@ public class FileResource extends AbstractJaxRSResource {
         }
       }
     } catch ( Throwable t ) {
-      t.printStackTrace();
-      return Response.serverError().build();
+      logger.error( t );
+      return Response.serverError().entity( t.getLocalizedMessage() ).build();
     }
     return Response.ok().build();
   }
