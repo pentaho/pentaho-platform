@@ -292,6 +292,7 @@ define([
         },
         data: {"permissions": "1"}, //check write permissions for the given folder
         async: true,
+        cache: false,
         success: function (response) {
           folderButtons.updateFolderPermissionButtons(response);
         },
@@ -327,6 +328,7 @@ define([
         },
         data: {"permissions": "1|2"}, //check write and delete permissions for the given file
         async: true,
+        cache: false,
         success: function (response) {
           fileButtons.updateFilePermissionButtons(response);
         },

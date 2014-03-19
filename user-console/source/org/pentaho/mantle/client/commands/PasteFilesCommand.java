@@ -38,6 +38,7 @@ import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -209,22 +210,35 @@ public class PasteFilesCommand extends AbstractCommand {
 
         @Override
         public void onResponseReceived( Request pasteChildrenRequest, Response pasteChildrenResponse ) {
-          SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserClipboard.getInstance().getClipboardAction();
-          if ( action == SolutionBrowserClipboard.ClipboardAction.CUT ) {
+          switch ( pasteChildrenResponse.getStatusCode() ) {
+            case Response.SC_OK :
+              SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserClipboard.getInstance()
+                  .getClipboardAction();
+              if ( action == SolutionBrowserClipboard.ClipboardAction.CUT ) {
 
-            // Convert to a list of repository files for the delete permanent command to work properly
-            List<RepositoryFile> clipboardRepoFiles = new ArrayList<RepositoryFile>();
-            for ( FileItem clipboardFileItem : clipboardFileItems ) {
-              clipboardRepoFiles.add( clipboardFileItem.getRepositoryFile() );
-            }
-            new DeletePermanentFileCommand( clipboardRepoFiles ).execute( false );
-            clipBoard.clear();
+                // Convert to a list of repository files for the delete permanent command to work properly
+                List<RepositoryFile> clipboardRepoFiles = new ArrayList<RepositoryFile>();
+                for ( FileItem clipboardFileItem : clipboardFileItems ) {
+                  clipboardRepoFiles.add( clipboardFileItem.getRepositoryFile() );
+                }
+                new DeletePermanentFileCommand( clipboardRepoFiles ).execute( false );
+                clipBoard.clear();
+              }
+
+              event.setMessage( "Success" );
+              EventBusUtil.EVENT_BUS.fireEvent( event );
+              FileChooserDialog.setIsDirty( Boolean.TRUE );
+              setBrowseRepoDirty( Boolean.TRUE );
+              break;
+            case Response.SC_FORBIDDEN :
+              event.setMessage( Messages.getString( "pasteFilesCommand.accessDenied" ) );
+              EventBusUtil.EVENT_BUS.fireEvent( event );
+              break;
+            default:
+              event.setMessage( pasteChildrenResponse.getText() );
+              EventBusUtil.EVENT_BUS.fireEvent( event );
+              break;
           }
-
-          event.setMessage( "Success" );
-          EventBusUtil.EVENT_BUS.fireEvent( event );
-          FileChooserDialog.setIsDirty( Boolean.TRUE );
-          setBrowseRepoDirty( Boolean.TRUE );
         }
 
       } );
