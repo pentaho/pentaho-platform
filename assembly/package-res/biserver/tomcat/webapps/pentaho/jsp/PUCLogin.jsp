@@ -92,7 +92,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" class="bootstrap">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Pentaho User Console - Login</title>
+  <title><%=Messages.getInstance().getString("UI.PUC.TITLE")%></title>
 
   <%
     String ua = request.getHeader("User-Agent").toLowerCase();

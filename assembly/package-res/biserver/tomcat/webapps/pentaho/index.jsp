@@ -22,13 +22,19 @@
             org.pentaho.platform.api.engine.IPentahoSession,
 			org.pentaho.platform.api.engine.IPluginManager,
             java.util.List,
-            org.pentaho.platform.engine.core.system.PentahoSessionHolder"
+            org.pentaho.platform.engine.core.system.PentahoSessionHolder,
+            java.util.ResourceBundle,
+            java.net.URLClassLoader, java.net.URL"
 %>
 			
 <html>
   <head>
+  <% 
+  URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
+  ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );
+%>
     
-    <title>Pentaho Business Analytics</title>    
+    <title><%= properties.getString("pentahoBATitle") %></title>    
 
     <script type="text/javascript" src="webcontext.js"></script>
 
