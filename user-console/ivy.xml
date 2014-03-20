@@ -28,23 +28,23 @@
         </dependency>
 
 	    <!--  Pentaho dependencies -->
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"        rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"        rev="TRUNK-SNAPSHOT" conf="default->default" changing="true" transitive="false">
           <artifact name="pentaho-platform-api"/>
         </dependency>
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-core"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-repository" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-core"  rev="TRUNK-SNAPSHOT" conf="default->default" changing="true" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-repository" rev="TRUNK-SNAPSHOT" conf="default->default" changing="true" transitive="false">
           <artifact name="pentaho-platform-repository"/>
         </dependency>
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions"  rev="TRUNK-SNAPSHOT" conf="default->default" changing="true" transitive="false"/>
         
         <!--  Codegen dependencies -->
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-api" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-api" rev="TRUNK-SNAPSHOT" conf="codegen->default" changing="true" transitive="false">
           <artifact name="pentaho-platform-api" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-repository" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-repository" rev="TRUNK-SNAPSHOT" conf="codegen->default" changing="true" transitive="false">
           <artifact name="pentaho-platform-repository" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
-        <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions" rev="TRUNK-SNAPSHOT" conf="codegen->default" changing="true" transitive="false">
           <artifact name="pentaho-platform-extensions" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
 
