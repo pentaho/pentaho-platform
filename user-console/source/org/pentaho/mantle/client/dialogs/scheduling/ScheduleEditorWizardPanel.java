@@ -17,16 +17,17 @@
 
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import java.util.Date;
+
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.mantle.client.dialogs.scheduling.validators.ScheduleEditorValidator;
 import org.pentaho.mantle.client.messages.Messages;
-
-import java.util.Date;
 
 /**
  * @author wseyler
@@ -54,6 +55,7 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
    */
   private void init() {
     ICallback<IChangeHandler> chHandler = new ICallback<IChangeHandler>() {
+      @Override
       public void onHandle( IChangeHandler se ) {
         panelWidgetChanged( ScheduleEditorWizardPanel.this );
       }
@@ -65,7 +67,7 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
    * 
    */
   private void layout() {
-    this.addStyleName( PENTAHO_SCHEDULE );
+    addStyleName( PENTAHO_SCHEDULE );
     this.add( scheduleEditor, CENTER );
     panelWidgetChanged( null );
   }
@@ -75,15 +77,23 @@ public class ScheduleEditorWizardPanel extends AbstractWizardPanel {
    * 
    * @see org.pentaho.gwt.widgets.client.wizards.IWizardPanel#getName()
    */
+  @Override
   public String getName() {
     return Messages.getString( "schedule.scheduleEdit" );
   }
 
+  @Override
+  public boolean canContinue() {
+    return scheduleEditorValidator.isValid();
+  }
+
+  @Override
+  public boolean canFinish() {
+    return scheduleEditorValidator.isValid();
+  }
+
   protected void panelWidgetChanged( Widget changedWidget ) {
-    // System.out.println("Widget Changed: " + changedWidget + " can continue: " +
-    // scheduleEditorValidator.isValid());
-    this.setCanContinue( scheduleEditorValidator.isValid() );
-    this.setCanFinish( scheduleEditorValidator.isValid() );
+    panelChanged();
   }
 
   public ScheduleEditor.ScheduleType getScheduleType() {

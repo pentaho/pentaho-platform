@@ -18,7 +18,9 @@
 package org.pentaho.mantle.client.dialogs.scheduling;
 
 import com.google.gwt.json.client.JSONObject;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobTrigger;
@@ -39,7 +41,26 @@ public class NewBlockoutScheduleDialog extends ScheduleRecurrenceDialog {
   }
 
   @Override
+  protected boolean enableNext( int index ) {
+    return true;
+  }
+
+  @Override
+  protected boolean enableFinish( int index ) {
+    // TODO Auto-generated method stub
+    return true;
+  }
+
+  @Override
+  protected boolean onNext( IWizardPanel nextPanel, IWizardPanel previousPanel ) {
+    return super.enableNext( getIndex() );
+  }
+
+  @Override
   protected boolean onFinish() {
+    if ( !super.enableFinish( getIndex() ) ) {
+      return false;
+    }
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
 

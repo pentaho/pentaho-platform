@@ -35,6 +35,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
@@ -76,8 +77,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   public ScheduleParamsDialog( ScheduleRecurrenceDialog parentDialog, boolean isEmailConfValid, JsJob editJob ) {
     super( ScheduleDialogType.SCHEDULER, Messages.getString( "newSchedule" ), null, false, true ); //$NON-NLS-1$
     this.parentDialog = parentDialog;
-    this.filePath = parentDialog.filePath;
-    this.jobSchedule = parentDialog.getSchedule();
+    filePath = parentDialog.filePath;
+    jobSchedule = parentDialog.getSchedule();
     this.isEmailConfValid = isEmailConfValid;
     this.editJob = editJob;
     initDialog();
@@ -89,7 +90,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   public ScheduleParamsDialog( String filePath, JSONObject schedule, boolean isEmailConfValid ) {
     super( ScheduleDialogType.SCHEDULER, Messages.getString( "runInBackground" ), null, false, true ); //$NON-NLS-1$
     this.filePath = filePath;
-    this.jobSchedule = schedule;
+    jobSchedule = schedule;
     this.isEmailConfValid = isEmailConfValid;
     initDialog();
     if ( isEmailConfValid ) {
@@ -97,6 +98,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     }
   }
 
+  @Override
   public boolean onKeyDownPreview( char key, int modifiers ) {
     if ( key == KeyCodes.KEY_ESCAPE ) {
       hide();
@@ -107,7 +109,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   public void initDialog() {
     scheduleParamsWizardPanel = new ScheduleParamsWizardPanel( filePath );
     IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
-    this.setWizardPanels( wizardPanels );
+    setWizardPanels( wizardPanels );
     setWidth( "800px" );
     String urlPath = filePath.replaceAll( "/", ":" ); //$NON-NLS-1$  //$NON-NLS-2$
 
@@ -198,6 +200,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       try {
         scheduleFileRequestBuilder.sendRequest( scheduleRequest.toString(), new RequestCallback() {
 
+          @Override
           public void onError( Request request, Throwable exception ) {
             MessageDialogBox dialogBox =
                 new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
@@ -205,6 +208,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
             setDone( false );
           }
 
+          @Override
           public void onResponseReceived( Request request, Response response ) {
             if ( response.getStatusCode() == 200 ) {
               setDone( true );
@@ -232,7 +236,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
                 dialogBox.center();
               }
             } else {
-              MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), response.getText(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+              MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), response.getText(), //$NON-NLS-1$ 
                   false, false, true );
               dialogBox.center();
               setDone( false );
@@ -260,18 +264,22 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       requestBuilder.sendRequest( null, new RequestCallback() {
 
+        @Override
         public void onError( Request request, Throwable caught ) {
           MantleLoginDialog.performLogin( new AsyncCallback<Boolean>() {
 
+            @Override
             public void onFailure( Throwable caught ) {
             }
 
+            @Override
             public void onSuccess( Boolean result ) {
               showScheduleEmailDialog( scheduleParams );
             }
           } );
         }
 
+        @Override
         public void onResponseReceived( Request request, Response response ) {
           if ( scheduleEmailDialog == null ) {
             scheduleEmailDialog =
@@ -303,21 +311,18 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onNext(org.pentaho.gwt.widgets.client.wizards.
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onNext(org.pentaho.gwt.widgets.client.wizards.
    * IWizardPanel, org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
    */
   @Override
   protected boolean onNext( IWizardPanel nextPanel, IWizardPanel previousPanel ) {
-    // TODO Auto-generated method stub
     return true;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onPrevious(org.pentaho.gwt.widgets.client.wizards
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onPrevious(org.pentaho.gwt.widgets.client.wizards
    * .IWizardPanel, org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
    */
   @Override
@@ -374,12 +379,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     return true;
   }
 
-  protected boolean showNext( int index ) {
-    return false;
-  }
-
   @Override
-  protected boolean enableNext( int index ) {
+  protected boolean showNext( int index ) {
     return false;
   }
 

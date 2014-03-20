@@ -17,6 +17,11 @@
 
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+ 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Display;
@@ -37,6 +42,8 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -46,6 +53,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.pentaho.gwt.widgets.client.controls.TimePicker;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
@@ -58,11 +66,6 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.TimeOfDay;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
 import org.pentaho.mantle.client.dialogs.scheduling.RecurrenceEditor.TemporalValue;
 import org.pentaho.mantle.client.messages.Messages;
-
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Steven Barkdull
@@ -88,11 +91,11 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     private long time;
 
     TIME( long time ) {
-      this.time = time;
+      time = time;
     }
 
     public long getTime() {
-      return this.time;
+      return time;
     }
   }
 
@@ -101,15 +104,17 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   protected static final String SCHEDULE_EDITOR_CAPTION_PANEL = "schedule-editor-caption-panel"; //$NON-NLS-1$
 
   public enum ScheduleType {
-    RUN_ONCE( 0, Messages.getString( "schedule.runOnce" ) ),
-    SECONDS( 1, Messages.getString( "schedule.seconds" ) ),
-    MINUTES( 2, Messages.getString( "schedule.minutes" ) ),
-    HOURS( 3, Messages.getString( "schedule.hours" ) ),
-    DAILY( 4, Messages.getString( "schedule.daily" ) ),
-    WEEKLY( 5, Messages.getString( "schedule.weekly" ) ),
-    MONTHLY( 6, Messages.getString( "schedule.monthly" ) ),
-    YEARLY( 7, Messages.getString( "schedule.yearly" ) ),
-    CRON(8, Messages.getString( "schedule.cron" ) );
+	  //@formatter:off
+      RUN_ONCE( 0, Messages.getString( "schedule.runOnce" ) ),
+      SECONDS( 1, Messages.getString( "schedule.seconds" ) ),
+      MINUTES( 2, Messages.getString( "schedule.minutes" ) ),
+      HOURS( 3, Messages.getString( "schedule.hours" ) ),
+      DAILY( 4, Messages.getString( "schedule.daily" ) ),
+      WEEKLY( 5, Messages.getString( "schedule.weekly" ) ),
+      MONTHLY( 6, Messages.getString( "schedule.monthly" ) ),
+      YEARLY( 7, Messages.getString( "schedule.yearly" ) ),
+      CRON(8, Messages.getString( "schedule.cron" ) );
+	  //@formatter:on
 
     private ScheduleType( int value, String name ) {
       this.value = value;
@@ -127,6 +132,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       return value;
     }
 
+    @Override
     public String toString() {
       return name;
     }
@@ -156,11 +162,13 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   private CronEditor cronEditor = null;
 
   // TODO sbarkdull, can this be static?
-  private Map<ScheduleType, Panel> scheduleTypeMap = new HashMap<ScheduleType, Panel>();
+  private final Map<ScheduleType, Panel> scheduleTypeMap = new HashMap<ScheduleType, Panel>();
 
-  private Map<TemporalValue, ScheduleType> temporalValueToScheduleTypeMap = createTemporalValueToScheduleTypeMap();
+  private final Map<TemporalValue, ScheduleType> temporalValueToScheduleTypeMap =
+      createTemporalValueToScheduleTypeMap();
 
-  private Map<ScheduleType, TemporalValue> scheduleTypeToTemporalValueMap = createScheduleTypeMapToTemporalValue();
+  private final Map<ScheduleType, TemporalValue> scheduleTypeToTemporalValueMap =
+      createScheduleTypeMapToTemporalValue();
 
   private ListBox scheduleCombo = null;
 
@@ -192,6 +200,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     super();
     isBlockoutDialog = ( type == ScheduleDialogType.BLOCKOUT );
     startTimePicker = new TimePicker();
+    startTimePicker.setTime( new Date() );
 
     setStylePrimaryName( "scheduleEditor" ); //$NON-NLS-1$
 
@@ -258,7 +267,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       minutesLabel.getElement().setAttribute( "for", minutesListBox.getElement().getId() ); //$NON-NLS-1$
 
       final HorizontalPanel durationPanel = new HorizontalPanel();
-      durationPanel.setVerticalAlignment( VerticalPanel.ALIGN_MIDDLE );
+      durationPanel.setVerticalAlignment( HasVerticalAlignment.ALIGN_MIDDLE );
       durationPanel.setSpacing( blockoutEndTimePicker.getSpacing() );
       durationPanel.add( daysListBox );
       durationPanel.add( daysLabel );
@@ -268,7 +277,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       durationPanel.add( minutesLabel );
 
       // Bind change handler
-      this.scheduleCombo.addChangeHandler( new ChangeHandler() {
+      scheduleCombo.addChangeHandler( new ChangeHandler() {
 
         @Override
         public void onChange( ChangeEvent event ) {
@@ -321,10 +330,10 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       /*
        * Radio Buttons for duration
        */
-      this.durationRadioButton = new RadioButton( "durationRadioGroup", "durationRadioButton" ); //$NON-NLS-1$ //$NON-NLS-2$
-      this.durationRadioButton.setText( Messages.getString( "schedule.duration" ) );
-      this.durationRadioButton.setValue( Boolean.TRUE );
-      this.durationRadioButton.addClickHandler( new ClickHandler() {
+      durationRadioButton = new RadioButton( "durationRadioGroup", "durationRadioButton" ); //$NON-NLS-1$ //$NON-NLS-2$
+      durationRadioButton.setText( Messages.getString( "schedule.duration" ) );
+      durationRadioButton.setValue( Boolean.TRUE );
+      durationRadioButton.addClickHandler( new ClickHandler() {
 
         @Override
         public void onClick( ClickEvent event ) {
@@ -333,9 +342,9 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
         }
       } );
 
-      this.endTimeRadioButton = new RadioButton( "durationRadioGroup", "endTimeRadioButton" ); //$NON-NLS-1$ //$NON-NLS-2$
-      this.endTimeRadioButton.setText( Messages.getString( "schedule.endTime" ) );
-      this.endTimeRadioButton.addClickHandler( new ClickHandler() {
+      endTimeRadioButton = new RadioButton( "durationRadioGroup", "endTimeRadioButton" ); //$NON-NLS-1$ //$NON-NLS-2$
+      endTimeRadioButton.setText( Messages.getString( "schedule.endTime" ) );
+      endTimeRadioButton.addClickHandler( new ClickHandler() {
 
         @Override
         public void onClick( ClickEvent event ) {
@@ -346,9 +355,9 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
 
       // Radio Buttons Panel
       HorizontalPanel radioButtonsPanel = new HorizontalPanel();
-      radioButtonsPanel.setVerticalAlignment( VerticalPanel.ALIGN_MIDDLE );
-      radioButtonsPanel.add( this.durationRadioButton );
-      radioButtonsPanel.add( this.endTimeRadioButton );
+      radioButtonsPanel.setVerticalAlignment( HasVerticalAlignment.ALIGN_MIDDLE );
+      radioButtonsPanel.add( durationRadioButton );
+      radioButtonsPanel.add( endTimeRadioButton );
 
       // Ends Panel
       VerticalPanel endsPanel = new VerticalPanel();
@@ -412,8 +421,8 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       VerticalPanel blockoutButtonPanel = new VerticalPanel();
       blockoutButtonPanel.setWidth( "100%" ); //$NON-NLS-1$
       // blockoutButtonPanel.setHeight("30%");
-      blockoutButtonPanel.setHorizontalAlignment( VerticalPanel.ALIGN_CENTER );
-      blockoutButtonPanel.setVerticalAlignment( VerticalPanel.ALIGN_MIDDLE );
+      blockoutButtonPanel.setHorizontalAlignment( HasHorizontalAlignment.ALIGN_CENTER );
+      blockoutButtonPanel.setVerticalAlignment( HasVerticalAlignment.ALIGN_MIDDLE );
 
       // We want to add a button to check for blockout conflicts
       blockoutCheckButton.setStyleName( "pentaho-button" ); //$NON-NLS-1$
@@ -536,7 +545,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   }
 
   public ENDS_TYPE getBlockoutEndsType() {
-    return this.durationRadioButton.getValue() ? ENDS_TYPE.DURATION : ENDS_TYPE.TIME;
+    return durationRadioButton.getValue() ? ENDS_TYPE.DURATION : ENDS_TYPE.TIME;
   }
 
   public DurationValues getDurationValues() {
@@ -545,18 +554,18 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     String displayNone = Display.NONE.getCssName();
 
     // Days
-    if ( !displayNone.equals( this.daysListBox.getElement().getStyle().getDisplay() ) ) {
-      vals.days = Integer.parseInt( this.daysListBox.getItemText( this.daysListBox.getSelectedIndex() ) );
+    if ( !displayNone.equals( daysListBox.getElement().getStyle().getDisplay() ) ) {
+      vals.days = Integer.parseInt( daysListBox.getItemText( daysListBox.getSelectedIndex() ) );
     }
 
     // Hours
-    if ( !displayNone.equals( this.hoursListBox.getElement().getStyle().getDisplay() ) ) {
-      vals.hours = Integer.parseInt( this.hoursListBox.getItemText( this.hoursListBox.getSelectedIndex() ) );
+    if ( !displayNone.equals( hoursListBox.getElement().getStyle().getDisplay() ) ) {
+      vals.hours = Integer.parseInt( hoursListBox.getItemText( hoursListBox.getSelectedIndex() ) );
     }
 
     // Minutes
-    if ( !displayNone.equals( this.minutesListBox.getElement().getStyle().getDisplay() ) ) {
-      vals.minutes = Integer.parseInt( this.minutesListBox.getItemText( this.minutesListBox.getSelectedIndex() ) );
+    if ( !displayNone.equals( minutesListBox.getElement().getStyle().getDisplay() ) ) {
+      vals.minutes = Integer.parseInt( minutesListBox.getItemText( minutesListBox.getSelectedIndex() ) );
     }
 
     return vals;
@@ -574,16 +583,16 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
 
     long minutes = remainder / TIME.MINUTE.getTime();
 
-    this.daysListBox.setSelectedIndex( new Long( days ).intValue() );
-    this.hoursListBox.setSelectedIndex( new Long( hours ).intValue() );
-    this.minutesListBox.setSelectedIndex( new Long( minutes ).intValue() );
+    daysListBox.setSelectedIndex( new Long( days ).intValue() );
+    hoursListBox.setSelectedIndex( new Long( hours ).intValue() );
+    minutesListBox.setSelectedIndex( new Long( minutes ).intValue() );
 
     // Set valid end time if range is within 24hrs
     if ( duration < TIME.DAY.getTime() ) {
       boolean isPM = hours >= 12;
-      this.blockoutEndTimePicker.setHour( new Long( hours + ( isPM ? -12 : 0 ) ).toString() );
-      this.blockoutEndTimePicker.setMinute( new Long( minutes ).toString() );
-      this.blockoutEndTimePicker.setTimeOfDay( isPM ? TimeOfDay.PM : TimeOfDay.AM );
+      blockoutEndTimePicker.setHour( new Long( hours + ( isPM ? -12 : 0 ) ).toString() );
+      blockoutEndTimePicker.setMinute( new Long( minutes ).toString() );
+      blockoutEndTimePicker.setTimeOfDay( isPM ? TimeOfDay.PM : TimeOfDay.AM );
     }
   }
 
@@ -658,8 +667,8 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
 
   /**
    * 
-   * @return null if the selected schedule does not support repeat-in-seconds, otherwise return the number of
-   *         seconds between schedule execution.
+   * @return null if the selected schedule does not support repeat-in-seconds, otherwise return the number of seconds
+   *         between schedule execution.
    * @throws RuntimeException
    *           if the temporal value is invalid. This condition occurs as a result of programmer error.
    */
@@ -690,8 +699,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     // add all schedule types to the combobox
     for ( ScheduleType schedType : EnumSet.range( ScheduleType.RUN_ONCE, ScheduleType.CRON ) ) {
       if ( !isBlockoutDialog
-          || ( schedType != ScheduleType.CRON && schedType != ScheduleType.SECONDS
-        && schedType != ScheduleType.MINUTES && schedType != ScheduleType.HOURS ) ) {
+          || ( schedType != ScheduleType.CRON && schedType != ScheduleType.SECONDS && schedType != ScheduleType.MINUTES && schedType != ScheduleType.HOURS ) ) {
         lb.addItem( schedType.toString() );
       }
     }
@@ -717,8 +725,8 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   }
 
   /**
-   * NOTE: should only ever be used by validators. This is a backdoor into this class that shouldn't be here, do
-   * not use this method unless you are validating.
+   * NOTE: should only ever be used by validators. This is a backdoor into this class that shouldn't be here, do not use
+   * this method unless you are validating.
    * 
    * @return DateRangeEditor
    */
@@ -727,8 +735,8 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   }
 
   /**
-   * NOTE: should only ever be used by validators. This is a backdoor into this class that shouldn't be here, do
-   * not use this method unless you are validating.
+   * NOTE: should only ever be used by validators. This is a backdoor into this class that shouldn't be here, do not use
+   * this method unless you are validating.
    * 
    * @return DateRangeEditor
    */
@@ -737,8 +745,8 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   }
 
   /**
-   * NOTE: should only ever be used by validators. This is a backdoor into this class that shouldn't be here, do
-   * not use this method unless you are validating.
+   * NOTE: should only ever be used by validators. This is a backdoor into this class that shouldn't be here, do not use
+   * this method unless you are validating.
    * 
    * @return DateRangeEditor
    */
@@ -913,8 +921,9 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     return scheduleTypeToTemporalValueMap.get( st );
   }
 
+  @Override
   public void setOnChangeHandler( ICallback<IChangeHandler> handler ) {
-    this.onChangeHandler = handler;
+    onChangeHandler = handler;
   }
 
   protected void changeHandler() {
@@ -954,27 +963,27 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     cronEditor.setOnChangeHandler( handler );
 
     if ( daysListBox != null ) {
-      this.daysListBox.addChangeHandler( changeHandler );
+      daysListBox.addChangeHandler( changeHandler );
     }
     if ( hoursListBox != null ) {
-      this.hoursListBox.addChangeHandler( changeHandler );
+      hoursListBox.addChangeHandler( changeHandler );
     }
     if ( minutesListBox != null ) {
-      this.minutesListBox.addChangeHandler( changeHandler );
+      minutesListBox.addChangeHandler( changeHandler );
     }
 
-    if ( this.startTimePicker != null ) {
+    if ( startTimePicker != null ) {
       startTimePicker.setOnChangeHandler( handler );
     }
-    if ( this.blockoutEndTimePicker != null ) {
-      this.blockoutEndTimePicker.setOnChangeHandler( handler );
+    if ( blockoutEndTimePicker != null ) {
+      blockoutEndTimePicker.setOnChangeHandler( handler );
     }
 
-    if ( this.durationRadioButton != null ) {
-      this.durationRadioButton.addClickHandler( clickHandler );
+    if ( durationRadioButton != null ) {
+      durationRadioButton.addClickHandler( clickHandler );
     }
-    if ( this.endTimeRadioButton != null ) {
-      this.endTimeRadioButton.addClickHandler( clickHandler );
+    if ( endTimeRadioButton != null ) {
+      endTimeRadioButton.addClickHandler( clickHandler );
     }
   }
 
