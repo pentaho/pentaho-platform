@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     files.
     ============================================================================-->
 
-<project name="subfloor-js" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="subfloor-js" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
 
   <!-- Import the next subfloor instance, defaults to -pkg, but configurable -->
@@ -55,29 +55,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <property name="js.build.output.dir" value="bin/scriptOutput"/>
 
-  <!--<property name="js.requires.dojo" value="false"/>-->
-
-  <property name="js.dojo.agg.dir" value="build-res/dojo"/>
-
-
-  <property name="js.dojo.version" value="1.6.1.p"/>
-  <property name="js.dojo-artifact" value="dojo-${js.dojo.version}-src"/>
-  <property name="js.dojo.root" value="build-res"/>
-  <property name="js.dojo.src"
-            value="${js.dojo.root}/dojo-release-${js.dojo.version}-src"
-            description="Dojo source folder"/>
-  <property name="js.dojo.src.release"
-            value="${js.dojo.src}/release/dojo"
-            description="Dojo source folder"/>
-  <property name="js.dojo.script.dir" value="package-res/scripts"/>
 
   <property name="js.build.file" value="build-res/javascript.build.js"/>
-  <property name="js.dojo.build.profile" value="build-res/dojo.profile.js"/>
-  <property name="js.dojo.src.dir" value="scripts/dojo"/>
   <property name="js.script.package.dest" value="${stage.dir}/${package.root.dir}/scripts"/>
-  <property name="js.dojo.module.name" value="dojo-custom"/>
 
-  <property name="js.dojo.download.artifact" value="${js.dojo.root}/${js.dojo-artifact}.zip"/>
   <property name="css.build.file" value="build-res/css.build.js"/>
 
   <property name="js.build.optimizer"
@@ -126,12 +107,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <target name="clean-js">
     <delete dir="${js.lib.dir}" />
     <delete dir="${js.expanded.lib.dir}" />
-    <delete file="${js.dojo.download.artifact}"/>
-    <delete dir="${js.dojo.src}" />
     <delete dir="${js.module.script.agg.dir}" />
   </target>
 
-  <target name="build-js" depends="install-antcontrib">
+  <target name="check-pentaho-js-build-downloaded" depends="subfloor.install-ivy">
+    <if>
+      <not>
+        <available file="build-res/pentaho-js-build"/>
+      </not>
+      <then>
+        <ivy:resolve organisation="pentaho" module="pentaho-js-build" revision="0.1" inline="true" />
+        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.1" inline="true" pattern="build-res/[artifact].[ext]"/>
+        <unzip src="build-res/pentaho-js-build.zip" dest="build-res"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="build-js" depends="install-antcontrib, check-pentaho-js-build-downloaded">
     <delete dir="${js.build.output.dir}"/>
     <delete dir="${js.module.script.agg.dir}" />
     <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
@@ -149,6 +141,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </fileset>
     </copy>
 
+    <path id="build.classpath">
+      <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
+        <include name="*.jar" />
+      </fileset>
+    </path>
+
+    <echo message="var requireCfg={paths:{},shim:{}};" file="build-res/requireCfg-raw.js" force="true" append="false"/>
+    <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
+      <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
+        <include name="*/*-require-js-cfg.js"/>
+      </fileset>
+    </concat>
+
+    <java classname="org.mozilla.javascript.tools.shell.Main"
+          fork="true"
+          classpathref="build.classpath"
+          args="build-res/profileBuilder.js">
+    </java>
+
+    <echo message="require(requireCfg);" append="true" file="build-res/requireCfg.js"/>
+
 
     <copy todir="${js.module.script.agg.dir}" overwrite="true">
       <fileset dir="build-res/pentaho-js-build/module-scripts">
@@ -156,90 +169,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </fileset>
     </copy>
 
+    <mkdir dir="${js.build.output.dir}"/>
+
+    <property environment="env" />
+    <property name="node-is-available" value="false"/>
+    <available file="node" filepath="${env.PATH}" property="node-is-available" />
+
     <if>
-      <available file="${js.dojo.src.dir}"/>
+      <equals arg1="true" arg2="${node-is-available}"/>
       <then>
-        <copy todir="${js.module.script.agg.dir}" overwrite="true">
-          <fileset dir="${js.dojo.src.dir}">
-            <include name="**/*"/>
-          </fileset>
-        </copy>
+        <exec command="node">
+          <arg value="build-res/pentaho-js-build/r.js"/>
+          <arg value="-o"/>
+          <arg value="${js.build.file}"/>
+          <arg value="optimize=${js.build.optimizer}"/>
+        </exec>
       </then>
       <else>
+        <java classname="org.mozilla.javascript.tools.shell.Main"
+              fork="true"
+              classpathref="build.classpath"
+              args="build-res/pentaho-js-build/r.js -o ${js.build.file} optimize=${js.build.optimizer}">
+        </java>
       </else>
     </if>
-
-    <path id="build.classpath">
-      <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
-        <include name="*.jar" />
-      </fileset>
-    </path>
-
-    <!-- uncomment once core build in artifactory, placed in dev-lib for now -->
-    <!--<java classname="org.mozilla.javascript.tools.shell.Main"-->
-    <!--fork="true"-->
-    <!--classpathref="build.classpath"-->
-    <!--args="${js.module.script.agg.dir}/r.js -o ${js.build.file}">-->
-    <!--</java>-->
-    <mkdir dir="${js.build.output.dir}"/>
-    <java classname="org.mozilla.javascript.tools.shell.Main"
-          fork="true"
-          classpathref="build.classpath"
-          args="build-res/pentaho-js-build/r.js -o ${js.build.file} optimize=${js.build.optimizer}">
-    </java>
-    <antcall target="build-dojo"/>
-  </target>
-
-  <target name="build-dojo" if="js.requires.dojo" depends="install-dojo">
-    <delete dir="${stage.dir}/dojo-release"/>
-    <mkdir dir="${stage.dir}/dojo-release"/>
-
-    <copy verbose="true" todir="${js.dojo.src}" overwrite="true">
-      <fileset dir="${js.module.script.agg.dir}">
-        <include name="**/*"/>
-      </fileset>
-      <!-- Flatten any contents in ../dojo/ to top level folders -->
-      <mapper type="regexp" from="^([^/]*)[\\/]dojo[\\/](.*)$" to="\2"/>
-    </copy>
-
-
-    <java classname="org.mozilla.javascript.tools.shell.Main"
-          dir="${js.dojo.src}/util/buildscripts"
-          fork="true">
-
-      <arg value="build.js"/>
-      <arg value="action=release"/>
-      <arg value="offlineProfile=true"/>
-      <arg value="copyTests=false"/>
-      <arg value="version=${project.revision}"/>
-      <arg value="profileFile=../../../../${js.dojo.build.profile}"/>
-      <classpath>
-        <pathelement location="${js.dojo.src}/util/shrinksafe/js.jar"/>
-        <pathelement location="${js.dojo.src}/util/shrinksafe/shrinksafe.jar"/>
-      </classpath>
-    </java>
-    <!-- copy the scripts out -->
-
-
-    <copy todir="${stage.dir}/dojo-release/dojo/nls" overwrite="true">
-      <fileset dir="${js.dojo.src.release}/dojo/nls"/>
-    </copy>
-    <copy todir="${stage.dir}/dojo-release/dojo/cldr/nls" overwrite="true">
-      <fileset dir="${js.dojo.src.release}/dojo/cldr/nls"/>
-    </copy>
-
-    <copy todir="${stage.dir}/dojo-release" overwrite="true">
-      <fileset dir="${js.dojo.script.dir}">
-        <include name="**/*"/>
-      </fileset>
-    </copy>
-
-    <concat destfile="${stage.dir}/dojo-release/dojo/${js.dojo.module.name}.js" overwrite="yes">
-
-      <fileset file="${js.dojo.src.release}/dojo/dojo.js" />
-      <fileset file="${js.dojo.src.release}/dojo/${js.dojo.module.name}.js" />
-
-    </concat>
 
 
   </target>
@@ -325,46 +278,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </fileset>
     </copy>
 
-    <if>
-    <available file="${stage.dir}/dojo-release"/>
-    <then>
-    <mkdir dir="${js.script.package.dest}/dojo"/>
-    <copy todir="${js.script.package.dest}/dojo" overwrite="true">
-      <fileset dir="${stage.dir}/dojo-release">
-        <include name="**/*"/>
-      </fileset>
-    </copy>
-    </then>
-    <else/>
-    </if>
-  </target>
-
-
-  <target name="install-dojo" if="js.requires.dojo" depends="install-antcontrib">
-
-    <if>
-      <available file="${js.dojo.root}/${js.dojo-artifact}.zip"/>
-      <then/>
-      <else>
-        <mkdir dir="${js.dojo.root}"/>
-        <get src="http://repository.pentaho.org/artifactory/third-party/org/dojotoolkit/dojo/${js.dojo.version}/${js.dojo-artifact}.zip"
-             dest="${js.dojo.root}/${js.dojo-artifact}.zip"/>
-
-        <unzip src="${js.dojo.root}/${js.dojo-artifact}.zip" dest="${js.dojo.root}"/>
-
-        <if>
-          <available file="build-res/licenses"/>
-          <then>
-        <copy verbose="true" todir="${js.dojo.src}/util/buildscripts" overwrite="true">
-          <fileset dir="build-res/licenses">
-            <include name="*.txt"/>
-          </fileset>
-          <mapper type="glob" from="dojo_*" to="*"/>
-        </copy>
-          </then>
-        </if>
-      </else>
-    </if>
   </target>
 
 
@@ -411,6 +324,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </else>
     </if>
   </target>
+
 
 
 </project>
