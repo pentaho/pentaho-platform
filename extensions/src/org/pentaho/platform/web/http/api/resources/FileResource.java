@@ -68,6 +68,8 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -79,11 +81,13 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
@@ -132,6 +136,11 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected static IAuthorizationPolicy policy;
 
+  IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+  Map<String, Converter> converters = converterHandler.getConverters();
+
+  protected NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+
   public FileResource() {
   }
 
@@ -174,7 +183,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
@@ -197,7 +206,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
@@ -220,7 +229,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
@@ -350,7 +359,7 @@ public class FileResource extends AbstractJaxRSResource {
       }
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
     return Response.ok().build();
   }
@@ -749,7 +758,7 @@ public class FileResource extends AbstractJaxRSResource {
       getRepository().setFileMetadata( file.getId(), fileMetadata );
       return Response.ok().build();
     } catch ( Throwable t ) {
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
@@ -828,7 +837,7 @@ public class FileResource extends AbstractJaxRSResource {
 
       return Response.ok().build();
     } catch ( Throwable t ) {
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
@@ -850,7 +859,7 @@ public class FileResource extends AbstractJaxRSResource {
 
       return Response.ok().build();
     } catch ( Throwable t ) {
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
@@ -1492,8 +1501,36 @@ public class FileResource extends AbstractJaxRSResource {
           // add the existing acls and file data
           RepositoryFileAcl acl = getRepository().getAcl( sourceFile.getId() );
           if ( !file.isFolder() ) {
-            IRepositoryFileData data =
-                getRepository().getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
+            // Get the extension
+            final String ext = RepositoryFilenameUtils.getExtension( file.getName() );
+            if( ( ext == null ) || ( ext.isEmpty() ) ){
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_EXTENSION" ) ).build();
+            }
+
+            // Find the converter
+            final Converter converter = converters.get( ext );
+            if( converter == null ) {
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_CONVERTER" ) ).build();
+            }
+
+            // Check the mime type
+            final String mimeType = mimeResolver.resolveMimeTypeForFileName( file.getName() ).getName();
+            if( ( mimeType == null ) || ( mimeType.isEmpty() ) ){
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_MIMETYPE" ) ).build();
+            }
+
+            // Get the input stream
+            InputStream inputStream = converter.convert( file.getId() );
+            if( inputStream == null ){
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_INPUT_STREAM" ) ).build();
+            }
+
+            // Get the file data
+            IRepositoryFileData data = converter.convert( inputStream, "UTF-8", mimeType );
+            if( data == null ){
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_FILE_DATA" ) ).build();
+            }
+
             getRepository().updateFile( destFile, data, null );
             getRepository().updateAcl( acl );
           } else {
@@ -1505,7 +1542,7 @@ public class FileResource extends AbstractJaxRSResource {
         return Response.status( Response.Status.UNAUTHORIZED ).build();
       }
     } catch ( Throwable t ) {
-      return Response.serverError().build();
+      return Response.serverError().entity( t.getMessage() ).build();
     }
   }
 
