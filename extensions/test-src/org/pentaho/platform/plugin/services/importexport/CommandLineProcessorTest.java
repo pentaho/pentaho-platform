@@ -30,11 +30,13 @@ import org.junit.rules.TemporaryFolder;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -44,6 +46,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
 
 /**
  * Class Description
@@ -74,6 +77,9 @@ public class CommandLineProcessorTest extends JerseyTest {
     tmpFolder.create();
     tmpZipFileName = tmpFolder.getRoot().getAbsolutePath() + File.separator + "test.zip";
 
+    NameBaseMimeResolver mimeResolver = mock( NameBaseMimeResolver.class );
+    IRepositoryContentConverterHandler converterHandler = mock( IRepositoryContentConverterHandler.class );
+
     MicroPlatform mp = new MicroPlatform( "test-src/solution" );
     mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
     mp.define( ISolutionEngine.class, SolutionEngine.class );
@@ -81,6 +87,8 @@ public class CommandLineProcessorTest extends JerseyTest {
         , IPentahoDefinableObjectFactory.Scope.GLOBAL );
     mp.define( IAuthorizationPolicy.class, TestAuthorizationPolicy.class );
     mp.define( DefaultExportHandler.class, DefaultExportHandler.class );
+    mp.defineInstance( IRepositoryContentConverterHandler.class, converterHandler);
+    mp.defineInstance( NameBaseMimeResolver.class, mimeResolver );
 
     FileSystemBackedUnifiedRepository repo =
         (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
