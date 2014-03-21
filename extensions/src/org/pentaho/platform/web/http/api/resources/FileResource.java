@@ -136,10 +136,10 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected static IAuthorizationPolicy policy;
 
-  IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
-  Map<String, Converter> converters = converterHandler.getConverters();
+  IRepositoryContentConverterHandler converterHandler;
+  Map<String, Converter> converters;
 
-  protected NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+  protected NameBaseMimeResolver mimeResolver;
 
   public FileResource() {
   }
@@ -1436,7 +1436,6 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
-
       RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
       RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
 
@@ -1508,12 +1507,34 @@ public class FileResource extends AbstractJaxRSResource {
             }
 
             // Find the converter
+
+            // If we have not been given a handler, try PentahoSystem
+            if( converterHandler == null ){
+              converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+            }
+
+            // fail if we have no converter handler
+            if( converterHandler == null ){
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_CONVERTER" ) ).build();
+            }
+
+            converters = converterHandler.getConverters();
+
             final Converter converter = converters.get( ext );
             if( converter == null ) {
               return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_CONVERTER" ) ).build();
             }
 
             // Check the mime type
+            if( mimeResolver == null ){
+              mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+            }
+
+            // fail if we have no mime resolver
+            if( mimeResolver == null ){
+              return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_MIMETYPE" ) ).build();
+            }
+
             final String mimeType = mimeResolver.resolveMimeTypeForFileName( file.getName() ).getName();
             if( ( mimeType == null ) || ( mimeType.isEmpty() ) ){
               return Response.serverError().entity( Messages.getInstance().getString( "FileResource.CANNOT_GET_MIMETYPE" ) ).build();
@@ -1652,5 +1673,13 @@ public class FileResource extends AbstractJaxRSResource {
       return false;
     }
     return true;
+  }
+
+  public void setConverterHandler( IRepositoryContentConverterHandler converterHandler ) {
+    this.converterHandler = converterHandler;
+  }
+
+  public void setMimeResolver( NameBaseMimeResolver mimeResolver ) {
+    this.mimeResolver = mimeResolver;
   }
 }
