@@ -137,7 +137,7 @@ public class DefaultLdapRoleMapper implements IAuthenticationRoleMapper, Seriali
     Properties ldapProperties = new Properties();
 
     try {
-      File propertiesFile = new File(System.getProperty("PentahoSystemPath") + System.lineSeparator() + LDAP_PROPERTIES_FILENAME);
+      File propertiesFile = new File(System.getProperty("PentahoSystemPath") + System.getProperty("line.separator") + LDAP_PROPERTIES_FILENAME);
       InputStream propertiesInputFile = new FileInputStream(propertiesFile);
       ldapProperties.load(propertiesInputFile);
 
