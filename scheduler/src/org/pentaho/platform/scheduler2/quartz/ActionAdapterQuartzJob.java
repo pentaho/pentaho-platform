@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -50,6 +51,7 @@ import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.email.Emailer;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.beans.ActionHarness;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -170,6 +172,7 @@ public class ActionAdapterQuartzJob implements Job {
     Callable<Boolean> actionBeanRunner = new Callable<Boolean>() {
 
       public Boolean call() throws Exception {
+        LocaleHelper.setLocaleOverride( (Locale) params.get( LocaleHelper.USER_LOCALE_PARAM ) );
         // sync job params to the action bean
         ActionHarness actionHarness = new ActionHarness( actionBean );
         boolean updateJob = false;
