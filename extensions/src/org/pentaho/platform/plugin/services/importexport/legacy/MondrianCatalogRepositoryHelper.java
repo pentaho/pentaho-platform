@@ -120,7 +120,7 @@ public class MondrianCatalogRepositoryHelper {
 
     if ( catalogNode != null ) {
       repository.deleteFile(
-        catalogNode,
+        catalogNode, true,
         "Deleting hosted catalog: "
         + catalogName );
     }
@@ -250,7 +250,7 @@ public class MondrianCatalogRepositoryHelper {
 
     if ( serverNode != null ) {
       repository.deleteFile(
-        serverNode.getId(),
+        serverNode.getId(), true,
         "Deleting olap server: "
         + name );
     }
