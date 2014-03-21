@@ -608,7 +608,11 @@ define([
           if(!window.top.mantle_isBrowseRepoDirty){
             if(myself.get("cachedData") != undefined) {
               if(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] != undefined){
-                myself.set("data",myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+                if (_.isEqual(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")], myself.get("data"))) {
+                  myself.trigger('change:data');
+                } else {
+                  myself.set("data",myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+                }
                 xhr.abort();
                 myself.set("runSpinner", false);
               }
