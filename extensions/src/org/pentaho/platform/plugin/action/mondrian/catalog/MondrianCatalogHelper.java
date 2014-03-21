@@ -1056,7 +1056,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     IUnifiedRepository solutionRepository = PentahoSystem.get( IUnifiedRepository.class );
     RepositoryFile deletingFile = solutionRepository.getFile( RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
       + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
-    solutionRepository.deleteFile( deletingFile.getId(), "" ); //$NON-NLS-1$
+    solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
     reInit( pentahoSession );
   }
 }

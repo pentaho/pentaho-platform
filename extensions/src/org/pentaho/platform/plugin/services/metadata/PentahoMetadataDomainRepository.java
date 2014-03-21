@@ -369,7 +369,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       if ( logger.isTraceEnabled() ) {
         logger.trace( "Deleting repository file " + toString( file ) );
       }
-      repository.deleteFile( file.getId(), null );
+      repository.deleteFile( file.getId(), true, null );
     }
 
     // This invalidates any caching
