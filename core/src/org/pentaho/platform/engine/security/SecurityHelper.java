@@ -182,7 +182,7 @@ public class SecurityHelper implements ISecurityHelper {
       return callable.call();
     } finally {
       IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
-      if ( sessionToDestroy != null ) {
+      if ( sessionToDestroy != null && sessionToDestroy != origSession ) {
         try {
           sessionToDestroy.destroy();
         } catch ( Exception e ) {
