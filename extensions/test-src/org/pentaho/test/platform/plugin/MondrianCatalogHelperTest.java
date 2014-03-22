@@ -243,6 +243,6 @@ public class MondrianCatalogHelperTest {
 
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
-    verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), anyString() );
+    verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq(true), anyString() );
   }
 }
