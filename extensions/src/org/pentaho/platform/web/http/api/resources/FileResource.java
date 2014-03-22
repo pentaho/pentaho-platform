@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -893,6 +894,42 @@ public class FileResource extends AbstractJaxRSResource {
           .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
     }
     return permMap;
+  }
+
+  /**
+   * Checks whether the current user has permissions to the provided list of paths
+   *
+   * @param pathsWrapper
+   *          (list of paths to be checked)
+   * @return
+   */
+  @POST
+  @Path( "/pathsAccessList" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
+
+    List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
+
+    String permissions = RepositoryFilePermission.READ.ordinal() + "|" +
+      RepositoryFilePermission.WRITE.ordinal() + "|" +
+      RepositoryFilePermission.DELETE.ordinal() + "|" +
+      RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|" +
+      RepositoryFilePermission.ALL.ordinal();
+
+    List<String> paths = pathsWrapper.getStrings();
+    for ( String path : paths ) {
+      List<Setting> permList = doGetCanAccessList( path, permissions );
+      for ( Setting perm : permList ) {
+        if ( Boolean.parseBoolean( perm.getValue() ) ) {
+          Setting setting = new Setting();
+          setting.setName( path );
+          setting.setValue( perm.getName() );
+          pathsPermissonsSettings.add( setting );
+        }
+      }
+    }
+    return pathsPermissonsSettings;
   }
 
   /**
