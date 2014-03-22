@@ -401,7 +401,7 @@ public class OlapServiceImplTest {
 
     // Check if the repo was modified.
     verify( repository ).deleteFile(
-      eq( makeIdObject( testServerPath ) ),
+      eq( makeIdObject( testServerPath ) ), eq(true), 
       anyString() );
 
     // Now check for non-existent catalogs
