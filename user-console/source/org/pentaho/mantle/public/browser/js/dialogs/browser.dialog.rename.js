@@ -22,7 +22,8 @@ define([
   "js/browser.utils.js",
   "common-ui/bootstrap",
   "common-ui/jquery-i18n",
-  "common-ui/jquery"
+  "common-ui/jquery",
+  "../../../../js/utils.js"  
 ], function (Dialog, DialogTemplates, RenameTemplates, Utils) {
 
   var BrowserUtils = new Utils();
@@ -64,32 +65,38 @@ define([
       this.set("path", prevPath.replace(prevName, name));
 
       var me = this;
-
-      // api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
-      BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(prevPath) + "/rename?newName=" + FileBrowser.encodePathComponents(name),
+      
+      var m = invalidCharactersRegExp.exec(name);
+      if (m != null) {
+      var i18n = me.view.options.i18n;
+      var body = i18n.prop("invalidCharactersDialogDescription", name, invalidCharacters);
+      me.view.createCannotRenameDialog(body, me.view).show(me.view);
+      }else{
+        // api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
+        BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(prevPath) + "/rename?newName=" + FileBrowser.encodePathComponents(name),
           function (success) {
-
+        
             // An exception occured
             if (success != "") {
               setPrevVals.apply(me);
               me.view.showError.apply(me.view);
               return;
             }
-
+        
             // Create path with '/'' instead of ':'
             var slashPath = me.get("path");
             while (slashPath.search(":") > -1) {
               slashPath = slashPath.replace(":", "/");
             }
-
+        
             var isFile = slashPath.search("\\.") > -1;
-
+        
             // if possible refresh the solution browser panel
             if (typeof window.top.mantle_setIsRepoDirty !== "undefined") {
               window.top.mantle_setIsRepoDirty(true);
               window.top.mantle_isBrowseRepoDirty=true;
             }
-
+        
             // Refresh file or folder list
             if (isFile) {
               window.top.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});
@@ -99,14 +106,16 @@ define([
                 'stringParam': slashPath
               });
             }
-
+        
             // Reset model variables since the action completed successfully
             me.reset();
           },
           function (error) {
             setPrevVals.apply(me);
             me.view.showError.apply(me.view);
-          });
+          }
+        );
+      }
 
       // Resets the values
       var setPrevVals = function () {
@@ -162,7 +171,7 @@ define([
       this.initRenameHomeDialog();
     },
 
-		initRenameHomeDialog: function () {
+    initRenameHomeDialog: function () {
       var i18n = this.options.i18n;
       var me = this;
 
@@ -185,11 +194,15 @@ define([
 
     initCannotRenameDialog: function () {
       var i18n = this.options.i18n;
-      var me = this;
-
-      var header = i18n.prop("cannotRenameDialogTitle");
-
       var body = i18n.prop("cannotRenameDialogDescription");
+
+      var me = this;
+      this.CannotRenameDialog = this.createCannotRenameDialog(body, me);
+    },
+
+    createCannotRenameDialog: function (body, me) {
+      var i18n = this.options.i18n;
+      var header = i18n.prop("cannotRenameDialogTitle");
 
       var footer = DialogTemplates.centered_button({
         ok: i18n.prop("close")
@@ -197,11 +210,13 @@ define([
 
       var cfg = Dialog.buildCfg("cannot-rename-dialog", header, body, footer, false);
 
-      this.CannotRenameDialog = new Dialog(cfg);
+      var CannotRenameDialog = new Dialog(cfg);
 
-      this.CannotRenameDialog.$dialog.find(".ok").bind("click", function () {
+      CannotRenameDialog.$dialog.find(".ok").bind("click", function () {
         me.showRenameDialog.apply(me);
       });
+
+      return CannotRenameDialog;
     },
 
     makeOverrideDialogCfg: function (id, bodyTemplate) {
