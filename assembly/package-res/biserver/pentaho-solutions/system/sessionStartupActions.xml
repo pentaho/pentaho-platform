@@ -15,27 +15,27 @@ PentahoHttpSession, PentahoPortletSession, UserSession, & Standalone session.
 			<list>
 			
 				<!-- Start of PentahoHttpSession startup actions. -->
-				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
 					<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>
 					<property name="actionPath" value="/public/bi-developers/rules/session-region-list.xaction"/>
 					<property name="actionOutputScope" value="session"/>
-				</bean>
+				</bean>-->
 				<!-- End of PentahoHttpSession startup actions. -->
 				
 				<!-- Start of UserSession startup actions. -->
-				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+				<!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
 					<property name="sessionType" value="org.pentaho.platform.engine.core.system.UserSession"/>
 					<property name="actionPath" value="/public/bi-developers/rules/session-region-list.xaction"/>
 					<property name="actionOutputScope" value="session"/>
-				</bean>
+				</bean>-->
 				<!-- End of UserSession startup actions. -->
 
         <!-- Start of Global startup actions. -->
-        <bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+        <!--<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
           <property name="sessionType" value="org.pentaho.platform.engine.security.session.TrustedSystemStartupSession"/>
           <property name="actionPath" value="/public/bi-developers/Secure/global-department-list.xaction"/>
           <property name="actionOutputScope" value="global"/>
-        </bean>
+        </bean>-->
         <!-- End of Global startup actions. -->
 				
 			</list>
