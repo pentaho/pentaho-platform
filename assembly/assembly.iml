@@ -5,6 +5,12 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="api" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
+    <orderEntry type="module" module-name="extensions" exported="" />
+    <orderEntry type="module" module-name="repository" exported="" />
+    <orderEntry type="module" module-name="scheduler" exported="" />
+    <orderEntry type="module" module-name="user-console" exported="" />
   </component>
 </module>
 

@@ -8,11 +8,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="api" />
-    <orderEntry type="module" module-name="core" />
-    <orderEntry type="module" module-name="repository" />
-    <orderEntry type="module" module-name="scheduler" />
-    <orderEntry type="module" module-name="extensions" />
+    <orderEntry type="module" module-name="api" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
+    <orderEntry type="module" module-name="repository" exported="" />
+    <orderEntry type="module" module-name="scheduler" exported="" />
+    <orderEntry type="module" module-name="extensions" exported="" />
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
