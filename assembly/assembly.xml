@@ -638,7 +638,9 @@
 	          <include name="**/pentaho-solutions.zip" />
 	          <include name="**/pentaho.war" />
 	          <include name="**/pentaho-style.war" />
+<!--
 	          <include name="**/*.html" />
+-->
 	        </zipfileset>
 	    </zip>
 		<delete>
@@ -648,7 +650,9 @@
 			    <include name="**/pentaho-solutions.zip" />
 				<include name="**/pentaho.war" />
 				<include name="**/pentaho-style.war" />
-				<include name="**/*.html" />	   	
+<!--
+				<include name="**/*.html" />
+-->
 			</fileset>
 		</delete>		
 	</target>
