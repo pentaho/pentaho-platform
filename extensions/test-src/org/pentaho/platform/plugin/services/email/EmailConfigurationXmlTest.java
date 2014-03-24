@@ -60,7 +60,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     final String emailConfig = getSampleEmailConfigFileAsString( "testdata/email_config_1.xml" );
     EmailConfigurationXml emailConfiguration = new EmailConfigurationXml( emailConfig );
     assertEquals( "mailserver.sampleserver.com", emailConfiguration.getSmtpHost() );
-    assertEquals( 25, emailConfiguration.getSmtpPort().shortValue() );
+    assertEquals( 25, emailConfiguration.getSmtpPort().intValue() );
     assertEquals( "smtp", emailConfiguration.getSmtpProtocol() );
     assertEquals( true, emailConfiguration.isUseStartTls() );
     assertEquals( true, emailConfiguration.isAuthenticate() );
@@ -76,7 +76,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     final File emailConfigFile = getSampleEmailConfigFile( "testdata/email_config_1.xml" );
     emailConfiguration = new EmailConfigurationXml( emailConfigFile );
     assertEquals( "mailserver.sampleserver.com", emailConfiguration.getSmtpHost() );
-    assertEquals( 25, emailConfiguration.getSmtpPort().shortValue() );
+    assertEquals( 25, emailConfiguration.getSmtpPort().intValue() );
     assertEquals( "smtp", emailConfiguration.getSmtpProtocol() );
     assertEquals( true, emailConfiguration.isUseStartTls() );
     assertEquals( true, emailConfiguration.isAuthenticate() );
@@ -96,7 +96,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     final Document blankDocument = EmailConfigurationXml.getDocument( blankEmailConfig );
     EmailConfigurationXml emailConfiguration = new EmailConfigurationXml( blankDocument );
     assertEquals( "", emailConfiguration.getSmtpHost() );
-    assertEquals( Short.MIN_VALUE, emailConfiguration.getSmtpPort().shortValue() );
+    assertEquals( Integer.MIN_VALUE, emailConfiguration.getSmtpPort().intValue() );
     assertEquals( "", emailConfiguration.getSmtpProtocol() );
     assertEquals( false, emailConfiguration.isUseStartTls() );
     assertEquals( false, emailConfiguration.isAuthenticate() );
@@ -113,7 +113,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     final Document document = tempEmailConfiguration.getDocument();
     emailConfiguration = new EmailConfigurationXml( document );
     assertEquals( "mailserver.sampleserver.com", emailConfiguration.getSmtpHost() );
-    assertEquals( 99, emailConfiguration.getSmtpPort().shortValue() );
+    assertEquals( 99, emailConfiguration.getSmtpPort().intValue() );
     assertEquals( "smtp", emailConfiguration.getSmtpProtocol() );
     assertEquals( false, emailConfiguration.isUseStartTls() );
     assertEquals( true, emailConfiguration.isAuthenticate() );

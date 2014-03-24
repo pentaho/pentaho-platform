@@ -54,6 +54,8 @@ public class EmailConfigurationXml extends EmailConfiguration {
   private static final String USER_ID_XPATH = ROOT_ELEMENT + "/mail.userid"; //$NON-NLS-1$
   private static final String USE_SSL_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.ssl"; //$NON-NLS-1$
   private static final String USE_START_TLS_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.starttls.enable"; //$NON-NLS-1$
+  private static final Integer MIN_PORT_NUMBER = 0;
+  private static final Integer MAX_PORT_NUMBER = 65535;
 
   private static final Log logger = LogFactory.getLog( EmailConfigurationXml.class );
   private static final Messages messages = Messages.getInstance();
@@ -96,7 +98,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     }
 
     setSmtpHost( getStringValue( doc, SMTP_HOST_XPATH ) );
-    setSmtpPort( getShortValue( doc, SMTP_PORT_XPATH ) );
+    setSmtpPort( getIntegerPortValue( doc, SMTP_PORT_XPATH ) );
     setSmtpProtocol( getStringValue( doc, SMTP_PROTOCOL_XPATH ) );
     setUseStartTls( getBooleanValue( doc, USE_START_TLS_XPATH ) );
     setAuthenticate( getBooleanValue( doc, AUTHENTICATE_XPATH ) );
@@ -121,19 +123,21 @@ public class EmailConfigurationXml extends EmailConfiguration {
     return null;
   }
 
-  private static Short getShortValue( final Document doc, final String xpath ) {
+  private static Integer getIntegerPortValue( final Document doc, final String xpath ) {
     try {
       final Element element = (Element) doc.selectSingleNode( xpath );
-      Short value = Short.MIN_VALUE;
+      Integer value = Integer.MIN_VALUE;
       if ( element != null && !StringUtils.isEmpty( element.getText() ) ) {
-        value = Short.parseShort( element.getText() );
+        value = Integer.parseInt( element.getText() );
       }
-      return value;
+      if ( value >= MIN_PORT_NUMBER && value <= MAX_PORT_NUMBER ) {
+        return value;
+      }
     } catch ( Exception e ) {
       logger.error( messages.getErrorString( "EmailConfigurationXml.ERROR_0001_ERROR_PARSING_DATA", e
           .getLocalizedMessage() ) );
     }
-    return Short.MIN_VALUE;
+    return Integer.MIN_VALUE;
   }
 
   private static boolean getBooleanValue( final Document doc, final String xpath ) {

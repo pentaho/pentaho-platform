@@ -41,7 +41,7 @@ public class JsEmailConfiguration extends JavaScriptObject {
 
   public final native String getSmtpHost() /*-{ return this.smtpHost; }-*/; //
 
-  public final native Short getSmtpPort() /*-{ return this.smtpPort; }-*/; //
+  public final native int getSmtpPort() /*-{ return this.smtpPort; }-*/; //
 
   public final native String getSmtpProtocol() /*-{ return this.smtpProtocol; }-*/; //
 
@@ -65,7 +65,7 @@ public class JsEmailConfiguration extends JavaScriptObject {
 
   public final native void setSmtpHost( final String smtpHost ) /*-{ this.smtpHost = smtpHost; }-*/; //
 
-  public final native void setSmtpPort( final short smtpPort ) /*-{ this.smtpPort = smtpPort; }-*/; //
+  public final native void setSmtpPort( final int smtpPort ) /*-{ this.smtpPort = smtpPort; }-*/; //
 
   public final native void setSmtpProtocol( final String smtpProtocol ) /*-{ this.smtpProtocol = smtpProtocol; }-*/; //
 
