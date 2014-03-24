@@ -21,21 +21,20 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
-import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.InitializationException;
-import org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
+import org.pentaho.reporting.engine.classic.core.MasterReport;
+import org.pentaho.reporting.libraries.base.util.StringUtils;
+import org.pentaho.reporting.libraries.docbundle.DocumentMetaData;
+import org.pentaho.reporting.libraries.docbundle.ODFMetaAttributeNames;
+import org.pentaho.reporting.libraries.resourceloader.ResourceException;
+import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
 
 /**
  * This is a special handler that will extract the title and description from the meta.xml - uses the parent class s to
@@ -61,8 +60,6 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
     String fileName = importBundle.getName();
 
-    String repositoryFilePath =
-        RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( importBundle.getPath() ), fileName );
     String filePath =
         ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
 
@@ -74,7 +71,8 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       InputStream bundleInputStream = new ByteArrayInputStream( bytes );
       // Process locale file from meta.xml.
       importBundle.setInputStream( bundleInputStream );
-      convertStreamToProperties( localeFilesProcessor, bytes, filePath, fileName );
+      boolean hidden = extractMetaData(localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile());
+      importBundle.setHidden(hidden);
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
     } catch ( Exception ex ) {
@@ -87,31 +85,38 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
    * 
    * @param localeFilesProcessor
    * @param bytes
-   * @throws InitializationException
    * @throws IOException
-   * @throws DocumentException
    */
-  private void convertStreamToProperties( LocaleFilesProcessor localeFilesProcessor, byte[] bytes, String filePath,
-      String fileName ) throws InitializationException, IOException, DocumentException {
+  private boolean extractMetaData( LocaleFilesProcessor localeFilesProcessor,
+                                          byte[] bytes, String filePath, String fileName,
+                                          RepositoryFile rf)
+          throws IOException, PlatformImportException {
 
-    InputStream zipInput = new ByteArrayInputStream( bytes );
-    ZipInputStream zipInputStream = new ZipInputStream( zipInput );
-    ZipSolutionRepositoryImportSource zip = new ZipSolutionRepositoryImportSource( zipInputStream, "UTF-8" );
-    for ( IRepositoryFileBundle fileBundle : zip.getFiles() ) {
-      RepositoryFile rf = fileBundle.getFile();
-      if ( rf.getName().equals( "meta.xml" ) ) {
-        try {
-          Document doc = XmlDom4JHelper.getDocFromStream( fileBundle.getInputStream() );
-
-          String description = doc.selectSingleNode( rootElement + "/dc:description" ).getStringValue();
-          String title = doc.selectSingleNode( rootElement + "/dc:title" ).getStringValue();
-          localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf, new ByteArrayInputStream(
-            "".getBytes() ) );
-        } catch ( Exception ex ) {
-          // not all meta.xml have xpath entries
-        }
-        break;
+    try {
+      ResourceManager mgr = new ResourceManager();
+      MasterReport report = (MasterReport) mgr.createDirectly(bytes, MasterReport.class).getResource();
+      DocumentMetaData metaData = report.getBundle().getMetaData();
+      String description = (String) metaData.getBundleAttribute
+              (ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION);
+      if (StringUtils.isEmpty(description, true)) {
+        // make sure that empty strings and strings with only whitespace are not used as description.
+        description = null;
       }
+      String title = (String) metaData.getBundleAttribute
+              (ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.TITLE);
+      if (StringUtils.isEmpty(title, true)) {
+        // make sure that empty strings and strings with only whitespace are not used as description.
+        title = null;
+      }
+      if (title != null && description != null) {
+        localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf,
+                new ByteArrayInputStream("".getBytes() ) );
+      }
+      // we are conservative here. Only if the string matches 'true' with this spelling.
+      return "true".equals(metaData.getBundleAttribute(ClassicEngineBoot.METADATA_NAMESPACE, "visible"));
+    }
+    catch (ResourceException e) {
+      throw new PlatformImportException("An unexpected error occurred while parsing a report definition", e);
     }
   }
 }
