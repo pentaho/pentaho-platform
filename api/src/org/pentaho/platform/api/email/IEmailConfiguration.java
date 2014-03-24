@@ -38,9 +38,9 @@ public interface IEmailConfiguration {
 
   public void setSmtpHost( final String smtpHost );
 
-  public Short getSmtpPort();
+  public Integer getSmtpPort();
 
-  public void setSmtpPort( final Short smtpPort );
+  public void setSmtpPort( final Integer smtpPort );
 
   public String getSmtpProtocol();
 

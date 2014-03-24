@@ -135,7 +135,7 @@ public class EmailAdminPanel extends SimplePanel {
     protocolsListBox.addItem( Messages.getString( "smtp" ) );
     protocolsListBox.addItem( Messages.getString( "smtps" ) );
     protocolHbox.add( protocolsListBox );
-    mailPanel.add(protocolHbox);
+    mailPanel.add( protocolHbox );
 
     vSpacer = new SimplePanel();
     vSpacer.setHeight( "10px" );
@@ -193,15 +193,11 @@ public class EmailAdminPanel extends SimplePanel {
   }
 
   protected boolean isPortValid( String portValue ) {
-    boolean portValid = true;
     try {
-      Short port = Short.parseShort( portValue );
-      if ( port == -1 ) {
-        portValid = false;
-      }
-    } catch ( Exception e ) {
-      portValid = false;
+      int portValueInt = Integer.parseInt( portValue );
+      return portValueInt >= 0 && portValueInt <= 65535;
+    } catch ( NumberFormatException e ) {
+      return false;
     }
-    return portValid;
   }
 }

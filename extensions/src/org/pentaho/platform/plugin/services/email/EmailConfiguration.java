@@ -41,7 +41,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   private String defaultFrom;
   private String fromName;
   private String smtpHost;
-  private Short smtpPort;
+  private Integer smtpPort;
   private String smtpProtocol;
   private boolean smtpQuitWait;
   private String userId;
@@ -53,7 +53,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   }
 
   public EmailConfiguration( final boolean authenticate, final boolean debug, final String defaultFrom,
-      final String fromName, final String smtpHost, final Short smtpPort, final String smtpProtocol,
+      final String fromName, final String smtpHost, final Integer smtpPort, final String smtpProtocol,
       final boolean smtpQuitWait, final String userId, final String password, final boolean useSsl,
       final boolean useStartTls ) {
     this.authenticate = authenticate;
@@ -110,11 +110,11 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     this.smtpHost = smtpHost;
   }
 
-  public Short getSmtpPort() {
-    return smtpPort == null ? Short.MIN_VALUE : smtpPort;
+  public Integer getSmtpPort() {
+    return smtpPort == null ? Integer.MIN_VALUE : smtpPort;
   }
 
-  public void setSmtpPort( final Short smtpPort ) {
+  public void setSmtpPort( final Integer smtpPort ) {
     this.smtpPort = smtpPort;
   }
 

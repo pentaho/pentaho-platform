@@ -80,7 +80,7 @@ public class EmailResourceTest extends TestCase {
     assertTrue( BLANK_CONFIG.equals( emptyConfig ) );
 
     final EmailConfiguration emailConfigOriginal =
-        new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", null, new Short( (short) 36 ),
+        new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", null, 36,
             "", true, "user", null, false, true );
     response = emailResource.setEmailConfig( emailConfigOriginal );
     assertEquals( OK_STATUS, response.getStatus() );
