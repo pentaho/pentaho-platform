@@ -110,7 +110,7 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (s
     },
 
     _beforeLoad: function () {
-      this.currentItems = undefined;
+      this.currentItems = [];
     },
 
     getUrlBase: function () {
