@@ -44,6 +44,22 @@
     </ant>
   </target>
 
+  <target name="dev-resolve"
+          description="Call resolve on all modules to easily populate the lib-directories of all sub-modules."
+          depends="install-antcontrib">
+    <for list="${dev-project.list}" param="module" trim="true">
+      <sequential>
+        <ant antfile="build.xml" dir="@{module}" inheritall="false" >
+          <property name="ivy.use.symlinks" value="false"/>
+          <target name="resolve" />
+        </ant>
+      </sequential>
+    </for>
+    <ant antfile="assembly.xml" dir="${assembly.dir}" inheritall="false">
+      <target name="resolve" />
+    </ant>
+  </target>
+
 
   <target name="clean-all" depends="install-antcontrib">
     <for list="${dev-project.list}" param="module" trim="true">
