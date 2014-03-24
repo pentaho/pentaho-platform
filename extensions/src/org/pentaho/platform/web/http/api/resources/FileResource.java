@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -571,8 +573,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
   // have to accept anything for browsers to work
-    public
-    Response doGetFileOrDirAsDownload( @PathParam( "pathId" ) String pathId,
+  public Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
+        @PathParam( "pathId" ) String pathId,
         @QueryParam( "withManifest" ) String strWithManifest ) throws FileNotFoundException {
 
     // you have to have PublishAction in order to download
@@ -615,11 +617,12 @@ public class FileResource extends AbstractJaxRSResource {
       // create processor
       if ( repositoryFile.isFolder() || withManifest ) {
         exportProcessor = new ZipExportProcessor( path, FileResource.repository, withManifest );
-        quotedFileName = "\"" + repositoryFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
+        quotedFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
       } else {
         exportProcessor = new SimpleExportProcessor( path, FileResource.repository, withManifest );
-        quotedFileName = "\"" + repositoryFile.getName() + "\""; //$NON-NLS-1$//$NON-NLS-2$
+        quotedFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
       }
+      quotedFileName = "\"" + URLEncoder.encode( quotedFileName, "UTF-8" ).replaceAll( "\\+", "%20" ) + "\"";
 
       // add export handlers for each expected file type
       exportProcessor.addExportHandler( PentahoSystem.get( DefaultExportHandler.class ) );
@@ -635,9 +638,16 @@ public class FileResource extends AbstractJaxRSResource {
       };
 
       // create response
+      final String attachment;
+      if ( userAgent.contains( "Firefox" ) ) {
+        //special content-disposition for firefox browser to support utf8-encoded symbols in filename
+        attachment = "attachment; filename*=UTF-8\'\'" + quotedFileName;
+      } else {
+        attachment = "attachment; filename=" + quotedFileName;
+      }
       response =
-          Response.ok( streamingOutput, APPLICATION_ZIP ).header( "Content-Disposition",
-              "attachment; filename=" + quotedFileName ).build();
+          Response.ok( streamingOutput, APPLICATION_ZIP + "; charset=UTF-8" ).header( "Content-Disposition",
+              attachment ).build();
 
       return response;
     } catch ( Exception e ) {
