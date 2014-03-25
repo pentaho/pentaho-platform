@@ -150,7 +150,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </fileset>
     </path>
 
-    <echo message="var requireCfg={paths:{},shim:{}};" file="build-res/requireCfg-raw.js" force="true" append="false"/>
+    <echo message="var requireCfg={paths:{},shim:{}};" file="build-res/requireCfg-raw.js" append="false"/>
     <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
       <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
         <include name="*/*-require-js-cfg.js"/>
