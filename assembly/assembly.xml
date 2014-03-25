@@ -585,11 +585,11 @@
 			</zipfileset>
 		</zip>
 		<!--copy install doc to the dist folder -->
-		<copy todir="${dist.dir}">
+		<!--<copy todir="${dist.dir}">
 			<fileset dir="${install-doc.dir}">
 				<include name="*.*" />
 			</fileset>
-		</copy>
+		</copy>-->
 	</target>
 
 	<!-- ===================================================================
