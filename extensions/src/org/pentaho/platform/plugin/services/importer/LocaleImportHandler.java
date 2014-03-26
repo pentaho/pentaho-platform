@@ -21,16 +21,14 @@
 package org.pentaho.platform.plugin.services.importer;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.drools.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -143,28 +141,43 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return localeCode;
   }
 
-  private RepositoryFile getLocaleParent(RepositoryFileImportBundle locale) {
-    if (unifiedRepository == null) {
+  private RepositoryFile getLocaleParent( RepositoryFileImportBundle locale ) {
+    if ( unifiedRepository == null ) {
       return null;
     }
 
     RepositoryFile localeParent = null;
     String localeFileName = locale.getName();
-    if (locale.getFile() != null) {
+    if ( locale.getFile() != null ) {
       localeFileName = locale.getFile().getName();
     }
-    RepositoryFile localeFolder = unifiedRepository.getFile(locale.getPath());
+    RepositoryFile localeFolder = unifiedRepository.getFile( locale.getPath() );
 
-    if (isLocaleFolder(localeFileName)) {
+    if ( isLocaleFolder( localeFileName ) ) {
       localeParent = localeFolder;
     } else {
-      List<RepositoryFile> localeFolderChildren = unifiedRepository.getChildren(localeFolder.getId());
-      for (RepositoryFile localeChild : localeFolderChildren) {
+      List<RepositoryFile> localeFolderChildren = unifiedRepository.getChildren( localeFolder.getId() );
+      for ( RepositoryFile localeChild : localeFolderChildren ) {
 
-        String localeChildName = extractFileName(localeChild.getName());
-        String localeChildExtension = extractExtension(localeChild.getName());
+        String localeChildName = extractFileName( localeChild.getName() );
+        String localeChildExtension = extractExtension( localeChild.getName() );
 
-        if (localeFileName.startsWith(localeChildName) && artifacts.contains(localeChildExtension)) {
+        // [BISERVER-10444] locale is not being applied to correct file extension (report1.prpt.locale vs. report1.xaction.locale)
+        boolean localeFileNameAlsoContainsFileExtension = checkIfLocaleFileNameAlsoContainsAFileExtension(localeFileName);
+        
+        if( localeFileNameAlsoContainsFileExtension ){
+          //FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
+          //FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
+          String localeFileExtension = FilenameUtils.getExtension( FilenameUtils.getBaseName( localeFileName ) );
+          String localeFileNameWithoutExtensions = FilenameUtils.getBaseName( FilenameUtils.getBaseName( localeFileName ) );
+          
+          if ( localeFileNameWithoutExtensions.equals( localeChildName ) 
+              && localeFileExtension.equalsIgnoreCase( localeChildExtension ) && artifacts.contains( localeChildExtension ) ) {
+            localeParent = localeChild;
+            break;
+          }
+          
+        } else if ( extractFileName( localeFileName ).equals( localeChildName ) && artifacts.contains( localeChildExtension ) ) {
           localeParent = localeChild;
           break;
         }
@@ -193,4 +206,15 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     }
     return name.substring(0, idx);
   }
+  
+  private boolean checkIfLocaleFileNameAlsoContainsAFileExtension( String locale ){
+    
+    //ex: report1.prpt.locale    
+    if( !StringUtils.isEmpty( locale ) ){
+      //FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
+      //FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
+      return !StringUtils.isEmpty( FilenameUtils.getExtension( FilenameUtils.getBaseName( locale ) ) );
+    }
+    return false;
+  }  
 }
