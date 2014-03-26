@@ -17,14 +17,6 @@
 
 package org.pentaho.platform.util.web;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.platform.util.messages.Messages;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +29,17 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.pentaho.platform.util.logging.Logger;
+import org.pentaho.platform.util.messages.Messages;
 
 public class HttpUtil {
 
@@ -63,10 +66,33 @@ public class HttpUtil {
     HttpClient httpClient = HttpUtil.getClient();
 
     try {
+      HostConfiguration hostConfig = null;
+      if( System.getProperty( "http.proxyHost" ) != null ){
+        hostConfig = new HostConfiguration(){
+          @Override
+          public synchronized String getProxyHost() {
+            return System.getProperty( "http.proxyHost" );
+          }
+          @Override
+          public synchronized int getProxyPort() {
+            return Integer.parseInt( System.getProperty( "http.proxyPort" ) );
+          }
+        };
+        httpClient.setHostConfiguration( hostConfig );
+        if ( System.getProperty( "http.proxyUser" ) != null && System.getProperty( "http.proxyUser" ).trim().length() > 0 ){
+          httpClient.getState().setProxyCredentials(
+              new AuthScope( System.getProperty( "http.proxyHost" ),
+                  Integer.parseInt( System.getProperty( "http.proxyPort" ) ) ),
+              new UsernamePasswordCredentials( System.getProperty( "http.proxyUser" ),
+                  System.getProperty( "http.proxyPassword" ) )
+          );
+        }
+      }
 
+      
       GetMethod call = new GetMethod( url );
 
-      int status = httpClient.executeMethod( call );
+      int status = httpClient.executeMethod( hostConfig, call );
       if ( status == 200 ) {
         InputStream response = call.getResponseBodyAsStream();
         try {
