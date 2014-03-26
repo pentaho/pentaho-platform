@@ -37,6 +37,8 @@
   <!-- Directory in which the source will be copied before a compile -->
   <property name="temp-src.dir" value="${bin.dir}/src" />
 
+  <property name="js.module.script.dir" value="source/org/pentaho/mantle/public"/>
+
   <!-- Import the subfloor-pkg.xml file which contains all the default ant targets -->
   <import file="build-res/subfloor-js.xml"/>
 
@@ -46,6 +48,8 @@
   <property name="js.requires.node" value="true"/>
   <property name="js.requires.karma" value="true"/>
   <property name="js.karma.config" value="config/karma.ci.conf.js"/>
+
+
   <property environment="env"/>
 
   <!--=======================================================================
