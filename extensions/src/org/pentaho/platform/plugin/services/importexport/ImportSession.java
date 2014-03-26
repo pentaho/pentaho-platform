@@ -119,7 +119,7 @@ public class ImportSession {
           }
         }
       } catch ( Exception e ) {
-        log.trace( e );
+        getLogger().trace( e );
       }
     }
     return acl;

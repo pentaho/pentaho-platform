@@ -178,6 +178,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           sourcePath = RepositoryFilenameUtils.concat( file.getPath(), fileName );
         }
       }
+      
+      //This clause was added for processing ivb files so that it would not try process acls on folders that the user
+      //may not have rights to such as /home or /public
+      if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && file.getFile().isFolder() ) {
+        continue;
+      }
+      
       getImportSession().setCurrentManifestKey( sourcePath );
 
       bundleBuilder.charSet( bundle.getCharset() );
