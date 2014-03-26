@@ -8,6 +8,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="api" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
@@ -29,8 +31,8 @@
         <JAVADOC />
         <SOURCES>
           <root url="file://$MODULE_DIR$/lib" />
-          <root url="file://$MODULE_DIR$/../../../SubversionProjects/jackrabbit/tags/2.4.2/jackrabbit-core/src/main/java" />
-          <root url="file://$MODULE_DIR$/../../../SubversionProjects/jackrabbit/tags/2.4.2/jackrabbit-core/src/test/java" />
+          <root url="file://E:/SubversionProjects/jackrabbit/tags/2.4.2/jackrabbit-core/src/main/java" />
+          <root url="file://E:/SubversionProjects/jackrabbit/tags/2.4.2/jackrabbit-core/src/test/java" />
         </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" type="SOURCES" />
