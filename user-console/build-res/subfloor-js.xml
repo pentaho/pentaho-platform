@@ -70,7 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <property name="js.expanded.lib.dir" value="${js.lib.dir}/expanded"/>
 
   <!-- Path to the karma configuration -->
-  <property name="js.karma.config" value="config/karma.ci.conf.js"/>
+  <property name="js.karma.config" value="config/karma.conf.js"/>
   <property name="js.karma.ci.config" value="config/karma.ci.conf.js"/>
 
   <property environment="env"/>
@@ -86,29 +86,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <ivy:resolve file="ivy.xml" conf="js"/>
     <ivy:retrieve conf="js" pattern="${js.lib.dir}/[module]-[revision](-[classifier]).[ext]"/>
 
-    <if>
-      <available file="${js.lib.dir}"/>
-      <then>
-        <unzip dest="${js.expanded.lib.dir}" overwrite="true">
-          <fileset file="${js.lib.dir}/*.zip"/>
-          <patternset>
-            <exclude name="**/*.jar"/>
-            <exclude name="**/plugin*.xml"/>
-            <exclude name="**/settings.xml"/>
-            <exclude name="**/themes.xml"/>
-          </patternset>
-        </unzip>
-      </then>
-      <else>
-        <echo>No js libraries need expanding. ${js.lib.dir} does not exist.</echo>
-      </else>
-    </if>
-
   </target>
 
   <target name="clean-js">
     <delete dir="${js.lib.dir}"/>
-    <delete dir="${js.expanded.lib.dir}"/>
     <delete dir="${js.module.script.agg.dir}"/>
   </target>
 
@@ -126,11 +107,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </if>
   </target>
 
-  <target name="build-js" depends="install-antcontrib, check-pentaho-js-build-downloaded">
-    <delete dir="${js.build.output.dir}"/>
+  <target name="extract-source-and-build-require-js-profile" depends="install-antcontrib, check-pentaho-js-build-downloaded">
+
+
+    <echo message="Extracting Javascript from Dependencies"/>
     <delete dir="${js.module.script.agg.dir}"/>
-    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
-    <mkdir dir="${js.module.script.agg.dir}"/>
 
     <unzip dest="${js.module.script.agg.dir}" overwrite="true">
       <fileset dir=".">
@@ -149,7 +130,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <include name="*.jar"/>
       </fileset>
     </path>
-
+    <echo message="Collecting RequireJS Configurations"/>
     <echo message="var requireCfg={paths:{},shim:{}};" file="build-res/requireCfg-raw.js" append="false"/>
     <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
       <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
@@ -165,6 +146,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     <echo message="require(requireCfg);" append="true" file="build-res/requireCfg.js"/>
 
+  </target>
+
+  <target name="build-js" depends="extract-source-and-build-require-js-profile">
+    <delete dir="${js.build.output.dir}"/>
+    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
+    <mkdir dir="${js.module.script.agg.dir}"/>
 
     <copy todir="${js.module.script.agg.dir}" overwrite="true">
       <fileset dir="build-res/pentaho-js-build/module-scripts">
@@ -306,7 +293,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </if>
   </target>
 
-  <target name="test-js" depends="install-antcontrib, npm-install">
+  <target name="test-js" depends="install-antcontrib, npm-install, extract-source-and-build-require-js-profile">
     <if>
       <not>
         <isset property="karma-is-available"/>
