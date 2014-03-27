@@ -922,35 +922,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
               + cleanDestAbsPath + "] already exists in the repository" );
         }
-        // Now we need to update the title
-        RepositoryFile destFile = internalGetFile( session, finalDestAbsPath, true, null );
-
-        // Check if the file to be updated is a folder or not
-        if ( !destFile.isFolder() ) {
-          String title = extractNameFromPath( finalDestAbsPath );
-          Map<String, Properties> localePropertiesMap = destFile.getLocalePropertiesMap();
-          for ( Entry<String, Properties> entry : destFile.getLocalePropertiesMap().entrySet() ) {
-            Properties properties = entry.getValue();
-            if ( properties.containsKey( "file.title" ) ) {
-              properties.setProperty( "file.title", title );
-            }
-            if ( properties.containsKey( "title" ) ) {
-              properties.setProperty( "title", title );
-            }
-          }
-          // Extract the content type (simple or node) from the node to be updated
-          String contentType = null;
-          if ( destFile.getId() != null ) {
-            Node nodeToBeUpdated = session.getNodeByIdentifier( destFile.getId().toString() );
-            contentType = nodeToBeUpdated.getProperty( pentahoJcrConstants.getPHO_CONTENTTYPE() ).getString();
-          }
-
-          RepositoryFile updatedFile =
-              new RepositoryFile.Builder( destFile ).localePropertiesMap( localePropertiesMap ).title( title ).build();
-          internalUpdateFile( session, pentahoJcrConstants, updatedFile, getData( destFile.getId(), null,
-              ( ( contentType != null && contentType.equals( IRepositoryFileData.NODE_CONTENT_TYPE ) )
-                  ? NodeRepositoryFileData.class : SimpleRepositoryFileData.class ) ), "Updating the Title" );
-        }
 
         JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode, versionMessage );
