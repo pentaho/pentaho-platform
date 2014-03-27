@@ -90,10 +90,10 @@ import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -288,7 +288,7 @@ public class FileResource extends AbstractJaxRSResource {
             String sourcePath = sourceFile.getPath().substring( 0, sourceFile.getPath().lastIndexOf( PATH_SEPARATOR ) );
             if ( !sourcePath.equals( destDir.getPath() ) ) { // We're saving to a different folder than we're copying
                                                              // from
-              IRepositoryFileData data = JcrRepositoryFileUtils.getData( sourceFile );
+              IRepositoryFileData data = getData( sourceFile );
               RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
               RepositoryFile destFile = getRepository().getFile( destDir.getPath() + PATH_SEPARATOR + fileName );
               if ( destFile == null ) { // destFile doesn't exist so we'll create it.
@@ -342,7 +342,7 @@ public class FileResource extends AbstractJaxRSResource {
               fileName = nameNoExtension + copyText + extension;
               testFile = getRepoWs().getFile( path + PATH_SEPARATOR + fileName );
             }
-            IRepositoryFileData data = JcrRepositoryFileUtils.getData( sourceFile );
+            IRepositoryFileData data = getData( sourceFile );
             RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
             RepositoryFile duplicateFile = null;
 
@@ -1462,6 +1462,67 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  private IRepositoryFileData getData( RepositoryFile repositoryFile ){
+    IRepositoryContentConverterHandler converterHandler;
+    Map<String, Converter> converters;
+    NameBaseMimeResolver mimeResolver;
+
+    IRepositoryFileData repositoryFileData = null;
+
+    if ( !repositoryFile.isFolder() ) {
+      // Get the extension
+      final String ext = RepositoryFilenameUtils.getExtension( repositoryFile.getName() );
+      if( ( ext == null ) || ( ext.isEmpty() ) ){
+        return null;
+      }
+
+      // Find the converter
+
+      // If we have not been given a handler, try PentahoSystem
+      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+
+      // fail if we have no converter handler
+      if( converterHandler == null ){
+        return null;
+      }
+
+      converters = converterHandler.getConverters();
+
+      final Converter converter = converters.get( ext );
+      if( converter == null ) {
+        return null;
+      }
+
+      // Check the mime type
+      mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+
+      // fail if we have no mime resolver
+      if( mimeResolver == null ){
+        return null;
+      }
+
+      final String mimeType = mimeResolver.resolveMimeTypeForFileName( repositoryFile.getName() ).getName();
+      if( ( mimeType == null ) || ( mimeType.isEmpty() ) ){
+        return null;
+      }
+
+      // Get the input stream
+      InputStream inputStream = converter.convert( repositoryFile.getId() );
+      if( inputStream == null ){
+        return null;
+      }
+
+      // Get the file data
+      repositoryFileData = converter.convert( inputStream, "UTF-8", mimeType );
+      if( repositoryFileData == null ){
+        return null;
+      }
+    }
+
+    return repositoryFileData;
+  }
+
+
   private String getExtension( final String name ) {
     int startIndex = name.lastIndexOf( '.' );
     if ( startIndex >= 0 ) {
@@ -1549,7 +1610,7 @@ public class FileResource extends AbstractJaxRSResource {
           // add the existing acls and file data
           RepositoryFileAcl acl = getRepository().getAcl( sourceFile.getId() );
           if ( !file.isFolder() ) {
-            IRepositoryFileData data = JcrRepositoryFileUtils.getData( sourceFile );
+            IRepositoryFileData data = getData( sourceFile );
 
             getRepository().updateFile( destFile, data, null );
             getRepository().updateAcl( acl );

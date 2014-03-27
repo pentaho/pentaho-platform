@@ -106,7 +106,6 @@
 
 		<dependency org="${ivy.artifact.group}" name="pentaho-platform-api"  rev="${project.revision}" changing="true"/>
 		<dependency org="${ivy.artifact.group}" name="pentaho-platform-core" rev="${project.revision}" changing="true"/>
-    <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions" rev="${project.revision}" changing="true"/>
 
 		<!--  testing dependencies -->
 		<dependency org="pentaho"              	name="pentaho-platform-core-test" rev="${project.revision}" changing="true" conf="test->default" transitive="false" />

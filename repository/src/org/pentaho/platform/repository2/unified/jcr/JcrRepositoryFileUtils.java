@@ -18,7 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,9 +52,7 @@ import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.core.VersionManagerImpl;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.locale.IPentahoLocale;
-import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
-import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -66,8 +63,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
@@ -698,66 +693,6 @@ public class JcrRepositoryFileUtils {
       final String filter, Boolean showHiddenFiles) throws RepositoryException {
     RepositoryRequest repositoryRequest = new RepositoryRequest( folderId.toString(), showHiddenFiles, 0, filter );
     return getChildren( session, pentahoJcrConstants, pathConversionHelper, lockHelper, repositoryRequest);
-  }
-
-  public static IRepositoryFileData getData( RepositoryFile repositoryFile ){
-    IRepositoryContentConverterHandler converterHandler;
-    Map<String, Converter> converters;
-    NameBaseMimeResolver mimeResolver;
-
-    IRepositoryFileData repositoryFileData = null;
-
-    if ( !repositoryFile.isFolder() ) {
-      // Get the extension
-      final String ext = RepositoryFilenameUtils.getExtension( repositoryFile.getName() );
-      if( ( ext == null ) || ( ext.isEmpty() ) ){
-        return null;
-      }
-
-      // Find the converter
-
-      // If we have not been given a handler, try PentahoSystem
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
-
-      // fail if we have no converter handler
-      if( converterHandler == null ){
-        return null;
-      }
-
-      converters = converterHandler.getConverters();
-
-      final Converter converter = converters.get( ext );
-      if( converter == null ) {
-        return null;
-      }
-
-      // Check the mime type
-      mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
-
-      // fail if we have no mime resolver
-      if( mimeResolver == null ){
-        return null;
-      }
-
-      final String mimeType = mimeResolver.resolveMimeTypeForFileName( repositoryFile.getName() ).getName();
-      if( ( mimeType == null ) || ( mimeType.isEmpty() ) ){
-        return null;
-      }
-
-      // Get the input stream
-      InputStream inputStream = converter.convert( repositoryFile.getId() );
-      if( inputStream == null ){
-        return null;
-      }
-
-      // Get the file data
-      repositoryFileData = converter.convert( inputStream, "UTF-8", mimeType );
-      if( repositoryFileData == null ){
-        return null;
-      }
-    }
-
-    return repositoryFileData;
   }
 
   public static boolean isPentahoFolder( final PentahoJcrConstants pentahoJcrConstants, final Node node )
