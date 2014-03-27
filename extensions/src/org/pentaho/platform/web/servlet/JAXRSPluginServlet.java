@@ -33,16 +33,21 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Enumeration;
 
 /**
  * This should only be used by a plugin in the plugin.spring.xml file to initialize a Jersey. The presence of this
  * servlet in the spring file will make it possible to write JAX-RS POJOs in your plugin.
- * 
+ *
  * @author Aaron Phillips
  */
 public class JAXRSPluginServlet extends SpringServlet implements ApplicationContextAware {
 
   private static final long serialVersionUID = 457538570048660945L;
+  private static final String APPLICATION_WADL = "application.wadl";
 
   private ApplicationContext applicationContext;
 
@@ -60,6 +65,35 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
   @Override
   public void service( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
     logger.debug( "servicing request for resource " + request.getPathInfo() ); //$NON-NLS-1$
+
+    // Jersey's Servlet only responds to 'application.wadl', Plugin requests always have 'plugin/PLUGIN_NAME/api' as a
+    // predicate i.e. /plugin/data-access/api/application.wadl.
+    //
+    // If the request ends with application.wadl, dispatch a Proxied request that rewrites the url to plain
+    // 'application.wadl'. This is using a JDK Dynamic Proxy which increases overhead, but these requests should be
+    // seldom and don't need to be that performant.
+    if ( request.getPathInfo().endsWith( APPLICATION_WADL ) ) {
+      final HttpServletRequest originalRequest = request;
+
+      request =
+        (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
+          new Class[] { HttpServletRequest.class }, new InvocationHandler() {
+          public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+            if ( method.getName().equals( "getPathInfo" ) ) {
+              return APPLICATION_WADL;
+            } else if ( method.getName().equals( "getRequestURL" ) ) {
+              String url = originalRequest.getRequestURL().toString();
+              return new StringBuffer(
+                url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/"+ APPLICATION_WADL );
+            } else if ( method.getName().equals( "getRequestURI" ) ) {
+              String uri = originalRequest.getRequestURI();
+              return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/"+ APPLICATION_WADL;
+            }
+            // We don't care about the Method, delegate out to real Request object.
+            return method.invoke( originalRequest, args );
+          }
+        } );
+    }
     super.service( request, response );
   }
 
