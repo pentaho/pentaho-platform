@@ -43,6 +43,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -293,8 +294,8 @@ public class FileResource extends AbstractJaxRSResource {
               RepositoryFile destFile = getRepository().getFile( destDir.getPath() + PATH_SEPARATOR + fileName );
               if ( destFile == null ) { // destFile doesn't exist so we'll create it.
                 RepositoryFile duplicateFile =
-                    new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).
-                      versioned( sourceFile.isVersioned() ).build();
+                    new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).versioned(
+                        sourceFile.isVersioned() ).build();
                 final RepositoryFile repositoryFile =
                     getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
                 getRepository()
@@ -350,8 +351,8 @@ public class FileResource extends AbstractJaxRSResource {
             if ( !sourceFile.getName().equals( sourceFile.getTitle() ) ) {
               duplicateFile =
                   new RepositoryFile.Builder( fileName ).title( RepositoryFile.DEFAULT_LOCALE,
-                      sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() )
-                    .versioned( sourceFile.isVersioned() ).build();
+                      sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() ).versioned(
+                      sourceFile.isVersioned() ).build();
             } else {
               duplicateFile = new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).build();
             }
@@ -575,9 +576,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
   // have to accept anything for browsers to work
-  public Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
-        @PathParam( "pathId" ) String pathId,
-        @QueryParam( "withManifest" ) String strWithManifest ) throws FileNotFoundException {
+    public
+    Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
+        @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest )
+      throws FileNotFoundException {
 
     // you have to have PublishAction in order to download
     if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
@@ -642,14 +644,14 @@ public class FileResource extends AbstractJaxRSResource {
       // create response
       final String attachment;
       if ( userAgent.contains( "Firefox" ) ) {
-        //special content-disposition for firefox browser to support utf8-encoded symbols in filename
+        // special content-disposition for firefox browser to support utf8-encoded symbols in filename
         attachment = "attachment; filename*=UTF-8\'\'" + quotedFileName;
       } else {
         attachment = "attachment; filename=" + quotedFileName;
       }
       response =
-          Response.ok( streamingOutput, APPLICATION_ZIP + "; charset=UTF-8" ).header( "Content-Disposition",
-              attachment ).build();
+          Response.ok( streamingOutput, APPLICATION_ZIP + "; charset=UTF-8" )
+              .header( "Content-Disposition", attachment ).build();
 
       return response;
     } catch ( Exception e ) {
@@ -910,7 +912,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Checks whether the current user has permissions to the provided list of paths
-   *
+   * 
    * @param pathsWrapper
    *          (list of paths to be checked)
    * @return
@@ -923,11 +925,10 @@ public class FileResource extends AbstractJaxRSResource {
 
     List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
 
-    String permissions = RepositoryFilePermission.READ.ordinal() + "|" +
-      RepositoryFilePermission.WRITE.ordinal() + "|" +
-      RepositoryFilePermission.DELETE.ordinal() + "|" +
-      RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|" +
-      RepositoryFilePermission.ALL.ordinal();
+    String permissions =
+        RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
+            + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
+            + RepositoryFilePermission.ALL.ordinal();
 
     List<String> paths = pathsWrapper.getStrings();
     for ( String path : paths ) {
@@ -1426,7 +1427,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( { WILDCARD } )
   public Response doRename( @PathParam( "pathId" ) String pathId, @QueryParam( "newName" ) String newName ) {
     try {
-      RepositoryFileDto fileToBeRenamed = getRepoWs().getFile( idToPath( pathId ) );
+      IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class, PentahoSessionHolder.getSession() );
+      RepositoryFile fileToBeRenamed = repository.getFile( idToPath( pathId ) );
       StringBuilder buf = new StringBuilder( fileToBeRenamed.getPath().length() );
       buf.append( getParentPath( fileToBeRenamed.getPath() ) );
       buf.append( RepositoryFile.SEPARATOR );
@@ -1435,8 +1437,37 @@ public class FileResource extends AbstractJaxRSResource {
       if ( extension != null ) {
         buf.append( extension );
       }
-      getRepoWs().moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
-      return Response.ok().build();
+      repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
+      RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
+      if ( movedFile != null ) {
+        if ( !movedFile.isFolder() ) {
+          Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
+          if ( localePropertiesMap == null ) {
+            localePropertiesMap = new HashMap<String, Properties>();
+            Properties properties = new Properties();
+            properties.setProperty( "file.title", newName );
+            properties.setProperty( "title", newName );
+            localePropertiesMap.put( "default", properties );
+          } else {
+            for ( Entry<String, Properties> entry : localePropertiesMap.entrySet() ) {
+              Properties properties = entry.getValue();
+              if ( properties.containsKey( "file.title" ) ) {
+                properties.setProperty( "file.title", newName );
+              }
+              if ( properties.containsKey( "title" ) ) {
+                properties.setProperty( "title", newName );
+              }
+            }
+          }
+          RepositoryFile updatedFile =
+          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName )
+          .title( newName ).build();
+          repository.updateFile( updatedFile, getData(movedFile), "Updating the file" );
+        }
+        return Response.ok().build();
+      } else {
+        return Response.ok( "File to be renamed does not exist" ).build();
+      }
     } catch ( Throwable t ) {
       return processErrorResponse( t.getLocalizedMessage() );
     }
@@ -1462,7 +1493,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  private IRepositoryFileData getData( RepositoryFile repositoryFile ){
+  private IRepositoryFileData getData( RepositoryFile repositoryFile ) {
     IRepositoryContentConverterHandler converterHandler;
     Map<String, Converter> converters;
     NameBaseMimeResolver mimeResolver;
@@ -1472,56 +1503,55 @@ public class FileResource extends AbstractJaxRSResource {
     if ( !repositoryFile.isFolder() ) {
       // Get the extension
       final String ext = RepositoryFilenameUtils.getExtension( repositoryFile.getName() );
-      if( ( ext == null ) || ( ext.isEmpty() ) ){
+      if ( ( ext == null ) || ( ext.isEmpty() ) ) {
         return null;
       }
 
       // Find the converter
 
       // If we have not been given a handler, try PentahoSystem
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
 
       // fail if we have no converter handler
-      if( converterHandler == null ){
+      if ( converterHandler == null ) {
         return null;
       }
 
       converters = converterHandler.getConverters();
 
       final Converter converter = converters.get( ext );
-      if( converter == null ) {
+      if ( converter == null ) {
         return null;
       }
 
       // Check the mime type
-      mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+      mimeResolver = PentahoSystem.get( NameBaseMimeResolver.class );
 
       // fail if we have no mime resolver
-      if( mimeResolver == null ){
+      if ( mimeResolver == null ) {
         return null;
       }
 
       final String mimeType = mimeResolver.resolveMimeTypeForFileName( repositoryFile.getName() ).getName();
-      if( ( mimeType == null ) || ( mimeType.isEmpty() ) ){
+      if ( ( mimeType == null ) || ( mimeType.isEmpty() ) ) {
         return null;
       }
 
       // Get the input stream
       InputStream inputStream = converter.convert( repositoryFile.getId() );
-      if( inputStream == null ){
+      if ( inputStream == null ) {
         return null;
       }
 
       // Get the file data
       repositoryFileData = converter.convert( inputStream, "UTF-8", mimeType );
-      if( repositoryFileData == null ){
+      if ( repositoryFileData == null ) {
         return null;
       }
     }
 
     return repositoryFileData;
   }
-
 
   private String getExtension( final String name ) {
     int startIndex = name.lastIndexOf( '.' );
