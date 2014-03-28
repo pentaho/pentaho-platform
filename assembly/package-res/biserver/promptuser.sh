@@ -8,9 +8,10 @@ echo Press Enter to continue, or type "cancel" or Ctrl-C to prevent the server f
 echo You will only be prompted once with this question.
 echo --------------------------------------------------------------------------------------------
 
-read -p"[OK]:" choice
+echo [OK]:
+read choice
 choicelower=`echo $choice| tr A-Z a-z`
-if [ "$choice" = "cancel" ]; then
+if [ "$choicelower" = "cancel" ]; then
   exit 1
 else
   echo -e "#!/bin/sh\nexit 0" > promptuser.sh
