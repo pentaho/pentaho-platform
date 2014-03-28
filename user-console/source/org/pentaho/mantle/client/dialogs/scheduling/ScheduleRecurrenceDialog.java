@@ -17,6 +17,9 @@
 
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import java.util.Date;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
@@ -44,6 +47,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -69,18 +73,15 @@ import org.pentaho.mantle.client.workspace.JsJobParam;
 import org.pentaho.mantle.client.workspace.JsJobTrigger;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
-import java.util.Date;
-import java.util.List;
-
 /**
  * @author wseyler
  * 
  */
 public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
-  private String moduleBaseURL = GWT.getModuleBaseURL();
-  private String moduleName = GWT.getModuleName();
-  private String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
+  private final String moduleBaseURL = GWT.getModuleBaseURL();
+  private final String moduleName = GWT.getModuleName();
+  private final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
   protected String filePath;
   protected String outputLocation;
@@ -109,7 +110,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         ? Messages.getString( "editSchedule" ) : Messages.getString( "editBlockoutSchedule" ), null, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
     isBlockoutDialog = ( type == ScheduleDialogType.BLOCKOUT );
     setCallback( callback );
-    this.editJob = jsJob;
+    editJob = jsJob;
     this.parentDialog = parentDialog;
     constructDialog( jsJob.getFullResourceName(), jsJob.getOutputPath(), jsJob.getJobName(), hasParams,
         isEmailConfValid, jsJob );
@@ -134,6 +135,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     constructDialog( filePath, outputLocation, scheduleName, hasParams, isEmailConfValid, null );
   }
 
+  @Override
   public boolean onKeyDownPreview( char key, int modifiers ) {
     if ( key == KeyCodes.KEY_ESCAPE ) {
       hide();
@@ -195,7 +197,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       dialogBox.center();
     }
     IWizardPanel[] wizardPanels = { scheduleEditorWizardPanel };
-    this.setWizardPanels( wizardPanels );
+    setWizardPanels( wizardPanels );
     setPixelSize( 475, 465 );
     center();
     if ( ( hasParams || isEmailConfValid ) && ( isBlockoutDialog == false ) ) {
@@ -245,8 +247,8 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
           int[] daysOfWeek = jsJobTrigger.getDayOfWeekRecurrences();
           WeeklyRecurrenceEditor weeklyRecurrenceEditor = scheduleEditor.getRecurrenceEditor().getWeeklyEditor();
           String strDays = ""; //$NON-NLS-1$
-          for ( int i = 0; i < daysOfWeek.length; i++ ) {
-            strDays += Integer.toString( daysOfWeek[i] ) + ","; //$NON-NLS-1$
+          for ( int element2 : daysOfWeek ) {
+            strDays += Integer.toString( element2 ) + ","; //$NON-NLS-1$
           }
           weeklyRecurrenceEditor.setCheckedDaysAsString( strDays, 1 );
         } else if ( scheduleType == ScheduleType.MONTHLY ) {
@@ -269,13 +271,13 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
             yearlyRecurrenceEditor
                 .setWeekOfMonth( TimeUtil.WeekOfMonth.valueOf( jsJobTrigger.getDayOfWeekQualifier() ) );
             yearlyRecurrenceEditor.setMonthOfYear1( TimeUtil.MonthOfYear
-                .get( jsJobTrigger.getMonthlyRecurrences()[ 0 ] - 1 ) );
+                .get( jsJobTrigger.getMonthlyRecurrences()[0] - 1 ) );
             yearlyRecurrenceEditor.setNthDayNameOfMonthName();
           } else {
             // Run on Nth day of the month M yearly
             yearlyRecurrenceEditor.setDayOfMonth( Integer.toString( jsJobTrigger.getDayOfMonthRecurrences()[0] ) );
             yearlyRecurrenceEditor.setMonthOfYear0( TimeUtil.MonthOfYear
-                .get( jsJobTrigger.getMonthlyRecurrences()[ 0 ] - 1 ) );
+                .get( jsJobTrigger.getMonthlyRecurrences()[0] - 1 ) );
             yearlyRecurrenceEditor.setEveryMonthOnNthDay();
           }
         }
@@ -291,7 +293,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       }
 
       if ( isBlockoutDialog ) {
-        this.scheduleEditor.setDurationFields( jsJobTrigger.getBlockDuration() );
+        scheduleEditor.setDurationFields( jsJobTrigger.getBlockDuration() );
       }
     }
   }
@@ -397,7 +399,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       try { // Simple Trigger Types
         repeatInterval = Integer.parseInt( scheduleEditorWizardPanel.getRepeatInterval() );
       } catch ( Exception e ) {
-        //ignored
+        // ignored
       }
       schedule.put( "simpleJobTrigger", getJsonSimpleTrigger( -1, repeatInterval, startDateTime, endDate ) ); //$NON-NLS-1$
     } else if ( scheduleType == ScheduleType.DAILY ) {
@@ -406,7 +408,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         try { // Simple Trigger Types
           repeatInterval = Integer.parseInt( scheduleEditorWizardPanel.getRepeatInterval() );
         } catch ( Exception e ) {
-          //ignored
+          // ignored
         }
         schedule.put( "simpleJobTrigger", getJsonSimpleTrigger( -1, repeatInterval, startDateTime, endDate ) ); //$NON-NLS-1$
       } else {
@@ -424,16 +426,12 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         || ( ( scheduleType == ScheduleType.YEARLY ) && ( monthOfYear != null ) ) ) {
       if ( dayOfMonth != null ) {
         // YEARLY Run on specific day in year or MONTHLY Run on specific day in month
-        schedule
-            .put(
-              "complexJobTrigger",
-              getJsonComplexTrigger( scheduleType, monthOfYear, dayOfMonth, startDateTime, endDate ) ); //$NON-NLS-1$
+        schedule.put( "complexJobTrigger", getJsonComplexTrigger( scheduleType, monthOfYear, dayOfMonth, startDateTime,
+            endDate ) );
       } else if ( ( daysOfWeek.size() > 0 ) && ( weekOfMonth != null ) ) {
         // YEARLY
-        schedule
-            .put(
-              "complexJobTrigger",
-              getJsonComplexTrigger( scheduleType, monthOfYear, weekOfMonth, daysOfWeek, startDateTime, endDate ) ); //$NON-NLS-1$
+        schedule.put( "complexJobTrigger", getJsonComplexTrigger( scheduleType, monthOfYear, weekOfMonth, daysOfWeek,
+            startDateTime, endDate ) );
       }
     }
     schedule.put( "inputFile", new JSONString( filePath ) ); //$NON-NLS-1$ 
@@ -450,10 +448,8 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       endDate.setMinutes( 59 );
       endDate.setSeconds( 59 );
     }
-    trigger
-        .put(
-          "endTime", endDate == null ? JSONNull.getInstance()
-          : new JSONString( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( endDate ) ) ); //$NON-NLS-1$
+    trigger.put( "endTime", endDate == null ? JSONNull.getInstance() : new JSONString( DateTimeFormat.getFormat(
+        PredefinedFormat.ISO_8601 ).format( endDate ) ) );
     return trigger;
   }
 
@@ -465,7 +461,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
     long durationMilli = -1;
 
-    if ( this.scheduleEditor.getBlockoutEndsType().equals( ScheduleEditor.ENDS_TYPE.TIME ) ) {
+    if ( scheduleEditor.getBlockoutEndsType().equals( ScheduleEditor.ENDS_TYPE.TIME ) ) {
       final String startTime = scheduleEditorWizardPanel.getBlockoutStartTime();
       final String endTime = scheduleEditorWizardPanel.getBlockoutEndTime();
 
@@ -475,7 +471,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       durationMilli = Math.abs( end - start );
 
     } else {
-      DurationValues durationValues = this.scheduleEditor.getDurationValues();
+      DurationValues durationValues = scheduleEditor.getDurationValues();
 
       long minutes = durationValues.minutes * minute;
       long hours = durationValues.hours * hour;
@@ -526,7 +522,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       try { // Simple Trigger Types
         repeatInterval = Integer.parseInt( scheduleEditorWizardPanel.getRepeatInterval() );
       } catch ( Exception e ) {
-        //ignored
+        // ignored
       }
       jsJobTrigger.setType( "simpleJobTrigger" ); //$NON-NLS-1$
       jsJobTrigger.setRepeatInterval( repeatInterval );
@@ -541,16 +537,14 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         try { // Simple Trigger Types
           repeatInterval = Integer.parseInt( scheduleEditorWizardPanel.getRepeatInterval() );
         } catch ( Exception e ) {
-          //ignored
+          // ignored
         }
         jsJobTrigger.setType( "simpleJobTrigger" ); //$NON-NLS-1$
         jsJobTrigger.setRepeatInterval( repeatInterval );
         jsJobTrigger.setRepeatCount( -1 );
-        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-          .format( startDateTime ) );
+        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( startDateTime ) );
         if ( endDate != null ) {
-          jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-            .format( endDate ) );
+          jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( endDate ) );
         }
       } else {
         JsArrayInteger jsDaysOfWeek = (JsArrayInteger) JavaScriptObject.createArray();
@@ -570,11 +564,9 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         jsJobTrigger.setHourRecurrences( hours );
         jsJobTrigger.setMinuteRecurrences( minutes );
         jsJobTrigger.setSecondRecurrences( seconds );
-        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-          .format( startDateTime ) );
+        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( startDateTime ) );
         if ( endDate != null ) {
-          jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-            .format( endDate ) );
+          jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( endDate ) );
         }
       }
     } else if ( scheduleType == ScheduleType.CRON ) { // Cron jobs
@@ -626,11 +618,9 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         jsJobTrigger.setHourRecurrences( hours );
         jsJobTrigger.setMinuteRecurrences( minutes );
         jsJobTrigger.setSecondRecurrences( seconds );
-        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-          .format( startDateTime ) );
+        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( startDateTime ) );
         if ( endDate != null ) {
-          jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-            .format( endDate ) );
+          jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( endDate ) );
         }
       } else if ( ( daysOfWeek.size() > 0 ) && ( weekOfMonth != null ) ) {
         JsArrayInteger jsDaysOfWeek = (JsArrayInteger) JavaScriptObject.createArray();
@@ -657,8 +647,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         jsJobTrigger.setSecondRecurrences( seconds );
         jsJobTrigger.setQualifiedDayOfWeek( daysOfWeek.get( 0 ).name() );
         jsJobTrigger.setDayOfWeekQualifier( weekOfMonth.name() );
-        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 )
-          .format( startDateTime ) );
+        jsJobTrigger.setNativeStartTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( startDateTime ) );
         if ( endDate != null ) {
           jsJobTrigger.setNativeEndTime( DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( endDate ) );
         }
@@ -688,6 +677,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
     try {
       addBlockoutPeriodRequest.sendRequest( addBlockoutParams.toString(), new RequestCallback() {
+        @Override
         public void onError( Request request, Throwable exception ) {
           MessageDialogBox dialogBox =
               new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
@@ -695,6 +685,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
           setDone( false );
         }
 
+        @Override
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             if ( null != callback ) {
@@ -704,7 +695,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         }
       } );
     } catch ( RequestException e ) {
-      //ignored
+      // ignored
     }
 
     return true;
@@ -736,11 +727,13 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       dialogBox.setCallback( new IDialogCallback() {
         // If user clicked on 'Continue' we want to add the schedule. Otherwise we dismiss the dialog
         // and they have to modify the recurrence schedule
+        @Override
         public void cancelPressed() {
           // User clicked on continue, so we need to proceed adding the schedule
           handleWizardPanels( schedule, trigger );
         }
 
+        @Override
         public void okPressed() {
           // Update Schedule Button pressed
           dialogBox.setVisible( false );
@@ -752,8 +745,8 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
   }
 
   /**
-   * Before creating a new schedule, we want to check to see if the schedule that is being created is going to
-   * conflict with any one of the blockout periods if one is provisioned.
+   * Before creating a new schedule, we want to check to see if the schedule that is being created is going to conflict
+   * with any one of the blockout periods if one is provisioned.
    * 
    * @param schedule
    * @param trigger
@@ -771,6 +764,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
     try {
       blockoutConflictRequest.sendRequest( verifyBlockoutParams.toString(), new RequestCallback() {
+        @Override
         public void onError( Request request, Throwable exception ) {
           MessageDialogBox dialogBox =
               new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
@@ -778,6 +772,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
           setDone( false );
         }
 
+        @Override
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             JsBlockStatus statusResponse =
@@ -798,7 +793,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
         }
       } );
     } catch ( RequestException e ) {
-      //ignored
+      // ignored
     }
 
     super.nextClicked();
@@ -843,6 +838,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
 
       try {
         scheduleFileRequestBuilder.sendRequest( scheduleRequest.toString(), new RequestCallback() {
+          @Override
           public void onError( Request request, Throwable exception ) {
             MessageDialogBox dialogBox =
                 new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
@@ -850,6 +846,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
             setDone( false );
           }
 
+          @Override
           public void onResponseReceived( Request request, Response response ) {
             if ( response.getStatusCode() == 200 ) {
               setDone( true );
@@ -905,6 +902,9 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
+    if ( !super.enableFinish( getIndex() ) ) {
+      return false;
+    }
     // DO NOT DELETE - verifyBlockoutConflict(schedule, trigger);
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
@@ -921,18 +921,22 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       requestBuilder.sendRequest( null, new RequestCallback() {
 
+        @Override
         public void onError( Request request, Throwable caught ) {
           MantleLoginDialog.performLogin( new AsyncCallback<Boolean>() {
 
+            @Override
             public void onFailure( Throwable caught ) {
             }
 
+            @Override
             public void onSuccess( Boolean result ) {
               showScheduleEmailDialog( schedule );
             }
           } );
         }
 
+        @Override
         public void onResponseReceived( Request request, Response response ) {
           JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict( schedule.toString() );
           if ( scheduleEmailDialog == null ) {
@@ -961,18 +965,22 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
       requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       requestBuilder.sendRequest( null, new RequestCallback() {
 
+        @Override
         public void onError( Request request, Throwable caught ) {
           MantleLoginDialog.performLogin( new AsyncCallback<Boolean>() {
 
+            @Override
             public void onFailure( Throwable caught ) {
             }
 
+            @Override
             public void onSuccess( Boolean result ) {
               showScheduleParamsDialog( trigger, schedule );
             }
           } );
         }
 
+        @Override
         public void onResponseReceived( Request request, Response response ) {
           if ( scheduleParamsDialog == null ) {
             scheduleParamsDialog = new ScheduleParamsDialog( ScheduleRecurrenceDialog.this, isEmailConfValid, editJob );
@@ -1030,20 +1038,18 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onNext(org.pentaho.gwt.widgets.client.wizards.
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onNext(org.pentaho.gwt.widgets.client.wizards.
    * IWizardPanel, org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
    */
   @Override
   protected boolean onNext( IWizardPanel nextPanel, IWizardPanel previousPanel ) {
-    return true;
+    return super.enableNext( getIndex() );
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onPrevious(org.pentaho.gwt.widgets.client.wizards
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onPrevious(org.pentaho.gwt.widgets.client.wizards
    * .IWizardPanel, org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
    */
   @Override
@@ -1051,6 +1057,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     return true;
   }
 
+  @Override
   protected void backClicked() {
     hide();
     if ( parentDialog != null ) {
@@ -1062,6 +1069,7 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
   public void center() {
     super.center();
     Timer t = new Timer() {
+      @Override
       public void run() {
         if ( scheduleEditorWizardPanel.isAttached() && scheduleEditorWizardPanel.isVisible() ) {
           cancel();
@@ -1071,22 +1079,32 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
     t.scheduleRepeating( 250 );
   }
 
+  @Override
   protected boolean enableNext( int index ) {
     return true;
   }
 
+  @Override
+  protected boolean enableFinish( int index ) {
+    return true;
+  }
+
+  @Override
   protected boolean enableBack( int index ) {
     return parentDialog != null;
   }
 
+  @Override
   protected boolean showBack( int index ) {
     return parentDialog != null;
   }
 
+  @Override
   protected boolean showFinish( int index ) {
     return true;
   }
 
+  @Override
   protected boolean showNext( int index ) {
     return false;
   }
