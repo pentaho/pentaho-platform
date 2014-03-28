@@ -107,7 +107,6 @@
 
     });
   </script>
-
 </head>
 
 <body data-spy="scroll" data-target=".sidebar">
@@ -127,7 +126,7 @@
 
             {{#if canCreateContent}}
             <button id="btnCreateNew" class="btn btn-large btn-block popover-source" data-toggle="dropdown"
-                data-toggle="popover" data-placement="right" data-html="true" data-container="body">
+                data-toggle="popover" data-placement="right" data-html="true" data-id="my_hid" data-container="body" onclick="preCreatePopover();">
               {{i18n.create_new}}
             </button>
             {{/if}}
@@ -282,6 +281,22 @@
     </div>
   </div>
 </div>
-
+  <script type="text/javascript">
+		
+		var popup_init = false;
+		
+		function preCreatePopover(){
+			if(!popup_init){
+				var tmp = $.fn.popover.Constructor.prototype.show; 
+				$.fn.popover.Constructor.prototype.show = function () {
+				  tmp.call(this);  
+				  if (!$('.popover-title').html()) 
+						$('.popover-title').hide();
+				}; 
+				popup_init = true;
+			}
+		}
+  
+  </script>
 </body>
 </html>
