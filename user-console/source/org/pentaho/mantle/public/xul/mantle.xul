@@ -36,8 +36,6 @@
 
     <menubar id="toolsmenu" label="${tools}" layout="vertical" visible="false">
       <menubar id="refreshmenu" label="${refresh}" layout="vertical">
-        <menuitem id="refreshRepositoryCacheMenuItem" label="${refreshRepository}"
-                  command="mantleXulHandler.executeMantleCommand('RefreshRepositoryCommand')"/>
         <menuitem id="refreshSystemSettingsMenuItem" label="${refreshSystemSettings}"
                   command="mantleXulHandler.executeMantleCommand('RefreshSystemSettingsCommand')"/>
         <menuitem id="refreshReportingMetadataMenuItem" label="${refreshReportingMetadata}"
