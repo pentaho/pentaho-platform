@@ -29,6 +29,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -396,7 +397,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
     final String path = solutionPath; // Expecting some encoding here
-    final String url = contextURL + "api/repo/files/" + pathToId( path ) + "/properties"; //$NON-NLS-1$
+    final String url = contextURL + "api/repo/files/" + URL.encodePathSegment( pathToId( path ) ) + "/properties"; //$NON-NLS-1$
 
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
