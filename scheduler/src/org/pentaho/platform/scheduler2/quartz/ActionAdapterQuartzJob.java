@@ -272,7 +272,8 @@ public class ActionAdapterQuartzJob implements Job {
             @Override
             public Void call() throws Exception {
               streamProvider.setStreamingAction(null); // remove generated content
-              String jobName = StringUtils.substringBetween(context.getJobDetail().getName(), ":", ":");
+              QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
+              String jobName = jobKey.getJobName();
               jobParams.put(QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG, Boolean.TRUE);
               scheduler.createJob(jobName, iaction, jobParams, trigger, streamProvider);
               log.warn("New RunOnce job created for " + jobName + " -> possible startup synchronization error");
@@ -302,7 +303,8 @@ public class ActionAdapterQuartzJob implements Job {
           @Override
           public Void call() throws Exception {
             streamProvider.setStreamingAction(null); // remove generated content
-            String jobName = StringUtils.substringBetween(context.getJobDetail().getName(), ":", ":");
+            QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
+            String jobName = jobKey.getJobName();
             org.pentaho.platform.api.scheduler2.Job j = scheduler.createJob(jobName, iaction, jobParams, trigger, streamProvider);
             log.warn("New Job: " + j.getJobId() + " created");
             return null;
