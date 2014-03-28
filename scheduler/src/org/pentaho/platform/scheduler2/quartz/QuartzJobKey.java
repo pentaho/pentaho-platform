@@ -68,7 +68,8 @@ public class QuartzJobKey {
    * @throws SchedulerException
    */
   public static QuartzJobKey parse( String jobId ) throws SchedulerException {
-    String[] elements = jobId.split( ":" ); //$NON-NLS-1$
+    String delimiter = jobId.contains( "\t" ) || jobId.isEmpty() ? "\t" : ":";
+    String[] elements = jobId.split( delimiter ); //$NON-NLS-1$
     if ( elements == null || elements.length < 3 ) {
       throw new SchedulerException( MessageFormat.format( Messages.getInstance().getErrorString(
           "QuartzJobKey.ERROR_0002" ), jobId ) ); //$NON-NLS-1$
@@ -95,6 +96,6 @@ public class QuartzJobKey {
 
   @Override
   public String toString() {
-    return userName + ":" + jobName + ":" + timeInMillis; //$NON-NLS-1$ //$NON-NLS-2$
+    return userName + "\t" + jobName + "\t" + timeInMillis; //$NON-NLS-1$ //$NON-NLS-2$
   }
 }
