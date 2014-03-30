@@ -18,6 +18,7 @@
 package org.pentaho.platform.scheduler2.quartz.test;
 
 import org.junit.Test;
+import org.junit.Ignore;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.scheduler2.quartz.QuartzJobKey;
 import org.quartz.Job;
@@ -48,7 +49,6 @@ public class QuartzJobKeyTest {
     QuartzJobKey parsedKey = QuartzJobKey.parse( jobId );
     assertEquals( "Quartz job group is wrong", TEST_JOBNAME, parsedKey.getJobName() );
     assertEquals( "Username is wrong", TEST_USER, parsedKey.getUserName() );
-
   }
 
   @Test( expected = SchedulerException.class )
@@ -65,10 +65,37 @@ public class QuartzJobKeyTest {
   public void testKeyBadJobIdParse() throws SchedulerException {
     QuartzJobKey.parse( "toofewelements:1234567890" );
   }
-
+  
+  @Test
+  public void testKeyWithColonValues() throws SchedulerException {
+    testFromId( "user", "jobName with a (:) Colon", "\t" );
+  }
+  
+  @Test
+  public void testOldFormat() throws SchedulerException {
+    testFromId( "user", "jobName can't have a colon", ":" );
+  }
+  
   @Test( expected = SchedulerException.class )
   public void testKeyBadJobIdParse2() throws SchedulerException {
     QuartzJobKey.parse( "" );
+  }
+  
+  private void testFromId (String user, String jobName, String delimiter) throws SchedulerException {
+    assert(delimiter.equals("\t") || delimiter.equals( ":" ));
+    
+    //
+    // Generate a new key based on client-provided job name and username
+    //
+    QuartzJobKey jobKey = QuartzJobKey.parse( user + delimiter + jobName + delimiter + "1234567890" );
+    assertEquals( "Incorrect User", user, jobKey.getUserName() );
+    assertEquals( "Incorrect Job Name", jobName, jobKey.getJobName() );
+    
+    //
+    // Now parse the jobId back into the key object (should always be tab delimited)
+    //
+    String jobId = jobKey.toString();
+    assertEquals( "Incorrect Returned Job Id", user + "\t" + jobName + "\t" + "1234567890" , jobId);
   }
 
   static class FakeJob implements Job {
