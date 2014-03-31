@@ -58,6 +58,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
@@ -1000,6 +1001,26 @@ public class FileResource extends AbstractJaxRSResource {
         && getPolicy().isAllowed( AdministerSecurityAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
+  /**
+   * Returns the repository reserved characters
+   * 
+   * @return list of characters
+   */
+  @GET
+  @Path( "/reservedCharacters" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  public Response doGetReservedChars() {
+    List<Character> reservedCharacters = getRepoWs().getReservedChars() ;
+    StringBuffer buffer = new StringBuffer();
+    for(int i=0;i<reservedCharacters.size();i++) {
+      buffer.append( reservedCharacters.get( i ) );
+      if(i+1 < reservedCharacters.size()) {
+        buffer.append( ',' );  
+      }
+    }
+    return Response.ok( buffer.toString() , MediaType.APPLICATION_JSON ).build();
+  }  
+  
   /**
    * Checks whether the current user can create content in the repository
    * 
