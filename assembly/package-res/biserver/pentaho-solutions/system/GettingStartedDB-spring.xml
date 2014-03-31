@@ -14,7 +14,7 @@
 	   factory-method="createTcpServer"
 	   init-method="start"
 	   destroy-method="stop">
-	   <constructor-arg value="-tcp,-baseDir,#[base.dir],-tcpAllowOthers,true,-tcpPort,#[tcp.port]" />
+	   <constructor-arg value="-tcp,-baseDir,#[base.dir],-tcpAllowOthers,-tcpPort,#[tcp.port]" />
 	 </bean>
    <bean id="gettingStartedPropertiesConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
      <property name="location" value="GettingStartedDB.properties" />
