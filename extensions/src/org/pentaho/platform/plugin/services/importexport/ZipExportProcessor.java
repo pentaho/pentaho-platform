@@ -47,9 +47,11 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 
 import java.io.File;
@@ -131,6 +133,9 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     // get the file path
     String filePath = new File( this.path ).getParent();
+    if ( filePath == null ) {
+      filePath = "/";
+    }
 
     // send a response right away if not found
     if ( exportRepositoryFile == null ) {
@@ -143,10 +148,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
     if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
       exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
 
-      ZipEntry entry = new ZipEntry( getZipEntryName( exportRepositoryFile, filePath ) );
-
-      zos.putNextEntry( entry );
-
+      // don't zip root folder without name
+      if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
+        zos.putNextEntry( new ZipEntry( getZipEntryName( exportRepositoryFile, filePath ) ) );
+      }
       exportDirectory( exportRepositoryFile, zos, filePath );
 
     } else {
@@ -185,8 +190,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param outputStream
    * @throws ExportManifestFormatException
    */
-  public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+  public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath ) throws
+      ExportException, IOException {
 
     // we need a zip
     ZipOutputStream zos = (ZipOutputStream) outputStream;
@@ -233,21 +238,24 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param outputStream
    */
   @Override
-  public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+  public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath ) throws
+      ExportException, IOException {
     addToManifest( repositoryDir );
-
-    List<RepositoryFile> children = this.unifiedRepository.getChildren( repositoryDir.getId() );
+    List<RepositoryFile> children = this.unifiedRepository.getChildren( new RepositoryRequest(
+        String.valueOf( repositoryDir.getId() ), true, 1, null ) );
     for ( RepositoryFile repositoryFile : children ) {
-      if ( repositoryFile.isFolder() ) {
-        if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
-          ZipOutputStream zos = (ZipOutputStream) outputStream;
-          ZipEntry entry = new ZipEntry( getZipEntryName( repositoryFile, filePath ) );
-          zos.putNextEntry( entry );
+      // exclude 'etc' folder - datasources and etc.
+      if ( !ClientRepositoryPaths.getEtcFolderPath().equals( repositoryFile.getPath() ) ) {
+        if ( repositoryFile.isFolder() ) {
+          if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
+            ZipOutputStream zos = (ZipOutputStream) outputStream;
+            ZipEntry entry = new ZipEntry( getZipEntryName( repositoryFile, filePath ) );
+            zos.putNextEntry( entry );
+          }
+          exportDirectory( repositoryFile, outputStream, filePath );
+        } else {
+          exportFile( repositoryFile, outputStream, filePath );
         }
-        exportDirectory( repositoryFile, outputStream, filePath );
-      } else {
-        exportFile( repositoryFile, outputStream, filePath );
       }
     }
     createLocales( repositoryDir, filePath, repositoryDir.isFolder(), outputStream );

@@ -44,6 +44,7 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
@@ -315,7 +316,7 @@ public class CommandLineProcessor {
    * 
    * @throws ParseException
    */
-  private void performREST() throws ParseException {
+  private void performREST() throws ParseException, InitializationException {
 
     String contextURL =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
@@ -370,7 +371,7 @@ public class CommandLineProcessor {
    * 
    * @throws ParseException
    */
-  private void initRestService() throws ParseException {
+  private void initRestService() throws ParseException, InitializationException {
     // get information about the remote connection
     String username =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_USERNAME_KEY" ), Messages
@@ -382,6 +383,18 @@ public class CommandLineProcessor {
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
     client.addFilter( new HTTPBasicAuthFilter( username, password ) );
+
+    // check if the user has permissions to upload/download data
+    String contextURL =
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
+            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
+    WebResource resource = client.resource( contextURL + "/api/authorization/action/isauthorized?authAction="
+        + AdministerSecurityAction.NAME );
+    String response = resource.get( String.class );
+    if ( !response.equals( "true" ) ) {
+      throw new InitializationException( Messages.getInstance().getString(
+          "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
+    }
   }
 
   /**
@@ -764,7 +777,7 @@ public class CommandLineProcessor {
     importProcessor.performImport( Boolean.valueOf( overwrite == null ? "true" : overwrite ).booleanValue() );
   }
 
-  protected void performExport() throws ParseException, ExportException, IOException {
+  protected void performExport() throws ParseException, ExportException, IOException, InitializationException {
     if ( !useRestService ) {
       performExportLegacy();
     } else {
@@ -781,7 +794,7 @@ public class CommandLineProcessor {
    *           --logfile=c:/temp/steel-wheels.log --withManifest=true
    * @throws java.io.IOException
    */
-  private void performExportREST() throws ParseException, IOException {
+  private void performExportREST() throws ParseException, IOException, InitializationException {
     String contextURL =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
@@ -1119,8 +1132,8 @@ public class CommandLineProcessor {
    * @throws ParseException
    *           indicates the required or non-blank value was not provided
    */
-  protected String getOptionValue( final String option, final boolean required, final boolean emptyOk )
-    throws ParseException {
+  protected String getOptionValue( final String option, final boolean required, final boolean emptyOk ) throws
+      ParseException {
     final String value = StringUtils.trim( commandLine.getOptionValue( option ) );
     if ( required && StringUtils.isEmpty( value ) ) {
       throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
