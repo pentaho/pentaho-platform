@@ -21,6 +21,13 @@ public class ServerTypeUtil {
   private static final String PLATFORM_PRODUCT_ID = "POBS";
 
   public static boolean isPlatformServer() {
-    return VersionHelper.getVersionInfo().getProductID().equals( PLATFORM_PRODUCT_ID );
+    String productId;
+    productId = VersionHelper.getVersionInfo().getProductID();
+
+    if ( productId == null ) {
+      return false;
+    }
+
+    return productId.equals( PLATFORM_PRODUCT_ID );
   }
 }
