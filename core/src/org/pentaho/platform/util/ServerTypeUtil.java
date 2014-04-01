@@ -18,9 +18,16 @@
 package org.pentaho.platform.util;
 
 public class ServerTypeUtil {
-	private static final String PLATFORM_PRODUCT_ID = "POBS";
-	
-	public static boolean isPlatformServer() {
-		return VersionHelper.getVersionInfo().getProductID().equals(PLATFORM_PRODUCT_ID);
-	}
+  private static final String PLATFORM_PRODUCT_ID = "POBS";
+
+  public static boolean isPlatformServer() {
+    String productId;
+    productId = VersionHelper.getVersionInfo().getProductID();
+
+    if ( productId == null ) {
+      return false;
+    }
+
+    return productId.equals( PLATFORM_PRODUCT_ID );
+  }
 }
