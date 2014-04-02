@@ -72,7 +72,7 @@ public class SimpleExportProcessorTest {
 
   @Test
   public void testPerformExportWithManifest() throws Exception {
-    SimpleExportProcessor simpleExportProcessor = new SimpleExportProcessor( path, unifiedRepository, true );
+    SimpleExportProcessor simpleExportProcessor = new SimpleExportProcessor( path, unifiedRepository );
     simpleExportProcessor.addExportHandler( defaultExportHandler );
 
     File resultFile = simpleExportProcessor.performExport( repositoryFile );

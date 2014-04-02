@@ -41,14 +41,10 @@ public class SimpleExportProcessor extends BaseExportProcessor {
 
   IUnifiedRepository unifiedRepository;
 
-  private boolean withManifest = true;
-
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest, and performing the export
    */
-  public SimpleExportProcessor( String path, IUnifiedRepository repository, boolean withManifest ) {
-    this.withManifest = withManifest;
-
+  public SimpleExportProcessor( String path, IUnifiedRepository repository ) {
     // set a default path at root if missing
     if ( StringUtils.isEmpty( path ) ) {
       this.path = "/";

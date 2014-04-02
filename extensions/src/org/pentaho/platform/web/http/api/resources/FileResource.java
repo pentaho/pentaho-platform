@@ -630,7 +630,7 @@ public class FileResource extends AbstractJaxRSResource {
         exportProcessor = new ZipExportProcessor( path, FileResource.repository, withManifest );
         quotedFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
       } else {
-        exportProcessor = new SimpleExportProcessor( path, FileResource.repository, withManifest );
+        exportProcessor = new SimpleExportProcessor( path, FileResource.repository );
         quotedFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
       }
       quotedFileName = "\"" + URLEncoder.encode( quotedFileName, "UTF-8" ).replaceAll( "\\+", "%20" ) + "\"";
