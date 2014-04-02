@@ -51,8 +51,8 @@ public class PentahoVersionCheckReflectHelper {
         // use reflection so anyone can delete the version checker jar without pain
 
         // PentahoVersionCheckHelper helper = new PentahoVersionCheckHelper();
-        Class helperClass = Class
-            .forName("org.pentaho.platform.util.versionchecker.PentahoVersionCheckHelper"); //$NON-NLS-1$
+        Class helperClass = 
+            Class.forName("org.pentaho.platform.util.versionchecker.PentahoVersionCheckHelper"); //$NON-NLS-1$
         Object helper = helperClass.getConstructors()[0].newInstance(new Object[] {});
 
         // helper.setIgnoreExistingUpdates(ignoreExistingUpdates);
