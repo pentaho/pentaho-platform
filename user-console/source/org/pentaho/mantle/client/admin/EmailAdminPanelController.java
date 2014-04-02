@@ -36,12 +36,11 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.TextBox;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.ui.xul.XulComponent;
-import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
-import org.pentaho.ui.xul.util.XulDialogCallback;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
@@ -263,24 +262,24 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
     if ( isDirty ) {
-      GwtConfirmBox messageBox = new GwtConfirmBox();
-      messageBox.setTitle( Messages.getString( "confirm" ) );
-      messageBox.setMessage( Messages.getString( "dirtyStateMessage" ) );
-      messageBox.addDialogCallback( new XulDialogCallback<String>() {
-
-        public void onClose( XulComponent component, XulDialogCallback.Status status, String value ) {
-          if ( status == XulDialogCallback.Status.ACCEPT ) {
-            setEmailConfig();
-            callback.onSuccess( true );
-          } else if ( status == XulDialogCallback.Status.CANCEL ) {
-            callback.onSuccess( true );
-          }
+      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" )
+          , Messages.getString( "dirtyStateMessage" ), false, false, true, Messages.getString( "yes" ), null
+          , Messages.getString( "no" ) );
+      messageBox.setCallback( new IDialogCallback() {
+        @Override
+        public void okPressed() {
+          setEmailConfig();
+          callback.onSuccess( true );
+          setDirty( false );
         }
 
-        public void onError( XulComponent e, Throwable t ) {
+        @Override
+        public void cancelPressed() {
+          callback.onSuccess( true );
+          setDirty( false );
         }
       } );
-      messageBox.show();
+      messageBox.center();
     } else {
       callback.onSuccess( true );
     }
