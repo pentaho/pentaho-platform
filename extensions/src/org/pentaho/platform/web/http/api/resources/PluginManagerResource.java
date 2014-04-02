@@ -17,7 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.drools.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
