@@ -399,16 +399,19 @@
          ================================= -->
   <target name="update-solutions" depends="update-plugin-samples">
 
-      <!-- Set the visible value of the sample dirs -->
-      <set-solution-visibility dir="${stage.dir.solutions}/bi-developers" visible="${bi-developers.visible}" />
+    <!-- Set the visible value of the sample dirs -->
+    <set-solution-visibility dir="${stage.dir.solutions}/bi-developers" visible="${bi-developers.visible}" />
 
-      <zip destfile="${stage.dir.solutions}/system/default-content/samples.zip">
-      	<fileset dir="${stage.dir.solutions}/system/default-content/samples"/>
-      </zip>
-  	  <delete dir="${stage.dir.solutions}/system/default-content/samples"/>
+  	<for param="subdir"> 
+  	  <dirset dir="${stage.dir.solutions}/system/default-content" includes="*"/> 
+  	  <sequential> 
+        <zip destfile="@{subdir}.zip"> 
+          <fileset dir="@{subdir}" includes="**/*"/> 
+        </zip> 
+        <delete dir="@{subdir}"/>
+  	  </sequential> 
+  	</for>   	
 
-
-	  	
   </target>
 
     <target name="update-plugin-samples" if="plugin-samples.install">
