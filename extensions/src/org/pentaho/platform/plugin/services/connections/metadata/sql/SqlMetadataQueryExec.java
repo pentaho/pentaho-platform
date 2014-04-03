@@ -17,6 +17,14 @@
 
 package org.pentaho.platform.plugin.services.connections.metadata.sql;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +41,9 @@ import org.pentaho.metadata.query.impl.sql.SqlGenerator;
 import org.pentaho.metadata.query.model.Query;
 import org.pentaho.metadata.util.DatabaseMetaUtil;
 import org.pentaho.metadata.util.ThinModelConverter;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
@@ -43,17 +53,49 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.SimpleLogger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
 
   static final Log logger = LogFactory.getLog( SqlMetadataQueryExec.class );
 
-  // Must start out as null in order ot allow injection pionts their turn at
-  // specifyig the implementing class.
+  public static final String CONFIG_ID = "sqlmetadataqueryexec";
+
+  public static final String FORCE_DB_META_CLASSES_PROP = "forceDbMetaClasses";
+
+  protected final Set<String> driverClassesToForceMeta;
+
+  // Must start out as null in order to allow injection points their turn at
+  // specifying the implementing class.
   private String sqlGeneratorClass = null; //$NON-NLS-1$
+
+  public SqlMetadataQueryExec() {
+    this( PentahoSystem.get( ISystemConfig.class ) );
+  }
+
+  public SqlMetadataQueryExec( ISystemConfig systemConfig ) {
+    String[] forceDbMetaClasses = new String[] {};
+    if ( systemConfig != null ) {
+      try {
+        IConfiguration config = systemConfig.getConfiguration( CONFIG_ID );
+        if ( config != null ) {
+          Properties props = config.getProperties();
+          if ( props != null ) {
+            forceDbMetaClasses = props.getProperty( FORCE_DB_META_CLASSES_PROP, "" ).split( "," );
+          }
+        }
+      } catch ( IOException e ) {
+        logger.error( e );
+      }
+    }
+    driverClassesToForceMeta = new HashSet<String>( forceDbMetaClasses.length );
+    for ( String forceDbMetaClass : forceDbMetaClasses ) {
+      if ( forceDbMetaClass != null ) {
+        forceDbMetaClass = forceDbMetaClass.trim();
+        if ( forceDbMetaClass.length() > 0 ) {
+          driverClassesToForceMeta.add( forceDbMetaClass );
+        }
+      }
+    }
+  }
 
   public IPentahoResultSet executeQuery( Query queryObject ) {
 
@@ -153,13 +195,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
         return null;
       }
 
-      if ( localResultSet != null ) {
-        return localResultSet;
-      } else {
-        logger.error( Messages.getInstance().getErrorString( "SQLBaseComponent.ERROR_0006_EXECUTE_FAILED" ) ); //$NON-NLS-1$
-        return null;
-      }
-
+      return localResultSet;
     } finally {
       if ( closeConnection && sqlConnection != null ) {
         sqlConnection.close();
@@ -184,7 +220,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
   }
 
   protected DatabaseMeta getActiveDatabaseMeta( DatabaseMeta databaseMeta ) {
-    if ( getForceDbDialect() ) {
+    if ( getForceDbDialect() || driverClassesToForceMeta.contains( databaseMeta.getDriverClass() ) ) {
       return databaseMeta;
     }
 
@@ -275,7 +311,6 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
     return null;
   }
 
-  @SuppressWarnings( "unchecked" )
   /**
    * There are 3 levels at which a SqlGenerator class can be found:
    * The default class is specified in this component:
@@ -303,7 +338,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
       }
     }
     if ( sqlGeneratorClass != null ) {
-      Class clazz = Class.forName( sqlGeneratorClass );
+      Class<?> clazz = Class.forName( sqlGeneratorClass );
       sqlGenerator = (SqlGenerator) clazz.getConstructor( new Class[] {} ).newInstance( new Object[] {} );
     }
     return sqlGenerator;
