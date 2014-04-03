@@ -199,4 +199,8 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
 
   protected abstract void onSelect( String name, String outputLocationPath );
 
+  public void setOkButtonText(String text){
+    okButton.setText( text );
+  }
+  
 }
