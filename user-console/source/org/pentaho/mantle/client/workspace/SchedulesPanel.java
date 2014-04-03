@@ -868,7 +868,7 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void editJob(JsJob editJob) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + editJob.getJobId();
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + encodeUri( editJob.getJobId() );
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
     executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
@@ -1038,5 +1038,9 @@ public class SchedulesPanel extends SimplePanel {
     var obj = eval('(' + json + ')');
     return obj;
   }-*/;
-
+  
+  private final native String encodeUri(String URI)
+  /*-{
+    return encodeURIComponent(URI);
+  }-*/;
 }
