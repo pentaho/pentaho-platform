@@ -35,6 +35,12 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
     <pen:publish as-type="INTERFACES"/>
   </bean>
 
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="sqlmetadataqueryexec"/>
+    <constructor-arg value="sqlmetadataqueryexec.properties"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
   <import resource="pentahoSystemConfig.xml" />
   <import resource="adminPlugins.xml" />
   <import resource="systemListeners.xml" />
