@@ -2027,7 +2027,7 @@
       <CWM:ModelElement.taggedValue>
         <CWM:TaggedValue xmi.id = 'a699' tag = 'DATABASE_SERVER' value = 'localhost'/>
         <CWM:TaggedValue xmi.id = 'a700' tag = 'DATABASE_TYPE' value = 'HYPERSONIC'/>
-        <CWM:TaggedValue xmi.id = 'a701' tag = 'DATABASE_ACCESS' value = ', '/>
+        <CWM:TaggedValue xmi.id = 'a701' tag = 'DATABASE_ACCESS' value = 'JNDI'/>
         <CWM:TaggedValue xmi.id = 'a702' tag = 'DATABASE_DATABASE' value = 'SampleData'/>
         <CWM:TaggedValue xmi.id = 'a703' tag = 'DATABASE_PORT' value = ''/>
         <CWM:TaggedValue xmi.id = 'a704' tag = 'DATABASE_USERNAME' value = ''/>
