@@ -192,10 +192,27 @@
                 rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
     <dependency org="pentaho" name="pentaho-report-wizard-core" rev="${dependency.pentaho-report-wizard-core.revision}"
                 changing="true"/>
-	<dependency org="pentaho-library" name="librepository" rev="${dependency.librepository.revision}" changing="true" transitive="false"/>
-	<dependency org="pentaho-library" name="libdocbundle" rev="${dependency.libdocbundle.revision}" changing="true" transitive="false"/>
-    <dependency org="pentaho-library" name="libformat" rev="${dependency.libformat.revision}" changing="true" transitive="false"/>
-    <dependency org="pentaho-library" name="libserializer" rev="${dependency.libserializer.revision}" changing="true" transitive="false"/>
+	<dependency org="${library.group}" name="libbase" rev="${dependency.reporting-library.revision}" transitive="false" changing="true"/>
+    <dependency org="${library.group}" name="libdocbundle" rev="${dependency.reporting-library.revision}" transitive="false"
+               changing="true"/>
+    <dependency org="${library.group}" name="libfonts" rev="${dependency.reporting-library.revision}" transitive="false"
+                  changing="true"/>
+    <dependency org="${library.group}" name="libformat" rev="${dependency.reporting-library.revision}" transitive="false"
+                  changing="true"/>
+    <dependency org="${library.group}" name="libformula" rev="${dependency.reporting-library.revision}" transitive="false"
+                  changing="true"/>
+    <dependency org="${library.group}" name="libloader" rev="${dependency.reporting-library.revision}" transitive="false"
+                  changing="true"/>
+    <dependency org="${library.group}" name="librepository" rev="${dependency.reporting-library.revision}" transitive="false"
+                  changing="true"/>
+    <dependency org="${library.group}" name="libserializer" rev="${dependency.reporting-library.revision}" transitive="false"
+                  changing="true"/>
+    <dependency org="${library.group}" name="libxml" rev="${dependency.reporting-library.revision}" transitive="false" changing="true"/>
+    <dependency org="${library.group}" name="libswing" rev="${dependency.reporting-library.revision}" transitive="false" changing="true"/>
+    <dependency org="${library.group}" name="flute" rev="${dependency.reporting-library.revision}" transitive="false" changing="true" />
+    
+    
+    
     <dependency org="com.lowagie" name="itext-rtf" rev="${dependency.itextrtf.revision}" changing="true" transitive="false"/>
     <dependency org="org.codehaus.groovy"  name="groovy"  rev="1.8.0"  changing="true" transitive="false"/>
 
