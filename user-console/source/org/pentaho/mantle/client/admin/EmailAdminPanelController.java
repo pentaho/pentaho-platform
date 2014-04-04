@@ -35,7 +35,8 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.ValueBoxBase;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
@@ -103,9 +104,19 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     prepareTextBox( portTextBox, new ChangeHandler() {
       @Override
       public void onChange( ChangeEvent event ) {
-        Short port = isPortValid( portTextBox.getValue() ) ? Short.parseShort( portTextBox.getValue() ) : -1;
-        emailConfig.setSmtpPort( port );
         setDirty( true );
+      }
+    } );
+    portTextBox.addChangeHandler( new ChangeHandler() {
+      @Override
+      public void onChange( ChangeEvent event ) {
+        if ( isPortValid( portTextBox.getValue() ) ) {
+          emailConfig.setSmtpPort( Integer.parseInt( portTextBox.getValue() ) );
+          setDirty( true );
+        } else {
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
+              , false, true ).center();
+        }
       }
     } );
 
@@ -156,7 +167,12 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
     saveButton.addClickHandler( new ClickHandler() {
       public void onClick( final ClickEvent clickEvent ) {
-        setEmailConfig();
+        if ( isPortValid( portTextBox.getValue() ) ) {
+          setEmailConfig();
+        } else {
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
+              , false, true ).center();
+        }
       }
     } );
 
@@ -270,10 +286,17 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
         public void onClose( XulComponent component, XulDialogCallback.Status status, String value ) {
           if ( status == XulDialogCallback.Status.ACCEPT ) {
-            setEmailConfig();
-            callback.onSuccess( true );
+            if ( isPortValid( portTextBox.getValue() ) ) {
+              setEmailConfig();
+              callback.onSuccess( true );
+              setDirty( false );
+            } else {
+              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
+                  , false, true ).center();
+            }
           } else if ( status == XulDialogCallback.Status.CANCEL ) {
             callback.onSuccess( true );
+            setDirty( false );
           }
         }
 
@@ -291,7 +314,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     saveButton.setEnabled( isDirty );
   }
 
-  private void prepareTextBox( final TextBox textBox, final ChangeHandler changeHandler ) {
+  private void prepareTextBox( final ValueBoxBase textBox, final ChangeHandler changeHandler ) {
     textBox.addKeyUpHandler( new KeyUpHandler() {
       @Override
       public void onKeyUp( KeyUpEvent event ) {
@@ -301,7 +324,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     textBox.addMouseUpHandler( new MouseUpHandler() {
       @Override
       public void onMouseUp( MouseUpEvent event ) {
-        final String oldValue = textBox.getValue();
+        final Object oldValue = textBox.getValue();
         new Timer() { // set timer for IE 'x' clear input button.
           @Override
           public void run() {
