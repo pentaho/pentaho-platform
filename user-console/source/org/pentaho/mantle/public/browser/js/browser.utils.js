@@ -41,14 +41,14 @@ define([
     },
 
     getContent: function (serviceUrl, successCallback, errorCallback, beforeSendCallback) {
-      this._makeAjaxCall("GET", "json", serviceUrl, successCallback, errorCallback, beforeSendCallback);
+      this._makeAjaxCall("GET", "json", serviceUrl, true, successCallback, errorCallback, beforeSendCallback);
     },
 
     putContent: function (serviceUrl, successCallback, errorCallback, beforeSendCallback) {
-      this._makeAjaxCall("POST", "json", serviceUrl, successCallback, errorCallback, beforeSendCallback);
+      this._makeAjaxCall("POST", "json", serviceUrl, true, successCallback, errorCallback, beforeSendCallback);
     },
 
-    _makeAjaxCall: function (type, dataType, serviceUrl, successCallback, errorCallback, beforeSendCallback) {
+    _makeAjaxCall: function (type, dataType, serviceUrl, async, successCallback, errorCallback, beforeSendCallback) {
       var now = new Date();
       var url = serviceUrl + (serviceUrl.indexOf("?") > -1 ? "&" : "?") + "ts=" + now.getTime();
 
@@ -56,6 +56,7 @@ define([
         type: type,
         dataType: dataType,
         url: url,
+        async: async,
         success: function (result) {
           if (successCallback) {
             successCallback(result);
