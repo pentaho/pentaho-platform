@@ -30,6 +30,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HasText;
@@ -41,6 +42,7 @@ import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
@@ -293,6 +295,27 @@ public class PerspectiveManager extends SimplePanel {
     if ( activePerspective == perspective ) {
       return;
     }
+
+    if ( activePerspective != null && ADMIN_PERSPECTIVE.equals( activePerspective.getId() ) ) {
+      final Widget activeAdminPanel = MantleXul.getInstance().getAdminContentDeck().getWidget( MantleXul.getInstance()
+          .getAdminContentDeck().getVisibleWidget() );
+      if ( activeAdminPanel != null && activeAdminPanel instanceof ISysAdminPanel ) {
+        ( (ISysAdminPanel) activeAdminPanel ).passivate( new AsyncCallback<Boolean>() {
+          @Override
+          public void onFailure( Throwable caught ) { }
+
+          @Override
+          public void onSuccess( Boolean result ) {
+            showPerspectiveContinue( perspective );
+          }
+        } );
+      }
+    } else {
+      showPerspectiveContinue( perspective );
+    }
+  }
+
+  private void showPerspectiveContinue( IPluginPerspective perspective ) {
     if ( !perspective.getTitle().startsWith( "${" ) ) {
       perspectiveDropDown.setText( perspective.getTitle() );
     }
