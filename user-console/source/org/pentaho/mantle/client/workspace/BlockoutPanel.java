@@ -140,6 +140,7 @@ public class BlockoutPanel extends SimplePanel {
         newBlockoutHandler.onClick( null );
       }
     } );
+    addButton.setToolTip( Messages.getString( "blockoutAdd" ) );
     ToolbarButton editButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-editbutton" ) );
     editButton.setCommand( new Command() {
       @Override
@@ -153,6 +154,7 @@ public class BlockoutPanel extends SimplePanel {
         blockoutDialog.center();
       }
     } );
+    editButton.setToolTip( Messages.getString( "blockoutEdit" ) );
     ToolbarButton removeButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-deletebutton" ) );
     removeButton.setCommand( new Command() {
       public void execute() {
@@ -182,6 +184,7 @@ public class BlockoutPanel extends SimplePanel {
         blockoutDeleteWarningDialogBox.center();
       }
     } );
+    removeButton.setToolTip( Messages.getString( "blockoutDelete" ) );
     tableControls.add( editButton );
     tableControls.add( addButton );
     tableControls.add( removeButton );
