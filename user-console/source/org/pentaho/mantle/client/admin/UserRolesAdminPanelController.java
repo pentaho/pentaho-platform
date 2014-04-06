@@ -35,12 +35,10 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.ui.xul.XulComponent;
-import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
-import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
-import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -154,24 +152,16 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   private void checkForError( String title, Response response ) {
     if ( response != null && response.getText() != null && response.getText().length() > 0 ) {
-      GwtMessageBox messageBox = new GwtMessageBox();
-      messageBox.setTitle( title );
-      messageBox.setMessage( response.getText() );
-      messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
-      messageBox.setAcceptLabel( Messages.getString( "close" ) );
-      messageBox.setWidth( 300 );
-      messageBox.show();
+      MessageDialogBox messageBox = new MessageDialogBox( title, response.getText(), false, false, true
+          , Messages.getString( "close" ) );
+      messageBox.center();
     }
   }
 
   private void displayErrorInMessageBox( String title, String message ) {
-    GwtMessageBox messageBox = new GwtMessageBox();
-    messageBox.setTitle( title );
-    messageBox.setMessage( message );
-    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
-    messageBox.setAcceptLabel( Messages.getString( "close" ) );
-    messageBox.setWidth( 300 );
-    messageBox.show();
+    MessageDialogBox messageBox = new MessageDialogBox( title, message, false, false, true
+        , Messages.getString( "close" ) );
+    messageBox.center();
   }
 
   public void deleteUsers() {
@@ -432,7 +422,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean usingLDAPOrJDBC = (response.getText().contains( "ldap" ) || response.getText().contains( "jdbc" ));
+          boolean usingLDAPOrJDBC = ( response.getText().contains( "ldap" ) || response.getText().contains( "jdbc" ) );
           usersLabelPanel.setVisible( !usingLDAPOrJDBC );
           usersPanel.setVisible( !usingLDAPOrJDBC );
           newRoleButton.setVisible( !usingLDAPOrJDBC );
@@ -701,21 +691,19 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class DeleteRoleListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       if ( rolesListBox.getSelectedIndex() != -1 ) {
-        GwtConfirmBox warning = new GwtConfirmBox();
-        warning.setMessage( Messages.getString( "deleteRoleMessage" ) );
-        warning.setTitle( Messages.getString( "deleteRoleTitle" ) );
-        warning.addDialogCallback( new XulDialogCallback<String>() {
-          public void onClose( XulComponent sender, Status returnCode, String retVal ) {
-            if ( returnCode == Status.ACCEPT ) {
-              deleteRoles();
-            }
+        MessageDialogBox warning = new MessageDialogBox( Messages.getString( "deleteRoleTitle" )
+            , Messages.getString( "deleteRoleMessage" ), false, false, true, Messages.getString( "yesDelete" ), null
+            , Messages.getString( "no" ) );
+        warning.setCallback( new IDialogCallback() {
+          @Override
+          public void okPressed() {
+            deleteRoles();
           }
 
-          public void onError( XulComponent sender, Throwable t ) {
-            displayErrorInMessageBox( Messages.getString( "Error" ), t.getLocalizedMessage() );
-          }
+          @Override
+          public void cancelPressed() { }
         } );
-        warning.show();
+        warning.center();
       }
     }
   }
@@ -730,22 +718,19 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class DeleteUserListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       if ( usersListBox.getSelectedIndex() != -1 ) {
-        GwtConfirmBox warning = new GwtConfirmBox();
-        warning.setHeight( 117 );
-        warning.setMessage( Messages.getString( "deleteUserMessage" ) );
-        warning.setTitle( Messages.getString( "deleteUserTitle" ) );
-        warning.addDialogCallback( new XulDialogCallback<String>() {
-          public void onClose( XulComponent sender, Status returnCode, String retVal ) {
-            if ( returnCode == Status.ACCEPT ) {
-              deleteUsers();
-            }
+        MessageDialogBox warning = new MessageDialogBox( Messages.getString( "deleteUserTitle" )
+            , Messages.getString( "deleteUserMessage" ), false, false, true, Messages.getString( "yesDelete" ), null
+            , Messages.getString( "no" ) );
+        warning.setCallback( new IDialogCallback() {
+          @Override
+          public void okPressed() {
+            deleteUsers();
           }
 
-          public void onError( XulComponent sender, Throwable t ) {
-            displayErrorInMessageBox( Messages.getString( "Error" ), t.getLocalizedMessage() );
-          }
+          @Override
+          public void cancelPressed() { }
         } );
-        warning.show();
+        warning.center();
       }
     }
   }
