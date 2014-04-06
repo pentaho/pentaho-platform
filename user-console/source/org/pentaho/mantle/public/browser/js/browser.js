@@ -492,6 +492,7 @@ define([
 
     initialize: function () {
       var myself = this;
+      myself.set("cachedData",{}); // clear cached data on initialization - Backbone relates to old cachedData when new object is created
 
       myself.on("change:path", myself.updateData, myself);
     },
@@ -1018,8 +1019,11 @@ define([
     },
 
     setFolder: function () {
-      var $folder = $("[path='" + this.model.get("startFolder") + "']"),
-          $parentFolder = $folder.parent(".folders");
+      var $folder = $("[path='" + this.model.get("startFolder") + "']");
+      if ( $folder.length == 0 ) {
+          $folder = $("[path='" + window.top.HOME_FOLDER + "']");
+      }
+      var $parentFolder = $folder.parent(".folders");
 
       while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
         $parentFolder.show();
@@ -1217,5 +1221,7 @@ define([
   }
 });
 
-
-
+function perspectiveActivated() {
+    window.top.mantle_isBrowseRepoDirty = true;
+    FileBrowser.update( FileBrowser.fileBrowserModel.getFolderClicked().attr("path") );
+}
