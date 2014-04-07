@@ -52,7 +52,7 @@ public class PentahoVersionCheckReflectHelper {
 
         // PentahoVersionCheckHelper helper = new PentahoVersionCheckHelper();
         Class helperClass = Class
-            .forName("org.pentaho.platform.util.versionchecker.PentahoVersionCheckHelper"); //$NON-NLS-1$
+            .forName("org.pentaho.platform.plugin.services.versionchecker.PentahoVersionCheckHelper"); //$NON-NLS-1$
         Object helper = helperClass.getConstructors()[0].newInstance(new Object[] {});
 
         // helper.setIgnoreExistingUpdates(ignoreExistingUpdates);
