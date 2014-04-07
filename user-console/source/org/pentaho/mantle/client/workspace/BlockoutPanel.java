@@ -45,6 +45,8 @@ import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTy
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import com.google.gwt.gen2.table.event.client.RowSelectionEvent;
+import com.google.gwt.gen2.table.event.client.RowSelectionHandler;
 import org.pentaho.mantle.client.dialogs.scheduling.NewBlockoutScheduleDialog;
 import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
@@ -63,6 +65,9 @@ public class BlockoutPanel extends SimplePanel {
   private Button blockoutButton;
   private Toolbar tableControls;
   private VerticalPanel tablePanel;
+  private ToolbarButton editButton;
+  private ToolbarButton removeButton;
+
   private IDialogCallback refreshCallBack = new IDialogCallback() {
     public void okPressed() {
       refresh();
@@ -141,7 +146,8 @@ public class BlockoutPanel extends SimplePanel {
       }
     } );
     addButton.setToolTip( Messages.getString( "blockoutAdd" ) );
-    ToolbarButton editButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-editbutton" ) );
+    editButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-editbutton" ) );
+    editButton.setEnabled( false );
     editButton.setCommand( new Command() {
       @Override
       public void execute() {
@@ -155,7 +161,8 @@ public class BlockoutPanel extends SimplePanel {
       }
     } );
     editButton.setToolTip( Messages.getString( "blockoutEdit" ) );
-    ToolbarButton removeButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-deletebutton" ) );
+    removeButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-deletebutton" ) );
+    removeButton.setEnabled( false );
     removeButton.setCommand( new Command() {
       public void execute() {
 
@@ -207,6 +214,16 @@ public class BlockoutPanel extends SimplePanel {
     table.setWidth( "640px" );
     table.setHeight( "328px" );
     table.fillWidth();
+    table.addRowSelectionHandler( new RowSelectionHandler() {
+      @Override
+      public void onRowSelection( RowSelectionEvent event ) {
+        boolean isSelected = event.getNewValue().size() > 0;
+        boolean isSingleSelect = event.getNewValue().size() == 1;
+        editButton.setEnabled( isSingleSelect );
+        removeButton.setEnabled( isSelected );
+      }
+    });
+    
     tablePanel.add( table );
   }
 
