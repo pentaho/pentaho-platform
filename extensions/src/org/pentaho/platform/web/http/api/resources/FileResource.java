@@ -62,6 +62,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -278,6 +279,9 @@ public class FileResource extends AbstractJaxRSResource {
     if ( mode == null ) {
       mode = MODE_RENAME;
     }
+    if ( !getPolicy().isAllowed( RepositoryCreateAction.NAME ) ) {
+      return Response.status( FORBIDDEN ).build();
+    }
     try {
       String path = idToPath( pathId );
       RepositoryFile destDir = getRepository().getFile( path );
@@ -366,7 +370,7 @@ public class FileResource extends AbstractJaxRSResource {
       }
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().entity( t.getMessage() ).build();
+      return Response.serverError().entity( new SafeHtmlBuilder().appendEscapedLines( t.getLocalizedMessage() ).toSafeHtml().asString() ).build();
     }
     return Response.ok().build();
   }
