@@ -131,7 +131,7 @@ public class EmailServiceTest extends TestCase {
     assertFalse( defaultConfigFile.exists() );
     final EmailConfiguration newEmailConfig = new EmailConfiguration();
     newEmailConfig.setSmtpProtocol( "smtp" );
-    newEmailConfig.setSmtpPort( new Short( (short) 35 ) );
+    newEmailConfig.setSmtpPort( 35 );
     newEmailConfig.setAuthenticate( true );
     newEmailConfig.setUserId( "test_user" );
     final Response OK_RESPONSE = Response.ok().build();
@@ -144,7 +144,7 @@ public class EmailServiceTest extends TestCase {
     assertTrue( newEmailConfig.equals( actualEmailConfig ) );
 
     // Update the config
-    newEmailConfig.setSmtpPort( (short) 36 );
+    newEmailConfig.setSmtpPort( 36 );
     newEmailConfig.setUserId( "" );
     newEmailConfig.setPassword( "password" );
     assertEquals( OK_RESPONSE.getStatus(), emailResource.setEmailConfig( newEmailConfig ).getStatus() );
