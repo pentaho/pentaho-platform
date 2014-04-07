@@ -83,6 +83,8 @@ public class DatabaseHelper {
 
   private static final String PROP_IS_DECIMAL_SEPERATOR = "isUsingDecimalSeperator"; //$NON-NLS-1$
 
+  private static final String ATTRIBUTE_PORT_NUMBER = "PORT_NUMBER";
+  
   private DatabaseTypeHelper databaseTypeHelper;
 
   public DatabaseHelper( IDatabaseDialectService databaseDialectService ) {
@@ -124,6 +126,8 @@ public class DatabaseHelper {
       String value = attributes.get( key );
       attrNode.setProperty( key, value );
     }
+    
+    attrNode.setProperty(ATTRIBUTE_PORT_NUMBER, new Long(port).longValue());
 
     // Now store the pooling parameters
     attrNode = rootNode.addNode( NODE_POOLING_PROPS );
