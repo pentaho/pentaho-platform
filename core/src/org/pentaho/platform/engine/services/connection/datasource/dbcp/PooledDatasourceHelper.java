@@ -23,6 +23,7 @@ import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.pentaho.database.DatabaseDialectException;
 import org.pentaho.database.IDatabaseDialect;
@@ -94,7 +95,7 @@ public class PooledDatasourceHelper {
       int minIdleConnection = !StringUtil.isEmpty( minIdleConn ) ? Integer.parseInt( minIdleConn ) : -1;
       int maxIdleConnection = !StringUtil.isEmpty( maxdleConn ) ? Integer.parseInt( maxdleConn ) : -1;
 
-      Map<String, String> attributes = databaseConnection.getAttributes();
+      Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
 
       if ( attributes.containsKey( IDBDatasourceService.MAX_ACTIVE_KEY ) ) {
         maxActiveConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_ACTIVE_KEY ) );
@@ -109,6 +110,14 @@ public class PooledDatasourceHelper {
         if ( !StringUtil.isEmpty( wait ) ) {
           waitTime = Long.parseLong( wait );
         }
+      }
+      if(attributes.containsKey( IDBDatasourceService.MIN_IDLE_KEY )  
+        && NumberUtils.isDigits( attributes.get( IDBDatasourceService.MIN_IDLE_KEY ) ) ) {
+          minIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MIN_IDLE_KEY ) );
+      }
+      if(attributes.containsKey( IDBDatasourceService.MAX_IDLE_KEY )  
+        && NumberUtils.isDigits( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) ) ) {
+          maxIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) );
       }
       if ( attributes.containsKey( IDBDatasourceService.QUERY_KEY ) ) {
         validQuery = attributes.get( IDBDatasourceService.QUERY_KEY );
@@ -210,6 +219,10 @@ public class PooledDatasourceHelper {
     if ( attributes.containsKey( IDBDatasourceService.MAX_IDLE_KEY ) ) {
       String value = attributes.get( IDBDatasourceService.MAX_IDLE_KEY );
       basicDatasource.setMaxIdle( Integer.parseInt( value ) );
+    }
+    if ( attributes.containsKey( IDBDatasourceService.MIN_IDLE_KEY ) ) {
+      String value = attributes.get( IDBDatasourceService.MIN_IDLE_KEY );
+      basicDatasource.setMinIdle( Integer.parseInt( value ) );
     }
     if ( attributes.containsKey( IDBDatasourceService.QUERY_KEY ) ) {
       basicDatasource.setValidationQuery( attributes.get( IDBDatasourceService.QUERY_KEY ) );

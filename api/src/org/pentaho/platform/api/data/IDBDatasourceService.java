@@ -29,9 +29,10 @@ public interface IDBDatasourceService {
   public static final String JDBC_POOL = "JDBC_POOL"; //$NON-NLS-1$
   public static final String JDBC_DATASOURCE = "DataSource"; //$NON-NLS-1$
   public static final String IDBDATASOURCE_SERVICE = "IDBDatasourceService"; //$NON-NLS-1$
-  public static final String MAX_ACTIVE_KEY = "POOLING_maxActive";
-  public static final String MAX_IDLE_KEY = "POOLING_maxIdle";
-  public static final String MAX_WAIT_KEY = "POOLING_maxWait";
+  public static final String MAX_ACTIVE_KEY = "maxActive";
+  public static final String MAX_IDLE_KEY = "maxIdle";
+  public static final String MIN_IDLE_KEY = "minIdle";
+  public static final String MAX_WAIT_KEY = "maxWait";
   public static final String QUERY_KEY = "query";
 
   /**
