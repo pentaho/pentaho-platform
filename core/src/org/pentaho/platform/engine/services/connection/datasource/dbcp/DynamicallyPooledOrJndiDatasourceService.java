@@ -30,14 +30,14 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
-public class DinamicallyPooledOrJndiDatasourceService extends BaseDatasourceService {
+public class DynamicallyPooledOrJndiDatasourceService extends BaseDatasourceService {
 
   private static final Log logger = LogFactory.getLog( PooledOrJndiDatasourceService.class );
 
   private IDBDatasourceService pooledDatasourceService;
   private IDBDatasourceService nonPooledDatasourceService;
 
-  public DinamicallyPooledOrJndiDatasourceService() {
+  public DynamicallyPooledOrJndiDatasourceService() {
   }
   
   @Override

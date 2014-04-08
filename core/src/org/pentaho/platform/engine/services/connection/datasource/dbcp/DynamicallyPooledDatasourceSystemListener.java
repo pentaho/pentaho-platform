@@ -35,7 +35,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
-public class DinamicallyPooledDatasourceSystemListener implements IPentahoSystemListener {
+public class DynamicallyPooledDatasourceSystemListener implements IPentahoSystemListener {
   public static final String DATASOURCE_REGION = "DATASOURCE"; //$NON-NLS-1$
 
   public boolean startup( final IPentahoSession session ) {

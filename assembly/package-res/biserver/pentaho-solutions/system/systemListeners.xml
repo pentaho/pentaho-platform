@@ -34,7 +34,7 @@
           <bean id="nonPooledDataSourceSystemListener"
           class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
         -->
-        <bean id="dinamicallyPooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DinamicallyPooledDatasourceSystemListener" />
+        <bean id="dynamicallyPooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledDatasourceSystemListener" />
         <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
         <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
         <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
