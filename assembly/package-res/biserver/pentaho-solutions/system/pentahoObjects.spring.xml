@@ -68,11 +68,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceService
-    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  (Default option)
+    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  
+    org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService (Default option)
   -->
-  <bean id="IDBDatasourceService"
-        class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService"
-        scope="singleton"/>
+  <bean id="pooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService" scope="singleton" />
+  <bean id="nonPooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService" scope="singleton" />
+  
+  <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService" scope="singleton">
+    <property name="pooledDatasourceService" ref="pooledOrJndiDatasourceService" />
+    <property name="nonPooledDatasourceService" ref="nonPooledOrJndiDatasourceService" />
+  </bean>
+  
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton"/>
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
         scope="singleton"/>
