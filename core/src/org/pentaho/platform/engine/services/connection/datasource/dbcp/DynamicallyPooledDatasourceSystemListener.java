@@ -43,7 +43,7 @@ public class DynamicallyPooledDatasourceSystemListener implements IPentahoSystem
     try {
 
       ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-      Logger.debug( this, "DinamicallyPooledDatasourceSystemListener: called for startup" ); //$NON-NLS-1$
+      Logger.debug( this, "DynamicallyPooledDatasourceSystemListener: called for startup" ); //$NON-NLS-1$
       IDatasourceMgmtService datasourceMgmtSvc =
           (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get( IDatasourceMgmtService.class, session );
 
@@ -85,7 +85,7 @@ public class DynamicallyPooledDatasourceSystemListener implements IPentahoSystem
           }
         }
       }
-      Logger.debug( this, "DinamicallyPooledDatasourceSystemListener: done with init" ); //$NON-NLS-1$
+      Logger.debug( this, "DynamicallyPooledDatasourceSystemListener: done with init" ); //$NON-NLS-1$
       return true;
     } catch ( ObjectFactoryException objface ) {
       Logger.error( this, Messages.getInstance().getErrorString(
