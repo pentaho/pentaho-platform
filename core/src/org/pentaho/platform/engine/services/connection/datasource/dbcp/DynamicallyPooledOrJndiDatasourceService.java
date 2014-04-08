@@ -60,7 +60,7 @@ public class DynamicallyPooledOrJndiDatasourceService extends BaseDatasourceServ
     } catch ( DatasourceMgmtServiceException daoe ) {
       daoe.printStackTrace();
       logger.info( Messages.getInstance().getErrorString(
-          "DinamicallyPooledOrJndiDatasourceService.DEBUG_0001_UNABLE_TO_FIND_DATASOURCE_IN_REPOSITORY",
+          "DynamicallyPooledOrJndiDatasourceService.DEBUG_0001_UNABLE_TO_FIND_DATASOURCE_IN_REPOSITORY",
           daoe.getLocalizedMessage() ), daoe );
     }
 
