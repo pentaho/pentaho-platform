@@ -12,12 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation. All rights reserved.
+ * Copyright 2014 Pentaho Corporation. All rights reserved.
  */
 
 package org.pentaho.platform.osgi;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -32,16 +31,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * This IPentahoObjectFactory implementation looks up objects in a configured OSGI BundleContext.
- * 
+ *
  * Parameterized get() calls will have their values converted to an OSGI service {@link org.osgi.framework.Filter} with
  * all parameters combined with boolean "&amp;".
- * 
+ *
  * User: nbaker Date: 10/31/13 Time: 11:43 AM
  */
 @SuppressWarnings( "unchecked" )
@@ -61,8 +61,9 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> T get( Class<T> interfaceClass, String key, IPentahoSession session ) throws ObjectFactoryException {
-    Map map = ( key != null ) ? Collections.singletonMap( "id", key ) : Collections.emptyMap();
-    return (T) get( interfaceClass, session, map );
+    Map<String, String> map =
+        ( key != null ) ? Collections.singletonMap( "id", key ) : Collections.<String, String>emptyMap();
+    return get( interfaceClass, session, map );
   }
 
   @Override
@@ -72,7 +73,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     String filter = createFilter( properties );
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
-      ServiceReference ref;
+      ServiceReference<?> ref;
       if ( refs != null && refs.size() > 0 ) {
         ref = refs.toArray( new ServiceReference[refs.size()] )[0];
       } else {
@@ -98,7 +99,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     if ( clazz == null ) {
       throw new IllegalStateException( "Class is null" );
     }
-    ServiceReference ref = context.getServiceReference( clazz );
+    ServiceReference<?> ref = context.getServiceReference( clazz );
     return ref != null;
   }
 
@@ -107,7 +108,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     if ( clazz == null ) {
       throw new IllegalStateException( "Class is null" );
     }
-    ServiceReference ref = context.getServiceReference( clazz );
+    ServiceReference<?> ref = context.getServiceReference( clazz );
     return ref != null;
   }
 
@@ -123,7 +124,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession curSession ) throws ObjectFactoryException {
-    return getAll( interfaceClass, curSession, Collections.emptyMap() );
+    return getAll( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   private String createFilter( Map<String, String> props ) {
@@ -153,8 +154,8 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
         return returnList;
       }
 
-      for ( ServiceReference ref : refs ) {
-        T obj = (T) context.getService( ref );
+      for ( ServiceReference<T> ref : refs ) {
+        T obj = context.getService( ref );
         if ( obj instanceof IPentahoInitializer ) {
           ( (IPentahoInitializer) obj ).init( session );
         }
@@ -171,7 +172,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession )
     throws ObjectFactoryException {
-    return getObjectReference( interfaceClass, curSession, Collections.emptyMap() );
+    return getObjectReference( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   @Override
@@ -187,7 +188,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       }
       ServiceReference<T> serviceReference = refs.toArray( new ServiceReference[refs.size()] )[0];
 
-      return new OsgiPentahoObjectReference( serviceReference );
+      return new OsgiPentahoObjectReference<T>( serviceReference );
     } catch ( InvalidSyntaxException e ) {
       e.printStackTrace();
     }
@@ -198,7 +199,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
     throws ObjectFactoryException {
 
-    return getObjectReferences( interfaceClass, curSession, Collections.emptyMap() );
+    return getObjectReferences( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   @Override
@@ -214,7 +215,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       }
 
       List<IPentahoObjectReference<T>> returnRefs = new ArrayList<IPentahoObjectReference<T>>();
-      for ( ServiceReference ref : refs ) {
+      for ( ServiceReference<T> ref : refs ) {
         returnRefs.add( new OsgiPentahoObjectReference<T>( ref ) );
       }
       Collections.sort( returnRefs );
@@ -232,10 +233,10 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   }
 
   private class OsgiPentahoObjectReference<T> implements IPentahoObjectReference<T> {
-    private ServiceReference osgiRef;
+    private ServiceReference<?> osgiRef;
     private Map<String, Object> attributes;
 
-    public OsgiPentahoObjectReference( ServiceReference ref ) {
+    public OsgiPentahoObjectReference( ServiceReference<?> ref ) {
       osgiRef = ref;
     }
 
@@ -277,7 +278,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
         return 1;
       }
       if ( o instanceof OsgiPentahoObjectReference ) {
-        OsgiPentahoObjectReference ref = (OsgiPentahoObjectReference) o;
+        OsgiPentahoObjectReference<?> ref = (OsgiPentahoObjectReference<?>) o;
         return osgiRef.compareTo( ref.osgiRef );
       }
       Integer ourRank = getRanking();
