@@ -71,7 +71,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       InputStream bundleInputStream = new ByteArrayInputStream( bytes );
       // Process locale file from meta.xml.
       importBundle.setInputStream( bundleInputStream );
-      boolean hidden = extractMetaData(localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile());
+      boolean hidden = !extractMetaData(localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile());
       importBundle.setHidden(hidden);
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
@@ -85,6 +85,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
    * 
    * @param localeFilesProcessor
    * @param bytes
+   * @return true if this report has attribute 'visible' set to 'true' (case-sensitive)
    * @throws IOException
    */
   private boolean extractMetaData( LocaleFilesProcessor localeFilesProcessor,
