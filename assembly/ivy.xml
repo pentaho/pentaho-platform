@@ -21,7 +21,7 @@
 	<!--  Reporting -->
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin" rev="${dependency.pentaho-reporting-plugin.revision}" changing="true"/>
-    <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core" rev="${dependency.pentaho-reporting.revision}" transitive="false" changing="true" />
+    <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core" rev="${dependency.pentaho-reporting.revision}" changing="true" />
 
 
     <!-- Misc -->
