@@ -149,7 +149,7 @@
         access manager:
         class: FQN of class implementing the AccessManager interface
     -->
-    <AccessManager class="org.apache.jackrabbit.core.security.DefaultAccessManager">
+    <AccessManager class="org.apache.jackrabbit.core.security.authorization.acl.PentahoDefaultAccessManager">
       <!-- <param name="config" value="${rep.home}/access.xml"/> -->
     </AccessManager>
 

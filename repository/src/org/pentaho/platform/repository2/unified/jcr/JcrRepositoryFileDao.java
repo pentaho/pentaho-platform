@@ -40,8 +40,15 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.lock.Lock;
+import javax.jcr.security.AccessControlManager;
 
+import org.apache.jackrabbit.core.security.authorization.AccessControlProvider;
+import org.apache.jackrabbit.core.security.authorization.acl.CachingPentahoEntryCollector;
+import org.apache.jackrabbit.core.security.authorization.acl.EntryCollector;
+import org.apache.jackrabbit.core.security.authorization.acl.PentahoACLProvider;
+import org.apache.jackrabbit.core.security.authorization.acl.PentahoDefaultAccessManager;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
@@ -752,8 +759,28 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( fileId );
     jcrTemplate.execute( new JcrCallback() {
+
+      private void clearEntryCollectorCache( Session session ) throws UnsupportedRepositoryOperationException, RepositoryException {
+        if ( session.getAccessControlManager() instanceof PentahoDefaultAccessManager ) {
+          PentahoDefaultAccessManager pAccessManager = (PentahoDefaultAccessManager) session.getAccessControlManager();
+
+          if ( pAccessManager.getAccessControlProvider() instanceof PentahoACLProvider ) {
+            PentahoACLProvider pACLProvider = (PentahoACLProvider) pAccessManager.getAccessControlProvider();
+
+            if ( pACLProvider.isUseCachingEntryCollector()
+                && pACLProvider.getEntryCollector() instanceof CachingPentahoEntryCollector ) {
+
+              CachingPentahoEntryCollector pEntryCollector =
+                  (CachingPentahoEntryCollector) pACLProvider.getEntryCollector();
+              pEntryCollector.clearCache( PentahoSessionHolder.getSession() );
+            }
+          }
+        }
+      }
+
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+        clearEntryCollectorCache( session );
         RepositoryFile fileToBeDeleted = getFileById( fileId );
         // Get repository file info and acl info of parent
         if ( fileToBeDeleted != null ) {

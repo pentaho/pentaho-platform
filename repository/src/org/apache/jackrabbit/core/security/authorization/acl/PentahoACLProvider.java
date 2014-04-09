@@ -184,4 +184,11 @@ public class PentahoACLProvider extends ACLProvider {
     return ( (NodeImpl) session.getRootNode() ).getNodeId();
   }
 
+  public EntryCollector getEntryCollector() {
+    return entryCollector;
+  }
+
+  public boolean isUseCachingEntryCollector() {
+    return useCachingEntryCollector;
+  }
 }
