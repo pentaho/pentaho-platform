@@ -19,6 +19,7 @@
 
     <!--  external dependencies -->
     <dependency org="commons-collections" name="commons-collections" rev="3.2" transitive="false"/>
+    <dependency org="commons-collections" name="commons-cli" rev="1.2" transitive="false"/>
     <dependency org="commons-dbcp" name="commons-dbcp" rev="1.4" transitive="false" />
     <dependency org="commons-pool" name="commons-pool" rev="1.5.7" transitive="false" />
     <dependency org="commons-io" name="commons-io" rev="2.1" transitive="false"/>
