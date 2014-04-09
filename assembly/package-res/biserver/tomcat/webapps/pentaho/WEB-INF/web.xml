@@ -90,7 +90,7 @@
 
   <filter>
     <filter-name>Pentaho Path Decoding Filter</filter-name>
-    <filter-class>org.pentaho.platform.web.http.filters.PentahoPathEncodingFilter</filter-class>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoPathDecodingFilter</filter-class>
   </filter>
 
   <!-- Pentaho Request Context Filter is use to extract the Context Path from Servlet Request and store it in the PentahoRequestContextHolder.
