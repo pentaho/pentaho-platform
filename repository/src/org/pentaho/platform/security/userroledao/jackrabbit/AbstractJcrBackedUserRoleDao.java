@@ -231,9 +231,30 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     userDetailsCache.removeUserFromCache( getTenantedUserNameUtils().getPrincipleName( userName ) );
   }
 
+  private boolean adminRoleRemoved( String[] newRoles, List<IPentahoRole> oldRolesList ) {
+    boolean newListAdminRoleExist = Arrays.asList( newRoles ).contains( tenantAdminRoleName );
+    boolean oldListAdminRoleExist = hasAdminRole( oldRolesList );
+    return oldListAdminRoleExist && !newListAdminRoleExist;
+  }
+
+  private boolean isAdmin( IPentahoUser user ) {
+    return hasAdminRole( getUserRoles( user.getTenant(), user.getUsername() ) );
+  }
+
+  private boolean atLeastOneMoreAdminExists( final String selectedUserName ) {
+    for ( IPentahoUser user : getUsers() ) {
+      boolean isSelectedUser = selectedUserName.equals( user.getUsername() );
+      if ( !isSelectedUser && isAdmin( user ) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void setUserRoles( Session session, final ITenant theTenant, final String userName, final String[] roles )
     throws RepositoryException, NotFoundException {
-    if ( hasAdminRole( getUserRoles( theTenant, userName ) ) && ( roles.length == 0 ) ) {
+
+    if ( adminRoleRemoved( roles, getUserRoles( theTenant, userName ) ) && !atLeastOneMoreAdminExists( userName ) ) {
       throw new RepositoryException( Messages.getInstance().getString(
           "AbstractJcrBackedUserRoleDao.ERROR_0005_LAST_ADMIN_USER", userName ) );
     }
