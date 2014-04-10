@@ -17,12 +17,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -42,6 +36,12 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * User: nbaker Date: 5/29/12
@@ -87,7 +87,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     if ( file != null ) {
       if ( file.isFolder() && getImportSession().getFoldersCreatedImplicitly().contains( repositoryFilePath ) ) {
         getLogger().trace(
-          "Skipping entry for folder [" + repositoryFilePath + "]. It was already processed implicitly." );
+            "Skipping entry for folder [" + repositoryFilePath + "]. It was already processed implicitly." );
       } else {
         if ( bundle.overwriteInRepossitory() ) {
           // If file exists, overwrite is true and is not a folder then update it.
@@ -135,19 +135,19 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private RepositoryFile finalAdjustFolder( RepositoryFileImportBundle bundle, Serializable id ) {
-    return finalAdjustFolder( bundle.getFile(), bundle.isHidden(), id );
-  }
-
-  private RepositoryFile finalAdjustFile( RepositoryFileImportBundle bundle, RepositoryFile file ) {
-    return finalAdjustFolder( file, bundle.isHidden(), null );
-  }
-
-  private RepositoryFile finalAdjustFolder( RepositoryFile repositoryFile, boolean isHidden, Serializable id ) {
-    RepositoryFile.Builder builder = new RepositoryFile.Builder( repositoryFile ).hidden( isHidden );
+    RepositoryFile.Builder builder = new RepositoryFile.Builder( bundle.getFile() ).hidden( bundle.isHidden() );
     if ( id != null ) {
       builder.id( id );
     }
     return builder.build();
+  }
+
+  private RepositoryFile finalAdjustFile( RepositoryFileImportBundle bundle, RepositoryFile file ) {
+    return new RepositoryFile.Builder( file ).hidden( isHiddenBundle( bundle ) ).build();
+  }
+
+  private boolean isHiddenBundle( RepositoryFileImportBundle bundle ) {
+    return solutionHelper.isInHiddenList( bundle.getName() ) || bundle.isHidden();
   }
 
   /**
@@ -178,9 +178,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Copy the file into the repository
     try {
       getLogger().trace( "copying file to repository: " + name );
-      
-      if (mimeTypeMap.get( mimeType ) == null) {
-        getLogger().debug( "Skipping file - mime type of " + mimeType + " is not registered :" + name);
+
+      if ( mimeTypeMap.get( mimeType ) == null ) {
+        getLogger().debug( "Skipping file - mime type of " + mimeType + " is not registered :" + name );
       }
       Converter converter = mimeTypeMap.get( mimeType ).getConverter();
       if ( converter == null ) {
@@ -202,7 +202,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         updateAclFromBundle( false, bundle, repositoryFile );
       }
 
-      if( repositoryFile != null ){
+      if ( repositoryFile != null ) {
         getImportSession().addImportedRepositoryFile( repositoryFile );
       }
 
@@ -224,8 +224,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    * @param repositoryFile
    *          The <code>RepositoryFile</code> of the target file
    */
-  private void updateAclFromBundle( boolean newFile, RepositoryFileImportBundle bundle,
-                                    RepositoryFile repositoryFile ) {
+  private void updateAclFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) {
     updateAcl( newFile, repositoryFile, bundle.getAcl() );
   }
 
@@ -303,8 +302,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       final IRepositoryFileData data ) throws PlatformImportException {
     if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
       final RepositoryFile file =
-          new RepositoryFile.Builder( bundle.getName() ).hidden(
-            solutionHelper.isInHiddenList( bundle.getName() ) || bundle.isHidden() ).title(
+          new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).title(
               RepositoryFile.DEFAULT_LOCALE,
               getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();
       final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
@@ -402,17 +400,16 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     getLogger().trace( "Creating implied folder [" + folderPath + "]" );
     final Serializable parentId = getParentId( folderPath );
     Assert.notNull( parentId );
-    RepositoryFile.Builder builder =
-        new RepositoryFile.Builder( RepositoryFilenameUtils.getName( folderPath ) ).path(
-          RepositoryFilenameUtils.getPath( folderPath ) ).folder( true );
-    RepositoryFile repositoryFile = builder.build();
     boolean isHidden;
     if ( getImportSession().isFileHidden( manifestKey ) == null ) {
       isHidden = false;
     } else {
       isHidden = getImportSession().isFileHidden( manifestKey );
     }
-    RepositoryFile repoFile = finalAdjustFolder( repositoryFile, isHidden, null );
+    RepositoryFile.Builder builder =
+        new RepositoryFile.Builder( RepositoryFilenameUtils.getName( folderPath ) ).path(
+            RepositoryFilenameUtils.getPath( folderPath ) ).folder( true ).hidden( isHidden );
+    RepositoryFile repoFile = builder.build();
     RepositoryFileAcl repoAcl = getImportSession().processAclForFile( manifestKey );
     if ( repoAcl != null ) {
       repoFile = repository.createFolder( parentId, repoFile, repoAcl, null );
