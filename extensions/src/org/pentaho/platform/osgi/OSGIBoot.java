@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,9 @@ public class OSGIBoot implements IPentahoSystemListener {
           logger.warn( "Bundle directory: " + bundleDirectory.getName() + " does not exist" );
           continue;
         }
-        for ( File f : bundleDirectory.listFiles() ) {
+        File[] files = bundleDirectory.listFiles();
+        Arrays.sort( files );
+        for ( File f : files ) {
           if ( f.isFile() && f.getName().endsWith( ".jar" ) ) {
             try {
               Bundle b = framework.getBundleContext().installBundle( f.toURI().toString() );
