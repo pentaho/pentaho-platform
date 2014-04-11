@@ -109,6 +109,7 @@ define([
         
             // Reset model variables since the action completed successfully
             me.reset();
+            window.top.executeCommand("RefreshRepositoryCommand");
           },
           function (error) {
             setPrevVals.apply(me);
