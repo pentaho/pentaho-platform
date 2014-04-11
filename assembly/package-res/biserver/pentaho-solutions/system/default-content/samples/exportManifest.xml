@@ -4978,7 +4978,7 @@
         <quoteAllFields>false</quoteAllFields>
         <streamingResults>false</streamingResults>
         <username>pentaho_user</username>
-        <usingConnectionPool>false</usingConnectionPool>
+        <usingConnectionPool>true</usingConnectionPool>
         <usingDoubleDecimalAsSchemaTableSeparator>false</usingDoubleDecimalAsSchemaTableSeparator>
     </ExportManifestDatasource>
 </ns2:ExportManifest>
