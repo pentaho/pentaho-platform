@@ -14,6 +14,8 @@
  *
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
+ 
+var illegalCharacters;
 
 define([
   "js/browser.dialogs.js",
@@ -47,11 +49,16 @@ define([
       this.on("change:name", this.renamePath);
 
       // Set default for showOverrideDialog
-      BrowserUtils._makeAjaxCall("GET", "text", this.buildsessionVariableUrl("showOverrideDialog"), function (result) {
+      BrowserUtils._makeAjaxCall("GET", "text", this.buildsessionVariableUrl("showOverrideDialog"), true, function (result) {
         me.set("showOverrideDialog", result.length == 0 || result === "true");
       });
     },
 
+    reset: function () {
+      this.set("name", null);
+      this.set("path", null);
+    },
+    
     renamePath: function (event, name) {
       var prevName = event._previousAttributes.name;
 
@@ -62,18 +69,35 @@ define([
 
       // Update the path
       var prevPath = this.get("path");
+      if (prevPath === null) {
+        return;
+      }
       this.set("path", prevPath.replace(prevName, name));
 
       var me = this;
       
-      var m = invalidCharactersRegExp.exec(name);
-      if (m != null) {
-      var i18n = me.view.options.i18n;
-      var body = i18n.prop("invalidCharactersDialogDescription", name, invalidCharacters);
-      me.view.createCannotRenameDialog(body, me.view).show(me.view);
+      // Resets the values
+      var setPrevVals = function () {
+        this.reset();
+        this.set("name", prevName);
+        this.set("path", prevPath);
+      };
+
+      if(!illegalCharacters){
+        BrowserUtils._makeAjaxCall("GET", "text", BrowserUtils.getUrlBase() + "api/repo/files/reservedCharacters", false, function (result) {
+          illegalCharacters = result;
+        });
+      }
+
+      if (!isValidName(name, illegalCharacters)) {
+        var i18n = me.view.options.i18n;
+        var body = i18n.prop("invalidCharactersDialogDescription", name, illegalCharacters.split(',').join(' '));
+        me.view.createCannotRenameDialog(body, me.view).show(me.view);
+        setPrevVals.apply(me);
+        return;
       }else{
         // api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
-        BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(prevPath) + "/rename?newName=" + FileBrowser.encodePathComponents(name),
+        BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(prevPath) + "/rename?newName=" + FileBrowser.encodePathComponents(name), true,
           function (success) {
         
             // An exception occured
@@ -117,18 +141,6 @@ define([
           }
         );
       }
-
-      // Resets the values
-      var setPrevVals = function () {
-        this.reset();
-        this.set("name", prevName);
-        this.set("path", prevPath);
-      };
-    },
-
-    reset: function () {
-      this.set("name", null);
-      this.set("path", null);
     }
   });
 
@@ -155,7 +167,7 @@ define([
       var onOverrideOk = function () {
         var showOverrideDialog = !$(this).parents(".pentaho-dialog").find("#do-not-show").prop("checked");
 
-        BrowserUtils._makeAjaxCall("POST", "text", me.model.buildsessionVariableUrl("showOverrideDialog", showOverrideDialog));
+        BrowserUtils._makeAjaxCall("POST", "text", me.model.buildsessionVariableUrl("showOverrideDialog", showOverrideDialog), true);
         me.model.set("showOverrideDialog", showOverrideDialog);
 
         me.showRenameDialog.apply(me);
@@ -209,7 +221,7 @@ define([
         ok: i18n.prop("close")
       });
 
-      var cfg = Dialog.buildCfg("cannot-rename-dialog", header, body, footer, false);
+      var cfg = Dialog.buildCfg("rename-error-dialog", header, body, footer, false);
 
       var CannotRenameDialog = new Dialog(cfg);
 
@@ -346,7 +358,7 @@ define([
       }
 
       var me = this;
-      BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties",
+      BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", true,
           function (success) {
             if (success) {
               var arr = success.stringKeyStringValueDto;
