@@ -60,6 +60,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private static final String PERMISSIONS_ELEMENT_NAME = "permissions"; //$NON-NLS-1$
 
   private static final String RECIPIENT_ELEMENT_NAME = "recipient"; //$NON-NLS-1$
+  
+  private static final String MODIFIABLE_ELEMENT_NAME = "modifiable"; //$NON-NLS-1$
 
   private static final String ACES_ELEMENT_NAME = "aces"; //$NON-NLS-1$
 
@@ -391,7 +393,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       updatePermissionForUserOrRole( fileInfo, userOrRoleString, true, PERM_WRITE );
       updatePermissionForUserOrRole( fileInfo, userOrRoleString, true, PERM_READ );
     }
-
+    
     readPermissionCheckBox.setValue( perms.contains( PERM_READ ) || perms.contains( PERM_GRANT_PERM )
         || perms.contains( PERM_ALL ) );
     deletePermissionCheckBox.setValue( perms.contains( PERM_DELETE ) || perms.contains( PERM_GRANT_PERM )
@@ -403,9 +405,13 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
     refreshPermission();
 
+    if ( !isModifiableUserOrRole(fileInfo, userOrRoleString) ) {
+      managePermissionCheckBox.setEnabled( false );
+    }
+    
     addButton.setEnabled( !inheritsCheckBox.getValue() );
     removeButton.setEnabled( !( isOwner( userOrRoleString, USER_TYPE, fileInfo ) || isOwner( userOrRoleString,
-        ROLE_TYPE, fileInfo ) )
+        ROLE_TYPE, fileInfo ) || !isModifiableUserOrRole( fileInfo, userOrRoleString ))
         && !inheritsCheckBox.getValue() );
   }
 
@@ -643,6 +649,20 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       }
     }
     return values;
+  }
+  
+  private Boolean isModifiableUserOrRole( Document fileInfo, String recipient ) {
+    Boolean ret = false;
+    NodeList aces = fileInfo.getElementsByTagName( ACES_ELEMENT_NAME );
+    for ( int i = 0; i < aces.getLength(); i++ ) {
+      Element ace = (Element) aces.item( i );
+      if ( ace.getElementsByTagName( RECIPIENT_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals(
+          recipient ) ) {
+        ret = ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals(true);        
+        return ret;
+      }
+    }
+    return ret;
   }
 
   /**
