@@ -31,6 +31,8 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
+
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -148,29 +150,84 @@ public class RunInBackgroundCommand extends AbstractCommand {
         performOperation( feedback );
       }
     };
-    outputLocationDialog.center();
+    final String filePath = solutionPath;
+    String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    
+    RequestBuilder scheduleFileRequestBuilder = createParametersChecker( urlPath );
+    final boolean isXAction = isXAction( urlPath );
+    
+    try {
+      scheduleFileRequestBuilder.sendRequest( null, new RequestCallback() {
+        public void onError( Request request, Throwable exception ) {
+          MessageDialogBox dialogBox =
+              new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
+          dialogBox.center();
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          if ( response.getStatusCode() == Response.SC_OK ) {
+            String responseMessage = response.getText();
+            boolean hasParams = hasParameters( responseMessage, isXAction );
+            if( !hasParams ){
+              outputLocationDialog.setOkButtonText( Messages.getString(  "ok"  ) );
+            }
+            outputLocationDialog.center();
+          } else {
+            MessageDialogBox dialogBox =
+                new MessageDialogBox(
+                    Messages.getString( "error" ), Messages.getString( "serverErrorColon" ) + " " + response.getStatusCode(), false, false, true ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            dialogBox.center();
+          }
+        }
+      } );
+    } catch ( RequestException e ) {
+      MessageDialogBox dialogBox =
+          new MessageDialogBox( Messages.getString( "error" ), e.toString(), false, false, true ); //$NON-NLS-1$
+      dialogBox.center();
+    }
   }
 
+  private boolean hasParameters ( String responseMessage, boolean isXAction ) {
+    if ( isXAction ) {
+      int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
+      int numOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
+      return numOfInputs - numOfHiddenInputs > 0 ? true : false;
+    } else {
+      return Boolean.parseBoolean( responseMessage );
+    }
+  }
+  
+  private boolean isXAction( String urlPath ) {
+    if ( ( urlPath != null ) && ( urlPath.endsWith( "xaction" ) ) ) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  
+  private RequestBuilder createParametersChecker( String urlPath ) {
+    RequestBuilder scheduleFileRequestBuilder = null;
+    if ( ( urlPath != null ) && ( urlPath.endsWith( "xaction" ) ) ) {
+      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repos/" + urlPath
+          + "/parameterUi" );
+    } else {
+      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath
+          + "/parameterizable" );
+    }
+    scheduleFileRequestBuilder.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
+    scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+    return scheduleFileRequestBuilder;
+  }
+  
   protected void performOperation( boolean feedback ) {
 
     final String filePath = ( this.getSolutionPath() != null ) ? this.getSolutionPath() : repositoryFile.getPath();
     String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) ); //$NON-NLS-1$ //$NON-NLS-2$
     
-    RequestBuilder scheduleFileRequestBuilder;
-    final boolean isXAction;
+    RequestBuilder scheduleFileRequestBuilder = createParametersChecker( urlPath );
+    final boolean isXAction = isXAction( urlPath );
     
-    if ((urlPath != null) && (urlPath.endsWith( "xaction" ))){
-      isXAction = true;
-      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repos/" + urlPath
-          + "/parameterUi" );
-    } else {
-      isXAction = false;
-      scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath
-          + "/parameterizable" );
-    }
-    
-    scheduleFileRequestBuilder.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
-    scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
       scheduleFileRequestBuilder.sendRequest( null, new RequestCallback() {
 
@@ -203,16 +260,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
             scheduleRequest.put( "runInBackground", JSONBoolean.getInstance( true ) );
 
             String responseMessage = response.getText();
-            final boolean hasParams;
+            final boolean hasParams = hasParameters( responseMessage, isXAction );
 
-            if (isXAction){
-              int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
-              int NumOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
-              hasParams = numOfInputs - NumOfHiddenInputs > 0 ? true : false;
-            } else {
-              hasParams = Boolean.parseBoolean( response.getText() );
-            }
-            
             RequestBuilder emailValidRequest =
                 new RequestBuilder( RequestBuilder.GET, contextURL + "api/emailconfig/isValid" ); //$NON-NLS-1$
             emailValidRequest.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
