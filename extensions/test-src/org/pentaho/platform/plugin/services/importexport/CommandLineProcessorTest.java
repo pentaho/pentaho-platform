@@ -27,6 +27,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.ISolutionEngine;
@@ -38,11 +39,13 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -71,6 +74,7 @@ public class CommandLineProcessorTest extends JerseyTest {
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
       "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).addFilter(
       PentahoRequestContextFilter.class, "pentahoRequestContextFilter" ).build();
+  private MicroPlatform mp = new MicroPlatform( "test-src/solution" );
 
   public CommandLineProcessorTest() throws IOException {
     final TemporaryFolder tmpFolder = new TemporaryFolder();
@@ -80,14 +84,14 @@ public class CommandLineProcessorTest extends JerseyTest {
     NameBaseMimeResolver mimeResolver = mock( NameBaseMimeResolver.class );
     IRepositoryContentConverterHandler converterHandler = mock( IRepositoryContentConverterHandler.class );
 
-    MicroPlatform mp = new MicroPlatform( "test-src/solution" );
     mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
     mp.define( ISolutionEngine.class, SolutionEngine.class );
     mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class
         , IPentahoDefinableObjectFactory.Scope.GLOBAL );
     mp.define( IAuthorizationPolicy.class, TestAuthorizationPolicy.class );
+    mp.define( IAuthorizationAction.class, AdministerSecurityAction.class );
     mp.define( DefaultExportHandler.class, DefaultExportHandler.class );
-    mp.defineInstance( IRepositoryContentConverterHandler.class, converterHandler);
+    mp.defineInstance( IRepositoryContentConverterHandler.class, converterHandler );
     mp.defineInstance( NameBaseMimeResolver.class, mimeResolver );
 
     FileSystemBackedUnifiedRepository repo =
@@ -186,6 +190,33 @@ public class CommandLineProcessorTest extends JerseyTest {
     pathOption = "-f \"/path_that_not_exists\"";
     CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
     assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );
+  }
+
+  @Test
+  public void testExportAll() throws Exception {
+    final String baseOptions = "-e -a " + getBaseUrl() + " -u admin -p password -fp " + tmpZipFileName + " -f \"/\"";
+
+    CommandLineProcessor.main( toStringArray( baseOptions ) );
+    assertNull( CommandLineProcessor.getException() );
+  }
+
+  @Test
+  public void testExportNotAdmin() throws Exception {
+    mp.defineInstance( IAuthorizationPolicy.class, new IAuthorizationPolicy() {
+      @Override
+      public boolean isAllowed( String actionName ) {
+        return !actionName.equals( AdministerSecurityAction.NAME );
+      }
+
+      @Override
+      public List<String> getAllowedActions( String actionNamespace ) {
+        return null;
+      }
+    } );
+
+    final String baseOptions = "-e -a " + getBaseUrl() + " -u admin -p password -fp " + tmpZipFileName + " -f \"/\"";
+    CommandLineProcessor.main( toStringArray( baseOptions ) );
+    assertEquals( InitializationException.class, CommandLineProcessor.getException().getClass() );
   }
 
   @Override
