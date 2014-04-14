@@ -899,6 +899,76 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   }
   
   @Test
+  public void testCreateFunkyUsers() throws Exception {
+    loginAsRepositoryAdmin();
+    systemTenant =
+        tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName,
+            authenticatedRoleName, "Anonymous" );
+    userRoleDaoProxy.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { adminRoleName } );
+
+    login( sysAdminUserName, systemTenant, new String[] { adminRoleName, authenticatedRoleName } );
+
+    mainTenant_1 =
+        tenantManager.createTenant( systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous" );
+    userRoleDaoProxy.createUser( mainTenant_1, "admin", "password", "", new String[] { adminRoleName } );
+
+    login( "admin", mainTenant_1, new String[] { adminRoleName, authenticatedRoleName } );
+    
+    createAndTestUserWithRoles( mainTenant_1, "joe_user@somedomain.com", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "joe_user@pentaho.com", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "x_x@somedomain.com", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "x_x@pentaho.com", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_x", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "x_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "x_x", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "username", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-username", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "user-name", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "username-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-user-name", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "user-name-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-username-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-user-name-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_username", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "user_name", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "username_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_user_name", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "user_name_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_username_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_user_name_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_user-name", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-user_name", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "user-name_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "user_name-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_user_name-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-user-name_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "_username-", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "-username_", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "!user!name!", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "@user@name@", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "#user#name#", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "$user$name$", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "%user%name%", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "^user^name^", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "&user&name&", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "*user*name*", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "(user(name(", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, ")user)name)", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "(username)", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "[user[name[", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "]user]name]", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "|user|name|", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, ".user.name.", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, ">user>name>", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "<user<name<", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, ":user:name:", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "'user'name'", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "\"user\"name\"", new String[] { adminRoleName } );
+    createAndTestUserWithRoles( mainTenant_1, "=user=name=", new String[] { adminRoleName } );
+  }      
+  
+  
+  @Test
   public void testCreateFunkyRoles() throws Exception {
     loginAsRepositoryAdmin();
     systemTenant =
