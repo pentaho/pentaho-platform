@@ -10,12 +10,12 @@
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"  default-lazy-init="true">
-
+  
   <bean id="superUserRoleListService" class="org.pentaho.platform.security.userroledao.superuser.SuperUserRoleListService">
-  	<constructor-arg value="SystemAdmin"/>
-  	<constructor-arg ref="singleTenantAdminAuthorityName" />
-	<constructor-arg ref="singleTenantSystemAuthorities" />  	
-  </bean>
+	<constructor-arg ref="singleTenantAdminAuthorityName" />
+	<constructor-arg ref="singleTenantAdminUserName" />
+	<constructor-arg ref="singleTenantSystemAuthorities" />
+  </bean> 
 
   <bean class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
     <property name="userRoleListService" ref="superUserRoleListService" />
