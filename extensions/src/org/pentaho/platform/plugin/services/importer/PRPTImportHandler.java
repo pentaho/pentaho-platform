@@ -113,7 +113,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
                 new ByteArrayInputStream("".getBytes() ) );
       }
       // we are conservative here. Only if the string matches 'true' with this spelling.
-      return "true".equals(metaData.getBundleAttribute(ClassicEngineBoot.METADATA_NAMESPACE, "visible"));
+      return "false".equals(metaData.getBundleAttribute(ClassicEngineBoot.METADATA_NAMESPACE, "visible"));
     }
     catch (ResourceException e) {
       throw new PlatformImportException("An unexpected error occurred while parsing a report definition", e);
