@@ -110,7 +110,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
         // make sure that empty strings and strings with only whitespace are not used as description.
         title = null;
       }
-      if (title != null && description != null) {
+      if (title != null || description != null) {
         localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf,
                 new ByteArrayInputStream("".getBytes() ) );
       }
