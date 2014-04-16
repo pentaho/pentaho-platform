@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -93,9 +94,9 @@ public class ExportManifestEntity {
     entityMetaData.setIsFolder( isFolder );
     entityMetaData.setLocale(  LocaleHelper.getLocale().toString()  );
     entityMetaData.setName( file.getName() );
-    entityMetaData.setPath( file.getPath() );
+    entityMetaData.setPath( StringUtils.replaceChars( file.getPath(), ":/\\", "///" ) );
     entityMetaData.setTitle( file.getName() );
-    setPath( file.getPath() );
+    setPath( StringUtils.replaceChars( file.getPath(), ":/\\", "///" ) );
   }
 
   private void createEntityMetaData( String rootFolder, RepositoryFile repositoryFile )
