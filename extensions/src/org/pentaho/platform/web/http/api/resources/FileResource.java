@@ -44,6 +44,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -650,6 +652,17 @@ public class FileResource extends AbstractJaxRSResource {
   public Response setFileAcls( @PathParam( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     acl.setId( file.getId() );
+    // here we remove fake admin role added for display purpose only
+    List<RepositoryFileAclAceDto> aces = acl.getAces();
+    if ( aces != null ) {
+      Iterator<RepositoryFileAclAceDto> it = aces.iterator();
+      while(it.hasNext()){
+        RepositoryFileAclAceDto ace = it.next();
+        if ( !ace.isModifiable() ){
+          it.remove();
+        }
+      }
+    }
     getRepoWs().updateAcl( acl );
     return Response.ok().build();
   }
@@ -825,7 +838,29 @@ public class FileResource extends AbstractJaxRSResource {
       List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces( file.getId() );
       fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
     }
+    addAdminRole( fileAcl );
     return fileAcl;
+  }
+  
+  private void addAdminRole( RepositoryFileAclDto fileAcl ){
+    String adminRoleName = PentahoSystem.get( String.class, "singleTenantAdminAuthorityName",
+        PentahoSessionHolder.getSession() );
+    if (fileAcl.getAces() == null ){
+      fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
+    }
+    for (RepositoryFileAclAceDto facl: fileAcl.getAces()){
+      if ( facl.getRecipient().equals( adminRoleName ) && facl.getRecipientType() == 1 ) {
+        return;
+      }
+    }
+    RepositoryFileAclAceDto adminGroup = new RepositoryFileAclAceDto();
+    adminGroup.setRecipient( adminRoleName );
+    adminGroup.setRecipientType( 1 );
+    adminGroup.setModifiable( false );
+    List<Integer> perms = new LinkedList<Integer>();
+    perms.add( 4 );
+    adminGroup.setPermissions( perms );
+    fileAcl.getAces().add( adminGroup );
   }
 
   @GET
