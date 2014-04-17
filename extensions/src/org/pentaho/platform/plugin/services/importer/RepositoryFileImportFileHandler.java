@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -179,10 +180,10 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     try {
       getLogger().trace( "copying file to repository: " + name );
       
-      if (mimeTypeMap.get( mimeType ) == null) {
+      if ( getMimeTypeMap().get( mimeType ) == null ) {
         getLogger().debug( "Skipping file - mime type of " + mimeType + " is not registered :" + name);
       }
-      Converter converter = mimeTypeMap.get( mimeType ).getConverter();
+      Converter converter = getMimeTypeMap().get( mimeType ).getConverter();
       if ( converter == null ) {
         getLogger().debug( "Skipping file without converter: " + name );
         return false;
@@ -438,4 +439,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     return new ArrayList<MimeType>( mimeTypeMap.values() );
   }
 
+  public Map<String, MimeType> getMimeTypeMap() {
+    return mimeTypeMap;
+  }
 }

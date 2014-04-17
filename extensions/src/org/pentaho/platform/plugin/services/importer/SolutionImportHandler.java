@@ -140,7 +140,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         RepositoryFileImportBundle.Builder builder = cachedImports.get( repositoryFilePath );
         builder.input( new ByteArrayInputStream( bytes ) );
 
-        importer.importFile( builder.build() );
+        importer.importFile( build( builder ) );
         continue;
       }
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
@@ -194,7 +194,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       bundleBuilder.retainOwnership( bundle.isRetainOwnership() );
       bundleBuilder.overwriteAclSettings( bundle.isOverwriteAclSettings() );
       bundleBuilder.acl( getImportSession().processAclForFile( sourcePath ) );
-      IPlatformImportBundle platformImportBundle = bundleBuilder.build();
+      IPlatformImportBundle platformImportBundle = build( bundleBuilder );
       importer.importFile( platformImportBundle );
 
       if ( bundleInputStream != null ) {
@@ -208,7 +208,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         SchedulerResource schedulerResource = new SchedulerResource();
         for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
           try {
-            Response response = schedulerResource.createJob( jobScheduleRequest );
+            Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
             if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
               if ( response.getEntity() != null ) {
                 // get the schedule job id from the response and add it to the import session
@@ -342,5 +342,17 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   @Override
   public List<MimeType> getMimeTypes() {
     return mimeTypes;
+  }
+
+  // handlers that extend this class may override this method and perform operations
+  // over the bundle prior to entering its designated importer.importFile()
+  public IPlatformImportBundle build( RepositoryFileImportBundle.Builder builder ) {
+    return builder != null ? builder.build() : null;
+  }
+
+  // handlers that extend this class may override this method and perform operations
+  // over the job prior to its creation at scheduler.createJob()
+  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobRequest ) throws IOException{
+    return scheduler != null ? scheduler.createJob( jobRequest ) : null;
   }
 }
