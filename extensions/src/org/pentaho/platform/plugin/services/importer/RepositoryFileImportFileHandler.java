@@ -180,7 +180,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     try {
       getLogger().trace( "copying file to repository: " + name );
       
-      if (getMimeTypeMap().get( mimeType ) == null) {
+      if ( getMimeTypeMap().get( mimeType ) == null ) {
         getLogger().debug( "Skipping file - mime type of " + mimeType + " is not registered :" + name);
       }
       Converter converter = getMimeTypeMap().get( mimeType ).getConverter();
