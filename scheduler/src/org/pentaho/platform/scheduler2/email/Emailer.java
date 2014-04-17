@@ -34,6 +34,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -255,7 +256,7 @@ public class Emailer {
       // attach the file to the message
       MimeBodyPart attachmentBodyPart = new MimeBodyPart();
       attachmentBodyPart.setDataHandler( new DataHandler( dataSource ) );
-      attachmentBodyPart.setFileName( attachmentName );
+      attachmentBodyPart.setFileName( MimeUtility.encodeText( attachmentName, "UTF-8", null ) );
       multipart.addBodyPart( attachmentBodyPart );
 
       // add the Multipart to the message
@@ -276,5 +277,4 @@ public class Emailer {
     }
     return false;
   }
-
 }
