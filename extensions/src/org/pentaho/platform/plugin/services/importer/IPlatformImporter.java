@@ -19,6 +19,8 @@ package org.pentaho.platform.plugin.services.importer;
 
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 
+import java.util.Map;
+
 /**
  * Implementations handle importing the given content into the Pentaho System.
  * 
@@ -42,4 +44,9 @@ public interface IPlatformImporter {
    * by the mimetypes to the IPlatformImportResolver managed by this class. 
   **/  
   void addHandler( IPlatformImportHandler platformImportHandler );
+
+  /**
+   * Returns the platform importer's map of registered handlers
+   */
+  Map<String, IPlatformImportHandler> getHandlers();
 }
