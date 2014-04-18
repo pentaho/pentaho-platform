@@ -230,7 +230,9 @@ public class FilePropertiesDialog extends PromptDialogBox {
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             generalTab.setAclResponse( response );
-            permissionsTab.setAclResponse( response );
+            if ( permissionsTab != null ) {
+              permissionsTab.setAclResponse( response );
+            }
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox(
