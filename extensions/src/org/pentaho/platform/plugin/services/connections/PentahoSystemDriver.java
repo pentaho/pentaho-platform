@@ -68,7 +68,6 @@ public class PentahoSystemDriver implements Driver {
     return url;
   }
 
-  @Override
   public Connection connect( final String url, final Properties info ) throws SQLException {
     String translatedUrl = translate( url );
     for ( Driver driver : getAllDrivers() ) {
@@ -82,7 +81,6 @@ public class PentahoSystemDriver implements Driver {
     return null;
   }
 
-  @Override
   public boolean acceptsURL( final String url ) throws SQLException {
     String translatedUrl = translate( url );
     for ( Driver driver : getAllDrivers() ) {
@@ -93,7 +91,6 @@ public class PentahoSystemDriver implements Driver {
     return false;
   }
 
-  @Override
   public DriverPropertyInfo[] getPropertyInfo( final String url, final Properties info ) throws SQLException {
     String translatedUrl = translate( url );
     for ( Driver driver : getAllDrivers() ) {
@@ -104,22 +101,18 @@ public class PentahoSystemDriver implements Driver {
     return null;
   }
 
-  @Override
   public int getMajorVersion() {
     return 0;
   }
 
-  @Override
   public int getMinorVersion() {
     return 0;
   }
 
-  @Override
   public boolean jdbcCompliant() {
     return true;
   }
 
-  @Override
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
     throw new SQLFeatureNotSupportedException( "Impossible to know which Driver to fetch the logger from" );
   }
