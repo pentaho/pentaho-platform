@@ -79,7 +79,8 @@ public class LoadDriversListenerTest {
       return false;
     }
 
-    @Override public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    //don't add @Override annotation for Java 6 compatibility (class Driver doesn't have getParentLogger method in Java 6)
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
       return null;
     }
   }
