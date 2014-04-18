@@ -196,8 +196,10 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
       }
     }
     // setMetadataBuilder.sendRequest(metadata.toString(), setMetadataCallback);
-    setMetadataBuilder.setRequestData( metadata.toString() );
-    requestBuilders.add( setMetadataBuilder );
+    if ( arr.size() > 0 ) {
+      setMetadataBuilder.setRequestData( metadata.toString() );
+      requestBuilders.add( setMetadataBuilder );
+    }
 
     return requestBuilders;
   }
