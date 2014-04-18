@@ -375,7 +375,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     if ( id.endsWith( ":" ) ) {
       id = id.substring( 0, id.length() - 2 );
     }
-    return id;
+    return URL.encodePathSegment( id );
   }
 
   public List<String> getExecutableFileExtensions() {
@@ -397,7 +397,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
     final String path = solutionPath; // Expecting some encoding here
-    final String url = contextURL + "api/repo/files/" + URL.encodePathSegment( pathToId( path ) ) + "/properties"; //$NON-NLS-1$
+    final String url = contextURL + "api/repo/files/" + pathToId( path ) + "/properties"; //$NON-NLS-1$
 
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
