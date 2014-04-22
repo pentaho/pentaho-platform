@@ -61,6 +61,11 @@ define(["common-ui/jquery-i18n"], function (context) {
         if (result.overlay == undefined) {
 
         } else {
+
+          result.overlay.sort(function(left, right) {
+            return (left.priority ? left.priority : 9999) - (right.priority ? right.priority : 9999);
+          });
+
           for (var i = 0; i < result.overlay.length; i++) {
             var overlay = result.overlay[i],
                 $button = $(myself.buttonTemplate)
