@@ -38,11 +38,6 @@
     <dependency org="org.apache.xmlgraphics" name="batik-dom" rev="1.7" transitive="false"/>
     <dependency org="org.apache.xmlgraphics" name="batik-svggen" rev="1.7" transitive="false"/>
 
-    <!--  runtime batik -->
-    <dependency org="org.apache.xmlgraphics" name="fop" rev="0.94" transitive="false" />
-
-    <!-- required by fop -->
-    <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false"/>
 
     <dependency org="jfree" name="jcommon" rev="1.0.16"/>

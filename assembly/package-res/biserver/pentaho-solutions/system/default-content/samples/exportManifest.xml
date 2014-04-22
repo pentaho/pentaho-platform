@@ -3714,18 +3714,6 @@
             </EntityAcl>
         </ExportManifestProperty>
     </ExportManifestEntity>
-    <ExportManifestEntity path="public/bi-developers/printing/report-to-printer.xaction">
-        <ExportManifestProperty>
-            <EntityMetaData name="report-to-printer.xaction" createdDate="2013-09-24T17:13:17.996+01:00" isFolder="false" path="public/bi-developers/printing/report-to-printer.xaction" isHidden="false" locale="en_US" description="This is an example of a report sent to a printer.&lt;p&gt;You will be asked to selected a printer to send the report to.&lt;p&gt;The list of printers will be the printers that the server has access to. If you are running the demo server on your local machine then you will see the list of printers for your machine. " title="Send Report to Printer"/>
-        </ExportManifestProperty>
-        <ExportManifestProperty>
-            <EntityAcl>
-                <entriesInheriting>true</entriesInheriting>
-                <owner>admin</owner>
-                <ownerType>USER</ownerType>
-            </EntityAcl>
-        </ExportManifestProperty>
-    </ExportManifestEntity>
     <ExportManifestEntity path="public/bi-developers/reporting">
         <ExportManifestProperty>
             <EntityMetaData name="reporting" createdDate="2013-09-24T17:13:18.070+01:00" isFolder="true" path="public/bi-developers/reporting" isHidden="false" locale="en_US" description="Examples of HTML and PDF reports" title="Reporting"/>

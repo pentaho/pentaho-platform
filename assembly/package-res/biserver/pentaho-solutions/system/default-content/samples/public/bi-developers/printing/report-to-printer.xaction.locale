@@ -1,5 +1,0 @@
-#Locale = default
-#Thu Aug 15 12:32:46 EDT 2013
-file.title=Send Report to Printer
-title=report-to-printer
-file.description=This is an example of a report sent to a printer.<p>You will be asked to selected a printer to send the report to.<p>The list of printers will be the printers that the server has access to. If you are running the demo server on your local machine then you will see the list of printers for your machine. 

@@ -1,4 +1,0 @@
-#Locale = es
-#Thu Aug 15 12:32:46 EDT 2013
-file.title=Ejemplo PDF parametrizado de  Eclipse BIRT
-file.description=Este es un ejemplo de un informe parametrizado mandado a la impresora.<p> Se pedir\u00E1 una regi\u00F3n, la entradas v\u00E1lidas son 'Eastern', 'Western', 'Southern' and 'Central' y una impresora para mandarle el informe.<p>La lista de impresoras que el servidor tiene acceso. Si estas ejecutando el servidor demo server en la m\u00E1quina local, entonces ver\u00E1 la lista de impresoras de tu maquina.

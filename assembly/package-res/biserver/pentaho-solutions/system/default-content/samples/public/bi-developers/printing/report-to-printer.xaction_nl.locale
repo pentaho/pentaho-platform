@@ -1,4 +1,0 @@
-#Locale = nl
-#Thu Aug 15 12:32:46 EDT 2013
-file.title=Voorbeeld van een Eclipse BIRT Geparameteriseerd PDF Rapport
-file.description=Dit is een voorbeeld van een geparameteriseerd rapport dat naar een printer gestuurd werd.<p>U zal eerst naar een regio gevraagd worden, geldige waarden zijn 'Eastern', 'Western', 'Southern' en 'Central' en naar een printer om het rapport op af te drukken.<p>De printerlijst bevat de printers waar de server toegang toe heeft. Wanneer u de demo op uw locale pc draait, krijgt u de printers te zien die beschikbaar zijn op uw machine.

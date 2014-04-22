@@ -609,12 +609,6 @@
             <file description="regions.rule.xaction" isDirectory="false" lastModifiedDate="1260207470000"
                   localized-name="Regions list" name="regions.rule.xaction" visible="true"/>
         </file>
-        <file description="Examples of content sent to printers. Content -&gt; Printer. Got it?" isDirectory="true"
-              lastModifiedDate="1260219799000" localized-name="Printing" name="printing" visible="true">
-            <file description="This is an example of a report sent to a printer.&lt;p&gt;You will be asked to selected a printer to send the report to.&lt;p&gt;The list of printers will be the printers that the server has access to. If you are running the demo server on your local machine then you will see the list of printers for your machine. "
-                  isDirectory="false" lastModifiedDate="1260207472000" localized-name="Send Report to Printer"
-                  name="report-to-printer.xaction" visible="true"/>
-        </file>
         <file description="Examples of HTML and PDF reports" isDirectory="true" lastModifiedDate="1260219799000"
               localized-name="Reporting" name="reporting" visible="true">
             <file description="Dynamic Dependent Parameter Examples using AJAX" isDirectory="true"
