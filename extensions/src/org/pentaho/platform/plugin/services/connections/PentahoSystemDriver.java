@@ -119,7 +119,7 @@ public class PentahoSystemDriver implements Driver {
     return true;
   }
 
-  @Override
+  //don't add @Override annotation for Java 6 compatibility (class Driver doesn't have getParentLogger method in Java 6)
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
     throw new SQLFeatureNotSupportedException( "Impossible to know which Driver to fetch the logger from" );
   }
