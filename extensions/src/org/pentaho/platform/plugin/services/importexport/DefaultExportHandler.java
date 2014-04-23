@@ -53,7 +53,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 public class DefaultExportHandler implements ExportHandler {
-  private static final Log log = LogFactory.getLog( SimpleImportProcessor.class );
+  private static final Log log = LogFactory.getLog( DefaultExportHandler.class );
 
   private Map<String, Converter> converters;
 

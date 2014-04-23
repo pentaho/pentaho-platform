@@ -28,11 +28,6 @@ import junit.framework.TestCase;
 public class ExceptionTest extends TestCase {
   public void testExceptions() {
     // Nothing to test - padding stats
-    new ImportException();
-    new ImportException( "test" );
-    new ImportException( "test", new Exception() );
-    new ImportException( new Exception() );
-
     new InitializationException();
     new InitializationException( "test" );
     new InitializationException( "test", new Exception() );

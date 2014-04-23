@@ -45,9 +45,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -55,7 +53,6 @@ import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,8 +73,6 @@ public class CommandLineProcessor {
   private static final String ANALYSIS_DATASOURCE_IMPORT = "/plugin/data-access/api/mondrian/postAnalysis";
 
   private static final String METADATA_DATASOURCE_IMPORT = "/plugin/data-access/api/metadata/postimport";
-
-  private static final String ANALYSIS_DATASOURCE_EXT = "mondrian.xml";
 
   private static final String METADATA_DATASOURCE_EXT = "xmi";
 
@@ -107,8 +102,6 @@ public class CommandLineProcessor {
     SOLUTIONS, DATASOURCE
   }
 
-  private static boolean useRestService = true;
-
   private static Client client = null;
 
   static {
@@ -137,14 +130,6 @@ public class CommandLineProcessor {
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_URL_DESCRIPTION" ) );
 
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_SOURCE_KEY" ), Messages
-        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_SOURCE_NAME" ), true, Messages.getInstance()
-        .getString( "CommandLineProcessor.INFO_OPTION_SOURCE_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_TYPE_KEY" ), Messages
-        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_TYPE_NAME" ), true, Messages.getInstance()
-        .getString( "CommandLineProcessor.INFO_OPTION_TYPE_DESCRIPTION" ) );
-
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_DESCRIPTION" ) );
@@ -156,11 +141,6 @@ public class CommandLineProcessor {
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), true, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_DESCRIPTION" ) );
-
-    // import only options
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_COMMENT_KEY" ), Messages
-        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_COMMENT_NAME" ), true, Messages.getInstance()
-        .getString( "CommandLineProcessor.INFO_OPTION_COMMENT_DESCRIPTION" ) );
 
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PATH_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_PATH_NAME" ), true, Messages.getInstance()
@@ -182,32 +162,6 @@ public class CommandLineProcessor {
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY" ),
         Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME" ), true, Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_DESCRIPTION" ) );
-
-    // external
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_DESCRIPTION" ) );
-
-    // Legacy Service
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_KEY" ), Messages
-        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_NAME" ), true, Messages.getInstance()
-        .getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DESCRIPTION" ) );
 
     // rest services
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_REST_KEY" ), Messages
@@ -244,11 +198,7 @@ public class CommandLineProcessor {
 
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_KEY" ),
         Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_DESCRIPTION" ) );
+            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_DESCRIPTION" ) );
 
     options.addOption(
         Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_XMLA_ENABLED_KEY" ), Messages
@@ -261,9 +211,7 @@ public class CommandLineProcessor {
   }
 
   /**
-   * How this class is executed from the command line. It will create an instance of an
-   * {@link org.pentaho.platform.plugin.services.importexport.ImportProcessor} and initialize it base on the options
-   * provided on the command line.
+   * How this class is executed from the command line.
    * 
    * @param args
    */
@@ -274,12 +222,7 @@ public class CommandLineProcessor {
       exception = null;
 
       final CommandLineProcessor commandLineProcessor = new CommandLineProcessor( args );
-      String legacy =
-          commandLineProcessor.getOptionValue( Messages.getInstance().getString(
-              "CommandLineProcessor.INFO_OPTION_LEGACY_KEY" ), Messages.getInstance().getString(
-              "CommandLineProcessor.INFO_OPTION_LEGACY_NAME" ), false, true );
 
-      useRestService = "false".equals( legacy ) ? false : true; // default to new REST version if not provided
       // new service only
       switch ( commandLineProcessor.getRequestType() ) {
         case HELP:
@@ -447,28 +390,18 @@ public class CommandLineProcessor {
     return requestType;
   }
 
-  protected void performImport() throws Exception, ImportException {
-    if ( !useRestService ) {
-      this.performImportLegacy();
-    } else {
-      performImportREST();
-    }
-  }
-
   /**
    * --import --url=http://localhost:8080/pentaho --username=admin --password=password --file-path=metadata.xmi
    * --resource-type=DATASOURCE --datasource-type=METADATA --overwrite=true --metadata-domain-id=steel-wheels
    * 
    * @param contextURL
-   * @param filePath
    * @param metadataDatasourceFile
    * @param overwrite
    * @throws ParseException
-   * @throws FileNotFoundException
    * @throws IOException
    */
-  private void performMetadataDatasourceImport( String contextURL, String filePath, File metadataDatasourceFile,
-      String overwrite ) throws ParseException, FileNotFoundException, IOException {
+  private void performMetadataDatasourceImport( String contextURL, File metadataDatasourceFile,
+      String overwrite ) throws ParseException, IOException {
     File metadataFileInZip = null;
     InputStream metadataFileInZipInputStream = null;
 
@@ -564,15 +497,13 @@ public class CommandLineProcessor {
    * --overwrite=true --analysis-datasource=steelwheels
    * 
    * @param contextURL
-   * @param filePath
    * @param analysisDatasourceFile
    * @param overwrite
    * @throws ParseException
-   * @throws FileNotFoundException
    * @throws IOException
    */
-  private void performAnalysisDatasourceImport( String contextURL, String filePath, File analysisDatasourceFile,
-      String overwrite ) throws ParseException, FileNotFoundException, IOException {
+  private void performAnalysisDatasourceImport( String contextURL, File analysisDatasourceFile,
+      String overwrite ) throws ParseException, IOException {
     String analysisImportURL = contextURL + ANALYSIS_DATASOURCE_IMPORT;
 
     String catalogName =
@@ -581,10 +512,6 @@ public class CommandLineProcessor {
     String datasourceName =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_KEY" ),
             Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_NAME" ), false,
-            true );
-    String parameters =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_KEY" ),
-            Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_NAME" ), false,
             true );
     String xmlaEnabledFlag =
         getOptionValue(
@@ -629,10 +556,9 @@ public class CommandLineProcessor {
 
   /**
    * @throws ParseException
-   * @throws FileNotFoundException
    * @throws IOException
    */
-  private void performDatasourceImport() throws ParseException, FileNotFoundException, IOException {
+  private void performDatasourceImport() throws ParseException, IOException {
     String contextURL =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_Key" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
@@ -655,9 +581,9 @@ public class CommandLineProcessor {
       File file = new File( filePath );
       if ( datasourceType != null ) {
         if ( datasourceType.equals( DatasourceType.ANALYSIS.name() ) ) {
-          performAnalysisDatasourceImport( contextURL, filePath, file, overwrite );
+          performAnalysisDatasourceImport( contextURL, file, overwrite );
         } else if ( datasourceType.equals( DatasourceType.METADATA.name() ) ) {
-          performMetadataDatasourceImport( contextURL, filePath, file, overwrite );
+          performMetadataDatasourceImport( contextURL, file, overwrite );
         }
       }
 
@@ -669,13 +595,13 @@ public class CommandLineProcessor {
   }
 
   /*
-   * --import --url=http://localhost:8080/pentaho - -username=admin --password=password --source=file-system
+   * --import --url=http://localhost:8080/pentaho - -username=admin --password=password
    * --charset=UTF-8 --path=:public --file-path=C:/Users/tband/Downloads/pentaho-solutions.zip
    * --logfile=c:/Users/tband/Desktop/logfile.log --permission=true --overwrite=true --retainOwnership=true (required
    * fields- default is false)
    */
 
-  private void performImportREST() throws ParseException, FileNotFoundException, IOException {
+  private void performImport() throws ParseException, IOException {
     String contextURL =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_Key" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
@@ -760,32 +686,6 @@ public class CommandLineProcessor {
   }
 
   /**
-   * this process must run on the same box as the JCR repository does not use REST
-   * 
-   * @throws Exception
-   *           ;
-   * @throws org.pentaho.platform.plugin.services.importexport.ImportException
-   * 
-   */
-  protected void performImportLegacy() throws Exception, ImportException {
-    final ImportProcessor importProcessor = getImportProcessor();
-    importProcessor.setImportSource( createImportSource() );
-    addImportHandlers( importProcessor );
-    String overwrite =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME" ), false, true );
-    importProcessor.performImport( Boolean.valueOf( overwrite == null ? "true" : overwrite ).booleanValue() );
-  }
-
-  protected void performExport() throws ParseException, ExportException, IOException, InitializationException {
-    if ( !useRestService ) {
-      performExportLegacy();
-    } else {
-      performExportREST();
-    }
-  }
-
-  /**
    * REST Service Export
    * 
    * @throws ParseException
@@ -794,7 +694,7 @@ public class CommandLineProcessor {
    *           --logfile=c:/temp/steel-wheels.log --withManifest=true
    * @throws java.io.IOException
    */
-  private void performExportREST() throws ParseException, IOException, InitializationException {
+  private void performExport() throws ParseException, IOException, InitializationException {
     String contextURL =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
@@ -909,149 +809,6 @@ public class CommandLineProcessor {
         }
       }
     }
-  }
-
-  /**
-   * @throws ParseException
-   * @throws org.pentaho.platform.plugin.services.importexport.ExportException
-   * 
-   * @throws java.io.IOException
-   */
-  protected void performExportLegacy() throws ParseException, ExportException, IOException {
-
-    // path is validated before executing
-    String filepath =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
-
-    String logFile =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
-
-    if ( !isValidExportPath( filepath, logFile ) ) {
-      throw new ExportException( "file-path:" + filepath );
-    }
-
-    final Exporter exportProcessor = getExportProcessor();
-    exportProcessor.doExport();
-    // throw new UnsupportedOperationException(); // TODO implement
-  }
-
-  private Exporter getExportProcessor() throws ParseException {
-    final IUnifiedRepository repository = getRepository();
-    String path =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PATH_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_PATH_NAME" ), true, false );
-    String filepath =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
-    final Exporter exportProcess = new Exporter( repository, path, filepath );
-    return exportProcess;
-  }
-
-  /**
-   * Determines the {@link org.pentaho.platform.plugin.services.importexport.ImportProcessor} to be used by evaluating
-   * the command line
-   * 
-   * @return the @{link ImportProcessor} to be used for importing - or the
-   *         {@link org.pentaho.platform.plugin .services.importexport.SimpleImportProcessor} if one can not be
-   *         determined
-   */
-  protected ImportProcessor getImportProcessor() throws ParseException {
-    final String comment =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_COMMENT_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_COMMENT_NAME" ), false, true );
-    final String destinationPath =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PATH_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_PATH_NAME" ), true, false );
-    return new SimpleImportProcessor( destinationPath, comment );
-  }
-
-  /**
-   * Creates an instance of an {@link org.pentaho.platform.plugin.services.importexport.ImportSource} based off the
-   * command line options
-   */
-  protected ImportSource createImportSource() throws ParseException, InitializationException {
-    final String source =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_SOURCE_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_SOURCE_NAME" ), true, false );
-    final String requiredCharset =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_CHARSET_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_CHARSET_NAME" ), true, false );
-
-    if ( StringUtils.equals( source, Messages.getInstance().getString(
-        "CommandLineProcessor.INFO_OPTION_SOURCE_LEGACY_DB" ) ) ) {
-      final String driver =
-          getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_KEY" ),
-              Messages.getInstance().getString(
-                "CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_NAME" ), true, false );
-      final String url =
-          getOptionValue( Messages.getInstance().getString(
-            "CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_KEY" ),
-              Messages.getInstance().getString(
-                "CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_NAME" ), true, false );
-      final String dbUsername =
-          getOptionValue(
-              Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_KEY" ), Messages
-                  .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_NAME" ), true, false );
-      final String dbPassword =
-          getOptionValue(
-              Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_KEY" ), Messages
-                  .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_NAME" ), true, true );
-      final String charset =
-          getOptionValue( Messages.getInstance().getString(
-            "CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_KEY" ),
-              Messages.getInstance().getString(
-                "CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_NAME" ), true, true );
-      final DataSource dataSource = new DriverManagerDataSource( driver, url, dbUsername, dbPassword );
-
-      final String username =
-          getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_USERNAME_KEY" ), Messages
-              .getInstance().getString( "CommandLineProcessor.INFO_OPTION_USERNAME_NAME" ), true, false );
-      return new org.pentaho.platform.plugin.services.importexport.legacy.DbSolutionRepositoryImportSource( dataSource,
-          charset, requiredCharset, username );
-    }
-
-    if ( StringUtils.equals( source, Messages.getInstance().getString(
-        "CommandLineProcessor.INFO_OPTION_SOURCE_FILE_SYSTEM" ) ) ) {
-      final String filePath =
-          getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
-              .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
-      final File file = new File( filePath );
-      return new org.pentaho.platform.plugin.services.importexport.legacy.FileSolutionRepositoryImportSource( file,
-          requiredCharset );
-    }
-
-    // Source is not understood
-    throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME",
-        source ) );
-  }
-
-  /**
-   * Creates and adds the set of {@link org.pentaho.platform.plugin.services.importexport.ImportHandler}s to be used
-   * with this import process
-   * 
-   * @param importProcessor
-   *          the import processor in which the import handlers should be created
-   */
-  protected void addImportHandlers( final ImportProcessor importProcessor ) throws ParseException {
-    // TODO - Need a way to either (a) have all ImportProcessors use the
-    // same set or (b) use spring to initialize this
-    final IUnifiedRepository repository = getRepository();
-
-    String username =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_USERNAME_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_USERNAME_NAME" ), true, false );
-    String password =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PASSWORD_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_PASSWORD_NAME" ), true, false );
-    String url =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
-
-    importProcessor.addImportHandler( new MondrianImportHandler( username, password, url ) );
-    importProcessor.addImportHandler( new MetadataImportHandler( username, password, url ) );
-    importProcessor.addImportHandler( new DefaultImportHandler( repository ) );
   }
 
   public synchronized void setRepository( final IUnifiedRepository repository ) {
