@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,6 +70,9 @@ public class ActionAdapterQuartzJob implements Job {
   private static final long RETRY_COUNT = 6;
   private static final long RETRY_SLEEP_AMOUNT = 10000;
 
+  private String outputFilePath = null;
+  private Object lock = new Object();
+  
   protected Class<?> resolveClass( JobDataMap jobDataMap ) throws PluginBeanException, JobExecutionException {
     String actionClass = jobDataMap.getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS );
     String actionId = jobDataMap.getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONID );
@@ -190,6 +194,8 @@ public class ActionAdapterQuartzJob implements Job {
           ( (IVarArgsAction) actionBean ).setVarArgs( actionParams );
         }
 
+        boolean waitForFileCreated = false;
+        
         if ( streamProvider != null ) {
           actionParams.remove( "inputStream" );
           if ( actionBean instanceof IStreamingAction ) {
@@ -212,46 +218,13 @@ public class ActionAdapterQuartzJob implements Job {
           if ( stream instanceof ISourcesStreamEvents ) {
             ( (ISourcesStreamEvents) stream ).addListener( new IStreamListener() {
               public void fileCreated( final String filePath ) {
-                // BISERVER-10544: spawn a new Thread (to prevent blocking) and create a new Callable (for auth)
-                Runnable r = new Runnable() {
-                  public void run() {
-                    try {
-                      Callable<Void> c = new Callable<Void>() {
-                        public Void call() throws Exception {
-                          IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
-                          RepositoryFile sourceFile = repo.getFile( filePath );
-                          // add metadata
-                          Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
-                          String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-                          metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
-                          repo.setFileMetadata( sourceFile.getId(), metadata );
-                          // send email
-                          SimpleRepositoryFileData data =
-                              repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
-                          try {
-                            sendEmail( actionParams, filePath, data );
-                          } catch ( Throwable t ) {
-                            log.warn( t.getMessage(), t );
-                          }
-                          return null;
-                        }
-                      };
-                      if ( ( actionUser == null ) || ( actionUser.equals( "system session" ) ) ) { //$NON-NLS-1$
-                        // For now, don't try to run quartz jobs as authenticated if the user
-                        // that created the job is a system user. See PPP-2350
-                        SecurityHelper.getInstance().runAsAnonymous( c );
-                      } else {
-                        SecurityHelper.getInstance().runAsUser( actionUser, c);
-                      }
-                    } catch ( Exception e ) {
-                      log.warn( e.getMessage(), e );
-                    }
-                  }
-                };
-                Thread t = new Thread( r );
-                t.start();
+                synchronized ( lock ) {
+                  outputFilePath = filePath;
+                  lock.notifyAll();
+                }
               }
             } );
+            waitForFileCreated = true;
           }
           actionParams.put( "outputStream", stream );
           // The lineage_id is only useful for the metadata and not needed at this level see PDI-10171
@@ -261,6 +234,20 @@ public class ActionAdapterQuartzJob implements Job {
 
         actionBean.execute();
 
+        if (streamProvider != null) {
+          OutputStream stream = streamProvider.getOutputStream();
+          IOUtils.closeQuietly( stream );
+        }
+
+        if ( waitForFileCreated ) {
+          synchronized ( lock ) {
+            if ( outputFilePath == null ) {
+              lock.wait();
+            }
+          }
+          sendEmail( actionParams, params, outputFilePath );
+        }
+        
         return updateJob;
       }
     };
@@ -337,73 +324,88 @@ public class ActionAdapterQuartzJob implements Job {
 
   }
 
-  private void sendEmail( Map<String, Object> actionParams, String filePath, SimpleRepositoryFileData data ) {
-    // if email is setup and we have tos, then do it
-    Emailer emailer = new Emailer();
-    if ( !emailer.setup() ) {
-      // email not configured
-      return;
-    }
-    String to = (String) actionParams.get( "_SCH_EMAIL_TO" );
-    String cc = (String) actionParams.get( "_SCH_EMAIL_CC" );
-    String bcc = (String) actionParams.get( "_SCH_EMAIL_BCC" );
-    if ( ( to == null || "".equals( to ) ) && ( cc == null || "".equals( cc ) )
-            && ( bcc == null || "".equals( bcc ) ) ) {
-      // no destination
-      return;
-    }
-    emailer.setTo( to );
-    emailer.setCc( cc );
-    emailer.setBcc( bcc );
-    emailer.setAttachment( data.getInputStream() );
-    emailer.setAttachmentName( "attachment" );
-    String attachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
-    if ( attachmentName != null && !"".equals( attachmentName ) ) {
-      String path = filePath;
-      if ( path.endsWith( ".*" ) ) {
-        path = path.replace( ".*", "" );
+  private void sendEmail( Map<String, Object> actionParams, Map<String, Serializable> params, String filePath ) {
+    try {
+      IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+      RepositoryFile sourceFile = repo.getFile( filePath );
+      // add metadata
+      Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
+      String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+      metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
+      repo.setFileMetadata( sourceFile.getId(), metadata );
+      // send email
+      SimpleRepositoryFileData data =
+          repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );      
+      
+      // if email is setup and we have tos, then do it
+      Emailer emailer = new Emailer();
+      if ( !emailer.setup() ) {
+        // email not configured
+        return;
       }
-      String extension = MimeHelper.getExtension( data.getMimeType() );
-      if ( extension == null ) {
-        extension = ".bin";
+      String to = (String) actionParams.get( "_SCH_EMAIL_TO" );
+      String cc = (String) actionParams.get( "_SCH_EMAIL_CC" );
+      String bcc = (String) actionParams.get( "_SCH_EMAIL_BCC" );
+      if ( ( to == null || "".equals( to ) ) && ( cc == null || "".equals( cc ) )
+          && ( bcc == null || "".equals( bcc ) ) ) {
+        // no destination
+        return;
       }
-      if ( !attachmentName.endsWith( extension ) ) {
-        emailer.setAttachmentName( attachmentName + extension );
+      emailer.setTo( to );
+      emailer.setCc( cc );
+      emailer.setBcc( bcc );
+      emailer.setAttachment( data.getInputStream() );
+      emailer.setAttachmentName( "attachment" );
+      String attachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
+      if ( attachmentName != null && !"".equals( attachmentName ) ) {
+        String path = filePath;
+        if ( path.endsWith( ".*" ) ) {
+          path = path.replace( ".*", "" );
+        }
+        String extension = MimeHelper.getExtension( data.getMimeType() );
+        if ( extension == null ) {
+          extension = ".bin";
+        }
+        if ( !attachmentName.endsWith( extension ) ) {
+          emailer.setAttachmentName( attachmentName + extension );
+        } else {
+          emailer.setAttachmentName( attachmentName );
+        }
+      } else if ( data != null ) {
+        String path = filePath;
+        if ( path.endsWith( ".*" ) ) {
+          path = path.replace( ".*", "" );
+        }
+        String extension = MimeHelper.getExtension( data.getMimeType() );
+        if ( extension == null ) {
+          extension = ".bin";
+        }
+        path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
+        if ( !path.endsWith( extension ) ) {
+          emailer.setAttachmentName( path + extension );
+        } else {
+          emailer.setAttachmentName( path );
+        }
+      }
+      if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
+        emailer.setAttachmentMimeType( "binary/octet-stream" );
       } else {
-        emailer.setAttachmentName( attachmentName );
+        emailer.setAttachmentMimeType( data.getMimeType() );
       }
-    } else if ( data != null ) {
-      String path = filePath;
-      if ( path.endsWith( ".*" ) ) {
-        path = path.replace( ".*", "" );
-      }
-      String extension = MimeHelper.getExtension( data.getMimeType() );
-      if ( extension == null ) {
-        extension = ".bin";
-      }
-      path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
-      if ( !path.endsWith( extension ) ) {
-        emailer.setAttachmentName( path + extension );
+      String subject = (String) actionParams.get( "_SCH_EMAIL_SUBJECT" );
+      if ( subject != null && !"".equals( subject ) ) {
+        emailer.setSubject( subject );
       } else {
-        emailer.setAttachmentName( path );
+        emailer.setSubject( "Pentaho Scheduler: " + emailer.getAttachmentName() );
       }
-    }
-    if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
-      emailer.setAttachmentMimeType( "binary/octet-stream" );
-    } else {
-      emailer.setAttachmentMimeType( data.getMimeType() );
-    }
-    String subject = (String) actionParams.get( "_SCH_EMAIL_SUBJECT" );
-    if ( subject != null && !"".equals( subject ) ) {
-      emailer.setSubject( subject );
-    } else {
-      emailer.setSubject( "Pentaho Scheduler: " + emailer.getAttachmentName() );
-    }
-    String message = (String) actionParams.get( "_SCH_EMAIL_MESSAGE" );
-    if ( subject != null && !"".equals( subject ) ) {
-      emailer.setBody( message );
-    }
-    emailer.send();
+      String message = (String) actionParams.get( "_SCH_EMAIL_MESSAGE" );
+      if ( subject != null && !"".equals( subject ) ) {
+        emailer.setBody( message );
+      }
+      emailer.send();
+    } catch ( Exception e ) {
+      log.warn( e.getMessage(), e );
+    }      
   }
 
   class LoggingJobExecutionException extends JobExecutionException {
