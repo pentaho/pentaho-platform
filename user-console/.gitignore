@@ -9,3 +9,4 @@
 /package-res/resources/web/test/lib
 /node_modules
 npm-debug.log
+.DS_Store

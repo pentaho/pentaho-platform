@@ -70,8 +70,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <property name="js.expanded.lib.dir" value="${js.lib.dir}/expanded"/>
 
   <!-- Path to the karma configuration -->
-  <property name="js.karma.config" value="config/karma.ci.conf.js"/>
+  <property name="js.karma.config" value="config/karma.conf.js"/>
   <property name="js.karma.ci.config" value="config/karma.ci.conf.js"/>
+  <property name="js.node.node_modules.dir" value="node_modules"/>
 
   <property environment="env"/>
 
@@ -83,33 +84,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <available file="" property="js-lib-dir-exists"/>
 
   <target name="resolve-js" depends="install-ivy, install-antcontrib">
+    <delete dir="${js.module.script.agg.dir}"/>
+
     <ivy:resolve file="ivy.xml" conf="js"/>
     <ivy:retrieve conf="js" pattern="${js.lib.dir}/[module]-[revision](-[classifier]).[ext]"/>
-
-    <if>
-      <available file="${js.lib.dir}"/>
-      <then>
-        <unzip dest="${js.expanded.lib.dir}" overwrite="true">
-          <fileset file="${js.lib.dir}/*.zip"/>
-          <patternset>
-            <exclude name="**/*.jar"/>
-            <exclude name="**/plugin*.xml"/>
-            <exclude name="**/settings.xml"/>
-            <exclude name="**/themes.xml"/>
-          </patternset>
-        </unzip>
-      </then>
-      <else>
-        <echo>No js libraries need expanding. ${js.lib.dir} does not exist.</echo>
-      </else>
-    </if>
-
   </target>
 
   <target name="clean-js">
     <delete dir="${js.lib.dir}"/>
-    <delete dir="${js.expanded.lib.dir}"/>
     <delete dir="${js.module.script.agg.dir}"/>
+    <delete dir="${js.node.node_modules.dir}"/>
   </target>
 
   <target name="check-pentaho-js-build-downloaded" depends="subfloor.install-ivy">
@@ -119,52 +103,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </not>
       <then>
         <ivy:resolve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"/>
-        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"
-                      pattern="build-res/[artifact].[ext]"/>
+        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true" pattern="build-res/[artifact].[ext]"/>
         <unzip src="build-res/pentaho-js-build.zip" dest="build-res"/>
       </then>
     </if>
   </target>
 
-  <target name="build-js" depends="install-antcontrib, check-pentaho-js-build-downloaded">
-    <delete dir="${js.build.output.dir}"/>
-    <delete dir="${js.module.script.agg.dir}"/>
-    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
-    <mkdir dir="${js.module.script.agg.dir}"/>
+  <target name="extract-source-and-build-require-js-profile" depends="install-antcontrib, check-pentaho-js-build-downloaded">
+    <if>
+      <not>
+        <available file="${js.module.script.agg.dir}"/>
+      </not>
+      <then>
+        <echo message="Extracting Javascript from Dependencies"/>
+        <delete dir="${js.module.script.agg.dir}"/>
 
-    <unzip dest="${js.module.script.agg.dir}" overwrite="true">
-      <fileset dir=".">
-        <include name="${js.lib.dir}/*.zip"/>
-      </fileset>
-    </unzip>
+        <unzip dest="${js.module.script.agg.dir}" overwrite="true">
+          <fileset dir=".">
+            <include name="${js.lib.dir}/*.zip"/>
+          </fileset>
+        </unzip>
 
-    <copy todir="${js.module.script.agg.dir}/${js.module.script.namespace}" overwrite="true">
-      <fileset dir="${js.module.script.dir}">
-        <include name="**/*"/>
-      </fileset>
-    </copy>
+        <copy todir="${js.module.script.agg.dir}/${js.module.script.namespace}" overwrite="true">
+          <fileset dir="${js.module.script.dir}">
+            <include name="**/*"/>
+          </fileset>
+        </copy>
 
-    <path id="build.classpath">
-      <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
-        <include name="*.jar"/>
-      </fileset>
-    </path>
+        <path id="build.classpath">
+          <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
+            <include name="*.jar"/>
+          </fileset>
+        </path>
+        <echo message="Collecting RequireJS Configurations"/>
+        <echo message="var requireCfg={paths:{},shim:{}};" file="build-res/requireCfg-raw.js" append="false"/>
+        <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
+          <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
+            <include name="*/*-require-js-cfg.js"/>
+          </fileset>
+        </concat>
 
-    <echo message="var requireCfg={paths:{},shim:{}};" file="build-res/requireCfg-raw.js" force="true" append="false"/>
-    <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
-      <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
-        <include name="*/*-require-js-cfg.js"/>
-      </fileset>
-    </concat>
-
-    <java classname="org.mozilla.javascript.tools.shell.Main"
+        <java classname="org.mozilla.javascript.tools.shell.Main"
           fork="true"
           classpathref="build.classpath"
           args="build-res/pentaho-js-build/profileBuilder.js">
-    </java>
+        </java>
 
-    <echo message="require(requireCfg);" append="true" file="build-res/requireCfg.js"/>
+        <echo message="require(requireCfg);" append="true" file="build-res/requireCfg.js"/>
+      </then>
+    </if>
+  </target>
 
+  <target name="build-js" depends="extract-source-and-build-require-js-profile">
+    <delete dir="${js.build.output.dir}"/>
+    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
+    <mkdir dir="${js.module.script.agg.dir}"/>
 
     <copy todir="${js.module.script.agg.dir}" overwrite="true">
       <fileset dir="build-res/pentaho-js-build/module-scripts">
@@ -283,48 +276,85 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   </target>
 
-
-  <!-- Check to see if karma is on the PATH -->
-  <available file="karma" filepath="${env.PATH}" property="karma-is-available"/>
-
   <!-- Only run if there is a package.json file -->
   <target name="npm-install" depends="check-pentaho-js-build-downloaded">
+    <echo>NODE JS install steps</echo>
+    <echo>1) Install Node.js (http://nodejs.org)</echo>
+    <echo>2) Make sure 'npm' is accessible from the command line (update PATH variable)</echo>
+    <echo>3) (WINDOWS ONLY) run 'npm install -g karma-cli' [adds karma.cmd to the command line]</echo>
     <if>
       <available file="package.json"/>
       <then>
-        <exec executable="npm">
-          <arg value="install"/>
-        </exec>
+        <if>
+          <isset property="isWindows"/>
+          <then>
+            <exec executable="npm.cmd">
+              <arg value="install"/>
+            </exec>
+          </then>
+          <else>
+            <exec executable="npm">
+              <arg value="install"/>
+            </exec>
+          </else>
+        </if>
       </then>
       <else>
         <echo>No package.json found, using the default</echo>
-        <exec executable="npm">
-          <arg value="install"/>
-          <arg value="build-res/pentaho-js-build"/>
-        </exec>
+        <if>
+          <isset property="isWindows"/>
+          <then>
+            <exec executable="npm.cmd">
+              <arg value="install"/>
+              <arg value="build-res/pentaho-js-build"/>
+            </exec>
+          </then>
+          <else>
+            <exec executable="npm">
+              <arg value="install"/>
+              <arg value="build-res/pentaho-js-build"/>
+            </exec>
+          </else>
+        </if>
       </else>
     </if>
   </target>
 
-  <target name="test-js" depends="install-antcontrib, npm-install">
-    <if>
-      <not>
-        <isset property="karma-is-available"/>
-      </not>
-      <then>
-        <fail>karma is not available on the PATH. Unit tests could not be run.</fail>
-      </then>
-    </if>
+  <!-- Check to see if karma is on the PATH -->
+  <available file="karma.cmd" filepath="${env.PATH}" property="karma-for-windows-is-available"/>
+
+  <target name="test-js" depends="install-antcontrib, npm-install, extract-source-and-build-require-js-profile">
     <if>
       <available file="${js.karma.ci.config}"/>
       <then>
         <!-- we have karma available, use it to run the tests -->
-        <exec executable="karma">
-          <arg value="start"/>
-          <arg value="${js.karma.ci.config}"/>
-          <!-- if we are running via ant, then assume we must 'single-run' -->
-          <arg value="--single-run"/>
-        </exec>
+          <if>
+            <isset property="isWindows"/>
+            <then>
+              <if>
+                <not>
+                  <isset property="karma-for-windows-is-available"/>
+                </not>
+                <then>
+                  <fail>Run 'npm install -g karma-cli' [adds karma.cmd to the command line]</fail>
+                </then>
+              </if>
+              <exec executable="karma.cmd">
+                <arg value="start"/>
+                <arg value="${js.karma.ci.config}"/>
+                <!-- if we are running via ant, then assume we must 'single-run' -->
+                <arg value="--single-run"/>
+              </exec>
+            </then>
+            <else>
+              <exec executable="node_modules/karma/bin/karma">
+                <arg value="start"/>
+                <arg value="${js.karma.ci.config}"/>
+                <!-- if we are running via ant, then assume we must 'single-run' -->
+                <arg value="--single-run"/>
+              </exec>
+            </else>
+          </if>
       </then>
       <else>
         <fail>There is no karma configuration file available (looking for: ${js.karma.ci.config})</fail>
@@ -332,7 +362,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </if>
   </target>
 
-  <target name="karma-server" depends="install-antcontrib, npm-install">
+  <target name="karma-server" depends="install-antcontrib, npm-install, extract-source-and-build-require-js-profile">
     <if>
       <not>
         <available file="${js.karma.config}"/>
@@ -341,10 +371,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <fail>There is no karma configuration file available (looking for: ${js.karma.config})</fail>
       </then>
       <else>
-        <exec executable="karma">
-          <arg value="start"/>
-          <arg value="${js.karma.config}"/>
-        </exec>
+        <if>
+          <isset property="isWindows"/>
+          <then>
+            <if>
+              <not>
+                <isset property="karma-for-windows-is-available"/>
+              </not>
+              <then>
+                <fail>Run 'npm install -g karma-cli' [adds karma.cmd to the command line]</fail>
+              </then>
+            </if>
+            <exec executable="karma.cmd">
+              <arg value="start"/>
+              <arg value="${js.karma.config}"/>
+            </exec>
+          </then>
+          <else>
+            <exec executable="node_modules/karma/bin/karma">
+              <arg value="start"/>
+              <arg value="${js.karma.config}"/>
+            </exec>
+          </else>
+        </if>
       </else>
     </if>
 
