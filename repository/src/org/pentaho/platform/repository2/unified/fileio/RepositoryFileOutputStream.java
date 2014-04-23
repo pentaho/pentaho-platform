@@ -154,9 +154,6 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       flush();
       closed = true;
       reset();
-      for (IStreamListener listener : listeners) {
-        listener.fileCreated(path);
-      }
     }
   }
 
@@ -217,6 +214,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
         file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).hidden(hidden).versioned(true).build(); // Default
         // versioned to true so that we're keeping history
         file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
+        for (IStreamListener listener : listeners) {
+          listener.fileCreated(path);
+        }
       } else if (file.isFolder()) {
         throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
       } else {
@@ -246,6 +246,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
           file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
           file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
           path = file.getPath();
+          for (IStreamListener listener : listeners) {
+            listener.fileCreated(path);
+          }
         } else {
           repository.updateFile(file, payload, "New File"); //$NON-NLS-1$
         }
