@@ -31,6 +31,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -197,7 +198,7 @@ public class NewScheduleDialog extends PromptDialogBox {
 
     // check if has parameterizable
     WaitPopup.getInstance().setVisible( true );
-    String urlPath = filePath.replaceAll( "/", ":" );
+    String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) );
     
     RequestBuilder scheduleFileRequestBuilder;
     final boolean isXAction;

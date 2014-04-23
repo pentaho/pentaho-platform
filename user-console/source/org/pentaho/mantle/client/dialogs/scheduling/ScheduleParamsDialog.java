@@ -111,7 +111,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
     setWizardPanels( wizardPanels );
     setWidth( "800px" );
-    String urlPath = filePath.replaceAll( "/", ":" ); //$NON-NLS-1$  //$NON-NLS-2$
+    String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) ); //$NON-NLS-1$  //$NON-NLS-2$
 
     String urlParams = "";
     if ( editJob != null ) {
