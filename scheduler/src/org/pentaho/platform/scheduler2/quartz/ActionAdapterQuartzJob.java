@@ -184,6 +184,7 @@ public class ActionAdapterQuartzJob implements Job {
         }
 
         boolean waitForFileCreated = false;
+        OutputStream stream = null;
         
         if (streamProvider != null) {
           actionParams.remove("inputStream");
@@ -202,7 +203,7 @@ public class ActionAdapterQuartzJob implements Job {
             updateJob = true; // job needs to be deleted and recreated with the new output path
           }
 
-          OutputStream stream = streamProvider.getOutputStream();
+          stream = streamProvider.getOutputStream();
           if (stream instanceof ISourcesStreamEvents) {
             ((ISourcesStreamEvents) stream).addListener(new IStreamListener() {
               public void fileCreated(final String filePath) {
@@ -222,8 +223,7 @@ public class ActionAdapterQuartzJob implements Job {
 
         actionBean.execute();
 
-        if (streamProvider != null) {
-          OutputStream stream = streamProvider.getOutputStream();
+        if (stream != null) {
           IOUtils.closeQuietly(stream);
         }
         
