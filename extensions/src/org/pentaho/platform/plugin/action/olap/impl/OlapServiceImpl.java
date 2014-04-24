@@ -513,7 +513,7 @@ public class OlapServiceImpl implements IOlapService {
       OlapConnection connection = null;
       try {
         connection = getConnection( name, session );
-        XmlaHandler.XmlaExtra xmlaExtra = PlatformXmlaExtra.unwrapXmlaExtra( connection );
+        XmlaHandler.XmlaExtra xmlaExtra = getXmlaExtra( connection );
         if ( xmlaExtra != null ) {
           xmlaExtra.flushSchemaCache( connection );
         }
@@ -526,6 +526,10 @@ public class OlapServiceImpl implements IOlapService {
         }
       }
     }
+  }
+
+  protected XmlaHandler.XmlaExtra getXmlaExtra( final OlapConnection connection ) throws SQLException {
+    return PlatformXmlaExtra.unwrapXmlaExtra( connection );
   }
 
   public List<String> getCatalogNames(
