@@ -90,11 +90,9 @@ public class JcrRepositoryFileUtils {
 //    '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
   
   // This list will drive what characters are not allowed on the client as well as the server
-  private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
+  private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
     '/', '\\', '\t', '\r', '\n' } ) );
 
-  private static final Pattern containsReservedCharsPattern = makePattern( reservedChars );
-  
   private static Pattern makePattern( List<Character> list) {
     // escape all reserved characters as they may have special meaning to regex engine
     StringBuilder buf = new StringBuilder();
@@ -1257,14 +1255,27 @@ public class JcrRepositoryFileUtils {
     return values;
   }
 
+  /**
+   * Use override list from PentahoSystem if it exists
+   * @return
+   */
   public static List<Character> getReservedChars() {
+    List<Character> newOverrideReservedChars = PentahoSystem.get(ArrayList.class,
+      "reservedChars", PentahoSessionHolder.getSession() );
+
+    if( newOverrideReservedChars != null ){
+      return newOverrideReservedChars;
+    }
+    else{
     return reservedChars;
+  }
   }
 
   /**
    * Checks for presence of black listed chars as well as illegal permutations of legal chars.
    */
   public static void checkName( final String name ) {
+    Pattern containsReservedCharsPattern = makePattern( getReservedChars() );
     if ( !StringUtils.hasLength( name ) || // not null, not empty, and not all whitespace
         !name.trim().equals( name ) || // no leading or trailing whitespace
         containsReservedCharsPattern.matcher( name ).matches() || // no reserved characters
