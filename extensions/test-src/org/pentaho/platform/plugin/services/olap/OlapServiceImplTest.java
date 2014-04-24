@@ -17,15 +17,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import mondrian.olap.CacheControl;
 import mondrian.olap.MondrianServer;
 import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
+import mondrian.xmla.XmlaHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,7 @@ public class OlapServiceImplTest {
   IPentahoSession session;
   IOlapService olapService;
   private MondrianServer server;
+  private XmlaHandler.XmlaExtra mockXmlaExtra;
 
   /**
    * Default implementation of the hook which grants all access.
@@ -99,6 +101,8 @@ public class OlapServiceImplTest {
 
     server = mock( MondrianServer.class );
 
+    mockXmlaExtra = mock( XmlaHandler.XmlaExtra.class );
+
     // Create the olap service. Make sure to override hasAccess with the
     // mock version.
     olapService = new OlapServiceImpl( repository, server ) {
@@ -107,6 +111,11 @@ public class OlapServiceImplTest {
         EnumSet<RepositoryFilePermission> perms,
         IPentahoSession session ) {
         return accessMock.hasAccess( path, perms, session );
+      }
+
+      @Override
+      protected XmlaHandler.XmlaExtra getXmlaExtra( final OlapConnection connection ) throws SQLException {
+        return mockXmlaExtra;
       }
     };
   }
@@ -401,8 +410,8 @@ public class OlapServiceImplTest {
 
     // Check if the repo was modified.
     verify( repository ).deleteFile(
-      eq( makeIdObject( testServerPath ) ), eq(true), 
-      anyString() );
+      eq( makeIdObject( testServerPath ) ), eq( true ),
+      anyString( ) );
 
     // Now check for non-existent catalogs
     try {
@@ -818,13 +827,8 @@ public class OlapServiceImplTest {
       getLocale().toString() );
     OlapConnection conn = mock( OlapConnection.class );
     when( server.getConnection( "Pentaho", "myHostedServer", null, properties ) ).thenReturn( conn );
-    when( conn.isWrapperFor( any( Class.class ) ) ).thenReturn( true );
-    final RolapConnection rolapConn = mock( RolapConnection.class );
-    when( conn.unwrap( any( Class.class ) ) ).thenReturn( rolapConn );
-    final CacheControl cacheControl = mock( CacheControl.class );
-    when( rolapConn.getCacheControl( any( PrintWriter.class ) ) ).thenReturn( cacheControl );
     olapService.flushAll( session );
-    verify( cacheControl ).flushSchemaCache();
+    verify( mockXmlaExtra ).flushSchemaCache( conn );
   }
 
   @Test
