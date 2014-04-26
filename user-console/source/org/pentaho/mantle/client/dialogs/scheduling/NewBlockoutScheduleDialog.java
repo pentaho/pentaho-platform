@@ -23,6 +23,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobTrigger;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONObject;
 
 public class NewBlockoutScheduleDialog extends ScheduleRecurrenceDialog {
@@ -46,7 +47,7 @@ public class NewBlockoutScheduleDialog extends ScheduleRecurrenceDialog {
 
     // TODO -- Add block out verification that it is not completely blocking an existing schedule
     if (updateMode) {
-      addBlockoutPeriod(schedule, trigger, "update?jobid=" + editJob.getJobId()); //$NON-NLS-1$
+      addBlockoutPeriod(schedule, trigger, "update?jobid=" + URL.encodeQueryString( editJob.getJobId() )); //$NON-NLS-1$
     } else {
       addBlockoutPeriod(schedule, trigger, "add"); //$NON-NLS-1$
     }
