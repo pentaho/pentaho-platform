@@ -34,7 +34,7 @@ import org.quartz.SchedulerException;
 public class BlockingQuartzJob implements Job {
   public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
     try {
-      if (getBlockoutManager().shouldFireNow()  || jobExecutionContext.getJobDetail().getName().contains(":BlockoutAction:")) { // We should always let the blockouts fire //$NON-NLS-1$
+      if ( getBlockoutManager().shouldFireNow()  || isBlockoutAction( jobExecutionContext ) ) { // We should always let the blockouts fire //$NON-NLS-1$
         createUnderlyingJob().execute(jobExecutionContext);
       } else {
         getLogger().warn(
@@ -60,4 +60,16 @@ public class BlockingQuartzJob implements Job {
   Log getLogger() {
     return LogFactory.getLog(BlockingQuartzJob.class);
   }
+  
+
+  protected boolean isBlockoutAction( JobExecutionContext ctx ) {
+    try {
+      String actionClass = ctx.getJobDetail().getJobDataMap().getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS );
+      return BlockoutAction.class.getName().equals( actionClass );
+    } catch ( Throwable t ) {
+      getLogger().warn( t.getMessage(), t );
+      return false;
+    }
+  }  
+  
 }
