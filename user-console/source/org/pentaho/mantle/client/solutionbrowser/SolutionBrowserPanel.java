@@ -464,6 +464,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       editFile( repositoryFile );
     } else if ( mode == FileCommand.COMMAND.SCHEDULE_NEW ) {
       ScheduleHelper.createSchedule( repositoryFile );
+      return;
     } else if ( mode == FileCommand.COMMAND.SHARE ) {
       ShareFileCommand sfc = new ShareFileCommand();
       sfc.setSolutionPath( fileNameWithPath );
