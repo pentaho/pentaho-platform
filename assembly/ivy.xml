@@ -5,6 +5,7 @@
     <conf name="default" />
     <conf name="plugin" />
     <conf name="kettle-plugin" />
+    <conf name="pdf-docs" />
     <conf name="datasource-libs" />
     <conf name="sampledata-libs" />
     <conf name="solution" />
@@ -49,6 +50,129 @@
     
     <!-- WARNING: calling out commons-logging here so we can force version 1.1.1 over 1.1. This is a temporary hack until we get 1.1.1 propogated across all projects -->
     <dependency org="commons-logging" name="commons-logging" rev="1.1.1" />
+
+
+	<!-- PDF Documentation for bundling -->
+	<dependency org="pentaho-doc" name="admin_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="admin_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="aggregation_designer_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="aggregation_designer_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="analysis_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="analysis_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="bigdata_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="bigdata_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="components" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="components" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="config_ba_server" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="config_ba_server" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="config_pdi_server" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="config_pdi_server" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="customizing_pentaho_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="customizing_pentaho_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="dashboard_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="dashboard_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="getting_started_with_data_models" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="getting_started_with_data_models" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="getting_started_with_instaview" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="getting_started_with_instaview" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="getting_started_with_pdi" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="getting_started_with_pdi" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="getting_started_with_pentaho" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="getting_started_with_pentaho" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="getting_started_with_prd" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="getting_started_with_prd" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="getting_support" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="getting_support" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_client" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_client" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_client_pdi" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_client_pdi" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_graphical" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_graphical" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_graphical_pdi" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_graphical_pdi" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_manual" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_manual" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_overview" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_overview" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_overview_pdi" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_overview_pdi" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_pdi" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_pdi" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="install_ziptar" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="install_ziptar" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="integrating_biserver" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="integrating_biserver" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="pdi_admin_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="pdi_admin_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="pdi_embed_extend_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="pdi_embed_extend_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="pdi_upgrade" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="pdi_upgrade" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="pdi_user_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="pdi_user_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="pdi_whats_new" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="pdi_whats_new" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="performance_tuning_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="performance_tuning_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="pme_user_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="pme_user_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="puc_user_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="puc_user_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="report_designer_user_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="report_designer_user_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="reporting_embedders_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="reporting_embedders_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="security_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="security_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="supported_components" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="supported_components" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="troubleshooting_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="troubleshooting_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="upgrade_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="upgrade_guide" type="pdf" />
+	</dependency>
+	<dependency org="pentaho-doc" name="workflows" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="workflows" type="pdf" />
+	</dependency>
 
 
     <!-- Datasource Libraries -->

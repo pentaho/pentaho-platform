@@ -39,6 +39,7 @@
   <property name="prep.pentaho.war.dir" value="${stage.dir.server}/tomcat/webapps/pentaho" />
   <property name="prep.pentaho.war.lib.dir" value="${prep.pentaho.war.dir}/WEB-INF/lib" />
   <property name="prep.pentaho.war.meta.dir" value="${prep.pentaho.war.dir}/META-INF" />
+  <property name="pdf.docs.dir" value="${prep.pentaho.war.dir}/docs" />
   <property name="container.lib.dir" value="${stage.dir.server}/tomcat/lib" />
   <property name="plugins.dir" value="plugins" />
   <property name="solution-archives.dir" value="solution-archives" />
@@ -170,7 +171,7 @@
       		and the structure for the wars that will go into the container.  This
       		task does not zip, tar or compress.                            
          ================================= -->
-  <target name="assemble-tomcat" depends="install-antcontrib,init.stage.pentaho,resolve-datasource-libs,tomcat.download-check">
+  <target name="assemble-tomcat" depends="install-antcontrib,init.stage.pentaho,resolve-pdf-docs,resolve-datasource-libs,tomcat.download-check">
     <sequential>
       <!-- Copy pure tomcat 6.0 -->
       <copy todir="${stage.dir.server}/tomcat">
