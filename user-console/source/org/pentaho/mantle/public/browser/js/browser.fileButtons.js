@@ -307,11 +307,26 @@ define([
       window.top.executeCommand("DeleteFileCommand", this.buildParameter(path));
     },
 
-    cutHandler: function (path) {
+    cutHandler: function (path, title, model, browserUtils) {
+      //remove hiddenFileLabel class
+      browserUtils.resetCutItemsStyle();
+      //reset cutItems to currently cut items
+      browserUtils.cutItems = model;
+      $("#cutbutton").prop("disabled", true);
+      $("#copyButton").prop("disabled", false);
+      for (var i=0;i<model.length;i++){
+        model[i].obj.addClass("hiddenFileLabel");
+      }
       window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
     },
 
-    copyHandler: function (path) {
+    copyHandler: function (path, title, model, browserUtils) {
+      //remove hiddenFileLabel
+      browserUtils.resetCutItemsStyle();
+      //reset cutItems to currently cut items
+      browserUtils.cutItems = [];
+      $("#copyButton").prop("disabled", true);
+      $("#cutbutton").prop("disabled", false);
       window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
     },
 
