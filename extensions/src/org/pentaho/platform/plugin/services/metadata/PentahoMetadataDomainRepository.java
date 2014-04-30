@@ -169,7 +169,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       // NOTE - a ByteArrayInputStream doesn't need to be closed ...
       //  ... so this is safe AS LONG AS we use a ByteArrayInputStream
       xmi = xmiParser.generateXmi(domain);
-      final InputStream inputStream = new ByteArrayInputStream(xmi.getBytes("UTF8"));
+      final InputStream inputStream = new ByteArrayInputStream(xmi.getBytes(DEFAULT_ENCODING));
       storeDomain(inputStream, domain.getId(), overwrite);
     } catch (DomainStorageException dse) {
       throw dse;
@@ -217,7 +217,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       String xmi = null;
       try {
         //first, convert our input stream to a string
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
         StringBuilder stringBuilder = new StringBuilder();
         while ((xmi = reader.readLine()) != null) {
           stringBuilder.append(xmi);
