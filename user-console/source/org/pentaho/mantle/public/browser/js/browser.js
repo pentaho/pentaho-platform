@@ -20,6 +20,7 @@ define([
   "js/browser.folderButtons",
   "js/browser.trashButtons",
   "js/browser.trashItemButtons",
+  "js/browser.utils.js",
   "js/browser.multiSelectButtons",
   "js/dialogs/browser.dialog.rename.js",
   "common-ui/util/spin.min",
@@ -29,7 +30,7 @@ define([
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons,MultiSelectButtons, RenameDialog, Spinner, spin, templates) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates) {
 
 
   if(window.top.mantle_isBrowseRepoDirty == undefined){
@@ -59,6 +60,7 @@ define([
   var folderButtons = new FolderButtons(jQuery.i18n);
   var trashButtons = new TrashButtons(jQuery.i18n);
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
+  var browserUtils = new BrowserUtils();
   var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
 
   fileButtons.renameDialog = renameDialog;
@@ -174,6 +176,7 @@ define([
       folderButtons: folderButtons,
       trashButtons: trashButtons,
       trashItemButtons: trashItemButtons,
+      browserUtils: browserUtils,
       multiSelectButtons: multiSelectButtons,
 
       foldersTreeModel: undefined,
@@ -842,6 +845,7 @@ define([
             var type = null;
             var mode = null;
 
+            var multiSelectModel=model.get("fileListModel").get("multiSelect");
             if (model.getLastClick() == "file") {
 
               path = $(model.getFileClicked()[0]).attr("path");
@@ -867,7 +871,7 @@ define([
               type ="file";
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title);
+              event.data.handler(path, title, multiSelectModel, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {
@@ -925,7 +929,7 @@ define([
 
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, multiSelectModel);
+              event.data.handler(path, title, multiSelectModel, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {

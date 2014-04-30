@@ -22,6 +22,7 @@ define([
 
     executableTypesUrl: 'api/repos/executableTypes',
     executableTypes: [],
+    cutItems: [],
 
     _init: function () {
 
@@ -34,6 +35,13 @@ define([
       }, function (error) {
         console.log(error);
       });
+    },
+
+    resetCutItemsStyle: function () {
+      var that = this; // trap this
+      for (var i=0;i<that.cutItems.length;i++){
+        that.cutItems[i].obj.removeClass("hiddenFileLabel");
+      }
     },
 
     getUrlBase: function () {

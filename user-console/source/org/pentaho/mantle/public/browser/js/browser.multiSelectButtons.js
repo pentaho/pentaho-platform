@@ -69,12 +69,27 @@ define([
       }
     },
 
-    cutHandler: function (path) {
-        window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
+    cutHandler: function (path, title, model, browserUtils) {
+      //remove hiddenFileLabel class
+      browserUtils.resetCutItemsStyle();
+      //reset cutItems to currently cut items
+      browserUtils.cutItems = model;
+      $("#cutButton").prop("disabled", true);
+      $("#copyButton").prop("disabled", false);
+      for (var i=0;i<model.length;i++){
+        model[i].obj.addClass("hiddenFileLabel");
+      }
+      window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
     },
 
-    copyHandler: function (path, title, model) {
-        window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
+    copyHandler: function (path, title, model, browserUtils) {
+      //remove hiddenFileLabel class
+      browserUtils.resetCutItemsStyle();
+      //reset cutItems to currently cut items
+      browserUtils.cutItems = [];
+      $("#copyButton").prop("disabled", true);
+      $("#cutButton").prop("disabled", false);
+      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
     },
 
     deleteHandler: function (path) {
