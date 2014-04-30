@@ -34,15 +34,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * AggregateObectFactory holds a collection of IPentahoObjectFactory implementations, delegating calls to each and
  * collecting the results. Results are ordered by "priority" attribute if present, with the highest priority object
  * returned in the calls to retrieve a single object.
- * 
+ * <p/>
  * {@inheritDoc}
- * 
+ * <p/>
  * User: nbaker Date: 1/15/13
  */
 public class AggregateObjectFactory implements IPentahoObjectFactory {
@@ -64,6 +63,16 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   public void registerObjectFactory( IPentahoObjectFactory fact ) {
     registerObjectFactory( fact, false );
+  }
+
+  /**
+   * De-Register an ObjectFactory
+   *
+   * @param factory
+   * @return true if the factory was registered and successfully removed.
+   */
+  public boolean deregisterObjectFactory( IPentahoObjectFactory factory ) {
+    return factories.remove( factory );
   }
 
   public Set<IPentahoObjectFactory> getFactories() {
@@ -93,8 +102,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     }
 
     String msg =
-        Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-            interfaceClass.getSimpleName() );
+      Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+        interfaceClass.getSimpleName() );
     throw new ObjectFactoryException( msg );
 
   }
@@ -135,15 +144,15 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   /**
    * {@inheritDoc}
-   * 
-   * @deprecated All usage of key methods are deprecated, use object properties instead
+   *
+   * @deprecated All usage of key methods are deprecated, use object attributes instead
    */
   @Override
   public Class<?> getImplementingClass( String key ) {
     for ( IPentahoObjectFactory fact : factories ) {
       if ( fact.objectDefined( key ) ) {
         logger.debug( MessageFormat.format( "Found implementing class for key: {0} in factory: {1}", key, fact
-            .getName() ) );
+          .getName() ) );
         return fact.getImplementingClass( key );
       }
     }
@@ -231,8 +240,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
       }
     }
     String msg =
-        Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-            clazz.getSimpleName() );
+      Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+        clazz.getSimpleName() );
     throw new ObjectFactoryException( msg );
 
   }
@@ -243,7 +252,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
       if ( fact.objectDefined( clazz ) ) {
 
         logger.debug( MessageFormat.format( "Found object for class: {0} in factory: {1}", clazz.getName(), fact
-            .getName() ) );
+          .getName() ) );
         return true;
       }
     }
@@ -252,7 +261,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                            Map<String, String> properties )
+    throws ObjectFactoryException {
 
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
 
@@ -282,6 +292,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   }
 
   private static ReferencePriorityComparitor referencePriorityComparitor = new ReferencePriorityComparitor();
+
 
   private static class ReferencePriorityComparitor implements Comparator<IPentahoObjectReference> {
     private static final String PRIORITY = "priority";
@@ -323,13 +334,14 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                                   Map<String, String> properties )
+    throws ObjectFactoryException {
     // Use a set to avoid duplicates
-    Set<IPentahoObjectReference<T>> referenceSet = new TreeSet<IPentahoObjectReference<T>>();
+    Set<IPentahoObjectReference<T>> referenceSet = new HashSet<IPentahoObjectReference<T>>();
 
     for ( IPentahoObjectFactory fact : factories ) {
       if ( fact.objectDefined( interfaceClass ) ) {
-        List<IPentahoObjectReference<T>> found = fact.getObjectReferences(interfaceClass, curSession, properties);
+        List<IPentahoObjectReference<T>> found = fact.getObjectReferences( interfaceClass, curSession, properties );
         if ( found != null ) {
           referenceSet.addAll( found );
         }

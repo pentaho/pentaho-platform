@@ -24,6 +24,7 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.messages.Messages;
+import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,7 +95,8 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
     ObjectCreator creator = creators.get( key );
     if ( creator == null ) {
       String msg =
-          Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
+        Messages.getInstance()
+          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg );
     }
 
@@ -175,7 +177,7 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
 
       if ( null == session ) {
         throw new IllegalArgumentException( Messages.getInstance().getErrorString(
-            "SessionObjectCreator.ERROR_0001_INVALID_SESSION" ) ); //$NON-NLS-1$
+          "SessionObjectCreator.ERROR_0001_INVALID_SESSION" ) ); //$NON-NLS-1$
       }
       Object instance = session.getAttribute( key );
 
@@ -232,7 +234,7 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
     throws ObjectFactoryException {
 
     T obj = get( clazz, curSession );
-    return new SimplePentahoObjectReference( obj, curSession );
+    return new SingletonPentahoObjectReference<T>( clazz, obj );
 
   }
 
@@ -249,45 +251,10 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                            Map<String, String> properties )
+    throws ObjectFactoryException {
     T obj = get( interfaceClass, curSession );
-    return new SimplePentahoObjectReference( obj, curSession );
-  }
-
-  private static class SimplePentahoObjectReference<T> implements IPentahoObjectReference {
-
-    private T object;
-    private IPentahoSession session;
-
-    public SimplePentahoObjectReference( T object, IPentahoSession session ) {
-      this.object = object;
-      this.session = session;
-    }
-
-    @Override
-    public Object getObject() {
-
-      if ( object instanceof IPentahoInitializer ) {
-        ( (IPentahoInitializer) object ).init( session );
-      }
-
-      return this.object;
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-      return Collections.emptyMap();
-    }
-
-    @Override
-    public int compareTo( Object o ) {
-      return 0;
-    }
-
-    @Override
-    public Integer getRanking() {
-      return 0;
-    }
+    return new SingletonPentahoObjectReference<T>( interfaceClass, obj );
   }
 
   @Override
@@ -298,11 +265,12 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                                   Map<String, String> properties )
+    throws ObjectFactoryException {
 
     T obj = get( interfaceClass, curSession );
     List<IPentahoObjectReference<T>> refs = new ArrayList<IPentahoObjectReference<T>>();
-    refs.add( new SimplePentahoObjectReference( obj, curSession ) );
+    refs.add( new SingletonPentahoObjectReference<T>( interfaceClass, obj ) );
     return refs;
 
   }

@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.IFileInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPluginManagerListener;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
@@ -237,5 +238,9 @@ public class MockPluginManager implements IPluginManager {
   public List<String> getPluginRESTPerspectivesForType( String arg0 ) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override public void addPluginManagerListener( IPluginManagerListener listener ) {
+
   }
 }

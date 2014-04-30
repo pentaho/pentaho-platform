@@ -24,21 +24,27 @@ import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionH
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This factory implementation creates and uses a self-contained Spring {@link ApplicationContext} which is not
- * tied to or accesible by any other parts of the application.
- * 
+ * This factory implementation creates and uses a self-contained Spring {@link ApplicationContext} which is not tied to
+ * or accesible by any other parts of the application.
+ *
  * @author Aaron Phillips
  * @see AbstractSpringPentahoObjectFactory
- * 
  */
 public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFactory {
+
+  private static Map<ApplicationContext, StandaloneSpringPentahoObjectFactory> factoryMap =
+    new HashMap<ApplicationContext, StandaloneSpringPentahoObjectFactory>();
+
 
   public StandaloneSpringPentahoObjectFactory() {
   }
@@ -48,13 +54,11 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
   }
 
   /**
-   * Initializes this object factory by creating a self-contained Spring {@link ApplicationContext} if one is not
-   * passed in.
-   * 
-   * @param configFile
-   *          the Spring bean definition XML file
-   * @param context
-   *          the {@link ApplicationContext} object, if null, then this method will create one
+   * Initializes this object factory by creating a self-contained Spring {@link ApplicationContext} if one is not passed
+   * in.
+   *
+   * @param configFile the Spring bean definition XML file
+   * @param context    the {@link ApplicationContext} object, if null, then this method will create one
    */
   public void init( String configFile, Object context ) {
 
@@ -76,8 +80,9 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
     } else {
       if ( !( context instanceof ConfigurableApplicationContext ) ) {
         String msg =
-            Messages.getInstance().getErrorString( "StandalonePentahoObjectFactory.ERROR_0001_CONTEXT_NOT_SUPPORTED", //$NON-NLS-1$
-                getClass().getSimpleName(), "GenericApplicationContext", context.getClass().getName() ); //$NON-NLS-1$
+          Messages.getInstance()
+            .getErrorString( "StandalonePentahoObjectFactory.ERROR_0001_CONTEXT_NOT_SUPPORTED", //$NON-NLS-1$
+              getClass().getSimpleName(), "GenericApplicationContext", context.getClass().getName() ); //$NON-NLS-1$
         throw new IllegalArgumentException( msg );
       }
 
@@ -94,6 +99,25 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
 
       setBeanFactory( configAppCtx );
     }
+  }
+
+  /**
+   * Factory method guaranteed to return the same instance for a given applicationContext.
+   *
+   * @param applicationContext
+   * @return
+   */
+  public static StandaloneSpringPentahoObjectFactory getInstance( final ApplicationContext applicationContext ) {
+    if ( applicationContext == null ) {
+      throw new IllegalArgumentException( "ApplicationContext cannot be null" );
+    }
+    StandaloneSpringPentahoObjectFactory retVal = factoryMap.get( applicationContext );
+    if ( retVal == null ) {
+      retVal = new StandaloneSpringPentahoObjectFactory();
+      retVal.init( null, applicationContext );
+      factoryMap.put( applicationContext, retVal );
+    }
+    return retVal;
   }
 
   private static class ThreadLocalScope implements Scope {
@@ -118,7 +142,7 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
 
     public void registerDestructionCallback( String name, Runnable callback ) {
       logger.warn( "SimpleThreadScope does not support descruction callbacks. "
-          + "Consider using a RequestScope in a Web environment." );
+        + "Consider using a RequestScope in a Web environment." );
     }
 
     public String getConversationId() {

@@ -44,20 +44,18 @@ import java.util.Map;
 /**
  * Framework for Spring-based object factories. Subclasses are required only to implement the init method, which is
  * responsible for setting the {@link ApplicationContext}.
- * <p>
- * A note on creation and management of objects: Object creation and scoping is handled by Spring with one
- * exception: in the case of a {@link StandaloneSession}. Spring's session scope relates a bean to an
- * javax.servlet.http.HttpSession, and as such it does not know about custom sessions. The correct approach to
- * solve this problem is to write a custom Spring scope (called something like "pentahosession"). Unfortunately, we
- * cannot implement a custom scope to handle the {@link StandaloneSession} because the custom scope would not be
- * able to access it. There is currently no way to statically obtain a reference to a pentaho session. So we are
- * left with using custom logic in this factory to execute a different non-Spring logic path when the
- * IPentahoSession is of type StandaloneSession.
- * <p>
- * 
- * @see IPentahoObjectFactory
- * 
+ * <p/>
+ * A note on creation and management of objects: Object creation and scoping is handled by Spring with one exception: in
+ * the case of a {@link StandaloneSession}. Spring's session scope relates a bean to an javax.servlet.http.HttpSession,
+ * and as such it does not know about custom sessions. The correct approach to solve this problem is to write a custom
+ * Spring scope (called something like "pentahosession"). Unfortunately, we cannot implement a custom scope to handle
+ * the {@link StandaloneSession} because the custom scope would not be able to access it. There is currently no way to
+ * statically obtain a reference to a pentaho session. So we are left with using custom logic in this factory to execute
+ * a different non-Spring logic path when the IPentahoSession is of type StandaloneSession.
+ * <p/>
+ *
  * @author Aaron Phillips
+ * @see IPentahoObjectFactory
  */
 public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObjectFactory {
 
@@ -118,7 +116,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       }
     } catch ( Exception e ) {
       String msg =
-          Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
+        Messages.getInstance()
+          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, e );
     }
     return object;
@@ -149,7 +148,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       }
     } catch ( Exception e ) {
       String msg =
-          Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
+        Messages.getInstance()
+          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, e );
     }
     return object;
@@ -182,12 +182,13 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         return null;
       }
 
-      // If this request has properties to filter by, do that now
+      // If this request has attributes to filter by, do that now
       if ( props != null && props.size() > 0 ) {
 
         Iterator<BeanDefinitionNamePair> iterator = beanDefs.iterator();
         //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-        outer: while ( iterator.hasNext() ) {
+        outer:
+        while ( iterator.hasNext() ) {
           BeanDefinition def = iterator.next().definition;
           for ( Map.Entry<String, String> prop : props.entrySet() ) {
             Object attrVal = def.getAttribute( prop.getKey() );
@@ -210,15 +211,16 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
     } catch ( Throwable t ) {
       String msg =
-          Messages.getInstance().getString(
-              "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", interfaceClass.getSimpleName() ); //$NON-NLS-1$
+        Messages.getInstance().getString(
+          "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+          interfaceClass.getSimpleName() ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, t );
     }
 
     // Sanity check
     if ( interfaceClass.isAssignableFrom( object.getClass() ) == false ) {
       throw new IllegalStateException( "Object retrived from Spring not expected type: "
-          + interfaceClass.getSimpleName() );
+        + interfaceClass.getSimpleName() );
     }
 
     return (T) object;
@@ -234,8 +236,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       object = beanFactory.getBean( beanId );
     } catch ( Throwable t ) {
       String msg =
-          Messages.getInstance()
-              .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", beanId ); //$NON-NLS-1$
+        Messages.getInstance()
+          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", beanId ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, t );
     }
     return object;
@@ -246,7 +248,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     throws ObjectFactoryException {
     // cannot access logger here since this object factory provides the logger
     logger
-        .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+      .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session
+        + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
     Object object;
 
@@ -288,7 +291,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       }
     }
 
-    logger.debug( " Got an instance of [" + interfaceClass.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
+    logger
+      .debug( " Got an instance of [" + interfaceClass.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
 
     if ( object instanceof IPentahoInitializer ) {
       ( (IPentahoInitializer) object ).init( session );
@@ -299,7 +303,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   protected <T> List<T> retreiveObjects( Class<T> type, final IPentahoSession session, Map<String, String> properties )
     throws ObjectFactoryException {
     // cannot access logger here since this object factory provides the logger
-    logger.debug( "Attempting to get an instance of [" + type.getSimpleName() + "] while in session [" + session + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+    logger.debug( "Attempting to get an instance of [" + type.getSimpleName() + "] while in session [" + session
+      + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
     List<T> objects = new ArrayList<T>();
 
@@ -320,12 +325,13 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
           }
         }
 
-        // If this request has properties to filter by, do that now
+        // If this request has attributes to filter by, do that now
         if ( properties != null && properties.size() > 0 ) {
 
           Iterator<BeanDefinitionNamePair> iterator = beanDefs.iterator();
           //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-          outer: while ( iterator.hasNext() ) {
+          outer:
+          while ( iterator.hasNext() ) {
             BeanDefinitionNamePair entry = iterator.next();
             BeanDefinition def = entry.definition;
             for ( Map.Entry<String, String> prop : properties.entrySet() ) {
@@ -381,9 +387,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   }
 
   /**
-   * 
-   * @param clazz
-   *          Interface or class literal to search for
+   * @param clazz Interface or class literal to search for
    * @return true if a definition exists
    */
   @Override
@@ -415,7 +419,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> clazz, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                            Map<String, String> properties )
+    throws ObjectFactoryException {
 
     // Save the session off to support Session and Request scope.
     SpringScopeSessionHolder.SESSION.set( curSession );
@@ -444,8 +449,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
           try {
 
             // first will be the original bean
-            ref = this.getBeanDefinitionFromFactory( aliases[0] );
-            refs.add( new BeanDefinitionNamePair( aliases[0], ref ) );
+            ref = this.getBeanDefinitionFromFactory( aliases[ 0 ] );
+            refs.add( new BeanDefinitionNamePair( aliases[ 0 ], ref ) );
           } catch ( NoSuchBeanDefinitionException e ) {
             // If we end up here, then the bean is present in a parent beanFactory and bean definitions are not
             // available.
@@ -453,7 +458,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
             // The
             // parent applicationContext is likely already added to the AggregateObjectFactory.
             logger.debug( "Unable to find bean definition for name:" + name
-                + " it likely exists in a parent BeanFactory" );
+              + " it likely exists in a parent BeanFactory" );
           }
         }
       }
@@ -467,7 +472,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
       Iterator<BeanDefinitionNamePair> iterator = refs.iterator();
       //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-      outer: while ( iterator.hasNext() ) {
+      outer:
+      while ( iterator.hasNext() ) {
         BeanDefinitionNamePair entry = iterator.next();
         BeanDefinition def = entry.definition;
         for ( Map.Entry<String, String> prop : properties.entrySet() ) {
@@ -501,7 +507,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                                   Map<String, String> properties )
+    throws ObjectFactoryException {
     String[] beanNames = PublishedBeanRegistry.getBeanNamesForType( beanFactory, interfaceClass );
     if ( beanNames == null || beanNames.length == 0 ) {
       return null;
@@ -521,7 +528,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
       Iterator<BeanDefinitionNamePair> iterator = refs.iterator();
       //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-      outer: while ( iterator.hasNext() ) {
+      outer:
+      while ( iterator.hasNext() ) {
         BeanDefinitionNamePair entry = iterator.next();
         BeanDefinition def = entry.definition;
         for ( Map.Entry<String, String> prop : properties.entrySet() ) {
@@ -540,7 +548,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       BeanDefinition def = ref.definition;
       String name = ref.name;
       SpringPentahoObjectReference sRef =
-          new SpringPentahoObjectReference<T>( beanFactory, name, interfaceClass, curSession, def );
+        new SpringPentahoObjectReference<T>( beanFactory, name, interfaceClass, curSession, def );
       collection.add( sRef );
     }
 
@@ -582,7 +590,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         return val;
       } catch ( NumberFormatException e ) {
         logger
-            .error( "bean of type " + ref.getBeanClassName() + " has an invalid priority value, only numeric allowed" );
+          .error( "bean of type " + ref.getBeanClassName() + " has an invalid priority value, only numeric allowed" );
         // return default
         return DEFAULT_PRIORTIY;
       }
@@ -603,20 +611,26 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   }
 
-    @Override
-    public int hashCode() {
-        return this.beanFactory.getBeanFactory().hashCode();
+  @Override
+  public int hashCode() {
+    return this.beanFactory.getBeanFactory().hashCode();
+  }
+
+  @Override
+  public boolean equals( Object o ) {
+    if ( this == o ) {
+      return true;
+    }
+    if ( !( o instanceof AbstractSpringPentahoObjectFactory ) ) {
+      return false;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractSpringPentahoObjectFactory)) return false;
+    AbstractSpringPentahoObjectFactory that = (AbstractSpringPentahoObjectFactory) o;
 
-        AbstractSpringPentahoObjectFactory that = (AbstractSpringPentahoObjectFactory) o;
-
-        if (!beanFactory.equals(that.beanFactory)) return false;
-
-        return true;
+    if ( !beanFactory.equals( that.beanFactory ) ) {
+      return false;
     }
+
+    return true;
+  }
 }

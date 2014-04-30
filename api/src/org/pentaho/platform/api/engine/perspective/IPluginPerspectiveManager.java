@@ -25,10 +25,40 @@ public interface IPluginPerspectiveManager {
 
   public List<IPluginPerspective> getPluginPerspectives();
 
+  /**
+   * @param pluginPerspective
+   * @deprecated No longer needed as IPluginPerspective objects are registered with PentahoSystem. Existing calls will
+   * do nothing. Replace calls to this method with:
+   * <pre>
+   *   PentahoSystem.registerObject( pluginPerspective );
+   * </pre>
+   */
+  @Deprecated
   public void addPluginPerspective( IPluginPerspective pluginPerspective );
 
+  /**
+   * @param pluginPerspective
+   * @deprecated No longer needed as IPluginPerspective objects are registered with PentahoSystem. Existing calls will
+   * do nothing. Replace calls to this method with {@link org.pentaho.platform.api.engine
+   * .IPentahoObjectRegistration#remove()}
+   * <pre>
+   *   IPentahoObjectRegistration handle = PentahoSystem.registerObject( pluginPerspective );
+   *   handle.remove(); // replaces call to removePluginPerspective
+   * </pre>
+   */
+  @Deprecated
   public void removePluginPerspective( IPluginPerspective pluginPerspective );
 
+  /**
+   * @deprecated No longer needed as IPluginPerspective objects are registered with PentahoSystem. Existing calls will
+   * do nothing. Replace calls to this method with {@link org.pentaho.platform.api.engine
+   * .IPentahoObjectRegistration#remove()}
+   * <pre>
+   *   IPentahoObjectRegistration handle = PentahoSystem.registerObject( pluginPerspective );
+   *   handle.remove(); // replaces call to removePluginPerspective
+   * </pre>
+   */
+  @Deprecated
   public void clearPluginPerspectives();
 
 }

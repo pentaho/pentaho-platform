@@ -107,7 +107,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     buffer = httpServletRequest.getRequestURL();
     String queryString = httpServletRequest.getQueryString();
     url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
-        ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" ); //$NON-NLS-1$ //$NON-NLS-2$
+      ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
     return Response.seeOther( ( new URL( url ) ).toURI() ).build();
   }
 
@@ -116,42 +116,31 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * <code>resourceId</code>
    * <p/>
    * <code>contextId</code> may be one of:
-   * <p>
+   * <p/>
    * A. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br> B. repository
-   * file extension, e.g. <code>prpt</code><br>
-   * C. plugin id</li>
+   * file extension, e.g. <code>prpt</code><br> C. plugin id</li>
    * <p/>
    * <code>resourceId</code> may be one of:
-   * <p>
+   * <p/>
    * 1. static file residing in a publicly visible plugin folder</br> 2. repository file id (colon-delimited path), e.g.
    * <code>:public:steel-wheels:sales.prpt</code></br> 3. content generator id</br>
    * <p/>
-   * The resolution order is as follows, the first to find the resource wins:
-   * <ol>
-   * <li>A1</li>
-   * <li>A2</li>
-   * <li>A3</li>
-   * <li>B1</li>
-   * <li>B3</li>
-   * <li>C1</li>
-   * <li>C3</li>
-   * </ol>
-   * 
-   * @param contextId
-   *          identifies the context in which the resource should be retrieved
-   * @param resourceId
-   *          identifies a resource to be retrieved
-   * @param formParams
-   *          any arguments needed to render the resource
+   * The resolution order is as follows, the first to find the resource wins: <ol> <li>A1</li> <li>A2</li> <li>A3</li>
+   * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
+   *
+   * @param contextId  identifies the context in which the resource should be retrieved
+   * @param resourceId identifies a resource to be retrieved
+   * @param formParams any arguments needed to render the resource
    * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
-   *         returned to the caller
+   * returned to the caller
    */
   @Path( "/{contextId}/{resourceId : .+}" )
   @POST
   @Consumes( APPLICATION_FORM_URLENCODED )
   @Produces( { WILDCARD } )
   public Response doFormPost( @PathParam( "contextId" ) String contextId, @PathParam( "resourceId" ) String resourceId,
-      final MultivaluedMap<String, String> formParams ) throws ObjectFactoryException, PluginBeanException,
+                              final MultivaluedMap<String, String> formParams )
+    throws ObjectFactoryException, PluginBeanException,
     IOException, URISyntaxException {
 
     httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
@@ -171,33 +160,22 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * resource.
    * <p/>
    * <code>contextId</code> may be one of:
-   * <p>
+   * <p/>
    * A. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br> B. repository
-   * file extension, e.g. <code>prpt</code><br>
-   * C. plugin id</li>
+   * file extension, e.g. <code>prpt</code><br> C. plugin id</li>
    * <p/>
    * <code>resourceId</code> may be one of:
-   * <p>
+   * <p/>
    * 1. static file residing in a publicly visible plugin folder</br> 2. repository file id (colon-delimited path), e.g.
    * <code>:public:steel-wheels:sales.prpt</code></br> 3. content generator id</br>
    * <p/>
-   * The resolution order is as follows, the first to find the resource wins:
-   * <ol>
-   * <li>A1</li>
-   * <li>A2</li>
-   * <li>A3</li>
-   * <li>B1</li>
-   * <li>B3</li>
-   * <li>C1</li>
-   * <li>C3</li>
-   * </ol>
-   * 
-   * @param contextId
-   *          identifies the context in which the resource should be retrieved
-   * @param resourceId
-   *          identifies a resource to be retrieved
+   * The resolution order is as follows, the first to find the resource wins: <ol> <li>A1</li> <li>A2</li> <li>A3</li>
+   * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
+   *
+   * @param contextId  identifies the context in which the resource should be retrieved
+   * @param resourceId identifies a resource to be retrieved
    * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
-   *         returned to the caller
+   * returned to the caller
    */
   @Path( "/{contextId}/{resourceId : .+}" )
   @GET
@@ -216,10 +194,10 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   /**
    * Retrieves the list of supported content type in the platform
-   * 
+   *
    * @return list of <code> ExecutableFileTypeDto </code>
    */
-  @Path("/executableTypes")
+  @Path( "/executableTypes" )
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getExecutableTypes() {
@@ -236,8 +214,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
 
     final GenericEntity<List<ExecutableFileTypeDto>> entity =
-        new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
-        };
+      new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
+      };
     return Response.ok( entity ).build();
   }
 
@@ -357,7 +335,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
 
     logger.warn( MessageFormat.format( "End of the resolution chain. No resource [{0}] found in context [{1}].",
-        resourceId, contextId ) );
+      resourceId, contextId ) );
     return Response.status( NOT_FOUND ).build();
   }
 
@@ -370,8 +348,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
       if ( contentGeneratorPath.contains( "/" ) ) { //$NON-NLS-1$
         contentGeneratorId = contentGeneratorPath.substring( 0, contentGeneratorPath.indexOf( '/' ) );
         command = contentGeneratorPath.substring( contentGeneratorPath.indexOf( '/' ) + 1 );
-        debug( "decomposing path [{0}] into content generator id [{1}] and command [{2}]", contentGeneratorPath, //$NON-NLS-1$
-            contentGeneratorId, command );
+        debug( "decomposing path [{0}] into content generator id [{1}] and command [{2}]", contentGeneratorPath,
+          //$NON-NLS-1$
+          contentGeneratorId, command );
       } else {
         contentGeneratorId = contentGeneratorPath;
       }
@@ -398,10 +377,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
       this.file = file;
     }
 
-    @Override
-    GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+    @Override GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          file, command );
+        file, command );
     }
   }
 
@@ -418,10 +396,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
       return pluginManager.getContentGenerator( repoFileExt, contentGeneratorId );
     }
 
-    @Override
-    GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+    @Override GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          null, command );
+        null, command );
     }
 
     @Override
@@ -443,15 +420,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
       this.pluginId = pluginId;
     }
 
-    @Override
-    IContentGenerator create() {
+    @Override IContentGenerator create() {
       return pluginManager.getContentGenerator( null, contentGeneratorId );
     }
 
-    @Override
-    GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+    @Override GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          null, command );
+        null, command );
     }
 
     @Override
@@ -490,8 +465,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
       rsc( "Nope, [{0}] is not a content generator ID.", fac.getContentGeneratorId() ); //$NON-NLS-1$
       return null;
     }
+    if ( contentGenerator == null ) {
+      rsc( "Nope, [{0}] is not a content generator ID.", fac.getContentGeneratorId() ); //$NON-NLS-1$
+      return null;
+    }
     rsc(
-        "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(), fac.getCommand() ); //$NON-NLS-1$
+      "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
+      fac.getCommand() ); //$NON-NLS-1$
     GeneratorStreamingOutput gso = fac.getStreamingOutput( contentGenerator );
     return Response.ok( gso ).build();
   }
@@ -517,7 +497,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
     FileResource fileResource = new FileResource( httpServletResponse );
     fileResource.setWhitelist( whitelist );
     String path =
-        RepositoryFilenameUtils.separatorsToRepository( RepositoryFilenameUtils.concat( filePath, "../" + relPath ) ); //$NON-NLS-1$
+      RepositoryFilenameUtils
+        .separatorsToRepository( RepositoryFilenameUtils.concat( filePath, "../" + relPath ) ); //$NON-NLS-1$
     Response response = fileResource.doGetFileOrDir( path.replace( '/', ':' ).substring( 1 ) );
     if ( response.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
       rsc( MessageFormat.format( "Yep, [{0}] is a repository file", path ) ); //$NON-NLS-1$

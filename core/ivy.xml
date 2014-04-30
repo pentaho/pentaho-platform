@@ -38,6 +38,8 @@
     <dependency org="org.slf4j" name="slf4j-api" rev="1.7.3"/>
     <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.3"/>
 
+    <dependency org="com.google.guava" name="guava" rev="16.0.1" conf="default->default"/>
+
 		<!-- Hibernate and dependencies -->
     	<dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final">
       		<!--

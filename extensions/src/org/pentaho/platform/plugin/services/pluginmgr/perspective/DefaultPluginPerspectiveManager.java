@@ -34,10 +34,15 @@ public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManage
   private ArrayList<IPluginPerspective> pluginPerspectives = new ArrayList<IPluginPerspective>();
 
   public List<IPluginPerspective> getPluginPerspectives() {
+    // Compatibility check for old PerspectiveManager behavior. If the pluginPerspectives is empty,
+    // we'll look in PentahoSystem
+    List<IPluginPerspective> perspectives =
+      ( pluginPerspectives.isEmpty() ) ? PentahoSystem.getAll( IPluginPerspective.class, null ) : pluginPerspectives;
+
     // don't return the actual list, otherwise the user could remove items without going through our api
     ArrayList<IPluginPerspective> allowedPerspectives = new ArrayList<IPluginPerspective>();
 
-    for ( IPluginPerspective perspective : pluginPerspectives ) {
+    for ( IPluginPerspective perspective : perspectives ) {
       ArrayList<String> actions = perspective.getRequiredSecurityActions();
       IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
       boolean allowed = true;
