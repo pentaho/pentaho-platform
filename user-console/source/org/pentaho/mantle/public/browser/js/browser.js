@@ -1185,7 +1185,7 @@ define([
       });
 
       //Control Click
-      if(event.ctrlKey){
+      if(event.ctrlKey || event.metaKey){
 
         //If item is already selected, deselect it.
         var clickedFileIndex=-1;
