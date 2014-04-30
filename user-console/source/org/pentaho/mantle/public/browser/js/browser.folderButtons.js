@@ -170,7 +170,9 @@ define([
     },
 
     pasteHandler: function (path) {
+
       window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
+
     },
 
     uploadHandler: function (path) {

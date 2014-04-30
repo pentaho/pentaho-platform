@@ -20,6 +20,7 @@ define([
   "js/browser.folderButtons",
   "js/browser.trashButtons",
   "js/browser.trashItemButtons",
+  "js/browser.multiSelectButtons",
   "js/dialogs/browser.dialog.rename.js",
   "common-ui/util/spin.min",
   "common-ui/util/PentahoSpinner",
@@ -28,7 +29,7 @@ define([
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog, Spinner, spin, templates) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons,MultiSelectButtons, RenameDialog, Spinner, spin, templates) {
 
 
   if(window.top.mantle_isBrowseRepoDirty == undefined){
@@ -58,6 +59,7 @@ define([
   var folderButtons = new FolderButtons(jQuery.i18n);
   var trashButtons = new TrashButtons(jQuery.i18n);
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
+  var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
 
   fileButtons.renameDialog = renameDialog;
   folderButtons.renameDialog = renameDialog;
@@ -172,6 +174,7 @@ define([
       folderButtons: folderButtons,
       trashButtons: trashButtons,
       trashItemButtons: trashItemButtons,
+      multiSelectButtons: multiSelectButtons,
 
       foldersTreeModel: undefined,
       fileListModel: undefined,
@@ -315,6 +318,8 @@ define([
       }
       this.set("clickedFile", clickedFile);
       fileButtons.canDownload(this.get("canDownload"));
+
+      //TODO handle file button press
 
       var filePath = clickedFile.obj.attr("path");
       filePath = filePath.replace(/\//g, ":");
@@ -476,6 +481,9 @@ define([
       clicked: false,
       clickedFile: undefined,
 
+      multiSelect: [],
+      clipboard: [],
+
       data: undefined,
       cachedData: {},
       path: "/",
@@ -500,50 +508,50 @@ define([
     },
 
     reformatTrashResponse: function(myself, response) {
-         var newResp = {
-            children: []
+      var newResp = {
+        children: []
+      }
+      if (response && response.repositoryFileDto) {
+        myself.set("deletedFiles", "");
+        for (var i = 0; i < response.repositoryFileDto.length; i++) {
+          var obj = {
+            file: Object
           }
-          if (response && response.repositoryFileDto) {
-            myself.set("deletedFiles", "");
-            for (var i = 0; i < response.repositoryFileDto.length; i++) {
-              var obj = {
-                file: Object
-              }
 
-              obj.file = response.repositoryFileDto[i];
-              obj.file.trash = "true";
-              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-              if (obj.file.id) {
-                if (myself.get("deletedFiles") == "") {
-                  myself.set("deletedFiles", obj.file.id + ",");
-                }
-                else {
-                  myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
-                }
-              }
-              newResp.children.push(obj);
+          obj.file = response.repositoryFileDto[i];
+          obj.file.trash = "true";
+          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+          if (obj.file.id) {
+            if (myself.get("deletedFiles") == "") {
+              myself.set("deletedFiles", obj.file.id + ",");
+            }
+            else {
+              myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
             }
           }
-          return newResp;
+          newResp.children.push(obj);
+        }
+      }
+      return newResp;
     },
 
     reformatResponse: function(response) {
-         var newResp = {
-            children: []
-          }
-          if (response && response.repositoryFileDto) {
+      var newResp = {
+        children: []
+      }
+      if (response && response.repositoryFileDto) {
 
-            for (var i = 0; i < response.repositoryFileDto.length; i++) {
-              var obj = {
-                file: Object
-              }
-
-              obj.file = response.repositoryFileDto[i];
-              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-              newResp.children.push(obj);
-            }
+        for (var i = 0; i < response.repositoryFileDto.length; i++) {
+          var obj = {
+            file: Object
           }
-          return newResp;
+
+          obj.file = response.repositoryFileDto[i];
+          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+          newResp.children.push(obj);
+        }
+      }
+      return newResp;
     },
 
     updateData: function () {
@@ -555,7 +563,7 @@ define([
 
         //If we have trash data we reformat it to match the handlebar templates
         if (myself.get("path") == ".trash") {
-        var newResp = myself.reformatTrashResponse(myself, response);
+          var newResp = myself.reformatTrashResponse(myself, response);
           myself.set("data", newResp);
           if (myself.get("deletedFiles") == "") {
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
@@ -595,11 +603,11 @@ define([
           if(FileBrowser.fileBrowserModel.getFolderClicked()){
             if(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")==".trash"){
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]
-               =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response);
+                  =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response);
             }
             else {
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]= FileBrowser.
-                fileBrowserModel.attributes.fileListModel.reformatResponse(response);
+                  fileBrowserModel.attributes.fileListModel.reformatResponse(response);
             }
           }
         },
@@ -653,6 +661,7 @@ define([
 
     configureListeners: function () {
       //update buttons when changed folder/file
+      this.model.on("change:clickedFile", this.updateButtons, this);
       this.model.on("change:lastClick", this.updateButtons, this);
 
       //update buttons header on folder/file selection
@@ -807,6 +816,8 @@ define([
       if (lastClick == "file") {
         buttonsType = this.model.defaults.fileButtons;
       } else if (lastClick == "folder") {
+            //convert path/title to arrays
+
         buttonsType = this.model.defaults.folderButtons;
       }
 
@@ -827,13 +838,79 @@ define([
           $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
             var path = null;
             var title = null;
-            var fileList = null;
+            var fileList = "";
             var type = null;
             var mode = null;
 
             if (model.getLastClick() == "file") {
+
               path = $(model.getFileClicked()[0]).attr("path");
               title = $(model.getFileClicked()[0]).children('.title').text();
+
+
+            } else if (model.getLastClick() == "folder") {
+
+              path = $(model.getFolderClicked()[0]).attr("path");
+              title = $(model.getFolderClicked()[0]).children('.title').text();
+            }
+
+            else if (model.getLastClick() == "trash") {
+              fileList = model.get("fileListModel").get("deletedFiles");
+              mode = "purge";
+            }
+            else if (model.getLastClick() == "trashItem") {
+
+            multiSelectItems=model.get("fileListModel").get("multiSelect");
+              for (var i=0;i<multiSelectItems.length;i++){
+                fileList += model.get("fileListModel").get("multiSelect")[i].obj.attr("id") + ",";
+            }
+              type ="file";
+            }
+            if ((path != null) && event.data.handler) {
+              event.data.handler(path, title);
+              event.stopPropagation();
+            }
+            else {
+              event.data.handler(fileList, type, mode);
+              event.stopPropagation();
+            }
+          });
+
+      });
+    },
+
+    updateButtonsMulti: function () {
+      var $el = $(this.el),
+          $buttonsContainer = $el.find($("#fileBrowserButtons .body"));
+
+      $buttonsContainer.empty();
+      var lastClick = this.model.getLastClick(),
+          folderClicked = this.model.getFolderClicked(),
+          fileClicked = this.model.getFileClicked();
+
+      var buttonsType = this.model.get("multiSelectButtons");
+
+      var model = this.model; // trap model
+
+      //require buttons template
+        $buttonsContainer.append($(templates.buttons(buttonsType)));
+
+        // add onClick handler to each button
+        $(buttonsType.buttons).each(function (idx, fb) {
+          $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
+            var path = new Array();
+            var title = new Array();
+            var fileList = null;
+            var type = null;
+            var mode = null;
+
+            var multiSelectModel=model.get("fileListModel").get("multiSelect");
+            if (model.getLastClick() == "file") {
+              multiSelectItems=model.get("fileListModel").get("multiSelect");
+              for (var i=0;i<multiSelectItems.length;i++){
+                path[i]=model.get("fileListModel").get("multiSelect")[i].obj.attr("path");
+                title[i]=model.get("fileListModel").get("multiSelect")[i].obj.attr("title");
+              }
             } else if (model.getLastClick() == "folder") {
               path = $(model.getFolderClicked()[0]).attr("path");
               title = $(model.getFolderClicked()[0]).children('.title').text();
@@ -848,7 +925,7 @@ define([
 
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title);
+              event.data.handler(path, title, multiSelectModel);
               event.stopPropagation();
             }
             else {
@@ -856,7 +933,6 @@ define([
               event.stopPropagation();
             }
           });
-
       });
     },
 
@@ -1091,9 +1167,11 @@ define([
     },
 
     clickFile: function (event) {
-			//don't want to stop propagation of the event, but need to notify clickBody listener
-			//that the event was handled and we don't need to deselect a file
-			this.model.set("desel", 1);
+
+      var prevClicked = this.model.get("clickedFile");
+      //don't want to stop propagation of the event, but need to notify clickBody listener
+      //that the event was handled and we don't need to deselect a file
+      this.model.set("desel", 1);
       var $target = $(event.currentTarget).eq(0);
       //BISERVER-9259 - added time parameter to force change event
       this.model.set("clicked", {
@@ -1106,8 +1184,111 @@ define([
         time: (new Date()).getTime()
       });
 
-      $(".file.selected").removeClass("selected");
-      $target.addClass("selected");
+      //Control Click
+      if(event.ctrlKey){
+
+        //If item is already selected, deselect it.
+        var clickedFileIndex=-1;
+
+        var index;
+
+        for (index = 0; index < this.model.get("multiSelect").length; ++index) {
+
+          var clickedFilePath=this.model.get("clickedFile").obj.attr("path")
+          var multiSelectPath=this.model.get("multiSelect")[index].obj.attr("path");
+          if( multiSelectPath == clickedFilePath ){
+            clickedFileIndex=index;
+            break;
+          }
+        }
+
+        //We are cntrl clicking an existing selection
+        if(clickedFileIndex > -1){
+
+          this.model.get("multiSelect").splice(clickedFileIndex, 1);
+
+          //Remove selected style from deselected item
+          $target.removeClass("selected");
+        }
+
+        //We are cntrl clicking a new selection
+        else{
+          this.model.get("multiSelect").push(this.model.get("clickedFile"));
+          $target.addClass("selected");
+        }
+
+
+      }
+
+      //Shift Click
+      else if(event.shiftKey) {
+
+        //Clear the multiselect array
+        this.model.set("multiSelect",[]);
+
+        //reset all file selected styles
+        $(".file.selected").removeClass("selected");
+        $target.addClass("selected");
+        prevClicked.obj.addClass("selected");
+
+        //Model title
+        this.model.get("data").children[0].file.title;
+
+        var files=this.model.get("data").children;
+        var inRange=false;
+        var secondMatch = false;
+        for(var i=0; i < files.length;i++){
+
+
+          if(files[i].file.name == prevClicked.obj.attr("title") || files[i].file.name == $target.attr("title")){
+            if(inRange == true){
+              secondMatch=true;
+            }
+            else {
+              inRange=true;
+            }
+          }
+          if(inRange == true) {
+            //files[i].title;
+
+            var item={
+              obj:$("div[title=\""+files[i].file.name+"\"]"),
+            }
+            item.obj.addClass("selected");
+            this.model.get("multiSelect").push(item);
+            if(secondMatch){
+              inRange=false;
+            }
+          }
+
+        }
+
+        //target title
+        $target.attr("title");
+
+        //prev Clicked title
+        prevClicked.obj.attr("title");
+
+      }
+
+      //Single Click
+      else {
+        //Clear the multiselect array
+        this.model.set("multiSelect",[]);
+        this.model.get("multiSelect").push(this.model.get("clickedFile"));
+
+        //reset all file selected styles
+        $(".file.selected").removeClass("selected");
+        $target.addClass("selected");
+
+      }
+
+      //If more than one file is selected add multiselect button options
+      if(!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
+
+        FileBrowser.FileBrowserView.updateButtonsMulti();
+
+      }
 
       //Add secondary selection to folder
       $(".folder.selected").addClass("secondarySelected");
@@ -1122,7 +1303,7 @@ define([
         this.model.get("openFileHandler")(path, "run");
       }
     },
-    
+
     clickBody: function (event) {
       if(!this.model.get("desel")){
 				$(".file.selected").removeClass("selected");

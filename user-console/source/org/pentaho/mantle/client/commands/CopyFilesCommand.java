@@ -18,6 +18,7 @@
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -65,16 +66,20 @@ public class CopyFilesCommand extends AbstractCommand {
   protected void performOperation() {
     if ( this.getSolutionPath() != null ) {
       SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-      sbp.getFile( this.getSolutionPath(), new SolutionFileHandler() {
-        @Override
-        public void handle( RepositoryFile repositoryFile ) {
-          if ( repositoryFiles == null ) {
-            repositoryFiles = new ArrayList<FileItem>();
-          }
-          repositoryFiles.add( new FileItem( repositoryFile, null, null, false, null ) );
-          performOperation( false );
-        }
-      } );
+      StringTokenizer stk=new StringTokenizer(this.getSolutionPath(),"\t");
+      for(int i=0;i<stk.countTokens();i++){
+          sbp.getFile( stk.tokenAt(i), new SolutionFileHandler() {
+              @Override
+              public void handle( RepositoryFile repositoryFile ) {
+                  if ( repositoryFiles == null ) {
+                      repositoryFiles = new ArrayList<FileItem>();
+                  }
+                  repositoryFiles.add( new FileItem( repositoryFile, null, null, false, null ) );
+                  performOperation( false );
+              }
+          } );
+      }
+
     } else {
       performOperation( false );
     }

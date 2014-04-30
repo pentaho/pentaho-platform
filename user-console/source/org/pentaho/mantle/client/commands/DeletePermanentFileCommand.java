@@ -103,8 +103,15 @@ public class DeletePermanentFileCommand extends AbstractCommand {
       deleteConfirmDialog =
           new PromptDialogBox(
               Messages.getString( "emptyTrash" ), Messages.getString( "yesEmptyTrash" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    } else {
-      deleteMessage = Messages.getString( "deleteQuestion", type );
+    }
+
+    else {
+      if(type == "multi"){
+        deleteMessage = Messages.getString( "deleteMultiQuestion");
+      }
+      else{
+        deleteMessage = Messages.getString( "deleteQuestion", type );
+      }
       deleteConfirmDialog =
           new PromptDialogBox(
               Messages.getString( "permDelete" ), Messages.getString( "yesPermDelete" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
