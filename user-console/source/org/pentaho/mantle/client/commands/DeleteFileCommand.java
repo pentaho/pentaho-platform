@@ -85,6 +85,23 @@ public class DeleteFileCommand extends AbstractCommand {
     }
   }
 
+  protected void performOperationMulti( String path ) {
+
+    if ( path != null ) {
+      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      sbp.getFile( path, new SolutionFileHandler() {
+        @Override
+        public void handle( RepositoryFile repositoryFile ) {
+          if ( repositoryFiles == null ) {
+            repositoryFiles = new ArrayList<FileItem>();
+          }
+          repositoryFiles.add( new FileItem( repositoryFile, null, null, false, null ) );
+          performOperation( false );
+        }
+      } );
+    }
+  }
+
   protected void performOperation( boolean feedback ) {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
     event.setAction( this.getClass().getName() );

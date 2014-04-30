@@ -132,7 +132,10 @@
             (event.action.indexOf('DeletePermanentFileCommand') >= 0)) {
           if (event.message == 'Success') {
             window.top.mantle_isBrowseRepoDirty = true;
-            FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
+            if(FileBrowser.fileBrowserModel.getFolderClicked()){
+              FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
+            }
+
           }
           else {
             window.top.mantle_showMessage('Error', event.message);

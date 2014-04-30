@@ -17,9 +17,9 @@
 
 package org.pentaho.mantle.client.solutionbrowser;
 
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-
 import java.util.List;
+
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 /**
  * @author wseyler
@@ -31,7 +31,7 @@ public class SolutionBrowserClipboard {
   }
 
   private String mimeType;
-  private Object data;
+  private List<FileItem> data;
   private ClipboardAction clipboardAction;
 
   private static SolutionBrowserClipboard instance = new SolutionBrowserClipboard();
@@ -47,7 +47,6 @@ public class SolutionBrowserClipboard {
   public String getMimeType() {
     return mimeType;
   }
-
   public void setMimeType( String mimeType ) {
     this.mimeType = mimeType;
   }
@@ -56,14 +55,14 @@ public class SolutionBrowserClipboard {
     return data;
   }
 
-  public void setDataForCut( Object data ) {
+  public void setDataForCut(List<FileItem> data) {
     clearCutStyling();
     this.data = data;
     clipboardAction = ClipboardAction.CUT;
     applyCutStyling();
   }
 
-  public void setDataForCopy( Object data ) {
+  public void setDataForCopy(List<FileItem> data) {
     clearCutStyling();
     this.data = data;
     clipboardAction = ClipboardAction.COPY;
@@ -74,8 +73,7 @@ public class SolutionBrowserClipboard {
   }
 
   /**
-   * @param clipboardAction
-   *          the clipboardAction to set
+   * @param clipboardAction the clipboardAction to set
    */
   public void setClipboardAction( ClipboardAction clipboardAction ) {
     this.clipboardAction = clipboardAction;
@@ -92,7 +90,7 @@ public class SolutionBrowserClipboard {
     if ( hasContent() && clipboardAction == ClipboardAction.CUT ) {
       if ( data instanceof List<?> ) {
         @SuppressWarnings( "unchecked" )
-        List<FileItem> values = (List<FileItem>) data;
+        List<FileItem> values = data;
         for ( FileItem fileItem : values ) {
           fileItem.setStyleName( "fileLabel" ); //$NON-NLS-1$
         }
