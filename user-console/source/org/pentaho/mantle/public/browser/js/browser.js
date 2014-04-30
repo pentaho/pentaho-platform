@@ -1240,7 +1240,7 @@ define([
         for(var i=0; i < files.length;i++){
 
 
-          if(files[i].file.name == prevClicked.obj.attr("title") || files[i].file.name == $target.attr("title")){
+          if(files[i].file.path == prevClicked.obj.attr("path") || files[i].file.path == $target.attr("path")){
             if(inRange == true){
               secondMatch=true;
             }
@@ -1252,7 +1252,7 @@ define([
             //files[i].title;
 
             var item={
-              obj:$("div[title=\""+files[i].file.name+"\"]"),
+              obj:$("div[id=\""+files[i].file.id+"\"]")
             }
             item.obj.addClass("selected");
             this.model.get("multiSelect").push(item);
