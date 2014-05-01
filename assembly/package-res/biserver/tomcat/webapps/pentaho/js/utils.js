@@ -92,6 +92,9 @@ var defaultDateFormat = "mdy"    // valid values are "mdy", "dmy", and "ymd"
 var dateSeparator = defaultDateSeparator;
 var dateFormat = defaultDateFormat;
 
+var invalidCharacters = RESERVED_CHARS;
+var invalidCharactersRegExp = RESERVED_CHARS_REGEX_PATTERN;
+
 /**
 This is the main function you'll call from the onClick event of a button.
 Normally, you'll have something like this on your HTML page:
@@ -525,14 +528,11 @@ function bookmark(url,title){
   }
 }
 
-function isValidName(name, illegalCharacters){
-  var illegalCharactersArray = illegalCharacters.split(',');
-  if (name.indexOf(",,,") > -1) 
-    illegalCharactersArray.push(',');
-  
-  for (var i = 0; i < illegalCharactersArray.length; i++)
-    if(illegalCharactersArray[i].length > 0 & name.indexOf(illegalCharactersArray[i]) > -1) 
-      return false;
-    
-  return true;
+function isValidName(name){
+	return !invalidCharactersRegExp.test( name );
+}
+
+function reservedCharListForDisplay( separatorString ) {
+	//ToDo: Fix this
+	return "/ \ :";
 }

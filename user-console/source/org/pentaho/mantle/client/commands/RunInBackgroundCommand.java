@@ -35,6 +35,7 @@ import com.google.gwt.user.client.Window;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
@@ -151,7 +152,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
       }
     };
     final String filePath = solutionPath;
-    String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    String urlPath = NameUtils.URLEncode( NameUtils.encodeRepositoryPath( filePath ) );
     
     RequestBuilder scheduleFileRequestBuilder = createParametersChecker( urlPath );
     final boolean isXAction = isXAction( urlPath );
@@ -223,7 +224,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
   protected void performOperation( boolean feedback ) {
 
     final String filePath = ( this.getSolutionPath() != null ) ? this.getSolutionPath() : repositoryFile.getPath();
-    String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    String urlPath = NameUtils.URLEncode( NameUtils.encodeRepositoryPath( filePath ) );
     
     RequestBuilder scheduleFileRequestBuilder = createParametersChecker( urlPath );
     final boolean isXAction = isXAction( urlPath );
@@ -240,20 +241,20 @@ public class RunInBackgroundCommand extends AbstractCommand {
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             final JSONObject scheduleRequest = new JSONObject();
-            scheduleRequest.put( "inputFile", new JSONString( filePath.replaceAll( ":", "/" ) ) ); //$NON-NLS-1$
+            scheduleRequest.put( "inputFile", new JSONString( NameUtils.decodeRepositoryPath( filePath ) ) ); //$NON-NLS-1$
 
             // Set job name
             if ( StringUtils.isEmpty( getOutputName() ) ) {
               scheduleRequest.put( "jobName", JSONNull.getInstance() ); //$NON-NLS-1$
             } else {
-              scheduleRequest.put( "jobName", new JSONString( getOutputName().replaceAll( ":", "/" ) ) ); //$NON-NLS-1$
+              scheduleRequest.put( "jobName", new JSONString( NameUtils.decodeRepositoryPath( getOutputName() ) ) ); //$NON-NLS-1$
             }
 
             // Set output path location
             if ( StringUtils.isEmpty( getOutputLocationPath() ) ) {
               scheduleRequest.put( "outputFile", JSONNull.getInstance() ); //$NON-NLS-1$
             } else {
-              scheduleRequest.put( "outputFile", new JSONString( getOutputLocationPath().replaceAll( ":", "/" ) ) ); //$NON-NLS-1$
+              scheduleRequest.put( "outputFile", new JSONString( NameUtils.decodeRepositoryPath( getOutputLocationPath() ) ) ); //$NON-NLS-1$
             }
 
             // BISERVER-9321

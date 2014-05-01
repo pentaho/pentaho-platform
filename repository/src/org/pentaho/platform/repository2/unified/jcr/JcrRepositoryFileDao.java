@@ -444,7 +444,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
     Item fileNode;
     try {
-      fileNode = session.getItem( absPath );
+      fileNode = session.getItem( JcrRepositoryFileUtils.pathEncode( absPath ) );
       // items are nodes or properties; this must be a node
       Assert.isTrue( fileNode.isNode() );
     } catch ( PathNotFoundException e ) {
@@ -789,8 +789,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           return null;
         }
         // original parent folder path may no longer exist!
-        if ( session.itemExists( absOrigParentFolderPath ) ) {
-          origParentFolderId = ( (Node) session.getItem( absOrigParentFolderPath ) ).getIdentifier();
+        if ( session.itemExists( JcrRepositoryFileUtils.pathEncode( absOrigParentFolderPath ) ) ) {
+          origParentFolderId =
+              ( (Node) session.getItem( JcrRepositoryFileUtils.pathEncode( absOrigParentFolderPath ) ) )
+                  .getIdentifier();
         } else {
           // go through each of the segments of the original parent folder path, creating as necessary
           String[] segments = pathConversionHelper.absToRel( absOrigParentFolderPath ).split( RepositoryFile.SEPARATOR );
@@ -854,7 +856,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         Node destFileNode = null;
         Node destParentFolderNode = null;
         try {
-          destFileNode = (Node) session.getItem( cleanDestAbsPath );
+          destFileNode = (Node) session.getItem( JcrRepositoryFileUtils.pathEncode( cleanDestAbsPath ) );
         } catch ( PathNotFoundException e ) {
           destExists = false;
         }
@@ -876,7 +878,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
             Assert.isTrue( lastSlashIndex > 1, Messages.getInstance().getString(
                 "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) ); //$NON-NLS-1$
             String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
-            destParentFolderNode = (Node) session.getItem( absPathToDestParentFolder );
+            destParentFolderNode = (Node) session.getItem( JcrRepositoryFileUtils.pathEncode( absPathToDestParentFolder ) );
           }
         } else {
           // destination doesn't exist; go up one level to a folder that does exist
@@ -886,7 +888,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
           JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
           try {
-            destParentFolderNode = (Node) session.getItem( absPathToDestParentFolder );
+            destParentFolderNode =
+                (Node) session.getItem( JcrRepositoryFileUtils.pathEncode( absPathToDestParentFolder ) );
           } catch ( PathNotFoundException e1 ) {
             Assert.isTrue( false, Messages.getInstance()
                 .getString( "JcrRepositoryFileDao.ERROR_0004_PARENT_MUST_EXIST" ) ); //$NON-NLS-1$
@@ -900,15 +903,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode );
-        String finalSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath =
-            appendFileName && !file.isFolder() ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
-                : cleanDestAbsPath;
+        String finalEncodedSrcAbsPath = srcFileNode.getPath();
+        String finalDestAbsPath = appendFileName && !file.isFolder() ? cleanDestAbsPath
+                + RepositoryFile.SEPARATOR + srcFileNode.getName() : cleanDestAbsPath;
         try {
           if ( copy ) {
-            session.getWorkspace().copy( finalSrcAbsPath, finalDestAbsPath );
+            session.getWorkspace().copy( finalEncodedSrcAbsPath, JcrRepositoryFileUtils.pathEncode( finalDestAbsPath ) );
           } else {
-            session.getWorkspace().move( finalSrcAbsPath, finalDestAbsPath );
+            session.getWorkspace().move( finalEncodedSrcAbsPath, JcrRepositoryFileUtils.pathEncode( finalDestAbsPath ) );
           }
         } catch ( ItemExistsException iae ) {
           throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["

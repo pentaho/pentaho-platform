@@ -22,11 +22,12 @@ define([
   "js/browser.dialogs.templates.js",
   "js/dialogs/browser.dialog.rename.templates",
   "js/browser.utils.js",
+  "common-ui/util/URLEncoder",
   "common-ui/bootstrap",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
   "../../../../js/utils.js"  
-], function (Dialog, DialogTemplates, RenameTemplates, Utils) {
+], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder) {
 
   var BrowserUtils = new Utils();
 
@@ -67,12 +68,13 @@ define([
         return;
       }
 
+      prevName = Encoder.encodeRepositoryPath( prevName);
       // Update the path
       var prevPath = this.get("path");
       if (prevPath === null) {
         return;
       }
-      this.set("path", prevPath.replace(prevName, name));
+      this.set("path", prevPath.replace( Encoder.encodeRepositoryPath( prevName ), Encoder.encodeRepositoryPath( name ) ) );
 
       var me = this;
       
@@ -82,22 +84,15 @@ define([
         this.set("name", prevName);
         this.set("path", prevPath);
       };
-
-      if(!illegalCharacters){
-        BrowserUtils._makeAjaxCall("GET", "text", BrowserUtils.getUrlBase() + "api/repo/files/reservedCharacters", false, function (result) {
-          illegalCharacters = result;
-        });
-      }
-
-      if (!isValidName(name, illegalCharacters)) {
-        var i18n = me.view.options.i18n;
-        var body = i18n.prop("invalidCharactersDialogDescription", name, illegalCharacters.split(',').join(' '));
-        me.view.createCannotRenameDialog(body, me.view).show(me.view);
-        setPrevVals.apply(me);
-        return;
+      
+      var m = invalidCharactersRegExp.exec(name);
+      if (m != null) {
+	      var i18n = me.view.options.i18n;
+	      var body = i18n.prop("invalidCharactersDialogDescription", name, invalidCharacters);
+	      me.view.createCannotRenameDialog(body, me.view).show(me.view);
       }else{
         // api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
-        BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(prevPath) + "/rename?newName=" + FileBrowser.encodePathComponents(name), true,
+        BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents( prevPath ) + "/rename?newName=" + FileBrowser.encodePathComponents( name ), true,
           function (success) {
         
             // An exception occured
@@ -107,11 +102,8 @@ define([
               return;
             }
         
-            // Create path with '/'' instead of ':'
-            var slashPath = me.get("path");
-            while (slashPath.search(":") > -1) {
-              slashPath = slashPath.replace(":", "/");
-            }
+            // Create path with '/' instead of ':'
+            var slashPath = Encoder.decodeRepositoryPath( me.get("path") );
         
             var isFile = slashPath.search("\\.") > -1;
         
@@ -352,10 +344,7 @@ define([
 				this.view.RenameHomeDialog.show();
 				return;
 			}
-      var repoPath = path;
-      while (repoPath.search("/") > -1) {
-        repoPath = repoPath.replace("/", ":");
-      }
+      var repoPath = Encoder.encodeRepositoryPath( path );
 
       var me = this;
       BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", true,
@@ -373,9 +362,11 @@ define([
           });
 
       var name = path.split("/")[path.split("/").length - 1];
-      var dotIndex = name.search("\\.");
-      if (dotIndex > -1) {
-        name = name.substr(0, dotIndex);
+      if ( overrideType !== "folder") {
+    	  var dotIndex = name.lastIndexOf("\.");
+	      if (dotIndex > -1) {
+	        name = name.substr(0, dotIndex);
+	      }
       }
 
       this.model.set("path", repoPath);

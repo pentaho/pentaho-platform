@@ -53,6 +53,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
@@ -360,22 +361,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   @SuppressWarnings( "nls" )
   public static String pathToId( String path ) {
-    String id = path.replace( "/", ":" );
-    id = id.replace( "%", "%25" );
-    id = id.replace( "#", "%23" );
-    id = id.replace( "{", "%7B" );
-    id = id.replace( "}", "%7D" );
-    id = id.replace( "<", "%3C" );
-    id = id.replace( ">", "%3E" );
-    id = id.replace( "+", "%2B" );
-
-    if ( !id.startsWith( ":" ) ) {
-      id = ":" + id;
-    }
-    if ( id.endsWith( ":" ) ) {
-      id = id.substring( 0, id.length() - 2 );
-    }
-    return URL.encodePathSegment( id );
+    String id = NameUtils.encodeRepositoryPath( path );
+    return NameUtils.URLEncode( id );
   }
 
   public List<String> getExecutableFileExtensions() {
@@ -788,5 +775,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
     return mypath;
   }
+  
+  private static final native String encodeUri( String URI )
+  /*-{
+    return encodeURIComponent(URI);
+  }-*/;
 
 }

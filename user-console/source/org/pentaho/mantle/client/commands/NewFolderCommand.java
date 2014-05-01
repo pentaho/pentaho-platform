@@ -17,24 +17,13 @@
 
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -42,9 +31,17 @@ import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class NewFolderCommand extends AbstractCommand {
 
@@ -112,7 +109,7 @@ public class NewFolderCommand extends AbstractCommand {
 
       public void okPressed() {
 
-        if ( !isValidFolderName( folderNameTextBox.getText() ) ) {
+        if ( !NameUtils.isValidFolderName( folderNameTextBox.getText() ) ) {
           event.setMessage( Messages.getString( "containsIllegalCharacters", folderNameTextBox.getText() ) );
           EventBusUtil.EVENT_BUS.fireEvent( event );
           return;
@@ -170,40 +167,6 @@ public class NewFolderCommand extends AbstractCommand {
     };
     newFolderDialog.setCallback( callback );
     newFolderDialog.center();
-  }
-
-  private final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] { '/',
-    ':', ';', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
-
-  /**
-   * Checks for presence of reserved chars as well as illegal permutations of legal chars.
-   */
-  private boolean isValidFolderName( final String name ) {
-    if ( StringUtils.isEmpty( name ) || // not null, not empty, and not all whitespace
-        !name.trim().equals( name ) || // no leading or trailing whitespace
-        containsReservedCharsPattern.test( name ) || // no reserved characters
-        ".".equals( name ) || // no . //$NON-NLS-1$
-        "..".equals( name ) ) { // no .. //$NON-NLS-1$
-      return false;
-    }
-    return true;
-  }
-
-  private final RegExp containsReservedCharsPattern = makePattern();
-
-  private RegExp makePattern() {
-    // escape all reserved characters as they may have special meaning to regex engine
-    StringBuilder buf = new StringBuilder();
-    buf.append( ".*" ); //$NON-NLS-1$
-    buf.append( "[" ); //$NON-NLS-1$
-    for ( Character ch : reservedChars ) {
-      buf.append( "\\" ); //$NON-NLS-1$
-      buf.append( ch );
-    }
-    buf.append( "]" ); //$NON-NLS-1$
-    buf.append( "+" ); //$NON-NLS-1$
-    buf.append( ".*" ); //$NON-NLS-1$
-    return RegExp.compile( buf.toString() );
   }
 
   public ICallback<String> getCallback() {

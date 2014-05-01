@@ -17,6 +17,12 @@
 
 package org.pentaho.mantle.client.admin;
 
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.ui.xul.gwt.tags.GwtDialog;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -29,13 +35,6 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.utils.NameUtils;
-import org.pentaho.ui.xul.gwt.tags.GwtDialog;
-import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
 public class UserDialog extends GwtDialog {
 
@@ -112,10 +111,11 @@ public class UserDialog extends GwtDialog {
   }
   
   private boolean nameIsValid(String name) {
-    if ( !NameUtils.isRepositoryObjectNameValid( name ) ) {
+    if ( !NameUtils.isValidFileName( name ) ) {
       GwtMessageBox messageBox = new GwtMessageBox();
       messageBox.setTitle( Messages.getString( "error" ) );
-      messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", name ) );
+      messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", name, NameUtils
+          .reservedCharListForDisplay( " " ) ) );
       messageBox.setButtons( new Object[ GwtMessageBox.ACCEPT ] );
       messageBox.setWidth( 300 );
       messageBox.show();

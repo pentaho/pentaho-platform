@@ -350,6 +350,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         originalParentFolderPath ).build();
   }
 
+  //returns encoded path
   private String getOriginalParentFolderPath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node trashFileNode, final boolean relative ) throws RepositoryException {
     if ( trashFileNode.getParent().hasProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ) {
@@ -473,7 +474,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   public String getOriginalParentFolderPath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId ) throws RepositoryException {
-    return getOriginalParentFolderPath( session, pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ),
-        false );
+    return JcrRepositoryFileUtils.pathDecode( getOriginalParentFolderPath( session, pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ),
+        false ) );
   }
 }

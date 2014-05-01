@@ -24,6 +24,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
+
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 
 /**
@@ -38,7 +40,7 @@ public class OutputLocationUtils {
       return;
     }
 
-    final String outputLocationPath = outputLocation.replaceAll( "/", ":" );
+    final String outputLocationPath = NameUtils.encodeRepositoryPath( outputLocation );
     final String url = GWT.getHostPageBaseURL() + "api/repo/files/" + outputLocationPath + "/tree?depth=1"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     // This header is required to force Internet Explorer to not cache values from the GET response.

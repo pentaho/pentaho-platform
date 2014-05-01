@@ -26,11 +26,12 @@ define([
   "common-ui/util/spin.min",
   "common-ui/util/PentahoSpinner",
   "js/browser.templates",
+  "common-ui/util/URLEncoder",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
   "common-ui/jquery",
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
 
 
   if(window.top.mantle_isBrowseRepoDirty == undefined){
@@ -76,26 +77,10 @@ define([
   FileBrowser.canPublish = false;
 
   /**
-   * Encode parts of the path between the colons
+   * Encode a path that has the slashes converted to colons
    **/
   FileBrowser.encodePathComponents = function (path) {
-    var result = path;
-
-    // only parse paths greater than 1 ":"
-    if (path.length > 1) {
-      var encodedParts = [];
-
-      var parts = path.split(":");
-
-      for (var x = 0; x <= parts.length - 1; x++) {
-        if (parts[x] != "") {
-          encodedParts[x] = encodeURIComponent(parts[x]);
-        }
-      }
-      result = encodedParts.join(":");
-    }
-
-    return result;
+    return Encoder.encode( "{0}", path );
   };
 
   FileBrowser.setShowHiddenFiles = function (value) {
@@ -282,7 +267,7 @@ define([
       if (folderPath == ".trash") {
         this.updateTrashLastClick();
       } else {
-        folderPath = folderPath.replace(/\//g, ":");
+        folderPath = Encoder.encodeRepositoryPath( folderPath );
       }
       this.set("clickedFolder", clickedFolder);
       folderButtons.canDownload(this.get("canDownload"));
@@ -325,7 +310,7 @@ define([
       //TODO handle file button press
 
       var filePath = clickedFile.obj.attr("path");
-      filePath = filePath.replace(/\//g, ":");
+      filePath = Encoder.encodeRepositoryPath( filePath );
 
       //Ajax request to check write permissions for file
       $.ajax({
@@ -473,6 +458,9 @@ define([
       });
     },
 
+    /*
+     * Path has already been converted to colons
+     */
     getFileTreeRequest: function (path) {
       return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
     }
@@ -511,50 +499,50 @@ define([
     },
 
     reformatTrashResponse: function(myself, response) {
-      var newResp = {
-        children: []
-      }
-      if (response && response.repositoryFileDto) {
-        myself.set("deletedFiles", "");
-        for (var i = 0; i < response.repositoryFileDto.length; i++) {
-          var obj = {
-            file: Object
+         var newResp = {
+            children: []
           }
+          if (response && response.repositoryFileDto) {
+            myself.set("deletedFiles", "");
+            for (var i = 0; i < response.repositoryFileDto.length; i++) {
+              var obj = {
+                file: Object
+              }
 
-          obj.file = response.repositoryFileDto[i];
-          obj.file.trash = "true";
-          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-          if (obj.file.id) {
-            if (myself.get("deletedFiles") == "") {
-              myself.set("deletedFiles", obj.file.id + ",");
-            }
-            else {
-              myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
+              obj.file = response.repositoryFileDto[i];
+              obj.file.trash = "true";
+              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+              if (obj.file.id) {
+                if (myself.get("deletedFiles") == "") {
+                  myself.set("deletedFiles", obj.file.id + ",");
+                }
+                else {
+                  myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
+                }
+              }
+              newResp.children.push(obj);
             }
           }
-          newResp.children.push(obj);
-        }
-      }
-      return newResp;
+          return newResp;
     },
 
     reformatResponse: function(response) {
-      var newResp = {
-        children: []
-      }
-      if (response && response.repositoryFileDto) {
-
-        for (var i = 0; i < response.repositoryFileDto.length; i++) {
-          var obj = {
-            file: Object
+         var newResp = {
+            children: []
           }
+          if (response && response.repositoryFileDto) {
 
-          obj.file = response.repositoryFileDto[i];
-          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-          newResp.children.push(obj);
-        }
-      }
-      return newResp;
+            for (var i = 0; i < response.repositoryFileDto.length; i++) {
+              var obj = {
+                file: Object
+              }
+
+              obj.file = response.repositoryFileDto[i];
+              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+              newResp.children.push(obj);
+            }
+          }
+          return newResp;
     },
 
     updateData: function () {
@@ -566,7 +554,7 @@ define([
 
         //If we have trash data we reformat it to match the handlebar templates
         if (myself.get("path") == ".trash") {
-          var newResp = myself.reformatTrashResponse(myself, response);
+        var newResp = myself.reformatTrashResponse(myself, response);
           myself.set("data", newResp);
           if (myself.get("deletedFiles") == "") {
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
@@ -583,7 +571,7 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : path.replace(/\//g, ":"))),
+          url = this.getFileListRequest( FileBrowser.encodePathComponents( path == null ? ":" : Encoder.encodeRepositoryPath( path ) ) ),
           localSequenceNumber = myself.get("sequenceNumber");
 
       $.ajax({
@@ -606,11 +594,11 @@ define([
           if(FileBrowser.fileBrowserModel.getFolderClicked()){
             if(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")==".trash"){
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]
-                  =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response);
+               =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response);
             }
             else {
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]= FileBrowser.
-                  fileBrowserModel.attributes.fileListModel.reformatResponse(response);
+                fileBrowserModel.attributes.fileListModel.reformatResponse(response);
             }
           }
         },
@@ -637,6 +625,9 @@ define([
       });
     },
 
+    /*
+     * Path has already been converted to colons
+     */
     getFileListRequest: function (path) {
       var request;
       if (path == ".trash") {
@@ -1173,9 +1164,9 @@ define([
     clickFile: function (event) {
 
       var prevClicked = this.model.get("clickedFile");
-      //don't want to stop propagation of the event, but need to notify clickBody listener
-      //that the event was handled and we don't need to deselect a file
-      this.model.set("desel", 1);
+			//don't want to stop propagation of the event, but need to notify clickBody listener
+			//that the event was handled and we don't need to deselect a file
+			this.model.set("desel", 1);
       var $target = $(event.currentTarget).eq(0);
       //BISERVER-9259 - added time parameter to force change event
       this.model.set("clicked", {
@@ -1231,8 +1222,8 @@ define([
         this.model.set("multiSelect",[]);
 
         //reset all file selected styles
-        $(".file.selected").removeClass("selected");
-        $target.addClass("selected");
+      $(".file.selected").removeClass("selected");
+      $target.addClass("selected");
         prevClicked.obj.addClass("selected");
 
         //Model title
@@ -1307,7 +1298,7 @@ define([
         this.model.get("openFileHandler")(path, "run");
       }
     },
-
+    
     clickBody: function (event) {
       if(!this.model.get("desel")){
 				$(".file.selected").removeClass("selected");

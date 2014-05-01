@@ -42,7 +42,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   private String lockMessage;
   private String lockOwner;
   private String path;
-  private String absPath;
+  private String absPath; //This path is intentionally in Jcr Encoded form (the raw path)
   private Boolean folder;
   private Boolean hidden;
   private Boolean versioned;
