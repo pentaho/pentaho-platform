@@ -328,7 +328,8 @@ public class FileResource extends AbstractJaxRSResource {
             String fileName = sourceFile.getName();
             String copyText = "";
             String rootCopyText = "";
-            String nameNoExtension = fileName.substring( 0, fileName.lastIndexOf( '.' ) );
+            String nameNoExtension = fileName.substring( 0,
+              fileName.lastIndexOf( '.' ) == -1 ? fileName.length() : fileName.lastIndexOf( '.' ) );
             String extension = fileName.substring( fileName.lastIndexOf( '.' ) );
 
             RepositoryFileDto testFile = getRepoWs().getFile( path + PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$

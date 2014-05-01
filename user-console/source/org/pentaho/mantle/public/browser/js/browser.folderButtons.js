@@ -16,10 +16,9 @@
  */
 
 define([
-  "common-ui/util/URLEncoder",
   "common-ui/jquery-i18n",
   "common-ui/jquery"
-], function ( Encoder ) {
+], function () {
 
   var local = {
     renameDialog: null,
@@ -85,7 +84,7 @@ define([
 
     buildParameter: function (path, title) {
       return {
-        solutionPath: (path == null ? ":" : path ),
+        solutionPath: (path == null ? "/" : path ),
         solutionTitle: (title ? null : title)
       };
     },
