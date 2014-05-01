@@ -130,7 +130,7 @@ define([
 
     buildParameter: function (path, title) {
       return {
-        solutionPath: (path == null ? ":" : path ),
+        solutionPath: (path == null ? "/" : path ),
         solutionTitle: (title ? null : title)
       };
     },

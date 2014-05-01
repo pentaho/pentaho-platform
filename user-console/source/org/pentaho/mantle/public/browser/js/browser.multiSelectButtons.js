@@ -99,7 +99,7 @@ define([
     buildParameter: function (path) {
       for (var i=0;i<path.length;i++){
         var tmp=path[i];
-        path[i] = (tmp == null ? ":" : tmp.replace(/\//g, ":"));
+        path[i] = (tmp == null ? "/" : tmp );
       }
       var retString=path.join("\t");
       var retObj= {

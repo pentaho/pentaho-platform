@@ -435,7 +435,7 @@ define([
           tree = null,
           localSequenceNumber = myself.get("sequenceNumber");
 
-      var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : path.replace(/\//g, ":")));
+      var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath( path )));
 
       $.ajax({
         async: true,
