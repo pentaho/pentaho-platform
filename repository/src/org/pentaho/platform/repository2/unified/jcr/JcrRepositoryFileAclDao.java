@@ -186,7 +186,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         Privilege[] privs = permissionConversionHelper.pentahoPermissionsToPrivileges( session, permissions );
         try {
           String absPath = pathConversionHelper.relToAbs( relPath );
-          return session.getAccessControlManager().hasPrivileges( absPath, privs );
+          return session.getAccessControlManager().hasPrivileges( JcrRepositoryFileUtils.pathEncode( absPath ), privs );
         } catch ( PathNotFoundException e ) {
           // never throw an exception if the path does not exist; just return false
           return false;

@@ -17,6 +17,17 @@
 
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
+import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.workspace.JsJob;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.VerticalAlign;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -40,16 +51,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
-import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
-import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.utils.NameUtils;
-import org.pentaho.mantle.client.workspace.JsJob;
 
 public class NewScheduleDialog extends PromptDialogBox {
 
@@ -188,17 +189,17 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   protected void onOk() {
     String name = scheduleNameTextBox.getText();
-    if ( !NameUtils.isRepositoryObjectNameValid( name ) ) {
+    if ( !NameUtils.isValidFileName( name ) ) {
       MessageDialogBox errorDialog =
-          new MessageDialogBox(
-              Messages.getString( "error" ), Messages.getString( "prohibitedNameSymbols", name ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "prohibitedNameSymbols", name,
+              NameUtils.reservedCharListForDisplay( " " ) ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
       errorDialog.center();
       return;
     }
 
     // check if has parameterizable
     WaitPopup.getInstance().setVisible( true );
-    String urlPath = URL.encodePathSegment( filePath.replaceAll( "/", ":" ) );
+    String urlPath = URL.encodePathSegment( NameUtils.encodeRepositoryPath( filePath ) );
     
     RequestBuilder scheduleFileRequestBuilder;
     final boolean isXAction;

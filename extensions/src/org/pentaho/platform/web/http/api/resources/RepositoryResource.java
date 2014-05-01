@@ -483,11 +483,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
       Response readFileResponse = pluginResource.readFile( pluginId, filePath );
       // TODO: should we assume forbidden means move on in the resolution chain, or abort??
       if ( readFileResponse.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
-        rsc( MessageFormat.format( "Yep, [{0}] is a path to a static plugin file", filePath ) ); //$NON-NLS-1$
+        rsc( "Yep, [{0}] is a path to a static plugin file", filePath ); //$NON-NLS-1$
         return readFileResponse;
       }
     }
-    rsc( MessageFormat.format( "Nope, [{0}] is not a path to a static plugin file", filePath ) ); //$NON-NLS-1$
+    rsc( "Nope, [{0}] is not a path to a static plugin file", filePath ); //$NON-NLS-1$
     return null;
   }
 
@@ -501,10 +501,10 @@ public class RepositoryResource extends AbstractJaxRSResource {
         .separatorsToRepository( RepositoryFilenameUtils.concat( filePath, "../" + relPath ) ); //$NON-NLS-1$
     Response response = fileResource.doGetFileOrDir( path.replace( '/', ':' ).substring( 1 ) );
     if ( response.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
-      rsc( MessageFormat.format( "Yep, [{0}] is a repository file", path ) ); //$NON-NLS-1$
+      rsc( "Yep, [{0}] is a repository file", path ); //$NON-NLS-1$
       return response;
     }
-    rsc( MessageFormat.format( "Nope, [{0}] is not a repository file", path ) ); //$NON-NLS-1$
+    rsc( "Nope, [{0}] is not a repository file", path ); //$NON-NLS-1$
     return null;
   }
 

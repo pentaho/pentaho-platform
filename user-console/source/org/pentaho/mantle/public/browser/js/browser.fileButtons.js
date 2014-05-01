@@ -130,7 +130,7 @@ define([
 
     buildParameter: function (path, title) {
       return {
-        solutionPath: (path == null ? ":" : path.replace(/\//g, ":")),
+        solutionPath: (path == null ? ":" : path ),
         solutionTitle: (title ? null : title)
       };
     },

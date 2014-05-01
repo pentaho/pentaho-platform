@@ -50,6 +50,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.core.VersionManagerImpl;
+import org.apache.jackrabbit.util.Text;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
@@ -85,12 +86,16 @@ public class JcrRepositoryFileUtils {
    * a "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing
    * '.' is legal. It is up to this implementation to prohibit permutations of legal characters.
    */
+//  private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
+//    '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
+  
+  // This list will drive what characters are not allowed on the client as well as the server
   private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
-    '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
+    '/', '\\', '\t', '\r', '\n' } ) );
 
-  private static final Pattern containsReservedCharsPattern = makePattern();
-
-  private static Pattern makePattern() {
+  private static final Pattern containsReservedCharsPattern = makePattern( reservedChars );
+  
+  private static Pattern makePattern( List<Character> list) {
     // escape all reserved characters as they may have special meaning to regex engine
     StringBuilder buf = new StringBuilder();
     buf.append( ".*" ); //$NON-NLS-1$
@@ -123,7 +128,7 @@ public class JcrRepositoryFileUtils {
     Node node = session.getRootNode();
     RepositoryFile file =
         new RepositoryFile.Builder( node.getIdentifier(), "" ).folder( true ).versioned( false ).path( //$NON-NLS-1$
-            node.getPath() ).build();
+            pathDecode( node.getPath() ) ).build();
     return file;
   }
 
@@ -444,11 +449,11 @@ public class JcrRepositoryFileUtils {
   public static String getAbsolutePath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
-      return session.getNodeByIdentifier( node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString() )
-          .getPath();
+      return pathDecode( session.getNodeByIdentifier(
+          node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString() ).getPath() );
     }
 
-    return node.getPath();
+    return pathDecode( node.getPath() );
   }
 
   public static Serializable getNodeId(final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -463,20 +468,21 @@ public class JcrRepositoryFileUtils {
   public static String getNodeName(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
-      return session.getNodeByIdentifier( node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString() )
-          .getName();
+      return fileNameDecode( session.getNodeByIdentifier(
+          node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString() ).getName() );
     }
 
-    return node.getName();
+    return fileNameDecode( node.getName() );
   }
 
   public static String getVersionId(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
-      return node.getParent().getName();
+      return fileNameDecode( node.getParent().getName() );
     }
 
-    return session.getWorkspace().getVersionManager().getBaseVersion( node.getPath() ).getName();
+    return fileNameDecode( session.getWorkspace().getVersionManager().getBaseVersion(
+        node.getPath() ).getName() );
   }
 
   public static Node createFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -491,8 +497,10 @@ public class JcrRepositoryFileUtils {
 
     // guard against using a file retrieved from a more lenient session inside a more strict session
     Assert.notNull( parentFolderNode );
-
-    Node folderNode = parentFolderNode.addNode( folder.getName(), pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER() );
+    
+    String encodedfolderName = fileNameEncode( folder.getName() );
+    Node folderNode =
+        parentFolderNode.addNode( encodedfolderName, pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER() );
     folderNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden() );
     // folderNode.setProperty(pentahoJcrConstants.getPHO_TITLE(), folder.getTitle());
     Node localeNodes = null;
@@ -520,6 +528,7 @@ public class JcrRepositoryFileUtils {
       final ITransformer<IRepositoryFileData> transformer ) throws RepositoryException {
 
     checkName( file.getName() );
+    String encodedFileName = fileNameEncode( file.getName() );
     Node parentFolderNode;
     if ( parentFolderId != null ) {
       parentFolderNode = session.getNodeByIdentifier( parentFolderId.toString() );
@@ -530,7 +539,7 @@ public class JcrRepositoryFileUtils {
     // guard against using a file retrieved from a more lenient session inside a more strict session
     Assert.notNull( parentFolderNode );
 
-    Node fileNode = parentFolderNode.addNode( file.getName(), pentahoJcrConstants.getPHO_NT_PENTAHOFILE() );
+    Node fileNode = parentFolderNode.addNode( encodedFileName, pentahoJcrConstants.getPHO_NT_PENTAHOFILE() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_CONTENTTYPE(), transformer.getContentType() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden() );
@@ -650,7 +659,7 @@ public class JcrRepositoryFileUtils {
   public static List<RepositoryFile> getChildren( final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final IPathConversionHelper pathConversionHelper,
       final ILockHelper lockHelper, final RepositoryRequest repositoryRequest ) throws RepositoryException {
-    Node folderNode = session.getNodeByIdentifier( repositoryRequest.getPath() );
+    Node folderNode = session.getNodeByIdentifier( pathEncode( repositoryRequest.getPath() ) );
     Assert.isTrue( isPentahoFolder( pentahoJcrConstants, folderNode ) );
 
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
@@ -1051,7 +1060,7 @@ public class JcrRepositoryFileUtils {
       final RepositoryRequest repositoryRequest, IRepositoryAccessVoterManager accessVoterManager )
     throws RepositoryException {
 
-    Item fileItem = session.getItem( absPath );
+    Item fileItem = session.getItem( pathEncode( absPath ) );
     // items are nodes or properties; this must be a node
     Assert.isTrue( fileItem.isNode() );
     Node fileNode = (Node) fileItem;
@@ -1068,7 +1077,7 @@ public class JcrRepositoryFileUtils {
     throws RepositoryException {
 
     RepositoryFile rootFile =
-        JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode,
+        nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode,
             false, null );
     if ( ( !showHidden && rootFile.isHidden() )
         || ( !accessVoterManager.hasAccess( rootFile, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
@@ -1253,7 +1262,7 @@ public class JcrRepositoryFileUtils {
   }
 
   /**
-   * Checks for presence of reserved chars as well as illegal permutations of legal chars.
+   * Checks for presence of black listed chars as well as illegal permutations of legal chars.
    */
   public static void checkName( final String name ) {
     if ( !StringUtils.hasLength( name ) || // not null, not empty, and not all whitespace
@@ -1272,7 +1281,7 @@ public class JcrRepositoryFileUtils {
     Serializable parentFolderId = parentFolder == null ? null : parentFolder.getId();
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId );
-    Node folderNode = JcrRepositoryFileUtils.createFolderNode( session, pentahoJcrConstants, parentFolderId, folder );
+    Node folderNode = createFolderNode( session, pentahoJcrConstants, parentFolderId, folder );
     session.save();
     JcrRepositoryFileAclUtils.createAcl( session, pentahoJcrConstants, folderNode.getIdentifier(),
         new RepositoryFileAcl.Builder( ownerSid ).entriesInheriting( inheritAces ).build() );
@@ -1302,14 +1311,48 @@ public class JcrRepositoryFileUtils {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
     Item fileNode;
     try {
-      fileNode = session.getItem( absPath );
+      fileNode = session.getItem( pathEncode( absPath ) );
       // items are nodes or properties; this must be a node
       Assert.isTrue( fileNode.isNode() );
     } catch ( PathNotFoundException e ) {
       fileNode = null;
     }
-    return fileNode != null ? JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
+    return fileNode != null ? nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
         lockHelper, (Node) fileNode, loadMaps, locale ) : null;
-
   }
+  
+  protected static String fileNameEncode(String fileName) {
+    return Text.escapeIllegalJcrChars( fileName );
+  }
+  
+  protected static String fileNameDecode(String encodedFileName) {
+    return Text.unescapeIllegalJcrChars( encodedFileName );
+  }
+  
+  // May contian just folder names or full paths
+  protected static String pathEncode( String path) {
+    String[] folders = path.split("/");
+    StringBuilder encodedPath = new StringBuilder(path.length() * 2);
+    for (int i=0; i < folders.length; i++) {
+      encodedPath.append( fileNameEncode(folders[i]) );
+      if ( i != folders.length - 1 || path.endsWith( "/" ) ) {
+        encodedPath.append( "/" );
+      }
+    }
+    return encodedPath.toString();
+  }
+  
+  // May contian just folder names or full paths
+  protected static String pathDecode( String encodedPath ) {
+    String[] folders = encodedPath.split("/");
+    StringBuilder decodedPath = new StringBuilder(encodedPath.length() * 2);
+    for (int i=0; i < folders.length; i++) {
+      decodedPath.append( fileNameDecode(folders[i]) );
+      if ( i != folders.length - 1 || encodedPath.endsWith( "/" ) ) {
+        decodedPath.append( "/" );
+      }
+    }
+    return decodedPath.toString();
+  }
+  
 }
