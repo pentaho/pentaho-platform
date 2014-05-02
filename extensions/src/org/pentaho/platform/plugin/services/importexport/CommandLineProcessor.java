@@ -29,6 +29,7 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.xml.ws.developer.JAXWSProperties;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -45,12 +46,14 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -272,7 +275,7 @@ public class CommandLineProcessor {
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
     String exportURL = contextURL + "/api/repo/files/";
     if ( path != null ) {
-      String effPath = path.replaceAll( "/", ":" );
+      String effPath = RepositoryPathEncoder.encodeRepositoryPath( path );
       exportURL += effPath;
     }
     String service =
@@ -704,7 +707,7 @@ public class CommandLineProcessor {
     String withManifest =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY" ),
             Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME" ), false, true );
-    String effPath = path.replaceAll( "/", ":" );
+    String effPath = RepositoryPathEncoder.encodeRepositoryPath( path );
     if ( effPath.lastIndexOf( ":" ) == effPath.length() - 1 // remove trailing slash
         && effPath.length() > 1  ) { // allow user to enter "--path=/"
       effPath = effPath.substring( 0, effPath.length() - 1 );

@@ -56,6 +56,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 
 @SuppressWarnings( "nls" )
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
@@ -230,7 +231,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   static String idToPath( String relPath ) {
-    relPath = relPath.replace( ':', '/' );
+    relPath = RepositoryPathEncoder.decodeRepositoryPath( relPath );
     return relPath.replaceFirst( "^/?([A-z])/[/\\\\](.*)", "$1:/$2" );
   }
 

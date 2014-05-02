@@ -342,7 +342,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   public void center() {
     if ( scheduleParams != null ) {
       // we have saved params from back/next
-      String urlPath = filePath.replaceAll( "/", ":" ); //$NON-NLS-1$  //$NON-NLS-2$
+      String urlPath = NameUtils.encodeRepositoryPath( filePath );
       String urlParams = "";
       for ( int i = 0; i < scheduleParams.size(); i++ ) {
         JSONObject o = scheduleParams.get( i ).isObject();
