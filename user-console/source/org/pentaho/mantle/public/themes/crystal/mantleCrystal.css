@@ -10,6 +10,11 @@
   height: 100%;
 }
 
+#contentCleanerPanel .pentaho-button {
+  margin-left:  2px;
+  margin-right: 2px;
+}
+
 .schedulerPerspective {
   background: transparent;
   width: 1230px;

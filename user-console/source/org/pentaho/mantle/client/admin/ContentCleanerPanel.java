@@ -150,6 +150,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           nowLabelPanel.add( days );
           Button deleteNowButton = new Button( Messages.getString( "deleteNow" ) );
           deleteNowButton.setStylePrimaryName( "pentaho-button" );
+          deleteNowButton.addStyleName( "first" );
           deleteNowButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
               deleteContentNow( Long.parseLong( nowTextBox.getValue() ) * 86400L );
@@ -184,12 +185,14 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           }
           Button deleteScheduleButton = new Button( Messages.getString( "cancelSchedule" ) );
           deleteScheduleButton.setStylePrimaryName( "pentaho-button" );
+          deleteScheduleButton.addStyleName( "last" );
           deleteScheduleButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
               deleteContentCleaner( jsJob );
             }
           } );
           editScheduleButton.setStylePrimaryName( "pentaho-button" );
+          editScheduleButton.addStyleName( "first" );
           editScheduleButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
               IDialogCallback callback = new IDialogCallback() {
