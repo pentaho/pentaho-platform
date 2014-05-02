@@ -222,22 +222,11 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
 
     // Check if this is valid xml
-    InputStream inputStream2 = null;
-    String xmi = null;
     try {
-      // first, convert our input stream to a string
-      //BufferedReader reader = new BufferedReader( new InputStreamReader( inputStream, DEFAULT_ENCODING ) );
-      BufferedReader reader = new BufferedReader( new InputStreamReader( inputStream ) );
-      StringBuilder stringBuilder = new StringBuilder();
-      while ( ( xmi = reader.readLine() ) != null ) {
-        stringBuilder.append( xmi );
-      }
-      inputStream.close();
-      xmi = stringBuilder.toString();
-      // now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
-      Domain domain = xmiParser.parseXmi( new java.io.ByteArrayInputStream( xmi.getBytes() ) );
-      // xmi is valid. Create a new inputstream for the actual import action.
-      inputStream2 = new java.io.ByteArrayInputStream( xmi.getBytes( "UTF-8" ) );
+      // try to see if the xmi can be parsed (ie, check if it's valid xmi)
+      inputStream.reset();
+      Domain domain = xmiParser.parseXmi( inputStream );
+      inputStream.reset();
     } catch ( Exception ex ) {
       logger.error( ex.getMessage() );
       // throw new
@@ -249,7 +238,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
 
     final SimpleRepositoryFileData data =
-        new SimpleRepositoryFileData( inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
+        new SimpleRepositoryFileData( inputStream, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
     if ( domainFile == null ) {
       final RepositoryFile newDomainFile = createUniqueFile( domainId, null, data );
     } else {
