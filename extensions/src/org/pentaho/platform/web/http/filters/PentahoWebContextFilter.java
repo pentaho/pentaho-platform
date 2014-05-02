@@ -158,16 +158,20 @@ public class PentahoWebContextFilter implements Filter {
         printReservedChars( out );
         printReservedRegexPattern( out );
 
-        // print global resources defined in plugins
-        printResourcesForContext( GLOBAL, out, httpRequest, false );
+        boolean requireJsOnly = "true".equals( request.getParameter( "requireJsOnly" ) );
 
-        // print out external-resources defined in plugins if a context has been passed in
-        String contextName = request.getParameter( CONTEXT );
-        boolean cssOnly = "true".equals( request.getParameter( "cssOnly" ) );
-        if ( StringUtils.isNotEmpty( contextName ) ) {
-          printResourcesForContext( contextName, out, httpRequest, cssOnly );
+        if ( !requireJsOnly ) {
+          // print global resources defined in plugins
+          printResourcesForContext( GLOBAL, out, httpRequest, false );
+
+          // print out external-resources defined in plugins if a context has been passed in
+          String contextName = request.getParameter( CONTEXT );
+          boolean cssOnly = "true".equals( request.getParameter( "cssOnly" ) );
+          if ( StringUtils.isNotEmpty( contextName ) ) {
+            printResourcesForContext( contextName, out, httpRequest, cssOnly );
+          }
         }
-
+          
         // Any subclass can add more information to webcontext.js
         addCustomInfo( out );
 
