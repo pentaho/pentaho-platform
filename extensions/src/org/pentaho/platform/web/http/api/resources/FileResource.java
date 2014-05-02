@@ -328,9 +328,14 @@ public class FileResource extends AbstractJaxRSResource {
             String fileName = sourceFile.getName();
             String copyText = "";
             String rootCopyText = "";
-            String nameNoExtension = fileName.substring( 0,
-              fileName.lastIndexOf( '.' ) == -1 ? fileName.length() : fileName.lastIndexOf( '.' ) );
-            String extension = fileName.substring( fileName.lastIndexOf( '.' ) );
+            String nameNoExtension = fileName;
+            String extension = "";
+            int indexOfDot = fileName.lastIndexOf('.');
+            if (!(indexOfDot == -1)) {
+                nameNoExtension = fileName.substring(0,
+                        indexOfDot);
+                extension = fileName.substring(indexOfDot);
+            }
 
             RepositoryFileDto testFile = getRepoWs().getFile( path + PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
             if ( testFile != null ) {
