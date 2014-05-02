@@ -65,6 +65,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -113,6 +114,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -165,7 +167,7 @@ public class FileResource extends AbstractJaxRSResource {
       logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) ); //$NON-NLS-1$
     }
     path = pathId.replaceAll( PATH_SEPARATOR, "" ); //$NON-NLS-1$
-    path = path.replace( ':', '/' ).replace( "//", ":");
+    path = RepositoryPathEncoder.decodeRepositoryPath( path );
     if ( !path.startsWith( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR + path;
     }

@@ -35,6 +35,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.ws.rs.Consumes;
@@ -47,6 +48,7 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -499,7 +501,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     String path =
       RepositoryFilenameUtils
         .separatorsToRepository( RepositoryFilenameUtils.concat( filePath, "../" + relPath ) ); //$NON-NLS-1$
-    Response response = fileResource.doGetFileOrDir( path.replace( '/', ':' ).substring( 1 ) );
+    Response response = fileResource.doGetFileOrDir( RepositoryPathEncoder.encodeRepositoryPath( path ).substring( 1 ) );
     if ( response.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
       rsc( "Yep, [{0}] is a repository file", path ); //$NON-NLS-1$
       return response;
