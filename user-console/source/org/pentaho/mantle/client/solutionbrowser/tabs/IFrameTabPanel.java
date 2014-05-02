@@ -190,11 +190,15 @@ public class IFrameTabPanel extends VerticalPanel {
     public native void removeEventListeners( Element ele )
     /*-{
         var wind = ele.contentWindow;
-        wind.onmouseup = null;
-        wind.onmousedown = null;
-        wind.onmousemove = null;          
-        wind.onunload = null;
-        $wnd.watchWindow = null; 
+        try {
+          wind.onmouseup = null;
+          wind.onmousedown = null;
+          wind.onmousemove = null;          
+          wind.onunload = null;
+        } catch(e) {
+          // Swallow. Most probably due to Same Domain Origin Policy.
+        }
+        $wnd.watchWindow = null;
     }-*/;
 
     public native void attachEventListeners( Element ele, CustomFrame frame )
@@ -241,11 +245,15 @@ public class IFrameTabPanel extends VerticalPanel {
     
       // loop that's started when an iFrame unloads, when the url changes it adds back in the hooks
       $wnd.rehookEventsTimer = function(){
-        if($wnd.watchWindow.mantleEventsIn == undefined){
-          //location changed hook back up event interceptors
-          $wnd.setTimeout("hookEvents()", 300);
-        } else {
-          $wnd.setTimeout("rehookEventsTimer()", 300);
+        try {
+          if($wnd.watchWindow.mantleEventsIn == undefined){
+            //location changed hook back up event interceptors
+            $wnd.setTimeout("hookEvents()", 300);
+          } else {
+            $wnd.setTimeout("rehookEventsTimer()", 300);
+          }
+        } catch(e) {
+          // Swallow. Most probably due to Same Domain Origin Policy.
         }
       }
       
