@@ -122,6 +122,31 @@ define([
     }
   };
 
+  FileBrowser.concatArray= function(arr1, arr2){
+
+  for (var i=0;i<arr2.length;i++){
+      FileBrowser.pushUnique(arr1,arr2[i]);
+  }
+  return arr1;
+  };
+
+  FileBrowser.pushUnique = function (array, item){
+
+    var exists=false;
+    for (var i=0;i < array.length;i++){
+
+     if(item.obj.attr("id") == array[i].obj.attr("id")){
+      exists=true;
+      break;
+     }
+
+    }
+    if (!exists){
+     array.push(item);
+    }
+
+    };
+
   FileBrowser.redraw = function (initialPath) {
     var myself = this;
 
@@ -471,8 +496,9 @@ define([
     defaults: {
       clicked: false,
       clickedFile: undefined,
-
+      anchorPoint: undefined,
       multiSelect: [],
+      shiftLasso: [],
       clipboard: [],
 
       data: undefined,
@@ -836,7 +862,7 @@ define([
             var type = null;
             var mode = null;
 
-            var multiSelectModel=model.get("fileListModel").get("multiSelect");
+            var multiSelectItems = FileBrowser.concatArray(model.get("fileListModel").get("multiSelect"),model.get("fileListModel").get("shiftLasso"));
             if (model.getLastClick() == "file") {
 
               path = $(model.getFileClicked()[0]).attr("path");
@@ -855,14 +881,13 @@ define([
             }
             else if (model.getLastClick() == "trashItem") {
 
-            multiSelectItems=model.get("fileListModel").get("multiSelect");
               for (var i=0;i<multiSelectItems.length;i++){
-                fileList += model.get("fileListModel").get("multiSelect")[i].obj.attr("id") + ",";
+                fileList += multiSelectItems.obj.attr("id") + ",";
             }
               type ="file";
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, multiSelectModel, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(path, title, multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {
@@ -899,12 +924,12 @@ define([
             var type = null;
             var mode = null;
 
-            var multiSelectModel=model.get("fileListModel").get("multiSelect");
+            var multiSelectItems = FileBrowser.concatArray(model.get("fileListModel").get("multiSelect"),model.get("fileListModel").get("shiftLasso"));
+
             if (model.getLastClick() == "file") {
-              multiSelectItems=model.get("fileListModel").get("multiSelect");
               for (var i=0;i<multiSelectItems.length;i++){
-                path[i]=model.get("fileListModel").get("multiSelect")[i].obj.attr("path");
-                title[i]=model.get("fileListModel").get("multiSelect")[i].obj.attr("title");
+                path[i]=multiSelectItems[i].obj.attr("path");
+                title[i]=multiSelectItems[i].obj.attr("title");
               }
             } else if (model.getLastClick() == "folder") {
               path = $(model.getFolderClicked()[0]).attr("path");
@@ -920,7 +945,7 @@ define([
 
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, multiSelectModel, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(path, title, multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {
@@ -976,8 +1001,6 @@ define([
       var myself = this,
           data = myself.model.get("data");
 
-
-      //require folders template
         //stop spinner
         myself.model.set("runSpinner", false);
 
@@ -1164,6 +1187,10 @@ define([
     clickFile: function (event) {
 
       var prevClicked = this.model.get("clickedFile");
+      if(this.model.get("anchorPoint")){
+      prevClicked = this.model.get("anchorPoint");
+      }
+
 			//don't want to stop propagation of the event, but need to notify clickBody listener
 			//that the event was handled and we don't need to deselect a file
 			this.model.set("desel", 1);
@@ -1179,8 +1206,16 @@ define([
         time: (new Date()).getTime()
       });
 
+      if(!event.shiftKey) {
+        this.model.set("anchorPoint",this.model.get("clickedFile"));
+      }
+
       //Control Click
       if(event.ctrlKey || event.metaKey){
+
+        //Control click will reset the shift lasso and merge its contents into main array
+        this.model.set("multiSelect", FileBrowser.concatArray(this.model.get("multiSelect"),this.model.get("shiftLasso")));
+        this.model.set("shiftLasso",[]);
 
         //If item is already selected, deselect it.
         var clickedFileIndex=-1;
@@ -1208,7 +1243,7 @@ define([
 
         //We are cntrl clicking a new selection
         else{
-          this.model.get("multiSelect").push(this.model.get("clickedFile"));
+          FileBrowser.pushUnique(this.model.get("multiSelect"),this.model.get("clickedFile"));
           $target.addClass("selected");
         }
 
@@ -1218,11 +1253,15 @@ define([
       //Shift Click
       else if(event.shiftKey) {
 
-        //Clear the multiselect array
-        this.model.set("multiSelect",[]);
 
-        //reset all file selected styles
-      $(".file.selected").removeClass("selected");
+      //reset lasso file selected styles
+      for (var i=0;i<this.model.get("shiftLasso").length;i++){
+        this.model.get("shiftLasso")[i].obj.removeClass("selected");
+      }
+
+      //Clear the Lasso array
+      this.model.set("shiftLasso",[]);
+
       $target.addClass("selected");
         prevClicked.obj.addClass("selected");
 
@@ -1244,13 +1283,12 @@ define([
             }
           }
           if(inRange == true) {
-            //files[i].title;
 
             var item={
               obj:$("div[id=\""+files[i].file.id+"\"]")
             }
             item.obj.addClass("selected");
-            this.model.get("multiSelect").push(item);
+            FileBrowser.pushUnique(this.model.get("shiftLasso"),item);
             if(secondMatch){
               inRange=false;
             }
@@ -1270,7 +1308,8 @@ define([
       else {
         //Clear the multiselect array
         this.model.set("multiSelect",[]);
-        this.model.get("multiSelect").push(this.model.get("clickedFile"));
+        this.model.set("shiftLasso",[]);
+        FileBrowser.pushUnique(this.model.get("multiSelect"),this.model.get("clickedFile"));
 
         //reset all file selected styles
         $(".file.selected").removeClass("selected");
@@ -1279,7 +1318,8 @@ define([
       }
 
       //If more than one file is selected add multiselect button options
-      if(!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
+      var selections = this.model.get("multiSelect").length+this.model.get("shiftLasso").length;
+      if(!(this.model.get("path") == ".trash") && selections > 1) {
 
         FileBrowser.FileBrowserView.updateButtonsMulti();
 
@@ -1399,7 +1439,9 @@ define([
     updateData: FileBrowser.updateData,
     redraw: FileBrowser.redraw,
     templates: FileBrowser.templates,
-    openFolder: FileBrowser.openFolder
+    openFolder: FileBrowser.openFolder,
+    pushUnique: FileBrowser.pushUnique,
+    concatArray:FileBrowser.concatArray
   }
 });
 
