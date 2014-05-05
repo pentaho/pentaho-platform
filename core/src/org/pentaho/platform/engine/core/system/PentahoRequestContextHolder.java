@@ -86,17 +86,26 @@ public class PentahoRequestContextHolder {
      * Returns the IPentahoRequestContext for the current thread
      * @return thread requestContext
      */
-    public static IPentahoRequestContext getRequestContext() {
-      if(strategy != null && strategy.getRequestContext() != null) {
-        return strategy.getRequestContext();  
-      } else {
-          if(PentahoSystem.getInitializedOK()) {
-            return new BasePentahoRequestContext(PentahoSystem.getApplicationContext().getFullyQualifiedServerURL());  
-          } else {
-            return null;
-          }
-      } 
-    }
+		public static IPentahoRequestContext getRequestContext() {
+			if ( strategy != null && strategy.getRequestContext() != null ) {
+				return strategy.getRequestContext();
+			} else {
+				if ( PentahoSystem.getInitializedOK() ) {
+					return new BasePentahoRequestContext( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+				} else {
+					try {
+						logger.debug( "PentahoSystem.initializedStatus=" + PentahoSystem.getInitializedStatus() );
+						if ( PentahoSystem.getApplicationContext() != null
+								&& PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() != null ) {
+							return new BasePentahoRequestContext( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+						}
+					} catch ( Exception ex ) {
+						logger.debug( "Recovery failed ", ex );
+					}
+					return null;
+				}
+			}
+		}
 
     /**
      * Removes the IPentahoRequestContext for the current thread.
