@@ -882,7 +882,7 @@ define([
             else if (model.getLastClick() == "trashItem") {
 
               for (var i=0;i<multiSelectItems.length;i++){
-                fileList += multiSelectItems.obj.attr("id") + ",";
+                fileList += multiSelectItems[i].obj.attr("id") + ",";
             }
               type ="file";
             }
