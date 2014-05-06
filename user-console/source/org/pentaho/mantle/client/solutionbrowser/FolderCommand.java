@@ -68,9 +68,9 @@ public class FolderCommand implements Command {
     } else if ( mode == COMMAND.IMPORT ) {
       new ImportFileCommand( repositoryFile ).execute();
     } else if ( mode == COMMAND.PASTE ) {
-      new PasteFilesCommand( repositoryFile ).execute();
+      new PasteFilesCommand().execute();
     } else if ( mode == COMMAND.EMPTY_TRASH ) {
-      new DeletePermanentFileCommand( sbp.getSolutionTree().getTrashItems() ).execute();
+      new DeletePermanentFileCommand().execute();
     }
   }
 

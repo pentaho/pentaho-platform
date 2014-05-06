@@ -25,10 +25,12 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
@@ -47,58 +49,53 @@ public class DeleteFileCommand extends AbstractCommand {
 
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
-  private List<FileItem> repositoryFiles;
 
   public DeleteFileCommand() {
   }
 
-  public DeleteFileCommand( List<FileItem> selectedItemsClone ) {
-    this.repositoryFiles = selectedItemsClone;
-  }
-
   private String solutionPath = null;
+  private String fileNames = null;
+  private String fileIds = null;
 
-  public String getSolutionPath() {
-    return solutionPath;
-  }
+  private List<SolutionBrowserFile> filesToDelete = new ArrayList();
 
-  public void setSolutionPath( String solutionPath ) {
-    this.solutionPath = solutionPath;
-  }
+    public String getSolutionPath() {
+        return solutionPath;
+    }
 
-  protected void performOperation() {
+    public void setSolutionPath(String solutionPath) {
+        this.solutionPath = solutionPath;
+    }
 
-    if ( this.getSolutionPath() != null ) {
-      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-      sbp.getFile( this.getSolutionPath(), new SolutionFileHandler() {
-        @Override
-        public void handle( RepositoryFile repositoryFile ) {
-          if ( repositoryFiles == null ) {
-            repositoryFiles = new ArrayList<FileItem>();
-          }
-          repositoryFiles.add( new FileItem( repositoryFile, null, null, false, null ) );
-          performOperation( true );
-        }
-      } );
+    public String getFileNames() {
+        return fileNames;
+    }
+
+    public void setFileNames(String fileNames) {
+        this.fileNames = fileNames;
+    }
+
+    public String getFileIds() {
+        return fileIds;
+    }
+
+    public void setFileIds(String fileIds) {
+        this.fileIds = fileIds;
+    }
+
+    protected void performOperation() {
+
+    if ( this.getSolutionPath() != null && this.getFileNames()!=null && this.getFileIds()!=null ) {
+            StringTokenizer pathTk=new StringTokenizer(this.getSolutionPath(),"\t");
+            StringTokenizer nameTk=new StringTokenizer(this.getFileNames(),"\t");
+            StringTokenizer idTk=new StringTokenizer(this.getFileIds(),"\t");
+            //Build Arrays since we cannot pass complex objects from the js bus
+            for(int i=0;i<pathTk.countTokens();i++){
+                filesToDelete.add(new SolutionBrowserFile(idTk.tokenAt(i),nameTk.tokenAt(i),pathTk.tokenAt(i)));
+            }
+            performOperation( false );
     } else {
       performOperation( true );
-    }
-  }
-
-  protected void performOperationMulti( String path ) {
-
-    if ( path != null ) {
-      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-      sbp.getFile( path, new SolutionFileHandler() {
-        @Override
-        public void handle( RepositoryFile repositoryFile ) {
-          if ( repositoryFiles == null ) {
-            repositoryFiles = new ArrayList<FileItem>();
-          }
-          repositoryFiles.add( new FileItem( repositoryFile, null, null, false, null ) );
-          performOperation( false );
-        }
-      } );
     }
   }
 
@@ -107,21 +104,17 @@ public class DeleteFileCommand extends AbstractCommand {
     event.setAction( this.getClass().getName() );
 
     String temp = "";
-    String names = "";
-    RepositoryFile rf = null;
-    for ( FileItem fileItem : repositoryFiles ) {
-      rf = fileItem.getRepositoryFile();
-      temp += rf.getId() + ","; //$NON-NLS-1$
-      if ( rf.getTitle() != null ) {
-        names += rf.getTitle() + ","; //$NON-NLS-1$
-      } else {
-        names += rf.getName() + ","; //$NON-NLS-1$
-      }
-
+    String names="";
+    //Convert to a comma delimted list for rest call
+    for ( SolutionBrowserFile file : filesToDelete ) {
+      temp += file.getId() + ","; //$NON-NLS-1$
+      names += file.getId() + ","; //$NON-NLS-1$
     }
+
     // remove trailing ","
     temp = temp.substring( 0, temp.length() - 1 );
     names = names.substring( 0, names.length() - 1 );
+
     final String filesList = temp;
 
     if ( feedback ) {
@@ -176,10 +169,10 @@ public class DeleteFileCommand extends AbstractCommand {
             new RefreshRepositoryCommand().execute( false );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
             setBrowseRepoDirty( Boolean.TRUE );
-            for( FileItem recentItem : repositoryFiles ) {
-              if( recentItem != null ) {
-                SolutionBrowserPanel.getInstance().removeRecent( recentItem.getPath() );
-                SolutionBrowserPanel.getInstance().removeFavorite( recentItem.getPath() );
+            for( SolutionBrowserFile file : filesToDelete ) {
+              if( file.getPath()!= null ) {
+                SolutionBrowserPanel.getInstance().removeRecent( file.getPath() );
+                SolutionBrowserPanel.getInstance().removeFavorite( file.getPath() );
               }
             }
           } else {
@@ -203,6 +196,8 @@ public class DeleteFileCommand extends AbstractCommand {
     }
 
   }
+
+
   
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{

@@ -93,9 +93,6 @@ public class FileCommand implements Command {
           .execute();
     } else if ( mode == COMMAND.EDIT ) {
       sbp.editFile();
-    } else if ( mode == COMMAND.DELETE ) {
-      List<FileItem> selectedItemsClone = new ArrayList<FileItem>( selectedItems );
-      new DeleteFileCommand( selectedItemsClone ).execute();
     } else if ( mode == COMMAND.CREATE_FOLDER ) {
       new NewFolderCommand( fileSummary ).execute();
     } else if ( mode == COMMAND.BACKGROUND ) {
@@ -110,24 +107,6 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.EXPORT ) {
       new ExportFileCommand( fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get( 0 ) : fileSummary )
           .execute();
-    } else if ( mode == COMMAND.COPY ) {
-      List<FileItem> selectedItemsClone = new ArrayList<FileItem>( selectedItems );
-      new CopyFilesCommand( selectedItemsClone ).execute();
-    } else if ( mode == COMMAND.CUT ) {
-      List<FileItem> selectedItemsClone = new ArrayList<FileItem>( selectedItems );
-      new CutFilesCommand( selectedItemsClone ).execute();
-    } else if ( mode == COMMAND.RESTORE ) {
-      List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
-      for ( FileItem fileItem : selectedItems ) {
-        selectedItemsClone.add( fileItem.getRepositoryFile() );
-      }
-      new RestoreFileCommand( selectedItemsClone ).execute();
-    } else if ( mode == COMMAND.DELETEPERMANENT ) {
-      List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
-      for ( FileItem fileItem : selectedItems ) {
-        selectedItemsClone.add( fileItem.getRepositoryFile() );
-      }
-      new DeletePermanentFileCommand( selectedItemsClone ).execute();
     } else if ( mode == COMMAND.FAVORITE ) {
       sbp.addFavorite( selectedItem.getRepositoryFile().getPath(), selectedItem.getRepositoryFile().getTitle() );
       FavoritePickList.getInstance().save( "favorites" );

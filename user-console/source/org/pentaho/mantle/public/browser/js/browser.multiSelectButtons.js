@@ -69,7 +69,7 @@ define([
       }
     },
 
-    cutHandler: function (path, title, model, browserUtils) {
+    cutHandler: function (path, title, id, model, browserUtils) {
       //remove hiddenFileLabel class
       browserUtils.resetCutItemsStyle();
       //reset cutItems to currently cut items
@@ -79,34 +79,43 @@ define([
       for (var i=0;i<model.length;i++){
         model[i].obj.addClass("hiddenFileLabel");
       }
-      window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
+      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
     },
 
-    copyHandler: function (path, title, model, browserUtils) {
+    copyHandler: function (path, title, id,  model, browserUtils) {
       //remove hiddenFileLabel class
       browserUtils.resetCutItemsStyle();
       //reset cutItems to currently cut items
       browserUtils.cutItems = [];
       $("#copyButton").prop("disabled", true);
       $("#cutButton").prop("disabled", false);
-      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
+      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
     },
 
-    deleteHandler: function (path) {
-      window.top.executeCommand("DeleteMultiFilesCommand", this.buildParameter(path));
+    deleteHandler: function (path, title, id) {
+      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
     },
 
-    buildParameter: function (path) {
-      for (var i=0;i<path.length;i++){
-        var tmp=path[i];
-        path[i] = (tmp == null ? "/" : tmp );
-      }
-      var retString=path.join("\t");
-      var retObj= {
-        solutionPath: retString
-      };
-      return retObj;
-    },
+      buildParameter: function (path, title, id) {
+          for (var i=0;i<path.length;i++){
+              var tmpPath=path[i];
+              var tmpTitle=title[i];
+              var tmpId=id[i];
+              path[i] = (tmpPath == null ? "/" : tmpPath );
+              title[i] = (tmpTitle == null ? "" : tmpTitle );
+              id[i] = (tmpId == null ? "" : tmpId );
+          }
+          var tabbedPaths=path.join("\t");
+          var tabbedTitles=title.join("\t");
+          var tabbedIds=id.join("\t");
+
+          var retObj= {
+              solutionPath: tabbedPaths,
+              fileNames: tabbedTitles,
+              fileIds: tabbedIds
+          };
+          return retObj;
+     },
 
     urlParam: function (paramName) {
       var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);

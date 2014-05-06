@@ -34,6 +34,7 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,14 +49,15 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
   List<RepositoryFile> repositoryFiles;
+  List<String> deletePermFileIds=new ArrayList();
 
   private String fileList = "";
   private String type = "";
   private String mode = "";
 
+
   public String getFileList() {
     return fileList;
-
   }
 
   public void setFileList( String fileList ) {
@@ -81,11 +83,12 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   public DeletePermanentFileCommand() {
   }
 
-  public DeletePermanentFileCommand( List<RepositoryFile> selectedItemsClone ) {
-    repositoryFiles = selectedItemsClone;
-  }
+  public DeletePermanentFileCommand( String fileList ) {
+       setFileList(fileList);
+    }
 
-  /*
+
+    /*
    * (non-Javadoc)
    * 
    * @see com.google.gwt.user.client.Command#execute()
@@ -126,12 +129,6 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
       public void okPressed() {
         String temp = "";
-
-        if ( repositoryFiles != null ) {
-          for ( RepositoryFile fileItem : repositoryFiles ) {
-            temp += fileItem.getId() + ","; //$NON-NLS-1$
-          }
-        }
 
         // Add js file list
         temp = temp + fileList;
