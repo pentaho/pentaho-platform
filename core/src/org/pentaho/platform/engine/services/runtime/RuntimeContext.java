@@ -25,8 +25,31 @@
 
 package org.pentaho.platform.engine.services.runtime;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -89,28 +112,6 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XForm;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author James Dixon
@@ -1925,14 +1926,13 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           if ( defaultValue instanceof Object[] ) {
             setObjectArrayParameters( fieldName, (Object[]) defaultValue );
           }
-          String value = defaultValue.toString().replaceAll( "&", "&amp;" ); //$NON-NLS-1$//$NON-NLS-2$
-          value = value.replaceAll( "\"", "''" ); //$NON-NLS-1$ //$NON-NLS-2$
+          String value = StringEscapeUtils.escapeXml( defaultValue.toString() );
           body.append( "<input type=\"hidden\" name=\"" + fieldName + "\" value=\"" + value + "\"></input>" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } catch ( Exception e ) {
           body.append( "<input type=\"hidden\" name=\"" + fieldName + "\" value=\"" + defaultValue + "\"></input>" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
       }
-      parameterTemplate = parameterTemplate.replaceAll( "\\{" + fieldName + "\\}", body.toString() ); //$NON-NLS-1$ //$NON-NLS-2$
+      parameterTemplate = parameterTemplate.replaceAll( "\\{" + fieldName + "\\}", Matcher.quoteReplacement( body.toString() ) ); //$NON-NLS-1$ //$NON-NLS-2$
     } else {
       if ( visible ) {
         StringBuffer body = new StringBuffer();
