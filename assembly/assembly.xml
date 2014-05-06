@@ -61,7 +61,7 @@
 
   <property name="user-console.tmp.dir" value="${basedir}/temp" />
   <property name="tomcat.major.version" value="6"/>
-  <property name="tomcat.minor.version" value="0.36"/>
+  <property name="tomcat.minor.version" value="0.39"/>
   <property name="tomcat.version" value="${tomcat.major.version}.${tomcat.minor.version}"/>
   <property name="tomcat.dir" value="${subfloor.resources.dir}/apache-tomcat-${tomcat.version}" description="Directory where tomcat is deployed"/>
   <property name="third-party.dir" value="${subfloor.resources.dir}/third-party" description="Directory where 3rd party tools are included in the platform assemblies" />
