@@ -169,7 +169,7 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachRecent recent}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"/> {{/if}}
@@ -188,9 +188,9 @@
                         <div class="span2">
                           {{#unless isEmpty}}
                           {{#if isFavorite}}
-                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;"/>
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"/>
                           {{else}}
-                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;"/>
+                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{escapeQuotes fullPath}}', '{{title}}'); return false;"/>
                           {{/if}}
                           {{/unless}}
                         </div>
@@ -232,7 +232,7 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"/> {{/if}}
@@ -248,7 +248,7 @@
                         </div>
                         <div class="span2">
                           {{#unless isEmpty}}
-                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;"/>
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"/>
                           {{/unless}}
                         </div>
                       </div>
