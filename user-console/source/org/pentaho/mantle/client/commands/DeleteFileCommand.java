@@ -118,8 +118,13 @@ public class DeleteFileCommand extends AbstractCommand {
     final String filesList = temp;
 
     if ( feedback ) {
-      final HTML messageTextBox = new HTML( Messages.getString( "moveToTrashQuestionFile", names ) );
-      final PromptDialogBox fileMoveToTrashWarningDialogBox =
+        final HTML messageTextBox;
+        if(filesToDelete.size() > 1) {
+         messageTextBox = new HTML( Messages.getString( "moveAllToTrashQuestionFile") );
+        } else {
+         messageTextBox = new HTML( Messages.getString( "moveToTrashQuestionFile", names ) );
+        }
+        final PromptDialogBox fileMoveToTrashWarningDialogBox =
           new PromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ), Messages
               .getString( "no" ), true, true );
       fileMoveToTrashWarningDialogBox.setContent( messageTextBox );
