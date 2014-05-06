@@ -30,69 +30,45 @@ import org.pentaho.platform.engine.services.messages.Messages;
 import javax.sql.DataSource;
 
 public class NonPooledDatasourceService extends BaseDatasourceService {
-  /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
-   * jndi name.
-   * 
-   * @param dsName
-   *          The Datasource name
-   * @return DataSource if there is one bound in JNDI
-   * @throws NamingException
-   */
-  public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException {
-    DataSource dataSource = null;
-    Object foundDs = null;
-    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
-    }
-    foundDs = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
-    if ( foundDs != null ) {
-      return (DataSource) foundDs;
-    }
+
+  @Override
+  protected DataSource retrieve( String dsName ) throws DBDatasourceServiceException {
+    DataSource ds = null;
     try {
-      IDatasourceMgmtService datasourceMgmtSvc =
-          (IDatasourceMgmtService) PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
+      IDatasourceMgmtService datasourceMgmtSvc = getDatasourceMgmtService();
       IDatabaseConnection databaseConnection = datasourceMgmtSvc.getDatasourceByName( dsName );
       if ( databaseConnection != null ) {
-        dataSource = PooledDatasourceHelper.convert( databaseConnection );
-        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, (DataSource) dataSource );
+        ds = resolveDatabaseConnection( databaseConnection );
+        if ( ds != null ) {
+          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+        }
       } else {
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
-            "NonPooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ) ); //$NON-NLS-1$
+            "DatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ) ); //$NON-NLS-1$
       }
     } catch ( DatasourceMgmtServiceException daoe ) {
       throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
-          "NonPooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), daoe ); //$NON-NLS-1$
+          "DatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), daoe ); //$NON-NLS-1$
     }
-    return dataSource;
+    return ds;
   }
 
-  /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
-   * jndi name, and return the actual bound name.
-   * 
-   * @param dsName
-   *          The Datasource name (like SampleData)
-   * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
-   * @throws DatasourceServiceException
-   */
+
+  @Override
   public String getDSBoundName( final String dsName ) throws DBDatasourceServiceException {
     return dsName;
   }
 
-  /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to extract just the regular name of a specified JNDI
-   * source.
-   * 
-   * @param dsName
-   *          The Datasource name (like "jdbc/SampleData")
-   * @return The unbound DS name (like "SampleData")
-   */
+  @Override
   public String getDSUnboundName( final String dsName ) {
     return dsName;
   }
+
+  @Override
+  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
+    throws DBDatasourceServiceException {
+    return PooledDatasourceHelper.convert( databaseConnection );
+  }
+
 
 }

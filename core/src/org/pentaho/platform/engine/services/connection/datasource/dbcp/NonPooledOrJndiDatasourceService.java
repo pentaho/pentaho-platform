@@ -18,6 +18,9 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -30,47 +33,51 @@ import org.pentaho.platform.engine.services.messages.Messages;
 import javax.sql.DataSource;
 
 public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
-  /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
-   * jndi name.
-   * 
-   * @param dsName
-   *          The Datasource name
-   * @return DataSource if there is one bound in JNDI
-   * @throws NamingException
-   */
-  public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException {
-    DataSource dataSource = null;
-    Object foundDs = null;
-    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
-    }
-    foundDs = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
-    if ( foundDs != null ) {
-      return (DataSource) foundDs;
-    }
+
+  private static final Log log = LogFactory.getLog( NonPooledOrJndiDatasourceService.class );
+
+  String requestedDatasourceName = null;
+
+  @Override
+  protected DataSource retrieve( String dsName ) throws DBDatasourceServiceException {
+    DataSource ds = null;
+    requestedDatasourceName = dsName;
+
     try {
-      IDatasourceMgmtService datasourceMgmtSvc =
-          (IDatasourceMgmtService) PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
+      IDatasourceMgmtService datasourceMgmtSvc = getDatasourceMgmtService();
       IDatabaseConnection databaseConnection = datasourceMgmtSvc.getDatasourceByName( dsName );
-      // Look in the database for the datasource
-      if ( databaseConnection != null ) {
-        dataSource = PooledDatasourceHelper.convert( databaseConnection );
-        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, (DataSource) dataSource );
-      } else {
+
+      if ( databaseConnection != null && !databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
+        ds = resolveDatabaseConnection( databaseConnection );
         // Database does not have the datasource, look in jndi now
-        dataSource = getJndiDataSource( dsName );
+      } else if ( databaseConnection == null ) {
+        ds = getJndiDataSource( dsName );
+      } else {
+        ds = getJndiDataSource( databaseConnection.getDatabaseName() );
+      }
+      // if the resulting datasource is not null then store it in the cache
+      if ( ds != null ) {
+        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
       }
     } catch ( DatasourceMgmtServiceException daoe ) {
+      log.debug( Messages.getInstance().getErrorString(
+          "DatasourceService.DEBUG_0001_UNABLE_TO_FIND_DATASOURCE_IN_REPOSITORY",
+          daoe.getLocalizedMessage() ), daoe );
       try {
         return getJndiDataSource( dsName );
       } catch ( DBDatasourceServiceException dse ) {
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
-            "NonPooledOrJndiDatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE" ), dse ); //$NON-NLS-1$
+            "DatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE" ), dse ); //$NON-NLS-1$
       }
 
     }
-    return dataSource;
+    return ds;
   }
+
+  @Override
+  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection  )
+    throws DBDatasourceServiceException {
+    return PooledDatasourceHelper.convert( databaseConnection );
+  }
+
 }
