@@ -85,7 +85,7 @@ define([
     buildParameter: function (path, title) {
       return {
         solutionPath: (path == null ? "/" : path ),
-        solutionTitle: (title ? null : title)
+        fileNames: (title ? null : title)
       };
     },
 

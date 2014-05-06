@@ -859,6 +859,7 @@ define([
             var path = null;
             var title = null;
             var fileList = "";
+            var id = "";
             var type = null;
             var mode = null;
 
@@ -867,7 +868,7 @@ define([
 
               path = $(model.getFileClicked()[0]).attr("path");
               title = $(model.getFileClicked()[0]).children('.title').text();
-
+              id = $(model.getFileClicked()[0]).attr("id");
 
             } else if (model.getLastClick() == "folder") {
 
@@ -887,7 +888,7 @@ define([
               type ="file";
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(path, title, id,  multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {
@@ -918,11 +919,13 @@ define([
         // add onClick handler to each button
         $(buttonsType.buttons).each(function (idx, fb) {
           $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
-            var path = new Array();
-            var title = new Array();
+            var path = [];
+            var title = [];
+            var id = [];
             var fileList = null;
             var type = null;
             var mode = null;
+            var returnModel = null;
 
             var multiSelectItems = FileBrowser.concatArray(model.get("fileListModel").get("multiSelect"),model.get("fileListModel").get("shiftLasso"));
 
@@ -930,10 +933,11 @@ define([
               for (var i=0;i<multiSelectItems.length;i++){
                 path[i]=multiSelectItems[i].obj.attr("path");
                 title[i]=multiSelectItems[i].obj.attr("title");
+                id[i]=multiSelectItems[i].obj.attr("id");
               }
             } else if (model.getLastClick() == "folder") {
               path = $(model.getFolderClicked()[0]).attr("path");
-              title = $(model.getFolderClicked()[0]).children('.title').text();
+              title = $(model.getFolderClicked()[0]).children('.title')
             }
             else if (model.getLastClick() == "trash") {
               fileList = model.get("fileListModel").get("deletedFiles");
@@ -945,7 +949,7 @@ define([
 
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(path, title, id, multiSelectButtons, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {

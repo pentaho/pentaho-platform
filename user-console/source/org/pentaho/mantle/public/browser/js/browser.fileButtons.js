@@ -128,10 +128,11 @@ define([
       }
     },
 
-    buildParameter: function (path, title) {
+    buildParameter: function (path, title, id) {
       return {
         solutionPath: (path == null ? "/" : path ),
-        solutionTitle: (title ? null : title)
+        fileNames: title,
+        fileIds: id
       };
     },
 
@@ -303,11 +304,11 @@ define([
       window.top.mantle_openRepositoryFile(path, "EDIT");
     },
 
-    deleteHandler: function (path) {
-      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path));
+    deleteHandler: function (path, title, id) {
+      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
     },
 
-    cutHandler: function (path, title, model, browserUtils) {
+    cutHandler: function (path, title, id, model, browserUtils) {
       //remove hiddenFileLabel class
       browserUtils.resetCutItemsStyle();
       //reset cutItems to currently cut items
@@ -317,17 +318,17 @@ define([
       for (var i=0;i<model.length;i++){
         model[i].obj.addClass("hiddenFileLabel");
       }
-      window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
+      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
     },
 
-    copyHandler: function (path, title, model, browserUtils) {
+    copyHandler: function (path, title, id,  model, browserUtils) {
       //remove hiddenFileLabel
       browserUtils.resetCutItemsStyle();
       //reset cutItems to currently cut items
       browserUtils.cutItems = [];
       $("#copyButton").prop("disabled", true);
       $("#cutbutton").prop("disabled", false);
-      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
+      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
     },
 
     downloadHandler: function (path) {

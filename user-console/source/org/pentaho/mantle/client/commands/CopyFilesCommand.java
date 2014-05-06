@@ -23,6 +23,7 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
@@ -34,55 +35,60 @@ import java.util.List;
  * 
  */
 public class CopyFilesCommand extends AbstractCommand {
-  private List<FileItem> repositoryFiles;
 
   public CopyFilesCommand() {
   }
 
-  /**
-   * @param selectedItems
-   */
-  public CopyFilesCommand( List<FileItem> selectedItems ) {
-    super();
-    this.repositoryFiles = selectedItems;
-  }
+    private String solutionPath = null;
+    private String fileNames = null;
+    private String fileIds = null;
 
-  private String solutionPath = null;
+    private List<SolutionBrowserFile> filesToCopy = new ArrayList();
 
-  public String getSolutionPath() {
-    return solutionPath;
-  }
+    public String getSolutionPath() {
+        return solutionPath;
+    }
 
-  public void setSolutionPath( String solutionPath ) {
-    this.solutionPath = solutionPath;
-  }
+    public void setSolutionPath(String solutionPath) {
+        this.solutionPath = solutionPath;
+    }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
-   */
+    public String getFileNames() {
+        return fileNames;
+    }
+
+    public void setFileNames(String fileNames) {
+        this.fileNames = fileNames;
+    }
+
+    public String getFileIds() {
+        return fileIds;
+    }
+
+    public void setFileIds(String fileIds) {
+        this.fileIds = fileIds;
+    }
+
+    /*
+           * (non-Javadoc)
+           *
+           * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
+           */
   @Override
   protected void performOperation() {
-    if ( this.getSolutionPath() != null ) {
-      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-      StringTokenizer stk=new StringTokenizer(this.getSolutionPath(),"\t");
-      for(int i=0;i<stk.countTokens();i++){
-          sbp.getFile( stk.tokenAt(i), new SolutionFileHandler() {
-              @Override
-              public void handle( RepositoryFile repositoryFile ) {
-                  if ( repositoryFiles == null ) {
-                      repositoryFiles = new ArrayList<FileItem>();
-                  }
-                  repositoryFiles.add( new FileItem( repositoryFile, null, null, false, null ) );
-                  performOperation( false );
-              }
-          } );
-      }
 
-    } else {
-      performOperation( false );
-    }
+      if ( this.getSolutionPath() != null && this.getFileNames()!=null && this.getFileIds()!=null ) {
+          StringTokenizer pathTk=new StringTokenizer(this.getSolutionPath(),"\t");
+          StringTokenizer nameTk=new StringTokenizer(this.getFileNames(),"\t");
+          StringTokenizer idTk=new StringTokenizer(this.getFileIds(),"\t");
+          //Build Arrays since we cannot pass complex objects from the js bus
+          for(int i=0;i<pathTk.countTokens();i++){
+              filesToCopy.add(new SolutionBrowserFile(idTk.tokenAt(i),nameTk.tokenAt(i),pathTk.tokenAt(i)));
+          }
+          performOperation( false );
+      } else {
+          performOperation( true );
+      }
   }
 
   /*
@@ -93,7 +99,7 @@ public class CopyFilesCommand extends AbstractCommand {
   @Override
   protected void performOperation( boolean feedback ) {
     SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
-    clipBoard.setDataForCopy( repositoryFiles );
+    clipBoard.setClipboardItemsByIdForCopy(filesToCopy);
     clipBoard.setMimeType( "jcrFiles/list" );
 
     final SolutionFileActionEvent event = new SolutionFileActionEvent();

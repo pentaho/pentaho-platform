@@ -36,6 +36,7 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.messages.Messages;
@@ -53,50 +54,33 @@ public class PasteFilesCommand extends AbstractCommand {
      */
     private static final String NAME_NODE_TAG = "name"; //$NON-NLS-1$
 
-    RepositoryFile destinationFolder;
+    private String solutionPath = null;
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
+    /**
+     *
+     */
     public PasteFilesCommand() {
     }
-
-    /**
-     * @param RepositoryFile
-     */
-    public PasteFilesCommand( RepositoryFile destinationFolder ) {
-        this.destinationFolder = destinationFolder;
-    }
-
-    private String solutionPath = null;
 
     public String getSolutionPath() {
         return solutionPath;
     }
 
-    public void setSolutionPath( String solutionPath ) {
+    public void setSolutionPath(String solutionPath) {
         this.solutionPath = solutionPath;
     }
 
     /*
-     * (non-Javadoc)
-     *
-     * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
-     */
+                 * (non-Javadoc)
+                 *
+                 * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
+                 */
     @Override
     protected void performOperation() {
-        if ( this.getSolutionPath() != null ) {
-            SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
-            sbp.getFile( this.getSolutionPath(), new SolutionFileHandler() {
-                @Override
-                public void handle( RepositoryFile repositoryFile ) {
-                    PasteFilesCommand.this.destinationFolder = repositoryFile;
-                    performOperation( false );
-                }
-            } );
-        } else {
-            performOperation( false );
-        }
+        performOperation(false);
     }
 
     /*
@@ -108,15 +92,12 @@ public class PasteFilesCommand extends AbstractCommand {
     protected void performOperation( boolean feedback ) {
         final SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
         @SuppressWarnings( "unchecked" )
-        final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
-        final List<RepositoryFile> pasteFiles = new ArrayList<RepositoryFile>();
-        for ( FileItem fileItem : clipboardFileItems ) {
-            pasteFiles.add( fileItem.getRepositoryFile() );
-        }
-        if ( pasteFiles != null && pasteFiles.size() > 0 && destinationFolder != null ) {
+        final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
+
+        if ( clipboardFileItems != null && clipboardFileItems.size() > 0 && getSolutionPath() != null ) {
             String getChildrenUrl =
                     contextURL
-                            + "api/repo/files/" + SolutionBrowserPanel.pathToId( destinationFolder.getPath() ) + "/tree?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
+                            + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/tree?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
             RequestBuilder childrenRequestBuilder = new RequestBuilder( RequestBuilder.GET, getChildrenUrl );
             try {
                 childrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -139,11 +120,11 @@ public class PasteFilesCommand extends AbstractCommand {
                                 childNames.add( childNameNode.getFirstChild().getNodeValue() );
                             }
 
-                            for ( RepositoryFile repositoryFileDto : pasteFiles ) {
-                                String pasteFileParentPath = repositoryFileDto.getPath();
+                            for ( SolutionBrowserFile file : clipboardFileItems ) {
+                                String pasteFileParentPath = file.getPath();
                                 pasteFileParentPath = pasteFileParentPath.substring( 0, pasteFileParentPath.lastIndexOf( "/" ) ); //$NON-NLS-1$
-                                if ( childNames.contains( repositoryFileDto.getName() )
-                                        && !destinationFolder.getPath().equals( pasteFileParentPath ) ) {
+                                if ( childNames.contains( file.getName() )
+                                        && !getSolutionPath().equals(pasteFileParentPath) ) {
                                     promptForOptions = true;
                                     break;
                                 }
@@ -183,10 +164,10 @@ public class PasteFilesCommand extends AbstractCommand {
         event.setAction( this.getClass().getName() );
 
         @SuppressWarnings( "unchecked" )
-        final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
+        final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
         String temp = ""; //$NON-NLS-1$
-        for ( FileItem fileItem : clipboardFileItems ) {
-            temp += fileItem.getRepositoryFile().getId() + ","; //$NON-NLS-1$
+        for ( SolutionBrowserFile file : clipboardFileItems ) {
+            temp += file.getId() + ","; //$NON-NLS-1$
         }
         // remove trailing ","
         temp = temp.substring( 0, temp.length() - 1 );
@@ -194,7 +175,7 @@ public class PasteFilesCommand extends AbstractCommand {
 
         String pasteChildrenUrl =
                 contextURL
-                        + "api/repo/files/" + SolutionBrowserPanel.pathToId( destinationFolder.getPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
+                        + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
         RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, pasteChildrenUrl );
         pasteChildrenRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
         pasteChildrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -217,11 +198,13 @@ public class PasteFilesCommand extends AbstractCommand {
                             if ( action == SolutionBrowserClipboard.ClipboardAction.CUT ) {
 
                                 // Convert to a list of repository files for the delete permanent command to work properly
-                                List<RepositoryFile> clipboardRepoFiles = new ArrayList<RepositoryFile>();
-                                for ( FileItem clipboardFileItem : clipboardFileItems ) {
-                                    clipboardRepoFiles.add( clipboardFileItem.getRepositoryFile() );
+                                String listOfIdsToPermDelete="";
+                                for ( SolutionBrowserFile file : clipboardFileItems ) {
+                                    listOfIdsToPermDelete += file + ",";
                                 }
-                                new DeletePermanentFileCommand( clipboardRepoFiles ).execute( false );
+                                listOfIdsToPermDelete = listOfIdsToPermDelete.substring( 0, listOfIdsToPermDelete.length() - 1 );
+
+                                new DeletePermanentFileCommand( listOfIdsToPermDelete ).execute( false );
                                 clipBoard.clear();
                             }
 
