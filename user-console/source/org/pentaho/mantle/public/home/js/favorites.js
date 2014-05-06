@@ -84,6 +84,10 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (s
           return options.fn(this);
         });
 
+        Handlebars.registerHelper('escapeQuotes', function(stringInput) {
+          return stringInput.replace(/(['"])/g, '\\$1');
+        });
+
         this.helperRegistered = true;
       }
     },
