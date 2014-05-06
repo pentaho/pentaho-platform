@@ -93,7 +93,7 @@ public class DeleteFileCommand extends AbstractCommand {
             for(int i=0;i<pathTk.countTokens();i++){
                 filesToDelete.add(new SolutionBrowserFile(idTk.tokenAt(i),nameTk.tokenAt(i),pathTk.tokenAt(i)));
             }
-            performOperation( false );
+            performOperation( true );
     } else {
       performOperation( true );
     }
@@ -108,7 +108,7 @@ public class DeleteFileCommand extends AbstractCommand {
     //Convert to a comma delimted list for rest call
     for ( SolutionBrowserFile file : filesToDelete ) {
       temp += file.getId() + ","; //$NON-NLS-1$
-      names += file.getId() + ","; //$NON-NLS-1$
+      names += file.getName() + ","; //$NON-NLS-1$
     }
 
     // remove trailing ","
