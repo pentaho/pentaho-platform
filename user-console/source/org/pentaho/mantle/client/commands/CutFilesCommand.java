@@ -17,78 +17,73 @@
 
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author wseyler
- * 
  */
 public class CutFilesCommand extends AbstractCommand {
 
   public CutFilesCommand() {
   }
 
-    private String solutionPath = null;
-    private String fileNames = null;
-    private String fileIds = null;
+  private String solutionPath = null;
+  private String fileNames = null;
+  private String fileIds = null;
 
-    private List<SolutionBrowserFile> filesToCut = new ArrayList();
+  private List<SolutionBrowserFile> filesToCut = new ArrayList();
 
-    public String getSolutionPath() {
-        return solutionPath;
-    }
+  public String getSolutionPath() {
+    return solutionPath;
+  }
 
-    public void setSolutionPath(String solutionPath) {
-        this.solutionPath = solutionPath;
-    }
+  public void setSolutionPath( String solutionPath ) {
+    this.solutionPath = solutionPath;
+  }
 
-    public String getFileNames() {
-        return fileNames;
-    }
+  public String getFileNames() {
+    return fileNames;
+  }
 
-    public void setFileNames(String fileNames) {
-        this.fileNames = fileNames;
-    }
+  public void setFileNames( String fileNames ) {
+    this.fileNames = fileNames;
+  }
 
-    public String getFileIds() {
-        return fileIds;
-    }
+  public String getFileIds() {
+    return fileIds;
+  }
 
-    public void setFileIds(String fileIds) {
-        this.fileIds = fileIds;
-    }
+  public void setFileIds( String fileIds ) {
+    this.fileIds = fileIds;
+  }
 
-    /*
-       * (non-Javadoc)
-       *
-       * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
-       */
+  /*
+     * (non-Javadoc)
+     *
+     * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
+     */
   @Override
   protected void performOperation() {
 
-      if ( this.getSolutionPath() != null && this.getFileNames()!=null && this.getFileIds()!=null ) {
-          StringTokenizer pathTk=new StringTokenizer(this.getSolutionPath(),"\t");
-          StringTokenizer nameTk=new StringTokenizer(this.getFileNames(),"\t");
-          StringTokenizer idTk=new StringTokenizer(this.getFileIds(),"\t");
-          //Build Arrays since we cannot pass complex objects from the js bus
-          for(int i=0;i<pathTk.countTokens();i++){
-              filesToCut.add(new SolutionBrowserFile(idTk.tokenAt(i),nameTk.tokenAt(i),pathTk.tokenAt(i)));
-          }
-          performOperation( false );
-      } else {
-          performOperation( true );
+    if ( this.getSolutionPath() != null && this.getFileNames() != null && this.getFileIds() != null ) {
+      StringTokenizer pathTk = new StringTokenizer( this.getSolutionPath(), "\t" );
+      StringTokenizer nameTk = new StringTokenizer( this.getFileNames(), "\t" );
+      StringTokenizer idTk = new StringTokenizer( this.getFileIds(), "\t" );
+      //Build Arrays since we cannot pass complex objects from the js bus
+      for ( int i = 0; i < pathTk.countTokens(); i++ ) {
+        filesToCut.add( new SolutionBrowserFile( idTk.tokenAt( i ), nameTk.tokenAt( i ), pathTk.tokenAt( i ) ) );
       }
+      performOperation( false );
+    } else {
+      performOperation( true );
+    }
   }
 
   /*
@@ -99,7 +94,7 @@ public class CutFilesCommand extends AbstractCommand {
   @Override
   protected void performOperation( boolean feedback ) {
     SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
-    clipBoard.setClipboardItemsForCut(filesToCut);
+    clipBoard.setClipboardItemsForCut( filesToCut );
     clipBoard.setMimeType( "jcrFiles/list" );
 
     final SolutionFileActionEvent event = new SolutionFileActionEvent();

@@ -49,7 +49,7 @@ public class CronEditor extends VerticalPanel implements IChangeHandler {
     setWidth( "100%" ); //$NON-NLS-1$
 
     Label l = new Label( Messages.getString( "schedule.cronLabel" ) );
-      l.setStylePrimaryName( CRON_LABEL );
+    l.setStylePrimaryName( CRON_LABEL );
     cronLabel = new ErrorLabel( l );
 
     add( cronLabel );

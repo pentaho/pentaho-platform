@@ -186,7 +186,7 @@ public class IFrameTabPanel extends VerticalPanel {
       super.onAttach();
       attachEventListeners( frame.getElement(), this );
     }
-    
+
     public native void removeEventListeners( Element ele )
     /*-{
         var wind = ele.contentWindow;

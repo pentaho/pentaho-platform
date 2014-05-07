@@ -24,16 +24,12 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
-import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -59,41 +55,41 @@ public class DeleteFileCommand extends AbstractCommand {
 
   private List<SolutionBrowserFile> filesToDelete = new ArrayList();
 
-    public String getSolutionPath() {
-        return solutionPath;
-    }
+  public String getSolutionPath() {
+    return solutionPath;
+  }
 
-    public void setSolutionPath(String solutionPath) {
-        this.solutionPath = solutionPath;
-    }
+  public void setSolutionPath( String solutionPath ) {
+    this.solutionPath = solutionPath;
+  }
 
-    public String getFileNames() {
-        return fileNames;
-    }
+  public String getFileNames() {
+    return fileNames;
+  }
 
-    public void setFileNames(String fileNames) {
-        this.fileNames = fileNames;
-    }
+  public void setFileNames( String fileNames ) {
+    this.fileNames = fileNames;
+  }
 
-    public String getFileIds() {
-        return fileIds;
-    }
+  public String getFileIds() {
+    return fileIds;
+  }
 
-    public void setFileIds(String fileIds) {
-        this.fileIds = fileIds;
-    }
+  public void setFileIds( String fileIds ) {
+    this.fileIds = fileIds;
+  }
 
-    protected void performOperation() {
+  protected void performOperation() {
 
-    if ( this.getSolutionPath() != null && this.getFileNames()!=null && this.getFileIds()!=null ) {
-            StringTokenizer pathTk=new StringTokenizer(this.getSolutionPath(),"\t");
-            StringTokenizer nameTk=new StringTokenizer(this.getFileNames(),"\t");
-            StringTokenizer idTk=new StringTokenizer(this.getFileIds(),"\t");
-            //Build Arrays since we cannot pass complex objects from the js bus
-            for(int i=0;i<pathTk.countTokens();i++){
-                filesToDelete.add(new SolutionBrowserFile(idTk.tokenAt(i),nameTk.tokenAt(i),pathTk.tokenAt(i)));
-            }
-            performOperation( true );
+    if (  this.getSolutionPath() != null && this.getFileNames() != null && this.getFileIds() != null ) {
+      StringTokenizer pathTk = new StringTokenizer( this.getSolutionPath(), "\t" );
+      StringTokenizer nameTk = new StringTokenizer( this.getFileNames(), "\t" );
+      StringTokenizer idTk = new StringTokenizer( this.getFileIds(), "\t" );
+      //Build Arrays since we cannot pass complex objects from the js bus
+      for ( int i = 0; i < pathTk.countTokens(); i++ ) {
+        filesToDelete.add( new SolutionBrowserFile( idTk.tokenAt( i ), nameTk.tokenAt( i ), pathTk.tokenAt( i ) ) );
+      }
+      performOperation( true );
     } else {
       performOperation( true );
     }
@@ -104,7 +100,7 @@ public class DeleteFileCommand extends AbstractCommand {
     event.setAction( this.getClass().getName() );
 
     String temp = "";
-    String names="";
+    String names = "";
     //Convert to a comma delimted list for rest call
     for ( SolutionBrowserFile file : filesToDelete ) {
       temp += file.getId() + ","; //$NON-NLS-1$
@@ -118,13 +114,13 @@ public class DeleteFileCommand extends AbstractCommand {
     final String filesList = temp;
 
     if ( feedback ) {
-        final HTML messageTextBox;
-        if(filesToDelete.size() > 1) {
-         messageTextBox = new HTML( Messages.getString( "moveAllToTrashQuestionFile") );
-        } else {
-         messageTextBox = new HTML( Messages.getString( "moveToTrashQuestionFile", names ) );
-        }
-        final PromptDialogBox fileMoveToTrashWarningDialogBox =
+      final HTML messageTextBox;
+      if ( filesToDelete.size() > 1 ) {
+        messageTextBox = new HTML( Messages.getString( "moveAllToTrashQuestionFile" ) );
+      } else {
+        messageTextBox = new HTML( Messages.getString( "moveToTrashQuestionFile", names ) );
+      }
+      final PromptDialogBox fileMoveToTrashWarningDialogBox =
           new PromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ), Messages
               .getString( "no" ), true, true );
       fileMoveToTrashWarningDialogBox.setContent( messageTextBox );
@@ -174,8 +170,8 @@ public class DeleteFileCommand extends AbstractCommand {
             new RefreshRepositoryCommand().execute( false );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
             setBrowseRepoDirty( Boolean.TRUE );
-            for( SolutionBrowserFile file : filesToDelete ) {
-              if( file.getPath()!= null ) {
+            for ( SolutionBrowserFile file : filesToDelete ) {
+              if ( file.getPath() != null ) {
                 SolutionBrowserPanel.getInstance().removeRecent( file.getPath() );
                 SolutionBrowserPanel.getInstance().removeFavorite( file.getPath() );
               }
@@ -203,7 +199,7 @@ public class DeleteFileCommand extends AbstractCommand {
   }
 
 
-  
+
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
     $wnd.mantle_isBrowseRepoDirty=isDirty;

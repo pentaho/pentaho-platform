@@ -70,7 +70,6 @@ import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -167,7 +166,7 @@ public class SchedulesPanel extends SimplePanel {
     }
   };
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings ( "unchecked" )
   private Set<JsJob> getSelectedJobs() {
     Set<JsJob> selectedJobs = ( (MultiSelectionModel<JsJob>) table.getSelectionModel() ).getSelectedSet();
     return selectedJobs;
@@ -365,7 +364,8 @@ public class SchedulesPanel extends SimplePanel {
             return new SafeHtmlBuilder().appendHtmlConstant(
                 "<span class='workspace-resource-link' title='"
                     + new SafeHtmlBuilder().appendEscaped( outputPath ).toSafeHtml().asString() + "'>" + outputPath
-                    + "</span>" ).toSafeHtml();
+                    + "</span>"
+            ).toSafeHtml();
           }
         } catch ( Throwable t ) {
           return new SafeHtmlBuilder().appendHtmlConstant( "-" ).toSafeHtml();
@@ -946,7 +946,7 @@ public class SchedulesPanel extends SimplePanel {
         new PromptDialogBox( Messages.getString( "fileUnavailable" ), Messages.getString( "yesDelete" ), Messages
             .getString( "no" ), false, true );
     prompt.setContent( new HTML( Messages.getString( "editScheduleResourceDoesNotExist",
-      job.getFullResourceName() ) ) );
+        job.getFullResourceName() ) ) );
 
     prompt.setCallback( new IDialogCallback() {
       public void okPressed() {
@@ -1004,7 +1004,7 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void controlScheduler( final ToolbarButton controlSchedulerButton, final String function,
-      final boolean isScheduler ) {
+                                 final boolean isScheduler ) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -1047,9 +1047,10 @@ public class SchedulesPanel extends SimplePanel {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-        } 
+        }
       } );
     } catch ( RequestException e ) {
+      //IGNORE
     }
     GenericEvent event = new GenericEvent();
     event.setEventSubType( "RefreshFolderEvent" );
@@ -1068,17 +1069,17 @@ public class SchedulesPanel extends SimplePanel {
 
   private native JsArray<JsJob> parseJson( String json )
   /*-{
-    var obj = eval('(' + json + ')');
-    if (obj != null && obj.hasOwnProperty("job")){
-      return obj.job;
-    }
-    return [];
+      var obj = eval('(' + json + ')');
+      if (obj != null && obj.hasOwnProperty("job")) {
+          return obj.job;
+      }
+      return [];
   }-*/;
 
   private native JsJob parseJsonJob( String json )
   /*-{
-    var obj = eval('(' + json + ')');
-    return obj;
+      var obj = eval('(' + json + ')');
+      return obj;
   }-*/;
 
 }

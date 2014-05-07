@@ -21,38 +21,40 @@ package org.pentaho.mantle.client.solutionbrowser;
  */
 public class SolutionBrowserFile {
 
-    private String id;
-    private String name;
-    private String path;
+  private String id;
+  private String name;
+  private String path;
 
-    public SolutionBrowserFile(String id, String name, String path) {
-        this.id =id;
-        this.name = name;
-        this.path = path;
-    }
-    public SolutionBrowserFile() {};
+  public SolutionBrowserFile( String id, String name, String path ) {
+    this.id = id;
+    this.name = name;
+    this.path = path;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public SolutionBrowserFile() {
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setId( String id ) {
+    this.id = id;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getPath() {
-        return path;
-    }
+  public void setName( String name ) {
+    this.name = name;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath( String path ) {
+    this.path = path;
+  }
 }

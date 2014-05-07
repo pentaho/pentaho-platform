@@ -21,7 +21,6 @@ import java.util.List;
 
 /**
  * @author wseyler
- * 
  */
 public class SolutionBrowserClipboard {
   public enum ClipboardAction {
@@ -45,6 +44,7 @@ public class SolutionBrowserClipboard {
   public String getMimeType() {
     return mimeType;
   }
+
   public void setMimeType( String mimeType ) {
     this.mimeType = mimeType;
   }
@@ -53,12 +53,12 @@ public class SolutionBrowserClipboard {
     return clipboardItems;
   }
 
-  public void setClipboardItemsForCut(List<SolutionBrowserFile> clipboardItems) {
+  public void setClipboardItemsForCut( List<SolutionBrowserFile> clipboardItems ) {
     this.clipboardItems = clipboardItems;
     clipboardAction = ClipboardAction.CUT;
   }
 
-  public void setClipboardItemsByIdForCopy(List<SolutionBrowserFile> clipboardItems) {
+  public void setClipboardItemsByIdForCopy( List<SolutionBrowserFile> clipboardItems ) {
     this.clipboardItems = clipboardItems;
     clipboardAction = ClipboardAction.COPY;
   }
@@ -82,7 +82,7 @@ public class SolutionBrowserClipboard {
   }
 
   /**
-   * 
+   *
    */
   public void clear() {
     this.clipboardItems = null;

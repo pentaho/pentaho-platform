@@ -29,7 +29,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -40,18 +39,14 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.TreeListener;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
@@ -86,7 +81,7 @@ import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings( "deprecation" )
+@SuppressWarnings ( "deprecation" )
 public class SolutionBrowserPanel extends HorizontalPanel {
 
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
@@ -258,20 +253,20 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static native String setElementHeightOffset( Element ele, int offset )
   /*-{
-    var h = 0;
-    if ($wnd.innerHeight){
-      h = $wnd.innerHeight;
-    }
-    else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0){
-      h = $wnd.document.documentElement.clientHeight;
-    }
-    else if ($wnd.document.body){
-      h = $wnd.document.body.clientHeight;
-    }
+      var h = 0;
+      if ($wnd.innerHeight) {
+          h = $wnd.innerHeight;
+      }
+      else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0) {
+          h = $wnd.document.documentElement.clientHeight;
+      }
+      else if ($wnd.document.body) {
+          h = $wnd.document.body.clientHeight;
+      }
 
-    var height= h+offset-5;
-    var offSetHeight=height+ 'px';
-    ele.style.height = offSetHeight;
+      var height = h + offset - 5;
+      var offSetHeight = height + 'px';
+      ele.style.height = offSetHeight;
   }-*/;
 
   private void adjustHeight() {
@@ -314,38 +309,38 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static native void setupNativeHooks( SolutionBrowserPanel solutionNavigator )
   /*-{
-    $wnd.sendMouseEvent = function (event) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
-    }
-    $wnd.mantle_setNavigatorShowing = function (show) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
-    }
-    $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);  
-    }
-    $wnd.mantle_openRepositoryFile = function(pathToFile, mode) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
-    }
-    $wnd.mantle_addFavorite = function(pathToFile, title) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
-    }
-    $wnd.mantle_removeFavorite = function(pathToFile) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
-    }
-    $wnd.mantle_isNavigatorShowing = function(){
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
-    }
-    $wnd.mantle_setDashboardsFilter = function(filters){
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setDashboardsFilter(Lcom/google/gwt/core/client/JsArrayString;)(filters);
-    }
+      $wnd.sendMouseEvent = function (event) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
+      }
+      $wnd.mantle_setNavigatorShowing = function (show) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
+      }
+      $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
+      }
+      $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
+      }
+      $wnd.mantle_addFavorite = function (pathToFile, title) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
+      }
+      $wnd.mantle_removeFavorite = function (pathToFile) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
+      }
+      $wnd.mantle_isNavigatorShowing = function () {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
+      }
+      $wnd.mantle_setDashboardsFilter = function (filters) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setDashboardsFilter(Lcom/google/gwt/core/client/JsArrayString;)(filters);
+      }
   }-*/;
 
   public void setDashboardsFilter( JsArrayString filters ) {
@@ -359,7 +354,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     navigatorAndContentSplit.onBrowserEvent( e );
   }
 
-  @SuppressWarnings( "nls" )
+  @SuppressWarnings ( "nls" )
   public static String pathToId( String path ) {
     String id = NameUtils.encodeRepositoryPath( path );
     return NameUtils.URLEncode( id );
@@ -497,7 +492,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     recentPickItem.setLastUse( System.currentTimeMillis() );
     RecentPickList.getInstance().add( recentPickItem );
   }
-  
+
   public void removeRecent( String fileNameWithPath ) {
     RecentPickItem recentItem = new RecentPickItem( fileNameWithPath );
     RecentPickList.getInstance().remove( recentItem );
@@ -578,8 +573,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         contentTabPanel
             .showNewURLTab(
-              Messages.getString( "editingColon" ) + file.getTitle(),
-              Messages.getString( "editingColon" ) + file.getTitle(), editUrl, true ); //$NON-NLS-1$ //$NON-NLS-2$
+                Messages.getString( "editingColon" ) + file.getTitle(),
+                Messages.getString( "editingColon" ) + file.getTitle(), editUrl, true ); //$NON-NLS-1$ //$NON-NLS-2$
 
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), //$NON-NLS-1$
@@ -775,10 +770,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
     return mypath;
   }
-  
+
   private static final native String encodeUri( String URI )
   /*-{
-    return encodeURIComponent(URI);
+      return encodeURIComponent(URI);
   }-*/;
 
 }

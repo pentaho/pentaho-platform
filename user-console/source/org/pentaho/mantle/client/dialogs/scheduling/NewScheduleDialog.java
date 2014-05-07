@@ -72,7 +72,7 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   private static native String getDefaultSaveLocation()
   /*-{
-    return window.top.HOME_FOLDER;
+      return window.top.HOME_FOLDER;
   }-*/;
 
   public NewScheduleDialog( JsJob jsJob, IDialogCallback callback, boolean isEmailConfValid ) {
@@ -200,11 +200,11 @@ public class NewScheduleDialog extends PromptDialogBox {
     // check if has parameterizable
     WaitPopup.getInstance().setVisible( true );
     String urlPath = URL.encodePathSegment( NameUtils.encodeRepositoryPath( filePath ) );
-    
+
     RequestBuilder scheduleFileRequestBuilder;
     final boolean isXAction;
-    
-    if ((urlPath != null) && (urlPath.endsWith( "xaction" ))){
+
+    if ( ( urlPath != null ) && ( urlPath.endsWith( "xaction" ) ) ) {
       isXAction = true;
       scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repos/" + urlPath
           + "/parameterUi" );
@@ -225,21 +225,21 @@ public class NewScheduleDialog extends PromptDialogBox {
               new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
           dialogBox.center();
         }
-        
+
         public void onResponseReceived( Request request, Response response ) {
           WaitPopup.getInstance().setVisible( false );
           if ( response.getStatusCode() == Response.SC_OK ) {
             String responseMessage = response.getText();
             boolean hasParams;
 
-            if (isXAction){
+            if ( isXAction ) {
               int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
               int NumOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
               hasParams = numOfInputs - NumOfHiddenInputs > 0 ? true : false;
             } else {
               hasParams = Boolean.parseBoolean( response.getText() );
             }
-            
+
             if ( jsJob != null ) {
               jsJob.setJobName( scheduleNameTextBox.getText() );
               jsJob.setOutputPath( scheduleLocationTextBox.getText(), scheduleNameTextBox.getText() );

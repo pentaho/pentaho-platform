@@ -51,8 +51,8 @@ public class SwitchThemeCommand extends AbstractCommand {
   }
 
   protected void performOperation( boolean feedback ) {
-    
-    final HTML messageTextBox = new HTML( Messages.getString( "confirmSwitchTheme.message") );
+
+    final HTML messageTextBox = new HTML( Messages.getString( "confirmSwitchTheme.message" ) );
     final PromptDialogBox fileMoveToTrashWarningDialogBox =
         new PromptDialogBox( Messages.getString( "confirmSwitchTheme.title" ), Messages.getString( "confirmSwitchTheme.ok" ), Messages
             .getString( "confirmSwitchTheme.cancel" ), true, true );
@@ -87,7 +87,8 @@ public class SwitchThemeCommand extends AbstractCommand {
         } catch ( RequestException e ) {
           Window.alert( e.getMessage() );
           // showError(e);
-        }      }
+        }
+      }
     };
     fileMoveToTrashWarningDialogBox.setCallback( callback );
     fileMoveToTrashWarningDialogBox.center();
