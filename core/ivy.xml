@@ -84,5 +84,7 @@
     	<dependency org="log4j" name="log4j" rev="1.2.16" conf="test->default" />
     	<dependency org="org.springframework" name="spring-mock" rev="2.0.2" transitive="false" conf="test->default" />
     	<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="test->default"/>
-	</dependencies>
+        <dependency org="org.mockito" name="mockito-all" rev="1.8.4" transitive="false" conf="test->default"/>
+
+    </dependencies>
 </ivy-module>

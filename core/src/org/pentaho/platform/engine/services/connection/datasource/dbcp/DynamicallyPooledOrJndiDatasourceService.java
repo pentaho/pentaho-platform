@@ -19,53 +19,27 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.services.messages.Messages;
 
-public class DynamicallyPooledOrJndiDatasourceService extends BaseDatasourceService {
-
-  private static final Log logger = LogFactory.getLog( PooledOrJndiDatasourceService.class );
+public class DynamicallyPooledOrJndiDatasourceService extends NonPooledOrJndiDatasourceService {
 
   private IDBDatasourceService pooledDatasourceService;
   private IDBDatasourceService nonPooledDatasourceService;
 
   public DynamicallyPooledOrJndiDatasourceService() {
   }
-  
+
   @Override
-  public DataSource getDataSource( String datasource ) throws DBDatasourceServiceException {
-
-    try {
-
-      IDatasourceMgmtService datasourceMgmtSvc =
-          (IDatasourceMgmtService) PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
-
-      // Look in the database for the datasource
-      IDatabaseConnection databaseConnection = datasourceMgmtSvc.getDatasourceByName( datasource );
-
-      if ( databaseConnection != null ) {
-
-        return databaseConnection.isUsingConnectionPool() ? getPooledDatasourceService().getDataSource( datasource )
-            : getNonPooledDatasourceService().getDataSource( datasource );
-      }
-
-    } catch ( DatasourceMgmtServiceException daoe ) {
-      daoe.printStackTrace();
-      logger.info( Messages.getInstance().getErrorString(
-          "DynamicallyPooledOrJndiDatasourceService.DEBUG_0001_UNABLE_TO_FIND_DATASOURCE_IN_REPOSITORY",
-          daoe.getLocalizedMessage() ), daoe );
-    }
-
-    return getJndiDataSource( datasource );
+  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
+    throws DBDatasourceServiceException {
+    return databaseConnection.isUsingConnectionPool()
+          ? getPooledDatasourceService().getDataSource( requestedDatasourceName )
+          : getNonPooledDatasourceService().getDataSource( requestedDatasourceName );
   }
+
+
 
   public IDBDatasourceService getPooledDatasourceService() {
     return pooledDatasourceService;
