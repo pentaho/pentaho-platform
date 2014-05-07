@@ -20,23 +20,16 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.commands.CopyFilesCommand;
-import org.pentaho.mantle.client.commands.CutFilesCommand;
-import org.pentaho.mantle.client.commands.DeleteFileCommand;
-import org.pentaho.mantle.client.commands.DeletePermanentFileCommand;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
-import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class FileCommand implements Command {

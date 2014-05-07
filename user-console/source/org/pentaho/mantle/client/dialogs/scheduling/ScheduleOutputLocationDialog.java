@@ -55,7 +55,7 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
 
   private static native String getDefaultSaveLocation()
   /*-{
-    return window.top.HOME_FOLDER;
+      return window.top.HOME_FOLDER;
   }-*/;
 
   public ScheduleOutputLocationDialog( final String filePath ) {
@@ -199,8 +199,8 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
 
   protected abstract void onSelect( String name, String outputLocationPath );
 
-  public void setOkButtonText(String text){
+  public void setOkButtonText( String text ) {
     okButton.setText( text );
   }
-  
+
 }

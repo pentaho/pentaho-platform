@@ -60,7 +60,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private static final String PERMISSIONS_ELEMENT_NAME = "permissions"; //$NON-NLS-1$
 
   private static final String RECIPIENT_ELEMENT_NAME = "recipient"; //$NON-NLS-1$
-  
+
   private static final String MODIFIABLE_ELEMENT_NAME = "modifiable"; //$NON-NLS-1$
 
   private static final String ACES_ELEMENT_NAME = "aces"; //$NON-NLS-1$
@@ -118,7 +118,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   final CheckBox inheritsCheckBox = new CheckBox( Messages.getString( "inherits" ) ); //$NON-NLS-1$
 
   /**
-   * 
    * @param fileSummary
    */
   public PermissionsPanel( RepositoryFile theFileSummary ) {
@@ -354,7 +353,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   private void refreshPermission( Boolean inheritCheckBoxValue, Boolean managePermissionCheckBoxValue,
-      Boolean deletePermissionCheckBoxValue ) {
+                                  Boolean deletePermissionCheckBoxValue ) {
     setInheritsAcls( inheritCheckBoxValue, fileInfo );
     managePermissionCheckBox.setEnabled( !inheritCheckBoxValue );
     deletePermissionCheckBox.setEnabled( !inheritCheckBoxValue && !managePermissionCheckBoxValue );
@@ -393,7 +392,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       updatePermissionForUserOrRole( fileInfo, userOrRoleString, true, PERM_WRITE );
       updatePermissionForUserOrRole( fileInfo, userOrRoleString, true, PERM_READ );
     }
-    
+
     readPermissionCheckBox.setValue( perms.contains( PERM_READ ) || perms.contains( PERM_GRANT_PERM )
         || perms.contains( PERM_ALL ) );
     deletePermissionCheckBox.setValue( perms.contains( PERM_DELETE ) || perms.contains( PERM_GRANT_PERM )
@@ -405,18 +404,17 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
     refreshPermission();
 
-    if ( !isModifiableUserOrRole(fileInfo, userOrRoleString) ) {
+    if ( !isModifiableUserOrRole( fileInfo, userOrRoleString ) ) {
       managePermissionCheckBox.setEnabled( false );
     }
-    
+
     addButton.setEnabled( !inheritsCheckBox.getValue() );
     removeButton.setEnabled( !( isOwner( userOrRoleString, USER_TYPE, fileInfo ) || isOwner( userOrRoleString,
-        ROLE_TYPE, fileInfo ) || !isModifiableUserOrRole( fileInfo, userOrRoleString ))
+        ROLE_TYPE, fileInfo ) || !isModifiableUserOrRole( fileInfo, userOrRoleString ) )
         && !inheritsCheckBox.getValue() );
   }
 
   /**
-   * 
    * @param grant
    * @param perm
    */
@@ -436,7 +434,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @return
    */
   public List<RequestBuilder> prepareRequests() {
@@ -485,7 +482,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   /**
    * Take permissions from fileInfo response and create roles and users list
-   * 
+   *
    * @param fileSummary
    * @param fileInfo
    */
@@ -539,7 +536,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @param name
    * @param type
    * @return
@@ -549,7 +545,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @return
    */
   private String getOwnerName( Document fileInfo ) {
@@ -557,7 +552,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @return
    */
   private Integer getOwnerType( Document fileInfo ) {
@@ -566,7 +560,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @param recipientName
    * @param recipientType
    */
@@ -590,7 +583,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @param recipient
    * @param permission
    */
@@ -650,7 +642,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     }
     return values;
   }
-  
+
   private Boolean isModifiableUserOrRole( Document fileInfo, String recipient ) {
     Boolean ret = false;
     NodeList aces = fileInfo.getElementsByTagName( ACES_ELEMENT_NAME );
@@ -658,7 +650,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       Element ace = (Element) aces.item( i );
       if ( ace.getElementsByTagName( RECIPIENT_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals(
           recipient ) ) {
-        ret = ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals(true);        
+        ret = ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals( true );
         return ret;
       }
     }
@@ -667,10 +659,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   /**
    * @param recipient
-   * @param grant
-   *          true = grant the Permission, false = deny the Permission (remove it if present)
-   * @param perm
-   *          The integer value of the Permission as defined in <code>RepositoryFilePermissions</code>
+   * @param grant     true = grant the Permission, false = deny the Permission (remove it if present)
+   * @param perm      The integer value of the Permission as defined in <code>RepositoryFilePermissions</code>
    */
   private void updatePermissionForUserOrRole( Document fileInfo, String recipient, boolean grant, int perm ) {
     // first let's see if this node exists
@@ -684,7 +674,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         for ( int j = 0; j < permissions.getLength(); j++ ) {
           Node testNode = permissions.item( j );
           if ( testNode.getFirstChild() != null && Integer.parseInt( testNode.getFirstChild()
-            .getNodeValue() ) == perm ) {
+              .getNodeValue() ) == perm ) {
             foundPermission = testNode;
             break;
           }
@@ -706,7 +696,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
+   *
    */
   private void removeAllAces( Document fileInfo ) {
     // Window.alert("removeAllAces() called with: \n" + fileInfo.toString());
@@ -736,7 +726,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @return
    */
   Boolean isInheritsAcls( Document fileInfo ) {
@@ -745,17 +734,16 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * 
    * @param inherits
    */
   void setInheritsAcls( Boolean inherits, Document fileInfo ) {
     fileInfo.getElementsByTagName( INHERITS_ELEMENT_NAME ).item( 0 )
-      .getFirstChild().setNodeValue( inherits.toString() );
+        .getFirstChild().setNodeValue( inherits.toString() );
   }
 
   /**
    * Get owner name from acl response
-   * 
+   *
    * @param response
    */
   protected void setAclResponse( Response response ) {

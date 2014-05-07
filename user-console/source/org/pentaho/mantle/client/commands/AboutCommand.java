@@ -44,7 +44,7 @@ public class AboutCommand extends AbstractCommand {
   }
 
   protected void performOperation( boolean feedback ) {
-    if ( StringUtils.isEmpty( MantleApplication.mantleRevisionOverride ) == false) {
+    if ( StringUtils.isEmpty( MantleApplication.mantleRevisionOverride ) == false ) {
       showAboutDialog( MantleApplication.mantleRevisionOverride );
     } else {
       final String url = GWT.getHostPageBaseURL() + "api/version/show"; //$NON-NLS-1$

@@ -222,8 +222,7 @@ public class BlockoutPanel extends SimplePanel {
         editButton.setEnabled( isSingleSelect );
         removeButton.setEnabled( isSelected );
       }
-    });
-    
+    } );
     tablePanel.add( table );
   }
 

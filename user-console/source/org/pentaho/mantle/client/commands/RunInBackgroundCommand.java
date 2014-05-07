@@ -23,7 +23,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONBoolean;
@@ -31,7 +30,6 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -123,7 +121,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
     }
   }
 
-  @SuppressWarnings( "deprecation" )
+  @SuppressWarnings ( "deprecation" )
   protected JSONObject getJsonSimpleTrigger( int repeatCount, int interval, Date startDate, Date endDate ) {
     JSONObject trigger = new JSONObject();
     trigger.put( "repeatInterval", new JSONNumber( interval ) ); //$NON-NLS-1$
@@ -153,10 +151,10 @@ public class RunInBackgroundCommand extends AbstractCommand {
     };
     final String filePath = solutionPath;
     String urlPath = NameUtils.URLEncode( NameUtils.encodeRepositoryPath( filePath ) );
-    
+
     RequestBuilder scheduleFileRequestBuilder = createParametersChecker( urlPath );
     final boolean isXAction = isXAction( urlPath );
-    
+
     try {
       scheduleFileRequestBuilder.sendRequest( null, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
@@ -169,8 +167,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
           if ( response.getStatusCode() == Response.SC_OK ) {
             String responseMessage = response.getText();
             boolean hasParams = hasParameters( responseMessage, isXAction );
-            if( !hasParams ){
-              outputLocationDialog.setOkButtonText( Messages.getString(  "ok"  ) );
+            if ( !hasParams ) {
+              outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
             }
             outputLocationDialog.center();
           } else {
@@ -188,7 +186,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
     }
   }
 
-  private boolean hasParameters ( String responseMessage, boolean isXAction ) {
+  private boolean hasParameters( String responseMessage, boolean isXAction ) {
     if ( isXAction ) {
       int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
       int numOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
@@ -197,16 +195,15 @@ public class RunInBackgroundCommand extends AbstractCommand {
       return Boolean.parseBoolean( responseMessage );
     }
   }
-  
+
   private boolean isXAction( String urlPath ) {
     if ( ( urlPath != null ) && ( urlPath.endsWith( "xaction" ) ) ) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
-  
+
   private RequestBuilder createParametersChecker( String urlPath ) {
     RequestBuilder scheduleFileRequestBuilder = null;
     if ( ( urlPath != null ) && ( urlPath.endsWith( "xaction" ) ) ) {
@@ -220,15 +217,15 @@ public class RunInBackgroundCommand extends AbstractCommand {
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     return scheduleFileRequestBuilder;
   }
-  
+
   protected void performOperation( boolean feedback ) {
 
     final String filePath = ( this.getSolutionPath() != null ) ? this.getSolutionPath() : repositoryFile.getPath();
     String urlPath = NameUtils.URLEncode( NameUtils.encodeRepositoryPath( filePath ) );
-    
+
     RequestBuilder scheduleFileRequestBuilder = createParametersChecker( urlPath );
     final boolean isXAction = isXAction( urlPath );
-    
+
     try {
       scheduleFileRequestBuilder.sendRequest( null, new RequestCallback() {
 

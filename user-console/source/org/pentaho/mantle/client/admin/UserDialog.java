@@ -109,33 +109,33 @@ public class UserDialog extends GwtDialog {
 
     return hp;
   }
-  
-  private boolean nameIsValid(String name) {
+
+  private boolean nameIsValid( String name ) {
     if ( !NameUtils.isValidFileName( name ) ) {
       GwtMessageBox messageBox = new GwtMessageBox();
       messageBox.setTitle( Messages.getString( "error" ) );
       messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", name, NameUtils
           .reservedCharListForDisplay( " " ) ) );
-      messageBox.setButtons( new Object[ GwtMessageBox.ACCEPT ] );
+      messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
       messageBox.setWidth( 300 );
       messageBox.show();
       return false;
     }
     return true;
   }
-  
+
   class AcceptListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       String name = nameTextBox.getText();
       String password = passwordTextBox.getText();
-      
-      if (nameIsValid( name )){
+
+      if ( nameIsValid( name ) ) {
         controller.saveUser( name, password );
         hide();
       }
     }
   }
-    
+
   class CancelListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       hide();

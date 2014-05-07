@@ -39,7 +39,6 @@ import java.util.List;
 
 /**
  * @author wseyler
- * 
  */
 public class DeletePermanentFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -49,7 +48,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
   List<RepositoryFile> repositoryFiles;
-  List<String> deletePermFileIds=new ArrayList();
+  List<String> deletePermFileIds = new ArrayList();
 
   private String fileList = "";
   private String type = "";
@@ -84,15 +83,15 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   }
 
   public DeletePermanentFileCommand( String fileList ) {
-       setFileList(fileList);
-    }
+    setFileList( fileList );
+  }
 
 
-    /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.gwt.user.client.Command#execute()
-   */
+  /*
+ * (non-Javadoc)
+ *
+ * @see com.google.gwt.user.client.Command#execute()
+ */
   protected void performOperation( boolean feedback ) {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
 
@@ -106,13 +105,10 @@ public class DeletePermanentFileCommand extends AbstractCommand {
       deleteConfirmDialog =
           new PromptDialogBox(
               Messages.getString( "emptyTrash" ), Messages.getString( "yesEmptyTrash" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    }
-
-    else {
-      if(type == "multi"){
-        deleteMessage = Messages.getString( "deleteMultiQuestion");
-      }
-      else{
+    } else {
+      if ( type == "multi" ) {
+        deleteMessage = Messages.getString( "deleteMultiQuestion" );
+      } else {
         deleteMessage = Messages.getString( "deleteQuestion", type );
       }
       deleteConfirmDialog =
@@ -204,6 +200,6 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
-    $wnd.mantle_isBrowseRepoDirty=isDirty;
+      $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
 }

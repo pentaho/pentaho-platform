@@ -60,7 +60,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   private static int frameIdCount = 0;
 
   private HashSet<IFrameTabPanel> freeFrames = new HashSet<IFrameTabPanel>();
-  
+
   public MantleTabPanel() {
     this( false );
   }
@@ -151,7 +151,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     } else {
       panel = new IFrameTabPanel( frameName );
     }
-    
+
     addTab( tabName, tabTooltip, true, panel );
     selectTab( elementId );
 
@@ -192,7 +192,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     EventBusUtil.EVENT_BUS.fireEvent( new SolutionBrowserSelectEvent( selectTabContent, selectedItems ) );
 
     if ( setFileInfoInFrame && SolutionBrowserPanel.getInstance().getFilesListPanel()
-      .getSelectedFileItems().size() > 0 ) {
+        .getSelectedFileItems().size() > 0 ) {
       setFileInfoInFrame( SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get( 0 ) );
     }
 
@@ -263,79 +263,79 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   private native void setupNativeHooks( MantleTabPanel tabPanel )
-  /*-{  
+  /*-{
 
-    $wnd.removedAttributes = 0;
+      $wnd.removedAttributes = 0;
 
-    $wnd.purge = function(d) {
-      var a = d.attributes, i, l, n;
-      if (a) {
-          for (i = a.length - 1; i >= 0; i -= 1) {
-              n = a[i].name;
-              d[n] = null;
-              $wnd.removedAttributes++;
+      $wnd.purge = function (d) {
+          var a = d.attributes, i, l, n;
+          if (a) {
+              for (i = a.length - 1; i >= 0; i -= 1) {
+                  n = a[i].name;
+                  d[n] = null;
+                  $wnd.removedAttributes++;
+              }
+          }
+          a = d.childNodes;
+          if (a) {
+              l = a.length;
+              for (i = 0; i < l; i += 1) {
+                  $wnd.purge(d.childNodes[i]);
+              }
           }
       }
-      a = d.childNodes;
-      if (a) {
-          l = a.length;
-          for (i = 0; i < l; i += 1) {
-              $wnd.purge(d.childNodes[i]);
+
+      $wnd.removedChildren = 0;
+
+      $wnd.removeChildrenFromNode = function (node) {
+          if (typeof node == 'undefined' || node == null) {
+              return;
+          }
+
+          while (node.hasChildNodes()) {
+              $wnd.removeChildrenFromNode(node.firstChild);
+              node.removeChild(node.firstChild);
+              $wnd.removedChildren++;
           }
       }
-    }    
 
-    $wnd.removedChildren = 0;
-    
-    $wnd.removeChildrenFromNode = function(node) {
-      if(typeof node == 'undefined' || node == null) {  
-        return;
+      $wnd.enableContentEdit = function (enable) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::enableContentEdit(Z)(enable);
       }
-
-      while (node.hasChildNodes()) {
-        $wnd.removeChildrenFromNode(node.firstChild);        
-        node.removeChild(node.firstChild);
-        $wnd.removedChildren++;
+      $wnd.setContentEditSelected = function (enable) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setContentEditSelected(Z)(enable);
       }
-    }   
-        
-    $wnd.enableContentEdit = function(enable) { 
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::enableContentEdit(Z)(enable);      
-    }
-    $wnd.setContentEditSelected = function(enable) { 
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setContentEditSelected(Z)(enable);
-    }
-    $wnd.registerContentOverlay = function(id) { 
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::registerContentOverlay(Ljava/lang/String;)(id);      
-    }
-    $wnd.enableSave = function(enable) {
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setCurrentTabSaveEnabled(Z)(enable);
-    }
-    $wnd.closeTab = function(url) {
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::closeTab(Ljava/lang/String;)(url);
-    }    
-    $wnd.mantle_openTab = function(name, title, url) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, url);
-    }    
-    $wnd.openURL = function(name, tooltip, url){
-      if(url.indexOf('http') != 0 && url.indexOf('/') != 0){
-        // relative url. Prepend with root to fix issue with cross frame calls
-        url = $wnd.CONTEXT_PATH + url;
+      $wnd.registerContentOverlay = function (id) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::registerContentOverlay(Ljava/lang/String;)(id);
       }
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, tooltip, url);
-    }    
-    $wnd.mantle_openNamedFrameTab = function(name, title, frameName, url) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewNamedFrameURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, frameName, url);
-    }
-    $wnd.hideLoadingIndicator = function() {
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::hideLoadingIndicator()();
-    }
-    $wnd.showLoadingIndicator = function() {
-      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showLoadingIndicator()();
-    }
+      $wnd.enableSave = function (enable) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setCurrentTabSaveEnabled(Z)(enable);
+      }
+      $wnd.closeTab = function (url) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::closeTab(Ljava/lang/String;)(url);
+      }
+      $wnd.mantle_openTab = function (name, title, url) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, url);
+      }
+      $wnd.openURL = function (name, tooltip, url) {
+          if (url.indexOf('http') != 0 && url.indexOf('/') != 0) {
+              // relative url. Prepend with root to fix issue with cross frame calls
+              url = $wnd.CONTEXT_PATH + url;
+          }
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, tooltip, url);
+      }
+      $wnd.mantle_openNamedFrameTab = function (name, title, frameName, url) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewNamedFrameURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, frameName, url);
+      }
+      $wnd.hideLoadingIndicator = function () {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::hideLoadingIndicator()();
+      }
+      $wnd.showLoadingIndicator = function () {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showLoadingIndicator()();
+      }
   }-*/;
 
   public void showLoadingIndicator() {
@@ -404,7 +404,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   /**
    * Store representation of file in the frame for reference later when save is called
-   * 
+   *
    * @param selectedFileItem
    */
   public void setFileInfoInFrame( FileItem selectedFileItem ) {
@@ -437,7 +437,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   /**
    * This method returns the current frame element id.
-   * 
+   *
    * @return
    */
   public String getCurrentFrameElementId() {
@@ -449,48 +449,48 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   public static native String getReadyState( Element frameElement )
   /*-{
-    try {
-      return frameElement.contentDocument.readyState;
-    } catch (e) {
-      // probably cross-site security
-      return 'complete';
-    }
+      try {
+          return frameElement.contentDocument.readyState;
+      } catch (e) {
+          // probably cross-site security
+          return 'complete';
+      }
   }-*/;
 
   public static native boolean supportsReadyFeedback( Element frameElement )
   /*-{
-    try {
-      if (!frameElement.contentWindow.supportsReadyFeedback) {
-        return false;
+      try {
+          if (!frameElement.contentWindow.supportsReadyFeedback) {
+              return false;
+          }
+          return frameElement.contentWindow.supportsReadyFeedback;
+      } catch (e) {
+          return false;
       }
-      return frameElement.contentWindow.supportsReadyFeedback;
-    } catch (e) {
-      return false;
-    }
   }-*/;
 
   public static native boolean hasUnsavedChanges( Element frameElement )
   /*-{
-    try {
-      if (!frameElement.contentWindow.hasUnsavedChanges) {
-        return false;
+      try {
+          if (!frameElement.contentWindow.hasUnsavedChanges) {
+              return false;
+          }
+          return frameElement.contentWindow.hasUnsavedChanges();
+      } catch (e) {
+          return false;
       }
-      return frameElement.contentWindow.hasUnsavedChanges();
-    } catch (e) {
-      return false;
-    }
   }-*/;
 
   public static native boolean preTabCloseHook( Element frameElement )
   /*-{
-    try {
-      if (!frameElement.contentWindow.preTabCloseHook) {
-        return true;
+      try {
+          if (!frameElement.contentWindow.preTabCloseHook) {
+              return true;
+          }
+          return frameElement.contentWindow.preTabCloseHook();
+      } catch (e) {
+          return true;
       }
-      return frameElement.contentWindow.preTabCloseHook();
-    } catch (e) {
-      return true;
-    }
   }-*/;
 
   public void closeTab( final PentahoTab closeTab, final boolean invokePreTabCloseHook ) {
@@ -508,7 +508,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
           }
 
           public void okPressed() {
-            ((CustomFrame)((IFrameTabPanel) closeTab.getContent()).getFrame()).removeEventListeners(frameElement);
+            ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
             clearClosingFrame( frameElement );
             MantleTabPanel.super.closeTab( closeTab, invokePreTabCloseHook );
             if ( getTabCount() == 0 ) {
@@ -527,7 +527,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         return;
       }
 
-      ((CustomFrame)((IFrameTabPanel) closeTab.getContent()).getFrame()).removeEventListeners(frameElement);
+      ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
       clearClosingFrame( frameElement );
     }
     super.closeTab( closeTab, invokePreTabCloseHook );
@@ -540,11 +540,11 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     if ( w instanceof IFrameTabPanel && freeFrames.size() < 5 ) {
       // wipe out any file info so it doesn't impact future usages of this frame
       SolutionFileInfo sfi = null;
-      IFrameTabPanel iFrameTabPanel = ( IFrameTabPanel ) w;
+      IFrameTabPanel iFrameTabPanel = (IFrameTabPanel) w;
       iFrameTabPanel.setFileInfo( sfi );
       freeFrames.add( iFrameTabPanel );
     }
-    
+
     if ( getTabCount() == 0 ) {
       allTabsClosed();
       Widget selectTabContent = null;
@@ -556,28 +556,30 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }
 
-  
-  public static native void clearClosingFrame(Element frame)
+
+  public static native void clearClosingFrame( Element frame )
   /*-{
-    try {
-      frame.contentWindow.dijit.byId('borderContainer').destroy();
-    } catch (e) {
-    }
-    try {
-      $wnd.purge(frame.contentDocument.body);
-    } catch (ignoredxss) {}
-    try {
-      $wnd.removeChildrenFromNode(frame.contentDocument.body);     
-    } catch (ignoredxss) {}
-    try{
-      frame.contentWindow.document.write("");
-    } catch(e){
-      // ignore XSS
-    }
-    try {
-      frame.contentWindow.location.href = "about:blank";
-    } catch (e) {
-    }
+      try {
+          frame.contentWindow.dijit.byId('borderContainer').destroy();
+      } catch (e) {
+      }
+      try {
+          $wnd.purge(frame.contentDocument.body);
+      } catch (ignoredxss) {
+      }
+      try {
+          $wnd.removeChildrenFromNode(frame.contentDocument.body);
+      } catch (ignoredxss) {
+      }
+      try {
+          frame.contentWindow.document.write("");
+      } catch (e) {
+          // ignore XSS
+      }
+      try {
+          frame.contentWindow.location.href = "about:blank";
+      } catch (e) {
+      }
   }-*/;
 
   /**
@@ -585,7 +587,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
    * To handle the possibility of multiple tabs with the same url, this method first checks the assumption that the
    * current active tab initiates the call. Otherwise it checks from tail up for the first tab with a matching url
    * and closes that one. *
-   * 
+   *
    * @param url
    */
   private void closeTab( String url ) {
@@ -598,7 +600,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     }
     PentahoTab pt = getTab( curpos );
-    if(pt != null && pt.getContent() != null) {
+    if ( pt != null && pt.getContent() != null ) {
       IFrameTabPanel curPanel = (IFrameTabPanel) getTab( curpos ).getContent();
       if ( url.contains( curPanel.getUrl() ) ) {
         closeTab( curpos, true );
@@ -705,28 +707,28 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   private native void ieFix( Element frame )/*-{
-    try {
-      var inputElements = frame.contentWindow.document.getElementsByTagName("input");
-      for (var i = 0; i < inputElements.length; i++) {
-        if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type")
-            .toUpperCase()) {
-          if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute
-              ("paramType").toUpperCase())) {
-            inputElements[i].focus();
-            break;
+      try {
+          var inputElements = frame.contentWindow.document.getElementsByTagName("input");
+          for (var i = 0; i < inputElements.length; i++) {
+              if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type")
+                  .toUpperCase()) {
+                  if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute
+                  ("paramType").toUpperCase())) {
+                      inputElements[i].focus();
+                      break;
+                  }
+              }
           }
-        }
+      } catch (e) {
+          //ignore
       }
-    } catch (e) {
-      //ignore
-    }
   }-*/;
 
   public static native void onTabSelect( Element element )/*-{
-    try {
-      element.contentWindow.onMantleActivation(); // tab must define this callback function
-    } catch (e) {
-      // ignore
-    }
+      try {
+          element.contentWindow.onMantleActivation(); // tab must define this callback function
+      } catch (e) {
+          // ignore
+      }
   }-*/;
 }
