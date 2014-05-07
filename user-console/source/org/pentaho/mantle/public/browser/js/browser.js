@@ -1284,6 +1284,8 @@ define([
       $target.addClass("selected");
         prevClicked.obj.addClass("selected");
 
+      if(prevClicked.obj.attr("path") != $target.attr("path")){
+
         //Model title
         this.model.get("data").children[0].file.title;
 
@@ -1336,13 +1338,17 @@ define([
 
       }
 
-      //If more than one file is selected add multiselect button options
-      var selections = this.model.get("multiSelect").length+this.model.get("shiftLasso").length;
-      if(!(this.model.get("path") == ".trash") && selections > 1) {
+        var tempModel = [];
+        $(".file.selected").each(function (i, ele) {
+          tempModel.push({obj: $(ele)});
+        });
 
-        FileBrowser.FileBrowserView.updateButtonsMulti();
+        this.model.set("multiSelect", tempModel);
 
-      }
+        //If more than one file is selected add multiselect button options
+        if (!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
+          FileBrowser.FileBrowserView.updateButtonsMulti();
+        }
 
       //Add secondary selection to folder
       $(".folder.selected").addClass("secondarySelected");
