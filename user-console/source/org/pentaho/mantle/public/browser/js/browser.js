@@ -949,7 +949,7 @@ define([
 
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, id, multiSelectButtons, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(path, title, id, multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
               event.stopPropagation();
             }
             else {
