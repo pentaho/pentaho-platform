@@ -169,10 +169,11 @@ define([
       window.top.executeCommand("DeleteFolderCommand", this.buildParameter(path));
     },
 
-    pasteHandler: function (path) {
-
-      window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
-
+    pasteHandler: function (path, title, id,  multiSelectItems, browserUtils, fileListModel, foldersTreeModel) {
+      if (multiSelectItems.length > 0) {
+        window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
+        browserUtils.buttonHandlerUIFeedback($("#pasteButton"), fileListModel, foldersTreeModel, true, true);
+      }
     },
 
     uploadHandler: function (path) {

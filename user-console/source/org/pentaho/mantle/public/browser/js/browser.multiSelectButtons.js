@@ -69,27 +69,27 @@ define([
       }
     },
 
-    cutHandler: function (path, title, id, model, browserUtils) {
+    cutHandler: function (path, title, id, model, browserUtils, fileListModel, foldersTreeModel) {
+      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
       //remove hiddenFileLabel class
       browserUtils.resetCutItemsStyle();
       //reset cutItems to currently cut items
       browserUtils.cutItems = model;
-      $("#cutButton").prop("disabled", true);
+      browserUtils.buttonHandlerUIFeedback($("#cutButton"), fileListModel, foldersTreeModel, false, false);
       $("#copyButton").prop("disabled", false);
       for (var i=0;i<model.length;i++){
         model[i].obj.addClass("hiddenFileLabel");
       }
-      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
     },
 
-    copyHandler: function (path, title, id,  model, browserUtils) {
+    copyHandler: function (path, title, id,  model, browserUtils, fileListModel, foldersTreeModel) {
+      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
       //remove hiddenFileLabel class
       browserUtils.resetCutItemsStyle();
       //reset cutItems to currently cut items
       browserUtils.cutItems = [];
-      $("#copyButton").prop("disabled", true);
+      browserUtils.buttonHandlerUIFeedback($("#copyButton"), fileListModel, foldersTreeModel, false, false);
       $("#cutButton").prop("disabled", false);
-      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
     },
 
     deleteHandler: function (path, title, id) {

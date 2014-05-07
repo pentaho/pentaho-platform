@@ -888,7 +888,15 @@ define([
               type ="file";
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, id,  multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(
+                  path,
+                  title,
+                  id,
+                  multiSelectItems,
+                  model.get("browserUtils"),
+                  model.get("fileListModel"),
+                  model.get("foldersTreeModel")
+              );
               event.stopPropagation();
             }
             else {
@@ -949,7 +957,14 @@ define([
 
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, id, multiSelectItems, FileBrowser.fileBrowserModel.get("browserUtils"));
+              event.data.handler(
+                  path,
+                  title,
+                  id,
+                  multiSelectItems,
+                  model.get("browserUtils"),
+                  model.get("fileListModel"),
+                  model.get("foldersTreeModel"));
               event.stopPropagation();
             }
             else {

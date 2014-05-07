@@ -44,6 +44,12 @@ define([
       }
     },
 
+    buttonHandlerUIFeedback: function (element, fileListModel, foldersTreeModel, fileListSpinnerEnabled, folderTreeSpinnerEnabled) {
+      fileListModel.set("runSpinner", fileListSpinnerEnabled);
+      foldersTreeModel.set("runSpinner", folderTreeSpinnerEnabled);
+      element.prop("disabled", true);
+    },
+
     getUrlBase: function () {
       return window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/")) + "/";
     },
