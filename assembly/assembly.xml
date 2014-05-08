@@ -75,7 +75,8 @@
   <property name="core-bundles.dir" value="${stage.dir.solutions}/system/osgi/core_bundles"/>
   <property name="fragment-bundles.dir" value="${stage.dir.solutions}/system/osgi/fragment_bundles"/>
   <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
-
+	<property name="server.assembly.filename" value="server-assembly.properties" />
+	
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -336,6 +337,10 @@
       <attribute name="Implementation-Vendor" value="${impl.vendor}" />
     </manifest>
 
+    <echo file="${prep.pentaho.war.dir}/WEB-INF/classes/${server.assembly.filename}" append="false">assembly.title=${osba.server.product.title}&#13;&#10;</echo>
+    <echo file="${prep.pentaho.war.dir}/WEB-INF/classes/${server.assembly.filename}" append="true">assembly.productid=${osba.server.product.id}&#13;&#10;</echo>
+    <echo file="${prep.pentaho.war.dir}/WEB-INF/classes/${server.assembly.filename}" append="true">assembly.version=${project.revision}&#13;&#10;</echo>
+  	
     <!-- Add rdbms context -->
     <copy file="${datasource.res.dir}/${rdbms}/context.xml" todir="${prep.pentaho.war.meta.dir}" />
 
