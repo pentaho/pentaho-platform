@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 import mondrian.olap.Util;
+import mondrian.parser.TokenMgrError;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,6 +83,10 @@ public class MDXOlap4jConnection implements IPentahoConnection {
 		} catch (Exception e) {
 			log.error(Messages.getInstance().getErrorString(
 		            "MDXConnection.ERROR_0002_INVALID_CONNECTION", "driver=" + driver + ";url=" + url), e);
+			return false;
+		} catch (TokenMgrError e) {
+			log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
+				"driver=" + driver + ";url=" + url ), e );
 			return false;
 		}
 
