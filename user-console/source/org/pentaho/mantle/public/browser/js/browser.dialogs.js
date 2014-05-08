@@ -16,8 +16,8 @@
  */
 
 define([
-  "js/browser.dialogs.templates.js",
-  "js/browser.utils.js",
+  "js/browser.dialogs.templates",
+  "js/browser.utils",
   "common-ui/bootstrap",
   "common-ui/jquery-i18n",
   "common-ui/jquery"

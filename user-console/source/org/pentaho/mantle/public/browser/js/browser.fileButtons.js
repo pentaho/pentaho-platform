@@ -16,7 +16,7 @@
  */
 
 define([
-  "js/browser.utils.js",
+  "js/browser.utils",
   "common-ui/jquery-i18n",
   "common-ui/jquery"
 ], function (BrowserUtils) {
