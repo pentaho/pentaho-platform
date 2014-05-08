@@ -71,7 +71,8 @@
 
   <property name="kettle-plugins.stage.dir" value="kettle-plugins" />
   <property name="kettle-plugins.dir" value="${solution.dir.server}/system/kettle/plugins" />
-
+	<property name="server.assembly.filename" value="server-assembly.properties" />
+	
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -329,6 +330,10 @@
       <attribute name="Implementation-Vendor" value="${impl.vendor}" />
     </manifest>
 
+  	<echo file="${prep.pentaho.war.dir}/WEB-INF/classes/${server.assembly.filename}" append="false">assembly.title=${osba.server.product.title}&#13;&#10;</echo>
+  	<echo file="${prep.pentaho.war.dir}/WEB-INF/classes/${server.assembly.filename}" append="true">assembly.productid=${osba.server.product.id}&#13;&#10;</echo>
+  	<echo file="${prep.pentaho.war.dir}/WEB-INF/classes/${server.assembly.filename}" append="true">assembly.version=${project.revision}&#13;&#10;</echo>
+  	
     <!-- Add rdbms context -->
     <copy file="${datasource.res.dir}/${rdbms}/context.xml" todir="${prep.pentaho.war.meta.dir}" />
 
