@@ -1316,45 +1316,46 @@ define([
             }
 
           }
-
-          //target title
-          $target.attr("title");
-
-          //prev Clicked title
-          prevClicked.obj.attr("title");
-
         }
 
-        //Single Click
-        else {
-          //Clear the multiselect array
-          this.model.set("multiSelect", []);
-          this.model.set("shiftLasso", []);
-          FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
+        //target title
+        $target.attr("title");
 
-          //reset all file selected styles
-          $(".file.selected").removeClass("selected");
-          $target.addClass("selected");
-
-        }
-
-        var tempModel = [];
-        $(".file.selected").each(function (i, ele) {
-          tempModel.push({obj: $(ele)});
-        });
-
-        this.model.set("multiSelect", tempModel);
-
-        //If more than one file is selected add multiselect button options
-        if (!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
-          FileBrowser.FileBrowserView.updateButtonsMulti();
-        }
-
-        //Add secondary selection to folder
-        $(".folder.selected").addClass("secondarySelected");
-        $(".folder.selected").removeClass("selected");
+        //prev Clicked title
+        prevClicked.obj.attr("title");
 
       }
+
+      //Single Click
+      else {
+        //Clear the multiselect array
+        this.model.set("multiSelect", []);
+        this.model.set("shiftLasso", []);
+        FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
+
+        //reset all file selected styles
+        $(".file.selected").removeClass("selected");
+        $target.addClass("selected");
+
+      }
+
+      var tempModel = [];
+      $(".file.selected").each(function (i, ele) {
+        tempModel.push({obj: $(ele)});
+      });
+
+      this.model.set("multiSelect", tempModel);
+
+      //If more than one file is selected add multiselect button options
+      if (!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
+        FileBrowser.FileBrowserView.updateButtonsMulti();
+      }
+
+      //Add secondary selection to folder
+      $(".folder.selected").addClass("secondarySelected");
+      $(".folder.selected").removeClass("selected");
+
+
     },
 
     doubleClickFile: function (event) {
