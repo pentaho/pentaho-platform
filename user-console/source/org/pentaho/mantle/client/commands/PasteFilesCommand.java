@@ -169,10 +169,14 @@ public class PasteFilesCommand extends AbstractCommand {
     temp = temp.substring( 0, temp.length() - 1 );
     final String filesList = temp;
 
-    String pasteChildrenUrl =
-        contextURL
-            + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
-    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, pasteChildrenUrl );
+    String copyUrl =         contextURL
+        + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
+
+    String moveUrl =         contextURL
+        + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/move"; //$NON-NLS-1$//$NON-NLS-2$
+    
+    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, (SolutionBrowserClipboard.getInstance()
+        .getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT) ? moveUrl : copyUrl );
     pasteChildrenRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
     pasteChildrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
@@ -189,21 +193,6 @@ public class PasteFilesCommand extends AbstractCommand {
         public void onResponseReceived( Request pasteChildrenRequest, Response pasteChildrenResponse ) {
           switch ( pasteChildrenResponse.getStatusCode() ) {
             case Response.SC_OK:
-              SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserClipboard.getInstance()
-                  .getClipboardAction();
-              if ( action == SolutionBrowserClipboard.ClipboardAction.CUT ) {
-
-                // Convert to a list of repository files for the delete permanent command to work properly
-                String listOfIdsToPermDelete = "";
-                for ( SolutionBrowserFile file : clipboardFileItems ) {
-                  listOfIdsToPermDelete += file + ",";
-                }
-                listOfIdsToPermDelete = listOfIdsToPermDelete.substring( 0, listOfIdsToPermDelete.length() - 1 );
-
-                new DeletePermanentFileCommand( listOfIdsToPermDelete ).execute( false );
-                clipBoard.clear();
-              }
-
               event.setMessage( "Success" );
               EventBusUtil.EVENT_BUS.fireEvent( event );
               FileChooserDialog.setIsDirty( Boolean.TRUE );

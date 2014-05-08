@@ -924,6 +924,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
               srcParentFolderId, versionMessage );
         }
+        session.save();
         return null;
       }
     } );
