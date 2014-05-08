@@ -75,7 +75,8 @@
   <property name="core-bundles.dir" value="${stage.dir.solutions}/system/osgi/core_bundles"/>
   <property name="fragment-bundles.dir" value="${stage.dir.solutions}/system/osgi/fragment_bundles"/>
   <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
-
+	<property name="server.assembly.filename" value="server-assembly.properties" />
+	
   <!-- =================================
           target: clean-all
          ================================= -->
