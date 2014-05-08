@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.util;
 
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -28,14 +30,42 @@ public class VersionHelperTest extends TestCase {
   public void testVersionHelper() {
 
     VersionHelper vh = new VersionHelper();
+    
+    // Should read server-assembly.properties file from root.
     String verInfo = vh.getVersionInformation();
+    VersionInfo vi1 = VersionHelper.getVersionInfo();
+    Assert.assertEquals( false, vi1.isFromManifest() );
+    Assert.assertEquals( "TVH", vi1.getProductID() );
+    Assert.assertEquals( "Test Version Helper", vi1.getTitle() );
+    Assert.assertEquals( "5", vi1.getVersionMajor() );
+    Assert.assertEquals( "0", vi1.getVersionMinor() );
+    Assert.assertEquals( "SNAPSHOT", vi1.getVersionRelease() );
+
+    // Should Read from this class - no manifest
     String verInfo2 = vh.getVersionInformation(this.getClass());
+    VersionInfo vi2 = VersionHelper.getVersionInfo(this.getClass());
+    Assert.assertEquals( false, vi2.isFromManifest() );
+    Assert.assertEquals( "PCONN", vi2.getProductID() );
+    Assert.assertEquals( "Pentaho Connections API", vi2.getTitle() );
+    Assert.assertEquals( "2", vi2.getVersionMajor() );
+    Assert.assertEquals( "0", vi2.getVersionMinor() );
+    Assert.assertEquals( "0", vi2.getVersionRelease() );
+    
+    Assert.assertEquals("Test Version Helper 5.0-SNAPSHOT", verInfo);
+    Assert.assertEquals("Pentaho Connections API 2.0.0.25 (class)", verInfo2);
 
-    System.out.println("Version Info   : " + verInfo); //$NON-NLS-1$ 
-    System.out.println("Version Info 2 : " + verInfo2); //$NON-NLS-1$ 
-
-    Assert.assertTrue(true);
-
+    // Gets version information from API Jar Manifest
+    VersionInfo vi3 = VersionHelper.getVersionInfo(IPentahoObjectFactory.class);
+    Assert.assertTrue( vi3.isFromManifest() );
+    Assert.assertEquals("POBS", vi3.getProductID());
+    Assert.assertEquals( "Pentaho Platform API", vi3.getTitle() );
+    Assert.assertNotNull( vi3.getVersionRelease() );
+    String verInfo3 = vh.getVersionInformation(IPentahoObjectFactory.class);
+    
+    Assert.assertNotNull( verInfo3 );
+    boolean startsWith = verInfo3.startsWith( "Pentaho Platform API" );
+    assertTrue( startsWith );
+    
   }
 
   public static void main(final String[] args) {
