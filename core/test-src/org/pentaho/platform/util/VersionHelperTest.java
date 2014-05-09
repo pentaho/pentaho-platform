@@ -63,6 +63,7 @@ public class VersionHelperTest extends TestCase {
     String verInfo3 = vh.getVersionInformation(IPentahoObjectFactory.class);
     
     Assert.assertNotNull( verInfo3 );
+
     boolean startsWith = verInfo3.startsWith( "Pentaho Platform API" );
     assertTrue( startsWith );
     
