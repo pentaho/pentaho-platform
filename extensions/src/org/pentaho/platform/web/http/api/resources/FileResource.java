@@ -219,6 +219,35 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.serverError().entity( t.getMessage() ).build();
     }
   }
+  
+
+  /**
+   * Move a file from one location to another
+   * 
+   * @param params
+   *          list of files to be moved
+   * @return
+   */
+  @PUT
+  @Path( "{pathId : .+}/move" )
+  @Consumes( { WILDCARD } )
+  public Response doMove( @PathParam( "pathId" ) String destPathId,  String params ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( destPathId ) );
+    if(repositoryFileDto == null) {
+      return Response.serverError().entity( "destination path not found" ).build(); 
+    }
+    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
+    try {
+      for ( int i = 0; i < sourceFileIds.length; i++ ) {
+        getRepoWs().moveFile( sourceFileIds[i], repositoryFileDto.getPath(), null );
+      }
+      return Response.ok().build();
+    } catch ( Throwable t ) {
+      t.printStackTrace();
+      return Response.serverError().entity( t.getMessage() ).build();
+    }
+  }
+  
 
   /**
    * Restore the selected list of files from the user's trash folder to their original location
