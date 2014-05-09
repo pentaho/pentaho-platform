@@ -41,6 +41,8 @@ import org.eigenbase.xom.Parser;
 import org.eigenbase.xom.XMLOutput;
 import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
+import org.owasp.esapi.ESAPI;
+import org.owasp.esapi.Encoder;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -295,6 +297,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     datasourcesXML.append( "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<Catalogs>\n" ); //$NON-NLS-1$
 
+    Encoder encoder = ESAPI.encoder();
+
     // Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
     /*
      * IPentahoSession pentahoSession = PentahoSessionHolder.getSession(); String tenantEtcFolder = null;
@@ -324,10 +328,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           String datasourceInfo = metadataNode.getProperty( "datasourceInfo" ).getString(); //$NON-NLS-1$
           String definition = metadataNode.getProperty( "definition" ).getString(); //$NON-NLS-1$
 
-          datasourcesXML.append( "<Catalog name=\"" + catalogName + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append( "<Catalog name=\"" + encoder.encodeForXML( catalogName ) + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
           datasourcesXML
-            .append( "<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append( "<Definition>" + definition + "</Definition>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+            .append( "<DataSourceInfo>" + encoder.encodeForXML( datasourceInfo ) + "</DataSourceInfo>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+          datasourcesXML.append( "<Definition>" + encoder.encodeForXML( definition ) + "</Definition>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
           datasourcesXML.append( "</Catalog>\n" ); //$NON-NLS-1$
         } else {
           logger

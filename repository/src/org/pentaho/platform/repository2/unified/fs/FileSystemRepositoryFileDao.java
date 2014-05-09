@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +62,8 @@ import org.pentaho.platform.util.RepositoryPathEncoder;
 @SuppressWarnings( "nls" )
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   private File rootDir = new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) );
+  private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
+    '/', '\\', '\t', '\r', '\n' } ) );
 
   public FileSystemRepositoryFileDao() {
     this( new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) ) );
@@ -473,7 +476,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public List<Character> getReservedChars() {
-    throw new UnsupportedOperationException();
+    return reservedChars;
   }
 
   @Override

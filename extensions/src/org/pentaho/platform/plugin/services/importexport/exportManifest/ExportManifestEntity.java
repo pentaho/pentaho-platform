@@ -94,9 +94,9 @@ public class ExportManifestEntity {
     entityMetaData.setIsFolder( isFolder );
     entityMetaData.setLocale(  LocaleHelper.getLocale().toString()  );
     entityMetaData.setName( file.getName() );
-    entityMetaData.setPath( StringUtils.replaceChars( file.getPath(), ":/\\", "///" ) );
+    entityMetaData.setPath( StringUtils.replaceChars( file.getPath(), "/\\", "//" ) );
     entityMetaData.setTitle( file.getName() );
-    setPath( StringUtils.replaceChars( file.getPath(), ":/\\", "///" ) );
+    setPath( StringUtils.replaceChars( file.getPath(), "/\\", "//" ) );
   }
 
   private void createEntityMetaData( String rootFolder, RepositoryFile repositoryFile )
