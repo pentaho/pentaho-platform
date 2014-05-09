@@ -156,6 +156,7 @@ public class PentahoWebContextFilter implements Filter {
         printLocale( effectiveLocale, out );
         printHomeFolder( out );
         printReservedChars( out );
+        printReservedCharsDisplay( out );
         printReservedRegexPattern( out );
 
         boolean requireJsOnly = "true".equals( request.getParameter( "requireJsOnly" ) );
@@ -208,6 +209,26 @@ public class PentahoWebContextFilter implements Filter {
             + "\";\n";
     out.write( scriptLine.getBytes() );
   }
+  
+  private void printReservedCharsDisplay( OutputStream out ) throws IOException {
+    List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
+    StringBuffer sb = new StringBuffer();
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
+      if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
+        sb.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
+      } else {
+        sb.append( reservedCharacters.get( i ) );
+      }
+      if ( i + 1 < reservedCharacters.size() ) {
+        sb.append( ", " );
+      }
+    }  
+    String scriptLine =
+        "var RESERVED_CHARS_DISPLAY = \""
+            + StringEscapeUtils.escapeJavaScript( sb.toString() )
+            + "\";\n";    
+    out.write( scriptLine.getBytes() );
+  }  
   
   private void printReservedRegexPattern ( OutputStream out ) throws IOException {
     String scriptLine = "var RESERVED_CHARS_REGEX_PATTERN = /" + makeReservedCharPattern() + "/;\n";
