@@ -34,7 +34,7 @@ public class VersionHelperTest extends TestCase {
     // Should read server-assembly.properties file from root.
     String verInfo = vh.getVersionInformation();
     VersionInfo vi1 = VersionHelper.getVersionInfo();
-    Assert.assertEquals( false, vi1.isFromManifest() );
+    Assert.assertFalse( vi1.isFromManifest() );
     Assert.assertEquals( "TVH", vi1.getProductID() );
     Assert.assertEquals( "Test Version Helper", vi1.getTitle() );
     Assert.assertEquals( "5", vi1.getVersionMajor() );
@@ -44,7 +44,7 @@ public class VersionHelperTest extends TestCase {
     // Should Read from this class - no manifest
     String verInfo2 = vh.getVersionInformation(this.getClass());
     VersionInfo vi2 = VersionHelper.getVersionInfo(this.getClass());
-    Assert.assertEquals( false, vi2.isFromManifest() );
+    Assert.assertFalse( vi2.isFromManifest() );
     Assert.assertEquals( "PCONN", vi2.getProductID() );
     Assert.assertEquals( "Pentaho Connections API", vi2.getTitle() );
     Assert.assertEquals( "2", vi2.getVersionMajor() );
