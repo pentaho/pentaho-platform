@@ -11,6 +11,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * This filter is designed to work around a limitation of some web servers which prohibit the encoded form of / and \
@@ -103,6 +107,23 @@ public class PentahoPathDecodingFilter implements Filter {
         parameterValues[ i ] = decodeSingleEncoded( parameterValue );
       }
       return parameterValues;
+    }
+
+    @Override public Enumeration getParameterNames() {
+      if ( this.getMethod().equals( "POST" ) ) {
+        // POST payload parameters need no special encoding. A decode would be destructive. Unfortunately we cannot
+        // easily know if a parameter came from the query-string or the post data. So we'll return the original value
+        // for now.
+        // TODO: handle mix of POST data and query-string parameters
+        return super.getParameterNames();
+      }
+      final Enumeration parameterNames = super.getParameterNames();
+      List<String> decoded = new ArrayList<String>();
+      while ( parameterNames.hasMoreElements() ) {
+        String o = parameterNames.nextElement().toString();
+        decoded.add( decodeSingleEncoded( o ) );
+      }
+      return Collections.enumeration( decoded );
     }
 
     /**
