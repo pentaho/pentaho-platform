@@ -1243,9 +1243,9 @@ define([
 
         for (index = 0; index < this.model.get("multiSelect").length; ++index) {
 
-          var clickedFilePath = this.model.get("clickedFile").obj.attr("path")
-          var multiSelectPath = this.model.get("multiSelect")[index].obj.attr("path");
-          if (multiSelectPath == clickedFilePath) {
+          var clickedFileId = this.model.get("clickedFile").obj.attr("id")
+          var multiSelectId = this.model.get("multiSelect")[index].obj.attr("id");
+          if (clickedFileId == multiSelectId) {
             clickedFileIndex = index;
             break;
           }
@@ -1284,7 +1284,7 @@ define([
         $target.addClass("selected");
         prevClicked.obj.addClass("selected");
 
-        if (prevClicked.obj.attr("path") != $target.attr("path")) {
+        if (prevClicked.obj.attr("id") != $target.attr("id")) {
 
           //Model title
           this.model.get("data").children[0].file.title;
@@ -1294,27 +1294,28 @@ define([
           var secondMatch = false;
           for (var i = 0; i < files.length; i++) {
 
+            if (files[i].file.folder === "false") {
 
-            if (files[i].file.path == prevClicked.obj.attr("path") || files[i].file.path == $target.attr("path")) {
+              if ((files[i].file.id == prevClicked.obj.attr("id") || files[i].file.id == $target.attr("id"))) {
+                if (inRange == true) {
+                  secondMatch = true;
+                }
+                else {
+                  inRange = true;
+                }
+              }
               if (inRange == true) {
-                secondMatch = true;
-              }
-              else {
-                inRange = true;
+
+                var item = {
+                  obj: $("div[id=\"" + files[i].file.id + "\"]")
+                }
+                item.obj.addClass("selected");
+                FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
+                if (secondMatch) {
+                  inRange = false;
+                }
               }
             }
-            if (inRange == true) {
-
-              var item = {
-                obj: $("div[id=\"" + files[i].file.id + "\"]")
-              }
-              item.obj.addClass("selected");
-              FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
-              if (secondMatch) {
-                inRange = false;
-              }
-            }
-
           }
         }
 
