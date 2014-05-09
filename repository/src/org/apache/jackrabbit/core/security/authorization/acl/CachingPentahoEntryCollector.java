@@ -78,6 +78,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
     PentahoSystem.addLogoutListener( new ILogoutListener() {
       @Override
       public void onLogout( IPentahoSession iPentahoSession ) {
+
+        log.debug( "Flushing ACL Entries due to logout for session: " + iPentahoSession.getName() );
         flushCachesOfSession( iPentahoSession );
       }
     } );
@@ -92,6 +94,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   private void flushCachesOfSession( IPentahoSession iPentahoSession ) {
+
     synchronized ( cacheBySession ) {
       if ( cacheBySession.containsKey( iPentahoSession ) ) {
         cacheBySession.get( iPentahoSession ).clear();
