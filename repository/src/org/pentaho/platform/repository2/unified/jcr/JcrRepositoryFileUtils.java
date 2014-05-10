@@ -98,7 +98,7 @@ public class JcrRepositoryFileUtils {
     StringBuilder buf = new StringBuilder();
     buf.append( ".*" ); //$NON-NLS-1$
     buf.append( "[" ); //$NON-NLS-1$
-    for ( Character ch : reservedChars ) {
+    for ( Character ch : list ) {
       buf.append( "\\" ); //$NON-NLS-1$
       buf.append( ch );
     }
