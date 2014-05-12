@@ -55,13 +55,10 @@ public class ActionSequenceContentGenerator extends SimpleContentGenerator {
 
     if ( ( requestParams != null ) && ( requestParams.getStringParameter( "path", null ) != null ) ) //$NON-NLS-1$
     {
-      try {
-        //This case added for biserver-11268
-        path = URLDecoder.decode( requestParams.getStringParameter( "path", "" ), "UTF-8" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      } catch ( IllegalArgumentException e ) {
-        //It is possible this case no longer occurs
-        path = requestParams.getStringParameter( "path", "" );
-      }
+      //So far the decode that used to be here is not necessary and breaks files with special characters.
+      // Leaving commented code here in case it shows up later
+      //path = URLDecoder.decode( requestParams.getStringParameter( "path", "" ), "UTF-8" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      path = requestParams.getStringParameter( "path", "" );
     } else if ( ( pathParams != null ) && ( pathParams.getStringParameter( "path", null ) != null ) ) { //$NON-NLS-1$
       path = URLDecoder.decode( pathParams.getStringParameter( "path", "" ), "UTF-8" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }

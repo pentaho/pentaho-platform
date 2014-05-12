@@ -552,7 +552,7 @@ public class FileResource extends AbstractJaxRSResource {
       try {
         hasParameterUi =
             ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().indexOf( '.' ) + 1 ), "parameterUi" ) != null );
+                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" ) != null );
       } catch ( NoSuchBeanDefinitionException e ) {
         // Do nothing.
       }
@@ -562,14 +562,14 @@ public class FileResource extends AbstractJaxRSResource {
       try {
         IContentGenerator parameterContentGenerator =
             PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().indexOf( '.' ) + 1 ), "parameter" );
+                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
         if ( parameterContentGenerator != null ) {
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           parameterContentGenerator.setOutputHandler( new SimpleOutputHandler( outputStream, false ) );
           parameterContentGenerator.setMessagesList( new ArrayList<String>() );
           Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
           SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-          parameterProvider.setParameter( "path", repositoryFile.getPath() );
+          parameterProvider.setParameter( "path", URLEncoder.encode( repositoryFile.getPath(), "UTF-8" ) );
           parameterProvider.setParameter( "renderMode", "PARAMETER" );
           parameterProviders.put( IParameterProvider.SCOPE_REQUEST, parameterProvider );
           parameterContentGenerator.setParameterProviders( parameterProviders );
