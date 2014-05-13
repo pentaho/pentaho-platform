@@ -24,6 +24,8 @@ import org.apache.log4j.MDC;
 import org.apache.log4j.WriterAppender;
 
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 public class Log4JRepositoryImportLog {
 
@@ -55,7 +57,7 @@ public class Log4JRepositoryImportLog {
     logger.setLevel( logLevel );
     RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout( logLevel );
     htmlLayout.setTitle( "Repository Import Log" );
-    writeAppender = new WriterAppender( htmlLayout, outputStream );
+    writeAppender = new WriterAppender( htmlLayout, new OutputStreamWriter( outputStream, Charset.forName( "utf-8" ) ) );
     logger.addAppender( writeAppender );
   }
 

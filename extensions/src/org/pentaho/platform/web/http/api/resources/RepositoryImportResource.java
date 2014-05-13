@@ -17,17 +17,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -37,7 +28,6 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportMimeResolver;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -46,15 +36,30 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
 @Path( "/repo/files/import" )
 public class RepositoryImportResource {
 
+  private static final Logger LOGGER = Logger.getLogger( RepositoryImportResource.class );
+
+  private static final String DEFAULT_CHAR_SET = "UTF-8";
+
   /**
    * Attempts to import all files from the zip file. A log file is produced at the end of import
-
+   * 
    * @param uploadDir
    *          : JCR Directory to which the zip structure or single file will be uploaded to.
    * @param fileIS
@@ -75,12 +80,14 @@ public class RepositoryImportResource {
       @FormDataParam( "fileUpload" ) InputStream fileIS, @FormDataParam( "overwriteFile" ) String overwriteFile,
       @FormDataParam( "overwriteAclPermissions" ) String overwriteAclPermissions,
       @FormDataParam( "applyAclPermissions" ) String applyAclPermission,
-      @FormDataParam( "retainOwnership" ) String retainOwnership, @FormDataParam( "charSet" ) String charSet,
-      @FormDataParam( "logLevel" ) String logLevel, @FormDataParam( "fileUpload" )
-    FormDataContentDisposition fileInfo ) {
+      @FormDataParam( "retainOwnership" ) String retainOwnership, @FormDataParam( "charSet" ) String pCharSet,
+      @FormDataParam( "logLevel" ) String logLevel, @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) {
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
+
+    String charSet = pCharSet == null ? DEFAULT_CHAR_SET : pCharSet;
+
     try {
       validateAccess();
 
@@ -90,23 +97,24 @@ public class RepositoryImportResource {
       boolean retainOwnershipFlag = ( "true".equals( retainOwnership ) ? true : false );
 
       Level level = Level.toLevel( logLevel );
-      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag,
-        overwriteAclSettingsFlag );
+      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
+
+      String fileName = new String( fileInfo.getFileName().getBytes(), charSet );
 
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileIS );
-      bundleBuilder.charSet( charSet == null ? "UTF-8" : charSet );
+      bundleBuilder.charSet( charSet );
       bundleBuilder.hidden( false );
       bundleBuilder.path( uploadDir );
       bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.applyAclSettings( applyAclSettingsFlag );
       bundleBuilder.overwriteAclSettings( overwriteAclSettingsFlag );
       bundleBuilder.retainOwnership( retainOwnershipFlag );
-      bundleBuilder.name( fileInfo.getFileName() );
+      bundleBuilder.name( fileName );
       IPlatformImportBundle bundle = bundleBuilder.build();
 
       IPlatformImportMimeResolver mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
-      bundleBuilder.mime( mimeResolver.resolveMimeForFileName( fileInfo.getFileName() ) );
+      bundleBuilder.mime( mimeResolver.resolveMimeForFileName( fileName ) );
 
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
       importLogger = importer.getRepositoryImportLogger();
@@ -129,7 +137,7 @@ public class RepositoryImportResource {
 
       // Flush the IOlapService
       IOlapService olapService =
-        PentahoSystem.get( IOlapService.class, "IOlapService", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
+          PentahoSystem.get( IOlapService.class, "IOlapService", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
       olapService.flushAll( PentahoSessionHolder.getSession() );
 
     } catch ( PentahoAccessControlException e ) {
@@ -141,7 +149,14 @@ public class RepositoryImportResource {
         importLogger.endJob();
       }
     }
-    return Response.ok( importLoggerStream.toString(), MediaType.TEXT_HTML ).build();
+    String responseBody = null;
+    try {
+      responseBody = importLoggerStream.toString( charSet );
+    } catch ( UnsupportedEncodingException e ) {
+      LOGGER.error( "Encoding of response body is failed. (charSet=" + charSet + ")", e );
+      responseBody = importLoggerStream.toString();
+    }
+    return Response.ok( responseBody, MediaType.TEXT_HTML ).build();
   }
 
   private void validateAccess() throws PentahoAccessControlException {
