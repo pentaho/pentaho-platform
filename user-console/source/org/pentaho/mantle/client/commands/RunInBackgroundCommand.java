@@ -238,20 +238,20 @@ public class RunInBackgroundCommand extends AbstractCommand {
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             final JSONObject scheduleRequest = new JSONObject();
-            scheduleRequest.put( "inputFile", new JSONString( NameUtils.decodeRepositoryPath( filePath ) ) ); //$NON-NLS-1$
+            scheduleRequest.put( "inputFile", new JSONString( filePath ) ); //$NON-NLS-1$
 
             // Set job name
             if ( StringUtils.isEmpty( getOutputName() ) ) {
               scheduleRequest.put( "jobName", JSONNull.getInstance() ); //$NON-NLS-1$
             } else {
-              scheduleRequest.put( "jobName", new JSONString( NameUtils.decodeRepositoryPath( getOutputName() ) ) ); //$NON-NLS-1$
+              scheduleRequest.put( "jobName", new JSONString( getOutputName() ) ); //$NON-NLS-1$
             }
 
             // Set output path location
             if ( StringUtils.isEmpty( getOutputLocationPath() ) ) {
               scheduleRequest.put( "outputFile", JSONNull.getInstance() ); //$NON-NLS-1$
             } else {
-              scheduleRequest.put( "outputFile", new JSONString( NameUtils.decodeRepositoryPath( getOutputLocationPath() ) ) ); //$NON-NLS-1$
+              scheduleRequest.put( "outputFile", new JSONString( getOutputLocationPath() ) ); //$NON-NLS-1$
             }
 
             // BISERVER-9321
