@@ -1403,8 +1403,7 @@ public class PentahoSystem {
    * @param obj
    * @param classes
    */
-  @SafeVarargs
-  public static <T> IPentahoObjectRegistration registerObject( T obj, Class<T>... classes ) {
+  public static <T> IPentahoObjectRegistration registerObject( T obj, Class<?>... classes ) {
     return PentahoSystem.runtimeObjectFactory.registerObject( obj, classes );
   }
 
