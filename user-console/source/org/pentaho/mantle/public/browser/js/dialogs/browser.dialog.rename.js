@@ -340,10 +340,7 @@ define([
     view: null,
 
     init: function (path, overrideType) {
-			if(path == window.top.HOME_FOLDER){
-				this.view.RenameHomeDialog.show();
-				return;
-			}
+			
       var repoPath = Encoder.encodeRepositoryPath( path );
 
       var me = this;
