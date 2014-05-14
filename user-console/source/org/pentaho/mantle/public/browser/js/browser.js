@@ -30,7 +30,7 @@ define([
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
-  "common-ui/jquery",
+  "common-ui/jquery"
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
 
 
@@ -165,6 +165,8 @@ define([
       el: myself.$container
 
     });
+    //Kill text selection in all IE browsers for the browse perspective
+    $("#fileBrowser").bind("selectstart", function(){return false});
   };
 
   FileBrowser.openFolder = function (path) {
