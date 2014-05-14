@@ -726,7 +726,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
     if ( isPath( pathId ) ) {
-      path = idToPath( pathId );
+      path = pathId ;
       if ( !isPathValid( path ) ) {
         return Response.status( FORBIDDEN ).build();
       }
@@ -1796,7 +1796,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   private boolean isPath( String pathId ) {
-    return pathId != null && pathId.contains( ":" );
+    return pathId != null && pathId.contains( "/" );
   }
 
   private void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
