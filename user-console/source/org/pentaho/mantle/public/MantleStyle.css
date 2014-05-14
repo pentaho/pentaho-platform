@@ -668,16 +668,6 @@ code {
   padding-top: 2px;
 }
 
-/* don't let IE take up all the space of its parent, it will be off screen */
-.IE .mantle-default-tab-background {
-  height: 95% !important;
-}
-
-/* needed to shorten the admin window as to ensure it does not spill off the screen */
-.IE8 #adminContentPanel {
-  height: 95% !important;
-}
-
 /* BISERVER-9132 - allows for scrolling in the admin perspective and  schedule perspective*/
 .applicationShell>div>div {
   overflow: auto;

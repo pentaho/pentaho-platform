@@ -272,13 +272,16 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private void adjustHeight() {
     Element pucHeader = DOM.getElementById( "pucHeader" );
     if ( pucHeader != null ) {
+      final boolean isIE = RootPanel.getBodyElement().getClassName().contains( "IE8" ) ||
+        RootPanel.getBodyElement().getClassName().contains( "IE9" ) ||
+        RootPanel.getBodyElement().getClassName().contains( "IE10" );
       final int offset = pucHeader.getOffsetHeight();
       setElementHeightOffset( navigatorAndContentSplit.getElement(), -1 * offset );
-      setElementHeightOffset( contentTabPanel.getElement(), -1 * offset );
+      setElementHeightOffset( contentTabPanel.getElement(), isIE?  -1 * ( offset + 36 ) :  -1 * offset );
       Timer t = new Timer() {
         public void run() {
           setElementHeightOffset( navigatorAndContentSplit.getElement(), -1 * offset );
-          setElementHeightOffset( contentTabPanel.getElement(), -1 * offset );
+          setElementHeightOffset( contentTabPanel.getElement(), isIE?  -1 * ( offset + 36 ) :  -1 * offset );
         }
       };
       t.schedule( 100 );
