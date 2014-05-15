@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-define(["common-ui/jquery-i18n"], function (context) {
+define(["common-ui/jquery-pentaho-i18n"], function (context) {
 
   var local = {
     name: "createNew",
