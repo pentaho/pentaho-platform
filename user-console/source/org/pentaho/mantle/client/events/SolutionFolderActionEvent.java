@@ -29,6 +29,10 @@ public class SolutionFolderActionEvent extends GwtEvent<SolutionFolderActionEven
   public SolutionFolderActionEvent() {
   }
 
+  public SolutionFolderActionEvent(String action) {
+      this.action = action;
+  }
+
   private String action;
   private String message;
 

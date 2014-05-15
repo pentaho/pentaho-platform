@@ -23,6 +23,7 @@ define([
     executableTypesUrl: 'api/repos/executableTypes',
     executableTypes: [],
     cutItems: [],
+    multiSelectItems: [],
 
     _init: function () {
 
@@ -37,17 +38,83 @@ define([
       });
     },
 
-    resetCutItemsStyle: function () {
-      var that = this; // trap this
-      for (var i=0;i<that.cutItems.length;i++){
-        that.cutItems[i].obj.removeClass("hiddenFileLabel");
+    applyHiddenFileLabelStyle: function (elementsArray) {
+      for (var i=0;i<elementsArray.length;i++){
+          $("#" + elementsArray[i].attr('id')).addClass("hiddenFileLabel");
       }
     },
 
-    buttonHandlerUIFeedback: function (element, fileListModel, foldersTreeModel, fileListSpinnerEnabled, folderTreeSpinnerEnabled) {
-      fileListModel.set("runSpinner", fileListSpinnerEnabled);
-      foldersTreeModel.set("runSpinner", folderTreeSpinnerEnabled);
-      element.prop("disabled", true);
+    removeHiddenFileLabelStyle: function (elementsArray) {
+      for (var i=0;i<elementsArray.length;i++){
+          $("#" + elementsArray[i].attr('id')).removeClass("hiddenFileLabel");
+      }
+    },
+
+    enableElements: function (elementsArray) {
+      for (var i=0;i<elementsArray.length;i++){
+          elementsArray[i].prop("disabled", false);
+      }
+    },
+
+    disableElements: function (elementsArray) {
+      for (var i=0;i<elementsArray.length;i++){
+          elementsArray[i].prop("disabled", true);
+      }
+    },
+
+    enableSpinners: function (modelsArray) {
+      for (var i=0;i<modelsArray.length;i++){
+          modelsArray[i].set("runSpinner", true);
+      }
+    },
+
+    disableSpinners: function (modelsArray) {
+      for (var i=0;i<modelsArray.length;i++){
+          modelsArray[i].set("runSpinner", false);
+          modelsArray[i].updateData();
+      }
+    },
+
+    resetCutItemsStyle: function () {
+      var that = this; // trap this
+      var elementsArray = [];
+      for (var i=0;i<that.cutItems.length;i++){
+          elementsArray.push(that.cutItems[i].obj);
+      }
+      that.removeHiddenFileLabelStyle(elementsArray);
+    },
+
+    applyCutItemsStyle: function () {
+        var that = this; // trap this
+        var elementsArray = [];
+        for (var i=0;i<that.cutItems.length;i++){
+            elementsArray.push(that.cutItems[i].obj);
+        }
+        that.applyHiddenFileLabelStyle(elementsArray);
+    },
+
+    trackItems: function (cutItems, multiSelectItems) {
+      var that = this; // trap this
+      // remove hiddenFileLabel class
+      that.resetCutItemsStyle();
+      //reset cutItems to currently cut items
+      that.cutItems = cutItems;
+      //keep track of previously selected items
+      that.multiSelectItems = multiSelectItems;
+      //apply hiddenFileLable class to currently cut items
+      that.applyCutItemsStyle();
+    },
+
+    uiButtonFeedback: function (elementsToDisableArray, elementsToEnableArray) {
+      var that = this; // trap this
+      that.enableElements(elementsToEnableArray);
+      that.disableElements(elementsToDisableArray);
+    },
+
+    uiSpinnerFeedback: function (modelsToDisableSpinnerArray, modelsToEnableSpinnerArray) {
+      var that = this; // trap this
+      that.enableSpinners(modelsToEnableSpinnerArray);
+      that.disableSpinners(modelsToDisableSpinnerArray);
     },
 
     getUrlBase: function () {

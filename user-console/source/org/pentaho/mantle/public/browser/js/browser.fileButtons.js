@@ -308,27 +308,12 @@ define([
       window.top.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
     },
 
-    cutHandler: function (path, title, id, model, browserUtils, fileListModel, foldersTreeModel) {
+    cutHandler: function (path, title, id) {
       window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
-      //remove hiddenFileLabel class
-      browserUtils.resetCutItemsStyle();
-      //reset cutItems to currently cut items
-      browserUtils.cutItems = model;
-      browserUtils.buttonHandlerUIFeedback($("#cutbutton"), fileListModel, foldersTreeModel, false, false);
-      $("#copyButton").prop("disabled", false);
-      for (var i=0;i<model.length;i++){
-        model[i].obj.addClass("hiddenFileLabel");
-      }
     },
 
-    copyHandler: function (path, title, id,  model, browserUtils, fileListModel, foldersTreeModel) {
+    copyHandler: function (path, title, id) {
       window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
-      //remove hiddenFileLabel
-      browserUtils.resetCutItemsStyle();
-      //reset cutItems to currently cut items
-      browserUtils.cutItems = [];
-      browserUtils.buttonHandlerUIFeedback($("#copyButton"), fileListModel, foldersTreeModel, false, false);
-      $("#cutbutton").prop("disabled", false);
     },
 
     downloadHandler: function (path) {
