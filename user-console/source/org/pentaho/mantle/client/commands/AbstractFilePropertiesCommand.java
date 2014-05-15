@@ -78,8 +78,8 @@ public abstract class AbstractFilePropertiesCommand implements Command {
       final RepositoryFile item = getRepositoryFile();
 
       // Checking if the user has access to manage permissions
-      String url = NameUtils.URLEncode( contextURL + "api/repo/files/{0}/canAccess?permissions={1}",
-            new String[]{ SolutionBrowserPanel.pathToId( item.getPath() ), String.valueOf( MANAGE_ACLS ) } ); //$NON-NLS-1$ //$NON-NLS-2$
+       String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId( item.getPath() ) 
+       + "/canAccess?permissions=" + MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
 
       RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
       try {
