@@ -64,7 +64,7 @@ public class CopyFilesCommand extends AbstractCommand {
     this.fileIds = fileIds;
   }
 
-  private final SolutionFileActionEvent event = new SolutionFileActionEvent(this.getClass().getName());
+  private final SolutionFileActionEvent event = new SolutionFileActionEvent( this.getClass().getName() );
 
   /*
          * (non-Javadoc)

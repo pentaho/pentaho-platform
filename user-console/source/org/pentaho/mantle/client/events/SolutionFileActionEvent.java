@@ -29,8 +29,8 @@ public class SolutionFileActionEvent extends GwtEvent<SolutionFileActionEventHan
   public SolutionFileActionEvent() {
   }
 
-  public SolutionFileActionEvent(String action) {
-      this.action = action;
+  public SolutionFileActionEvent( String action ) {
+    this.action = action;
   }
 
   private String action;
