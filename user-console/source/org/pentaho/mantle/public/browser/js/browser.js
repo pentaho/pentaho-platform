@@ -149,8 +149,7 @@ define([
 
   FileBrowser.redraw = function (initialPath) {
     var myself = this;
-
-
+      
     myself.fileBrowserModel = new FileBrowserModel({
       spinConfig: spin,
       openFileHandler: myself.openFileHandler,
@@ -290,6 +289,7 @@ define([
       var myself = this;
       var clickedFolder = this.get("foldersTreeModel").get("clickedFolder");
       var folderPath = clickedFolder.obj.attr("path");
+      var model = FileBrowser.fileBrowserModel; // trap model
 
       if (folderPath == ".trash") {
         this.updateTrashLastClick();
@@ -299,7 +299,8 @@ define([
       this.set("clickedFolder", clickedFolder);
       folderButtons.canDownload(this.get("canDownload"));
       folderButtons.canPublish(this.get("canPublish"));
-
+      //Leaving this here...if UX decides they want the hiddenFileLabel style preserved when switching folders
+      //model.get('browserUtils').applyCutItemsStyle();
 
       //Ajax request to check write permissions for folder
       $.ajax({
@@ -312,10 +313,10 @@ define([
         async: true,
         cache: false,
         success: function (response) {
-          folderButtons.updateFolderPermissionButtons(response);
+          folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems);
         },
         error: function (response) {
-          folderButtons.updateFolderPermissionButtons(false);
+          folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems);
         }
       });
 
@@ -887,25 +888,17 @@ define([
             for (var i = 0; i < multiSelectItems.length; i++) {
               fileList += multiSelectItems[i].obj.attr("id") + ",";
             }
-            type = "file";
-          }
-          if ((path != null) && event.data.handler) {
-            event.data.handler(
-                path,
-                title,
-                id,
-                multiSelectItems,
-                model.get("browserUtils"),
-                model.get("fileListModel"),
-                model.get("foldersTreeModel")
-            );
-            event.stopPropagation();
-          }
-          else {
-            event.data.handler(fileList, type, mode);
-            event.stopPropagation();
-          }
-        });
+              type ="file";
+            }
+            if ((path != null) && event.data.handler) {
+              event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
+              event.stopPropagation();
+            }
+            else {
+              event.data.handler(fileList, type, mode);
+              event.stopPropagation();
+            }
+          });
 
       });
     },
@@ -957,23 +950,16 @@ define([
             fileList = $(model.getFileClicked()[0]).attr("id") + ",";
             type = $(model.getFileClicked()[0]).attr("type");
 
-          }
-          if ((path != null) && event.data.handler) {
-            event.data.handler(
-                path,
-                title,
-                id,
-                multiSelectItems,
-                model.get("browserUtils"),
-                model.get("fileListModel"),
-                model.get("foldersTreeModel"));
-            event.stopPropagation();
-          }
-          else {
-            event.data.handler(fileList, type, mode);
-            event.stopPropagation();
-          }
-        });
+            }
+            if ((path != null) && event.data.handler) {
+              event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
+              event.stopPropagation();
+            }
+            else {
+              event.data.handler(fileList, type, mode);
+              event.stopPropagation();
+            }
+          });
       });
     },
 

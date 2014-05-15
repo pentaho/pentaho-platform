@@ -55,6 +55,8 @@ public class PasteFilesCommand extends AbstractCommand {
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
+  private final SolutionFolderActionEvent event = new SolutionFolderActionEvent( this.getClass().getName() );
+
   /**
    *
    */
@@ -101,11 +103,15 @@ public class PasteFilesCommand extends AbstractCommand {
 
           @Override
           public void onError( Request getChildrenRequest, Throwable exception ) {
-            Window.alert( exception.toString() );
+            Window.alert( exception.getLocalizedMessage() );
+            event.setMessage( exception.getLocalizedMessage() );
+            EventBusUtil.EVENT_BUS.fireEvent( event );
           }
 
           @Override
           public void onResponseReceived( Request getChildrenRequest, Response getChildrenResponse ) {
+            event.setMessage( "Click" );
+            EventBusUtil.EVENT_BUS.fireEvent( event );
             if ( getChildrenResponse.getStatusCode() >= 200 && getChildrenResponse.getStatusCode() < 300 ) {
               boolean promptForOptions = false;
               Document children = XMLParser.parse( getChildrenResponse.getText() );
@@ -130,6 +136,8 @@ public class PasteFilesCommand extends AbstractCommand {
                 final OverwritePromptDialog overwriteDialog = new OverwritePromptDialog();
                 final IDialogCallback callback = new IDialogCallback() {
                   public void cancelPressed() {
+                    event.setMessage( "Cancel" );
+                    EventBusUtil.EVENT_BUS.fireEvent( event );
                     overwriteDialog.hide();
                   }
 
@@ -156,9 +164,6 @@ public class PasteFilesCommand extends AbstractCommand {
 
   void performSave( final SolutionBrowserClipboard clipBoard, Integer overwriteMode ) {
 
-    final SolutionFolderActionEvent event = new SolutionFolderActionEvent();
-    event.setAction( this.getClass().getName() );
-
     @SuppressWarnings ( "unchecked" )
     final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
     String temp = ""; //$NON-NLS-1$
@@ -174,9 +179,9 @@ public class PasteFilesCommand extends AbstractCommand {
 
     String moveUrl =         contextURL
         + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/move"; //$NON-NLS-1$//$NON-NLS-2$
-    
-    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, (SolutionBrowserClipboard.getInstance()
-        .getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT) ? moveUrl : copyUrl );
+
+    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, ( SolutionBrowserClipboard.getInstance()
+        .getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT ) ? moveUrl : copyUrl );
     pasteChildrenRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
     pasteChildrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {

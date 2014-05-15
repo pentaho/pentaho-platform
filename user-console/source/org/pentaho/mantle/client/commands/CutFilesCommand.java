@@ -64,6 +64,8 @@ public class CutFilesCommand extends AbstractCommand {
     this.fileIds = fileIds;
   }
 
+  private final SolutionFileActionEvent event = new SolutionFileActionEvent( this.getClass().getName() );
+
   /*
      * (non-Javadoc)
      *
@@ -71,6 +73,8 @@ public class CutFilesCommand extends AbstractCommand {
      */
   @Override
   protected void performOperation() {
+    event.setMessage( "Click" );
+    EventBusUtil.EVENT_BUS.fireEvent( event );
 
     if ( this.getSolutionPath() != null && this.getFileNames() != null && this.getFileIds() != null ) {
       StringTokenizer pathTk = new StringTokenizer( this.getSolutionPath(), "\t" );
@@ -97,8 +101,6 @@ public class CutFilesCommand extends AbstractCommand {
     clipBoard.setClipboardItemsForCut( filesToCut );
     clipBoard.setMimeType( "jcrFiles/list" );
 
-    final SolutionFileActionEvent event = new SolutionFileActionEvent();
-    event.setAction( this.getClass().getName() );
     event.setMessage( "Success" );
     EventBusUtil.EVENT_BUS.fireEvent( event );
   }
