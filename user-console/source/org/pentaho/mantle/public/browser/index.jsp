@@ -228,6 +228,7 @@
                       switch (event.action) {
                           case "org.pentaho.mantle.client.commands.PasteFilesCommand":
                               //Handle errors
+                              browserUtils.uiSpinnerFeedback([fileListModel], []);
                               break;
                       }
                       break;
