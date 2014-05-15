@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.util.StringUtils;
 
@@ -45,10 +46,10 @@ public class JcrRoleAuthorizationPolicyUtils {
       final Node runtimeRolesFolderNode, final String runtimeRoleNodeName, final List<String> logicalRoleNames )
     throws RepositoryException {
     Node runtimeRoleNode = null;
-    if ( runtimeRolesFolderNode.hasNode( runtimeRoleNodeName ) ) {
-      runtimeRoleNode = runtimeRolesFolderNode.getNode( runtimeRoleNodeName );
+    if ( JcrRepositoryFileUtils.hasNode( runtimeRolesFolderNode, runtimeRoleNodeName ) ) {
+      runtimeRoleNode = JcrRepositoryFileUtils.getNode( runtimeRolesFolderNode, runtimeRoleNodeName );
     } else {
-      runtimeRoleNode = runtimeRolesFolderNode.addNode( runtimeRoleNodeName );
+      runtimeRoleNode = JcrRepositoryFileUtils.addNode( runtimeRolesFolderNode, runtimeRoleNodeName );
     }
     // clear all existing properties
     if ( runtimeRoleNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {

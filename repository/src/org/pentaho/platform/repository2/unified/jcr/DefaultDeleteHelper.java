@@ -158,8 +158,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
     final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS );
     final String folderName = prefix + ":" + fileId.toString(); //$NON-NLS-1$
     Node trashInternalFolderNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
-    if ( trashInternalFolderNode.hasNode( folderName ) ) {
-      return trashInternalFolderNode.getNode( folderName );
+    if ( JcrRepositoryFileUtils.hasNode( trashInternalFolderNode, folderName ) ) {
+      return JcrRepositoryFileUtils.getNode( trashInternalFolderNode, folderName );
     } else {
       return trashInternalFolderNode.addNode( folderName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
     }
@@ -183,8 +183,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
     final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS );
     final String folderName = prefix + ":" + folderId; //$NON-NLS-1$
     Node trashInternalFolderNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
-    if ( trashInternalFolderNode.hasNode( folderName ) ) {
-      return trashInternalFolderNode.getNode( folderName );
+    if ( JcrRepositoryFileUtils.hasNode( trashInternalFolderNode, folderName ) ) {
+      return JcrRepositoryFileUtils.getNode( trashInternalFolderNode, folderName );
     } else {
       // if Trash Structure 1 (legacy) doesn't exist, no need to create it now
       return null;
@@ -201,7 +201,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
     String tenantId = (String) pentahoSession.getAttribute( IPentahoSession.TENANT_ID_KEY );
     Node userHomeFolderNode =
         (Node) session.getItem( ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( tenantId, true ),
-            PentahoSessionHolder.getSession().getName() ) );
+            JcrRepositoryFileUtils.fileNameEncode( PentahoSessionHolder.getSession().getName() ) ) );
     if ( userHomeFolderNode.hasNode( FOLDER_NAME_TRASH ) ) {
       return userHomeFolderNode.getNode( FOLDER_NAME_TRASH );
     } else {
