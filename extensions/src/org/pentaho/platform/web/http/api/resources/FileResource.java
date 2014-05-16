@@ -1124,7 +1124,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
     if ( fileAcl.isEntriesInheriting() ) {
-      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces( file.getId() );
+      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
       fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
     }
     addAdminRole( fileAcl );
