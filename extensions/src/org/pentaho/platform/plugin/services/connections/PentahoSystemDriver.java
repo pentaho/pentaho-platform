@@ -27,6 +27,7 @@ import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,11 +51,19 @@ public class PentahoSystemDriver implements Driver {
   private static final String JDBC = "jdbc:";
 
   List<Driver> getAllDrivers() {
-    return PentahoSystem.getAll( Driver.class );
+    try {
+      return PentahoSystem.getAll( Driver.class );
+    } catch ( Throwable t ) {
+      return Collections.emptyList();
+    }
   }
 
   Map<String, String> getTranslationMap() {
-    return PentahoSystem.get( Map.class, "jdbcDriverTranslationMap", PentahoSessionHolder.getSession() );
+    try {
+      return PentahoSystem.get( Map.class, "jdbcDriverTranslationMap", PentahoSessionHolder.getSession() );
+    } catch ( Throwable t ) {
+      return Collections.emptyMap();
+    }
   }
 
   private String translate( String url ) {
