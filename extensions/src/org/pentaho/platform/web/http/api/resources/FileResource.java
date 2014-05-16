@@ -1069,9 +1069,6 @@ public class FileResource extends AbstractJaxRSResource {
     StringBuffer buffer = new StringBuffer();
     for ( int i = 0; i < reservedCharacters.size(); i++ ) {
       buffer.append( reservedCharacters.get( i ) );
-      if ( i + 1 < reservedCharacters.size() ) {
-        buffer.append( ',' );
-      }
     }
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
