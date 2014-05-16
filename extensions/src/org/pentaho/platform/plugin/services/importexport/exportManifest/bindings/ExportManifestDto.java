@@ -55,6 +55,7 @@ import java.util.List;
  *                 &lt;attribute name="exportDate" type="{http://www.w3.org/2001/XMLSchema}string" default="{date}" />
  *                 &lt;attribute name="exportBy" type="{http://www.w3.org/2001/XMLSchema}string" default="{user}" />
  *                 &lt;attribute name="rootFolder" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *                 &lt;attribute name="manifestVersion" type="{http://www.w3.org/2001/XMLSchema}string" default="{version}" />
  *               &lt;/restriction>
  *             &lt;/complexContent>
  *           &lt;/complexType>
@@ -255,6 +256,7 @@ public class ExportManifestDto {
    *       &lt;attribute name="exportDate" type="{http://www.w3.org/2001/XMLSchema}string" default="{date}" />
    *       &lt;attribute name="exportBy" type="{http://www.w3.org/2001/XMLSchema}string" default="{user}" />
    *       &lt;attribute name="rootFolder" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *       &lt;attribute name="manifestVersion" type="{http://www.w3.org/2001/XMLSchema}string" default="{version}" />
    *     &lt;/restriction>
    *   &lt;/complexContent>
    * &lt;/complexType>
@@ -270,6 +272,8 @@ public class ExportManifestDto {
     protected String exportBy;
     @XmlAttribute ( name = "rootFolder", required = true )
     protected String rootFolder;
+    @XmlAttribute ( name = "manifestVersion" )
+    protected String manifestVersion;
 
     /**
      * Gets the value of the exportDate property.
@@ -331,6 +335,24 @@ public class ExportManifestDto {
      */
     public void setRootFolder( String value ) {
       this.rootFolder = value;
+    }
+
+    /**
+     * Gets the value of the manifest version, if present.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getManifestVersion() {
+      return manifestVersion;
+    }
+
+    /**
+     * Sets the value of the manifestVersion property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setManifestVersion( String manifestVersion ) {
+      this.manifestVersion = manifestVersion;
     }
 
   }
