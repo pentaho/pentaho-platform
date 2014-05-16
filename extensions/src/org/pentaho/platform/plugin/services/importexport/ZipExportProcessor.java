@@ -39,10 +39,31 @@ package org.pentaho.platform.plugin.services.importexport;
  * Time: 4:41 PM
  */
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.util.Text;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -53,23 +74,6 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  *
@@ -116,6 +120,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     exportManifest.getManifestInformation().setExportBy( session.getName() );
     exportManifest.getManifestInformation().setExportDate(
         dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
+    exportManifest.getManifestInformation().setManifestVersion( "2");
   }
 
   /**
@@ -150,7 +155,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
       // don't zip root folder without name
       if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
-        zos.putNextEntry( new ZipEntry( getZipEntryName( exportRepositoryFile, filePath ) ) );
+        zos.putNextEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName (getZipEntryName( exportRepositoryFile, filePath ) ) ) );
       }
       exportDirectory( exportRepositoryFile, zos, filePath );
 
@@ -204,7 +209,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
       // if we don't get a valid input stream back, skip it
       if ( is != null ) {
         addToManifest( repositoryFile );
-        ZipEntry entry = new ZipEntry( getZipEntryName( repositoryFile, filePath ) );
+        ZipEntry entry =
+            new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) ) );
         zos.putNextEntry( entry );
         IOUtils.copy( is, outputStream );
         zos.closeEntry();
@@ -249,7 +255,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
         if ( repositoryFile.isFolder() ) {
           if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
             ZipOutputStream zos = (ZipOutputStream) outputStream;
-            ZipEntry entry = new ZipEntry( getZipEntryName( repositoryFile, filePath ) );
+            ZipEntry entry =
+                new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) ) );
             zos.putNextEntry( entry );
           }
           exportDirectory( repositoryFile, outputStream, filePath );
@@ -309,12 +316,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
     // only process files and folders that we know will have locale settings
     if ( supportedLocaleFileExt( repositoryFile ) ) {
       List<LocaleMapDto> locales = getAvailableLocales( repositoryFile.getId() );
-      zipName = getZipEntryName( repositoryFile, filePath );
+      zipName = ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) );
       name = repositoryFile.getName();
       for ( LocaleMapDto locale : locales ) {
         localeName = locale.getLocale().equalsIgnoreCase( "default" ) ? "" : "_" + locale.getLocale();
         if ( isFolder ) {
-          zipName = getZipEntryName( repositoryFile, filePath ) + "index";
+          zipName = ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) + "index" );
           name = "index";
         }
 
@@ -387,7 +394,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private InputStream createLocaleFile( String name, Properties properties, String locale ) throws IOException {
     InputStream is = null;
     if ( properties != null ) {
-      File localeFile = File.createTempFile( name, LOCALE_EXT );
+      File localeFile = File.createTempFile( ExportFileNameEncoder.encodeZipFileName(name), LOCALE_EXT );
       localeFile.deleteOnExit();
       FileOutputStream fileOut = new FileOutputStream( localeFile );
       properties.store( fileOut, "Locale = " + locale );

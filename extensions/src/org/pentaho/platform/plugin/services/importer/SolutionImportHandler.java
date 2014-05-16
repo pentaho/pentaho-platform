@@ -29,6 +29,7 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
@@ -42,6 +43,7 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
 import javax.ws.rs.core.Response;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -86,8 +88,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
 
-    // Process Metadata
+    //Process Manifest Settings
     ExportManifest manifest = getImportSession().getManifest();
+    String manifestVersion = null;
+    if ( manifest != null ) {
+      manifestVersion = manifest.getManifestInformation().getManifestVersion();
+    }
+    // Process Metadata
     if ( manifest != null ) {
       List<ExportManifestMetadata> metadataList = manifest.getMetadataList();
       for ( ExportManifestMetadata exportManifestMetadata : metadataList ) {
@@ -131,8 +138,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     for ( IRepositoryFileBundle file : importSource.getFiles() ) {
       String fileName = file.getFile().getName();
+      String actualFilePath = file.getPath();
+      if ( manifestVersion != null) {
+        fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
+        actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
+      }
       String repositoryFilePath =
-        RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( file.getPath() ), fileName );
+        RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
 
       if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
 
@@ -146,6 +158,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 
       InputStream bundleInputStream = null;
+      
+      String decodedFilePath = file.getPath();
+      if ( manifestVersion != null ){
+        decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
+      }
       if ( file.getFile().isFolder() ) {
         bundleBuilder.mime( "text/directory" );
         bundleBuilder.file( file.getFile() );
@@ -161,7 +178,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
         bundleBuilder.input( bundleInputStream );
         bundleBuilder.mime( solutionHelper.getMime( fileName ) );
-        String filePath = ( file.getPath().equals( "/" ) || file.getPath().equals( "\\" ) ) ? "" : file.getPath();
+
+        String filePath =
+            ( decodedFilePath.equals( "/" ) || decodedFilePath.equals( "\\" ) ) ? "" : decodedFilePath;
         repositoryFilePath = RepositoryFilenameUtils.concat( importBundle.getPath(), filePath );
       }
 
@@ -169,13 +188,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       bundleBuilder.path( repositoryFilePath );
 
       String sourcePath;
-      if ( file.getPath().startsWith( "/" ) ) {
+      if ( decodedFilePath.startsWith( "/" ) ) {
         sourcePath = RepositoryFilenameUtils.concat( file.getPath().substring( 1 ), fileName );
       } else {
         if ( file.getFile().isFolder() ) {
           sourcePath = fileName;
         } else {
-          sourcePath = RepositoryFilenameUtils.concat( file.getPath(), fileName );
+          sourcePath = RepositoryFilenameUtils.concat( decodedFilePath, fileName );
         }
       }
       

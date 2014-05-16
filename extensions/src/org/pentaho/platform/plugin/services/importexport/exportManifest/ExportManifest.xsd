@@ -16,6 +16,7 @@
           <attribute name="exportDate" type="string" default="{date}"></attribute>
           <attribute name="exportBy" type="string" default="{user}"></attribute>
           <attribute name="rootFolder" type="string" use="required"></attribute>
+          <attribute name="manifestVersion" type="string" use="optional"></attribute>
         </complexType>
       </element>
 

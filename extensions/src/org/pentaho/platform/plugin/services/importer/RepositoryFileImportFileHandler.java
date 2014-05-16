@@ -38,6 +38,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -120,6 +121,15 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         // The file doesn't exist and it is a folder. Create folder.
         getLogger().trace( "Creating folder [" + repositoryFilePath + "]" );
         final Serializable parentId = getParentId( repositoryFilePath );
+        RepositoryFile decodedRepoFile = bundle.getFile();
+        if ( getImportSession().getManifest() != null
+            && getImportSession().getManifest().getManifestInformation().getManifestVersion() != null ) {
+          String folderName = ExportFileNameEncoder.decodeZipFileName( bundle.getFile().getName() );
+          RepositoryFile.Builder builder = new RepositoryFile.Builder( bundle.getFile() ).name( folderName ).title( folderName );
+          decodedRepoFile = builder.build();
+        }
+        
+        bundle.setFile( decodedRepoFile );
         RepositoryFile repoFile = finalAdjustFolder( bundle, null );
         if ( bundle.getAcl() != null ) {
           repoFile = repository.createFolder( parentId, repoFile, bundle.getAcl(), null );
