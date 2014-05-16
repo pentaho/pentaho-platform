@@ -44,6 +44,7 @@ import java.util.ServiceLoader;
  * PentahoSystem aggregate objectFactory
  */
 public class OSGIBoot implements IPentahoSystemListener {
+  private final PentahoOSGIActivator pentahoOSGIActivator = new PentahoOSGIActivator();
   Framework framework;
   private Logger logger = LoggerFactory.getLogger( OSGIBoot.class );
 
@@ -113,13 +114,13 @@ public class OSGIBoot implements IPentahoSystemListener {
       List<Bundle> bundleList = new ArrayList<Bundle>();
 
       File[] bundleDirectories =
-          new File[] {
-            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
-                + "core_bundles" ),
-            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
-              + "fragment_bundles" ),
-            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
-                + "bundles" ) };
+        new File[] {
+          new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+            + "core_bundles" ),
+          new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+            + "fragment_bundles" ),
+          new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+            + "bundles" ) };
 
       logger.debug( "Installing bundles" );
       for ( File bundleDirectory : bundleDirectories ) {
@@ -154,7 +155,7 @@ public class OSGIBoot implements IPentahoSystemListener {
         }
       }
 
-      new PentahoOSGIActivator().setBundleContext( framework.getBundleContext() );
+      pentahoOSGIActivator.setBundleContext( framework.getBundleContext() );
 
       return true;
     } catch ( Exception ex ) {
@@ -176,6 +177,7 @@ public class OSGIBoot implements IPentahoSystemListener {
 
   @Override
   public void shutdown() {
+    pentahoOSGIActivator.shutdown();
     shutdownFramework();
   }
 }
