@@ -28,6 +28,7 @@ import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.util.Assert;
@@ -173,8 +174,8 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
       }
     } else {
       for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
-        if ( JcrRepositoryFileUtils.hasNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName ) ) {
-          Node runtimeRoleFolderNode = JcrRepositoryFileUtils.getNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName );
+        if ( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName ) ) {
+          Node runtimeRoleFolderNode = NodeHelper.getNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName );
           if ( runtimeRoleFolderNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {
             Value[] values = runtimeRoleFolderNode.getProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ).getValues();
             String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
@@ -247,7 +248,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
           "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0001_ATTEMPT_MOD_IMMUTABLE", runtimeRoleName ) ); //$NON-NLS-1$
     }
     session.save();
-    Assert.isTrue( JcrRepositoryFileUtils.hasNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName ) );
+    Assert.isTrue( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName ) );
 
     // update cache
     String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
