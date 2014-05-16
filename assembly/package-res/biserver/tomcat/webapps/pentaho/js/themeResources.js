@@ -82,17 +82,37 @@ function includeResources(resourceTree) {
 
 function customizeThemeStyling() {
   // if it is IE, inject an IE class to the body tag to allow for custom IE css by --> .IE .myclass {}
-  if (document.all) {
+  var className = "",
+      regEx = null,
+      isIE = false,
+      version = 0;
 
-    var className = " IE";
-
-    // Add specific version
-    var regEx = new RegExp("MSIE ([0-9]{1,})[\.0-9]{0,}");
-    if (regEx.exec(navigator.userAgent) != null) {
-      var version = parseInt( RegExp.$1 );
-      className += " IE" + version;
-    }
-    
-    document.getElementsByTagName("body")[0].className += className;
+  // updated due to user agent string changes on IE11
+  // source: http://msdn.microsoft.com/en-us/library/ie/bg182625.aspx#uaString
+  if (navigator.appName == 'Microsoft Internet Explorer') {
+    regEx = new RegExp("MSIE ([0-9]{1,})[\.0-9]{0,}");
+    isIE = true;
+  } else if (navigator.appName == 'Netscape') {
+    regEx = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+    isIE = true;
   }
+
+  if (regEx != null) {
+    var className = " IE";
+  } if (regEx.exec(navigator.userAgent) != null) {
+    version = parseInt( RegExp.$1 );
+    className += " IE" + version;
+  }
+
+  if (isIE) {
+    // class used to open all pdfs in another window due to z-index issues with pdf readers in IE browsers
+    document.getElementsByTagName("body")[0].className += " pdfReaderEmbeded";
+
+    // the IE classes are not being added to IE11 due to all the dojo upgrade tests where made against
+    // IE11 without these classes. If is safer for now to keep the class not added
+    if (version < 11) {
+      document.getElementsByTagName("body")[0].className += className;
+    }
+  }
+
 }
