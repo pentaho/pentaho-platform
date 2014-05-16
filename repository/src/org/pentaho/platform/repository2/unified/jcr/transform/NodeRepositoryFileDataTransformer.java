@@ -25,6 +25,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.util.Assert;
 
@@ -91,8 +92,8 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
 
     JcrRepositoryFileUtils.checkName( dataNode.getName() );
 
-    if ( JcrRepositoryFileUtils.hasNode( jcrParentNode, nodeName ) ) {
-      jcrNode = JcrRepositoryFileUtils.getNode( jcrParentNode, nodeName );
+    if ( NodeHelper.hasNode( jcrParentNode, nodeName ) ) {
+      jcrNode = NodeHelper.getNode( jcrParentNode, nodeName );
     } else {
       jcrNode = jcrParentNode.addNode( nodeName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
     }

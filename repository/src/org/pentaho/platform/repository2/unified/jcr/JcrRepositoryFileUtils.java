@@ -127,7 +127,7 @@ public class JcrRepositoryFileUtils {
     Node node = session.getRootNode();
     RepositoryFile file =
         new RepositoryFile.Builder( node.getIdentifier(), "" ).folder( true ).versioned( false ).path( //$NON-NLS-1$
-            pathDecode( node.getPath() ) ).build();
+          JcrStringHelper.pathDecode( node.getPath() ) ).build();
     return file;
   }
 
@@ -384,10 +384,10 @@ public class JcrRepositoryFileUtils {
         if ( properties != null ) {
           // create node and set properties for each locale
           Node localeNode;
-          if ( !hasNode( localeRootNode, locale ) ) {
+          if ( !NodeHelper.hasNode( localeRootNode, locale ) ) {
             localeNode = localeRootNode.addNode( locale, pentahoJcrConstants.getNT_UNSTRUCTURED() );
           } else {
-            localeNode = checkGetNode( localeRootNode, locale );
+            localeNode = NodeHelper.checkGetNode( localeRootNode, locale );
           }
           for ( String propertyName : properties.stringPropertyNames() ) {
             try {
@@ -448,11 +448,11 @@ public class JcrRepositoryFileUtils {
   public static String getAbsolutePath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
-      return pathDecode( session.getNodeByIdentifier(
+      return JcrStringHelper.pathDecode( session.getNodeByIdentifier(
           node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString() ).getPath() );
     }
 
-    return pathDecode( node.getPath() );
+    return JcrStringHelper.pathDecode( node.getPath() );
   }
 
   public static Serializable getNodeId(final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -467,20 +467,20 @@ public class JcrRepositoryFileUtils {
   public static String getNodeName(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
-      return fileNameDecode( session.getNodeByIdentifier(
+      return JcrStringHelper.fileNameDecode( session.getNodeByIdentifier(
           node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString() ).getName() );
     }
 
-    return fileNameDecode( node.getName() );
+    return JcrStringHelper.fileNameDecode( node.getName() );
   }
 
   public static String getVersionId(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
-      return fileNameDecode( node.getParent().getName() );
+      return JcrStringHelper.fileNameDecode( node.getParent().getName() );
     }
 
-    return fileNameDecode( session.getWorkspace().getVersionManager().getBaseVersion(
+    return JcrStringHelper.fileNameDecode( session.getWorkspace().getVersionManager().getBaseVersion(
         node.getPath() ).getName() );
   }
 
@@ -497,7 +497,7 @@ public class JcrRepositoryFileUtils {
     // guard against using a file retrieved from a more lenient session inside a more strict session
     Assert.notNull( parentFolderNode );
     
-    String encodedfolderName = fileNameEncode( folder.getName() );
+    String encodedfolderName = JcrStringHelper.fileNameEncode( folder.getName() );
     Node folderNode =
         parentFolderNode.addNode( encodedfolderName, pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER() );
     folderNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden() );
@@ -527,7 +527,7 @@ public class JcrRepositoryFileUtils {
       final ITransformer<IRepositoryFileData> transformer ) throws RepositoryException {
 
     checkName( file.getName() );
-    String encodedFileName = fileNameEncode( file.getName() );
+    String encodedFileName = JcrStringHelper.fileNameEncode( file.getName() );
     Node parentFolderNode;
     if ( parentFolderId != null ) {
       parentFolderNode = session.getNodeByIdentifier( parentFolderId.toString() );
@@ -658,7 +658,7 @@ public class JcrRepositoryFileUtils {
   public static List<RepositoryFile> getChildren( final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final IPathConversionHelper pathConversionHelper,
       final ILockHelper lockHelper, final RepositoryRequest repositoryRequest ) throws RepositoryException {
-    Node folderNode = session.getNodeByIdentifier( pathEncode( repositoryRequest.getPath() ) );
+    Node folderNode = session.getNodeByIdentifier( JcrStringHelper.pathEncode( repositoryRequest.getPath() ) );
     Assert.isTrue( isPentahoFolder( pentahoJcrConstants, folderNode ) );
 
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
@@ -1059,7 +1059,7 @@ public class JcrRepositoryFileUtils {
       final RepositoryRequest repositoryRequest, IRepositoryAccessVoterManager accessVoterManager )
     throws RepositoryException {
 
-    Item fileItem = session.getItem( pathEncode( absPath ) );
+    Item fileItem = session.getItem( JcrStringHelper.pathEncode( absPath ) );
     // items are nodes or properties; this must be a node
     Assert.isTrue( fileItem.isNode() );
     Node fileNode = (Node) fileItem;
@@ -1136,7 +1136,7 @@ public class JcrRepositoryFileUtils {
     }
 
     try {
-      Node localeNode = checkGetNode( localesNode, locale );
+      Node localeNode = NodeHelper.checkGetNode( localesNode, locale );
       for ( String propertyName : properties.stringPropertyNames() ) {
         localeNode.setProperty( propertyName, properties.getProperty( propertyName ) );
       }
@@ -1163,7 +1163,7 @@ public class JcrRepositoryFileUtils {
 
     try {
       // remove locale node
-      Node localeNode = checkGetNode( localesNode, locale );
+      Node localeNode = NodeHelper.checkGetNode( localesNode, locale );
       localeNode.remove();
     } catch ( PathNotFoundException pnfe ) {
       // nothing to delete
@@ -1222,7 +1222,7 @@ public class JcrRepositoryFileUtils {
     String metadataNodeName = pentahoJcrConstants.getPHO_METADATA();
     Node metadataNode = null;
     try {
-      metadataNode = checkGetNode( fileNode, metadataNodeName );
+      metadataNode = NodeHelper.checkGetNode( fileNode, metadataNodeName );
     } catch ( PathNotFoundException pathNotFound ) { // No meta on this return an empty Map
       return values;
     }
@@ -1323,7 +1323,7 @@ public class JcrRepositoryFileUtils {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
     Item fileNode;
     try {
-      fileNode = session.getItem( pathEncode( absPath ) );
+      fileNode = session.getItem( JcrStringHelper.pathEncode( absPath ) );
       // items are nodes or properties; this must be a node
       Assert.isTrue( fileNode.isNode() );
     } catch ( PathNotFoundException e ) {
@@ -1331,136 +1331,5 @@ public class JcrRepositoryFileUtils {
     }
     return fileNode != null ? nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
         lockHelper, (Node) fileNode, loadMaps, locale ) : null;
-  }
-  
-  protected static String fileNameEncode(String fileName) {
-    return Text.escapeIllegalJcrChars( fileName );
-  }
-
-  protected static String fileNameDecode(String encodedFileName) {
-    return Text.unescapeIllegalJcrChars( encodedFileName );
-  }
-  
-  // May contian just folder names or full paths
-  protected static String pathEncode( String path) {
-    String[] folders = path.split("/");
-    StringBuilder encodedPath = new StringBuilder(path.length() * 2);
-    for (int i=0; i < folders.length; i++) {
-      encodedPath.append( fileNameEncode(folders[i]) );
-      if ( i != folders.length - 1 || path.endsWith( "/" ) ) {
-        encodedPath.append( "/" );
-      }
-    }
-    return encodedPath.toString();
-  }
-  
-  // May contian just folder names or full paths
-  protected static String pathDecode( String encodedPath ) {
-    String[] folders = encodedPath.split("/");
-    StringBuilder decodedPath = new StringBuilder(encodedPath.length() * 2);
-    for (int i=0; i < folders.length; i++) {
-      decodedPath.append( fileNameDecode(folders[i]) );
-      if ( i != folders.length - 1 || encodedPath.endsWith( "/" ) ) {
-        decodedPath.append( "/" );
-      }
-    }
-    return decodedPath.toString();
-  }
-
-  /**
-   * Encapsulate hasNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  protected static boolean checkHasNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return parentNode.hasNode( nodeName );
-  }
-
-  /**
-   * Encapsulate hasNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  public static boolean hasNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return checkHasNode( parentNode, fileNameEncode( nodeName ));
-  }
-
-  /**
-   * Encapsulate addNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  protected static Node checkAddNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return parentNode.addNode( nodeName );
-  }
-
-  /**
-   * Encapsulate addNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  public static Node addNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return checkAddNode( parentNode, fileNameEncode( nodeName ) );
-  }
-
-  /**
-   * Encapsulate addNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  public static Node addNode( Node parentNode, String nodeName, String nodeParameter ) throws RepositoryException {
-    return checkAddNode( parentNode, fileNameEncode( nodeName ), nodeParameter );
-  }
-
-  /**
-   * Encapsulate addNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  protected static Node checkAddNode( Node parentNode, String nodeName, String nodeParameter ) throws RepositoryException {
-    return parentNode.addNode( nodeName, nodeParameter );
-  }
-
-  /**
-   * Encapsulate getNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  protected static Node checkGetNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return parentNode.getNode( nodeName );
-  }
-
-  /**
-   * Encapsulate getNode calls here to ensure we are encoding the parameter
-   * @param parentNode
-   * @param nodeName
-   * @return
-   * @throws RepositoryException
-   */
-  public static Node getNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return checkGetNode( parentNode, fileNameEncode( nodeName ) );
-  }
-
-  /**
-   * Safely create data node with jcr encoded name
-   * @param name
-   * @return
-   */
-  public static DataNode createDataNode( String name ){
-    return new DataNode( fileNameEncode( name ));
   }
 }
