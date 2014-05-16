@@ -81,7 +81,15 @@ define([
         return $('#btnCreateNewContent').html();
       }
     });
-
+    
+    // setup a listener to hide popovers when a click happens outside of them
+    $('body').on('click', function (e) {
+      $('.popover-source').each(function () {
+        if ($(this).has(e.target).length == 0 && !$(this).is(e.target) && $('.popover').has(e.target).length == 0) {
+          $(this).popover('hide');
+        }
+      });
+    });
   }
 
   function openFile(title, tooltip, fullPath) {
