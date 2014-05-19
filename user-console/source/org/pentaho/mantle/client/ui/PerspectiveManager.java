@@ -299,16 +299,20 @@ public class PerspectiveManager extends SimplePanel {
     if ( activePerspective != null && ADMIN_PERSPECTIVE.equals( activePerspective.getId() ) ) {
       final Widget activeAdminPanel = MantleXul.getInstance().getAdminContentDeck().getWidget( MantleXul.getInstance()
           .getAdminContentDeck().getVisibleWidget() );
-      if ( activeAdminPanel != null && activeAdminPanel instanceof ISysAdminPanel ) {
-        ( (ISysAdminPanel) activeAdminPanel ).passivate( new AsyncCallback<Boolean>() {
-          @Override
-          public void onFailure( Throwable caught ) { }
+      if ( activeAdminPanel != null ) {
+        if( activeAdminPanel instanceof ISysAdminPanel ) {
+          ( (ISysAdminPanel) activeAdminPanel ).passivate( new AsyncCallback<Boolean>() {
+            @Override
+            public void onFailure( Throwable caught ) { }
 
-          @Override
-          public void onSuccess( Boolean result ) {
-            showPerspectiveContinue( perspective );
-          }
-        } );
+            @Override
+            public void onSuccess( Boolean result ) {
+              showPerspectiveContinue( perspective );
+            }
+          } );
+        } else {
+          showPerspectiveContinue( perspective );
+        }
       }
     } else {
       showPerspectiveContinue( perspective );
