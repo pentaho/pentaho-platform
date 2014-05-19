@@ -95,6 +95,15 @@ public class PentahoRequestContextHolder {
       if ( PentahoSystem.getInitializedOK() ) {
         return new BasePentahoRequestContext( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
       } else {
+        try{
+          logger.debug( "Something went wrong. Trying to proceed. System is in status " + PentahoSystem.getInitializedStatus() );
+          if( PentahoSystem.getApplicationContext() != null && PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() != null ){
+            return new BasePentahoRequestContext( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+          }
+        }
+        catch(Exception ex){
+          logger.debug( "Restore attempt failed ", ex );
+        }
         return null;
       }
     }
