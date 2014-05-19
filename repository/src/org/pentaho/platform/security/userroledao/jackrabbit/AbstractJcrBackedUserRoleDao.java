@@ -44,6 +44,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
@@ -235,34 +237,31 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     userDetailsCache.removeUserFromCache( getTenantedUserNameUtils().getPrincipleName( userName ) );
   }
 
-  private boolean adminRoleRemoved( String[] newRoles, List<IPentahoRole> oldRolesList ) {
-    boolean newListAdminRoleExist = Arrays.asList( newRoles ).contains( tenantAdminRoleName );
-    boolean oldListAdminRoleExist = hasAdminRole( oldRolesList );
-    return oldListAdminRoleExist && !newListAdminRoleExist;
+  private boolean isMyself( String userName ) {
+    return PentahoSessionHolder.getSession().getName().equals( userName );
   }
-
-  private boolean isAdmin( IPentahoUser user ) {
-    return hasAdminRole( getUserRoles( user.getTenant(), user.getUsername() ) );
-  }
-
-  private boolean atLeastOneMoreAdminExists( final String selectedUserName ) {
-    for ( IPentahoUser user : getUsers() ) {
-      boolean isSelectedUser = selectedUserName.equals( user.getUsername() );
-      if ( !isSelectedUser && isAdmin( user ) ) {
-        return true;
-      }
+  
+  private boolean isDefaultAdminUser( String userName ) {
+    String defaultAdminUser =
+        PentahoSystem.get( String.class, "singleTenantAdminUserName", PentahoSessionHolder.getSession() );
+    if ( defaultAdminUser != null ) {
+      return defaultAdminUser.equals( userName );
     }
     return false;
+  }
+  
+  private boolean adminRoleExist( String[] newRoles ) {
+    return Arrays.asList( newRoles ).contains( tenantAdminRoleName );
   }
 
   public void setUserRoles( Session session, final ITenant theTenant, final String userName, final String[] roles )
     throws RepositoryException, NotFoundException {
 
-    if ( adminRoleRemoved( roles, getUserRoles( theTenant, userName ) ) && !atLeastOneMoreAdminExists( userName ) ) {
+    if ( ( isMyself( userName ) || isDefaultAdminUser( userName ) ) && !adminRoleExist( roles ) ) {
       throw new RepositoryException( Messages.getInstance().getString(
-        "AbstractJcrBackedUserRoleDao.ERROR_0005_LAST_ADMIN_USER", userName ) );
+          "AbstractJcrBackedUserRoleDao.ERROR_0005_YOURSELF_OR_DEFAULT_ADMIN_USER" ) );
     }
-
+    
     Set<String> roleSet = new HashSet<String>();
     if ( roles != null ) {
       roleSet.addAll( Arrays.asList( roles ) );
@@ -575,7 +574,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       theTenant = JcrTenantUtils.getTenant();
     }
     if ( TenantUtils.isAccessibleTenant( theTenant ) ) {
-      UserManager userMgr = getUserManager( theTenant, session );
+      UserManager userMgr = getUserManager( theTenant, session );  
       pPrincipalName = ( (SessionImpl) session ).getJCRName( P_PRINCIPAL_NAME );
       Iterator<Authorizable> it = userMgr.findAuthorizables( pPrincipalName, null, UserManager.SEARCH_TYPE_USER );
       while ( it.hasNext() ) {
