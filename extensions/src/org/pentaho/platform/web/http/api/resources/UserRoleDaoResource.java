@@ -21,10 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
-import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
+import org.pentaho.platform.api.engine.security.userroledao.*;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.core.mt.Tenant;
@@ -187,7 +184,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (username)
-   * @param roleNames (pipe (|) separated list of role names)
+   * @param roleNames (tab (\t) separated list of role names)
    *
    * @return
    */
@@ -196,18 +193,26 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD } )
   public Response assignRoleToUser( @QueryParam( "tenant" ) String tenantPath,
       @QueryParam( "userName" ) String userName, @QueryParam( "roleNames" ) String roleNames ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-    StringTokenizer tokenizer = new StringTokenizer( roleNames, "|" );
-    Set<String> assignedRoles = new HashSet<String>();
-    for ( IPentahoRole pentahoRole : roleDao.getUserRoles( getTenant( tenantPath ), userName ) ) {
-      assignedRoles.add( pentahoRole.getName() );
+    if ( canAdminister() ) {
+      IUserRoleDao roleDao =
+          PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
+      StringTokenizer tokenizer = new StringTokenizer(roleNames, "\t");
+      Set<String> assignedRoles = new HashSet<String>();
+      for (IPentahoRole pentahoRole : roleDao.getUserRoles(getTenant(tenantPath), userName)) {
+        assignedRoles.add(pentahoRole.getName());
+      }
+      while (tokenizer.hasMoreTokens()) {
+        assignedRoles.add(tokenizer.nextToken());
+      }
+      try {
+        roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
+      } catch (Throwable th) {
+        return processErrorResponse(th.getLocalizedMessage());
+      }
+      return Response.ok().build();
+    } else {
+      return Response.status( UNAUTHORIZED ).build();
     }
-    while ( tokenizer.hasMoreTokens() ) {
-      assignedRoles.add( tokenizer.nextToken() );
-    }
-    roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[0] ) );
-    return Response.ok().build();
   }
 
   /**
@@ -215,7 +220,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
    * @param userName (username)
-   * @param roleNames (pipe (|) separated list of role names)
+   * @param roleNames (tab (\t) separated list of role names)
    *
    * @return
    */
@@ -228,7 +233,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       try {
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        StringTokenizer tokenizer = new StringTokenizer( roleNames, "|" );
+        StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
         Set<String> assignedRoles = new HashSet<String>();
         for ( IPentahoRole pentahoRole : roleDao.getUserRoles( getTenant( tenantPath ), userName ) ) {
           assignedRoles.add( pentahoRole.getName() );
@@ -301,7 +306,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userNames (list of pipe(|) separated user names
+   * @param userNames (list of tab (\t) separated user names
    * @param roleName (role name)
    *
    * @return
@@ -311,25 +316,33 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD } )
   public Response assignUserToRole( @QueryParam( "tenant" ) String tenantPath,
       @QueryParam( "userNames" ) String userNames, @QueryParam( "roleName" ) String roleName ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-    StringTokenizer tokenizer = new StringTokenizer( userNames, "|" );
-    Set<String> assignedUserNames = new HashSet<String>();
-    for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
-      assignedUserNames.add( pentahoUser.getUsername() );
+    if ( canAdminister() ) {
+      IUserRoleDao roleDao =
+          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
+      Set<String> assignedUserNames = new HashSet<String>();
+      for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
+        assignedUserNames.add( pentahoUser.getUsername() );
+      }
+      while ( tokenizer.hasMoreTokens() ) {
+        assignedUserNames.add( tokenizer.nextToken() );
+      }
+      try {
+        roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
+        return Response.ok().build();
+      } catch (Throwable th) {
+        return processErrorResponse( th.getLocalizedMessage() );
+      }
+    } else {
+      return Response.status( UNAUTHORIZED ).build();
     }
-    while ( tokenizer.hasMoreTokens() ) {
-      assignedUserNames.add( tokenizer.nextToken() );
-    }
-    roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
-    return Response.ok().build();
   }
 
   /**
    * Remove user(s) from a particular role
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userNames (list of pipe(|) separated user names
+   * @param userNames (list of tab (\t) separated user names
    * @param roleName (role name)
    *
    * @return
@@ -343,7 +356,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       try {
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        StringTokenizer tokenizer = new StringTokenizer( userNames, "|" );
+        StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
         Set<String> assignedUserNames = new HashSet<String>();
         for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
           assignedUserNames.add( pentahoUser.getUsername() );
@@ -464,7 +477,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   /**
    * Delete role(s) from the platform
    *
-   * @param roleNames (list of pipe (|) separated role names)
+   * @param roleNames (list of tab (\t) separated role names)
    *
    * @return
    */
@@ -476,7 +489,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       try {
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        StringTokenizer tokenizer = new StringTokenizer( roleNames, "|" );
+        StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
         while ( tokenizer.hasMoreTokens() ) {
           IPentahoRole role = roleDao.getRole( null, tokenizer.nextToken() );
           if ( role != null ) {
@@ -495,7 +508,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   /**
    * Delete user(s) from the platform
    *
-   * @param userNames (list of pipe (|) separated user names)
+   * @param userNames (list of tab (\t) separated user names)
    *
    * @return
    */
@@ -507,7 +520,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       try {
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        StringTokenizer tokenizer = new StringTokenizer( userNames, "|" );
+        StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
         while ( tokenizer.hasMoreTokens() ) {
           IPentahoUser user = roleDao.getUser( null, tokenizer.nextToken() );
           if ( user != null ) {
@@ -633,7 +646,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   private HashSet<String> tokenToString( String tokenString ) {
-    StringTokenizer tokenizer = new StringTokenizer( tokenString, "|" );
+    StringTokenizer tokenizer = new StringTokenizer( tokenString, "\t" );
     HashSet<String> result = new HashSet<String>();
     while ( tokenizer.hasMoreTokens() ) {
       result.add( tokenizer.nextToken() );
