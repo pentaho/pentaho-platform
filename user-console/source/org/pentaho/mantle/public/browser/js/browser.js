@@ -852,12 +852,17 @@ pen.define([
                     $(this).addClass("selected");
                 });
 
-                $(".element").each(function () {
-                    var $this = $(this);
-                    while ($this.height() > 20) {
-                        $this.width($this.width() + 20);
-                    }
-                });
+              $(".element").each(function () {
+                var $this = $(this);
+
+                //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
+                //issues on google chrome
+                var tries = 0;
+                while ($this.height() > 20 && tries < 250) {
+                  $this.width($this.width() + 20);
+                  tries++;
+                }
+              });
 
                 $(".folder").each(function () {
                     $(this).removeClass("selected");
@@ -990,23 +995,28 @@ pen.define([
             var myself = this,
                 data = myself.model.get("data");
 
-            //require file list template
-            pen.require(["js/browser.templates"], function (templates) {
-                myself.$el.empty().append(templates.files(data));
+          //require file list template
+          pen.require(["js/browser.templates"], function (templates) {
+            myself.$el.empty().append(templates.files(data));
 
-                if (myself.$el.children().length > 0) {
-                    $(".file").each(function () {
-                        var $this = $(this);
-                        while ($this.height() > 20) {
-                            $this.width($this.width() + 20);
-                        }
-                    });
-                } else {
-                    myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
+            if (myself.$el.children().length > 0) {
+              $(".file").each(function () {
+                var $this = $(this);
+
+                //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
+                //issues on google chrome
+                var tries = 0;
+                while ($this.height() > 20 && tries < 250) {
+                  $this.width($this.width() + 20);
+                  tries++;
                 }
+              });
+            } else {
+              myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
+            }
 
-                myself.updateDescriptions();
-            });
+            myself.updateDescriptions();
+          });
 
             setTimeout(function () {
                 myself.model.set("runSpinner", false);
