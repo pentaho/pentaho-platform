@@ -31,6 +31,7 @@ define([
       "<param name='dynamicStreaming' value='true' />" +
       "<param name='@videoPlayer' value='{{videoId}}' />" +
       "<param name='autoStart' value='true' />" +
+      "<param name='wmode' value='opaque' />" +
       "</object>" +
       "<script type='text/javascript'>brightcove.createExperiences();</script>";
 
