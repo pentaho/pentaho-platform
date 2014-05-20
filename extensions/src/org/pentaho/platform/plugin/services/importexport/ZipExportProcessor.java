@@ -47,9 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,7 +60,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.util.Text;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -281,7 +277,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     // if we are at the root, get substring differently
     int filePathLength = 0;
 
-    if ( filePath.equals( "/" ) ) {
+    if ( filePath.equals( "/" ) || filePath.equals( "\\" ) ) {
       filePathLength = filePath.length();
     } else {
       filePathLength = filePath.length() + 1;

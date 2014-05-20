@@ -20,6 +20,8 @@ package org.pentaho.platform.plugin.services.importer;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
@@ -68,6 +70,15 @@ public class LocaleFilesProcessor {
 
     boolean isLocale = false;
     String fileName = file.getFile().getName();
+    String actualFilePath = file.getPath();
+    RepositoryFile localeRepositoryFile = file.getFile();
+    if ( ImportSession.getSession().getManifest() != null && ImportSession.getSession().getManifest().getManifestInformation().getManifestVersion() != null ) {
+      fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
+      actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
+      localeRepositoryFile = new RepositoryFile.Builder( localeRepositoryFile ).name(
+          ExportFileNameEncoder.decodeZipFileName( localeRepositoryFile.getName() ) ).build();
+    }
+    
     int sourceVersion = 0; // 0 = Not a local file, 1 = 4.8 .properties file, 2= Sugar 5.0 .local file
     if ( fileName.endsWith( PROPERTIES_EXT ) ) {
       sourceVersion = 1;
@@ -97,11 +108,11 @@ public class LocaleFilesProcessor {
       }
 
       if ( !StringUtils.isEmpty( name ) ) {
-        String filePath = ( file.getPath().equals( "/" ) || file.getPath().equals( "\\" ) ) ? "" : file.getPath();
+        String filePath = ( actualFilePath.equals( "/" ) || actualFilePath.equals( "\\" ) ) ? "" : actualFilePath;
         filePath = RepositoryFilenameUtils.concat( parentPath, filePath );
-
+        
         LocaleFileDescriptor localeFile =
-            new LocaleFileDescriptor( name, description, filePath, file.getFile(), inputStream );
+            new LocaleFileDescriptor( name, description, filePath, localeRepositoryFile, inputStream );
         localeFiles.add( localeFile );
 
         /**
@@ -170,6 +181,7 @@ public class LocaleFilesProcessor {
     String mimeType = mimeResolver.resolveMimeForFileName( FILE_LOCALE_RESOLVER );
 
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
+      
       bundleBuilder.name( localeFile.getName() );
       bundleBuilder.comment( localeFile.getDescription() );
       bundleBuilder.path( localeFile.getPath() );
