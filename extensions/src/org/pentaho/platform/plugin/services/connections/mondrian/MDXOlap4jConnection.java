@@ -17,25 +17,26 @@
 
 package org.pentaho.platform.plugin.services.connections.mondrian;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Properties;
+
 import mondrian.olap.Util;
+import mondrian.parser.TokenMgrError;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.plugin.services.messages.Messages;
-import org.pentaho.platform.util.StringUtil;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * MDXOlap4jConnection implements IPentahoConenction to support olap4j connections to any olap4j provider. Developers
  * may subclass MDXOlap4jConnection to unwrap the olap4j connection to directly manipulate the underlying connection
  * such as setting a DelegatingRole in the case of Mondrian.
- *
+ * 
  * @author Benny Chow
  * @version $Id: $
  * @created Jan 9, 2013
@@ -83,18 +84,18 @@ public class MDXOlap4jConnection implements IPentahoConnection {
       Class.forName( driver );
 
       // Create the connection through JDBC.
-      java.sql.Connection sqlConnection =
-        DriverManager.getConnection(
-          url,
-          user,
-          password);
+      java.sql.Connection sqlConnection = DriverManager.getConnection( url, user, password );
 
       // Unwrap into OlapConnection
       connection = sqlConnection.unwrap( org.olap4j.OlapConnection.class );
 
     } catch ( Exception e ) {
       log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
-        "driver=" + driver + ";url=" + url ), e );
+          "driver=" + driver + ";url=" + url ), e );
+      return false;
+    } catch ( TokenMgrError e ) {
+      log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
+          "driver=" + driver + ";url=" + url ), e );
       return false;
     }
 
