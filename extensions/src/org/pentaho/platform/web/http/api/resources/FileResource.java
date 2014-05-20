@@ -631,7 +631,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status( FORBIDDEN ).build();
     }
 
-    String quotedFileName = null;
+    String originalFileName, encodedFileName = null;
 
     // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
@@ -666,12 +666,13 @@ public class FileResource extends AbstractJaxRSResource {
       // create processor
       if ( repositoryFile.isFolder() || withManifest ) {
         exportProcessor = new ZipExportProcessor( path, FileResource.repository, withManifest );
-        quotedFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
+        originalFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
       } else {
         exportProcessor = new SimpleExportProcessor( path, FileResource.repository );
-        quotedFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
+        originalFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
       }
-      quotedFileName = "\"" + URLEncoder.encode( quotedFileName, "UTF-8" ).replaceAll( "\\+", "%20" ) + "\"";
+      encodedFileName = URLEncoder.encode( originalFileName, "UTF-8" ).replaceAll( "\\+", "%20" );
+      String quotedFileName = "\"" + originalFileName + "\"";
 
       // add export handlers for each expected file type
       exportProcessor.addExportHandler( PentahoSystem.get( DefaultExportHandler.class ) );
@@ -688,9 +689,9 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create response
       final String attachment;
-      if ( userAgent.contains( "Firefox" ) ) {
+      if ( userAgent.contains( "Firefox" )  ) {
         // special content-disposition for firefox browser to support utf8-encoded symbols in filename
-        attachment = "attachment; filename*=UTF-8\'\'" + quotedFileName;
+        attachment = "attachment; filename*=UTF-8\'\'" + encodedFileName;
       } else {
         attachment = "attachment; filename=" + quotedFileName;
       }
@@ -701,7 +702,7 @@ public class FileResource extends AbstractJaxRSResource {
       return response;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
+          "FileResource.EXPORT_FAILED", encodedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
 
