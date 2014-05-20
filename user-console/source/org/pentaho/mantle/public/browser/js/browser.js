@@ -1356,15 +1356,16 @@ define([
     },
 
     clickBody: function (event) {
-      if (!this.model.get("desel")) {
-        $(".file.selected").removeClass("selected");
-        if (FileBrowser.fileBrowserModel.getLastClick() == 'file') {
-          FileBrowser.fileBrowserModel.set("lastClick", "folder");
-          $(".file.selected").removeClass("selected");
-          $(".folder.secondarySelected").addClass("selected");
-          $(".folder.secondarySelected").removeClass("secondarySelected");
-        }
-      }
+      if(!this.model.get("desel")){
+				$(".file.selected").removeClass("selected");
+				if(FileBrowser.fileBrowserModel.getLastClick() == 'file'){
+					FileBrowser.fileBrowserModel.set("lastClick", "folder");
+					$(".file.selected").removeClass("selected");
+					$(".folder.secondarySelected").addClass("selected");
+					$(".folder.secondarySelected").removeClass("secondarySelected");			
+					FileBrowser.FileBrowserView.updateButtonsHeader();					
+				}
+			}
       this.model.set("desel", 0);
     },
 
