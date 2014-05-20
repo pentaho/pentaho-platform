@@ -132,53 +132,108 @@
             (event.action.indexOf('DeletePermanentFileCommand') >= 0)) {
           if (event.message == 'Success') {
             window.top.mantle_isBrowseRepoDirty = true;
-            FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
+            refreshFileBrowser(event);
           }
           else {
             window.top.mantle_showMessage('Error', event.message);
           }
         }
-      });
+        else if ((event.action.indexOf('ScheduleHelper') >= 0) ||
+                (event.action.indexOf('ShareFileCommand') >= 0)) {
+            if (event.message == 'Open' || event.message == 'Success') {
+                window.top.mantle_setPerspective('browser.perspective'); // change to browse perspective
+            }
+        }
+        else if (event.action.indexOf('CutFilesCommand') >= 0 ||
+                event.action.indexOf('CopyFilesCommand') >= 0) {
 
-      window.top.mantle_addHandler("SolutionFileActionEvent", function (event) {
-        if ((event.action.indexOf('ScheduleHelper') >= 0) ||
-            (event.action.indexOf('ShareFileCommand') >= 0)) {
-          if (event.message == 'Open' || event.message == 'Success') {
-            window.top.mantle_setPerspective('browser.perspective'); // change to browse perspective
-          }
+            var model = FileBrowser.fileBrowserModel;
+            var browserUtils = model.get('browserUtils');
+            var fileListModel = model.get('fileListModel');
+            var multiSelectItems = cutItems = FileBrowser.concatArray(fileListModel.get("multiSelect"), fileListModel.get("shiftLasso"));
+
+            switch (event.message) {
+                case 'Click':
+                    switch (event.action) {
+                        case "org.pentaho.mantle.client.commands.CutFilesCommand":
+                            browserUtils.trackItems(cutItems, multiSelectItems);
+                            browserUtils.uiButtonFeedback([$("#cutButton"), $("#cutbutton")], [$("#copyButton")]);
+                            break;
+                        case "org.pentaho.mantle.client.commands.CopyFilesCommand":
+                            browserUtils.trackItems(new Array(), multiSelectItems);
+                            browserUtils.uiButtonFeedback([$("#copyButton")], [$("#cutButton"), $("#cutbutton")]);
+                            break;
+                    }
+                    break;
+                case 'Success':
+                    switch (event.action) {
+                        case "org.pentaho.mantle.client.commands.CutFilesCommand":
+                            break;
+                        case "org.pentaho.mantle.client.commands.CopyFilesCommand":
+                            break;
+                    }
+                    break;
+                default:
+                    switch (event.action) {
+                        case "org.pentaho.mantle.client.commands.PasteFilesCommand":
+                            //Handle errors
+                            break;
+                    }
+                    break;
+            }
         }
       });
 
-      // refresh folder list on create new folder / delete folder / import
       window.top.mantle_addHandler("SolutionFolderActionEvent", function (event) {
-        if (event.action.indexOf('NewFolderCommand') >= 0 ||
-            event.action.indexOf('DeleteFolderCommand') >= 0 ||
-            event.action.indexOf('ImportFileCommand') >= 0 ||
-            event.action.indexOf('PasteFilesCommand') >= 0 ||
-            event.action.indexOf('DeleteFolderCommand') >= 0) {
-          if (event.message == 'Success') {
-            if (FileBrowser.fileBrowserModel.getFolderClicked()) {
-
-              //Refresh folders to parent path if deleting a folder
-              if ((event.action.indexOf('DeleteFolderCommand') >= 0)) {
-                var path = FileBrowser.fileBrowserModel.getFolderClicked().attr("path");
-                var parentPath = path.substring(0, path.lastIndexOf("/"));
-                FileBrowser.update(parentPath); // refresh folder list
+          // refresh folder list on create new folder / delete folder / import
+          if (event.action.indexOf('NewFolderCommand') >= 0 ||
+                  event.action.indexOf('DeleteFolderCommand') >= 0 ||
+                  event.action.indexOf('ImportFileCommand') >= 0 ||
+                  event.action.indexOf('DeleteFolderCommand') >= 0) {
+              if (event.message == 'Success') {
+                  refreshFileBrowser(event);
               }
-              //Restore to last clicked folder path for all other actions
               else {
-                FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")); // refresh folder list
+                  window.top.mantle_showMessage('Error', event.message);
               }
-            }
-            //If no last clicked folder, restore to home folder
-            else {
-              FileBrowser.update(window.top.HOME_FOLDER);
-            }
           }
-          else {
-            window.top.mantle_showMessage('Error', event.message);
+          else if (event.action.indexOf('PasteFilesCommand') >= 0) {
+              var model = FileBrowser.fileBrowserModel;
+              var browserUtils = model.get('browserUtils');
+              var fileListModel = model.get('fileListModel');
+
+              switch (event.message) {
+                  case 'Success':
+                      switch (event.action) {
+                          case "org.pentaho.mantle.client.commands.PasteFilesCommand":
+                              refreshFileBrowser(event);
+                              break;
+                      }
+                      break;
+                  case 'Click':
+                      switch (event.action) {
+                          case "org.pentaho.mantle.client.commands.PasteFilesCommand":
+                              browserUtils.uiSpinnerFeedback([], [fileListModel]);
+                              break;
+                      }
+                      break;
+                  case 'Cancel':
+                      switch (event.action) {
+                          case "org.pentaho.mantle.client.commands.PasteFilesCommand":
+                              browserUtils.uiSpinnerFeedback([fileListModel], []);
+                              break;
+                      }
+                      break;
+                  default:
+                      switch (event.action) {
+                          case "org.pentaho.mantle.client.commands.PasteFilesCommand":
+                              //Handle errors
+                              browserUtils.uiSpinnerFeedback([fileListModel], []);
+                              break;
+                      }
+                      break;
+              }
           }
-        }
       });
 
       window.top.mantle_addHandler("GenericEvent", function (paramJson) {
@@ -201,6 +256,26 @@
         }
       });
     });
+  }
+
+  function refreshFileBrowser(event) {
+    if (FileBrowser.fileBrowserModel.getFolderClicked()) {
+
+        //Refresh folders to parent path if deleting a folder
+        if ((event.action.indexOf('DeleteFolderCommand') >= 0)) {
+            var path = FileBrowser.fileBrowserModel.getFolderClicked().attr("path");
+            var parentPath = path.substring(0, path.lastIndexOf("/"));
+            FileBrowser.update(parentPath); // refresh folder list
+        }
+        //Restore to last clicked folder path for all other actions
+        else {
+            FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")); // refresh folder list
+        }
+    }
+    //If no last clicked folder, restore to home folder
+    else {
+        FileBrowser.update(window.top.HOME_FOLDER);
+    }
   }
 
   function checkDownload() {

@@ -19,6 +19,8 @@ package org.pentaho.platform.util;
 
 import org.pentaho.platform.api.util.IVersionHelper;
 
+import java.net.URL;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -26,6 +28,15 @@ import java.util.jar.Manifest;
 public class VersionHelper implements IVersionHelper {
 
   public String getVersionInformation() {
+    ResourceBundle assemblyBundle = null;
+    try {
+      assemblyBundle = ResourceBundle.getBundle("server-assembly");
+    } catch (MissingResourceException ignored) {
+      
+    }
+    if (assemblyBundle != null) {
+      return getVersionInformationFromProperties(assemblyBundle);
+    }
     return getVersionInformation( VersionHelper.class );
   }
 
@@ -52,8 +63,24 @@ public class VersionHelper implements IVersionHelper {
       }
     }
   }
+  
+  public String getVersionInformationFromProperties(ResourceBundle assemblyBundle) {
+    StringBuffer buff = new StringBuffer();
+    buff.append( assemblyBundle.getString( "assembly.title" ) ).append( ' ' ).append( assemblyBundle.getString( "assembly.version" ) );
+    return buff.toString();
+  }
 
   public static VersionInfo getVersionInfo() {
+    // Check if server-assembly.properties exists
+    ResourceBundle assemblyBundle = null;
+    try {
+      assemblyBundle = ResourceBundle.getBundle("server-assembly");
+    } catch (MissingResourceException ignored) {
+      
+    }
+    if (assemblyBundle != null) {
+      return VersionHelper.getVersionInfoFromProperties(assemblyBundle);
+    }
     return VersionHelper.getVersionInfo( VersionHelper.class );
   }
 
@@ -121,4 +148,20 @@ public class VersionHelper implements IVersionHelper {
     }
     return versionInfo;
   }
+
+  protected static VersionInfo getVersionInfoFromProperties(ResourceBundle assemblyBundle) {
+    final VersionInfo versionInfo = new VersionInfo();
+    try {
+      versionInfo.setFromManifest( false );
+      versionInfo.setTitle( assemblyBundle.getString( "assembly.title" ) );
+      versionInfo.setProductID( assemblyBundle.getString( "assembly.productid" ) );
+      versionInfo.setVersion( assemblyBundle.getString("assembly.version") );
+    } catch (Exception ignored) {
+      // ex.printStackTrace();
+      versionInfo.setVersionRelease( "-error-" );
+    }
+    return versionInfo;
+  }
+  
+  
 }

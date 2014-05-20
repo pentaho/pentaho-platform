@@ -88,11 +88,16 @@
     </init-param>
   </filter>
 
+  <filter>
+    <filter-name>Pentaho Path Decoding Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoPathDecodingFilter</filter-class>
+  </filter>
+
   <!-- Pentaho Request Context Filter is use to extract the Context Path from Servlet Request and store it in the PentahoRequestContextHolder.
   This is needed to get the relative path to the server for online content generation and requesting of resources.
    -->
 
-  <filter>
+	<filter>
     <filter-name>Pentaho Request Context Filter</filter-name>
     <filter-class>org.pentaho.platform.web.http.filters.PentahoRequestContextFilter</filter-class>
   </filter>
@@ -143,6 +148,11 @@
   <!-- insert additional filters -->
 
   <filter-mapping>
+    <filter-name>Pentaho Path Decoding Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+	<filter-mapping>
     <filter-name>WEBAPP_ROOT URL rewrite filter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>

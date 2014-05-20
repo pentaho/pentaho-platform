@@ -39,19 +39,6 @@ package org.pentaho.platform.plugin.services.importexport;
  * Time: 4:41 PM
  */
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
-import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -68,6 +55,21 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 
 /**
  *
@@ -114,6 +116,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     exportManifest.getManifestInformation().setExportBy( session.getName() );
     exportManifest.getManifestInformation().setExportDate(
         dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
+    exportManifest.getManifestInformation().setManifestVersion( "2");
   }
 
   /**
@@ -131,6 +134,9 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     // get the file path
     String filePath = new File( this.path ).getParent();
+    if ( filePath == null ) {
+      filePath = "/";
+    }
 
     // send a response right away if not found
     if ( exportRepositoryFile == null ) {
@@ -143,10 +149,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
     if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
       exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
 
-      ZipEntry entry = new ZipEntry( getZipEntryName( exportRepositoryFile, filePath ) );
-
-      zos.putNextEntry( entry );
-
+      // don't zip root folder without name
+      if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
+        zos.putNextEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName (getZipEntryName( exportRepositoryFile, filePath ) ) ) );
+      }
       exportDirectory( exportRepositoryFile, zos, filePath );
 
     } else {
@@ -185,8 +191,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param outputStream
    * @throws ExportManifestFormatException
    */
-  public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+  public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath ) throws
+      ExportException, IOException {
 
     // we need a zip
     ZipOutputStream zos = (ZipOutputStream) outputStream;
@@ -199,7 +205,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
       // if we don't get a valid input stream back, skip it
       if ( is != null ) {
         addToManifest( repositoryFile );
-        ZipEntry entry = new ZipEntry( getZipEntryName( repositoryFile, filePath ) );
+        ZipEntry entry =
+            new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) ) );
         zos.putNextEntry( entry );
         IOUtils.copy( is, outputStream );
         zos.closeEntry();
@@ -233,21 +240,25 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param outputStream
    */
   @Override
-  public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+  public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath ) throws
+      ExportException, IOException {
     addToManifest( repositoryDir );
-
-    List<RepositoryFile> children = this.unifiedRepository.getChildren( repositoryDir.getId() );
+    List<RepositoryFile> children = this.unifiedRepository.getChildren( new RepositoryRequest(
+        String.valueOf( repositoryDir.getId() ), true, 1, null ) );
     for ( RepositoryFile repositoryFile : children ) {
-      if ( repositoryFile.isFolder() ) {
-        if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
-          ZipOutputStream zos = (ZipOutputStream) outputStream;
-          ZipEntry entry = new ZipEntry( getZipEntryName( repositoryFile, filePath ) );
-          zos.putNextEntry( entry );
+      // exclude 'etc' folder - datasources and etc.
+      if ( !ClientRepositoryPaths.getEtcFolderPath().equals( repositoryFile.getPath() ) ) {
+        if ( repositoryFile.isFolder() ) {
+          if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
+            ZipOutputStream zos = (ZipOutputStream) outputStream;
+            ZipEntry entry =
+                new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) ) );
+            zos.putNextEntry( entry );
+          }
+          exportDirectory( repositoryFile, outputStream, filePath );
+        } else {
+          exportFile( repositoryFile, outputStream, filePath );
         }
-        exportDirectory( repositoryFile, outputStream, filePath );
-      } else {
-        exportFile( repositoryFile, outputStream, filePath );
       }
     }
     createLocales( repositoryDir, filePath, repositoryDir.isFolder(), outputStream );
@@ -266,7 +277,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     // if we are at the root, get substring differently
     int filePathLength = 0;
 
-    if ( filePath.equals( "/" ) ) {
+    if ( filePath.equals( "/" ) || filePath.equals( "\\" ) ) {
       filePathLength = filePath.length();
     } else {
       filePathLength = filePath.length() + 1;
@@ -301,12 +312,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
     // only process files and folders that we know will have locale settings
     if ( supportedLocaleFileExt( repositoryFile ) ) {
       List<LocaleMapDto> locales = getAvailableLocales( repositoryFile.getId() );
-      zipName = getZipEntryName( repositoryFile, filePath );
+      zipName = ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) );
       name = repositoryFile.getName();
       for ( LocaleMapDto locale : locales ) {
         localeName = locale.getLocale().equalsIgnoreCase( "default" ) ? "" : "_" + locale.getLocale();
         if ( isFolder ) {
-          zipName = getZipEntryName( repositoryFile, filePath ) + "index";
+          zipName = ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) + "index" );
           name = "index";
         }
 
@@ -379,7 +390,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private InputStream createLocaleFile( String name, Properties properties, String locale ) throws IOException {
     InputStream is = null;
     if ( properties != null ) {
-      File localeFile = File.createTempFile( name, LOCALE_EXT );
+      File localeFile = File.createTempFile( ExportFileNameEncoder.encodeZipFileName(name), LOCALE_EXT );
       localeFile.deleteOnExit();
       FileOutputStream fileOut = new FileOutputStream( localeFile );
       properties.store( fileOut, "Locale = " + locale );

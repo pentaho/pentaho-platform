@@ -33,7 +33,23 @@ public interface IDBDatasourceService {
   public static final String MAX_IDLE_KEY = "maxIdle";
   public static final String MIN_IDLE_KEY = "minIdle";
   public static final String MAX_WAIT_KEY = "maxWait";
-  public static final String QUERY_KEY = "query";
+  public static final String QUERY_KEY = "validationQuery";
+  public static final String TEST_ON_BORROW = "testOnBorrow";
+  public static final String TEST_WHILE_IDLE = "testWhileIdle";
+  public static final String TEST_ON_RETURN = "testOnReturn";
+  public static final String DEFAULT_READ_ONLY = "defaultReadOnly";
+  public static final String DEFAULT_AUTO_COMMIT = "defaultAutoCommit";
+  public static final String DEFAULT_TRANSACTION_ISOLATION = "defaultTransactionIsolation";
+  public static final String TRANSACTION_ISOLATION_NONE_VALUE = "NONE";
+  public static final String DEFAULT_CATALOG = "defaultCatalog";
+  public static final String POOL_PREPARED_STATEMENTS = "poolPreparedStatements";
+  public static final String MAX_OPEN_PREPARED_STATEMENTS = "maxOpenPreparedStatements";
+  public static final String ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED = "accessToUnderlyingConnectionAllowed";
+  public static final String TIME_BETWEEN_EVICTION_RUNS_MILLIS = "timeBetweenEvictionRunsMillis";
+  public static final String REMOVE_ABANDONED = "removeAbandoned";
+  public static final String REMOVE_ABANDONED_TIMEOUT = "removeAbandonedTimeout";
+  public static final String LOG_ABANDONED = "logAbandoned";
+  public static final String INITIAL_SIZE = "initialSize";
 
   /**
    * This method clears the JNDI DS cache. The need exists because after a JNDI connection edit the old DS must be

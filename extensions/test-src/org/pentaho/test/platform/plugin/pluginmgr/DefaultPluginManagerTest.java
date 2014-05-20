@@ -60,6 +60,7 @@ import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedReposi
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.ui.xul.XulOverlay;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -76,22 +77,25 @@ import static org.junit.Assert.*;
 @SuppressWarnings( "nls" )
 public class DefaultPluginManagerTest {
 
-  private MicroPlatform microPlatform;
+  protected MicroPlatform microPlatform;
 
-  StandaloneSession session;
+  protected StandaloneSession session;
 
-  IPluginManager pluginManager;
+  protected IPluginManager pluginManager;
+
+  protected String solutionPath = "test-res/PluginManagerTest";
 
   @Before
   public void init0() {
-    microPlatform = new MicroPlatform( "test-res/PluginManagerTest" );
+    PentahoSystem.clearObjectFactory();
+    microPlatform = new MicroPlatform( getSolutionPath() );
     microPlatform.define( ISolutionEngine.class, SolutionEngine.class );
     microPlatform.define( IPluginProvider.class, SystemPathXmlPluginProvider.class );
     microPlatform.define( IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL );
     microPlatform.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL );
     FileSystemBackedUnifiedRepository repo =
-        (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
-    repo.setRootDir( new File( "test-res/PluginManagerTest" ) );
+      (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
+    repo.setRootDir( new File( getSolutionPath() ) );
 
     session = new StandaloneSession();
     pluginManager = new DefaultPluginManager();
@@ -105,7 +109,7 @@ public class DefaultPluginManagerTest {
 
     // one of the plugins serves a content generator with id=test1. Make sure we can load it.
     assertNotNull( "The plugin serving content generator with id=test1 was not loaded", pluginManager
-        .getContentGenerator( "test-type-3", null ) );
+      .getContentGenerator( "test-type-3", null ) );
   }
 
   @Test
@@ -195,6 +199,16 @@ public class DefaultPluginManagerTest {
     assertTrue( pojo instanceof String );
   }
 
+  @Test
+  public void testGetClassloader() throws PluginBeanException, PlatformInitializationException {
+    microPlatform.define( IPluginProvider.class, Tst5PluginProvider.class ).start();
+
+    // reload should register the beans
+    pluginManager.reload();
+    assertNotNull( pluginManager.getClassLoader( "good-plugin1" ) );
+
+  }
+
   @Test( expected = PluginBeanException.class )
   public void test5b_getUnregisteredBean() throws PluginBeanException, PlatformInitializationException {
     microPlatform.define( IPluginProvider.class, Tst5PluginProvider.class ).start();
@@ -203,7 +217,7 @@ public class DefaultPluginManagerTest {
     pluginManager.reload();
 
     assertFalse( "IWasNotRegistered should not have been registered", pluginManager
-        .isBeanRegistered( "IWasNotRegistered" ) );
+      .isBeanRegistered( "IWasNotRegistered" ) );
 
     pluginManager.getBean( "IWasNotRegistered" );
   }
@@ -216,7 +230,7 @@ public class DefaultPluginManagerTest {
     pluginManager.reload();
 
     assertTrue( "TestClassNotFoundComponent should have been registered", pluginManager
-        .isBeanRegistered( "TestClassNotFoundComponent" ) );
+      .isBeanRegistered( "TestClassNotFoundComponent" ) );
 
     assertNotNull( pluginManager.getBean( "TestClassNotFoundComponent" ) );
   }
@@ -232,15 +246,16 @@ public class DefaultPluginManagerTest {
 
     assertNotNull( pluginManager.getBean( "bean1" ) );
     assertTrue(
-        "The first plugin to register by this id is a String, it should have remained the registered bean for this id",
-        pluginManager.getBean( "bean1" ) instanceof String );
+      "The first plugin to register by this id is a String, it should have remained the registered bean for this id",
+      pluginManager.getBean( "bean1" ) instanceof String );
 
     // TODO: we should be able to test that the plugin was not loaded, indicated by bean1 not being registered, but
     // we cannot until plugin registration becomes transactional
   }
 
   @Test
-  public void test8_getBeanFromPluginClassloader() throws PluginBeanException, PlatformInitializationException {
+  public void test8_getBeanFromPluginClassloader()
+    throws PluginBeanException, PlatformInitializationException, BeansException {
     microPlatform.define( IPluginProvider.class, Tst8PluginProvider.class ).start();
 
     // reload should register the beans
@@ -249,7 +264,7 @@ public class DefaultPluginManagerTest {
     try {
       Class.forName( "org.pentaho.nowhere.PluginOnlyClass" );
       fail( "PluginOnlyClass should only be available through the plugin "
-          + "lib dir in order for this test to be valid" );
+        + "lib dir in order for this test to be valid" );
     } catch ( ClassNotFoundException e ) {
       // ignore
     }
@@ -257,13 +272,13 @@ public class DefaultPluginManagerTest {
     assertTrue( "PluginOnlyClass should have been registered", pluginManager.isBeanRegistered( "PluginOnlyClass" ) );
 
     assertNotNull( "PluginOnlyClass bean should have been loaded from test-jar.jar in the plugin lib directory",
-        pluginManager.getBean( "PluginOnlyClass" ) );
+      pluginManager.getBean( "PluginOnlyClass" ) );
 
     // Just making sure that a bean defined in the old world way (IPluginProvider) can be accessed through
     // the externally facing bean factory
     assertNotNull(
-        "PluginOnlyClass should also be accessible through the bean factory.  Why wasn't it registered there?",
-        pluginManager.getBeanFactory( "test8Plugin" ).getBean( "PluginOnlyClass" ) );
+      "PluginOnlyClass should also be accessible through the bean factory.  Why wasn't it registered there?",
+      pluginManager.getBeanFactory( "test8Plugin" ).getBean( "PluginOnlyClass" ) );
   }
 
   @Test
@@ -272,7 +287,7 @@ public class DefaultPluginManagerTest {
     // This test is to validate a bug that had existed where a solution path ending in '/' was causing
     // the PluginClassLoader to not be able to open plugin jars, thus you would get ClassNotFound exceptions
     // when accessing plugin classes.
-    MicroPlatform mp = new MicroPlatform( "test-res/PluginManagerTest/" );
+    MicroPlatform mp = new MicroPlatform( getSolutionPath() + "/" );
     mp.define( ISolutionEngine.class, SolutionEngine.class );
     mp.define( IServiceManager.class, DefaultServiceManager.class );
     mp.define( IPluginProvider.class, Tst8PluginProvider.class ).start();
@@ -283,19 +298,19 @@ public class DefaultPluginManagerTest {
     try {
       Class.forName( "org.pentaho.nowhere.PluginOnlyClass" );
       fail( "PluginOnlyClass needs to be available only through "
-          + "the plugin lib dir in order for this test to be valid" );
+        + "the plugin lib dir in order for this test to be valid" );
     } catch ( ClassNotFoundException e ) {
       // ignore
     }
 
     assertTrue( "PluginOnlyClass should have been registered", pluginManager.isBeanRegistered( "PluginOnlyClass" ) );
     assertNotNull( "PluginOnlyClass bean should have been loaded from test-jar.jar in the plugin lib directory",
-        pluginManager.getBean( "PluginOnlyClass" ) );
+      pluginManager.getBean( "PluginOnlyClass" ) );
   }
 
   @Test
   public void test8c_loadClass() throws PlatformInitializationException, PluginBeanException {
-    MicroPlatform mp = new MicroPlatform( "test-res/PluginManagerTest/" );
+    MicroPlatform mp = new MicroPlatform( getSolutionPath() + "/" );
     mp.define( IPluginProvider.class, Tst8PluginProvider.class ).start();
     pluginManager.reload();
     pluginManager.loadClass( "PluginOnlyClass" );
@@ -309,7 +324,7 @@ public class DefaultPluginManagerTest {
    */
   @Test
   public void test16_getBeanFromPluginClassloader_usingBeanFactory() throws PluginBeanException,
-    PlatformInitializationException {
+    PlatformInitializationException, BeansException {
     microPlatform.define( IPluginProvider.class, Tst16PluginProvider.class ).start();
 
     // reload should register the beans
@@ -325,10 +340,10 @@ public class DefaultPluginManagerTest {
     assertTrue( "PluginOnlyClass should have been registered", pluginManager.isBeanRegistered( "PluginOnlyClass" ) );
 
     assertNotNull( "PluginOnlyClass bean should have been loaded from test-jar.jar in the plugin lib directory",
-        pluginManager.getBean( "PluginOnlyClass" ) );
+      pluginManager.getBean( "PluginOnlyClass" ) );
 
     assertNotNull( "PluginOnlyClass should be accessible through the bean factory.  Why wasn't it registered there?",
-        pluginManager.getBeanFactory( "test16Plugin" ).getBean( "PluginOnlyClass" ) );
+      pluginManager.getBeanFactory( "test16Plugin" ).getBean( "PluginOnlyClass" ) );
   }
 
   @Test
@@ -340,12 +355,12 @@ public class DefaultPluginManagerTest {
 
     assertTrue( "PluginOnlyClass should have been registered", pluginManager.isBeanRegistered( "PluginOnlyClass" ) );
     assertNotNull( "PluginOnlyClass bean should have been loaded from test-jar.jar in the plugin lib directory",
-        pluginManager.getBean( "PluginOnlyClass" ) );
+      pluginManager.getBean( "PluginOnlyClass" ) );
     assertTrue( "TestClassForClassloader should have been registered", pluginManager
-        .isBeanRegistered( "TestClassForClassloader" ) );
+      .isBeanRegistered( "TestClassForClassloader" ) );
     assertNotNull(
-        "TestClassForClassloader bean should have been loaded from test-jar.jar in the plugin lib directory",
-        pluginManager.getBean( "TestClassForClassloader" ) );
+      "TestClassForClassloader bean should have been loaded from test-jar.jar in the plugin lib directory",
+      pluginManager.getBean( "TestClassForClassloader" ) );
   }
 
   @SuppressWarnings( "deprecation" )
@@ -436,7 +451,7 @@ public class DefaultPluginManagerTest {
     //
     String plugin3 = pluginManager.getServicePlugin( "/test-ext/13/static/url/blah/blah/blah" );
     assertEquals( "Wrong plugin servicing resource '/test-ext/13/static/url/blah/blah/blah'", "test13Plugin-ext",
-        plugin3 );
+      plugin3 );
   }
 
   @Test
@@ -458,7 +473,7 @@ public class DefaultPluginManagerTest {
     System.out.println( PluginMessageLogger.prettyPrint() );
 
     assertEquals( "Errors occurred during webservice registration (see log)", 0, PluginMessageLogger
-        .count( "PluginManager.ERR" ) );
+      .count( "PluginManager.ERR" ) );
     // at this point we know that no errors were logged, but we need to make sure the service was registered
     // with the service manager. We'll use a mock service manager to test this, since the default service manager
     // is a heavy Axis-backed impl, requiring an http server
@@ -506,8 +521,8 @@ public class DefaultPluginManagerTest {
         p.addContentGenerator( cg1 );
 
         BeanDefinition beanDef =
-            BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" )
-                .setScope( BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
+          BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" )
+            .setScope( BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
         p.getBeanFactory().registerBeanDefinition( "springDefinedCGid", beanDef );
         p.getBeanFactory().registerAlias( "springDefinedCGid", "springDefinedCGtype" );
 
@@ -521,6 +536,10 @@ public class DefaultPluginManagerTest {
 
     assertEquals( "testPlugin", pluginManager.getPluginIdForType( "oldworldCGtype" ) );
     assertEquals( "testPlugin", pluginManager.getPluginIdForType( "springDefinedCGtype" ) );
+  }
+
+  public String getSolutionPath() {
+    return solutionPath;
   }
 
   public static class CheckingLifecycleListener implements IPluginLifecycleListener {
@@ -616,8 +635,8 @@ public class DefaultPluginManagerTest {
       p.addBean( new PluginBeanDefinition( "PluginOnlyClass", "org.pentaho.nowhere.PluginOnlyClass" ) );
       // PluginOnlyClassSpringFile
       BeanDefinition beanDef =
-          BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.nowhere.PluginOnlyClass" ).setScope(
-              BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
+        BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.nowhere.PluginOnlyClass" ).setScope(
+          BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
       p.getBeanFactory().registerBeanDefinition( "PluginOnlyClassSpringFile", beanDef );
       return Arrays.asList( (IPlatformPlugin) p );
     }
@@ -639,8 +658,8 @@ public class DefaultPluginManagerTest {
       p.addContentGenerator( cg1 );
 
       BeanDefinition beanDef =
-          BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" )
-              .setScope( BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
+        BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" )
+          .setScope( BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
       p.getBeanFactory().registerBeanDefinition( "test9bid", beanDef );
       p.getBeanFactory().registerAlias( "test9bid", "test9btype" );
 
@@ -679,7 +698,7 @@ public class DefaultPluginManagerTest {
       ContentGeneratorInfo cg1 = new ContentGeneratorInfo();
       cg1.setDescription( "test 10b plugin description" );
       cg1.setId( "test10type1-ext" ); // setting to same string as extension to verify that names do not collide causing
-                                      // classcastexception
+      // classcastexception
       cg1.setType( "test10type1-ext" );
       cg1.setTitle( "Test Generator 10b" );
       cg1.setUrl( "/test10burl" );
@@ -804,7 +823,7 @@ public class DefaultPluginManagerTest {
     public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
       PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
       BeanDefinition def =
-          BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.nowhere.PluginOnlyClass" ).getBeanDefinition();
+        BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.nowhere.PluginOnlyClass" ).getBeanDefinition();
       p.getBeanFactory().registerBeanDefinition( "PluginOnlyClass", def );
       p.setId( "test16Plugin" );
       // need to set source description - classloader needs it

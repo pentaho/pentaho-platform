@@ -68,11 +68,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceService
-    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  (Default option)
+    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  
+    org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService (Default option)
   -->
-  <bean id="IDBDatasourceService"
-        class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService"
-        scope="singleton"/>
+  <bean id="pooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService" scope="singleton" />
+  <bean id="nonPooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService" scope="singleton" />
+  
+  <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService" scope="singleton">
+    <property name="pooledDatasourceService" ref="pooledOrJndiDatasourceService" />
+    <property name="nonPooledDatasourceService" ref="nonPooledOrJndiDatasourceService" />
+  </bean>
+  
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton"/>
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
         scope="singleton"/>
@@ -130,26 +136,57 @@ not directly from the PentahoObjectFactory. -->
   <!-- actual bean defined in repository.spring.xml; aliased here -->
   <alias name="roleAuthorizationPolicyRoleBindingDaoTxn" alias="IRoleAuthorizationPolicyRoleBindingDao"/>
 
-  <!-- actual bean defined in applicationContext-pentaho-security-*.xml; aliased here -->
-  <pen:bean id="IUserRoleListService" class="org.pentaho.platform.api.engine.IUserRoleListService">
+  <!-- Reference to a bean in one of the applicationContext-pentaho-security-*.xml; selected by configured provider-->
+  <pen:bean id="activeUserRoleListService" class="org.pentaho.platform.api.engine.IUserRoleListService">
     <pen:attributes>
       <pen:attr key="providerName" value="${security.provider}"/>
     </pen:attributes>
+  </pen:bean>
+
+  <!-- The system must have access to the jackrabbit version even if another is configured. -->
+  <pen:bean id="systemUserRoleListService" class="org.pentaho.platform.api.engine.IUserRoleListService">
+    <pen:attributes>
+      <pen:attr key="providerName" value="jackrabbit"/>
+    </pen:attributes>
+  </pen:bean>
+
+  <!-- A composite bean composed of the activeUserRoleListService and systemUserRoleListService -->
+  <bean id="IUserRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.CompositeUserRoleListService">
+    <constructor-arg>
+      <list>
+        <ref bean="activeUserRoleListService"/>
+        <ref bean="systemUserRoleListService"/>
+      </list>
+    </constructor-arg>
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="50"/>
       </pen:attributes>
     </pen:publish>
-  </pen:bean>
+  </bean>
 
-
-
-  <pen:bean id="UserDetailsService" class="org.springframework.security.userdetails.UserDetailsService">
+  <!-- Reference to a bean in one of the applicationContext-pentaho-security-*.xml; selected by configured provider-->
+  <pen:bean id="activeUserDetailsService" class="org.springframework.security.userdetails.UserDetailsService">
     <pen:attributes>
       <pen:attr key="providerName" value="${security.provider}"/>
     </pen:attributes>
   </pen:bean>
 
+  <!-- The system must have access to the jackrabbit version even if another is configured. -->
+  <pen:bean id="systemUserDetailsService" class="org.springframework.security.userdetails.UserDetailsService">
+    <pen:attributes>
+      <pen:attr key="providerName" value="jackrabbit"/>
+    </pen:attributes>
+  </pen:bean>
+
+  <bean id="UserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.ChainedUserDetailsService">
+    <constructor-arg>
+      <list>
+        <ref bean="activeUserDetailsService"/>
+        <ref bean="systemUserDetailsService"/>
+      </list>
+    </constructor-arg>
+  </bean>
 
   <bean id="ehCacheUserCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
     <property name="cache">

@@ -31,6 +31,7 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
@@ -43,8 +44,10 @@ import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -277,7 +280,7 @@ public class GeneratorStreamingOutput {
       pathParams.setParameter( "httprequest", httpServletRequest ); //$NON-NLS-1$
       pathParams.setParameter( "remoteaddr", httpServletRequest.getRemoteAddr() ); //$NON-NLS-1$
       if ( file != null ) {
-        pathParams.setParameter( "path", file.getPath() ); //$NON-NLS-1$
+        pathParams.setParameter( "path", URLEncoder.encode( file.getPath(), "UTF-8" ) ); //$NON-NLS-1$
         pathParams.setParameter( "file", file ); //$NON-NLS-1$
       }
       if ( command != null ) {

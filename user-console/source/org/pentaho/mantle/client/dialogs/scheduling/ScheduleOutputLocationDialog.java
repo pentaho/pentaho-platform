@@ -33,10 +33,12 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
 import org.pentaho.mantle.client.messages.Messages;
@@ -55,7 +57,7 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
 
   private static native String getDefaultSaveLocation()
   /*-{
-    return window.top.HOME_FOLDER;
+      return window.top.HOME_FOLDER;
   }-*/;
 
   public ScheduleOutputLocationDialog( final String filePath ) {
@@ -79,7 +81,7 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
     scheduleNameLabelPanel.add( scheduleNameLabel );
     scheduleNameLabelPanel.add( scheduleNameInfoLabel );
 
-    String defaultName = filePath.substring( filePath.lastIndexOf( ":" ) + 1, filePath.lastIndexOf( "." ) );
+    String defaultName = filePath.substring( filePath.lastIndexOf( "/" ) + 1, filePath.lastIndexOf( "." ) );
     scheduleNameTextBox.getElement().setId( "schedule-name-input" );
     scheduleNameTextBox.setText( defaultName );
 
@@ -156,13 +158,11 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
       @Override
       public boolean validate() {
         String name = scheduleNameTextBox.getText();
-        String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$"; //$NON-NLS-1$
-        // make sure it matches regex
-        boolean isValid = name.matches( alphaNumeric );
+        boolean isValid = NameUtils.isValidFileName( name );
         if ( !isValid ) {
           MessageDialogBox errorDialog =
               new MessageDialogBox(
-                  Messages.getString( "error" ), Messages.getString( "enterAlphaNumeric", name ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+                  Messages.getString( "error" ), Messages.getString( "prohibitedNameSymbols", name, NameUtils.reservedCharListForDisplay( " " ) ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
           errorDialog.center();
         }
         return isValid;
@@ -198,5 +198,9 @@ public abstract class ScheduleOutputLocationDialog extends PromptDialogBox {
   }
 
   protected abstract void onSelect( String name, String outputLocationPath );
+
+  public void setOkButtonText( String text ) {
+    okButton.setText( text );
+  }
 
 }

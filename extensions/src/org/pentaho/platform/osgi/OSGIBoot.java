@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import java.util.ServiceLoader;
  * PentahoSystem aggregate objectFactory
  */
 public class OSGIBoot implements IPentahoSystemListener {
+  private final PentahoOSGIActivator pentahoOSGIActivator = new PentahoOSGIActivator();
   Framework framework;
   private Logger logger = LoggerFactory.getLogger( OSGIBoot.class );
 
@@ -112,13 +114,13 @@ public class OSGIBoot implements IPentahoSystemListener {
       List<Bundle> bundleList = new ArrayList<Bundle>();
 
       File[] bundleDirectories =
-          new File[] {
-            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
-                + "core_bundles" ),
-            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
-              + "fragment_bundles" ),
-            new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
-                + "bundles" ) };
+        new File[] {
+          new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+            + "core_bundles" ),
+          new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+            + "fragment_bundles" ),
+          new File( solutionRootPath + File.separator + "system" + File.separator + "osgi" + File.separator
+            + "bundles" ) };
 
       logger.debug( "Installing bundles" );
       for ( File bundleDirectory : bundleDirectories ) {
@@ -126,7 +128,9 @@ public class OSGIBoot implements IPentahoSystemListener {
           logger.warn( "Bundle directory: " + bundleDirectory.getName() + " does not exist" );
           continue;
         }
-        for ( File f : bundleDirectory.listFiles() ) {
+        File[] files = bundleDirectory.listFiles();
+        Arrays.sort( files );
+        for ( File f : files ) {
           if ( f.isFile() && f.getName().endsWith( ".jar" ) ) {
             try {
               Bundle b = framework.getBundleContext().installBundle( f.toURI().toString() );
@@ -151,7 +155,7 @@ public class OSGIBoot implements IPentahoSystemListener {
         }
       }
 
-      new PentahoOSGIActivator().setBundleContext( framework.getBundleContext() );
+      pentahoOSGIActivator.setBundleContext( framework.getBundleContext() );
 
       return true;
     } catch ( Exception ex ) {
@@ -173,6 +177,7 @@ public class OSGIBoot implements IPentahoSystemListener {
 
   @Override
   public void shutdown() {
+    pentahoOSGIActivator.shutdown();
     shutdownFramework();
   }
 }

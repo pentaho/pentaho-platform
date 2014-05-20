@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
- 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Display;
@@ -113,8 +112,8 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       WEEKLY( 5, Messages.getString( "schedule.weekly" ) ),
       MONTHLY( 6, Messages.getString( "schedule.monthly" ) ),
       YEARLY( 7, Messages.getString( "schedule.yearly" ) ),
-      CRON(8, Messages.getString( "schedule.cron" ) );
-	  //@formatter:on
+      CRON( 8, Messages.getString( "schedule.cron" ) );
+    //@formatter:on
 
     private ScheduleType( int value, String name ) {
       this.value = value;

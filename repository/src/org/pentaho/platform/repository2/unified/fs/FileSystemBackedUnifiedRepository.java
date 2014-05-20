@@ -307,7 +307,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<Character> getReservedChars() {
-    return Collections.emptyList();
+    return repositoryFileDao.getReservedChars();
   }
 
   @Override

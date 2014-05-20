@@ -18,10 +18,7 @@
 package org.pentaho.platform.plugin.action.olap.impl;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -48,6 +45,7 @@ import mondrian.server.MondrianServerRegistry;
 import mondrian.spi.CatalogLocator;
 import mondrian.util.LockBox.Entry;
 
+import mondrian.xmla.XmlaHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileSystemException;
@@ -68,6 +66,7 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.olap.IOlapConnectionFilter;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
+import org.pentaho.platform.plugin.action.olap.PlatformXmlaExtra;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.HostedCatalogInfo;
@@ -514,14 +513,9 @@ public class OlapServiceImpl implements IOlapService {
       OlapConnection connection = null;
       try {
         connection = getConnection( name, session );
-        //TODO: clean this up as per PPP-3223
-        Class<?> aClass = connection.getClass().getClassLoader().loadClass( "mondrian.rolap.RolapConnection" );
-        if ( connection.isWrapperFor( aClass ) ) {
-          Object unwrap = connection.unwrap( aClass );
-          Method getCacheControl = aClass.getMethod( "getCacheControl", PrintWriter.class );
-          Object cc = getCacheControl.invoke( unwrap, new PrintWriter( new StringWriter() ) );
-          Method flushSchemaCache = cc.getClass().getMethod( "flushSchemaCache" );
-          flushSchemaCache.invoke( cc );
+        XmlaHandler.XmlaExtra xmlaExtra = getXmlaExtra( connection );
+        if ( xmlaExtra != null ) {
+          xmlaExtra.flushSchemaCache( connection );
         }
       } catch ( Exception e ) {
         LOG.warn(
@@ -532,6 +526,10 @@ public class OlapServiceImpl implements IOlapService {
         }
       }
     }
+  }
+
+  protected XmlaHandler.XmlaExtra getXmlaExtra( final OlapConnection connection ) throws SQLException {
+    return PlatformXmlaExtra.unwrapXmlaExtra( connection );
   }
 
   public List<String> getCatalogNames(

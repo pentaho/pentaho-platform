@@ -41,6 +41,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,7 +65,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,6 +115,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -163,7 +168,7 @@ public class FileResource extends AbstractJaxRSResource {
       logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) ); //$NON-NLS-1$
     }
     path = pathId.replaceAll( PATH_SEPARATOR, "" ); //$NON-NLS-1$
-    path = path.replace( ':', '/' );
+    path = RepositoryPathEncoder.decodeRepositoryPath( path );
     if ( !path.startsWith( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR + path;
     }
@@ -215,6 +220,35 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.serverError().entity( t.getMessage() ).build();
     }
   }
+  
+
+  /**
+   * Move a file from one location to another
+   * 
+   * @param params
+   *          list of files to be moved
+   * @return
+   */
+  @PUT
+  @Path( "{pathId : .+}/move" )
+  @Consumes( { WILDCARD } )
+  public Response doMove( @PathParam( "pathId" ) String destPathId,  String params ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( destPathId ) );
+    if(repositoryFileDto == null) {
+      return Response.serverError().entity( "destination path not found" ).build(); 
+    }
+    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
+    try {
+      for ( int i = 0; i < sourceFileIds.length; i++ ) {
+        getRepoWs().moveFile( sourceFileIds[i], repositoryFileDto.getPath(), null );
+      }
+      return Response.ok().build();
+    } catch ( Throwable t ) {
+      t.printStackTrace();
+      return Response.serverError().entity( t.getMessage() ).build();
+    }
+  }
+  
 
   /**
    * Restore the selected list of files from the user's trash folder to their original location
@@ -326,8 +360,14 @@ public class FileResource extends AbstractJaxRSResource {
             String fileName = sourceFile.getName();
             String copyText = "";
             String rootCopyText = "";
-            String nameNoExtension = fileName.substring( 0, fileName.lastIndexOf( '.' ) );
-            String extension = fileName.substring( fileName.lastIndexOf( '.' ) );
+            String nameNoExtension = fileName;
+            String extension = "";
+            int indexOfDot = fileName.lastIndexOf('.');
+            if (!(indexOfDot == -1)) {
+                nameNoExtension = fileName.substring(0,
+                        indexOfDot);
+                extension = fileName.substring(indexOfDot);
+            }
 
             RepositoryFileDto testFile = getRepoWs().getFile( path + PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
             if ( testFile != null ) {
@@ -512,7 +552,7 @@ public class FileResource extends AbstractJaxRSResource {
       try {
         hasParameterUi =
             ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().indexOf( '.' ) + 1 ), "parameterUi" ) != null );
+                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" ) != null );
       } catch ( NoSuchBeanDefinitionException e ) {
         // Do nothing.
       }
@@ -522,14 +562,14 @@ public class FileResource extends AbstractJaxRSResource {
       try {
         IContentGenerator parameterContentGenerator =
             PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().indexOf( '.' ) + 1 ), "parameter" );
+                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
         if ( parameterContentGenerator != null ) {
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           parameterContentGenerator.setOutputHandler( new SimpleOutputHandler( outputStream, false ) );
           parameterContentGenerator.setMessagesList( new ArrayList<String>() );
           Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
           SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-          parameterProvider.setParameter( "path", repositoryFile.getPath() );
+          parameterProvider.setParameter( "path", URLEncoder.encode( repositoryFile.getPath(), "UTF-8" ) );
           parameterProvider.setParameter( "renderMode", "PARAMETER" );
           parameterProviders.put( IParameterProvider.SCOPE_REQUEST, parameterProvider );
           parameterContentGenerator.setParameterProviders( parameterProviders );
@@ -591,7 +631,7 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status( FORBIDDEN ).build();
     }
 
-    String quotedFileName = null;
+    String originalFileName, encodedFileName = null;
 
     // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
@@ -626,12 +666,13 @@ public class FileResource extends AbstractJaxRSResource {
       // create processor
       if ( repositoryFile.isFolder() || withManifest ) {
         exportProcessor = new ZipExportProcessor( path, FileResource.repository, withManifest );
-        quotedFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
+        originalFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
       } else {
-        exportProcessor = new SimpleExportProcessor( path, FileResource.repository, withManifest );
-        quotedFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
+        exportProcessor = new SimpleExportProcessor( path, FileResource.repository );
+        originalFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
       }
-      quotedFileName = "\"" + URLEncoder.encode( quotedFileName, "UTF-8" ).replaceAll( "\\+", "%20" ) + "\"";
+      encodedFileName = URLEncoder.encode( originalFileName, "UTF-8" ).replaceAll( "\\+", "%20" );
+      String quotedFileName = "\"" + originalFileName + "\"";
 
       // add export handlers for each expected file type
       exportProcessor.addExportHandler( PentahoSystem.get( DefaultExportHandler.class ) );
@@ -648,9 +689,9 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create response
       final String attachment;
-      if ( userAgent.contains( "Firefox" ) ) {
+      if ( userAgent.contains( "Firefox" )  ) {
         // special content-disposition for firefox browser to support utf8-encoded symbols in filename
-        attachment = "attachment; filename*=UTF-8\'\'" + quotedFileName;
+        attachment = "attachment; filename*=UTF-8\'\'" + encodedFileName;
       } else {
         attachment = "attachment; filename=" + quotedFileName;
       }
@@ -661,7 +702,7 @@ public class FileResource extends AbstractJaxRSResource {
       return response;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
+          "FileResource.EXPORT_FAILED", encodedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
 
@@ -686,7 +727,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
     if ( isPath( pathId ) ) {
-      path = idToPath( pathId );
+      path = pathId ;
       if ( !isPathValid( path ) ) {
         return Response.status( FORBIDDEN ).build();
       }
@@ -754,6 +795,17 @@ public class FileResource extends AbstractJaxRSResource {
   public Response setFileAcls( @PathParam( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     acl.setId( file.getId() );
+    // here we remove fake admin role added for display purpose only
+    List<RepositoryFileAclAceDto> aces = acl.getAces();
+    if ( aces != null ) {
+      Iterator<RepositoryFileAclAceDto> it = aces.iterator();
+      while(it.hasNext()){
+        RepositoryFileAclAceDto ace = it.next();
+        if ( !ace.isModifiable() ){
+          it.remove();
+        }
+      }
+    }
     getRepoWs().updateAcl( acl );
     return Response.ok().build();
   }
@@ -1012,18 +1064,40 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/reservedCharacters" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces( { TEXT_PLAIN } )
   public Response doGetReservedChars() {
-    List<Character> reservedCharacters = getRepoWs().getReservedChars() ;
+    List<Character> reservedCharacters = getRepoWs().getReservedChars();
     StringBuffer buffer = new StringBuffer();
-    for(int i=0;i<reservedCharacters.size();i++) {
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
       buffer.append( reservedCharacters.get( i ) );
-      if(i+1 < reservedCharacters.size()) {
-        buffer.append( ',' );  
-      }
     }
-    return Response.ok( buffer.toString() , MediaType.APPLICATION_JSON ).build();
-  }  
+    return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
+  }
+
+  /**
+   * Returns the repository reserved characters
+   * 
+   * @return list of characters
+   */
+  @GET
+  @Path( "/reservedCharactersDisplay" )
+  @Produces( { TEXT_PLAIN } )
+  public Response doGetReservedCharactersDisplay() {
+    List<Character> reservedCharacters = getRepoWs().getReservedChars();
+    StringBuffer buffer = new StringBuffer();
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
+      if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
+        buffer.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
+      } else {
+        buffer.append( reservedCharacters.get( i ) );
+      }
+      if ( i + 1 < reservedCharacters.size() ) {
+        buffer.append( ',' );
+      }
+    }   
+    return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
+  }
+  
   
   /**
    * Checks whether the current user can create content in the repository
@@ -1051,10 +1125,32 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
     if ( fileAcl.isEntriesInheriting() ) {
-      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces( file.getId() );
+      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
       fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
     }
+    addAdminRole( fileAcl );
     return fileAcl;
+  }
+  
+  private void addAdminRole( RepositoryFileAclDto fileAcl ){
+    String adminRoleName = PentahoSystem.get( String.class, "singleTenantAdminAuthorityName",
+        PentahoSessionHolder.getSession() );
+    if (fileAcl.getAces() == null ){
+      fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
+    }
+    for (RepositoryFileAclAceDto facl: fileAcl.getAces()){
+      if ( facl.getRecipient().equals( adminRoleName ) && facl.getRecipientType() == 1 ) {
+        return;
+      }
+    }
+    RepositoryFileAclAceDto adminGroup = new RepositoryFileAclAceDto();
+    adminGroup.setRecipient( adminRoleName );
+    adminGroup.setRecipientType( 1 );
+    adminGroup.setModifiable( false );
+    List<Integer> perms = new LinkedList<Integer>();
+    perms.add( 4 );
+    adminGroup.setPermissions( perms );
+    fileAcl.getAces().add( adminGroup );
   }
 
   /**
@@ -1458,9 +1554,11 @@ public class FileResource extends AbstractJaxRSResource {
       buf.append( getParentPath( fileToBeRenamed.getPath() ) );
       buf.append( RepositoryFile.SEPARATOR );
       buf.append( newName );
-      String extension = getExtension( fileToBeRenamed.getName() );
-      if ( extension != null ) {
-        buf.append( extension );
+      if ( !fileToBeRenamed.isFolder() ) {
+        String extension = getExtension( fileToBeRenamed.getName() );
+        if ( extension != null ) {
+          buf.append( extension );
+        }
       }
       repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
       RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
@@ -1485,9 +1583,9 @@ public class FileResource extends AbstractJaxRSResource {
             }
           }
           RepositoryFile updatedFile =
-          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName )
-          .title( newName ).build();
-          repository.updateFile( updatedFile, getData(movedFile), "Updating the file" );
+              new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
+                  newName ).build();
+          repository.updateFile( updatedFile, getData( movedFile ), "Updating the file" );
         }
         return Response.ok().build();
       } else {
@@ -1696,7 +1794,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   private boolean isPath( String pathId ) {
-    return pathId != null && pathId.contains( ":" );
+    return pathId != null && pathId.contains( "/" );
   }
 
   private void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {

@@ -16,7 +16,11 @@
       			    var i;
       			    for( i=0; i<elements.length; i++ ) {
       			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
-      			        submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			        if ( elements[i].name == 'path') {
+      			        		submitUrl += '&' + elements[ i ].name + '=' + encodeURIComponent( elements[ i ].value );
+      			        	} else {
+      			        		submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			        	}
       			      } else if( elements[i].type == 'radio' ) {
       			      	if( elements[i].checked ) {
       			          submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );

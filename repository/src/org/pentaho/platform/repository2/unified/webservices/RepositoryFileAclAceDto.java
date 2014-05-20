@@ -25,6 +25,7 @@ public class RepositoryFileAclAceDto implements Serializable {
   private static final long serialVersionUID = 3274897756057989184L;
   String recipient;
   String tenantPath;
+  boolean modifiable = true;
 
   /**
    * RepositoryFileSid.Type enum.
@@ -72,11 +73,19 @@ public class RepositoryFileAclAceDto implements Serializable {
   public void setPermissions( List<Integer> permissions ) {
     this.permissions = permissions;
   }
+  
+  public boolean isModifiable() {
+    return modifiable;
+  }
+
+  public void setModifiable( boolean modifiable ) {
+    this.modifiable = modifiable;
+  }
 
   @SuppressWarnings( "nls" )
   @Override
   public String toString() {
     return "RepositoryFileAclAceDto [recipient=" + recipient + ", recipientType=" + recipientType + ", permissions="
-        + permissions + "]";
+        + permissions + ", modifiable=" + modifiable + "]";
   }
 }

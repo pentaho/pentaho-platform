@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.filters;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.owasp.esapi.ESAPI;
 import org.owasp.esapi.Encoder;
@@ -26,7 +27,10 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import com.google.gwt.regexp.shared.RegExp;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -36,6 +40,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -103,6 +108,7 @@ public class PentahoWebContextFilter implements Filter {
         response.setContentType( "text/javascript" ); //$NON-NLS-1$
         OutputStream out = response.getOutputStream();
         out.write( initialCommentBytes );
+        
         byte[] contextPathBytes = THREAD_LOCAL_CONTEXT_PATH.get();
         byte[] requireScriptBytes = THREAD_LOCAL_REQUIRE_SCRIPT.get();
         if ( contextPathBytes == null ) {
@@ -149,17 +155,24 @@ public class PentahoWebContextFilter implements Filter {
         printSessionName( out );
         printLocale( effectiveLocale, out );
         printHomeFolder( out );
+        printReservedChars( out );
+        printReservedCharsDisplay( out );
+        printReservedRegexPattern( out );
 
-        // print global resources defined in plugins
-        printResourcesForContext( GLOBAL, out, httpRequest, false );
+        boolean requireJsOnly = "true".equals( request.getParameter( "requireJsOnly" ) );
 
-        // print out external-resources defined in plugins if a context has been passed in
-        String contextName = request.getParameter( CONTEXT );
-        boolean cssOnly = "true".equals( request.getParameter( "cssOnly" ) );
-        if ( StringUtils.isNotEmpty( contextName ) ) {
-          printResourcesForContext( contextName, out, httpRequest, cssOnly );
+        if ( !requireJsOnly ) {
+          // print global resources defined in plugins
+          printResourcesForContext( GLOBAL, out, httpRequest, false );
+
+          // print out external-resources defined in plugins if a context has been passed in
+          String contextName = request.getParameter( CONTEXT );
+          boolean cssOnly = "true".equals( request.getParameter( "cssOnly" ) );
+          if ( StringUtils.isNotEmpty( contextName ) ) {
+            printResourcesForContext( contextName, out, httpRequest, cssOnly );
+          }
         }
-
+          
         // Any subclass can add more information to webcontext.js
         addCustomInfo( out );
 
@@ -183,6 +196,54 @@ public class PentahoWebContextFilter implements Filter {
       sb.append( "var HOME_FOLDER = null;\n" ); // Global variable
     }
     out.write( sb.toString().getBytes() );
+  }
+  
+  private void printReservedChars( OutputStream out ) throws IOException {
+    StringBuilder sb = new StringBuilder();
+    for ( char c : JcrRepositoryFileUtils.getReservedChars() ) {
+      sb.append( c );
+    }
+    String scriptLine =
+        "var RESERVED_CHARS = \""
+            + StringEscapeUtils.escapeJavaScript( sb.toString() )
+            + "\";\n";
+    out.write( scriptLine.getBytes() );
+  }
+  
+  private void printReservedCharsDisplay( OutputStream out ) throws IOException {
+    List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
+    StringBuffer sb = new StringBuffer();
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
+      if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
+        sb.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
+      } else {
+        sb.append( reservedCharacters.get( i ) );
+      }
+      if ( i + 1 < reservedCharacters.size() ) {
+        sb.append( ", " );
+      }
+    }  
+    String scriptLine =
+        "var RESERVED_CHARS_DISPLAY = \""
+            + StringEscapeUtils.escapeJavaScript( sb.toString() )
+            + "\";\n";    
+    out.write( scriptLine.getBytes() );
+  }  
+  
+  private void printReservedRegexPattern ( OutputStream out ) throws IOException {
+    String scriptLine = "var RESERVED_CHARS_REGEX_PATTERN = /" + makeReservedCharPattern() + "/;\n";
+    out.write( scriptLine.getBytes() );
+  }
+  
+  private static String makeReservedCharPattern() {
+    // escape all reserved characters as they may have special meaning to regex engine
+    StringBuilder buf = new StringBuilder();
+    buf.append( ".*[" ); //$NON-NLS-1$
+    for ( Character ch : JcrRepositoryFileUtils.getReservedChars() ) {
+      buf.append( StringEscapeUtils.escapeJavaScript( ch.toString() ) );
+    }
+    buf.append( "]+.*" ); //$NON-NLS-1$
+    return buf.toString();
   }
 
   private void printSessionName( OutputStream out ) throws IOException {

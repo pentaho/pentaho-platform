@@ -17,6 +17,18 @@
 
 package org.pentaho.platform.util.web;
 
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.util.logging.Logger;
+import org.pentaho.platform.util.messages.Messages;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,17 +41,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.platform.util.messages.Messages;
 
 public class HttpUtil {
 
@@ -67,40 +68,42 @@ public class HttpUtil {
 
     try {
       HostConfiguration hostConfig = null;
-      if( System.getProperty( "http.proxyHost" ) != null ){
-        hostConfig = new HostConfiguration(){
+      if ( StringUtils.isNotEmpty( System.getProperty( "http.proxyHost" ) ) ) {
+        hostConfig = new HostConfiguration() {
           @Override
           public synchronized String getProxyHost() {
             return System.getProperty( "http.proxyHost" );
           }
+
           @Override
           public synchronized int getProxyPort() {
             return Integer.parseInt( System.getProperty( "http.proxyPort" ) );
           }
         };
         httpClient.setHostConfiguration( hostConfig );
-        if ( System.getProperty( "http.proxyUser" ) != null && System.getProperty( "http.proxyUser" ).trim().length() > 0 ){
+        if ( System.getProperty( "http.proxyUser" ) != null
+          && System.getProperty( "http.proxyUser" ).trim().length() > 0 ) {
           httpClient.getState().setProxyCredentials(
-              new AuthScope( System.getProperty( "http.proxyHost" ),
-                  Integer.parseInt( System.getProperty( "http.proxyPort" ) ) ),
-              new UsernamePasswordCredentials( System.getProperty( "http.proxyUser" ),
-                  System.getProperty( "http.proxyPassword" ) )
+            new AuthScope( System.getProperty( "http.proxyHost" ),
+              Integer.parseInt( System.getProperty( "http.proxyPort" ) ) ),
+            new UsernamePasswordCredentials( System.getProperty( "http.proxyUser" ),
+              System.getProperty( "http.proxyPassword" ) )
           );
         }
       }
 
-      
+
       GetMethod call = new GetMethod( url );
 
       int status = httpClient.executeMethod( hostConfig, call );
       if ( status == 200 ) {
         InputStream response = call.getResponseBodyAsStream();
         try {
-          byte[] buffer = new byte[2048];
+          byte[] buffer = new byte[ 2048 ];
           int size = response.read( buffer );
           while ( size > 0 ) {
             for ( int idx = 0; idx < size; idx++ ) {
-              content.append( (char) buffer[idx] );
+              content.append( (char) buffer[ idx ] );
             }
             size = response.read( buffer );
           }
@@ -126,12 +129,12 @@ public class HttpUtil {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.connect();
     InputStream in = connection.getInputStream();
-    byte[] buffer = new byte[300];
+    byte[] buffer = new byte[ 300 ];
     int n = buffer.length;
     while ( n > 0 ) {
       n = in.read( buffer );
       for ( int i = 0; i < n; i++ ) {
-        content.append( (char) buffer[i] );
+        content.append( (char) buffer[ i ] );
       }
     }
     n = in.read( buffer );
@@ -146,8 +149,10 @@ public class HttpUtil {
     } catch ( Exception e ) {
       // TODO: handle this error
       Logger
-          .error(
-              "org.pentaho.platform.util.web.HttpUtil", Messages.getInstance().getErrorString( "HttpUtil.ERROR_0001_URL_ERROR", e.getMessage() ), e ); //$NON-NLS-1$ //$NON-NLS-2$
+        .error(
+          "org.pentaho.platform.util.web.HttpUtil",
+          Messages.getInstance().getErrorString( "HttpUtil.ERROR_0001_URL_ERROR", e.getMessage() ),
+          e ); //$NON-NLS-1$ //$NON-NLS-2$
       return null;
     }
   }
@@ -163,8 +168,10 @@ public class HttpUtil {
     } catch ( Exception e ) {
       // TODO: handle this error
       Logger
-          .error(
-              "org.pentaho.platform.util.web.HttpUtil", Messages.getInstance().getErrorString( "HttpUtil.ERROR_0001_URL_ERROR", e.getMessage() ), e ); //$NON-NLS-1$ //$NON-NLS-2$
+        .error(
+          "org.pentaho.platform.util.web.HttpUtil",
+          Messages.getInstance().getErrorString( "HttpUtil.ERROR_0001_URL_ERROR", e.getMessage() ),
+          e ); //$NON-NLS-1$ //$NON-NLS-2$
       return null;
     }
 
@@ -181,7 +188,7 @@ public class HttpUtil {
     } catch ( Exception e ) {
       // TODO: handle this error
       Logger.error( HttpUtil.class.getName(), Messages.getInstance().getErrorString(
-          "HttpUtil.ERROR_0001_URL_ERROR", e.getMessage() ), e ); //$NON-NLS-1$
+        "HttpUtil.ERROR_0001_URL_ERROR", e.getMessage() ), e ); //$NON-NLS-1$
       return null;
     }
 
@@ -202,7 +209,8 @@ public class HttpUtil {
     Map<String, String[]> rtn = new HashMap<String, String[]>();
     StringBuffer sb = new StringBuffer();
     String key;
-    for ( StringTokenizer st = new StringTokenizer( s, "&" ); st.hasMoreTokens(); rtn.put( key, valArray ) ) { //$NON-NLS-1$
+    for ( StringTokenizer st = new StringTokenizer( s, "&" ); st.hasMoreTokens();
+          rtn.put( key, valArray ) ) { //$NON-NLS-1$
       String pair = st.nextToken();
       int pos = pair.indexOf( '=' );
       if ( pos == -1 ) {
@@ -212,12 +220,12 @@ public class HttpUtil {
       String val = HttpUtil.parseName( pair.substring( pos + 1, pair.length() ), sb );
       if ( rtn.containsKey( key ) ) {
         String[] oldVals = rtn.get( key );
-        valArray = new String[oldVals.length + 1];
+        valArray = new String[ oldVals.length + 1 ];
         System.arraycopy( oldVals, 0, valArray, 0, oldVals.length );
-        valArray[oldVals.length] = val;
+        valArray[ oldVals.length ] = val;
       } else {
-        valArray = new String[1];
-        valArray[0] = val;
+        valArray = new String[ 1 ];
+        valArray[ 0 ] = val;
       }
     }
     return rtn;
@@ -228,7 +236,7 @@ public class HttpUtil {
     char c;
     for ( int i = 0; i < s.length(); i++ ) {
       c = s.charAt( i );
-      switch ( c ) {
+      switch( c ) {
         case 43: { // '+'
           sb.append( ' ' );
           break;

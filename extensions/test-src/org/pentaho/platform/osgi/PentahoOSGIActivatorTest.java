@@ -25,28 +25,29 @@ import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
- * User: nbaker
- * Date: 11/19/13
- * Time: 3:01 PM
+ * User: nbaker Date: 11/19/13 Time: 3:01 PM
  */
 public class PentahoOSGIActivatorTest {
 
   @Test
   public void testActivation() throws Exception {
-    BundleContext context = Mockito.mock(BundleContext.class);
-    PentahoOSGIActivator activator = new PentahoOSGIActivator();
-    activator.setBundleContext(context);
     AggregateObjectFactory agg = (AggregateObjectFactory) PentahoSystem.getObjectFactory();
-    assertEquals(1, agg.getFactories().size());
-    assertTrue(agg.getFactories().toArray(new IPentahoObjectFactory[agg.getFactories().size()])[0] instanceof OSGIObjectFactory);
+    int originalSize = agg.getFactories().size();
+    BundleContext context = Mockito.mock( BundleContext.class );
+    PentahoOSGIActivator activator = new PentahoOSGIActivator();
+    activator.setBundleContext( context );
+    assertEquals( 1, agg.getFactories().size() - originalSize );
+    assertTrue( agg.getFactories()
+      .toArray( new IPentahoObjectFactory[ agg.getFactories().size() ] )[ 1 ] instanceof OSGIObjectFactory );
   }
 
 
   @AfterClass
-  public static void after(){
-    ((AggregateObjectFactory) PentahoSystem.getObjectFactory()).clear();
+  public static void after() {
+    ( (AggregateObjectFactory) PentahoSystem.getObjectFactory() ).clear();
   }
 }

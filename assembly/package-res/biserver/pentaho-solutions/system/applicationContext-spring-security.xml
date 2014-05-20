@@ -208,6 +208,7 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/js/theme.*\Z=Anonymous,Authenticated
 \A/content/common-ui/resources/themes/.*\Z=Anonymous,Authenticated
 \A/content/common-ui/resources/web/dojo/djconfig.js.*\Z=Anonymous,Authenticated
+\A/content/common-ui/resources/web/angular-directives/angular-directives.css\Z=Anonymous,Authenticated
 \A/content/pentaho-mobile/resources/.*\Z=Anonymous,Authenticated
 \A/docs/.*\Z=Anonymous,Authenticated
 \A/mantlelogin/.*\Z=Anonymous,Authenticated

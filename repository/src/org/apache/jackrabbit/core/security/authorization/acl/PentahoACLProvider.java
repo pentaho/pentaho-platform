@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.Event;
+import javax.jcr.observation.ObservationManager;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
@@ -55,6 +57,7 @@ public class PentahoACLProvider extends ACLProvider {
       new HashMap<Integer, PentahoCompiledPermissionsImpl>();
   private boolean useCachingEntryCollector;
   private Logger logger = LoggerFactory.getLogger( getClass().getName() );
+  private boolean initialized;
 
   /**
    * Overridden to:
@@ -73,6 +76,19 @@ public class PentahoACLProvider extends ACLProvider {
     super.init( systemSession, conf );
     // original initRootACL should run during super.init call above
     updateRootAcl( (SessionImpl) systemSession, new ACLEditor( session, this ) );
+    this.initialized = true;
+    registerEntryCollectorWithObservationManager( systemSession );
+  }
+
+  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException{
+    // Register Entry Collector to receive node events
+    if( entryCollector != null  && this.initialized ){
+      ObservationManager observationMgr = systemSession.getWorkspace().getObservationManager();
+      observationMgr
+        .addEventListener( entryCollector, Event.NODE_ADDED | Event.NODE_REMOVED | Event.NODE_REMOVED, "/", true, null, null,
+          false );
+    }
+
   }
 
   /**
@@ -111,6 +127,9 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   protected EntryCollector createEntryCollector( SessionImpl systemSession ) throws RepositoryException {
+    if( entryCollector != null ){
+      return entryCollector;
+    }
     // keep our own private reference; the one in ACLProvider is private
     if ( useCachingEntryCollector ) {
       entryCollector = new CachingPentahoEntryCollector( systemSession, getRootNodeId(), configuration );
@@ -119,6 +138,9 @@ public class PentahoACLProvider extends ACLProvider {
       entryCollector = new PentahoEntryCollector( systemSession, getRootNodeId(), configuration );
       logger.debug( "Using Non-Caching EntryCollector" );
     }
+
+    registerEntryCollectorWithObservationManager( systemSession );
+
     return entryCollector;
   }
 

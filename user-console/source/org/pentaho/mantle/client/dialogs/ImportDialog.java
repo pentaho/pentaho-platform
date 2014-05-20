@@ -51,7 +51,6 @@ import org.pentaho.mantle.client.messages.Messages;
 
 /**
  * @author wseyler/modifed for Import parameters by tband
- * 
  */
 public class ImportDialog extends PromptDialogBox {
 
@@ -87,7 +86,7 @@ public class ImportDialog extends PromptDialogBox {
           if ( result.contains( "INVALID_MIME_TYPE" ) == true ) {
             messageTextBox = new HTML( Messages.getString( "uploadInvalidFileTypeQuestion", result ) );
           } else {
-            logWindow(result, Messages.getString("importLogWindowTitle"));
+            logWindow( result, Messages.getString( "importLogWindowTitle" ) );
           }
 
           if ( messageTextBox != null ) {
@@ -224,15 +223,15 @@ public class ImportDialog extends PromptDialogBox {
     DefaultListItem usePermissionsListItem = new DefaultListItem( Messages.getString( "usePermissions" ) );
     usePermissionsListItem.setValue( "false" );
     filePermissionsDropDown.addItem( usePermissionsListItem ); // If selected set "overwriteAclPermissions" to
-                                                               // false.
+    // false.
     DefaultListItem retainPermissionsListItem = new DefaultListItem( Messages.getString( "retainPermissions" ) );
     retainPermissionsListItem.setValue( "true" );
     filePermissionsDropDown.addItem( retainPermissionsListItem ); // If selected set "overwriteAclPermissions" to
-                                                                  // true.
+    // true.
     DefaultListItem removePermissionsListItem = new DefaultListItem( Messages.getString( "removePermissions" ) );
     removePermissionsListItem.setValue( "none" );
     filePermissionsDropDown.addItem( removePermissionsListItem ); // If selected then set "applyAclPermissions" to
-                                                                  // false else true.
+    // false else true.
 
     ChangeHandler filePermissionsHandler = new ChangeHandler() {
 
@@ -354,15 +353,15 @@ public class ImportDialog extends PromptDialogBox {
   }
 
   native void jsClickUpload( Element uploadElement ) /*-{
-                                                     uploadElement.click();
-                                                     }-*/;
+      uploadElement.click();
+  }-*/;
 
-  private static native void logWindow(String innerText, String windowTitle) /*-{
-  	var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
-  	var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
+  private static native void logWindow( String innerText, String windowTitle ) /*-{
+      var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
+      var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
   	  <html><head><title>' + windowTitle + '</title></head><body bgcolor="#FFFFFF" topmargin="6" leftmargin="6">'
-  	  + innerText + "</body></html>";
-    logWindow.document.write(htmlText);
+          + innerText + "</body></html>";
+      logWindow.document.write(htmlText);
   }-*/;
 
   private void setFormAction() {
@@ -391,9 +390,9 @@ public class ImportDialog extends PromptDialogBox {
       }
     }
   }
-  
+
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
-    $wnd.mantle_isBrowseRepoDirty=isDirty;
+      $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
 }

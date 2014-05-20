@@ -178,4 +178,8 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   public void setRepositoryImportLogger( IRepositoryImportLogger repositoryImportLogger ) {
     this.repositoryImportLogger = repositoryImportLogger;
   }
+
+  public Map<String, IPlatformImportHandler> getHandlers() {
+    return importHandlers;
+  }
  }

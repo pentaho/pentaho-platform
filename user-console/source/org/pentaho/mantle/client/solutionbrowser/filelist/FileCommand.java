@@ -20,23 +20,16 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.commands.CopyFilesCommand;
-import org.pentaho.mantle.client.commands.CutFilesCommand;
-import org.pentaho.mantle.client.commands.DeleteFileCommand;
-import org.pentaho.mantle.client.commands.DeletePermanentFileCommand;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
-import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class FileCommand implements Command {
@@ -93,9 +86,6 @@ public class FileCommand implements Command {
           .execute();
     } else if ( mode == COMMAND.EDIT ) {
       sbp.editFile();
-    } else if ( mode == COMMAND.DELETE ) {
-      List<FileItem> selectedItemsClone = new ArrayList<FileItem>( selectedItems );
-      new DeleteFileCommand( selectedItemsClone ).execute();
     } else if ( mode == COMMAND.CREATE_FOLDER ) {
       new NewFolderCommand( fileSummary ).execute();
     } else if ( mode == COMMAND.BACKGROUND ) {
@@ -110,24 +100,6 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.EXPORT ) {
       new ExportFileCommand( fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get( 0 ) : fileSummary )
           .execute();
-    } else if ( mode == COMMAND.COPY ) {
-      List<FileItem> selectedItemsClone = new ArrayList<FileItem>( selectedItems );
-      new CopyFilesCommand( selectedItemsClone ).execute();
-    } else if ( mode == COMMAND.CUT ) {
-      List<FileItem> selectedItemsClone = new ArrayList<FileItem>( selectedItems );
-      new CutFilesCommand( selectedItemsClone ).execute();
-    } else if ( mode == COMMAND.RESTORE ) {
-      List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
-      for ( FileItem fileItem : selectedItems ) {
-        selectedItemsClone.add( fileItem.getRepositoryFile() );
-      }
-      new RestoreFileCommand( selectedItemsClone ).execute();
-    } else if ( mode == COMMAND.DELETEPERMANENT ) {
-      List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
-      for ( FileItem fileItem : selectedItems ) {
-        selectedItemsClone.add( fileItem.getRepositoryFile() );
-      }
-      new DeletePermanentFileCommand( selectedItemsClone ).execute();
     } else if ( mode == COMMAND.FAVORITE ) {
       sbp.addFavorite( selectedItem.getRepositoryFile().getPath(), selectedItem.getRepositoryFile().getTitle() );
       FavoritePickList.getInstance().save( "favorites" );

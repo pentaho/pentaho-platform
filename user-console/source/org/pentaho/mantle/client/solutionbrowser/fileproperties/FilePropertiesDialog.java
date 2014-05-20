@@ -24,12 +24,14 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.messages.Messages;
@@ -155,9 +157,9 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
           @Override
           public void onResponseReceived( Request arg0, Response arg1 ) {
+            WaitPopup.getInstance().setVisible(false);
             if ( arg1.getStatusCode() == Response.SC_OK ) {
               dirty = false;
-
               // Refresh current folder or parent folder
               PerspectiveManager.getInstance().setPerspective( PerspectiveManager.BROWSER_PERSPECTIVE );
               GenericEvent ge = new GenericEvent();
@@ -179,6 +181,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
     // start the chain
     try {
+      WaitPopup.getInstance().setVisible(true);
       requestBuilders.get( 0 ).send();
     } catch ( RequestException e ) {
       //ignored
@@ -230,7 +233,9 @@ public class FilePropertiesDialog extends PromptDialogBox {
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             generalTab.setAclResponse( response );
-            permissionsTab.setAclResponse( response );
+            if ( permissionsTab != null ) {
+              permissionsTab.setAclResponse( response );
+            }
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox(

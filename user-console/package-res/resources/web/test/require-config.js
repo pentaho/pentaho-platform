@@ -12,7 +12,7 @@ pen.define = function() {
 }
 
 
-var commonUi = 'package-res/resources/web/test/lib/common-ui/resources/web/';
+var commonUi = 'build-res/module-scripts/common-ui/resources/web/';
 var mantle = 'source/org/pentaho/mantle/public/';
 
 requirejs.config({
@@ -25,7 +25,7 @@ requirejs.config({
     'common-ui/angular-ui-bootstrap': commonUi + 'bootstrap/ui-bootstrap-tpls-0.6.0.min',
     'angular-mocks': commonUi + 'angular/angular-mocks',
     'angular-scenario': commonUi + 'angular/angular-scenario',
-    'underscore' : commonUi + 'underscore/underscore',
+    'common-ui/underscore' : commonUi + 'underscore/underscore',
     'common-ui/ring':  commonUi + 'ring/ring',
 
     'common-ui/Plugin' : commonUi + 'plugin-handler/plugin',
@@ -52,8 +52,8 @@ requirejs.config({
     'common-ui/jquery': { exports: '$' },
     'common-ui/PluginHandler': { deps: ['common-ui/jquery'] },
     'common-ui/angular-animate': { deps: ['common-ui/angular'] },
-    'common-ui/ring' : {exports: 'ring', deps : ['underscore']},
-    'underscore': { exports: '_' },
+    'common-ui/ring' : {exports: 'ring', deps : ['common-ui/underscore']},
+    'common-ui/underscore': { exports: '_' }
   },
 
   // ask Require.js to load these files (all our tests)

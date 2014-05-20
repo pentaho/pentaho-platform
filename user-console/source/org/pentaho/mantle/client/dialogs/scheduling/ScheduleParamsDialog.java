@@ -38,6 +38,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
@@ -111,7 +112,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
     setWizardPanels( wizardPanels );
     setWidth( "800px" );
-    String urlPath = filePath.replaceAll( "/", ":" ); //$NON-NLS-1$  //$NON-NLS-2$
+    String urlPath = URL.encodePathSegment( NameUtils.encodeRepositoryPath( filePath ) );
 
     String urlParams = "";
     if ( editJob != null ) {
@@ -341,7 +342,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   public void center() {
     if ( scheduleParams != null ) {
       // we have saved params from back/next
-      String urlPath = filePath.replaceAll( "/", ":" ); //$NON-NLS-1$  //$NON-NLS-2$
+      String urlPath = NameUtils.encodeRepositoryPath( filePath );
       String urlParams = "";
       for ( int i = 0; i < scheduleParams.size(); i++ ) {
         JSONObject o = scheduleParams.get( i ).isObject();

@@ -105,50 +105,50 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public native void setupNativeHooks( MantleApplication mantle, LoginCommand loginCmd )
   /*-{
-    $wnd.mantle_initialized = true;
-    $wnd.mantle_showMessage = function(title, message) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      mantle.@org.pentaho.mantle.client.MantleApplication::showMessage(Ljava/lang/String;Ljava/lang/String;)(title, message);
-    }
-    
-    $wnd.addGlassPaneListener = function(callback) { 
-      if($wnd.addDataAccessGlassPaneListener){
-        $wnd.addDataAccessGlassPaneListener(callback);
+      $wnd.mantle_initialized = true;
+      $wnd.mantle_showMessage = function (title, message) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          mantle.@org.pentaho.mantle.client.MantleApplication::showMessage(Ljava/lang/String;Ljava/lang/String;)(title, message);
       }
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
-    }
-    
-    $wnd.executeCommand = function(commandName, parameterMap) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(commandName, parameterMap);      
-    }
-    
-    $wnd.authenticate = function(callback) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      loginCmd.@org.pentaho.mantle.client.commands.LoginCommand::loginWithCallback(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
-    }    
-    
-    $wnd.urlCommand = function(url, title, showInDialog, dialogWidth, dialogHeight) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
-    }
 
-    $wnd.mantle_addHandler = function(type, handler) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);      
-    }
+      $wnd.addGlassPaneListener = function (callback) {
+          if ($wnd.addDataAccessGlassPaneListener) {
+              $wnd.addDataAccessGlassPaneListener(callback);
+          }
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+      }
 
-    $wnd.mantle_fireEvent = function(type, parameterMap) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, parameterMap);
-    }
+      $wnd.executeCommand = function (commandName, parameterMap) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(commandName, parameterMap);
+      }
 
-    // globally available busy indicator
-    $wnd.mantle_notifyGlasspaneListeners = function(isShown) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      mantle.@org.pentaho.mantle.client.MantleApplication::notifyGlasspaneListeners(Z)(isShown);
-    }
+      $wnd.authenticate = function (callback) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          loginCmd.@org.pentaho.mantle.client.commands.LoginCommand::loginWithCallback(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+      }
+
+      $wnd.urlCommand = function (url, title, showInDialog, dialogWidth, dialogHeight) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
+      }
+
+      $wnd.mantle_addHandler = function (type, handler) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);
+      }
+
+      $wnd.mantle_fireEvent = function (type, parameterMap) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, parameterMap);
+      }
+
+      // globally available busy indicator
+      $wnd.mantle_notifyGlasspaneListeners = function (isShown) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          mantle.@org.pentaho.mantle.client.MantleApplication::notifyGlasspaneListeners(Z)(isShown);
+      }
   }-*/;
 
   public static void addHandler( final String type, final JavaScriptObject handler ) {
@@ -161,33 +161,33 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public static native void showBusyIndicator( String title, String message )
   /*-{
-    $wnd.pen.require([
-      "common-ui/util/BusyIndicator"
-    ],
+      $wnd.pen.require([
+              "common-ui/util/BusyIndicator"
+          ],
 
-    function(busy) {
-      busy.show(title, message);
-    });
+          function (busy) {
+              busy.show(title, message);
+          });
   }-*/;
 
   public static native void hideBusyIndicator()
   /*-{
-    $wnd.pen.require([
-      "common-ui/util/BusyIndicator"
-    ],
+      $wnd.pen.require([
+              "common-ui/util/BusyIndicator"
+          ],
 
-    function(busy) {
-      busy.hide();
-    });
+          function (busy) {
+              busy.hide();
+          });
   }-*/;
 
   public static native void showBusyIndicatorById( String title, String message, String id )
   /*-{
       $wnd.pen.require([
-          "common-ui/util/BusyIndicator"
-      ],
+              "common-ui/util/BusyIndicator"
+          ],
 
-          function(busy) {
+          function (busy) {
               busy.show(title, message, id);
           });
   }-*/;
@@ -195,22 +195,22 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   public static native void hideBusyIndicatorById( String id )
   /*-{
       $wnd.pen.require([
-          "common-ui/util/BusyIndicator"
-      ],
+              "common-ui/util/BusyIndicator"
+          ],
 
-          function(busy) {
+          function (busy) {
               busy.hide(id);
           });
   }-*/;
 
-  public static native void log( String message ) 
-  /*-{
-    try {
-      window.top.console.log( message );
-    } catch ( e ) {
-    }
-  }-*/;  
-  
+  public static native void log( String message )
+    /*-{
+        try {
+            window.top.console.log(message);
+        } catch (e) {
+        }
+    }-*/;
+
   public void notifyGlasspaneListeners( boolean isShown ) {
     if ( isShown ) {
       GlassPane.getInstance().show();
@@ -229,7 +229,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   /**
    * This method is used by things to show a 'mantle' looking alert dialog instead of a standard alert dialog.
-   * 
+   *
    * @param title
    * @param message
    */
@@ -245,14 +245,14 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
         // merge user settings with mantle settings for possible system/tenant/user overrides
         JsArray<JsSetting> userSettings = event.getSettings();
         if ( userSettings != null ) {
-          for ( int i=0; i < userSettings.length(); i++ ) {
+          for ( int i = 0; i < userSettings.length(); i++ ) {
             JsSetting setting = userSettings.get( i );
             mantleSettings.put( setting.getName(), setting.getValue() );
           }
         }
         onMantleSettingsLoaded( new MantleSettingsLoadedEvent( mantleSettings ) );
       }
-      
+
       public void onFailure( Throwable caught ) {
       }
     }, false );
@@ -260,14 +260,14 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public void onMantleSettingsLoaded( MantleSettingsLoadedEvent event ) {
     final HashMap<String, String> settings = event.getSettings();
-    
-    final boolean showOnlyPerspective = 
+
+    final boolean showOnlyPerspective =
         Boolean.parseBoolean( StringUtils.isEmpty( Window.Location.getParameter( "showOnlyPerspective" ) ) ? settings.get( "showOnlyPerspective" ) : Window.Location.getParameter( "showOnlyPerspective" ) );
-    final String startupPerspective = 
-        StringUtils.isEmpty( Window.Location.getParameter( "startupPerspective" ) ) ? settings.get("startupPerspective") : Window.Location.getParameter( "startupPerspective" );
-    
+    final String startupPerspective =
+        StringUtils.isEmpty( Window.Location.getParameter( "startupPerspective" ) ) ? settings.get( "startupPerspective" ) : Window.Location.getParameter( "startupPerspective" );
+
     mantleRevisionOverride = settings.get( "user-console-revision" );
-    
+
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
@@ -325,7 +325,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           dialogBox.center();
         }
 
-        @SuppressWarnings( "deprecation" )
+        @SuppressWarnings ( "deprecation" )
         @Override
         public void onResponseReceived( Request arg0, Response response ) {
           Boolean isAdministrator = Boolean.parseBoolean( response.getText() );

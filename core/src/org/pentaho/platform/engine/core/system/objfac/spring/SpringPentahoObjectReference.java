@@ -30,9 +30,9 @@ import java.util.Map;
 
 /**
  * Spring implementation of {@link IPentahoObjectReference}
- * 
+ * <p/>
  * {@inheritDoc}
- * 
+ * <p/>
  * User: nbaker Date: 1/16/13
  */
 public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<T> {
@@ -50,12 +50,16 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
   private static String PRIORITY = "priority";
 
   public SpringPentahoObjectReference( ConfigurableApplicationContext context, String name, Class<T> clazz,
-      IPentahoSession session, BeanDefinition beanDef ) {
+                                       IPentahoSession session, BeanDefinition beanDef ) {
     this.context = context;
     this.name = name;
     this.clazz = clazz;
     this.session = session;
     this.attributes = new SpringBeanAttributes( beanDef );
+  }
+
+  @Override public Class<?> getObjectClass() {
+    return clazz;
   }
 
   @Override
@@ -114,12 +118,14 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
 
   @Override
   public int compareTo( IPentahoObjectReference<T> o ) {
-    if ( o == null || o instanceof IPentahoObjectReference == false ) {
-      return -1;
+    if ( o == null ) {
+      return 1;
     }
-    IPentahoObjectReference ref = (IPentahoObjectReference) o;
-    int pri1 = extractPriority( this );
-    int pri2 = extractPriority( ref );
+    if ( o == this ) {
+      return 0;
+    }
+    int pri1 = this.getRanking();
+    int pri2 = o.getRanking();
     if ( pri1 == pri2 ) {
       return 0;
     } else if ( pri1 > pri2 ) {
@@ -127,12 +133,11 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     } else {
       return -1;
     }
-
   }
 
   @Override
   public Integer getRanking() {
-    return extractPriority(this);
+    return extractPriority( this );
   }
 
   private int extractPriority( IPentahoObjectReference ref ) {
@@ -155,7 +160,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
   private static class SpringBeanAttributes extends HashMap<String, Object> {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -5790844158879001752L;
 

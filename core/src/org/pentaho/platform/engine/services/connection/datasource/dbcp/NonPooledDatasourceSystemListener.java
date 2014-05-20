@@ -18,47 +18,105 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
+import javax.sql.DataSource;
+import java.util.List;
+
 public class NonPooledDatasourceSystemListener implements IPentahoSystemListener {
-  public static final String DATASOURCE_REGION = "DATASOURCE"; //$NON-NLS-1$
 
   public boolean startup( final IPentahoSession session ) {
-    /* try { */
-    Logger.debug( this, "NonPooledDatasourceSystemListener: called for startup" ); //$NON-NLS-1$
-    /*
-     * IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService)
-     * PentahoSystem.get(IDatasourceMgmtService.class,session); if(cachingAvailable) {
-     * if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
-     * cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE); } } List<DatabaseMeta> datasources =
-     * datasourceMgmtSvc.getDatasources(); for (DatabaseMeta datasource : datasources) { Logger.debug(this,
-     * "(storing DataSource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$ +
-     * datasource.getName() + "\")"); //$NON-NLS-1$
-     * cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource.getName(),
-     * PooledDatasourceHelper.convert(datasource)); } Logger.debug(this,
-     * "NonPooledDatasourceSystemListener: done with init"); //$NON-NLS-1$
-     */
-    return true;
-    /*
-     * } catch (DatasourceMgmtServiceException dmse) { Logger.error(this, Messages.getInstance().getErrorString(
-     * "NonPooledDatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE"
-     * ,NonPooledDatasourceSystemListener.class.getName()), dmse); //$NON-NLS-1$ return false; }
-     */
+    try {
+
+      Logger.debug( this, "DatasourceSystemListener: called for startup ..." ); //$NON-NLS-1$
+
+      ICacheManager cacheManager = addCacheRegions();
+
+      IDatasourceMgmtService datasourceMgmtSvc =
+          (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get( IDatasourceMgmtService.class, session );
+
+      List<IDatabaseConnection> databaseConnections = datasourceMgmtSvc.getDatasources();
+
+      String dsName = "";
+      DataSource ds = null;
+
+      for ( IDatabaseConnection databaseConnection : databaseConnections ) {
+
+        if ( databaseConnection != null ) {
+
+          Logger.debug( this, "  Setting up datasource - " + databaseConnection ); //$NON-NLS-1$
+
+          ds = getDataSource( databaseConnection );
+          dsName = databaseConnection.getName();
+
+          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+
+          Logger.debug( this, "(Storing datasource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
+              + dsName + "\")" ); //$NON-NLS-1$
+        }
+
+      }
+
+      Logger.debug( this, "DatasourceSystemListener: Completed startup." ); //$NON-NLS-1$
+
+      return true;
+
+    } catch ( ObjectFactoryException objface ) {
+
+      Logger.error( this, Messages.getInstance().getErrorString(
+          "DatasourceSystemListener.ERROR_0001_UNABLE_TO_INSTANTIATE_OBJECT" ), objface ); //$NON-NLS-1$
+
+      return false;
+
+    } catch ( DatasourceMgmtServiceException dmse ) {
+
+      Logger.error( this, Messages.getInstance().getErrorString(
+          "DatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), dmse ); //$NON-NLS-1$
+
+      return false;
+    }
   }
 
-  public void shutdown() {
+  protected DataSource getDataSource( IDatabaseConnection connection ) {
+
+    return PooledDatasourceHelper.convert( connection );
+
+  }
+
+  protected ICacheManager addCacheRegions( ) {
+
     ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-    Logger.debug( this, "NonPooledDatasourceSystemListener: called for shutdown" ); //$NON-NLS-1$
-    // Cleaning cache for datasources
+
+    Logger.debug( this, "Adding caching regions ..." ); //$NON-NLS-1$
+
+    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
+      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
+    }
+
+    return cacheManager;
+  }
+
+
+  public void shutdown() {
+
+    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+
+    Logger.debug( this, "DatasourceSystemListener: Called for shutdown ..." ); //$NON-NLS-1$
+
     cacheManager.removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
 
-    Logger.debug( this, "NonPooledDatasourceSystemListener: completed shutdown" ); //$NON-NLS-1$
-    return;
+    Logger.debug( this, "DatasourceSystemListener: Completed shutdown." ); //$NON-NLS-1$
+
   }
 
 }

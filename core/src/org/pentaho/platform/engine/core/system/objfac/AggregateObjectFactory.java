@@ -34,28 +34,39 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * AggregateObectFactory holds a collection of IPentahoObjectFactory implementations, delegating calls to each and
  * collecting the results. Results are ordered by "priority" attribute if present, with the highest priority object
  * returned in the calls to retrieve a single object.
- * 
+ * <p/>
  * {@inheritDoc}
- * 
+ * <p/>
  * User: nbaker Date: 1/15/13
  */
 public class AggregateObjectFactory implements IPentahoObjectFactory {
-  protected Set<IPentahoObjectFactory> factories = Collections.synchronizedSet( new HashSet<IPentahoObjectFactory>() );
+  protected final Set<IPentahoObjectFactory> factories = Collections.synchronizedSet( new HashSet<IPentahoObjectFactory>() );
   protected IPentahoObjectFactory primaryFactory;
   private Logger logger = LoggerFactory.getLogger( AggregateObjectFactory.class );
+
+  private final ReadWriteLock factoryLock = new ReentrantReadWriteLock( false ); // we're not fair
+  private Lock writeLock = factoryLock.writeLock();
+  private Lock readLock = factoryLock.readLock();
 
   public AggregateObjectFactory() {
 
   }
 
   public void registerObjectFactory( IPentahoObjectFactory fact, boolean primary ) {
-    factories.add( fact );
+    writeLock.lock();
+    try{
+      factories.add( fact );
+    } finally {
+      writeLock.unlock();
+    }
     if ( primary ) {
       primaryFactory = fact;
     }
@@ -64,6 +75,21 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   public void registerObjectFactory( IPentahoObjectFactory fact ) {
     registerObjectFactory( fact, false );
+  }
+
+  /**
+   * De-Register an ObjectFactory
+   *
+   * @param factory
+   * @return true if the factory was registered and successfully removed.
+   */
+  public boolean deregisterObjectFactory( IPentahoObjectFactory factory ) {
+    writeLock.lock();
+    try {
+      return factories.remove( factory );
+    } finally {
+      writeLock.unlock();
+    }
   }
 
   public Set<IPentahoObjectFactory> getFactories() {
@@ -78,12 +104,17 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   public <T> T get( Class<T> interfaceClass, String key, IPentahoSession session ) throws ObjectFactoryException {
     // if they want it by id, check for that first
     if ( key != null ) {
-      for ( IPentahoObjectFactory fact : factories ) {
-        if ( fact.objectDefined( key ) ) {
-          T object = fact.get( interfaceClass, key, session );
-          logger.debug( MessageFormat.format( "Found object for key: {0} in factory: {1}", key, fact.getName() ) );
-          return object;
+      readLock.lock();
+      try {
+        for ( IPentahoObjectFactory fact : factories ) {
+          if ( fact.objectDefined( key ) ) {
+            T object = fact.get( interfaceClass, key, session );
+            logger.debug( MessageFormat.format( "Found object for key: {0} in factory: {1}", key, fact.getName() ) );
+            return object;
+          }
         }
+      } finally {
+        readLock.unlock();
       }
     }
 
@@ -93,8 +124,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     }
 
     String msg =
-        Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-            interfaceClass.getSimpleName() );
+      Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+        interfaceClass.getSimpleName() );
     throw new ObjectFactoryException( msg );
 
   }
@@ -124,28 +155,39 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public boolean objectDefined( String key ) {
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( key ) ) {
-        logger.debug( MessageFormat.format( "Object defined for key: {0} in factory: {1}", key, fact.getName() ) );
-        return true;
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( key ) ) {
+          logger.debug( MessageFormat.format( "Object defined for key: {0} in factory: {1}", key, fact.getName() ) );
+          return true;
+        }
       }
+
+    } finally {
+      readLock.unlock();
     }
     return false;
   }
 
   /**
    * {@inheritDoc}
-   * 
-   * @deprecated All usage of key methods are deprecated, use object properties instead
+   *
+   * @deprecated All usage of key methods are deprecated, use object attributes instead
    */
   @Override
   public Class<?> getImplementingClass( String key ) {
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( key ) ) {
-        logger.debug( MessageFormat.format( "Found implementing class for key: {0} in factory: {1}", key, fact
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( key ) ) {
+          logger.debug( MessageFormat.format( "Found implementing class for key: {0} in factory: {1}", key, fact
             .getName() ) );
-        return fact.getImplementingClass( key );
+          return fact.getImplementingClass( key );
+        }
       }
+    } finally {
+      readLock.unlock();
     }
     return null;
   }
@@ -166,13 +208,18 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
     List<IPentahoObjectReference<T>> referenceList = new ArrayList<IPentahoObjectReference<T>>();
 
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( interfaceClass ) ) {
-        List<IPentahoObjectReference<T>> refs = fact.getObjectReferences( interfaceClass, curSession, properties );
-        if ( refs != null ) {
-          referenceList.addAll( refs );
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( interfaceClass ) ) {
+          List<IPentahoObjectReference<T>> refs = fact.getObjectReferences( interfaceClass, curSession, properties );
+          if ( refs != null ) {
+            referenceList.addAll( refs );
+          }
         }
       }
+    } finally {
+      readLock.unlock();
     }
 
     Collections.sort( referenceList, referencePriorityComparitor );
@@ -192,14 +239,19 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
 
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( clazz ) ) {
-        IPentahoObjectReference<T> found = fact.getObjectReference( clazz, curSession );
-        if ( found != null ) {
-          references.add( found );
-        }
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( clazz ) ) {
+          IPentahoObjectReference<T> found = fact.getObjectReference( clazz, curSession );
+          if ( found != null ) {
+            references.add( found );
+          }
 
+        }
       }
+    } finally {
+      readLock.unlock();
     }
     IPentahoObjectReference<T> highestRef = null;
     int highestRefPriority = -1;
@@ -223,46 +275,60 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     if ( highestRef != null ) {
       return highestRef.getObject();
     }
-
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( clazz.getSimpleName() ) ) {
-        T object = fact.get( clazz, clazz.getSimpleName(), session );
-        return object;
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( clazz.getSimpleName() ) ) {
+          T object = fact.get( clazz, clazz.getSimpleName(), session );
+          return object;
+        }
       }
+    } finally {
+      readLock.unlock();
     }
     String msg =
-        Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-            clazz.getSimpleName() );
+      Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+        clazz.getSimpleName() );
     throw new ObjectFactoryException( msg );
 
   }
 
   @Override
   public boolean objectDefined( Class<?> clazz ) {
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( clazz ) ) {
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( clazz ) ) {
 
-        logger.debug( MessageFormat.format( "Found object for class: {0} in factory: {1}", clazz.getName(), fact
+          logger.debug( MessageFormat.format( "Found object for class: {0} in factory: {1}", clazz.getName(), fact
             .getName() ) );
-        return true;
+          return true;
+        }
       }
+    } finally {
+      readLock.unlock();
     }
     return false;
   }
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                            Map<String, String> properties )
+    throws ObjectFactoryException {
 
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
-
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( interfaceClass ) ) {
-        IPentahoObjectReference<T> found = fact.getObjectReference( interfaceClass, curSession, properties );
-        if ( found != null ) {
-          references.add( found );
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( interfaceClass ) ) {
+          IPentahoObjectReference<T> found = fact.getObjectReference( interfaceClass, curSession, properties );
+          if ( found != null ) {
+            references.add( found );
+          }
         }
       }
+    } finally {
+      readLock.unlock();
     }
     IPentahoObjectReference<T> highestRef = null;
     int highestRefPriority = -1;
@@ -278,10 +344,16 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   }
 
   public void clear() {
-    this.factories.clear();
+    writeLock.lock();
+    try {
+      this.factories.clear();
+    } finally {
+      writeLock.lock();
+    }
   }
 
   private static ReferencePriorityComparitor referencePriorityComparitor = new ReferencePriorityComparitor();
+
 
   private static class ReferencePriorityComparitor implements Comparator<IPentahoObjectReference> {
     private static final String PRIORITY = "priority";
@@ -323,17 +395,23 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
-      Map<String, String> properties ) throws ObjectFactoryException {
+                                                                   Map<String, String> properties )
+    throws ObjectFactoryException {
     // Use a set to avoid duplicates
-    Set<IPentahoObjectReference<T>> referenceSet = new TreeSet<IPentahoObjectReference<T>>();
+    Set<IPentahoObjectReference<T>> referenceSet = new HashSet<IPentahoObjectReference<T>>();
 
-    for ( IPentahoObjectFactory fact : factories ) {
-      if ( fact.objectDefined( interfaceClass ) ) {
-        List<IPentahoObjectReference<T>> found = fact.getObjectReferences(interfaceClass, curSession, properties);
-        if ( found != null ) {
-          referenceSet.addAll( found );
+    readLock.lock();
+    try{
+      for ( IPentahoObjectFactory fact : factories ) {
+        if ( fact.objectDefined( interfaceClass ) ) {
+          List<IPentahoObjectReference<T>> found = fact.getObjectReferences( interfaceClass, curSession, properties );
+          if ( found != null ) {
+            referenceSet.addAll( found );
+          }
         }
       }
+    } finally {
+      readLock.unlock();
     }
 
     // transform to a list to sort

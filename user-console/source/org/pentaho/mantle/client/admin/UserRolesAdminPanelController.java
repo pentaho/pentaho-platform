@@ -124,7 +124,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     String selectedRoles = "";
     for ( int i = 0; i < rolesListBox.getItemCount(); i++ ) {
       if ( rolesListBox.isItemSelected( i ) ) {
-        selectedRoles = selectedRoles + encodeUri( rolesListBox.getValue( i ) ) + "|";
+        selectedRoles = selectedRoles + encodeUri( rolesListBox.getValue( i ) ) + "\t";
       }
     }
 
@@ -169,7 +169,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     String selectedUsers = "";
     for ( int i = 0; i < usersListBox.getItemCount(); i++ ) {
       if ( usersListBox.isItemSelected( i ) ) {
-        selectedUsers = selectedUsers + encodeUri( usersListBox.getValue( i ) ) + "|";
+        selectedUsers = selectedUsers + encodeUri( usersListBox.getValue( i ) ) + "\t";
       }
     }
 
@@ -580,7 +580,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       String roleNames = "";
       for ( int i = 0; i < availableRolesListBox.getItemCount(); i++ ) {
         if ( availableRolesListBox.isItemSelected( i ) ) {
-          roleNames = roleNames + encodeUri( availableRolesListBox.getValue( i ) ) + "|";
+          roleNames = roleNames + encodeUri( availableRolesListBox.getValue( i ) ) + "\t";
         }
       }
 
@@ -598,7 +598,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       String roleNames = "";
       for ( int i = 0; i < selectedRolesListBox.getItemCount(); i++ ) {
         if ( selectedRolesListBox.isItemSelected( i ) ) {
-          roleNames = roleNames + encodeUri( selectedRolesListBox.getValue( i ) ) + "|";
+          roleNames = roleNames + encodeUri( selectedRolesListBox.getValue( i ) ) + "\t";
         }
       }
 
@@ -634,7 +634,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       String userNames = "";
       for ( int i = 0; i < availableMembersListBox.getItemCount(); i++ ) {
         if ( availableMembersListBox.isItemSelected( i ) ) {
-          userNames = userNames + encodeUri( availableMembersListBox.getValue( i ) ) + "|";
+          userNames = userNames + encodeUri( availableMembersListBox.getValue( i ) ) + "\t";
         }
       }
 
@@ -652,7 +652,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       String userNames = "";
       for ( int i = 0; i < selectedMembersListBox.getItemCount(); i++ ) {
         if ( selectedMembersListBox.isItemSelected( i ) ) {
-          userNames = userNames + encodeUri( selectedMembersListBox.getValue( i ) ) + "|";
+          userNames = userNames + encodeUri( selectedMembersListBox.getValue( i ) ) + "\t";
         }
       }
 

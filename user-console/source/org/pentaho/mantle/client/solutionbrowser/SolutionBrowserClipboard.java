@@ -17,13 +17,10 @@
 
 package org.pentaho.mantle.client.solutionbrowser;
 
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-
 import java.util.List;
 
 /**
  * @author wseyler
- * 
  */
 public class SolutionBrowserClipboard {
   public enum ClipboardAction {
@@ -31,7 +28,7 @@ public class SolutionBrowserClipboard {
   }
 
   private String mimeType;
-  private Object data;
+  private List<SolutionBrowserFile> clipboardItems;
   private ClipboardAction clipboardAction;
 
   private static SolutionBrowserClipboard instance = new SolutionBrowserClipboard();
@@ -52,30 +49,26 @@ public class SolutionBrowserClipboard {
     this.mimeType = mimeType;
   }
 
-  public Object getData() {
-    return data;
+  public List<SolutionBrowserFile> getClipboardItems() {
+    return clipboardItems;
   }
 
-  public void setDataForCut( Object data ) {
-    clearCutStyling();
-    this.data = data;
+  public void setClipboardItemsForCut( List<SolutionBrowserFile> clipboardItems ) {
+    this.clipboardItems = clipboardItems;
     clipboardAction = ClipboardAction.CUT;
-    applyCutStyling();
   }
 
-  public void setDataForCopy( Object data ) {
-    clearCutStyling();
-    this.data = data;
+  public void setClipboardItemsByIdForCopy( List<SolutionBrowserFile> clipboardItems ) {
+    this.clipboardItems = clipboardItems;
     clipboardAction = ClipboardAction.COPY;
   }
 
   public Boolean hasContent() {
-    return data != null;
+    return clipboardItems != null;
   }
 
   /**
-   * @param clipboardAction
-   *          the clipboardAction to set
+   * @param clipboardAction the clipboardAction to set
    */
   public void setClipboardAction( ClipboardAction clipboardAction ) {
     this.clipboardAction = clipboardAction;
@@ -88,35 +81,11 @@ public class SolutionBrowserClipboard {
     return clipboardAction;
   }
 
-  private void clearCutStyling() {
-    if ( hasContent() && clipboardAction == ClipboardAction.CUT ) {
-      if ( data instanceof List<?> ) {
-        @SuppressWarnings( "unchecked" )
-        List<FileItem> values = (List<FileItem>) data;
-        for ( FileItem fileItem : values ) {
-          fileItem.setStyleName( "fileLabel" ); //$NON-NLS-1$
-        }
-      }
-    }
-  }
-
-  private void applyCutStyling() {
-    if ( hasContent() && clipboardAction == ClipboardAction.CUT ) {
-      if ( data instanceof List<?> ) {
-        @SuppressWarnings( "unchecked" )
-        List<FileItem> values = (List<FileItem>) data;
-        for ( FileItem fileItem : values ) {
-          fileItem.setStyleName( "fileLabelCutSelected" ); //$NON-NLS-1$
-        }
-      }
-    }
-  }
-
   /**
-   * 
+   *
    */
   public void clear() {
-    this.data = null;
+    this.clipboardItems = null;
     this.mimeType = null;
   }
 

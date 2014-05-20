@@ -17,6 +17,17 @@
 
 package org.pentaho.mantle.client.dialogs.scheduling;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.NameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
+import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.workspace.JsJob;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.VerticalAlign;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -31,6 +42,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -39,16 +51,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog.ScheduleDialogType;
-import org.pentaho.mantle.client.dialogs.SelectFolderDialog;
-import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.utils.NameUtils;
-import org.pentaho.mantle.client.workspace.JsJob;
 
 public class NewScheduleDialog extends PromptDialogBox {
 
@@ -70,7 +72,7 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   private static native String getDefaultSaveLocation()
   /*-{
-    return window.top.HOME_FOLDER;
+      return window.top.HOME_FOLDER;
   }-*/;
 
   public NewScheduleDialog( JsJob jsJob, IDialogCallback callback, boolean isEmailConfValid ) {
@@ -187,22 +189,22 @@ public class NewScheduleDialog extends PromptDialogBox {
 
   protected void onOk() {
     String name = scheduleNameTextBox.getText();
-    if ( !NameUtils.isRepositoryObjectNameValid( name ) ) {
+    if ( !NameUtils.isValidFileName( name ) ) {
       MessageDialogBox errorDialog =
-          new MessageDialogBox(
-              Messages.getString( "error" ), Messages.getString( "prohibitedNameSymbols", name ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "prohibitedNameSymbols", name,
+              NameUtils.reservedCharListForDisplay( " " ) ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
       errorDialog.center();
       return;
     }
 
     // check if has parameterizable
     WaitPopup.getInstance().setVisible( true );
-    String urlPath = filePath.replaceAll( "/", ":" );
-    
+    String urlPath = URL.encodePathSegment( NameUtils.encodeRepositoryPath( filePath ) );
+
     RequestBuilder scheduleFileRequestBuilder;
     final boolean isXAction;
-    
-    if ((urlPath != null) && (urlPath.endsWith( "xaction" ))){
+
+    if ( ( urlPath != null ) && ( urlPath.endsWith( "xaction" ) ) ) {
       isXAction = true;
       scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repos/" + urlPath
           + "/parameterUi" );
@@ -223,21 +225,21 @@ public class NewScheduleDialog extends PromptDialogBox {
               new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
           dialogBox.center();
         }
-        
+
         public void onResponseReceived( Request request, Response response ) {
           WaitPopup.getInstance().setVisible( false );
           if ( response.getStatusCode() == Response.SC_OK ) {
             String responseMessage = response.getText();
             boolean hasParams;
 
-            if (isXAction){
+            if ( isXAction ) {
               int numOfInputs = StringUtils.countMatches( responseMessage, "<input" );
               int NumOfHiddenInputs = StringUtils.countMatches( responseMessage, "type=\"hidden\"" );
               hasParams = numOfInputs - NumOfHiddenInputs > 0 ? true : false;
             } else {
               hasParams = Boolean.parseBoolean( response.getText() );
             }
-            
+
             if ( jsJob != null ) {
               jsJob.setJobName( scheduleNameTextBox.getText() );
               jsJob.setOutputPath( scheduleLocationTextBox.getText(), scheduleNameTextBox.getText() );

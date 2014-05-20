@@ -34,11 +34,11 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author wseyler
- * 
  */
 public class DeletePermanentFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -48,14 +48,15 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
   List<RepositoryFile> repositoryFiles;
+  List<String> deletePermFileIds = new ArrayList();
 
   private String fileList = "";
   private String type = "";
   private String mode = "";
 
+
   public String getFileList() {
     return fileList;
-
   }
 
   public void setFileList( String fileList ) {
@@ -81,15 +82,16 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   public DeletePermanentFileCommand() {
   }
 
-  public DeletePermanentFileCommand( List<RepositoryFile> selectedItemsClone ) {
-    repositoryFiles = selectedItemsClone;
+  public DeletePermanentFileCommand( String fileList ) {
+    setFileList( fileList );
   }
 
+
   /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.gwt.user.client.Command#execute()
-   */
+ * (non-Javadoc)
+ *
+ * @see com.google.gwt.user.client.Command#execute()
+ */
   protected void performOperation( boolean feedback ) {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
 
@@ -104,7 +106,11 @@ public class DeletePermanentFileCommand extends AbstractCommand {
           new PromptDialogBox(
               Messages.getString( "emptyTrash" ), Messages.getString( "yesEmptyTrash" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     } else {
-      deleteMessage = Messages.getString( "deleteQuestion", type );
+      if ( type == "multi" ) {
+        deleteMessage = Messages.getString( "deleteMultiQuestion" );
+      } else {
+        deleteMessage = Messages.getString( "deleteQuestion", type );
+      }
       deleteConfirmDialog =
           new PromptDialogBox(
               Messages.getString( "permDelete" ), Messages.getString( "yesPermDelete" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -119,12 +125,6 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
       public void okPressed() {
         String temp = "";
-
-        if ( repositoryFiles != null ) {
-          for ( RepositoryFile fileItem : repositoryFiles ) {
-            temp += fileItem.getId() + ","; //$NON-NLS-1$
-          }
-        }
 
         // Add js file list
         temp = temp + fileList;
@@ -200,6 +200,6 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
-    $wnd.mantle_isBrowseRepoDirty=isDirty;
+      $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
 }

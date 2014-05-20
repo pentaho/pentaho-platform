@@ -20,18 +20,21 @@ define([
   "js/browser.folderButtons",
   "js/browser.trashButtons",
   "js/browser.trashItemButtons",
-  "js/dialogs/browser.dialog.rename.js",
+  "js/browser.utils",
+  "js/browser.multiSelectButtons",
+  "js/dialogs/browser.dialog.rename",
   "common-ui/util/spin.min",
   "common-ui/util/PentahoSpinner",
   "js/browser.templates",
+  "common-ui/util/URLEncoder",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-i18n",
-  "common-ui/jquery",
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, RenameDialog, Spinner, spin, templates) {
+  "common-ui/jquery"
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
 
 
-  if(window.top.mantle_isBrowseRepoDirty == undefined){
+  if (window.top.mantle_isBrowseRepoDirty == undefined) {
     window.top.mantle_isBrowseRepoDirty = false;
   }
 
@@ -58,6 +61,8 @@ define([
   var folderButtons = new FolderButtons(jQuery.i18n);
   var trashButtons = new TrashButtons(jQuery.i18n);
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
+  var browserUtils = new BrowserUtils();
+  var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
 
   fileButtons.renameDialog = renameDialog;
   folderButtons.renameDialog = renameDialog;
@@ -72,26 +77,10 @@ define([
   FileBrowser.canPublish = false;
 
   /**
-   * Encode parts of the path between the colons
+   * Encode a path that has the slashes converted to colons
    **/
   FileBrowser.encodePathComponents = function (path) {
-    var result = path;
-
-    // only parse paths greater than 1 ":"
-    if (path.length > 1) {
-      var encodedParts = [];
-
-      var parts = path.split(":");
-
-      for (var x = 0; x <= parts.length - 1; x++) {
-        if (parts[x] != "") {
-          encodedParts[x] = encodeURIComponent(parts[x]);
-        }
-      }
-      result = encodedParts.join(":");
-    }
-
-    return result;
+    return Encoder.encode("{0}", path);
   };
 
   FileBrowser.setShowHiddenFiles = function (value) {
@@ -133,24 +122,50 @@ define([
     }
   };
 
+  FileBrowser.concatArray = function (arr1, arr2) {
+
+    for (var i = 0; i < arr2.length; i++) {
+      FileBrowser.pushUnique(arr1, arr2[i]);
+    }
+    return arr1;
+  };
+
+  FileBrowser.pushUnique = function (array, item) {
+
+    var exists = false;
+    for (var i = 0; i < array.length; i++) {
+
+      if (item.obj.attr("id") == array[i].obj.attr("id")) {
+        exists = true;
+        break;
+      }
+
+    }
+    if (!exists) {
+      array.push(item);
+    }
+
+  };
+
   FileBrowser.redraw = function (initialPath) {
     var myself = this;
+      
+    myself.fileBrowserModel = new FileBrowserModel({
+      spinConfig: spin,
+      openFileHandler: myself.openFileHandler,
+      showHiddenFiles: myself.showHiddenFiles,
+      showDescriptions: myself.showDescriptions,
+      canDownload: myself.canDownload,
+      canPublish: myself.canPublish,
+      startFolder: initialPath
+    });
+    myself.FileBrowserView = new FileBrowserView({
+      model: myself.fileBrowserModel,
+      el: myself.$container
 
-    
-      myself.fileBrowserModel = new FileBrowserModel({
-        spinConfig: spin,
-        openFileHandler: myself.openFileHandler,
-        showHiddenFiles: myself.showHiddenFiles,
-        showDescriptions: myself.showDescriptions,
-        canDownload: myself.canDownload,
-        canPublish: myself.canPublish,
-        startFolder: initialPath
-      });
-      myself.FileBrowserView = new FileBrowserView({
-        model: myself.fileBrowserModel,
-        el: myself.$container
-
-      });
+    });
+    //Kill text selection in all IE browsers for the browse perspective
+    $("#fileBrowser").bind("selectstart", function(){return false});
   };
 
   FileBrowser.openFolder = function (path) {
@@ -172,6 +187,8 @@ define([
       folderButtons: folderButtons,
       trashButtons: trashButtons,
       trashItemButtons: trashItemButtons,
+      browserUtils: browserUtils,
+      multiSelectButtons: multiSelectButtons,
 
       foldersTreeModel: undefined,
       fileListModel: undefined,
@@ -272,16 +289,18 @@ define([
       var myself = this;
       var clickedFolder = this.get("foldersTreeModel").get("clickedFolder");
       var folderPath = clickedFolder.obj.attr("path");
+      var model = FileBrowser.fileBrowserModel; // trap model
 
       if (folderPath == ".trash") {
         this.updateTrashLastClick();
       } else {
-        folderPath = folderPath.replace(/\//g, ":");
+        folderPath = Encoder.encodeRepositoryPath(folderPath);
       }
       this.set("clickedFolder", clickedFolder);
       folderButtons.canDownload(this.get("canDownload"));
       folderButtons.canPublish(this.get("canPublish"));
-
+      //Leaving this here...if UX decides they want the hiddenFileLabel style preserved when switching folders
+      //model.get('browserUtils').applyCutItemsStyle();
 
       //Ajax request to check write permissions for folder
       $.ajax({
@@ -294,10 +313,10 @@ define([
         async: true,
         cache: false,
         success: function (response) {
-          folderButtons.updateFolderPermissionButtons(response);
+          folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems);
         },
         error: function (response) {
-          folderButtons.updateFolderPermissionButtons(false);
+          folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems);
         }
       });
 
@@ -316,8 +335,10 @@ define([
       this.set("clickedFile", clickedFile);
       fileButtons.canDownload(this.get("canDownload"));
 
+      //TODO handle file button press
+
       var filePath = clickedFile.obj.attr("path");
-      filePath = filePath.replace(/\//g, ":");
+      filePath = Encoder.encodeRepositoryPath(filePath);
 
       //Ajax request to check write permissions for file
       $.ajax({
@@ -442,7 +463,7 @@ define([
           tree = null,
           localSequenceNumber = myself.get("sequenceNumber");
 
-      var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : path.replace(/\//g, ":")));
+      var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path)));
 
       $.ajax({
         async: true,
@@ -465,6 +486,9 @@ define([
       });
     },
 
+    /*
+     * Path has already been converted to colons
+     */
     getFileTreeRequest: function (path) {
       return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
     }
@@ -475,6 +499,10 @@ define([
     defaults: {
       clicked: false,
       clickedFile: undefined,
+      anchorPoint: undefined,
+      multiSelect: [],
+      shiftLasso: [],
+      clipboard: [],
 
       data: undefined,
       cachedData: {},
@@ -494,56 +522,56 @@ define([
 
     initialize: function () {
       var myself = this;
-      myself.set("cachedData",{}); // clear cached data on initialization - Backbone relates to old cachedData when new object is created
+      myself.set("cachedData", {}); // clear cached data on initialization - Backbone relates to old cachedData when new object is created
 
       myself.on("change:path", myself.updateData, myself);
     },
 
-    reformatTrashResponse: function(myself, response) {
-         var newResp = {
-            children: []
+    reformatTrashResponse: function (myself, response) {
+      var newResp = {
+        children: []
+      }
+      if (response && response.repositoryFileDto) {
+        myself.set("deletedFiles", "");
+        for (var i = 0; i < response.repositoryFileDto.length; i++) {
+          var obj = {
+            file: Object
           }
-          if (response && response.repositoryFileDto) {
-            myself.set("deletedFiles", "");
-            for (var i = 0; i < response.repositoryFileDto.length; i++) {
-              var obj = {
-                file: Object
-              }
 
-              obj.file = response.repositoryFileDto[i];
-              obj.file.trash = "true";
-              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-              if (obj.file.id) {
-                if (myself.get("deletedFiles") == "") {
-                  myself.set("deletedFiles", obj.file.id + ",");
-                }
-                else {
-                  myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
-                }
-              }
-              newResp.children.push(obj);
+          obj.file = response.repositoryFileDto[i];
+          obj.file.trash = "true";
+          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+          if (obj.file.id) {
+            if (myself.get("deletedFiles") == "") {
+              myself.set("deletedFiles", obj.file.id + ",");
+            }
+            else {
+              myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
             }
           }
-          return newResp;
+          newResp.children.push(obj);
+        }
+      }
+      return newResp;
     },
 
-    reformatResponse: function(response) {
-         var newResp = {
-            children: []
-          }
-          if (response && response.repositoryFileDto) {
+    reformatResponse: function (response) {
+      var newResp = {
+        children: []
+      }
+      if (response && response.repositoryFileDto) {
 
-            for (var i = 0; i < response.repositoryFileDto.length; i++) {
-              var obj = {
-                file: Object
-              }
-
-              obj.file = response.repositoryFileDto[i];
-              obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-              newResp.children.push(obj);
-            }
+        for (var i = 0; i < response.repositoryFileDto.length; i++) {
+          var obj = {
+            file: Object
           }
-          return newResp;
+
+          obj.file = response.repositoryFileDto[i];
+          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+          newResp.children.push(obj);
+        }
+      }
+      return newResp;
     },
 
     updateData: function () {
@@ -555,7 +583,7 @@ define([
 
         //If we have trash data we reformat it to match the handlebar templates
         if (myself.get("path") == ".trash") {
-        var newResp = myself.reformatTrashResponse(myself, response);
+          var newResp = myself.reformatTrashResponse(myself, response);
           myself.set("data", newResp);
           if (myself.get("deletedFiles") == "") {
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
@@ -572,7 +600,7 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : path.replace(/\//g, ":"))),
+          url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))),
           localSequenceNumber = myself.get("sequenceNumber");
 
       $.ajax({
@@ -586,20 +614,20 @@ define([
             callback(customSort(response));
           }
 
-          if(window.top.mantle_isBrowseRepoDirty == true) {
-            window.top.mantle_isBrowseRepoDirty=false;
+          if (window.top.mantle_isBrowseRepoDirty == true) {
+            window.top.mantle_isBrowseRepoDirty = false;
             //clear the cache
-            myself.set("cachedData",{});
+            myself.set("cachedData", {});
           }
           //cache the folder contents
-          if(FileBrowser.fileBrowserModel.getFolderClicked()){
-            if(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")==".trash"){
+          if (FileBrowser.fileBrowserModel.getFolderClicked()) {
+            if (FileBrowser.fileBrowserModel.getFolderClicked().attr("path") == ".trash") {
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]
-               =FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself,response);
+                  = FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself, response);
             }
             else {
-              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]= FileBrowser.
-                fileBrowserModel.attributes.fileListModel.reformatResponse(response);
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = FileBrowser.
+                  fileBrowserModel.attributes.fileListModel.reformatResponse(response);
             }
           }
         },
@@ -608,10 +636,14 @@ define([
         beforeSend: function (xhr) {
           myself.set("runSpinner", true);
 
-          if(!window.top.mantle_isBrowseRepoDirty){
-            if(myself.get("cachedData") != undefined) {
-              if(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] != undefined){
-                myself.set("data",myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+          if (!window.top.mantle_isBrowseRepoDirty) {
+            if (myself.get("cachedData") != undefined) {
+              if (myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] != undefined) {
+                if (_.isEqual(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")], myself.get("data"))) {
+                  myself.trigger('change:data');
+                } else {
+                  myself.set("data", myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+                }
                 xhr.abort();
                 myself.set("runSpinner", false);
               }
@@ -622,6 +654,9 @@ define([
       });
     },
 
+    /*
+     * Path has already been converted to colons
+     */
     getFileListRequest: function (path) {
       var request;
       if (path == ".trash") {
@@ -649,6 +684,7 @@ define([
 
     configureListeners: function () {
       //update buttons when changed folder/file
+      this.model.on("change:clickedFile", this.updateButtons, this);
       this.model.on("change:lastClick", this.updateButtons, this);
 
       //update buttons header on folder/file selection
@@ -671,7 +707,7 @@ define([
 
       myself.$el.empty();
 
-        myself.$el.append($(templates.structure({})));
+      myself.$el.append($(templates.structure({})));
 
     },
 
@@ -734,7 +770,7 @@ define([
       obj.i18n = jQuery.i18n;
 
       //require buttons header template
-        $buttonsContainer.prepend($(templates.buttonsHeader(obj)));
+      $buttonsContainer.prepend($(templates.buttonsHeader(obj)));
 
     },
 
@@ -762,8 +798,8 @@ define([
       }
 
       //require folders header template
-        $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
-    
+      $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
+
 
     },
 
@@ -785,8 +821,8 @@ define([
       }
 
       //require files header template
-        $folderBrowserContainer.prepend($(templates.fileBrowserHeader(obj)));
-    
+      $folderBrowserContainer.prepend($(templates.fileBrowserHeader(obj)));
+
     },
 
     updateButtons: function () {
@@ -803,6 +839,8 @@ define([
       if (lastClick == "file") {
         buttonsType = this.model.defaults.fileButtons;
       } else if (lastClick == "folder") {
+        //convert path/title to arrays
+
         buttonsType = this.model.defaults.folderButtons;
       }
 
@@ -816,35 +854,44 @@ define([
 
       var model = this.model; // trap model
 
-        $buttonsContainer.append($(templates.buttons(buttonsType)));
+      $buttonsContainer.append($(templates.buttons(buttonsType)));
 
-        // add onClick handler to each button
-        $(buttonsType.buttons).each(function (idx, fb) {
-          $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
-            var path = null;
-            var title = null;
-            var fileList = null;
-            var type = null;
-            var mode = null;
+      // add onClick handler to each button
+      $(buttonsType.buttons).each(function (idx, fb) {
+        $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
+          var path = null;
+          var title = null;
+          var fileList = "";
+          var id = "";
+          var type = null;
+          var mode = null;
 
-            if (model.getLastClick() == "file") {
-              path = $(model.getFileClicked()[0]).attr("path");
-              title = $(model.getFileClicked()[0]).children('.title').text();
-            } else if (model.getLastClick() == "folder") {
-              path = $(model.getFolderClicked()[0]).attr("path");
-              title = $(model.getFolderClicked()[0]).children('.title').text();
+          var multiSelectItems = FileBrowser.concatArray(model.get("fileListModel").get("multiSelect"), model.get("fileListModel").get("shiftLasso"));
+          if (model.getLastClick() == "file") {
+
+            path = $(model.getFileClicked()[0]).attr("path");
+            title = $(model.getFileClicked()[0]).children('.title').text();
+            id = $(model.getFileClicked()[0]).attr("id");
+
+          } else if (model.getLastClick() == "folder") {
+
+            path = $(model.getFolderClicked()[0]).attr("path");
+            title = $(model.getFolderClicked()[0]).children('.title').text();
+          }
+
+          else if (model.getLastClick() == "trash") {
+            fileList = model.get("fileListModel").get("deletedFiles");
+            mode = "purge";
+          }
+          else if (model.getLastClick() == "trashItem") {
+
+            for (var i = 0; i < multiSelectItems.length; i++) {
+              fileList += multiSelectItems[i].obj.attr("id") + ",";
             }
-            else if (model.getLastClick() == "trash") {
-              fileList = model.get("fileListModel").get("deletedFiles");
-              mode = "purge";
-            }
-            else if (model.getLastClick() == "trashItem") {
-              fileList = $(model.getFileClicked()[0]).attr("id") + ",";
-              type = $(model.getFileClicked()[0]).attr("type");
-
+              type ="file";
             }
             if ((path != null) && event.data.handler) {
-              event.data.handler(path, title);
+              event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
               event.stopPropagation();
             }
             else {
@@ -853,6 +900,66 @@ define([
             }
           });
 
+      });
+    },
+
+    updateButtonsMulti: function () {
+      var $el = $(this.el),
+          $buttonsContainer = $el.find($("#fileBrowserButtons .body"));
+
+      $buttonsContainer.empty();
+      var lastClick = this.model.getLastClick(),
+          folderClicked = this.model.getFolderClicked(),
+          fileClicked = this.model.getFileClicked();
+
+      var buttonsType = this.model.get("multiSelectButtons");
+
+      var model = this.model; // trap model
+
+      //require buttons template
+      $buttonsContainer.append($(templates.buttons(buttonsType)));
+
+      // add onClick handler to each button
+      $(buttonsType.buttons).each(function (idx, fb) {
+        $('#' + fb.id).on("click", { model: model, handler: fb.handler }, function (event) {
+          var path = [];
+          var title = [];
+          var id = [];
+          var fileList = null;
+          var type = null;
+          var mode = null;
+          var returnModel = null;
+
+          var multiSelectItems = FileBrowser.concatArray(model.get("fileListModel").get("multiSelect"), model.get("fileListModel").get("shiftLasso"));
+
+          if (model.getLastClick() == "file") {
+            for (var i = 0; i < multiSelectItems.length; i++) {
+              path[i] = multiSelectItems[i].obj.attr("path");
+              title[i] = multiSelectItems[i].obj.attr("title");
+              id[i] = multiSelectItems[i].obj.attr("id");
+            }
+          } else if (model.getLastClick() == "folder") {
+            path = $(model.getFolderClicked()[0]).attr("path");
+            title = $(model.getFolderClicked()[0]).children('.title')
+          }
+          else if (model.getLastClick() == "trash") {
+            fileList = model.get("fileListModel").get("deletedFiles");
+            mode = "purge";
+          }
+          else if (model.getLastClick() == "trashItem") {
+            fileList = $(model.getFileClicked()[0]).attr("id") + ",";
+            type = $(model.getFileClicked()[0]).attr("type");
+
+            }
+            if ((path != null) && event.data.handler) {
+              event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
+              event.stopPropagation();
+            }
+            else {
+              event.data.handler(fileList, type, mode);
+              event.stopPropagation();
+            }
+          });
       });
     },
 
@@ -901,56 +1008,54 @@ define([
       var myself = this,
           data = myself.model.get("data");
 
+      //stop spinner
+      myself.model.set("runSpinner", false);
 
-      //require folders template
-        //stop spinner
-        myself.model.set("runSpinner", false);
-
-        //append content
-        myself.$el.append(templates.folders(data));
+      //append content
+      myself.$el.append(templates.folders(data));
 
 
-        //fix folder widths
-        $(".folder").each(function () {
-          $(this).addClass("selected");
-        });
+      //fix folder widths
+      $(".folder").each(function () {
+        $(this).addClass("selected");
+      });
 
-        $(".element").each(function () {
-          var $this = $(this);
+      $(".element").each(function () {
+        var $this = $(this);
 
-          //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
-          //issues on google chrome
-          var tries = 0;
-          while ($this.height() > 20 && tries < 250) {
-            $this.width($this.width() + 20);
-            tries ++;
-          }
-        });
+        //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
+        //issues on google chrome
+        var tries = 0;
+        while ($this.height() > 20 && tries < 250) {
+          $this.width($this.width() + 20);
+          tries++;
+        }
+      });
 
-        $(".folder").each(function () {
-          $(this).removeClass("selected");
-        });
+      $(".folder").each(function () {
+        $(this).removeClass("selected");
+      });
 
-        //close all children folders
-        myself.$el.find(".folders").hide();
+      //close all children folders
+      myself.$el.find(".folders").hide();
 
 
-        //handle empty folders
-        $(".folders").each(function () {
-          if ($(this).children().length == 0) {
-            $(this).parent().addClass("empty");
-          }
-        });
+      //handle empty folders
+      $(".folders").each(function () {
+        if ($(this).children().length == 0) {
+          $(this).parent().addClass("empty");
+        }
+      });
 
-        //remove padding of first folder
-        myself.$el.children().each(function () {
-          $(this).addClass("first");
-        });
+      //remove padding of first folder
+      myself.$el.children().each(function () {
+        $(this).addClass("first");
+      });
 
-        //set initial folder start
-        myself.setFolder();
+      //set initial folder start
+      myself.setFolder();
 
-        myself.updateDescriptions();
+      myself.updateDescriptions();
 
 
     },
@@ -1022,8 +1127,8 @@ define([
 
     setFolder: function () {
       var $folder = $("[path='" + this.model.get("startFolder") + "']");
-      if ( $folder.length == 0 ) {
-          $folder = $("[path='" + window.top.HOME_FOLDER + "']");
+      if ($folder.length == 0) {
+        $folder = $("[path='" + window.top.HOME_FOLDER + "']");
       }
       var $parentFolder = $folder.parent(".folders");
 
@@ -1062,34 +1167,40 @@ define([
           data = myself.model.get("data");
 
       //require file list template
-        myself.$el.empty().append(templates.files(data));
+      myself.$el.empty().append(templates.files(data));
 
-        if (myself.$el.children().length > 0) {
-          $(".file").each(function () {
-            var $this = $(this);
+      if (myself.$el.children().length > 0) {
+        $(".file").each(function () {
+          var $this = $(this);
 
-            //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
-            //issues on google chrome
-            var tries = 0;
-            while ($this.height() > 20 && tries < 250) {
-              $this.width($this.width() + 20);
-              tries ++;
-            }
-          });
-        } else {
-          myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
-        }
+          //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
+          //issues on google chrome
+          var tries = 0;
+          while ($this.height() > 20 && tries < 250) {
+            $this.width($this.width() + 20);
+            tries++;
+          }
+        });
+      } else {
+        myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
+      }
 
-        myself.updateDescriptions();
+      myself.updateDescriptions();
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);
     },
 
     clickFile: function (event) {
-			//don't want to stop propagation of the event, but need to notify clickBody listener
-			//that the event was handled and we don't need to deselect a file
-			this.model.set("desel", 1);
+
+      var prevClicked = this.model.get("clickedFile");
+      if (this.model.get("anchorPoint")) {
+        prevClicked = this.model.get("anchorPoint");
+      }
+
+      //don't want to stop propagation of the event, but need to notify clickBody listener
+      //that the event was handled and we don't need to deselect a file
+      this.model.set("desel", 1);
       var $target = $(event.currentTarget).eq(0);
       //BISERVER-9259 - added time parameter to force change event
       this.model.set("clicked", {
@@ -1102,12 +1213,137 @@ define([
         time: (new Date()).getTime()
       });
 
-      $(".file.selected").removeClass("selected");
-      $target.addClass("selected");
+      if (!event.shiftKey) {
+        this.model.set("anchorPoint", this.model.get("clickedFile"));
+      }
+
+      //Control Click
+      if (event.ctrlKey || event.metaKey) {
+
+        //Control click will reset the shift lasso and merge its contents into main array
+        this.model.set("multiSelect", FileBrowser.concatArray(this.model.get("multiSelect"), this.model.get("shiftLasso")));
+        this.model.set("shiftLasso", []);
+
+        //If item is already selected, deselect it.
+        var clickedFileIndex = -1;
+
+        var index;
+
+        for (index = 0; index < this.model.get("multiSelect").length; ++index) {
+
+          var clickedFileId = this.model.get("clickedFile").obj.attr("id")
+          var multiSelectId = this.model.get("multiSelect")[index].obj.attr("id");
+          if (clickedFileId == multiSelectId) {
+            clickedFileIndex = index;
+            break;
+          }
+        }
+
+        //We are cntrl clicking an existing selection
+        if (clickedFileIndex > -1) {
+
+          this.model.get("multiSelect").splice(clickedFileIndex, 1);
+
+          //Remove selected style from deselected item
+          $target.removeClass("selected");
+        }
+
+        //We are cntrl clicking a new selection
+        else {
+          FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
+          $target.addClass("selected");
+        }
+
+
+      }
+
+      //Shift Click
+      else if (event.shiftKey) {
+
+
+        //reset lasso file selected styles
+        for (var i = 0; i < this.model.get("shiftLasso").length; i++) {
+          this.model.get("shiftLasso")[i].obj.removeClass("selected");
+        }
+
+        //Clear the Lasso array
+        this.model.set("shiftLasso", []);
+
+        $target.addClass("selected");
+        prevClicked.obj.addClass("selected");
+
+        if (prevClicked.obj.attr("id") != $target.attr("id")) {
+
+          //Model title
+          this.model.get("data").children[0].file.title;
+
+          var files = this.model.get("data").children;
+          var inRange = false;
+          var secondMatch = false;
+          for (var i = 0; i < files.length; i++) {
+
+            if (files[i].file.folder === "false") {
+
+              if ((files[i].file.id == prevClicked.obj.attr("id") || files[i].file.id == $target.attr("id"))) {
+                if (inRange == true) {
+                  secondMatch = true;
+                }
+                else {
+                  inRange = true;
+                }
+              }
+              if (inRange == true) {
+
+                var item = {
+                  obj: $("div[id=\"" + files[i].file.id + "\"]")
+                }
+                item.obj.addClass("selected");
+                FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
+                if (secondMatch) {
+                  inRange = false;
+                }
+              }
+            }
+          }
+        }
+
+        //target title
+        $target.attr("title");
+
+        //prev Clicked title
+        prevClicked.obj.attr("title");
+
+      }
+
+      //Single Click
+      else {
+        //Clear the multiselect array
+        this.model.set("multiSelect", []);
+        this.model.set("shiftLasso", []);
+        FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
+
+        //reset all file selected styles
+        $(".file.selected").removeClass("selected");
+        $target.addClass("selected");
+
+      }
+
+      var tempModel = [];
+      $(".file.selected").each(function (i, ele) {
+        tempModel.push({obj: $(ele)});
+      });
+
+      this.model.set("multiSelect", tempModel);
+
+      //If more than one file is selected add multiselect button options
+      if (!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
+        FileBrowser.FileBrowserView.updateButtonsMulti();
+      }
 
       //Add secondary selection to folder
       $(".folder.selected").addClass("secondarySelected");
       $(".folder.selected").removeClass("selected");
+
 
     },
 
@@ -1118,7 +1354,7 @@ define([
         this.model.get("openFileHandler")(path, "run");
       }
     },
-    
+
     clickBody: function (event) {
       if(!this.model.get("desel")){
 				$(".file.selected").removeClass("selected");
@@ -1126,7 +1362,8 @@ define([
 					FileBrowser.fileBrowserModel.set("lastClick", "folder");
 					$(".file.selected").removeClass("selected");
 					$(".folder.secondarySelected").addClass("selected");
-					$(".folder.secondarySelected").removeClass("secondarySelected");					
+					$(".folder.secondarySelected").removeClass("secondarySelected");			
+					FileBrowser.FileBrowserView.updateButtonsHeader();					
 				}
 			}
       this.model.set("desel", 0);
@@ -1219,11 +1456,13 @@ define([
     updateData: FileBrowser.updateData,
     redraw: FileBrowser.redraw,
     templates: FileBrowser.templates,
-    openFolder: FileBrowser.openFolder
+    openFolder: FileBrowser.openFolder,
+    pushUnique: FileBrowser.pushUnique,
+    concatArray: FileBrowser.concatArray
   }
 });
 
 function perspectiveActivated() {
-    window.top.mantle_isBrowseRepoDirty = true;
-    FileBrowser.update( FileBrowser.fileBrowserModel.getFolderClicked().attr("path") );
+  window.top.mantle_isBrowseRepoDirty = true;
+  FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
 }

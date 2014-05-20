@@ -16,7 +16,7 @@
  */
 
 define([
-  "js/browser.utils.js",
+  "js/browser.utils",
   "common-ui/jquery-i18n",
   "common-ui/jquery"
 ], function (BrowserUtils) {
@@ -128,10 +128,11 @@ define([
       }
     },
 
-    buildParameter: function (path, title) {
+    buildParameter: function (path, title, id) {
       return {
-        solutionPath: (path == null ? ":" : path.replace(/\//g, ":")),
-        solutionTitle: (title ? null : title)
+        solutionPath: (path == null ? "/" : path ),
+        fileNames: title,
+        fileIds: id
       };
     },
 
@@ -303,16 +304,16 @@ define([
       window.top.mantle_openRepositoryFile(path, "EDIT");
     },
 
-    deleteHandler: function (path) {
-      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path));
+    deleteHandler: function (path, title, id) {
+      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
     },
 
-    cutHandler: function (path) {
-      window.top.executeCommand("CutFilesCommand", this.buildParameter(path));
+    cutHandler: function (path, title, id) {
+      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
     },
 
-    copyHandler: function (path) {
-      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path));
+    copyHandler: function (path, title, id) {
+      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
     },
 
     downloadHandler: function (path) {

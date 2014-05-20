@@ -39,9 +39,9 @@ import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
 /**
  * This is a special handler that will extract the title and description from the meta.xml - uses the parent class s to
  * do the rest of the lifting. (changes to importexport.xml application/prpt) to use this class
- * 
+ *
  * @author tband Apr 2013 [BIServer 5499]
- * 
+ *
  */
 public class PRPTImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
@@ -71,7 +71,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       InputStream bundleInputStream = new ByteArrayInputStream( bytes );
       // Process locale file from meta.xml.
       importBundle.setInputStream( bundleInputStream );
-      boolean hidden = !extractMetaData(localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile());
+      boolean hidden = extractMetaData(localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile());
       importBundle.setHidden(hidden);
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
@@ -82,10 +82,11 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
 
   /**
    * extract the contents of the file meta.xml and place in the locales process entry
-   * 
+   *
    * @param localeFilesProcessor
    * @param bytes
-   * @return true if this report has attribute 'visible' set to 'true' (case-sensitive)
+   * @return true if this report is hidden. The report is hidden if the visible attribute is set to 'false'
+   *              (with case sensitive check to filter out garbage).
    * @throws IOException
    */
   private boolean extractMetaData( LocaleFilesProcessor localeFilesProcessor,
@@ -109,12 +110,12 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
         // make sure that empty strings and strings with only whitespace are not used as description.
         title = null;
       }
-      if (title != null && description != null) {
+      if (title != null || description != null) {
         localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf,
                 new ByteArrayInputStream("".getBytes() ) );
       }
       // we are conservative here. Only if the string matches 'true' with this spelling.
-      return "true".equals(metaData.getBundleAttribute(ClassicEngineBoot.METADATA_NAMESPACE, "visible"));
+      return "false".equals(metaData.getBundleAttribute(ClassicEngineBoot.METADATA_NAMESPACE, "visible"));
     }
     catch (ResourceException e) {
       throw new PlatformImportException("An unexpected error occurred while parsing a report definition", e);

@@ -14,8 +14,14 @@
  * limitations under the License.
  *
  */
-
 package org.apache.jackrabbit.core.security.authorization.acl;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
@@ -25,17 +31,10 @@ import org.apache.jackrabbit.core.security.authorization.AccessControlModificati
 import org.codehaus.jackson.map.util.LRUMap;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.RepositoryException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * <code>CachingEntryCollector</code> extends <code>PentahoEntryCollector</code> by keeping a cache of ACEs per access
@@ -79,20 +78,23 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
     PentahoSystem.addLogoutListener( new ILogoutListener() {
       @Override
       public void onLogout( IPentahoSession iPentahoSession ) {
+
+        log.debug( "Flushing ACL Entries due to logout for session: " + iPentahoSession.getName() );
         flushCachesOfSession( iPentahoSession );
       }
     } );
 
     // Flush all caches when the System is going down.
-    PentahoSystem.getApplicationContext().addExitPointHandler( new IPentahoSystemExitPoint() {
-      @Override
-      public void systemExitPoint() {
-        close();
-      }
-    } );
+    /*
+     * Commenting out the code, since it is causing the ACL to be incorrect at the time of move
+     * PentahoSystem.getApplicationContext().addExitPointHandler( new IPentahoSystemExitPoint() {
+     * 
+     * @Override public void systemExitPoint() { close(); } } );
+     */
   }
 
   private void flushCachesOfSession( IPentahoSession iPentahoSession ) {
+
     synchronized ( cacheBySession ) {
       if ( cacheBySession.containsKey( iPentahoSession ) ) {
         cacheBySession.get( iPentahoSession ).clear();

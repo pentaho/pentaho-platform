@@ -40,6 +40,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.observation.Event;
+import javax.jcr.observation.ObservationManager;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;
@@ -53,26 +55,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Copy-and-paste of {@code org.apache.jackrabbit.core.security.authorization.acl.EntryCollector} in Jackrabbit
- * 2.4.0. This class is in {@code org.apache.jackrabbit.core.security.authorization.acl} package due to the scope
- * of collaborating classes.
- * 
- * <p>
- * Changes to original:
- * </p>
- * <ul>
- * <li>{@code Entries} always have {@code null} {@code nextId}.</li>
- * <li>{@code collectEntries()} copied from {@code EntryCollector} uses {@code entries.getNextId()} instead of
- * {@code node.getParentId()}</li>
- * <li>{@code filterEntries()} copied from {@code EntryCollector} as it was {@code static} and {@code private}.</li>
- * <li>No caching is done in the presence of dynamic ACEs. This may need to be revisited but due to the short
- * lifetime of the way we use Sessions, it may be acceptable.</li>
- * <li>Understands {@code AclMetadataPrincipal}.</li>
- * <li>Adds {@code MagicPrincipal}s on the fly.</li>
- * <li>If access decision on versionStorage, then find the associated file node and use that ACL.</li>
- * 
+ * Copy-and-paste of {@code org.apache.jackrabbit.core.security.authorization.acl.EntryCollector} in Jackrabbit 2.4.0.
+ * This class is in {@code org.apache.jackrabbit.core.security.authorization.acl} package due to the scope of
+ * collaborating classes.
+ * <p/>
+ * <p> Changes to original: </p> <ul> <li>{@code Entries} always have {@code null} {@code nextId}.</li> <li>{@code
+ * collectEntries()} copied from {@code EntryCollector} uses {@code entries.getNextId()} instead of {@code
+ * node.getParentId()}</li> <li>{@code filterEntries()} copied from {@code EntryCollector} as it was {@code static} and
+ * {@code private}.</li> <li>No caching is done in the presence of dynamic ACEs. This may need to be revisited but due
+ * to the short lifetime of the way we use Sessions, it may be acceptable.</li> <li>Understands {@code
+ * AclMetadataPrincipal}.</li> <li>Adds {@code MagicPrincipal}s on the fly.</li> <li>If access decision on
+ * versionStorage, then find the associated file node and use that ACL.</li>
+ * <p/>
  * </ul>
- * 
+ *
  * @author mlowery
  */
 public class PentahoEntryCollector extends EntryCollector {
@@ -112,17 +108,17 @@ public class PentahoEntryCollector extends EntryCollector {
    */
   protected MagicAceDefinition parseMagicAceDefinition( final String value ) throws RepositoryException {
     String[] tokens = value.split( "\\;" ); //$NON-NLS-1$
-    String path = tokens[0];
-    String logicalRole = tokens[1];
-    String privilegeString = tokens[2];
-    boolean applyToTarget = Boolean.valueOf( tokens[3] );
-    boolean applyToChildren = Boolean.valueOf( tokens[4] );
-    boolean applyToAncestors = Boolean.valueOf( tokens[5] );
+    String path = tokens[ 0 ];
+    String logicalRole = tokens[ 1 ];
+    String privilegeString = tokens[ 2 ];
+    boolean applyToTarget = Boolean.valueOf( tokens[ 3 ] );
+    boolean applyToChildren = Boolean.valueOf( tokens[ 4 ] );
+    boolean applyToAncestors = Boolean.valueOf( tokens[ 5 ] );
     String[] exceptChildren = null;
     if ( tokens.length > 6 ) {
-      exceptChildren = new String[tokens.length - 6];
+      exceptChildren = new String[ tokens.length - 6 ];
       for ( int i = 6; i < tokens.length; i++ ) {
-        exceptChildren[i - 6] = tokens[i];
+        exceptChildren[ i - 6 ] = tokens[ i ];
       }
     }
 
@@ -132,8 +128,8 @@ public class PentahoEntryCollector extends EntryCollector {
       privileges.add( systemSession.getAccessControlManager().privilegeFromName( privilegeToken ) );
     }
 
-    return new MagicAceDefinition( path, logicalRole, privileges.toArray( new Privilege[0] ), applyToTarget,
-        applyToChildren, applyToAncestors, exceptChildren );
+    return new MagicAceDefinition( path, logicalRole, privileges.toArray( new Privilege[ 0 ] ), applyToTarget,
+      applyToChildren, applyToAncestors, exceptChildren );
   }
 
   /**
@@ -205,16 +201,16 @@ public class PentahoEntryCollector extends EntryCollector {
     // permissions. This needs to transform to become addChild removeChild
     if ( !currentNode.isSame( node ) ) {
       Privilege removeNodePrivilege =
-          systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_NODE );
+        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_NODE );
 
       Privilege removeChildNodesPrivilege =
-          systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
+        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
 
       for ( AccessControlEntry entry : acl.getEntries() ) {
 
         Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges( entry.getPrivileges(), false );
         if ( ArrayUtils.contains( expandedPrivileges, removeChildNodesPrivilege )
-            && !ArrayUtils.contains( expandedPrivileges, removeNodePrivilege ) ) {
+          && !ArrayUtils.contains( expandedPrivileges, removeNodePrivilege ) ) {
           if ( !acl.addAccessControlEntry( entry.getPrincipal(), new Privilege[] { removeNodePrivilege } ) ) {
             // we can never fail to add this entry because it means we may be giving more permission than the above
             // two
@@ -236,16 +232,17 @@ public class PentahoEntryCollector extends EntryCollector {
     // ancestorAcl points to first ancestor of ACL that is access-controlled and is not inheriting--possibly null
     // owner is an owner string--possibly null
     return new Entries( new ArrayList<AccessControlEntry>( getAcesIncludingMagicAces( currentNode.getPath(), owner,
-        ancestorAcl, acl ) ), null );
+      ancestorAcl, acl ) ), null );
   }
 
   /**
-   * Incoming node is in versionStorage. Find its associated versionable--the node associated with this version
-   * history node.
+   * Incoming node is in versionStorage. Find its associated versionable--the node associated with this version history
+   * node.
    */
   protected NodeImpl getVersionable( final NodeImpl node ) throws RepositoryException {
     NodeImpl currentNode = node;
-    while ( !currentNode.isNodeType( "nt:versionHistory" ) && !rootID.equals( currentNode.getNodeId() ) ) { //$NON-NLS-1$
+    while ( !currentNode.isNodeType( "nt:versionHistory" ) && !rootID
+      .equals( currentNode.getNodeId() ) ) { //$NON-NLS-1$
       currentNode = (NodeImpl) currentNode.getParent();
     }
     if ( rootID.equals( currentNode.getNodeId() ) ) {
@@ -274,15 +271,14 @@ public class PentahoEntryCollector extends EntryCollector {
   /**
    * Extracts ACEs including magic aces. Magic ACEs are added for (1) the owner, (2) as a result of magic ACE
    * definitions, and (3) as a result of ancestor ACL contributions.
-   * 
-   * <p>
-   * Modifications to these ACLs are not persisted.
-   * </p>
+   * <p/>
+   * <p> Modifications to these ACLs are not persisted. </p>
    */
   protected List<AccessControlEntry> getAcesIncludingMagicAces( final String path, final String owner,
-      final ACLTemplate ancestorAcl, final ACLTemplate acl ) throws RepositoryException {
+                                                                final ACLTemplate ancestorAcl, final ACLTemplate acl )
+    throws RepositoryException {
     if ( PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getId() == null
-        || PentahoSessionHolder.getSession().getId().trim().equals( "" ) ) { //$NON-NLS-1$
+      || PentahoSessionHolder.getSession().getId().trim().equals( "" ) ) { //$NON-NLS-1$
       if ( log.isDebugEnabled() ) {
         log.debug( "no PentahoSession so no magic ACEs" ); //$NON-NLS-1$
       }
@@ -296,8 +292,8 @@ public class PentahoEntryCollector extends EntryCollector {
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
     try {
       roleBindingDao =
-          PentahoSystem.getObjectFactory().get( IRoleAuthorizationPolicyRoleBindingDao.class,
-              "roleAuthorizationPolicyRoleBindingDaoTarget", PentahoSessionHolder.getSession() );
+        PentahoSystem.getObjectFactory().get( IRoleAuthorizationPolicyRoleBindingDao.class,
+          "roleAuthorizationPolicyRoleBindingDaoTarget", PentahoSessionHolder.getSession() );
     } catch ( ObjectFactoryException e ) {
       e.printStackTrace();
     }
@@ -330,7 +326,7 @@ public class PentahoEntryCollector extends EntryCollector {
       }
       if ( match ) {
         Principal principal =
-            new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
+          new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
         // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully
         // later;
         // changed never persisted
@@ -347,11 +343,9 @@ public class PentahoEntryCollector extends EntryCollector {
   /**
    * Selects (and modifies) ACEs containing JCR_ADD_CHILD_NODES or JCR_REMOVE_CHILD_NODES privileges from the given
    * ACL.
-   * 
-   * <p>
-   * Modifications to this ACL are not persisted. ACEs must be created in the given ACL because the path embedded
-   * in the given ACL plays into authorization decisions using parentPrivs.
-   * </p>
+   * <p/>
+   * <p> Modifications to this ACL are not persisted. ACEs must be created in the given ACL because the path embedded in
+   * the given ACL plays into authorization decisions using parentPrivs. </p>
    */
   protected List<AccessControlEntry> getRelevantAncestorAces( final ACLTemplate ancestorAcl )
     throws RepositoryException {
@@ -362,9 +356,9 @@ public class PentahoEntryCollector extends EntryCollector {
     Entries fullEntriesIncludingMagicACEs = this.getEntries( ancestorNode );
 
     Privilege addChildNodesPrivilege =
-        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
+      systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
     Privilege removeChildNodesPrivilege =
-        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
+      systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
 
     for ( AccessControlEntry entry : fullEntriesIncludingMagicACEs.getACEs() ) {
       List<Privilege> privs = new ArrayList<Privilege>( 2 );
@@ -392,8 +386,8 @@ public class PentahoEntryCollector extends EntryCollector {
           }
         }
         if ( !ancestorAcl.addAccessControlEntry( entry.getPrincipal() instanceof Group ? new MagicGroup( entry
-            .getPrincipal().getName() ) : new MagicPrincipal( entry.getPrincipal().getName() ), privs
-            .toArray( new Privilege[privs.size()] ) ) ) {
+          .getPrincipal().getName() ) : new MagicPrincipal( entry.getPrincipal().getName() ), privs
+          .toArray( new Privilege[ privs.size() ] ) ) ) {
           // we can never fail to add this entry because it means we may be giving more permission than the above
           // two
           throw new RuntimeException();
@@ -405,10 +399,8 @@ public class PentahoEntryCollector extends EntryCollector {
 
   /**
    * Creates an ACE that gives full access to the owner.
-   * 
-   * <p>
-   * Modifications to this ACL are not persisted.
-   * </p>
+   * <p/>
+   * <p> Modifications to this ACL are not persisted. </p>
    */
   protected void addOwnerAce( final String owner, final ACLTemplate acl ) throws RepositoryException {
     Principal ownerPrincipal = systemSession.getPrincipalManager().getPrincipal( owner );
@@ -423,7 +415,7 @@ public class PentahoEntryCollector extends EntryCollector {
       // later;
       // changed never persisted
       acl.addAccessControlEntry( magicPrincipal, new Privilege[] { systemSession.getAccessControlManager()
-          .privilegeFromName( "jcr:all" ) } ); //$NON-NLS-1$
+        .privilegeFromName( "jcr:all" ) } ); //$NON-NLS-1$
     } else {
       // if the Principal doesn't exist anymore, then there's no reason to add an ACE for it
       if ( log.isDebugEnabled() ) {
@@ -434,8 +426,8 @@ public class PentahoEntryCollector extends EntryCollector {
   }
 
   /**
-   * Overridden since {@code collectEntries()} from {@code EntryCollector} called {@code node.getParentId()}
-   * instead of {@code entries.getNextId()}.
+   * Overridden since {@code collectEntries()} from {@code EntryCollector} called {@code node.getParentId()} instead of
+   * {@code entries.getNextId()}.
    */
   @Override
   protected List<AccessControlEntry> collectEntries( NodeImpl node, EntryFilter filter ) throws RepositoryException {
@@ -472,7 +464,7 @@ public class PentahoEntryCollector extends EntryCollector {
    */
   @SuppressWarnings( "unchecked" )
   protected void filterEntries( EntryFilter filter, List<AccessControlEntry> aces,
-      LinkedList<AccessControlEntry> userAces, LinkedList<AccessControlEntry> groupAces ) {
+                                LinkedList<AccessControlEntry> userAces, LinkedList<AccessControlEntry> groupAces ) {
     if ( !aces.isEmpty() && filter != null ) {
       filter.filterEntries( aces, userAces, groupAces );
     }
@@ -486,7 +478,7 @@ public class PentahoEntryCollector extends EntryCollector {
     if ( authentication != null ) {
       GrantedAuthority[] authorities = authentication.getAuthorities();
       for ( int i = 0; i < authorities.length; i++ ) {
-        runtimeRoles.add( authorities[i].getAuthority() );
+        runtimeRoles.add( authorities[ i ].getAuthority() );
       }
     }
     return runtimeRoles;
@@ -497,7 +489,7 @@ public class PentahoEntryCollector extends EntryCollector {
     if ( roleBindingDao instanceof AbstractJcrBackedRoleBindingDao ) {
       AbstractJcrBackedRoleBindingDao jcrBackedRoleBindingDao = (AbstractJcrBackedRoleBindingDao) roleBindingDao;
       return jcrBackedRoleBindingDao.getBoundLogicalRoleNames( systemSession, getRuntimeRoleNames() ).contains(
-          logicalRoleName );
+        logicalRoleName );
     } else {
       return roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ).contains( logicalRoleName );
     }

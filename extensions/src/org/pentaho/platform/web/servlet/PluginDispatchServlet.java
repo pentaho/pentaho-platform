@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPluginManagerListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -40,7 +41,7 @@ import java.util.Map;
 /**
  * Dispatches requests to Servlets provided by BIServer plugins. To define a Servlet in a plugin, simply add a bean
  * element for the Servlet class in the plugin.spring.xml file in your plugin root directory.
- * 
+ *
  * @author Aaron Phillips
  */
 public class PluginDispatchServlet implements Servlet {
@@ -71,7 +72,7 @@ public class PluginDispatchServlet implements Servlet {
     }
     if ( !( req instanceof HttpServletRequest ) ) {
       throw new IllegalArgumentException( PluginDispatchServlet.class.getSimpleName()
-          + " cannot handle non HTTP requests" ); //$NON-NLS-1$
+        + " cannot handle non HTTP requests" ); //$NON-NLS-1$
     }
 
     HttpServletRequest request = (HttpServletRequest) req;
@@ -94,7 +95,8 @@ public class PluginDispatchServlet implements Servlet {
 
     if ( StringUtils.isEmpty( dispatchKey ) ) {
       if ( logger.isDebugEnabled() ) {
-        logger.debug( "dispatcher servlet is invoked but there is nothing telling it where to dispatch to" ); //$NON-NLS-1$
+        logger
+          .debug( "dispatcher servlet is invoked but there is nothing telling it where to dispatch to" ); //$NON-NLS-1$
       }
       return null;
     }
@@ -102,11 +104,13 @@ public class PluginDispatchServlet implements Servlet {
     Servlet targetServlet = null;
     String checkPath = dispatchKey;
     do {
-      logger.debug( "checking for servlet registered to service request for \"" + checkPath + "\"" ); //$NON-NLS-1$//$NON-NLS-2$
+      logger.debug(
+        "checking for servlet registered to service request for \"" + checkPath + "\"" ); //$NON-NLS-1$//$NON-NLS-2$
       targetServlet = pluginServletMap.get( checkPath );
       if ( targetServlet != null ) {
-        logger.debug( "servlet " + targetServlet.getClass().getName() + " will service request for \"" + dispatchKey //$NON-NLS-1$//$NON-NLS-2$
-            + "\"" ); //$NON-NLS-1$
+        logger.debug( "servlet " + targetServlet.getClass().getName() + " will service request for \"" + dispatchKey
+          //$NON-NLS-1$//$NON-NLS-2$
+          + "\"" ); //$NON-NLS-1$
         return targetServlet;
       }
       if ( checkPath.contains( "/" ) ) { //$NON-NLS-1$
@@ -117,7 +121,8 @@ public class PluginDispatchServlet implements Servlet {
     } while ( checkPath != null );
 
     if ( targetServlet == null ) {
-      logger.debug( "no servlet registered to service request for \"" + dispatchKey + "\"" ); //$NON-NLS-1$ //$NON-NLS-2$
+      logger
+        .debug( "no servlet registered to service request for \"" + dispatchKey + "\"" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
     return targetServlet;
   }
@@ -126,7 +131,7 @@ public class PluginDispatchServlet implements Servlet {
    * Returns the dispatch key for this request. This name is the part of the request path beyond the servlet base path.
    * I.e. if the PluginDispatchServlet is mapped to the "/plugin" context in web.xml, then this method will return
    * "myPlugin/myServlet" given a request to "http://localhost:8080/pentaho/plugin/myPlugin/myServlet".
-   * 
+   *
    * @return the part of the request url used to dispatch the request
    */
   public String getDispatchKey( HttpServletRequest request ) {
@@ -143,10 +148,21 @@ public class PluginDispatchServlet implements Servlet {
 
   public void init( final ServletConfig config ) throws ServletException {
     this.servletConfig = config;
+    pluginManager.addPluginManagerListener( new IPluginManagerListener() {
+      @Override public void onReload() {
+        try {
+          initialized = false;
+          doInit();
+        } catch ( ServletException e ) {
+          logger.error( e );
+        }
+      }
+    } );
     doInit();
   }
 
   @SuppressWarnings( "unchecked" )
+  /** Restore the caching once the Plugin Type Tracking system is in place, for now we'll look-up every time **/
   private synchronized void doInit() throws ServletException {
     if ( logger.isDebugEnabled() ) {
       logger.debug( "PluginDispatchServlet.init" ); //$NON-NLS-1$
@@ -155,17 +171,19 @@ public class PluginDispatchServlet implements Servlet {
     if ( initialized ) {
       return;
     }
+    pluginServletMap.clear();
 
     Map<String, ListableBeanFactory> pluginBeanFactoryMap = getPluginBeanFactories();
 
     for ( Map.Entry<String, ListableBeanFactory> pluginBeanFactoryEntry : pluginBeanFactoryMap.entrySet() ) {
 
       Map<String, Object> beans =
-          BeanFactoryUtils.beansOfTypeIncludingAncestors( pluginBeanFactoryEntry.getValue(),
-            Servlet.class, true, true );
+        BeanFactoryUtils.beansOfTypeIncludingAncestors( pluginBeanFactoryEntry.getValue(),
+          Servlet.class, true, true );
 
       if ( logger.isDebugEnabled() ) {
-        logger.debug( "found " + beans.size() + " servlets in " + pluginBeanFactoryEntry.getKey() ); //$NON-NLS-1$//$NON-NLS-2$
+        logger.debug(
+          "found " + beans.size() + " servlets in " + pluginBeanFactoryEntry.getKey() ); //$NON-NLS-1$//$NON-NLS-2$
       }
 
       for ( Map.Entry<String, Object> beanEntry : beans.entrySet() ) {
@@ -178,7 +196,8 @@ public class PluginDispatchServlet implements Servlet {
         pluginServletMap.put( context, pluginServlet );
         if ( logger.isDebugEnabled() ) {
           logger
-              .debug( "calling init on servlet " + pluginServlet.getClass().getName() + " serving context " + context ); //$NON-NLS-1$//$NON-NLS-2$
+            .debug( "calling init on servlet " + pluginServlet.getClass().getName() + " serving context "
+              + context ); //$NON-NLS-1$//$NON-NLS-2$
         }
         try {
           pluginServlet.init( servletConfig );

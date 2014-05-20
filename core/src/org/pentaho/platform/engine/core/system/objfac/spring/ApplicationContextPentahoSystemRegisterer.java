@@ -31,16 +31,17 @@ import org.springframework.core.PriorityOrdered;
 /**
  * When added as a bean to a Spring context this class will register the ApplicationContext as a
  * StandalongSpringPentahoObjectFactory with the PentahoSystem
- * 
+ * <p/>
  * User: nbaker Date: 3/31/13
  */
 public class ApplicationContextPentahoSystemRegisterer implements ApplicationContextAware, BeanFactoryPostProcessor,
-    PriorityOrdered {
+  PriorityOrdered {
 
   @Override
   public void setApplicationContext( ApplicationContext applicationContext ) throws BeansException {
-    StandaloneSpringPentahoObjectFactory objFact = new StandaloneSpringPentahoObjectFactory();
-    objFact.init( null, applicationContext );
+    StandaloneSpringPentahoObjectFactory objFact = StandaloneSpringPentahoObjectFactory.getInstance(
+      applicationContext );
+
     PentahoSystem.registerObjectFactory( objFact );
     PublishedBeanRegistry.registerFactory( applicationContext );
   }

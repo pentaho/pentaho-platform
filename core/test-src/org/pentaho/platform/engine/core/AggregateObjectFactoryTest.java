@@ -135,14 +135,14 @@ public class AggregateObjectFactoryTest {
     AggregateObjectFactory aggFactory = new AggregateObjectFactory();
     aggFactory.registerObjectFactory( factory );
 
-    MimeTypeListener info = aggFactory.get( MimeTypeListener.class, session, Collections.singletonMap( "id", "someID" ) );
+    MimeTypeListener info =
+      aggFactory.get( MimeTypeListener.class, session, Collections.singletonMap( "id", "someID" ) );
     assertNotNull( info );
 
   }
 
   /**
-   * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice.
-   * This
+   * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice. This
    * case tests that the AggregateObjectFactory's set implementation is working properly.
    *
    * @throws Exception
@@ -170,8 +170,7 @@ public class AggregateObjectFactoryTest {
   }
 
   /**
-   * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice.
-   * This
+   * Two Spring PentahoObjectFactories with the same underlying applicationContext should not be registered twice. This
    * case tests that the AggregateObjectFactory's set implementation is working properly.
    *
    * @throws Exception
@@ -190,8 +189,7 @@ public class AggregateObjectFactoryTest {
 
     AggregateObjectFactory aggFactory = new AggregateObjectFactory();
     aggFactory.registerObjectFactory( factory );
-    assertEquals(0,PublishedBeanRegistry.getRegisteredFactories().size());
+    assertEquals( 0, PublishedBeanRegistry.getRegisteredFactories().size() );
 
   }
-
 }

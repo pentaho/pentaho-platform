@@ -84,8 +84,8 @@ define([
 
     buildParameter: function (path, title) {
       return {
-        solutionPath: (path == null ? ":" : path.replace(/\//g, ":")),
-        solutionTitle: (title ? null : title)
+        solutionPath: (path == null ? "/" : path ),
+        fileNames: (title ? null : title)
       };
     },
 
@@ -133,7 +133,7 @@ define([
 
     },
 
-    updateFolderPermissionButtons: function (permissions) {
+    updateFolderPermissionButtons: function (permissions, multiSelectItems) {
       if (permissions != false) {
 
         var writePerm = "false";
@@ -145,7 +145,8 @@ define([
         }
 
         if (writePerm == "true") {
-          $("#pasteButton").prop("disabled", false);
+          var disabled = (multiSelectItems.length > 0) ? false : true;
+          $("#pasteButton").prop("disabled", disabled);
           $("#renameButton").prop("disabled", false);
         }
 
@@ -169,8 +170,10 @@ define([
       window.top.executeCommand("DeleteFolderCommand", this.buildParameter(path));
     },
 
-    pasteHandler: function (path) {
-      window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
+    pasteHandler: function (path, title, id,  multiSelectItems, browserUtils) {
+      if (browserUtils.multiSelectItems.length > 0 ) {
+        window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
+      }
     },
 
     uploadHandler: function (path) {

@@ -18,9 +18,12 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.naming.InitialContext;
@@ -31,7 +34,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
   ICacheManager cacheManager;
 
   public BaseDatasourceService() {
-    cacheManager = PentahoSystem.getCacheManager( null );
+    cacheManager = getCacheManager();
     // if no cache manager implementation is available we'll use the simple one
   }
 
@@ -53,15 +56,47 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
     cacheManager.removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
   }
 
+  public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException {
+    DataSource dataSource = null;
+    if ( cacheManager != null ) {
+      if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
+        cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
+      }
+      Object foundDs = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
+      if ( foundDs != null ) {
+        dataSource = (DataSource) foundDs;
+      } else {
+        dataSource = retrieve( dsName );
+      }
+    }
+    return dataSource;
+  }
+
+  /**
+   * This should have been abstract, but changes to this API at a point release is not advised.
+   * @param name name of JNDI reference
+   * @return DataSource
+   * @throws DBDatasourceServiceException
+   */
+  protected DataSource retrieve( String name ) throws DBDatasourceServiceException {
+    return null;
+  }
+
+  /**
+   * This should have been abstract, but changes to this API at a point release is not advised.
+   *
+   * @param databaseConnection
+   * @return
+   * @throws DBDatasourceServiceException
+   */
+  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
+      throws DBDatasourceServiceException {
+    return null;
+  }
+
+
   protected DataSource getJndiDataSource( final String dsName ) throws DBDatasourceServiceException {
-    Object foundDs = null;
-    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
-    }
-    foundDs = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
-    if ( foundDs != null ) {
-      return (DataSource) foundDs;
-    }
+
     try {
       InitialContext ctx = new InitialContext();
       Object lkup = null;
@@ -72,7 +107,6 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
         lkup = ctx.lookup( dsName );
         if ( lkup != null ) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, rtn );
           return rtn;
         }
       } catch ( NamingException ignored ) {
@@ -83,7 +117,6 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
         lkup = ctx.lookup( "java:" + dsName ); //$NON-NLS-1$
         if ( lkup != null ) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, rtn );
           return rtn;
         }
       } catch ( NamingException ignored ) {
@@ -94,7 +127,6 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
         lkup = ctx.lookup( "java:comp/env/jdbc/" + dsName ); //$NON-NLS-1$
         if ( lkup != null ) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, rtn );
           return rtn;
         }
       } catch ( NamingException ignored ) {
@@ -105,7 +137,6 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
         lkup = ctx.lookup( "jdbc/" + dsName ); //$NON-NLS-1$
         if ( lkup != null ) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, rtn );
           return rtn;
         }
       } catch ( NamingException ignored ) {
@@ -221,4 +252,14 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
       }
     }
   }
+
+  public ICacheManager getCacheManager( ) {
+    return PentahoSystem.getCacheManager( null );
+  }
+
+
+  public IDatasourceMgmtService getDatasourceMgmtService( ) {
+    return (IDatasourceMgmtService) PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
+  }
+
 }
