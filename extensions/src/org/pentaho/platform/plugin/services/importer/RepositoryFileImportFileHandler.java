@@ -121,15 +121,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         // The file doesn't exist and it is a folder. Create folder.
         getLogger().trace( "Creating folder [" + repositoryFilePath + "]" );
         final Serializable parentId = getParentId( repositoryFilePath );
-        RepositoryFile decodedRepoFile = bundle.getFile();
-        if ( getImportSession().getManifest() != null
-            && getImportSession().getManifest().getManifestInformation().getManifestVersion() != null ) {
-          String folderName = ExportFileNameEncoder.decodeZipFileName( bundle.getFile().getName() );
-          RepositoryFile.Builder builder = new RepositoryFile.Builder( bundle.getFile() ).name( folderName ).title( folderName );
-          decodedRepoFile = builder.build();
-        }
-        
-        bundle.setFile( decodedRepoFile );
+       
+        bundle.setFile( bundle.getFile() );
         RepositoryFile repoFile = finalAdjustFolder( bundle, null );
         if ( bundle.getAcl() != null ) {
           repoFile = repository.createFolder( parentId, repoFile, bundle.getAcl(), null );

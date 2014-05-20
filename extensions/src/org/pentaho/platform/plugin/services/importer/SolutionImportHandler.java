@@ -160,12 +160,15 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       InputStream bundleInputStream = null;
       
       String decodedFilePath = file.getPath();
+      RepositoryFile decodedFile = file.getFile();
       if ( manifestVersion != null ){
+        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title(  fileName ).build();
         decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
       }
+      
       if ( file.getFile().isFolder() ) {
         bundleBuilder.mime( "text/directory" );
-        bundleBuilder.file( file.getFile() );
+        bundleBuilder.file( decodedFile );
         fileName = repositoryFilePath;
         repositoryFilePath = importBundle.getPath();
       } else {
@@ -189,7 +192,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
       String sourcePath;
       if ( decodedFilePath.startsWith( "/" ) ) {
-        sourcePath = RepositoryFilenameUtils.concat( file.getPath().substring( 1 ), fileName );
+        sourcePath = RepositoryFilenameUtils.concat( decodedFilePath.substring( 1 ), fileName );
       } else {
         if ( file.getFile().isFolder() ) {
           sourcePath = fileName;
