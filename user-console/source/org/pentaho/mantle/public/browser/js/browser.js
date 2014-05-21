@@ -854,8 +854,13 @@ pen.define([
 
                 $(".element").each(function () {
                     var $this = $(this);
-                    while ($this.height() > 20) {
+
+                //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
+                //issues on google chrome
+                var tries = 0;
+                while ($this.height() > 20 && tries < 250) {
                         $this.width($this.width() + 20);
+                  tries++;
                     }
                 });
 
@@ -997,8 +1002,13 @@ pen.define([
                 if (myself.$el.children().length > 0) {
                     $(".file").each(function () {
                         var $this = $(this);
-                        while ($this.height() > 20) {
+
+                //BISERVER-10784 - limit the amount of attempts to widen the column due to rendering
+                //issues on google chrome
+                var tries = 0;
+                while ($this.height() > 20 && tries < 250) {
                             $this.width($this.width() + 20);
+                  tries++;
                         }
                     });
                 } else {
