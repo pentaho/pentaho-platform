@@ -39,11 +39,6 @@
     <dependency org="org.apache.xmlgraphics" name="batik-dom" rev="1.7" transitive="false"/>
     <dependency org="org.apache.xmlgraphics" name="batik-svggen" rev="1.7" transitive="false"/>
 
-    <!--  runtime batik -->
-    <dependency org="org.apache.xmlgraphics" name="fop" rev="0.94" transitive="false" />
-
-    <!-- required by fop -->
-    <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false"/>
 
     <dependency org="jfree" name="jcommon" rev="1.0.16"/>
@@ -83,7 +78,6 @@
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
     <dependency org="wsdl4j" name="wsdl4j" rev="1.6.2" transitive="false"/>
     <dependency org="javax.jcr" name="jcr" rev="1.0" transitive="false"/>
-    <dependency org="avalon-framework" name="avalon-framework" rev="4.1.3" transitive="false"/>
     <dependency org="org.apache.geronimo.specs" name="geronimo-stax-api_1.0_spec" rev="1.0" transitive="false"/>
     <dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE" transitive="false"/>
     <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="1.3.0.RELEASE" transitive="false"/>

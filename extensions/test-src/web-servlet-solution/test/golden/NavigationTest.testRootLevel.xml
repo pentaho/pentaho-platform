@@ -926,27 +926,6 @@
                 <properties>subscribable=false</properties>
             </file>
         </file>
-        <file type="FILE.FOLDER" name="printing" path="printing" visible="true" displaytype="list">
-            <path>printing</path>
-            <title>4. Printing Examples</title>
-            <description>Examples of content sent to printers. Content -&gt; Printer. Got it?</description>
-            <icon>getImage?image=icons/printing.png</icon>
-            <solution>samples</solution>
-            <file type="FILE.ACTIVITY" visible="true" displaytype="report">
-                <filename>report-to-printer.xaction</filename>
-                <path>printing</path>
-                <solution>samples</solution>
-                <title>Send Report to Printer</title>
-                <description>This is an example of a report sent to a printer.&lt;p&gt;You will be asked to selected a
-                    printer to send the report to.&lt;p&gt;The list of printers will be the printers that the server has
-                    access to. If you are running the demo server on your local machine then you will see the list of
-                    printers for your machine.
-                </description>
-                <author>Marc Batchelor</author>
-                <icon>getImage?image=icons/JFree-quadrant-budget-hsql.png</icon>
-                <properties>subscribable=false</properties>
-            </file>
-        </file>
         <file type="FILE.FOLDER" name="reporting" path="reporting" visible="true" displaytype="list">
             <path>reporting</path>
             <title>2. Reporting Examples</title>

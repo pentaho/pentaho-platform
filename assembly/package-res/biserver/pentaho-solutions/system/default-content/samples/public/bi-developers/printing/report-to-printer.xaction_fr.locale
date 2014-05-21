@@ -1,4 +1,0 @@
-#Locale = fr
-#Thu Aug 15 12:32:46 EDT 2013
-file.title=Exemple de PDF Eclipse BIRT avec saisie d'options
-file.description=Exemple d'un rapport param\u00E9tr\u00E9 envoy\u00E9 \u00E0 une imprimante.<p>Il vous sera demand\u00E9 une r\u00E9gion - les valeurs possibles sont 'Eastern', 'Western', 'Southern' et 'Central' - et une imprimante de destination.<p>Les imprimantes sont celles accessibles depuis le serveur. Si vous ex\u00E9cutez la d\u00E9monstration depuis votre poste local, vous verrez la liste de vos imprimantes.

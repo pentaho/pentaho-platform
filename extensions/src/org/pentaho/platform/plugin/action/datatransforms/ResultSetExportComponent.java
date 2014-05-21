@@ -29,7 +29,6 @@ import java.util.Set;
 
 /**
  * 
- * Implements a PrintComponent class that will send a attached print file to a specified printer.
  */
 public class ResultSetExportComponent extends ComponentBase {
   /**

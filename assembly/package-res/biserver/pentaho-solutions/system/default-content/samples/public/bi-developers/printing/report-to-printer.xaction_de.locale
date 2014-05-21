@@ -1,4 +1,0 @@
-#Locale = de
-#Thu Aug 15 12:32:46 EDT 2013
-file.title=Parameterisiertes PDF mit Eclipse BIRT
-file.description=Um den gew\u00FCnschten Report zu drucken, m\u00FCssen sie folgende Schritte durchlaufen\: <p> 1. Geben sie eine Region ein, g\u00FCltige Werte sind\: 'Eastern', 'Western', 'Southern' und 'Central'<p> 2. W\u00E4hlen Sie einen Drucker aus <p> 3. fertig, die Liste wird ausgedruckt.
