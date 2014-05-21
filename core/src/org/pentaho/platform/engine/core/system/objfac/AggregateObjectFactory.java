@@ -348,7 +348,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     try {
       this.factories.clear();
     } finally {
-      writeLock.lock();
+      writeLock.unlock();
     }
   }
 
