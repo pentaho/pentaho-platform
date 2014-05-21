@@ -1124,7 +1124,7 @@
     </ExportManifestEntity>
     <ExportManifestEntity path="public/bi-developers">
         <ExportManifestProperty>
-            <EntityMetaData name="bi-developers" createdDate="2013-09-24T17:12:56.481+01:00" isFolder="true" path="public/bi-developers" isHidden="false" locale="en_US" description="A collection of examples for BI Developers as a reference to create solutions." title="BI Developer Examples"/>
+            <EntityMetaData name="bi-developers" createdDate="2013-09-24T17:12:56.481+01:00" isFolder="true" path="public/bi-developers" isHidden="true" locale="en_US" description="A collection of examples for BI Developers as a reference to create solutions." title="BI Developer Examples"/>
         </ExportManifestProperty>
         <ExportManifestProperty>
             <EntityAcl>
