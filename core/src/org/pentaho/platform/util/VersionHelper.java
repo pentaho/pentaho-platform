@@ -26,6 +26,10 @@ import org.pentaho.platform.api.util.IVersionHelper;
 public class VersionHelper implements IVersionHelper {
 
   public String getVersionInformation() {
+    return getVersionInformation(VersionHelper.class);
+  }
+
+  public String getVersionInformation(final Class clazz) {
     ResourceBundle assemblyBundle = null;
     try {
       assemblyBundle = ResourceBundle.getBundle("server-assembly");
@@ -35,10 +39,6 @@ public class VersionHelper implements IVersionHelper {
     if (assemblyBundle != null) {
       return getVersionInformationFromProperties(assemblyBundle);
     }
-    return getVersionInformation(VersionHelper.class);
-  }
-
-  public String getVersionInformation(final Class clazz) {
     // The following two lines read from the MANIFEST.MF
     String implTitle = clazz.getPackage().getImplementationTitle();
     String implVersion = clazz.getPackage().getImplementationVersion();
@@ -71,6 +71,10 @@ public class VersionHelper implements IVersionHelper {
   }
 
   public static VersionInfo getVersionInfo() {
+    return VersionHelper.getVersionInfo(VersionHelper.class);
+  }
+
+  public static VersionInfo getVersionInfo(final Class clazz) {
     // Check if server-assembly.properties exists
     ResourceBundle assemblyBundle = null;
     try {
@@ -81,10 +85,6 @@ public class VersionHelper implements IVersionHelper {
     if (assemblyBundle != null) {
       return VersionHelper.getVersionInfoFromProperties(assemblyBundle);
     }
-    return VersionHelper.getVersionInfo(VersionHelper.class);
-  }
-
-  public static VersionInfo getVersionInfo(final Class clazz) {
     // Try to get the manifest for the class
     final Manifest manifest = ManifestUtil.getManifest(clazz);
     if (manifest != null) {
