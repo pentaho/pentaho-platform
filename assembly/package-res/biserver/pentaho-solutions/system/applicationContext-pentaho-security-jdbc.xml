@@ -48,14 +48,17 @@ default-lazy-init="true"
     <property name="rolePrefix" value="" />
 	</bean>
 
-  <bean class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
+  <bean id="extraRoleJdbcUserRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
     <property name="userRoleListService" ref="jdbcUserRoleListService" />
     <property name="extraRoles" ref="extraRoles" />
-  <pen:publish as-type="INTERFACES">
-		<pen:attributes>
-			<pen:attr key="providerName" value="jdbc"/>
-		</pen:attributes>
-	</pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.plugin.services.security.userrole.CachingUserRoleListServiceDecorator">
+    <constructor-arg ref="extraRoleJdbcUserRoleListService" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="jdbc"/>
+      </pen:attributes>
+    </pen:publish>
   </bean>
   
 </beans>
