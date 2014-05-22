@@ -468,8 +468,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
             getPath()
                 + "api/repos/" + pathToId( fileNameWithPath ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( mode ) != null ) ? plugin.getCommandPerspective( mode ) : "generatedContent" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
-      boolean isIE = RootPanel.getBodyElement().getClassName().contains( "IE" );
-      if ( mode == FileCommand.COMMAND.NEWWINDOW || ( extension.equals( "pdf" ) && isIE ) ) {
+      // force to open pdf files in another window due to issues with pdf readers in IE browsers
+      // via class added on themeResources for IE browsers
+      boolean pdfReaderEmbeded = RootPanel.getBodyElement().getClassName().contains( "pdfReaderEmbeded" );
+      if ( mode == FileCommand.COMMAND.NEWWINDOW || ( extension.equals( "pdf" ) && pdfReaderEmbeded ) ) {
         Window.open( url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no" ); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
