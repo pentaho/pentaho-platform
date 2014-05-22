@@ -26,46 +26,6 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.net.URLEncoder;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -118,6 +78,46 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.net.URLEncoder;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 /**
  * Represents a file node in the getRepository(). This api provides methods for discovering information about repository
@@ -220,7 +220,6 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.serverError().entity( t.getMessage() ).build();
     }
   }
-  
 
   /**
    * Move a file from one location to another
@@ -232,10 +231,10 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
-  public Response doMove( @PathParam( "pathId" ) String destPathId,  String params ) {
+  public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( destPathId ) );
-    if(repositoryFileDto == null) {
-      return Response.serverError().entity( "destination path not found" ).build(); 
+    if ( repositoryFileDto == null ) {
+      return Response.serverError().entity( "destination path not found" ).build();
     }
     String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
@@ -248,7 +247,6 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.serverError().entity( t.getMessage() ).build();
     }
   }
-  
 
   /**
    * Restore the selected list of files from the user's trash folder to their original location
@@ -362,11 +360,10 @@ public class FileResource extends AbstractJaxRSResource {
             String rootCopyText = "";
             String nameNoExtension = fileName;
             String extension = "";
-            int indexOfDot = fileName.lastIndexOf('.');
-            if (!(indexOfDot == -1)) {
-                nameNoExtension = fileName.substring(0,
-                        indexOfDot);
-                extension = fileName.substring(indexOfDot);
+            int indexOfDot = fileName.lastIndexOf( '.' );
+            if ( !( indexOfDot == -1 ) ) {
+              nameNoExtension = fileName.substring( 0, indexOfDot );
+              extension = fileName.substring( indexOfDot );
             }
 
             RepositoryFileDto testFile = getRepoWs().getFile( path + PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
@@ -410,7 +407,8 @@ public class FileResource extends AbstractJaxRSResource {
       }
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().entity( new SafeHtmlBuilder().appendEscapedLines( t.getLocalizedMessage() ).toSafeHtml().asString() ).build();
+      return Response.serverError().entity(
+          new SafeHtmlBuilder().appendEscapedLines( t.getLocalizedMessage() ).toSafeHtml().asString() ).build();
     }
     return Response.ok().build();
   }
@@ -689,7 +687,7 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create response
       final String attachment;
-      if ( userAgent.contains( "Firefox" )  ) {
+      if ( userAgent.contains( "Firefox" ) ) {
         // special content-disposition for firefox browser to support utf8-encoded symbols in filename
         attachment = "attachment; filename*=UTF-8\'\'" + encodedFileName;
       } else {
@@ -727,7 +725,7 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
     if ( isPath( pathId ) ) {
-      path = pathId ;
+      path = pathId;
       if ( !isPathValid( path ) ) {
         return Response.status( FORBIDDEN ).build();
       }
@@ -799,9 +797,9 @@ public class FileResource extends AbstractJaxRSResource {
     List<RepositoryFileAclAceDto> aces = acl.getAces();
     if ( aces != null ) {
       Iterator<RepositoryFileAclAceDto> it = aces.iterator();
-      while(it.hasNext()){
+      while ( it.hasNext() ) {
         RepositoryFileAclAceDto ace = it.next();
-        if ( !ace.isModifiable() ){
+        if ( !ace.isModifiable() ) {
           it.remove();
         }
       }
@@ -1094,11 +1092,10 @@ public class FileResource extends AbstractJaxRSResource {
       if ( i + 1 < reservedCharacters.size() ) {
         buffer.append( ',' );
       }
-    }   
+    }
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
-  
-  
+
   /**
    * Checks whether the current user can create content in the repository
    * 
@@ -1125,20 +1122,21 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
     if ( fileAcl.isEntriesInheriting() ) {
-      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
+      List<RepositoryFileAclAceDto> aces =
+          getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
       fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
     }
     addAdminRole( fileAcl );
     return fileAcl;
   }
-  
-  private void addAdminRole( RepositoryFileAclDto fileAcl ){
-    String adminRoleName = PentahoSystem.get( String.class, "singleTenantAdminAuthorityName",
-        PentahoSessionHolder.getSession() );
-    if (fileAcl.getAces() == null ){
+
+  private void addAdminRole( RepositoryFileAclDto fileAcl ) {
+    String adminRoleName =
+        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
+    if ( fileAcl.getAces() == null ) {
       fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
     }
-    for (RepositoryFileAclAceDto facl: fileAcl.getAces()){
+    for ( RepositoryFileAclAceDto facl : fileAcl.getAces() ) {
       if ( facl.getRecipient().equals( adminRoleName ) && facl.getRecipientType() == 1 ) {
         return;
       }
@@ -1592,7 +1590,7 @@ public class FileResource extends AbstractJaxRSResource {
         return Response.ok( "File to be renamed does not exist" ).build();
       }
     } catch ( Throwable t ) {
-      return processErrorResponse( t.getLocalizedMessage() );
+      return processErrorResponse( t.getClass().getName() );
     }
   }
 

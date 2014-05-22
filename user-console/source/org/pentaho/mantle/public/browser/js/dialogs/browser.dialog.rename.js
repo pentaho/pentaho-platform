@@ -14,8 +14,6 @@
  *
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
- 
-var illegalCharacters;
 
 define([
   "js/browser.dialogs.js",
@@ -90,15 +88,21 @@ define([
 	      var i18n = me.view.options.i18n;
 	      var body = i18n.prop("invalidCharactersDialogDescription", name, invalidCharacters);
 	      me.view.createCannotRenameDialog(body, me.view).show(me.view);
+        setPrevVals.apply(me);
       }else{
         // api/repo/files/:home:joe:test.xaction/rename?newName=newFileOrFolderName
         BrowserUtils._makeAjaxCall("PUT", "text", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents( prevPath ) + "/rename?newName=" + FileBrowser.encodePathComponents( name ), true,
-          function (success) {
-        
-            // An exception occured
+          function (success) {        
+            // An exception occured        
             if (success != "") {
+              if (success.indexOf('AccessDeniedException') > -1) {
+                var i18n = me.view.options.i18n;
+                var body = i18n.prop("accessDeniedDialogDescription");
+                me.view.createCannotRenameDialog(body, me.view).show(me.view);
+              }else{
+                me.view.showError.apply(me.view);
+              }
               setPrevVals.apply(me);
-              me.view.showError.apply(me.view);
               return;
             }
         
