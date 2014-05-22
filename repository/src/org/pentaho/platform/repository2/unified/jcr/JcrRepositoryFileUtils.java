@@ -74,6 +74,36 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Pattern;
+
+import javax.jcr.Item;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.lock.Lock;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionManager;
+
 /**
  * Class of static methods where the real JCR work takes place.
  * 
@@ -1013,8 +1043,9 @@ public class JcrRepositoryFileUtils {
     return nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode );
   }
 
-  public static Object getVersionSummaries( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId, final boolean includeAclOnlyChanges ) throws RepositoryException {
+  public static List<VersionSummary> getVersionSummaries( final Session session,
+      final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final boolean includeAclOnlyChanges )
+    throws RepositoryException {
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     VersionHistory versionHistory = session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() );
     // get root version but don't include it in version summaries; from JSR-170 specification section 8.2.5:
@@ -1111,7 +1142,7 @@ public class JcrRepositoryFileUtils {
     return session.getWorkspace().getVersionManager().getBaseVersion( node.getPath() ).getName();
   }
 
-  public static Object getVersionSummary( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static VersionSummary getVersionSummary( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final Serializable versionId ) throws RepositoryException {
     VersionManager vMgr = session.getWorkspace().getVersionManager();
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
