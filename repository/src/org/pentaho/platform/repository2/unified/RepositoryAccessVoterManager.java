@@ -34,19 +34,16 @@ import java.util.List;
 public class RepositoryAccessVoterManager implements IRepositoryAccessVoterManager {
 
   private IAuthorizationPolicy authorizationPolicy;
-  private String repositoryAdminUsername;
   private List<IRepositoryAccessVoter> voters;
 
-  public RepositoryAccessVoterManager( final IAuthorizationPolicy authorizationPolicy,
-      final String repositoryAdminUsername ) {
+  public RepositoryAccessVoterManager( final IAuthorizationPolicy authorizationPolicy ) {
     super();
     this.authorizationPolicy = authorizationPolicy;
-    this.repositoryAdminUsername = repositoryAdminUsername;
   }
 
   public RepositoryAccessVoterManager( final List<IRepositoryAccessVoter> voters,
-      final IAuthorizationPolicy authorizationPolicy, final String repositoryAdminUsername ) {
-    this( authorizationPolicy, repositoryAdminUsername );
+      final IAuthorizationPolicy authorizationPolicy ) {
+    this( authorizationPolicy );
     Assert.notNull( voters );
     this.voters = new ArrayList<IRepositoryAccessVoter>();
     this.voters.addAll( voters );
@@ -59,8 +56,7 @@ public class RepositoryAccessVoterManager implements IRepositoryAccessVoterManag
   @Override
   public boolean hasAccess( RepositoryFile file, RepositoryFilePermission operation,
       RepositoryFileAcl repositoryFileAcl, IPentahoSession session ) {
-    if ( voters != null && !authorizationPolicy.isAllowed( AdministerSecurityAction.NAME )
-        && ( session.getName() != null && !session.getName().equals( repositoryAdminUsername ) ) ) {
+    if ( voters != null && !authorizationPolicy.isAllowed( AdministerSecurityAction.NAME ) ) {
       for ( IRepositoryAccessVoter voter : voters ) {
         if ( !voter.hasAccess( file, operation, repositoryFileAcl, session ) ) {
           return false;
