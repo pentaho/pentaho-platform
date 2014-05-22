@@ -81,6 +81,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -431,7 +433,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           }
         }
 
-        map.put( getDOMWrapperElementText( catalog, "Definition" ), complementInfo ); //$NON-NLS-1$
+        map.put( encodeDatasourceName( getDOMWrapperElementText( catalog, "Definition" ) ), complementInfo ); //$NON-NLS-1$
       }
 
     }
@@ -832,7 +834,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       localeInfo.put( "Locale", getLocale().toString() ); //$NON-NLS-1$
 
       FileSystemManager fsManager = VFS.getManager();
-      SolutionRepositoryVfsFileObject mondrianDS = (SolutionRepositoryVfsFileObject) fsManager.resolveFile( urlStr );
+
+
+      SolutionRepositoryVfsFileObject mondrianDS =
+        (SolutionRepositoryVfsFileObject) fsManager.resolveFile( encodeDatasourceName( urlStr ) );
 
       in = mondrianDS.getInputStream();
       res = schemaProcessor.filter( null, localeInfo, in );
@@ -1062,5 +1067,27 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
     solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
     reInit( pentahoSession );
+  }
+
+  /**
+   * Ensure URLs are properly encoded to accommodate
+   *
+   * @param urlStr
+   * @return
+   */
+  private String encodeDatasourceName( String urlStr ) {
+    // make sure catalog definition url is properly encoded
+    // try to encode the url before use
+    String newUrl;
+    try {
+      String protocol = urlStr.substring( 0, urlStr.indexOf( ":/" ) + 2 );
+      String datasourceName = urlStr.substring( protocol.length() );
+      newUrl = protocol + URLEncoder.encode( datasourceName, Charset.defaultCharset().name() );
+    } catch ( Exception e ) {
+      // if something fails, just try with the original string
+      newUrl = urlStr;
+    }
+
+    return newUrl;
   }
 }

@@ -19,7 +19,10 @@
 package org.pentaho.platform.repository.solution.filebased;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +101,18 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
   private void initFile() {
     if ( !fileInitialized ) {
-      repositoryFile = REPOSITORY.getFile( fileRef );
+      // decode URL before 'get'
+      String fileUrl = fileRef;
+
+      try{
+        fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
+      }
+      catch ( UnsupportedEncodingException e ){
+        fileUrl = fileRef;
+      }
+
+      repositoryFile = REPOSITORY.getFile( fileUrl );
+
       fileInitialized = true;
     }
   }

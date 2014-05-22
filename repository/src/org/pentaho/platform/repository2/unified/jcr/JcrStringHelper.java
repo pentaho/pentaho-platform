@@ -22,6 +22,8 @@ import org.apache.jackrabbit.util.Text;
 
 /**
  * Collect JCR string helper methods to centralize implementations
+ * These methods are intended for internal use only. However, due to
+ * architectural considerations, the methods have been made public
  */
 public class JcrStringHelper {
 
@@ -30,7 +32,7 @@ public class JcrStringHelper {
    * @param fileName
    * @return
    */
-  protected static String fileNameEncode(String fileName) {
+  public static String fileNameEncode(String fileName) {
     return Text.escapeIllegalJcrChars( fileName );
   }
 
@@ -39,7 +41,7 @@ public class JcrStringHelper {
    * @param encodedFileName
    * @return
    */
-  protected static String fileNameDecode(String encodedFileName) {
+  public static String fileNameDecode(String encodedFileName) {
     return Text.unescapeIllegalJcrChars( encodedFileName );
   }
 
@@ -48,7 +50,7 @@ public class JcrStringHelper {
    * @param path
    * @return
    */
-  protected static String pathEncode( String path) {
+  public static String pathEncode( String path) {
     String[] folders = path.split("/");
     StringBuilder encodedPath = new StringBuilder(path.length() * 2);
     for (int i=0; i < folders.length; i++) {
@@ -65,7 +67,7 @@ public class JcrStringHelper {
    * @param encodedPath
    * @return
    */
-  protected static String pathDecode( String encodedPath ) {
+  public static String pathDecode( String encodedPath ) {
     String[] folders = encodedPath.split("/");
     StringBuilder decodedPath = new StringBuilder(encodedPath.length() * 2);
     for (int i=0; i < folders.length; i++) {
