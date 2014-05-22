@@ -1,107 +1,107 @@
 <ehcache updateCheck="false">
 
-    <!-- Sets the path to the directory where cache .data files are created.
+  <!-- Sets the path to the directory where cache .data files are created.
 
-         If the path is a Java System Property it is replaced by
-         its value in the running VM.
+       If the path is a Java System Property it is replaced by
+       its value in the running VM.
 
-         The following properties are translated:
-         user.home - User's home directory
-         user.dir - User's current working directory
-         java.io.tmpdir - Default temp file path -->
-    <diskStore path="java.io.tmpdir/_pentaho"/>
+       The following properties are translated:
+       user.home - User's home directory
+       user.dir - User's current working directory
+       java.io.tmpdir - Default temp file path -->
+  <diskStore path="java.io.tmpdir/_pentaho"/>
 
 
-    <!--Default Cache configuration. These will applied to caches programmatically created through
-        the CacheManager.
+  <!--Default Cache configuration. These will applied to caches programmatically created through
+      the CacheManager.
 
-        The following attributes are required:
+      The following attributes are required:
 
-        maxElementsInMemory            - Sets the maximum number of objects that will be created in memory
-        eternal                        - Sets whether elements are eternal. If eternal,  timeouts are ignored and the
-                                         element is never expired.
-        overflowToDisk                 - Sets whether elements can overflow to disk when the in-memory cache
-                                         has reached the maxInMemory limit.
+      maxElementsInMemory            - Sets the maximum number of objects that will be created in memory
+      eternal                        - Sets whether elements are eternal. If eternal,  timeouts are ignored and the
+                                       element is never expired.
+      overflowToDisk                 - Sets whether elements can overflow to disk when the in-memory cache
+                                       has reached the maxInMemory limit.
 
-        The following attributes are optional:
-        timeToIdleSeconds              - Sets the time to idle for an element before it expires.
-                                         i.e. The maximum amount of time between accesses before an element expires
-                                         Is only used if the element is not eternal.
-                                         Optional attribute. A value of 0 means that an Element can idle for infinity.
-                                         The default value is 0.
-        timeToLiveSeconds              - Sets the time to live for an element before it expires.
-                                         i.e. The maximum time between creation time and when an element expires.
-                                         Is only used if the element is not eternal.
-                                         Optional attribute. A value of 0 means that and Element can live for infinity.
-                                         The default value is 0.
-        diskPersistent                 - Whether the disk store persists between restarts of the Virtual Machine.
-                                         The default value is false.
-        diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
-                                         is 120 seconds.
-        -->
+      The following attributes are optional:
+      timeToIdleSeconds              - Sets the time to idle for an element before it expires.
+                                       i.e. The maximum amount of time between accesses before an element expires
+                                       Is only used if the element is not eternal.
+                                       Optional attribute. A value of 0 means that an Element can idle for infinity.
+                                       The default value is 0.
+      timeToLiveSeconds              - Sets the time to live for an element before it expires.
+                                       i.e. The maximum time between creation time and when an element expires.
+                                       Is only used if the element is not eternal.
+                                       Optional attribute. A value of 0 means that and Element can live for infinity.
+                                       The default value is 0.
+      diskPersistent                 - Whether the disk store persists between restarts of the Virtual Machine.
+                                       The default value is false.
+      diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
+                                       is 120 seconds.
+      -->
 
-    <defaultCache
-        maxElementsInMemory="1000"
-        eternal="false"
-        overflowToDisk="false"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-        />
-	
-	<cache name="pentahoCache"
-        maxElementsInMemory="15000"
-        eternal="false"
-        overflowToDisk="true"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-		/>	
+  <defaultCache
+      maxElementsInMemory="1000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false"
+      diskExpiryThreadIntervalSeconds="120"
+      />
 
-	<!-- Defines a cache used by libloader. This cache holds the raw binary data loaded via libloader.  -->
-	<cache name="libloader-data"
-        maxElementsInMemory="1000"
-        eternal="false"
-        overflowToDisk="true"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-		/>
-		
-	<!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
-	<cache name="libloader-bundles"
-          maxElementsInMemory="100"
-          eternal="false"
-          overflowToDisk="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
-          diskPersistent="false"
-          diskExpiryThreadIntervalSeconds="120"
-        />
- 
-	<!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
-	<cache name="libloader-factory"
-        maxElementsInMemory="1000"
-        eternal="false"
-        overflowToDisk="false"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-		/>		
-	
-	<cache name="mondrian-catalog-cache"
-        maxElementsInMemory="30"
-        eternal="false"
-        overflowToDisk="true"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-		/>		
+  <cache name="pentahoCache"
+         maxElementsInMemory="15000"
+         eternal="false"
+         overflowToDisk="true"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
+
+  <!-- Defines a cache used by libloader. This cache holds the raw binary data loaded via libloader.  -->
+  <cache name="libloader-data"
+         maxElementsInMemory="1000"
+         eternal="false"
+         overflowToDisk="true"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
+
+  <!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
+  <cache name="libloader-bundles"
+         maxElementsInMemory="100"
+         eternal="false"
+         overflowToDisk="false"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
+
+  <!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
+  <cache name="libloader-factory"
+         maxElementsInMemory="1000"
+         eternal="false"
+         overflowToDisk="false"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
+
+  <cache name="mondrian-catalog-cache"
+         maxElementsInMemory="30"
+         eternal="false"
+         overflowToDisk="true"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
 
 
   <!--
@@ -111,14 +111,14 @@
     filter information is used in ways invisible for the reporting engine.
   -->
   <cache name="report-dataset-cache"
-        maxElementsInMemory="50"
-        eternal="false"
-        overflowToDisk="false"
-        timeToIdleSeconds="300"
-        timeToLiveSeconds="600"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-    />
+         maxElementsInMemory="50"
+         eternal="false"
+         overflowToDisk="false"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
 
   <!--
      Defines a cache used by the reporting plugin to hold paginated report objects.
@@ -127,150 +127,159 @@
      small to not exhaust your resources.
   -->
   <cache name="report-output-handlers"
-        maxElementsInMemory="10"
-        eternal="false"
-        overflowToDisk="false"
-        timeToIdleSeconds="300"
-        timeToLiveSeconds="600"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-    />
+         maxElementsInMemory="10"
+         eternal="false"
+         overflowToDisk="false"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"
+      />
 
   <!-- Repository File Entity caching below. These are used by the Hibernate 2nd-level cache when using the ehCache provider. -->
   <cache
-    name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-    diskPersistent="false"
-  />
+      name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      overflowToDisk="true"
+      diskPersistent="false"
+      />
   <cache
-    name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.childrenFiles"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-    diskPersistent="false"
-  />
+      name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.childrenFiles"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      overflowToDisk="true"
+      diskPersistent="false"
+      />
 
   <cache
-    name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.accessControls"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-    diskPersistent="false"
-  />
+      name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.accessControls"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      overflowToDisk="true"
+      diskPersistent="false"
+      />
 
-    <!-- Caches for the pentaho-geo roles -->
-    <!-- Geo caches are configured to keep everything pinned in memory.
-         This uses about 65mb. Do not turn on overflow to disk for these.
-         It is much faster to access the data directly from memory. -->
+  <!-- Caches for the pentaho-geo roles -->
+  <!-- Geo caches are configured to keep everything pinned in memory.
+       This uses about 65mb. Do not turn on overflow to disk for these.
+       It is much faster to access the data directly from memory. -->
+  <cache
+      name="pentaho-geo-country"
+      maxEntriesLocalHeap="1000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-countrycode"
+      maxEntriesLocalHeap="5000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-countrycode3"
+      maxEntriesLocalHeap="5000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-countrysubdivision"
+      maxEntriesLocalHeap="5000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-countrysubdivisioncode"
+      maxEntriesLocalHeap="5000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-countrysecondarysubdivision"
+      maxEntriesLocalHeap="5000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-postalcode"
+      maxEntriesLocalHeap="50000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <cache
+      name="pentaho-geo-municipality"
+      maxEntriesLocalHeap="700000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      diskPersistent="false">
+    <pinning store="inCache"/>
+  </cache>
+  <!-- When creating a custom geographic role that exceeds 1000 elements use this template -->
+  <!--
     <cache
-            name="pentaho-geo-country"
-            maxEntriesLocalHeap="1000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
+        name="pentaho-geo-{CUSTOM_ROLE_TYPE}"
+        maxEntriesLocalHeap="50000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false">
+      <pinning store="inCache" />
     </cache>
-    <cache
-            name="pentaho-geo-countrycode"
-            maxEntriesLocalHeap="5000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <cache
-            name="pentaho-geo-countrycode3"
-            maxEntriesLocalHeap="5000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <cache
-            name="pentaho-geo-countrysubdivision"
-            maxEntriesLocalHeap="5000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <cache
-            name="pentaho-geo-countrysubdivisioncode"
-            maxEntriesLocalHeap="5000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <cache
-            name="pentaho-geo-countrysecondarysubdivision"
-            maxEntriesLocalHeap="5000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <cache
-            name="pentaho-geo-postalcode"
-            maxEntriesLocalHeap="50000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <cache
-            name="pentaho-geo-municipality"
-            maxEntriesLocalHeap="700000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="0"
-            timeToLiveSeconds="0"
-            diskPersistent="false">
-        <pinning store="inCache" />
-    </cache>
-    <!-- When creating a custom geographic role that exceeds 1000 elements use this template -->
-    <!--
-      <cache
-          name="pentaho-geo-{CUSTOM_ROLE_TYPE}"
-          maxEntriesLocalHeap="50000"
-          eternal="false"
-          overflowToDisk="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
-          diskPersistent="false">
-        <pinning store="inCache" />
-      </cache>
-    -->
+  -->
 
-    <!-- Cache for the Spring CachingUserDetailsService -->
-    <cache
-            name="userCache"
-            maxEntriesLocalHeap="2000"
-            eternal="false"
-            overflowToDisk="false"
-            timeToIdleSeconds="300"
-            timeToLiveSeconds="600"
-            diskPersistent="false"/>
+  <!-- Cache for the Spring CachingUserDetailsService -->
+  <cache
+      name="userCache"
+      maxEntriesLocalHeap="2000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      diskPersistent="false"/>
+  <cache
+      name="userRoleListCache"
+      maxEntriesLocalHeap="2000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      diskPersistent="false"/>
+
 </ehcache>
