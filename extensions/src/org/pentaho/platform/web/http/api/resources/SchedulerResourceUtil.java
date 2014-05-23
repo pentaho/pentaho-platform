@@ -42,8 +42,9 @@ public class SchedulerResourceUtil {
         scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
             && scheduleRequest.getCronJobTrigger() == null;
 
+    // add 10 seconds to the RIB to ensure execution (see PPP-3264)
     IJobTrigger jobTrigger =
-        runInBackground ? new SimpleJobTrigger( new Date(), null, 0, 0 ) : scheduleRequest.getSimpleJobTrigger();
+        runInBackground ? new SimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 ) : scheduleRequest.getSimpleJobTrigger();
 
     if ( scheduleRequest.getSimpleJobTrigger() != null ) {
       SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
