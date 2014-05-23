@@ -1080,7 +1080,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     // try to encode the url before use
     String newUrl;
     try {
-      String protocol = urlStr.substring( 0, urlStr.indexOf( ":/" ) + 2 );
+      String protocol = urlStr.substring( 0, urlStr.indexOf( ":" ) + 1 );
       String datasourceName = urlStr.substring( protocol.length() );
       newUrl = protocol + URLEncoder.encode( datasourceName, Charset.defaultCharset().name() );
     } catch ( Exception e ) {
