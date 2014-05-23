@@ -1080,16 +1080,6 @@ public class ScheduleRecurrenceDialog extends AbstractWizardDialog {
   }
 
   @Override
-  protected boolean enableNext( int index ) {
-    return true;
-  }
-
-  @Override
-  protected boolean enableFinish( int index ) {
-    return true;
-  }
-
-  @Override
   protected boolean enableBack( int index ) {
     return parentDialog != null;
   }
