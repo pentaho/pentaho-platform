@@ -384,7 +384,7 @@ public class JcrRepositoryFileUtils {
         if ( properties != null ) {
           // create node and set properties for each locale
           Node localeNode;
-          if ( !NodeHelper.hasNode( localeRootNode, locale ) ) {
+          if ( !NodeHelper.checkHasNode( localeRootNode, locale ) ) {
             localeNode = localeRootNode.addNode( locale, pentahoJcrConstants.getNT_UNSTRUCTURED() );
           } else {
             localeNode = NodeHelper.checkGetNode( localeRootNode, locale );
