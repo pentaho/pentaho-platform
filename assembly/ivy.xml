@@ -146,6 +146,9 @@
     <dependency org="pentaho" name="pentaho-cassandra-plugin" rev="${dependency.pentaho-cassandra-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="pentaho-cassandra-plugin" type="zip"/>
     </dependency>
+    <dependency org="pentaho" name="pdi-teradata-tpt-plugin-package" rev="${dependency.pdi-teradata-tpt-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+      <artifact name="pdi-teradata-tpt-plugin-package" type="zip"/>
+    </dependency>
 
     <!-- OSGI Bundles -->
     <dependency org="org.apache.aries" name="org.apache.aries.util" rev="1.1.0" conf="core-bundle->default" />
