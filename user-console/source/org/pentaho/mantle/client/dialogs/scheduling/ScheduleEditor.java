@@ -200,6 +200,10 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     isBlockoutDialog = ( type == ScheduleDialogType.BLOCKOUT );
     startTimePicker = new TimePicker();
     startTimePicker.setTime( new Date() );
+    //Increase the initial time to one minute ahead of now to avoid time in the past error popup
+    int minutePlusOne = Integer.parseInt( startTimePicker.getMinute() ) + 1;
+    startTimePicker.setMinute( Integer.toString( minutePlusOne ) );
+
 
     setStylePrimaryName( "scheduleEditor" ); //$NON-NLS-1$
 
