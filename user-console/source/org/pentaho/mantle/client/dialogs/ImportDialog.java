@@ -58,6 +58,8 @@ import org.pentaho.mantle.client.messages.Messages;
 public class ImportDialog extends PromptDialogBox {
 
   private FormPanel form;
+  private final CustomListBox retainOwnershipDropDown = new CustomListBox();
+  final CheckBox applyAclPermissions = new CheckBox( Messages.getString( "applyAclPermissions" ), true );
 
   /**
    * @param repositoryFile
@@ -101,7 +103,7 @@ public class ImportDialog extends PromptDialogBox {
           }
         }
 
-        // if mantle_isBrowseRepoDirty=true: do getChildren call 
+        // if mantle_isBrowseRepoDirty=true: do getChildren call
         // if mantle_isBrowseRepoDirty=false: use stored fileBrowserModel in myself.get("cachedData")
         setBrowseRepoDirty( Boolean.TRUE );
 
@@ -154,6 +156,7 @@ public class ImportDialog extends PromptDialogBox {
     browseButton.addClickHandler( new ClickHandler() {
       @Override
       public void onClick( ClickEvent event ) {
+        setRetainOwnershipState();
         jsClickUpload( upload.getElement() );
       }
     } );
@@ -161,17 +164,16 @@ public class ImportDialog extends PromptDialogBox {
     rootPanel.add( fileUploadPanel );
     rootPanel.add( upload );
 
-    final CheckBox applyAclPermissions = new CheckBox( Messages.getString( "applyAclPermissions" ), true );
     applyAclPermissions.setName( "applyAclPermissions" );
-    applyAclPermissions.setValue( Boolean.TRUE );
-    applyAclPermissions.setFormValue( "true" );
+    applyAclPermissions.setValue( Boolean.FALSE );
+    applyAclPermissions.setFormValue( "false" );
     applyAclPermissions.setEnabled( true );
     applyAclPermissions.setVisible( false );
 
     final CheckBox overwriteAclPermissions = new CheckBox( Messages.getString( "overwriteAclPermissions" ), true );
     overwriteAclPermissions.setName( "overwriteAclPermissions" );
-    overwriteAclPermissions.setValue( Boolean.FALSE );
-    overwriteAclPermissions.setFormValue( "false" );
+    applyAclPermissions.setValue( Boolean.FALSE );
+    applyAclPermissions.setFormValue( "false" );
     overwriteAclPermissions.setEnabled( true );
     overwriteAclPermissions.setVisible( false );
 
@@ -179,7 +181,7 @@ public class ImportDialog extends PromptDialogBox {
     overwriteFile.setValue( "true" );
 
     final Hidden logLevel = new Hidden( "logLevel" );
-    logLevel.setValue( "WARN" );
+    logLevel.setValue( "ERROR" );
 
     final Hidden retainOwnership = new Hidden( "retainOwnership" );
     retainOwnership.setValue( "true" );
@@ -205,6 +207,8 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add( replaceLabel );
 
     final CustomListBox overwriteFileDropDown = new CustomListBox();
+    final CustomListBox filePermissionsDropDown = new CustomListBox();
+
     DefaultListItem replaceListItem = new DefaultListItem( Messages.getString( "replaceFile" ) );
     replaceListItem.setValue( "true" );
     overwriteFileDropDown.addItem( replaceListItem );
@@ -222,7 +226,6 @@ public class ImportDialog extends PromptDialogBox {
     filePermissionsLabel.setStyleName( "gwt-Label" );
     disclosureContent.add( filePermissionsLabel );
 
-    final CustomListBox filePermissionsDropDown = new CustomListBox();
     DefaultListItem usePermissionsListItem = new DefaultListItem( Messages.getString( "usePermissions" ) );
     usePermissionsListItem.setValue( "false" );
     filePermissionsDropDown.addItem( usePermissionsListItem ); // If selected set "overwriteAclPermissions" to
@@ -231,31 +234,19 @@ public class ImportDialog extends PromptDialogBox {
     retainPermissionsListItem.setValue( "true" );
     filePermissionsDropDown.addItem( retainPermissionsListItem ); // If selected set "overwriteAclPermissions" to
     // true.
-    DefaultListItem removePermissionsListItem = new DefaultListItem( Messages.getString( "removePermissions" ) );
-    removePermissionsListItem.setValue( "none" );
-    filePermissionsDropDown.addItem( removePermissionsListItem ); // If selected then set "applyAclPermissions" to
-    // false else true.
 
     final ChangeListener filePermissionsHandler = new ChangeListener() {
       @Override
       public void onChange( Widget sender ) {
         String value = filePermissionsDropDown.getSelectedItem().getValue().toString();
 
-        applyAclPermissions.setValue( Boolean.TRUE );
-        applyAclPermissions.setFormValue( "true" );
-
+        applyAclPermissions.setValue( Boolean.valueOf( value ) );
+        applyAclPermissions.setFormValue( value );
         overwriteAclPermissions.setFormValue( value );
         overwriteAclPermissions.setValue( Boolean.valueOf( value ) );
-
-        if ( value.equals( "none" ) ) {
-          applyAclPermissions.setValue( Boolean.FALSE );
-          applyAclPermissions.setFormValue( "false" );
-          overwriteAclPermissions.setValue( Boolean.FALSE );
-          overwriteAclPermissions.setFormValue( "false" );
-        }
+        setRetainOwnershipState();
       }
     };
-
     filePermissionsDropDown.addChangeListener( filePermissionsHandler );
     filePermissionsDropDown.setVisibleRowCount( 1 );
     disclosureContent.add( filePermissionsDropDown );
@@ -268,7 +259,6 @@ public class ImportDialog extends PromptDialogBox {
     fileOwnershipLabel.setStyleName( "gwt-Label" );
     disclosureContent.add( fileOwnershipLabel );
 
-    final CustomListBox retainOwnershipDropDown = new CustomListBox();
     retainOwnershipDropDown.addChangeListener( new ChangeListener() {
       @Override
       public void onChange( Widget sender ) {
@@ -295,15 +285,6 @@ public class ImportDialog extends PromptDialogBox {
       public void onChange( Widget sender ) {
         String value = overwriteFileDropDown.getSelectedItem().getValue().toString();
         overwriteFile.setValue( value );
-        if ( value.equals( "false" ) ) {
-          filePermissionsDropDown.setSelectedIndex( 1 );
-          filePermissionsDropDown.setEnabled( false );
-          retainOwnershipDropDown.setSelectedIndex( 0 );
-          retainOwnershipDropDown.setEnabled( false );
-        } else if ( value.equals( "true" ) ) {
-          filePermissionsDropDown.setEnabled( true );
-          retainOwnershipDropDown.setEnabled( true );
-        }
       }
     };
     overwriteFileDropDown.addChangeListener( overwriteFileHandler );
@@ -313,18 +294,20 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add( loggingLabel );
 
     final CustomListBox loggingDropDown = new CustomListBox();
+    loggingDropDown.getElement().getElementsByTagName( "input" ).getItem( 0 ).setPropertyString( "name", "logLevel" );
     loggingDropDown.addChangeListener( new ChangeListener() {
-      @Override
       public void onChange( Widget sender ) {
         String value = loggingDropDown.getSelectedItem().getValue().toString();
+        loggingDropDown.getElement().getElementsByTagName( "input" ).getItem( 0 ).setPropertyString( "value",
+            loggingDropDown.getSelectedItem().getValue().toString() );
         logLevel.setValue( value );
       }
     } );
     DefaultListItem noneListItem = new DefaultListItem( Messages.getString( "none" ) );
-    noneListItem.setValue( "WARN" );
+    noneListItem.setValue( "ERROR" );
     loggingDropDown.addItem( noneListItem );
     DefaultListItem shortListItem = new DefaultListItem( Messages.getString( "short" ) );
-    shortListItem.setValue( "INFO" );
+    shortListItem.setValue( "WARN" );
     loggingDropDown.addItem( shortListItem );
     DefaultListItem debugListItem = new DefaultListItem( Messages.getString( "verbose" ) );
     debugListItem.setValue( "TRACE" );
@@ -352,16 +335,18 @@ public class ImportDialog extends PromptDialogBox {
     setContent( form );
   }
 
-  native void jsClickUpload( Element uploadElement ) /*-{
-      uploadElement.click();
+  native void jsClickUpload( Element uploadElement )
+  /*-{
+     uploadElement.click();
   }-*/;
 
-  private static native void logWindow( String innerText, String windowTitle ) /*-{
-      var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
-      var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
-  	  <html><head><title>' + windowTitle + '</title></head><body bgcolor="#FFFFFF" topmargin="6" leftmargin="6">'
-          + innerText + "</body></html>";
-      logWindow.document.write(htmlText);
+  private static native void logWindow( String innerText, String windowTitle )
+  /*-{
+     var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
+     var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
+     <html><head><title>' + windowTitle + '</title></head><body bgcolor="#FFFFFF" topmargin="6" leftmargin="6">'
+     + innerText + "</body></html>";
+     logWindow.document.write(htmlText);
   }-*/;
 
   private void setFormAction() {
@@ -386,7 +371,7 @@ public class ImportDialog extends PromptDialogBox {
           callback.okPressed();
         }
       } catch ( Throwable dontCare ) {
-        //ignored
+        // ignored
       }
     }
   }
@@ -395,4 +380,18 @@ public class ImportDialog extends PromptDialogBox {
   /*-{
       $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
+
+  // This is a work around of a GWT Widget bug. If you disable a CustomerListBox before
+  // it is rendered it will stay two lines even when setVisibleRowCount( 1 ) is called.
+  // Furthermore, the listbox will not be resized to fit the text. By forcing the list
+  // box to disable during the browse button hander, instead of prior to displaying, we
+  // circumvent this problem while still forcing the disabled state, as needed.
+  private void setRetainOwnershipState() {
+    if ( !applyAclPermissions.getValue() ) {
+      retainOwnershipDropDown.setSelectedIndex( 0 );
+      retainOwnershipDropDown.setEnabled( false );
+    } else {
+      retainOwnershipDropDown.setEnabled( true );
+    }
+  }
 }
