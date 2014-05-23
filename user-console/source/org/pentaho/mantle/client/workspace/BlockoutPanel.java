@@ -152,9 +152,20 @@ public class BlockoutPanel extends SimplePanel {
       @Override
       public void execute() {
         Set<JsJob> jobs = getSelectedSet();
-        JsJob jsJob = jobs.iterator().next();
+        final JsJob jsJob = jobs.iterator().next();
 
-        NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog( jsJob, refreshCallBack, false, true );
+        IDialogCallback callback = new IDialogCallback() {
+          public void okPressed() {
+            // delete the old one
+            removeBlockout( jsJob );
+            refreshCallBack.okPressed();
+          }
+          public void cancelPressed() {
+            refreshCallBack.cancelPressed();
+          }
+        };
+        
+        NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog( jsJob, callback, false, true );
         table.selectRow( list.indexOf( jsJob ) );
         blockoutDialog.setUpdateMode();
         blockoutDialog.center();
