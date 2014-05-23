@@ -174,8 +174,8 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
       }
     } else {
       for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
-        if ( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName ) ) {
-          Node runtimeRoleFolderNode = NodeHelper.getNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName );
+        if ( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix , runtimeRoleName ) ) {
+          Node runtimeRoleFolderNode = NodeHelper.getNode( runtimeRolesFolderNode, phoNsPrefix , runtimeRoleName );
           if ( runtimeRoleFolderNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {
             Value[] values = runtimeRoleFolderNode.getProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ).getValues();
             String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
@@ -236,19 +236,19 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
       // no bindings setup yet; install bootstrap bindings; bootstrapRoleBindings will now no longer be
       // consulted
       for ( Map.Entry<String, List<String>> entry : bootstrapRoleBindings.entrySet() ) {
-        JcrRoleAuthorizationPolicyUtils.internalSetBindings( pentahoJcrConstants, runtimeRolesFolderNode, phoNsPrefix
-            + entry.getKey(), entry.getValue() );
+        JcrRoleAuthorizationPolicyUtils.internalSetBindings( pentahoJcrConstants, runtimeRolesFolderNode, entry.getKey(),
+            entry.getValue(), phoNsPrefix );
       }
     }
     if ( !isImmutable( runtimeRoleName ) ) {
-      JcrRoleAuthorizationPolicyUtils.internalSetBindings( pentahoJcrConstants, runtimeRolesFolderNode, phoNsPrefix
-          + runtimeRoleName, logicalRoleNames );
+      JcrRoleAuthorizationPolicyUtils.internalSetBindings( pentahoJcrConstants, runtimeRolesFolderNode, runtimeRoleName,
+          logicalRoleNames, phoNsPrefix );
     } else {
       throw new RuntimeException( Messages.getInstance().getString(
           "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0001_ATTEMPT_MOD_IMMUTABLE", runtimeRoleName ) ); //$NON-NLS-1$
     }
     session.save();
-    Assert.isTrue( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix + runtimeRoleName ) );
+    Assert.isTrue( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix, runtimeRoleName ) );
 
     // update cache
     String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );

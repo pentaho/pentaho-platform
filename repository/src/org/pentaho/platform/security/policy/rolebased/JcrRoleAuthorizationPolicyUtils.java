@@ -44,13 +44,13 @@ public class JcrRoleAuthorizationPolicyUtils {
   }
 
   public static void internalSetBindings( final PentahoJcrConstants pentahoJcrConstants,
-      final Node runtimeRolesFolderNode, final String runtimeRoleNodeName, final List<String> logicalRoleNames )
+      final Node runtimeRolesFolderNode, final String runtimeRoleNodeName, final List<String> logicalRoleNames, final String nodeNamePrefix )
     throws RepositoryException {
     Node runtimeRoleNode = null;
-    if ( NodeHelper.hasNode( runtimeRolesFolderNode, runtimeRoleNodeName ) ) {
-      runtimeRoleNode = NodeHelper.getNode( runtimeRolesFolderNode, runtimeRoleNodeName );
+    if ( NodeHelper.hasNode( runtimeRolesFolderNode, nodeNamePrefix, runtimeRoleNodeName ) ) {
+      runtimeRoleNode = NodeHelper.getNode( runtimeRolesFolderNode, nodeNamePrefix, runtimeRoleNodeName );
     } else {
-      runtimeRoleNode = NodeHelper.addNode( runtimeRolesFolderNode, runtimeRoleNodeName );
+      runtimeRoleNode = NodeHelper.addNode( runtimeRolesFolderNode, nodeNamePrefix, runtimeRoleNodeName );
     }
     // clear all existing properties
     if ( runtimeRoleNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {

@@ -88,12 +88,12 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":"; //$NON-NLS-1$
     // get or create the node represented by dataNode
     Node jcrNode = null;
-    String nodeName = prefix + dataNode.getName();
+    String nodeName = dataNode.getName();
 
     JcrRepositoryFileUtils.checkName( dataNode.getName() );
 
-    if ( NodeHelper.hasNode( jcrParentNode, nodeName ) ) {
-      jcrNode = NodeHelper.getNode( jcrParentNode, nodeName );
+    if ( NodeHelper.hasNode( jcrParentNode, prefix, nodeName ) ) {
+      jcrNode = NodeHelper.getNode( jcrParentNode, prefix, nodeName );
     } else {
       jcrNode = jcrParentNode.addNode( nodeName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
     }

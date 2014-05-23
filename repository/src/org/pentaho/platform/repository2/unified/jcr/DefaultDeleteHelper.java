@@ -155,13 +155,13 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   private Node getOrCreateTrashFileIdNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId ) throws RepositoryException {
-    final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS );
-    final String folderName = prefix + ":" + fileId.toString(); //$NON-NLS-1$
+    final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":";
+    final String folderName = fileId.toString(); //$NON-NLS-1$
     Node trashInternalFolderNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
-    if ( NodeHelper.hasNode( trashInternalFolderNode, folderName ) ) {
-      return NodeHelper.getNode( trashInternalFolderNode, folderName );
+    if ( NodeHelper.hasNode( trashInternalFolderNode, prefix, folderName ) ) {
+      return NodeHelper.getNode( trashInternalFolderNode, prefix, folderName );
     } else {
-      return trashInternalFolderNode.addNode( folderName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
+      return trashInternalFolderNode.addNode( prefix + folderName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
     }
   }
 
@@ -180,11 +180,10 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       throw new RuntimeException( Messages.getInstance().getString( "DefaultDeleteHelper.ERROR_0001_PATH_NOT_FOUND" ) ); //$NON-NLS-1$
     }
 
-    final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS );
-    final String folderName = prefix + ":" + folderId; //$NON-NLS-1$
+    final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":";
     Node trashInternalFolderNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
-    if ( NodeHelper.hasNode( trashInternalFolderNode, folderName ) ) {
-      return NodeHelper.getNode( trashInternalFolderNode, folderName );
+    if ( NodeHelper.hasNode( trashInternalFolderNode, prefix, folderId ) ) {
+      return NodeHelper.getNode( trashInternalFolderNode, prefix, folderId );
     } else {
       // if Trash Structure 1 (legacy) doesn't exist, no need to create it now
       return null;

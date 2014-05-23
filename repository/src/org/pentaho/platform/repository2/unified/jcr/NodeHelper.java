@@ -39,12 +39,13 @@ public class NodeHelper {
   /**
    * Encapsulate hasNode calls here to ensure we are encoding the parameter
    * @param parentNode
+   * @param nodeNamePrefix
    * @param nodeName
    * @return
    * @throws RepositoryException
    */
-  public static boolean hasNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return checkHasNode( parentNode, JcrStringHelper.fileNameEncode( nodeName ));
+  public static boolean hasNode( Node parentNode, String nodeNamePrefix, String nodeName ) throws RepositoryException {
+    return checkHasNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ));
   }
 
   /**
@@ -61,23 +62,25 @@ public class NodeHelper {
   /**
    * Encapsulate addNode calls here to ensure we are encoding the parameter
    * @param parentNode
+   * @param nodeNamePrefix
    * @param nodeName
    * @return
    * @throws RepositoryException
    */
-  public static Node addNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return checkAddNode( parentNode, JcrStringHelper.fileNameEncode( nodeName ) );
+  public static Node addNode( Node parentNode, String nodeNamePrefix, String nodeName ) throws RepositoryException {
+    return checkAddNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ) );
   }
 
   /**
    * Encapsulate addNode calls here to ensure we are encoding the parameter
    * @param parentNode
+   * @param nodeNamePrefix
    * @param nodeName
    * @return
    * @throws RepositoryException
    */
-  public static Node addNode( Node parentNode, String nodeName, String nodeParameter ) throws RepositoryException {
-    return checkAddNode( parentNode, JcrStringHelper.fileNameEncode( nodeName ), nodeParameter );
+  public static Node addNode( Node parentNode, String nodeNamePrefix, String nodeName, String nodeParameter ) throws RepositoryException {
+    return checkAddNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ), nodeParameter );
   }
 
   /**
@@ -105,12 +108,13 @@ public class NodeHelper {
   /**
    * Encapsulate getNode calls here to ensure we are encoding the parameter
    * @param parentNode
+   * @param nodeNamePrefix
    * @param nodeName
    * @return
    * @throws RepositoryException
    */
-  public static Node getNode( Node parentNode, String nodeName ) throws RepositoryException {
-    return checkGetNode( parentNode, JcrStringHelper.fileNameEncode( nodeName ) );
+  public static Node getNode( Node parentNode, String nodeNamePrefix, String nodeName ) throws RepositoryException {
+    return checkGetNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ) );
   }
 
   /**
