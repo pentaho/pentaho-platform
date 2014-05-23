@@ -95,7 +95,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     if ( NodeHelper.hasNode( jcrParentNode, prefix, nodeName ) ) {
       jcrNode = NodeHelper.getNode( jcrParentNode, prefix, nodeName );
     } else {
-      jcrNode = jcrParentNode.addNode( nodeName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
+      jcrNode = jcrParentNode.addNode( prefix + nodeName, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
     }
     // set any properties represented by dataNode
     for ( DataProperty dataProp : dataNode.getProperties() ) {
