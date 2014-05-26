@@ -94,14 +94,14 @@ function customizeThemeStyling() {
     isIE = true;
   } else if (navigator.appName == 'Netscape') {
     regEx = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-    isIE = true;
   }
 
   if (regEx != null) {
-    var className = " IE";
-  } if (regEx.exec(navigator.userAgent) != null) {
-    version = parseInt( RegExp.$1 );
-    className += " IE" + version;
+    if (regEx.exec(navigator.userAgent) != null) {
+      version = parseInt( RegExp.$1 );
+      className += " IE IE" + version;
+      isIE = true;
+    }
   }
 
   if (isIE) {
