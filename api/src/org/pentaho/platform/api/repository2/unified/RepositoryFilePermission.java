@@ -57,5 +57,5 @@ package org.pentaho.platform.api.repository2.unified;
  * @author mlowery
  */
 public enum RepositoryFilePermission {
-  READ, WRITE, /* EXECUTE, */DELETE, /* APPEND, *//* DELETE_CHILD, */ACL_MANAGEMENT, /* READ_ACL, WRITE_ACL, */ALL;
+  READ, WRITE, EXECUTE, DELETE, /* APPEND, *//* DELETE_CHILD, */ACL_MANAGEMENT, /* READ_ACL, WRITE_ACL, */ALL;
 }
