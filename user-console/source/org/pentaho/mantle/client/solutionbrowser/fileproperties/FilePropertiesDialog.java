@@ -149,9 +149,10 @@ public class FilePropertiesDialog extends PromptDialogBox {
       } else {
         requestCallback = new RequestCallback() {
           @Override
-          public void onError( Request arg0, Throwable arg1 ) {
+          public void onError( Request request, Throwable th ) {
+            WaitPopup.getInstance().setVisible(false);
             MessageDialogBox dialogBox =
-                new MessageDialogBox( Messages.getString( "error" ), arg1.toString(), false, false, true ); //$NON-NLS-1$
+                new MessageDialogBox( Messages.getString( "error" ), th.toString(), false, false, true ); //$NON-NLS-1$
             dialogBox.center();
           }
 
@@ -306,6 +307,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
      */
     @Override
     public void onError( Request arg0, Throwable arg1 ) {
+      WaitPopup.getInstance().setVisible(false);
       MessageDialogBox dialogBox =
           new MessageDialogBox( Messages.getString( "error" ), arg1.toString(), false, false, true ); //$NON-NLS-1$
       dialogBox.center();
@@ -326,6 +328,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         }
         dirty = false;
       } else {
+        WaitPopup.getInstance().setVisible(false);
         MessageDialogBox dialogBox =
             new MessageDialogBox(
                 Messages.getString( "error" ), Messages.getString( "operationPermissionDenied" ), false, false, true ); //$NON-NLS-1$
