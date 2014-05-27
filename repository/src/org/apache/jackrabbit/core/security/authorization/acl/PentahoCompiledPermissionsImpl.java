@@ -27,6 +27,7 @@ import org.apache.jackrabbit.core.id.ItemId;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.id.PropertyId;
 import org.apache.jackrabbit.core.security.authorization.AbstractCompiledPermissions;
+import org.apache.jackrabbit.core.security.authorization.AccessControlConstants;
 import org.apache.jackrabbit.core.security.authorization.AccessControlListener;
 import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
 import org.apache.jackrabbit.core.security.authorization.AccessControlUtils;
@@ -37,6 +38,11 @@ import org.apache.jackrabbit.core.security.authorization.PrivilegeRegistry;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.Path;
 import org.apache.jackrabbit.util.Text;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.RepositoryException;
@@ -124,7 +130,11 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
       PrivilegeBits entryBits = ace.getPrivilegeBits();
       boolean isLocal = isExistingNode && ace.isLocal( nodeId );
       boolean matchesParent = ( !isLocal && ace.matches( parentPath ) );
-      if ( matchesParent ) {
+
+      // check specific case: "Inherit permissions" may have been unchecked, and node operation permissions may
+      // have been granted directly to the item ( thus not requiring having those permissions defined for the parent )
+      boolean isLocalAndDoesNotInheritPermissions = isLocal && isValidPentahoNode( node ) && !isEntriesInheriting( node );
+      if ( matchesParent || isLocalAndDoesNotInheritPermissions ) {
         if ( ace.isAllow() ) {
           parentAllowBits.addDifference( entryBits, parentDenyBits );
         } else {
@@ -289,5 +299,26 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   public void acModified( AccessControlModifications modifications ) {
     // ignore the details of the modifications and clear all caches.
     clearCache();
+  }
+
+  /**
+   * Returns stored entriesInheriting flag for given node
+   */
+  private boolean isEntriesInheriting( final NodeImpl node ) throws RepositoryException {
+   return JcrRepositoryFileAclUtils.getAclMetadata( session, node.getPath(), new ACLTemplate( node.getNode(
+        AccessControlConstants.N_POLICY ) ) ).isEntriesInheriting();
+  }
+
+  private boolean isBelowRootFolder( final NodeImpl node ) throws RepositoryException {
+
+    final String tenantRootFolderPath = ServerRepositoryPaths.getTenantRootFolderPath() + RepositoryFile.SEPARATOR;
+
+    return node != null && node.getPath().startsWith( tenantRootFolderPath )
+            && node.getPath().replace( tenantRootFolderPath , "" ).length() > 0;
+  }
+
+  private boolean isValidPentahoNode( final NodeImpl node ) throws RepositoryException {
+    return node != null && isBelowRootFolder( node )
+            && JcrRepositoryFileUtils.isPentahoHierarchyNode( session, new PentahoJcrConstants( session ), node );
   }
 }
