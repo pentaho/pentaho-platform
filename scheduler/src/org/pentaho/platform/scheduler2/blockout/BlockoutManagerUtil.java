@@ -23,10 +23,13 @@ import java.util.List;
 
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.quartz.QuartzJobKey;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.quartz.Trigger;
@@ -312,6 +315,15 @@ public class BlockoutManagerUtil {
         boolean endDateIsNull = jobTrigger.getEndTime() == null;
         Trigger trigger = QuartzScheduler.createQuartzTrigger( jobTrigger, new QuartzJobKey( "test", "test" ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
+        // add previous trigger (it might be currently active)
+        IBlockoutManager manager = PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
+        List<Job> blockouts = manager.getBlockOutJobs();
+        for ( Job blockout : blockouts ) {
+          if ( blockout.getLastRun() != null ) {
+            dates.add( blockout.getLastRun() );
+          }
+        }
+          
         for ( int i = 0; i < n; i++ ) {
           Date nextFireTime = trigger.getFireTimeAfter( startDate );
 
