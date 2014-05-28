@@ -114,7 +114,11 @@ public class RepositoryImportResource {
       IPlatformImportBundle bundle = bundleBuilder.build();
 
       IPlatformImportMimeResolver mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
-      bundleBuilder.mime( mimeResolver.resolveMimeForFileName( fileName ) );
+      String mimeTypeFromFile = mimeResolver.resolveMimeForFileName( fileName );
+      if ( mimeTypeFromFile == null ) {
+        return Response.ok( "INVALID_MIME_TYPE", MediaType.TEXT_HTML ).build();
+      }
+      bundleBuilder.mime( mimeTypeFromFile );
 
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
       importLogger = importer.getRepositoryImportLogger();
