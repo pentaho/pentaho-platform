@@ -1,5 +1,5 @@
 #Locale = default
-#Tue Sep 24 17:43:57 WEST 2013
-file.title=Inventory List (report)
+#Thu Apr 10 14:19:34 EDT 2014
+file.title=Inventory List
 title=Inventory List (report)
-file.description=
+file.description=Scan-able inventory report showing inventory on hand with detailed product descriptions.
