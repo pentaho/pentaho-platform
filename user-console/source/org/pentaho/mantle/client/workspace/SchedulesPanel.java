@@ -244,6 +244,7 @@ public class SchedulesPanel extends SimplePanel {
     controlScheduleButton.setEnabled( false );
     scheduleRemoveButton.setEnabled( false );
     triggerNowButton.setEnabled( false );
+    table.setPageStart( 0 );
     table.redraw();
   }
 
