@@ -29,7 +29,7 @@ define([
   "common-ui/util/URLEncoder",
   "common-ui/bootstrap",
   "common-ui/handlebars",
-  "common-ui/jquery-i18n",
+  "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
 

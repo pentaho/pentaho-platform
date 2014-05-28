@@ -24,7 +24,7 @@ define([
   "js/browser.utils.js",
   "common-ui/util/URLEncoder",
   "common-ui/bootstrap",
-  "common-ui/jquery-i18n",
+  "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery",
   "../../../../js/utils.js"  
 ], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder) {

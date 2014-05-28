@@ -16,7 +16,7 @@
  */
 
 define([
-  "common-ui/jquery-i18n",
+  "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
 ], function () {
 
