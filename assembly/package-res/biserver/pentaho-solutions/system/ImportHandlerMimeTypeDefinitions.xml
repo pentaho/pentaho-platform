@@ -49,6 +49,9 @@
         <extension>properties</extension>
         <extension>sql</extension>
       </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="text/pdf" hidden="false">
+        <extension>pdf</extension>
+      </MimeTypeDefinition>
       <MimeTypeDefinition mimeType="text/xml">
         <extension>cda</extension>
         <extension>cdfde</extension>
