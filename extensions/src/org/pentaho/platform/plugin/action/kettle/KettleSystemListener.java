@@ -82,7 +82,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse( is );
         Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
         SlaveServerConfig config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );
-        config.setFilename( slaveServerConfigFilename );
+        config.setFilename( slaveServerConfigFile.getAbsolutePath() );
         SlaveServer slaveServer = new SlaveServer();
         config.setSlaveServer( slaveServer );
         CarteSingleton.setSlaveServerConfig( config );
