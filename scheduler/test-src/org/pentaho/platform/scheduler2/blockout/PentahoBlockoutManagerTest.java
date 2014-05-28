@@ -76,6 +76,7 @@ public class PentahoBlockoutManagerTest {
     mp.define( "IScheduler2", TestQuartzScheduler.class ); //$NON-NLS-1$
     mp.define( IUserRoleListService.class, StubUserRoleListService.class );
     mp.define( UserDetailsService.class, StubUserDetailsService.class );
+    mp.define( IBlockoutManager.class, PentahoBlockoutManager.class );
     mp.start();
 
     blockOutManager = new PentahoBlockoutManager();

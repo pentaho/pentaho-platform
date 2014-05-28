@@ -317,10 +317,12 @@ public class BlockoutManagerUtil {
 
         // add previous trigger (it might be currently active)
         IBlockoutManager manager = PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
-        List<Job> blockouts = manager.getBlockOutJobs();
-        for ( Job blockout : blockouts ) {
-          if ( blockout.getLastRun() != null ) {
-            dates.add( blockout.getLastRun() );
+        if ( manager != null ) {
+          List<Job> blockouts = manager.getBlockOutJobs();
+          for ( Job blockout : blockouts ) {
+            if ( blockout.getLastRun() != null ) {
+              dates.add( blockout.getLastRun() );
+            }
           }
         }
           
