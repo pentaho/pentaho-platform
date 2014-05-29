@@ -82,9 +82,9 @@ public class DeleteFileCommand extends AbstractCommand {
   protected void performOperation() {
 
     if (  this.getSolutionPath() != null && this.getFileNames() != null && this.getFileIds() != null ) {
-      StringTokenizer pathTk = new StringTokenizer( this.getSolutionPath(), "\t" );
-      StringTokenizer nameTk = new StringTokenizer( this.getFileNames(), "\t" );
-      StringTokenizer idTk = new StringTokenizer( this.getFileIds(), "\t" );
+      StringTokenizer pathTk = new StringTokenizer( this.getSolutionPath(), "\n" );
+      StringTokenizer nameTk = new StringTokenizer( this.getFileNames(), "\n" );
+      StringTokenizer idTk = new StringTokenizer( this.getFileIds(), "\n" );
       //Build Arrays since we cannot pass complex objects from the js bus
       for ( int i = 0; i < pathTk.countTokens(); i++ ) {
         filesToDelete.add( new SolutionBrowserFile( idTk.tokenAt( i ), nameTk.tokenAt( i ), pathTk.tokenAt( i ) ) );

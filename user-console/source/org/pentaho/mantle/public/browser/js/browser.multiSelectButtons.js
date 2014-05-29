@@ -90,9 +90,9 @@ define([
               title[i] = (tmpTitle == null ? "" : tmpTitle );
               id[i] = (tmpId == null ? "" : tmpId );
           }
-          var tabbedPaths=path.join("\t");
-          var tabbedTitles=title.join("\t");
-          var tabbedIds=id.join("\t");
+          var tabbedPaths=path.join("\n");
+          var tabbedTitles=title.join("\n");
+          var tabbedIds=id.join("\n");
 
           var retObj= {
               solutionPath: tabbedPaths,
