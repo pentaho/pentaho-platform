@@ -23,6 +23,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.Widget;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -60,6 +62,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
   boolean dirty = false;
 
   private String parentPath = null;
+  private String fileName = null;
 
   /**
    * 
@@ -93,7 +96,14 @@ public class FilePropertiesDialog extends PromptDialogBox {
     okButton.getElement().setId( "filePropertiesOKButton" );
     cancelButton.getElement().setId( "filePropertiesCancelButton" );
 
-    parentPath = fileSummary.getPath().substring( 0, fileSummary.getPath().lastIndexOf( "/" ) );
+    if (fileSummary.isFolder()) {
+      parentPath = fileSummary.getPath();
+    } else {
+      parentPath = fileSummary.getPath().substring( 0, fileSummary.getPath().lastIndexOf( "/" ) );
+      fileName = fileSummary.getName();
+    }
+
+
 
     super.setCallback( new IDialogCallback() {
 
@@ -163,9 +173,21 @@ public class FilePropertiesDialog extends PromptDialogBox {
               dirty = false;
               // Refresh current folder or parent folder
               PerspectiveManager.getInstance().setPerspective( PerspectiveManager.BROWSER_PERSPECTIVE );
+
               GenericEvent ge = new GenericEvent();
-              ge.setEventSubType( "RefreshFolderEvent" );
-              ge.setStringParam( parentPath );
+              if (fileName == null) { // Filename is null, then it is a folder
+                ge.setEventSubType( "RefreshFolderEvent" );
+                ge.setStringParam( parentPath );
+              } else {
+                ge.setEventSubType( "RefreshFileEvent" );
+
+                JSONObject strParam = new JSONObject();
+                strParam.put("path", new JSONString(parentPath));
+                strParam.put("fileName", new JSONString(fileName));
+
+                ge.setStringParam( strParam.toString() );
+              }
+
               EventBusUtil.EVENT_BUS.fireEvent( ge );
 
             } else {
