@@ -255,6 +255,8 @@
         }
         else if (paramJson.eventSubType == "ImportDialogEvent") {
           FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")); // refresh folder list
+        } else if (paramJson.eventSubType == "RefreshFileEvent") {
+            FileBrowser.updateFile(paramJson.stringParam);
         }
       });
     });

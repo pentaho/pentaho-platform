@@ -112,9 +112,13 @@ define([
   };
 
   FileBrowser.update = function (initialPath) {
-
     this.redraw(initialPath);
   };
+
+  FileBrowser.updateFile = function (initialFilePath) {
+      var fileJson = JSON.parse(initialFilePath);
+      this.redraw(fileJson.path, fileJson.path + "/" + fileJson.fileName);
+  }
 
   FileBrowser.updateData = function () {
     if (this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null) {
@@ -147,7 +151,7 @@ define([
 
   };
 
-  FileBrowser.redraw = function (initialPath) {
+  FileBrowser.redraw = function (initialPath, initialFile) {
     var myself = this;
       
     myself.fileBrowserModel = new FileBrowserModel({
@@ -157,7 +161,8 @@ define([
       showDescriptions: myself.showDescriptions,
       canDownload: myself.canDownload,
       canPublish: myself.canPublish,
-      startFolder: initialPath
+      startFolder: initialPath,
+      startFile: initialFile
     });
     myself.FileBrowserView = new FileBrowserView({
       model: myself.fileBrowserModel,
@@ -210,7 +215,8 @@ define([
 
       spinConfig: undefined,
 
-      startFolder: "/"
+      startFolder: "/",
+      startFile: ""
     },
 
     initialize: function () {
@@ -238,7 +244,8 @@ define([
         spinner: spinner2,
         openFileHandler: myself.get("openFileHandler"),
         showHiddenFiles: myself.get("showHiddenFiles"),
-        showDescriptions: myself.get("showDescriptions")
+        showDescriptions: myself.get("showDescriptions"),
+        startFile: myself.get("startFile")
       });
 
       //assign backbone events
@@ -517,7 +524,8 @@ define([
       showDescriptions: false,
       deletedFiles: "",
 
-      sequenceNumber: 0
+      sequenceNumber: 0,
+      startFile: ""
     },
 
     initialize: function () {
@@ -1160,6 +1168,7 @@ define([
       myself.model.on("change:runSpinner", myself.manageSpinner, myself);
 
       myself.model.on("change:showDescriptions", this.updateDescriptions, this);
+      myself.model.on("change:startFile", this.setFile, this);
     },
 
     render: function () {
@@ -1185,10 +1194,18 @@ define([
         myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
       }
 
+      myself.setFile();
       myself.updateDescriptions();
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);
+    },
+
+    setFile: function() {
+      var startFilePath = this.model.get("startFile");
+      if (startFilePath.length > 0) {
+        $("[path='" + startFilePath + "']").trigger("click");
+      }
     },
 
     clickFile: function (event) {
@@ -1454,6 +1471,7 @@ define([
     updateShowDescriptions: FileBrowser.updateShowDescriptions,
     update: FileBrowser.update,
     updateData: FileBrowser.updateData,
+    updateFile: FileBrowser.updateFile,
     redraw: FileBrowser.redraw,
     templates: FileBrowser.templates,
     openFolder: FileBrowser.openFolder,
