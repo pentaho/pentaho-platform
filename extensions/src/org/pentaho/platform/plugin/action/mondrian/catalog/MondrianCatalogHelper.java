@@ -433,7 +433,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           }
         }
 
-        map.put( encodeDatasourceName( getDOMWrapperElementText( catalog, "Definition" ) ), complementInfo ); //$NON-NLS-1$
+        map.put( getDOMWrapperElementText( catalog, "Definition" ), complementInfo ); //$NON-NLS-1$
       }
 
     }
@@ -837,7 +837,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
 
       SolutionRepositoryVfsFileObject mondrianDS =
-        (SolutionRepositoryVfsFileObject) fsManager.resolveFile( encodeDatasourceName( urlStr ) );
+        (SolutionRepositoryVfsFileObject) fsManager.resolveFile( urlStr );
 
       in = mondrianDS.getInputStream();
       res = schemaProcessor.filter( null, localeInfo, in );
@@ -1067,27 +1067,5 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
     solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
     reInit( pentahoSession );
-  }
-
-  /**
-   * Ensure URLs are properly encoded to accommodate
-   *
-   * @param urlStr
-   * @return
-   */
-  private String encodeDatasourceName( String urlStr ) {
-    // make sure catalog definition url is properly encoded
-    // try to encode the url before use
-    String newUrl;
-    try {
-      String protocol = urlStr.substring( 0, urlStr.indexOf( ":" ) + 1 );
-      String datasourceName = urlStr.substring( protocol.length() );
-      newUrl = protocol + URLEncoder.encode( datasourceName, Charset.defaultCharset().name() );
-    } catch ( Exception e ) {
-      // if something fails, just try with the original string
-      newUrl = urlStr;
-    }
-
-    return newUrl;
   }
 }
