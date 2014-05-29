@@ -24,6 +24,7 @@ import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
+import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -81,6 +82,9 @@ public class DefaultDatasourceMgmtWebServiceTest extends TestCase {
         .folder( true ).build(), null );
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken( EXP_LOGIN, null, new GrantedAuthority[0] ) );
+
+    KettleClientEnvironment.init();
+
   }
 
   @Test
