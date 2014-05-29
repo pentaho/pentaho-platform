@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -452,7 +455,7 @@ public class MondrianCatalogRepositoryHelper {
 
     String definition = "mondrian:/" + catalog.getName();
     DataNode node = new DataNode( "catalog" );
-    node.setProperty( "definition", definition );
+    node.setProperty( "definition", encodeUrl( definition ));
     node.setProperty( "datasourceInfo", datasourceInfo );
     NodeRepositoryFileData data = new NodeRepositoryFileData( node );
 
@@ -527,5 +530,37 @@ public class MondrianCatalogRepositoryHelper {
     } finally {
       PentahoSessionHolder.setSession(origSession);
     }
+  }
+
+  /**
+   * Ensure URLs are properly encoded to accommodate
+   *
+   * @param urlStr
+   * @return
+   */
+  private String encodeUrl( String urlStr ) {
+    // make sure catalog definition url is properly encoded
+    // try to encode the url before use
+    String protocol = urlStr.substring( 0, urlStr.indexOf( ":" ) + 1 );
+    String datasourcePath = urlStr.substring( protocol.length() );
+    String[] folders = datasourcePath.split( "/" );
+    StringBuilder encodedPath = new StringBuilder( urlStr.length() * 2 );
+    for ( int i = 0; i < folders.length; i++ ) {
+      String pathPart;
+
+      try {
+        pathPart = URLEncoder.encode( folders[ i ], Charset.defaultCharset().name() );
+      } catch ( UnsupportedEncodingException e ) {
+        pathPart = folders[ i ];
+      }
+
+      encodedPath.append( pathPart );
+
+      if ( i != folders.length - 1 || urlStr.endsWith( "/" ) ) {
+        encodedPath.append( "/" );
+      }
+    }
+
+    return protocol + encodedPath.toString();
   }
 }
