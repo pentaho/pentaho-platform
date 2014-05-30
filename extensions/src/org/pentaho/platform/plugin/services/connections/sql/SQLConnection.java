@@ -157,8 +157,8 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
         DriverManager.registerDriver( driver );
       }
       Properties info = new Properties();
-      info.put( "user", userName ); //$NON-NLS-1$
-      info.put( "password", password ); //$NON-NLS-1$
+      info.put( "user", userName == null ? "" : userName ); //$NON-NLS-1$
+      info.put( "password", password == null ? "" : password ); //$NON-NLS-1$
       nativeConnection = captureConnection( driver.connect( location, info ) );
       if ( nativeConnection == null ) {
         logger.error( Messages.getInstance().getErrorString(
