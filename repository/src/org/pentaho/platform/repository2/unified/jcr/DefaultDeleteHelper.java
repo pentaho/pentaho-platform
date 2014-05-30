@@ -304,33 +304,26 @@ public class DefaultDeleteHelper implements IDeleteHelper {
     throws RepositoryException {
     Node trashNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
 
-    QueryObjectModelFactory fac = session.getWorkspace().getQueryManager().getQOMFactory();
-    final String selectorName = "selector"; //$NON-NLS-1$
-    // selector
-    Selector selector = fac.selector( "nt:base", selectorName ); //$NON-NLS-1$
-    // constraint1
-    Constraint deletedDateExistenceConstraint =
-        fac.propertyExistence( selectorName, pentahoJcrConstants.getPHO_DELETEDDATE() );
-    // constraint2
-    Constraint descendantNodeConstraint = fac.descendantNode( selectorName, trashNode.getPath() );
-    // AND together constraints
-    Constraint allConstraints = fac.and( descendantNodeConstraint, deletedDateExistenceConstraint );
-    Query query = fac.createQuery( selector, allConstraints, null, null );
-    QueryResult result =
-        session.getWorkspace().getQueryManager().createQuery( query.getStatement(), Query.JCR_JQOM ).execute();
+    if ( trashNode == null ) {
+      return Collections.emptyList();
+    }
 
-    NodeIterator nodeIter = result.getNodes();
     List<RepositoryFile> deletedFiles = new ArrayList<RepositoryFile>();
 
-    while ( nodeIter.hasNext() ) {
-      Node trashFileIdNode = nodeIter.nextNode();
-      if ( trashFileIdNode.hasNodes() ) {
-        // since the nodes returned by the query are the trash file ID nodes, need to getNodes().nextNode() to get
-        // first
-        // (and only) child
-        deletedFiles.add( nodeToDeletedFile( session, pentahoJcrConstants, trashFileIdNode.getNodes().nextNode() ) );
-      } else {
-        throw new RuntimeException( Messages.getInstance().getString( "DefaultDeleteHelper.ERROR_0002_NOT_CLEAN" ) ); //$NON-NLS-1$
+    NodeIterator nodes = trashNode.getNodes();
+    while ( nodes.hasNext() ) {
+      Node trashFileNode = nodes.nextNode();
+
+      // since the nodes returned are the trash file ID nodes,
+      // we need to getNodes().nextNode() to get its first (and only) child
+
+      if ( trashFileNode != null && trashFileNode.getProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) != null ) {
+
+        NodeIterator trashFileNodeIterator = trashFileNode.getNodes();
+
+        if ( trashFileNodeIterator.hasNext() ) {
+          deletedFiles.add( nodeToDeletedFile( session, pentahoJcrConstants, trashFileNodeIterator.nextNode() ) );
+        }
       }
     }
     Collections.sort( deletedFiles );
