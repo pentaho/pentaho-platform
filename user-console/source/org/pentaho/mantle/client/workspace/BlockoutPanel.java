@@ -17,12 +17,32 @@
 
 package org.pentaho.mantle.client.workspace;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.table.BaseTable;
+import org.pentaho.gwt.widgets.client.table.ColumnComparators.BaseColumnComparator;
+import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTypes;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.dialogs.scheduling.NewBlockoutScheduleDialog;
+import org.pentaho.mantle.client.images.ImageUtil;
+import org.pentaho.mantle.client.messages.Messages;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.gen2.table.client.SelectionGrid.SelectionPolicy;
+import com.google.gwt.gen2.table.event.client.RowSelectionEvent;
+import com.google.gwt.gen2.table.event.client.RowSelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -37,25 +57,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.table.BaseTable;
-import org.pentaho.gwt.widgets.client.table.ColumnComparators.BaseColumnComparator;
-import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTypes;
-import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import com.google.gwt.gen2.table.event.client.RowSelectionEvent;
-import com.google.gwt.gen2.table.event.client.RowSelectionHandler;
-import org.pentaho.mantle.client.dialogs.scheduling.NewBlockoutScheduleDialog;
-import org.pentaho.mantle.client.images.ImageUtil;
-import org.pentaho.mantle.client.messages.Messages;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class BlockoutPanel extends SimplePanel {
   private BaseTable table;
@@ -361,11 +362,21 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private String getStartValue( JsJob block ) {
-    // BISERVER-8901 The preferred return here is actually the startTime not the nextRun
-    if ( block.getJobTrigger() != null && block.getJobTrigger().getStartTime() != null ) {
-      return convertDateToValue( block.getJobTrigger().getStartTime() );
-    } else if ( block.getNextRun() != null ) {
+    
+    long now = System.currentTimeMillis();
+    long duration = block.getJobTrigger().getBlockDuration();
+    Date lastRun = block.getLastRun();
+    
+    // if we have a last execution and we are still within the range of that, the
+    // starts / ends need to still reflect this rather than the next execution
+    if ( lastRun != null && now < lastRun.getTime() + duration && now > lastRun.getTime() ) {
+      return convertDateToValue( lastRun );
+    }
+    
+    if ( block.getNextRun() != null ) {
       return convertDateToValue( block.getNextRun() );
+    } else if ( block.getJobTrigger() != null && block.getJobTrigger().getStartTime() != null  ) {
+      return convertDateToValue( block.getJobTrigger().getStartTime() );
     } else if ( "COMPLETE".equals( block.getState() ) && block.getJobTrigger() != null ) {
       // if a job is complete, it will not have the date in the nextRun attribute
       return convertDateToValue( block.getJobTrigger().getStartTime() );
@@ -375,9 +386,19 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private String getEndValue( JsJob block ) {
+    
+    long now = System.currentTimeMillis();
+    long duration = block.getJobTrigger().getBlockDuration();
+    Date lastRun = block.getLastRun();
+    
+    // if we have a last execution and we are still within the range of that, the
+    // starts / ends need to still reflect this rather than the next execution
+    if ( lastRun != null && now < lastRun.getTime() + duration && now > lastRun.getTime() ) {
+      return convertDateToValue( new Date( lastRun.getTime() + duration ) );
+    }    
+    
     if ( block.getNextRun() instanceof Date ) {
-      return convertDateToValue( new Date( block.getNextRun().getTime() + block.getJobTrigger().getBlockDuration() ) );
-
+      return convertDateToValue( new Date( block.getNextRun().getTime() + duration ) );
     } else if ( "COMPLETE".equals( block.getState() ) && block.getJobTrigger() != null
         && block.getJobTrigger().getStartTime() != null ) {
       // if a job is complete, it will not have the date in the nextRun attribute
