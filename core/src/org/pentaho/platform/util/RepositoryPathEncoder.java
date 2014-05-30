@@ -39,10 +39,10 @@ public class RepositoryPathEncoder {
   }
 
   public static String encodeRepositoryPath( String path ) {
-    return path.replace( ":", "::" ).replace( "/", ":" );
+    return path.replace( ":", "\t" ).replace( "/", ":" );
   }
 
   public static String decodeRepositoryPath( String path ) {
-    return path.replace( ":", "/" ).replace( "//", ":" );
+    return path.replace( ":", "/" ).replace( "\t", ":" );
   }
 }
