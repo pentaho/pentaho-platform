@@ -85,8 +85,7 @@
   boolean loggedIn = request.getRemoteUser() != null && request.getRemoteUser() != "";
   int year = (new java.util.Date()).getYear() + 1900;
 
-  boolean isPlatformServer = ServerTypeUtil.isPlatformServer();
-  boolean showUsers = isPlatformServer && Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
+  boolean showUsers = Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" class="bootstrap">
