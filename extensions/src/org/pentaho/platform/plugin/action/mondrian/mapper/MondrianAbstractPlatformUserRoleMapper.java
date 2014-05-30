@@ -18,7 +18,7 @@
 package org.pentaho.platform.plugin.action.mondrian.mapper;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import mondrian.olap.Util;
@@ -31,22 +31,20 @@ import org.olap4j.OlapConnection;
 import org.olap4j.OlapException;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
-import java.util.Arrays;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 
 /**
  * @author mbatchelor
@@ -158,30 +156,12 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * @return Users' roles as defined in the authentication object
    */
   protected String[] getPlatformRolesFromSession( IPentahoSession session ) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Assert.state( authentication != null );
 
-    //get 'anonymousUser' defined name from pentaho.xml's <anonymous-authentication> block
-    String anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
-
-    // Get the Spring Security authentication object
-    Authentication auth = SecurityHelper.getInstance().getAuthentication();
     String[] rtn = null;
-    List<String> runtimeRoles = new ArrayList<String>();
-    IUserRoleListService userRoleListService = PentahoSystem.getInitializedOK() ? PentahoSystem.get(IUserRoleListService.class, session) : null;
-    // Get the role from IUserRoleListService
-    if ( userRoleListService != null && !anonymousUser.equals( auth.getName() ) ) {
-      runtimeRoles = userRoleListService.getRolesForUser( JcrTenantUtils.getCurrentTenant(), auth.getName() );
-      if ((runtimeRoles != null) && (runtimeRoles.size() > 0) ) {
-      // Copy role names out of the Authentication
-        rtn = new String[runtimeRoles.size()];
-        for (int i=0; i<runtimeRoles.size(); i++) {
-          rtn[i] = runtimeRoles.get( i );
-        }
-      // Sort the returned list of roles
-      Arrays.sort(rtn);
-      }
-    } else {
-      // Get the authorities
-      GrantedAuthority[] gAuths = auth.getAuthorities();
+    // Get the authorities
+      GrantedAuthority[] gAuths = authentication.getAuthorities();
       if ((gAuths != null) && (gAuths.length > 0) ) {
       // Copy role names out of the Authentication
         rtn = new String[gAuths.length];
@@ -191,7 +171,6 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
         // Sort the returned list of roles
         Arrays.sort(rtn);
       }
-    }
     return rtn;
   }
 
