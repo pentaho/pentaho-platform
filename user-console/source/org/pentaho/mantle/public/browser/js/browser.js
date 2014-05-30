@@ -332,6 +332,7 @@ define([
     updateFileClicked: function () {
 
       var clickedFile = this.get("fileListModel").get("clickedFile");
+      this.set("clickedFile", clickedFile);
       if (this.get("clickedFolder").obj.attr("path") == ".trash") {
         this.updateTrashItemLastClick();
       }
@@ -339,7 +340,6 @@ define([
         // BISERVER-9127 - Provide the selected path to the FileButtons object
         fileButtons.onFileSelect(clickedFile.obj.attr("path"));
       }
-      this.set("clickedFile", clickedFile);
       fileButtons.canDownload(this.get("canDownload"));
 
       //TODO handle file button press
