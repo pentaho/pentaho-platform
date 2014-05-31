@@ -43,6 +43,6 @@ public class RepositoryPathEncoder {
   }
 
   public static String decodeRepositoryPath( String path ) {
-    return path.replace( ":", "/" ).replace( "\\t", ":" );
+    return path.replace( ":", "/" ).replace( "\t", ":" );
   }
 }
