@@ -644,17 +644,16 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   private Boolean isModifiableUserOrRole( Document fileInfo, String recipient ) {
-    Boolean ret = false;
     NodeList aces = fileInfo.getElementsByTagName( ACES_ELEMENT_NAME );
     for ( int i = 0; i < aces.getLength(); i++ ) {
       Element ace = (Element) aces.item( i );
       if ( ace.getElementsByTagName( RECIPIENT_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals(
           recipient ) ) {
-        ret = ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals( true );
-        return ret;
+        return ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue()
+          .equals( "true" );
       }
     }
-    return ret;
+    return false;
   }
 
   /**
