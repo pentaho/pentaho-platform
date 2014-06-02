@@ -41,6 +41,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.Isolation;
 
 import javax.sql.DataSource;
@@ -270,10 +271,11 @@ public class PooledDatasourceHelper {
   }
 
   public static DataSource convert( IDatabaseConnection databaseConnection ) {
-    BasicDataSource basicDatasource = new BasicDataSource();
+    DriverManagerDataSource basicDatasource = new DriverManagerDataSource(); // From Spring
     IDatabaseDialectService databaseDialectService =
         PentahoSystem.get( IDatabaseDialectService.class, PentahoSessionHolder.getSession() );
     IDatabaseDialect dialect = databaseDialectService.getDialect( databaseConnection );
+
     if ( databaseConnection.getDatabaseType().getShortName().equals( "GENERIC" ) ) { //$NON-NLS-1$
       basicDatasource.setDriverClassName( databaseConnection.getAttributes().get(
           GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS ) );
@@ -287,80 +289,6 @@ public class PooledDatasourceHelper {
     }
     basicDatasource.setUsername( databaseConnection.getUsername() );
     basicDatasource.setPassword( databaseConnection.getPassword() );
-    Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
-    if ( attributes.containsKey( IDBDatasourceService.MAX_ACTIVE_KEY ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_ACTIVE_KEY ) ) ) {
-      String value = attributes.get( IDBDatasourceService.MAX_ACTIVE_KEY );
-      basicDatasource.setMaxActive( Integer.parseInt( value ) );
-    }
-    if ( attributes.containsKey( IDBDatasourceService.MAX_WAIT_KEY ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_WAIT_KEY ) ) ) {
-      String value = attributes.get( IDBDatasourceService.MAX_WAIT_KEY );
-      basicDatasource.setMaxWait( Integer.parseInt( value ) );
-    }
-    if ( attributes.containsKey( IDBDatasourceService.MAX_IDLE_KEY ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) ) ) {
-      String value = attributes.get( IDBDatasourceService.MAX_IDLE_KEY );
-      basicDatasource.setMaxIdle( Integer.parseInt( value ) );
-    }
-    if ( attributes.containsKey( IDBDatasourceService.MIN_IDLE_KEY ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MIN_IDLE_KEY ) ) ) {
-      String value = attributes.get( IDBDatasourceService.MIN_IDLE_KEY );
-      basicDatasource.setMinIdle( Integer.parseInt( value ) );
-    }
-    if ( attributes.containsKey( IDBDatasourceService.QUERY_KEY ) ) {
-      basicDatasource.setValidationQuery( attributes.get( IDBDatasourceService.QUERY_KEY ) );
-    }
-    if(attributes.containsKey( IDBDatasourceService.TEST_ON_BORROW ) ) {
-      basicDatasource.setTestOnBorrow( Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_ON_BORROW ) ) );
-    }
-    if(attributes.containsKey( IDBDatasourceService.TEST_ON_RETURN ) ) {
-      basicDatasource.setTestOnReturn( Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_ON_RETURN ) ) );
-    }
-    if(attributes.containsKey( IDBDatasourceService.TEST_WHILE_IDLE ) ) {
-      basicDatasource.setTestWhileIdle( Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_WHILE_IDLE ) ) );
-    }
-    if(attributes.containsKey( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ) {
-      basicDatasource.setDefaultAutoCommit( Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ) );
-    }
-    if(attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY ) ) {
-      basicDatasource.setDefaultReadOnly( Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_READ_ONLY ) ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
-        && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) )) {
-      Isolation isolation = Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
-      
-      if( isolation != null ){
-        basicDatasource.setDefaultTransactionIsolation( isolation.value() );
-      }
-    }
-    if( attributes.containsKey( IDBDatasourceService.DEFAULT_CATALOG ) ) {
-      basicDatasource.setDefaultCatalog( attributes.get( IDBDatasourceService.DEFAULT_CATALOG ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.POOL_PREPARED_STATEMENTS ) ) {
-      basicDatasource.setPoolPreparedStatements( Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_READ_ONLY ) ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) ) {
-      basicDatasource.setMaxOpenPreparedStatements( Integer.parseInt( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
-      basicDatasource.setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes.get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
-    }
-    if(attributes.containsKey( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) ) {
-      basicDatasource.setTimeBetweenEvictionRunsMillis( Long.parseLong( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED ) ) {
-      basicDatasource.setRemoveAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) 
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT )  ))  {
-      basicDatasource.setRemoveAbandonedTimeout( Integer.parseInt( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) );
-    }
-    if( attributes.containsKey( IDBDatasourceService.LOG_ABANDONED ) ) {
-      basicDatasource.setLogAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.LOG_ABANDONED ) ) );
-    }
     
     return basicDatasource;
   }
