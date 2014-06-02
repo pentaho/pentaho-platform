@@ -63,6 +63,15 @@
   	<ivy-resolve conf="kettle-plugin" directory="${kettle-plugins.stage.dir}" />
   </target>
 
+	
+  <!-- - - - - - - - - - - - - - - - - - 
+    target: resolve-pdf-docs
+  - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-pdf-docs" depends="install-ivy">
+    <ivy-resolve conf="pdf-docs" directory="${pdf.docs.dir}" />
+  </target>
+	
+	
   <!-- - - - - - - - - - - - - - - - - - 
           target: resolve-datasource-libs
          - - - - - - - - - - - - - - - - - -->
