@@ -52,10 +52,19 @@
 			    haveMobileRedirect = true;
 			    %>
 			    <script type="text/javascript">
+            //Get URL parameters
+            var getParams = document.URL.split("?");
+            var params = '';
+
+            //If there are no GET parameters on the URL leave the params object empty so that the check for
+            //a startup report setting is conducted
+            if (getParams.length > 1) {
+		          params = '?' + getParams[1];
+            }
 			  	  if(typeof window.top.PentahoMobile != "undefined"){
 			  		  window.top.location.reload();
 			  	  } else {
-			  		  document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>">');
+			  		  document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>' + params + '">');
 			  	  }
 			    </script>
 			    <%

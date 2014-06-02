@@ -23,6 +23,7 @@
 <%@page import="java.net.URL" %>
 <%@page import="java.net.URLClassLoader" %>
 <%@page import="java.util.Locale" %>
+<%@page import="java.util.List" %>
 <%@page import="java.util.ResourceBundle" %>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSystem" %>
 <%@page import="org.pentaho.platform.api.engine.IPluginManager" %>
@@ -49,8 +50,45 @@
 
 <html>
 <head>
-  <title><%= properties.getString("productName") %></title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title><%= properties.getString("productName") %></title>
+
+  <%
+    boolean haveMobileRedirect = false;
+    String ua = request.getHeader("User-Agent").toLowerCase();
+    if (!"desktop".equalsIgnoreCase(request.getParameter("mode"))) {
+      if (ua.contains("ipad") || ua.contains("ipod") || ua.contains("iphone") || ua.contains("android") || "mobile".equalsIgnoreCase(request.getParameter("mode"))) {
+        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+        List<String> pluginIds = pluginManager.getRegisteredPlugins();
+        for (String id : pluginIds) {
+          String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
+          if (mobileRedirect != null) {
+            // we have a mobile redirect
+            haveMobileRedirect = true;
+  %>
+  <script type="text/javascript">
+    //Get URL parameters
+    var getParams = document.URL.split("?");
+    var params = '';
+
+    //If there are no GET parameters on the URL leave the params object empty so that the check for
+    //a startup report setting is conducted
+    if (getParams.length > 1) {
+      params = '?' + getParams[1];
+    }
+    if(typeof window.top.PentahoMobile != "undefined"){
+      window.top.location.reload();
+    } else {
+      document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>' + params + '">');
+    }
+  </script>
+  <%
+          break;
+          }
+        }
+      }
+    if (!haveMobileRedirect) {
+  %>
   <meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
   <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
   <link rel='stylesheet' href='mantle/MantleStyle.css'/>
@@ -193,6 +231,6 @@
 <script language='javascript' src='mantle/mantle.nocache.js'></script>
 <%if ( hasDataAccessPlugin ) {%>
 <script language='javascript' src='content/data-access/resources/gwt/DatasourceEditor.nocache.js'></script>
-<%}%>
+<%}}}%>
 
 </html>
