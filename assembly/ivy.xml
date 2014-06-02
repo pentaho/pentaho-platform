@@ -85,7 +85,7 @@
     <dependency org="net.sf.saxon" name="saxon-jdom" rev="9.1.0.8" />
     <dependency org="net.sf.saxon" name="saxon-sql" rev="9.1.0.8" />
     <dependency org="net.sf.saxon" name="saxon-xom" rev="9.1.0.8" />
-    <dependency org="net.sf.saxon" name="saxon-xpath" rev="9.1.0.8" />
+
     <dependency org="rhino" name="js" rev="1.7R1" />
     <dependency org="soap" name="soap" rev="2.3" />
     <dependency org="wsdl4j" name="wsdl4j" rev="1.5.0" />
