@@ -64,6 +64,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   private File rootDir = new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) );
   private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
     '/', '\\', '\t', '\r', '\n' } ) );
+  private static List<Character> reservedCharsWindows = Collections.unmodifiableList( Arrays.asList( new Character[]{
+      '?', '*', ':', '<', '>', '|'} ) );
 
   public FileSystemRepositoryFileDao() {
     this( new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) ) );
@@ -476,7 +478,13 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public List<Character> getReservedChars() {
-    return reservedChars;
+    List<Character> charList = new ArrayList<Character>();
+    String osName = System.getProperty( "os.name" );
+    charList.addAll( reservedChars );
+    if ( osName.contains( "Windows" ) ) {
+      charList.addAll( reservedCharsWindows );
+    }
+    return charList;
   }
 
   @Override
