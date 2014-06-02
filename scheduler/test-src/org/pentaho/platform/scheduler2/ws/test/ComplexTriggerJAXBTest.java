@@ -17,13 +17,13 @@
 
 package org.pentaho.platform.scheduler2.ws.test;
 
-import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.api.scheduler2.wrappers.ITimeWrapper;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
@@ -105,9 +105,9 @@ public class ComplexTriggerJAXBTest {
     assertRecurrencesCorrect( "DAYOFWEEK", 4, process( trigger ).getDayOfWeekRecurrences() );
   }
 
-  private void assertRecurrencesCorrect( String dimension, int expectedCount, List<ITimeRecurrence> recurrences ) {
+  private void assertRecurrencesCorrect( String dimension, int expectedCount, ITimeWrapper recurrences ) {
     int count = 0;
-    for ( ITimeRecurrence rec : recurrences ) {
+    for ( ITimeRecurrence rec : recurrences.getRecurrences() ) {
       if ( rec instanceof IncrementalRecurrence ) {
         count++;
         IncrementalRecurrence i = (IncrementalRecurrence) rec;

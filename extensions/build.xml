@@ -76,10 +76,6 @@
 		           packageDir="${enunciate.bin.dir}/package" 
 		           verbose="true">
 			<include name="**/http/api/resources/*.java" />
-			<!-- have to exclude class that contains jersey multipart endpoint until http://jira.codehaus.org/browse/ENUNCIATE-537 is fixed -->
-			<exclude name="**/http/api/resources/RepositoryImportResource.java" />
-            <exclude name="**/http/api/resources/JobScheduleRequest.java" />
-            <exclude name="**/http/api/resources/SchedulerResource.java" />
 			<classpath refid="enunciate.classpath" />
 			<export artifactId="docs" destination="${dist.dir}/${enunciate.packagename}.zip" />
 		</enunciate>
