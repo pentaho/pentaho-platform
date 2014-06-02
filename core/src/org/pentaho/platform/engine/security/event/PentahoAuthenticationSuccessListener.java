@@ -74,7 +74,6 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
         Assert.notNull( pentahoSession, "PentahoSessionHolder doesn't have a session" );
         pentahoSession.setAuthenticated( authentication.getName() );
-        SecurityContextHolder.getContext().setAuthentication( authentication);
         // audit session creation
         AuditHelper.audit( pentahoSession.getId(), pentahoSession.getName(), pentahoSession.getActionName(),
             pentahoSession.getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
