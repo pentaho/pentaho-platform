@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.osgi;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +123,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession curSession ) throws ObjectFactoryException {
-    return getAll( interfaceClass, curSession, Collections.emptyMap() );
+    return getAll( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   private String createFilter( Map<String, String> props ) {
@@ -171,7 +171,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession )
     throws ObjectFactoryException {
-    return getObjectReference( interfaceClass, curSession, Collections.emptyMap() );
+    return getObjectReference( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   @Override
@@ -199,7 +199,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
     throws ObjectFactoryException {
 
-    return getObjectReferences( interfaceClass, curSession, Collections.emptyMap() );
+    return getObjectReferences( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   @Override
