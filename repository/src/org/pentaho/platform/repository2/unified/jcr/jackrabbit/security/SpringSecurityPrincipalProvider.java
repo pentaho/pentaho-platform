@@ -18,6 +18,16 @@
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.jcr.Session;
+
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +40,10 @@ import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
@@ -44,15 +57,6 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
-
-import javax.jcr.Session;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A Jackrabbit {@code PrincipalProvider} that delegates to a Pentaho {@link UserDetailsService}.
@@ -338,19 +342,36 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         }
       }
     }
-
+    
     UserDetails user = null;
     // user cache not available or user not in cache; do lookup
     GrantedAuthority[] auths = null;
+    GrantedAuthority[] authorities = null;
     UserDetails newUser = null;
     if ( getUserDetailsService() != null ) {
       try {
         user = getUserDetailsService().loadUserByUsername( username );
-        List<String> roles = getUserRoleListService().getRolesForUser( JcrTenantUtils.getCurrentTenant(), username );
-        auths = new GrantedAuthority[roles.size()];
+        // We will use the authorities from the Authentication object of SecurityContextHolder. 
+        //Authentication object is null then we will get it from IUserRoleListService
+        if(auth == null || auth.getAuthorities() == null || auth.getAuthorities().length == 0) {
+          if ( logger.isTraceEnabled() ) {
+            logger.trace( "Authentication object from SecurityContextHolder is null,"
+                + " so getting the roles for [ " + user.getUsername() + " ]  from IUserRoleListService " ); //$NON-NLS-1$
+          }
+
+          List<String> roles = getUserRoleListService().getRolesForUser( JcrTenantUtils.getCurrentTenant(), username );
+          authorities = new GrantedAuthority[roles.size()];
+          for(int i=0;i<roles.size();i++) {
+            authorities[i] = new GrantedAuthorityImpl( roles.get( i ) ); 
+          }
+        } else {
+          authorities = auth.getAuthorities();
+        }
+        
+        auths = new  GrantedAuthority[authorities.length];
         // cache the roles while we're here
-        for ( int i = 0; i < roles.size(); i++ ) {
-          String role = roles.get( i );
+        for ( int i = 0; i < authorities.length; i++ ) {
+          String role = authorities[i].getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
           synchronized ( roleCache ) {
             if ( !roleCache.containsKey( role ) ) {
@@ -370,6 +391,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       }
 
       if ( user != null ) {
+        if(auths == null || auths.length <= 0) {
+          logger.trace( "Authorities are null, so creating an empty Auth array ==  " + user.getUsername());
+          // auth is null so we are going to pass an empty auths array
+          auths = new GrantedAuthority[0];
+        }
         String password = user.getPassword() != null ? user.getPassword() : "";
         newUser =
             new User( user.getUsername(), password, user.isEnabled(), ACCOUNT_NON_EXPIRED, CREDS_NON_EXPIRED,

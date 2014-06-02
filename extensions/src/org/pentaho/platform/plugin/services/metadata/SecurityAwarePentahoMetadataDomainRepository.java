@@ -17,6 +17,9 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.model.LogicalModel;
@@ -25,18 +28,14 @@ import org.pentaho.metadata.model.concept.security.RowLevelSecurity;
 import org.pentaho.metadata.util.RowLevelSecurityHelper;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.services.messages.Messages;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
-import java.util.ArrayList;
-import java.util.HashSet;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * This is the platform implementation which implements security. NOTE: this class will be moved after integration
@@ -64,23 +63,16 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
     if ( rls == null || rls.getType() == RowLevelSecurity.Type.NONE ) {
       return null;
     }
-    // Get the roles from IUserRoleListService
-    IUserRoleListService userRoleListService =
-      PentahoSystem.getInitializedOK() ? PentahoSystem.get( IUserRoleListService.class, PentahoSessionHolder.getSession() ) : null;
-    Authentication auth = SecurityHelper.getInstance().getAuthentication();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if ( auth == null ) {
       logger.info( Messages.getInstance().getString( "SecurityAwareCwmSchemaFactory.INFO_AUTH_NULL_CONTINUE" ) ); //$NON-NLS-1$
       return "FALSE()"; //$NON-NLS-1$
     }
     String username = auth.getName();
     HashSet<String> roles = null;
-    if ( userRoleListService != null ) {
-      roles = new HashSet<String>(userRoleListService.getRolesForUser( JcrTenantUtils.getCurrentTenant(), username ));
-    } else {
-      roles = new HashSet<String>();
-      for (GrantedAuthority role : auth.getAuthorities()) {
-        roles.add(role.getAuthority());
-      }
+    roles = new HashSet<String>();
+    for (GrantedAuthority role : auth.getAuthorities()) {
+      roles.add(role.getAuthority());
     }
 
     RowLevelSecurityHelper helper = new SessionAwareRowLevelSecurityHelper();
