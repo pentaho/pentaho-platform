@@ -174,6 +174,10 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
           String localeFileExtension = FilenameUtils.getExtension( FilenameUtils.getBaseName( localeFileName ) );
           String localeFileNameWithoutExtensions = FilenameUtils.getBaseName( FilenameUtils.getBaseName( localeFileName ) );
           
+          if(localeFileExtension.contains( "_" )) {
+            localeFileExtension = localeFileExtension.substring( 0, localeFileExtension.indexOf( "_" ) );
+          }
+          
           if ( localeFileNameWithoutExtensions.equals( localeChildName ) 
               && localeFileExtension.equalsIgnoreCase( localeChildExtension ) && artifacts.contains( localeChildExtension ) ) {
             localeParent = localeChild;
