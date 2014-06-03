@@ -123,12 +123,15 @@ public class PasteFilesCommand extends AbstractCommand {
               }
 
               for ( SolutionBrowserFile file : clipboardFileItems ) {
-                String pasteFileParentPath = file.getPath();
-                pasteFileParentPath = pasteFileParentPath.substring( 0, pasteFileParentPath.lastIndexOf( "/" ) ); //$NON-NLS-1$
-                if ( childNames.contains( file.getName() )
-                    && !getSolutionPath().equals( pasteFileParentPath ) ) {
-                  promptForOptions = true;
-                  break;
+                if ( file.getPath() != null ) {
+                  String pasteFileParentPath = file.getPath();
+                  String fileNameWithExt = pasteFileParentPath.substring( pasteFileParentPath.lastIndexOf( "/" ) + 1, pasteFileParentPath.length() ); //$NON-NLS-1$
+                  pasteFileParentPath = pasteFileParentPath.substring( 0, pasteFileParentPath.lastIndexOf( "/" ) ); //$NON-NLS-1$
+                  if ( childNames.contains( fileNameWithExt )
+                      && !getSolutionPath().equals( pasteFileParentPath ) ) {
+                    promptForOptions = true;
+                    break;
+                  }
                 }
               }
 
