@@ -36,6 +36,7 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputHandler;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.web.MimeHelper;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -90,7 +91,13 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
                 (RepositoryFileOutputStream) xactionResultsOutputStream;
             isFlushed = repositoryFileOutputStream.isFlushed();
             isEmpty = repositoryFileOutputStream.size() > 0 ? false : true;
-            if ( RepositoryFilenameUtils.getExtension( repositoryFileOutputStream.getFilePath() ).isEmpty()
+            String extension = RepositoryFilenameUtils.getExtension( repositoryFileOutputStream.getFilePath() );
+            String mimeTypeFromExtension = MimeHelper.getMimeTypeFromExtension( "." + extension );
+            if( mimeTypeFromExtension == null ){
+              // unknown type, treat it not as an extension but part of the name
+              extension = "";
+            }
+            if ( extension.isEmpty()
                 && xactionResultsOutputStream.toString().isEmpty() ) {
               repositoryFileOutputStream.setFilePath( repositoryFileOutputStream.getFilePath() + ".html" );
             }
