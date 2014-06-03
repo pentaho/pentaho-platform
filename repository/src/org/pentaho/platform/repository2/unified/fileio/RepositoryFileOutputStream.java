@@ -258,6 +258,10 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
           }
         } else {
           repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
+          path = file.getPath();
+          for ( IStreamListener listener : listeners ) {
+            listener.fileCreated( path );
+          }
         }
       }
     } else {

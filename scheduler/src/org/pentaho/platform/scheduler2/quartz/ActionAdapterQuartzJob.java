@@ -140,6 +140,9 @@ public class ActionAdapterQuartzJob implements Job {
       invokeAction( actionBean, actionUser, context, jobDataMap.getWrappedMap() );
 
     } catch ( Throwable t ) {
+      // ensure that scheduler thread isn't blocked on lock
+      lock.notifyAll();
+
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
       // should result in a rethrow of a quartz exception
       throw new LoggingJobExecutionException( Messages.getInstance().getErrorString(
