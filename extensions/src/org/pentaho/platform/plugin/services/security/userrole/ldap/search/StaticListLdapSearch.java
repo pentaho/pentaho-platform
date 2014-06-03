@@ -29,7 +29,6 @@ import java.util.List;
  * @deprecated Use org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator
  * @author mlowery
  */
-@Deprecated
 public class StaticListLdapSearch implements LdapSearch {
 
   private List staticList = Collections.EMPTY_LIST;
