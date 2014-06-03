@@ -39,6 +39,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -99,7 +100,7 @@ public class RepositoryImportResource {
       Level level = Level.toLevel( logLevel );
       ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
 
-      String fileName = new String( fileInfo.getFileName().getBytes(), charSet );
+      String fileName = URLDecoder.decode( new String( fileInfo.getFileName().getBytes(), charSet ), charSet);
 
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileIS );
