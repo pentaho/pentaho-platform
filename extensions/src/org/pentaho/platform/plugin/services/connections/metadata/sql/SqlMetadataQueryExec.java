@@ -242,6 +242,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
         di2.setAttributes( databaseMeta.getAttributes() );
         di2.setUsername( databaseMeta.getUsername() );
         di2.setPassword( databaseMeta.getPassword() );
+        di2.setHostname( databaseMeta.getHostname() );
         meta.setDatabaseInterface( di2 );
         return meta;
       } else {
