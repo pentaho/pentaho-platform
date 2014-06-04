@@ -111,10 +111,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
         allRoles.add( extraRole );
       }
     }
-    // We will not allow user to update permission for Anonymous
-    if ( allRoles.contains( anonymousRole ) ) {
-      allRoles.remove( anonymousRole );
-    }
 
     return new RoleListWrapper( allRoles );
   }
