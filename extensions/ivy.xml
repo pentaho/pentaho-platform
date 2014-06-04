@@ -330,11 +330,11 @@
                 conf="runtime->default"/>
 
     <!-- OSGI Components -->
-    <dependency org="org.osgi" name="org.osgi.core" rev="4.3.1"/>
+    <!--<dependency org="org.osgi" name="org.osgi.core" rev="4.3.1"/>-->
 
     <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-core" rev="1.0.2.RELEASE"/>
 
-    <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.2.1"/>
+    <!--<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.2.1"/>-->
     <dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"/>
 
 
