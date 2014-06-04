@@ -46,12 +46,13 @@ import java.util.List;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
-
+  private String delimiter = "\t";
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
 
   public static UserRolesAdminPanelController getInstance() {
     return instance;
   }
+
 
   public UserRolesAdminPanelController() {
     super();
@@ -121,14 +122,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   public void deleteRoles() {
 
-    String selectedRoles = "";
+    StringBuilder selectedRoles = new StringBuilder();
     for ( int i = 0; i < rolesListBox.getItemCount(); i++ ) {
       if ( rolesListBox.isItemSelected( i ) ) {
-        selectedRoles = selectedRoles + encodeUri( rolesListBox.getValue( i ) ) + "\t";
+        selectedRoles.append( encodeUri( rolesListBox.getValue( i ) + delimiter ));
       }
     }
 
-    String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteRoles?roleNames=" + selectedRoles;
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteRoles?roleNames=" + selectedRoles.toString();
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -166,14 +167,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   public void deleteUsers() {
 
-    String selectedUsers = "";
+    StringBuilder selectedUsers = new StringBuilder();
     for ( int i = 0; i < usersListBox.getItemCount(); i++ ) {
       if ( usersListBox.isItemSelected( i ) ) {
-        selectedUsers = selectedUsers + encodeUri( usersListBox.getValue( i ) ) + "\t";
+        selectedUsers.append( encodeUri( usersListBox.getValue( i ) + delimiter ));
       }
     }
 
-    String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?userNames=" + selectedUsers;
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?userNames=" + selectedUsers.toString();
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -577,16 +578,16 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     public void onClick( ClickEvent event ) {
       String userName = usersListBox.getValue( usersListBox.getSelectedIndex() );
 
-      String roleNames = "";
+      StringBuilder roleNames = new StringBuilder();
       for ( int i = 0; i < availableRolesListBox.getItemCount(); i++ ) {
         if ( availableRolesListBox.isItemSelected( i ) ) {
-          roleNames = roleNames + encodeUri( availableRolesListBox.getValue( i ) ) + "\t";
+          roleNames.append(encodeUri( availableRolesListBox.getValue( i ) + delimiter ));
         }
       }
 
       String serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/assignRoleToUser?userName=" + encodeUri( userName )
-              + "&roleNames=" + roleNames;
+              + "&roleNames=" + roleNames.toString();
       modifyUserRoles( userName, serviceUrl );
     }
   }
@@ -595,16 +596,16 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     public void onClick( ClickEvent event ) {
       String userName = usersListBox.getValue( usersListBox.getSelectedIndex() );
 
-      String roleNames = "";
+      StringBuilder roleNames = new StringBuilder();
       for ( int i = 0; i < selectedRolesListBox.getItemCount(); i++ ) {
         if ( selectedRolesListBox.isItemSelected( i ) ) {
-          roleNames = roleNames + encodeUri( selectedRolesListBox.getValue( i ) ) + "\t";
+          roleNames.append( encodeUri( selectedRolesListBox.getValue( i ) + delimiter ));
         }
       }
 
       String serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/removeRoleFromUser?userName=" + encodeUri( userName )
-              + "&roleNames=" + roleNames;
+              + "&roleNames=" + roleNames.toString();
       modifyUserRoles( userName, serviceUrl );
     }
   }
@@ -631,15 +632,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     public void onClick( ClickEvent event ) {
       String roleName = rolesListBox.getValue( rolesListBox.getSelectedIndex() );
 
-      String userNames = "";
+      StringBuilder userNames = new StringBuilder();
       for ( int i = 0; i < availableMembersListBox.getItemCount(); i++ ) {
         if ( availableMembersListBox.isItemSelected( i ) ) {
-          userNames = userNames + encodeUri( availableMembersListBox.getValue( i ) ) + "\t";
+          userNames.append( encodeUri( availableMembersListBox.getValue( i ) + delimiter ));
         }
       }
 
       String serviceUrl =
-          GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames + "&roleName="
+          GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames.toString() + "&roleName="
               + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
@@ -649,15 +650,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     public void onClick( ClickEvent event ) {
       String roleName = rolesListBox.getValue( rolesListBox.getSelectedIndex() );
 
-      String userNames = "";
+      StringBuilder userNames = new StringBuilder();
       for ( int i = 0; i < selectedMembersListBox.getItemCount(); i++ ) {
         if ( selectedMembersListBox.isItemSelected( i ) ) {
-          userNames = userNames + encodeUri( selectedMembersListBox.getValue( i ) ) + "\t";
+          userNames.append( encodeUri( selectedMembersListBox.getValue( i ) + delimiter ));
         }
       }
 
       String serviceUrl =
-          GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames + "&roleName="
+          GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames.toString() + "&roleName="
               + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
