@@ -68,7 +68,8 @@
     target: resolve-pdf-docs
   - - - - - - - - - - - - - - - - - -->
   <target name="resolve-pdf-docs" depends="install-ivy">
-    <ivy-resolve conf="pdf-docs" directory="${pdf.docs.dir}" />
+    <ivy:resolve file="${ivyfile}" conf="pdf-docs" />
+    <ivy:retrieve conf="pdf-docs" pattern="${pdf.docs.dir}/[module].[ext]" />
   </target>
 	
 	
