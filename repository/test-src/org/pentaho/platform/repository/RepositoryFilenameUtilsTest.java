@@ -363,8 +363,8 @@ public class RepositoryFilenameUtilsTest extends TestCase {
     assertEquals( "/f", RepositoryFilenameUtils.concat( "a", "/f" ) );
 
     assertEquals( "/c/d", RepositoryFilenameUtils.concat( "a/b/", "/c/d" ) );
-    assertEquals( "C:c/d", RepositoryFilenameUtils.concat( "a/b/", "C:c/d" ) );
-    assertEquals( "C:/c/d", RepositoryFilenameUtils.concat( "a/b/", "C:/c/d" ) );
+    assertEquals( "a/b/C:c/d", RepositoryFilenameUtils.concat( "a/b/", "C:c/d" ) );
+    assertEquals( "a/b/C:/c/d", RepositoryFilenameUtils.concat( "a/b/", "C:/c/d" ) );
     assertEquals( "~/c/d", RepositoryFilenameUtils.concat( "a/b/", "~/c/d" ) );
     assertEquals( "~user/c/d", RepositoryFilenameUtils.concat( "a/b/", "~user/c/d" ) );
     assertEquals( "~/", RepositoryFilenameUtils.concat( "a/b/", "~" ) );
