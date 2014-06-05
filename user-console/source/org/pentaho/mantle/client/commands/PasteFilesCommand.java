@@ -112,6 +112,7 @@ public class PasteFilesCommand extends AbstractCommand {
           public void onResponseReceived( Request getChildrenRequest, Response getChildrenResponse ) {
             event.setMessage( "Click" );
             EventBusUtil.EVENT_BUS.fireEvent( event );
+            boolean cutSameDir = false;
             if ( getChildrenResponse.getStatusCode() >= 200 && getChildrenResponse.getStatusCode() < 300 ) {
               boolean promptForOptions = false;
               Document children = XMLParser.parse( getChildrenResponse.getText() );
@@ -131,10 +132,14 @@ public class PasteFilesCommand extends AbstractCommand {
                       && !getSolutionPath().equals( pasteFileParentPath ) ) {
                     promptForOptions = true;
                     break;
+                  } else if ( childNames.contains( fileNameWithExt )
+                      && getSolutionPath().equals( pasteFileParentPath ) &&
+                      SolutionBrowserClipboard.getInstance().getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT ) {
+                    cutSameDir = true;
+                    break;
                   }
                 }
               }
-
               if ( promptForOptions ) {
                 final OverwritePromptDialog overwriteDialog = new OverwritePromptDialog();
                 final IDialogCallback callback = new IDialogCallback() {
@@ -150,9 +155,14 @@ public class PasteFilesCommand extends AbstractCommand {
                 };
                 overwriteDialog.setCallback( callback );
                 overwriteDialog.center();
-              } else {
+            } else {
+              if ( !cutSameDir ) {
                 performSave( clipBoard, 2 );
+              } else {
+                event.setMessage( "Cancel" );
+                EventBusUtil.EVENT_BUS.fireEvent( event );
               }
+            }
             } else {
               Window.alert( getChildrenResponse.getText() );
             }
@@ -205,6 +215,8 @@ public class PasteFilesCommand extends AbstractCommand {
               EventBusUtil.EVENT_BUS.fireEvent( event );
               FileChooserDialog.setIsDirty( Boolean.TRUE );
               setBrowseRepoDirty( Boolean.TRUE );
+              //This will allow for multiple paste presses after a cut/paste.
+              SolutionBrowserClipboard.getInstance().setClipboardAction( SolutionBrowserClipboard.ClipboardAction.COPY );
               break;
             case Response.SC_FORBIDDEN:
               event.setMessage( Messages.getString( "pasteFilesCommand.accessDenied" ) );
