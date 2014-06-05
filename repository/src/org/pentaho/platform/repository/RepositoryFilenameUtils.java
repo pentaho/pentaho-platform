@@ -21,6 +21,7 @@ package org.pentaho.platform.repository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -231,7 +232,10 @@ public class RepositoryFilenameUtils {
    * @return the concatenated path, or null if invalid
    */
   public static String concat( final String basePath, final String fullFilenameToAdd ) {
-    int prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );
+    int prefix = -1;
+    if(StringUtils.hasLength( fullFilenameToAdd)) {
+      prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );  
+    }
     if ( prefix < 0 ) {
       return null;
     }
