@@ -828,7 +828,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   /**
    * Checks to see if the removal of the received roles and users would cause the system to have no login associated
    * with the Admin role. This check is to be made before any changes take place
-   * 
+   *
    * @return Error message if invalid or null if ok
    * @throws RepositoryException
    */
@@ -877,7 +877,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       if ( toBeSavedUsers != null && toBeSaved.length > 0 ) {
         if ( !toBeSavedUsers.contains( savedUsers.get( i ).getUsername() ) ) {
           usersToBeRemoved.add( savedUsers.get( i ).getUsername() );
-        } 
+        }
       } else {
         usersToBeRemoved.add( savedUsers.get( i ).getUsername() );
       }
