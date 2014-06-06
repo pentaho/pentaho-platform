@@ -296,7 +296,7 @@
   <!-- =================================
           target: assemble-pentaho-webapp
          ================================= -->
-  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions">
+  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions,resolve-oss-licenses">
     <!-- Copy the base configuration -->
     <copy todir="${stage.dir.server}">
       <fileset dir="${package.res.dir}/biserver">
@@ -351,6 +351,13 @@
         <include name="**/**" />
       </fileset>
     </copy>
+  	
+  	<!-- add resolved oss-license file to package -->
+	<unzip src="${bin.dir}/oss-licenses.zip" dest="${stage.dir.server}/licenses">
+	  <patternset>
+	    <include name="PentahoBIPlatform_OSS_Licenses.html"/>
+	  </patternset>
+	</unzip>
 
     <!-- install solution archives -->
     <unzip dest="${plugin-samples.solution.dir}" overwrite="true">
