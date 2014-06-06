@@ -24,7 +24,7 @@ h1.large {
   color: #005ca7;
   font-family: "Open Sans", sans-serif;
   font-weight: 300;
-  width: 940px;
+  width: 750px;
   margin: 0px 0px 30px -2px;
 }
 
@@ -35,6 +35,25 @@ h2.large {
   font-weight: 300;
   width: 940px;
   margin: 0px 0px 20px 0px;
+}
+
+h3 {
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 20px;
+  margin-top: 15px;
+  font-weight: 400;
+  height: 40px;
+}
+
+.title-row a.buy-pentaho, 
+.title-row a.buy-pentaho:link, 
+.title-row a.buy-pentaho:visited, 
+.title-row a.buy-pentaho:hover, 
+.title-row a.buy-pentaho:active, 
+.title-row a.buy-pentaho:focus {
+  margin-top: 5px;
+  float: right;
 }
 
 .header-container {
