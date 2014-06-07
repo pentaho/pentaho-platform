@@ -522,14 +522,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
-    userPasswordTextBox.setText( "" );
-    rolesListBox.clear();
-    usersListBox.clear();
-    selectedRolesListBox.clear();
-    selectedMembersListBox.clear();
-    availableMembersListBox.clear();
-    availableRolesListBox.clear();
-    editPasswordButton.setEnabled( false );
+    mainTabPanel.selectTab( 0 );
     callback.onSuccess( true );
   }
 
