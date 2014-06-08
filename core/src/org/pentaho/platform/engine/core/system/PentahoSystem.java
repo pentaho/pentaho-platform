@@ -59,6 +59,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.User;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -79,6 +80,8 @@ public class PentahoSystem {
   public static final boolean trace = false;
 
   public static final boolean ignored = false; // used to suppress compiler
+  private static final String securityContextHolderStrategy =
+    "org.pentaho.platform.engine.security.PentahoSecurityContextHolderStrategy";
 
   public static int loggingLevel = ILogger.ERROR;
 
@@ -213,7 +216,7 @@ public class PentahoSystem {
     // Kettle jobs spawn threads which may require authentication to load transformations from
     // the kettle repository, by using the INHERITABLETHREADLOCAL strategy, spawned threads will
     // enjoy the same SecurityContext as their parent!
-    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_INHERITABLETHREADLOCAL );
+    SecurityContextHolder.setStrategyName( securityContextHolderStrategy );
 
     PentahoSystem.globalAttributes = Collections.synchronizedMap( new HashMap() );
     PentahoSystem.globalParameters = new SimpleParameterProvider( PentahoSystem.globalAttributes );
@@ -224,7 +227,6 @@ public class PentahoSystem {
       Logger.debug( PentahoSystem.class, "Setting property path" ); //$NON-NLS-1$
     }
     System.setProperty( "pentaho.solutionpath", "solution:" ); //$NON-NLS-1$
-
     if ( LocaleHelper.getLocale() == null ) {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
@@ -602,7 +604,7 @@ public class PentahoSystem {
     } catch ( ObjectFactoryException e ) {
       // something went wrong, we need to log this
       Logger.debug( PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
-        "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
+          "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
         e ); //$NON-NLS-1$
       // for backwards compatibility: callers expect a null return even in an error case
       return null;
@@ -646,7 +648,7 @@ public class PentahoSystem {
     } catch ( ObjectFactoryException e ) {
       // something went wrong, we need to log this
       Logger.debug( PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
-        "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
+          "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
         e ); //$NON-NLS-1$
       // for backwards compatibility: callers expect a null return even in an error case
       return null;
@@ -734,7 +736,7 @@ public class PentahoSystem {
     } catch ( ObjectFactoryException e ) {
 
       Logger.debug( PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
-        "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
+          "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
         e ); //$NON-NLS-1$
       return null;
     }
@@ -762,7 +764,7 @@ public class PentahoSystem {
     } catch ( ObjectFactoryException e ) {
 
       Logger.debug( PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
-        "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
+          "PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName() ),
         e ); //$NON-NLS-1$
       return Collections.emptyList();
     }
