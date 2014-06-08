@@ -17,23 +17,12 @@
 
 package org.pentaho.platform.plugin.action.kettle;
 
-import org.apache.jackrabbit.spi.commons.logging.LogWriter;
-import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleDatabaseException;
-import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.logging.LoggingObject;
-import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
 import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.di.trans.steps.selectvalues.SelectValuesMeta;
-import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
-import org.pentaho.di.trans.steps.tableoutput.TableOutputMeta;
 
 public class Custom1 extends KettleComponent {
 
@@ -47,7 +36,7 @@ public class Custom1 extends KettleComponent {
     return true;
   }
 
-  @SuppressWarnings ( "unused" )
+  @SuppressWarnings("unused")
   private void execSQL( TransMeta transMeta, String targetDatabaseName ) throws KettleStepException,
     KettleDatabaseException {
 
@@ -61,118 +50,4 @@ public class Custom1 extends KettleComponent {
     targetDatabase.execStatements( sql );
 
   }
-
-  public static final TransMeta buildCopyTable( String transformationName, String sourceDatabaseName,
-                                                String sourceTableName, String[] sourceFields,
-                                                String targetDatabaseName, String targetTableName,
-                                                String[] targetFields, LogWriter logWriter ) throws KettleException {
-
-    try {
-      // Create a new transformation...
-      //
-
-      TransMeta transMeta = new TransMeta();
-      transMeta.setName( transformationName );
-
-      // Add the database connections
-      /*
-       * for (int i = 0; i < databasesXML.length; i++) { DatabaseMeta databaseMeta = new DatabaseMeta(databasesXML[i]);
-       * transMeta.addDatabase(databaseMeta); }
-       */
-      DatabaseMeta sourceDBInfo = transMeta.findDatabase( sourceDatabaseName );
-      DatabaseMeta targetDBInfo = transMeta.findDatabase( targetDatabaseName );
-
-      //
-      // create the source step...
-      //
-
-      String fromstepname = "read from [" + sourceTableName + "]";
-      TableInputMeta tii = new TableInputMeta();
-      tii.setDatabaseMeta( sourceDBInfo );
-      String selectSQL = "SELECT " + Const.CR; //$NON-NLS-1$
-
-      for ( int i = 0; i < sourceFields.length; i++ ) {
-        if ( i > 0 ) {
-          selectSQL += ", "; //$NON-NLS-1$
-        } else {
-          selectSQL += " "; //$NON-NLS-1$
-        }
-        selectSQL += sourceFields[ i ] + Const.CR;
-      }
-      selectSQL += "FROM " + sourceTableName; //$NON-NLS-1$
-      tii.setSQL( selectSQL );
-
-      PluginRegistry registry = PluginRegistry.getInstance();
-      String fromstepid = registry.getPluginId( tii );
-      StepMeta fromstep = new StepMeta( fromstepid, fromstepname, (StepMetaInterface) tii );
-      fromstep.setLocation( 150, 100 );
-      fromstep.setDraw( true );
-      fromstep.setDescription( "Reads information from table [" + sourceTableName + "] on database [" + sourceDBInfo
-        + "]" );
-      transMeta.addStep( fromstep );
-
-      //
-      // add logic to rename fields
-      // Use metadata logic in SelectValues, use SelectValueInfo...
-      //
-
-      SelectValuesMeta svi = new SelectValuesMeta();
-      svi.allocate( 0, 0, sourceFields.length );
-
-      for ( int i = 0; i < sourceFields.length; i++ ) {
-        svi.getMeta()[ i ].setName( sourceFields[ i ] );
-        svi.getMeta()[ i ].setRename( sourceFields[ i ] );
-      }
-
-      String selstepname = "Rename field names";
-      String selstepid = registry.getPluginId( svi );
-      StepMeta selstep = new StepMeta( selstepid, selstepname, (StepMetaInterface) svi );
-      selstep.setLocation( 350, 100 );
-      selstep.setDraw( true );
-      selstep.setDescription( "Rename field names" );
-      transMeta.addStep( selstep );
-
-      TransHopMeta shi = new TransHopMeta( fromstep, selstep );
-      transMeta.addTransHop( shi );
-      fromstep = selstep;
-
-      //
-      // Create the target step...
-      //
-
-      //
-      // Add the TableOutputMeta step...
-      //
-
-      String tostepname = "write to [" + targetTableName + "]";
-      TableOutputMeta toi = new TableOutputMeta();
-      toi.setDatabaseMeta( targetDBInfo );
-      toi.setTableName( targetTableName );
-      toi.setCommitSize( 200 );
-      toi.setTruncateTable( true );
-
-      String tostepid = registry.getPluginId( toi );
-      StepMeta tostep = new StepMeta( tostepid, tostepname, (StepMetaInterface) toi );
-      tostep.setLocation( 550, 100 );
-
-      tostep.setDraw( true );
-      tostep
-        .setDescription( "Write information to table [" + targetTableName + "] on database [" + targetDBInfo + "]" );
-      transMeta.addStep( tostep );
-
-      //
-      // Add a hop between the two steps...
-      //
-
-      TransHopMeta hi = new TransHopMeta( fromstep, tostep );
-      transMeta.addTransHop( hi );
-
-      // The transformation is complete, return it...
-      return transMeta;
-    } catch ( Exception e ) {
-      throw new KettleException( "An unexpected error occurred creating the new transformation", e );
-    }
-
-  }
-
 }
