@@ -588,6 +588,19 @@
     <constructor-arg ref="pathConversionHelper"/>
   </bean>
 
+  <bean id="executePermissionRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.ExecutePermissionRepositoryLifecycleManager">
+    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>    
+    <property name="rolesNeedingExecutePermission">
+      <util:list>
+        <ref bean="singleTenantAuthenticatedAuthorityName"/>
+        <value>Power User</value>
+      </util:list>
+    </property>
+  </bean>
+  
   <bean id="backingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
     <constructor-arg>
@@ -596,6 +609,7 @@
         <ref bean="defaultUserRepositoryLifecycleManager"/>
         <ref bean="metadataRepositoryLifecycleManager"/>
         <ref bean="mondrianBackingRepositoryLifecycleManager"/>
+        <ref bean="executePermissionRepositoryLifecycleManager"/>
       </list>
     </constructor-arg>
   </bean>
