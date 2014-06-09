@@ -41,7 +41,7 @@ public class BeanBuilder implements FactoryBean {
   private String type;
   private Map<String, String> attributes;
   private static ThreadLocal<BeanBuilder> resolvingBean = new ThreadLocal<BeanBuilder>();
-  private static Logger log = LoggerFactory.getLogger(BeanBuilder.class);
+  private static Logger log = LoggerFactory.getLogger( BeanBuilder.class );
 
   /*
    * (non-Javadoc)
@@ -51,34 +51,40 @@ public class BeanBuilder implements FactoryBean {
   public Object getObject() {
 
     try {
-      if(resolvingBean.get() == this){
-        log.warn("Circular Reference detected in bean creation ( " + type + " : " + attributes + "). Very likely a published " +
-            "pentaho bean is resolving itself. Ensure that the published attributes do not match that of the Pentaho " +
-            "bean query. The system will attempt to find the next highest available bean, but at a performance " +
-            "penilty");
+      if ( resolvingBean.get() == this ) {
+        log.warn( "Circular Reference detected in bean creation ( "
+            + type
+            + " : "
+            + attributes
+            + "). Very likely a published "
+            + "pentaho bean is resolving itself. Ensure that the published attributes do not match that of the Pentaho "
+            + "bean query. The system will attempt to find the next highest available bean, but at a performance "
+            + "penilty" );
         // attempt to find a lower priority bean for them
         Class cls = getClass().getClassLoader().loadClass( type.trim() );
-        resolvingBean.set(this);
-        List<IPentahoObjectReference> objectReferences = PentahoSystem.getObjectFactory().getObjectReferences(cls, PentahoSessionHolder.getSession(), attributes);
-        resolvingBean.set(null);
-        if(objectReferences.size() > 1){
+        resolvingBean.set( this );
+        List<IPentahoObjectReference<?>> objectReferences =
+            PentahoSystem.getObjectFactory().getObjectReferences( cls, PentahoSessionHolder.getSession(), attributes );
+        resolvingBean.set( null );
+        if ( objectReferences.size() > 1 ) {
           // we have more than one, return the second highest
-          return objectReferences.get(1).getObject();
+          return objectReferences.get( 1 ).getObject();
         } else {
           // there's only one bean, this is a fatal situation
-          throw new IllegalStateException("Fatal Circular reference in Pentaho Bean ( " + type + " : " + attributes + ")");
+          throw new IllegalStateException( "Fatal Circular reference in Pentaho Bean ( " + type + " : " + attributes
+              + ")" );
         }
 
       } else {
         Class cls = getClass().getClassLoader().loadClass( type.trim() );
-        resolvingBean.set(this);
-        Object val = PentahoSystem.get(cls, PentahoSessionHolder.getSession(), attributes);
-        resolvingBean.set(null);
+        resolvingBean.set( this );
+        Object val = PentahoSystem.get( cls, PentahoSessionHolder.getSession(), attributes );
+        resolvingBean.set( null );
         return val;
       }
     } catch ( ClassNotFoundException e ) {
       throw new RuntimeException( e );
-    } catch (ObjectFactoryException e) {
+    } catch ( ObjectFactoryException e ) {
       throw new RuntimeException( e );
     }
 
