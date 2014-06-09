@@ -48,6 +48,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.TableCellElement;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -75,6 +76,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
@@ -425,7 +427,10 @@ public class SchedulesPanel extends SimplePanel {
     TextColumn<JsJob> stateColumn = new TextColumn<JsJob>() {
       public String getValue( JsJob job ) {
         try {
-          return job.getState();
+          // BISERVER-9965
+          final String jobState = "COMPLETE".equalsIgnoreCase( job.getState() ) ? "FINISHED" : job.getState();
+          // not css text-transform because tooltip will use pure text from the cell
+          return jobState.substring( 0, 1 ).toUpperCase() + jobState.substring( 1 ).toLowerCase();
         } catch ( Throwable t ) {
           return "-";
         }
@@ -493,12 +498,12 @@ public class SchedulesPanel extends SimplePanel {
     table.setColumnWidth( resourceColumn, 200, Unit.PX );
     table.setColumnWidth( outputPathColumn, 180, Unit.PX );
     table.setColumnWidth( scheduleColumn, 170, Unit.PX );
-    table.setColumnWidth( lastFireColumn, 130, Unit.PX );
-    table.setColumnWidth( nextFireColumn, 130, Unit.PX );
+    table.setColumnWidth( lastFireColumn, 120, Unit.PX );
+    table.setColumnWidth( nextFireColumn, 120, Unit.PX );
     if ( isAdmin ) {
       table.setColumnWidth( userNameColumn, 100, Unit.PX );
     }
-    table.setColumnWidth( stateColumn, 70, Unit.PX );
+    table.setColumnWidth( stateColumn, 90, Unit.PX );
 
     dataProvider.addDataDisplay( table );
     List<JsJob> list = dataProvider.getList();
@@ -665,6 +670,16 @@ public class SchedulesPanel extends SimplePanel {
           controlScheduleButton.setEnabled( false );
           scheduleRemoveButton.setEnabled( false );
           triggerNowButton.setEnabled( false );
+        }
+      }
+    } );
+    // BISERVER-9965
+    table.addCellPreviewHandler( new CellPreviewEvent.Handler<JsJob>() {
+      @Override
+      public void onCellPreview( CellPreviewEvent<JsJob> event ) {
+        if ( "mouseover".equals( event.getNativeEvent().getType() ) ) {
+          final TableCellElement cell = table.getRowElement( event.getIndex() ).getCells().getItem( event.getColumn() );
+          cell.setTitle( cell.getInnerText() );
         }
       }
     } );
