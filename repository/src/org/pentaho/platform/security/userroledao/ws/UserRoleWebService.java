@@ -212,7 +212,7 @@ public class UserRoleWebService implements IUserRoleWebService {
 
   @Override
   public boolean createRole( ProxyPentahoRole proxyRole ) throws UserRoleException {
-    getDao().createRole( proxyRole.getTenant(), proxyRole.getName(), proxyRole.getDescription(), null );
+    getDao().createRole( proxyRole.getTenant(), proxyRole.getName(), proxyRole.getDescription(), new String[0] );
     return false;
   }
 
