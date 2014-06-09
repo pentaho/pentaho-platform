@@ -68,8 +68,6 @@
   <property name="third-party.dir" value="${subfloor.resources.dir}/third-party" description="Directory where 3rd party tools are included in the platform assemblies" />
   <property name="wkhtmltoimage.dir" value="${third-party.dir}/wkhtmltoimage" description="Directory where wkhtmltoimage is downloaded"/>
 
-  <property name="pentaho.wars.dir" value="${stage.dir}/pentaho-wars" />
-
   <property name="kettle-plugins.stage.dir" value="kettle-plugins" />
   <property name="kettle-plugins.dir" value="${stage.dir.solutions}/system/kettle/plugins" />
 
@@ -552,29 +550,11 @@
     <ivy:retrieve conf="sampledata-libs" pattern="${stage.sampledata.lib.dir}/[module]-[revision](-[classifier]).[ext]" />
   </target>
 
-	<!-- ===================================================================
-		  target: init-pentaho-wars
-
-		  This target makes replacements for database host, port, username, and password keys
-		  in the hibernate.cfg.xml files and the datasoure files used by
-		  jboss. This is what makes your pentaho war database specific.
-		  Check the build.properties file for the default replacements values.
-		  You can override these if you'd like. Note that this file looks for
-		  the defaults. If you are using this target as part of the manual
-		  deployments, the files in the pentaho-res folder should not be modified
-		  by the build. The entire folder is copied to the /build folder, and the
-		  replacements are made there. This way, the manual deployments package
-		  stays clean, and you can run the build multiple times with different
-		  values for the host, port, usernames, and passwords.
-		 =================================================================== -->
-	<target name="init-pentaho-wars">
-		<mkdir dir="${pentaho.wars.dir}" />
-	</target>
 
 	<!-- ===================================================================
 	        target: war-pentaho
 	       =================================================================== -->
-	<target name="war-pentaho" depends="init, init-pentaho-wars, zip-pentaho-style-war">
+	<target name="war-pentaho" depends="init, zip-pentaho-style-war">
 		<mkdir dir="${dist.dir}" />
 
 		<manifest file="${dist.dir}/MANIFEST.MF">
