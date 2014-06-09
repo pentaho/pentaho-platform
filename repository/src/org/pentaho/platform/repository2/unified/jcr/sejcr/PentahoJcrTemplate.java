@@ -75,9 +75,9 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-      if ( !existingTransaction ) {
-        SessionFactoryUtils.releaseSession( session, getSessionFactory() );
-      }
+//      if ( !existingTransaction ) {
+//        SessionFactoryUtils.releaseSession( session, getSessionFactory() );
+//      }
     }
   }
 

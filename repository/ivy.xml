@@ -29,13 +29,12 @@
 		<dependency org="commons-vfs"         name="commons-vfs"         rev="20100924-pentaho"   transitive="false"/>
 
 		<dependency org="org.aspectj"            name="aspectjrt"          rev="1.6.6"   transitive="false"/>
-		<dependency org="com.google.collections" name="google-collections" rev="1.0-rc5" transitive="false"/>
 		<dependency org="javax.jcr"              name="jcr"                rev="2.0"     transitive="false"/>
 		<dependency org="javax.servlet"          name="servlet-api"        rev="2.4"     transitive="false"/>
 		<dependency org="javax.mail"             name="mail"               rev="1.4.1"   transitive="false"/>
 		<dependency org="log4j"                  name="log4j"              rev="1.2.16"  transitive="false"/>
 		<dependency org="cglib"                  name="cglib-nodep"        rev="2.2"     transitive="false"/>
-		
+    <dependency org="com.google.guava" name="guava" rev="17.0" conf="default->default"/>
 		
     	<!-- jersey -->
     	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.16"/>

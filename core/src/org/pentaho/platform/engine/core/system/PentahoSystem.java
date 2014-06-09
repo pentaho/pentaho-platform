@@ -354,7 +354,11 @@ public class PentahoSystem {
       roles = new GrantedAuthority[ 1 ];
       roles[ 0 ] = new GrantedAuthorityImpl( roleName );
 
-      Authentication auth = new UsernamePasswordAuthenticationToken( name, "", roles ); //$NON-NLS-1$
+      User user = new User( name, "", true, true, true, true, roles );
+      UsernamePasswordAuthenticationToken auth =
+        new UsernamePasswordAuthenticationToken( user, "", roles ); //$NON-NLS-1$
+
+
 
       // set holders
       PentahoSessionHolder.setSession( session );

@@ -26,6 +26,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import javax.jcr.Credentials;
@@ -142,9 +143,16 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
     boolean authenticated = false;
 
     try {
-      // delegate to Spring Security
-      authenticationManager.authenticate( token );
-      authenticated = true;
+      org.springframework.security.Authentication authentication =
+        SecurityContextHolder.getContext().getAuthentication();
+      if( authentication != null && authentication.getName().equals( simpleCredentials.getUserID() ) ) {
+        // see if there's already an active Authentication for this user.
+        authenticated = true;
+      } else {
+        // delegate to Spring Security
+        authenticationManager.authenticate( token );
+        authenticated = true;
+      }
     } catch ( AuthenticationException e ) {
       logger.debug( "authentication exception", e ); //$NON-NLS-1$
     }

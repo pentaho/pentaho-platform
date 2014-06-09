@@ -20,6 +20,7 @@ package org.pentaho.platform.engine.security;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclHolder;
@@ -43,18 +44,16 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 
 import java.util.concurrent.Callable;
 
 /**
  * A utility class with several methods that are used to either bind the <tt>Authentication</tt> to the
- * <tt>IPentahoSession</tt>, retrieve the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other
- * various helper functions.
- * 
+ * <tt>IPentahoSession</tt>, retrieve the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other various
+ * helper functions.
+ *
  * @author mbatchel
- * 
  */
 
 public class SecurityHelper implements ISecurityHelper {
@@ -76,7 +75,7 @@ public class SecurityHelper implements ISecurityHelper {
    * Returns the default instance, if the test instance is not null return the test instance
    */
   public static ISecurityHelper getInstance() {
-    if (mockInstance != null) {
+    if ( mockInstance != null ) {
       return mockInstance;
     }
 
@@ -85,10 +84,11 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Set the mockInstance, this should only be used for testing
+   *
    * @param mockInstanceValue the test implementation of SecurityHelper
    */
-  public static void setMockInstance (ISecurityHelper mockInstanceValue) {
-      mockInstance = mockInstanceValue;
+  public static void setMockInstance( ISecurityHelper mockInstanceValue ) {
+    mockInstance = mockInstanceValue;
   }
 
   /**
@@ -99,21 +99,13 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   /**
-   * Hi-jacks the system for the named user.
-   * 
-   * <p>
-   * This will essentially create a session for this user, make that session the current session, and add the
-   * Authentication objects to the session and Spring context holder. WARNING: this method is irreversible!!! If
-   * you want execute a block of code as a surrogate user and have the orignal user resume after it is complete,
-   * you want {@link #runAsUser(String, Callable)}.
-   * </p>
-   * 
-   * <p>
-   * This is for unit tests only.
-   * </p>
-   * 
-   * @param principalName
-   *          the user to become in the system
+   * Hi-jacks the system for the named user. <p/> <p> This will essentially create a session for this user, make that
+   * session the current session, and add the Authentication objects to the session and Spring context holder. WARNING:
+   * this method is irreversible!!! If you want execute a block of code as a surrogate user and have the orignal user
+   * resume after it is complete, you want {@link #runAsUser(String, Callable)}. </p> <p/> <p> This is for unit tests
+   * only. </p>
+   *
+   * @param principalName the user to become in the system
    */
   @Override
   public void becomeUser( final String principalName ) {
@@ -121,11 +113,7 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   /**
-   * Hi-jacks the system for the named user.
-   * 
-   * <p>
-   * This is for unit tests only.
-   * </p>
+   * Hi-jacks the system for the named user. <p/> <p> This is for unit tests only. </p>
    */
   @Override
   public void becomeUser( final String principalName, final IParameterProvider paramProvider ) {
@@ -152,16 +140,13 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Utility method that allows you to run a block of code as the given user. Regardless of success or exception
-   * situation, the original session and authentication will be restored once your block of code is finished
-   * executing, i.e. the given user will apply only to your {@link Callable}, then the system environment will
-   * return to the user present prior to you calling this method.
-   * 
-   * @param <T>
-   *          the return type of your operation, specify this type as <code>T</code>
-   * @param principalName
-   *          the user under whom you wish to run a section of code
-   * @param callable
-   *          {@link Callable#call()} contains the code you wish to run as the given user
+   * situation, the original session and authentication will be restored once your block of code is finished executing,
+   * i.e. the given user will apply only to your {@link Callable}, then the system environment will return to the user
+   * present prior to you calling this method.
+   *
+   * @param <T>           the return type of your operation, specify this type as <code>T</code>
+   * @param principalName the user under whom you wish to run a section of code
+   * @param callable      {@link Callable#call()} contains the code you wish to run as the given user
    * @return the value returned by your implementation of {@link Callable#call()}
    * @throws Exception
    * @see {@link Callable}
@@ -196,16 +181,12 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Utility method that allows you to run a block of code as the given user. Regardless of success or exception
-   * situation, the original session and authentication will be restored once your block of code is finished
-   * executing, i.e. the given user will apply only to your {@link Callable}, then the system environment will
-   * return to the user present prior to you calling this method.
-   * 
-   * @param <T>
-   *          the return type of your operation, specify this type as <code>T</code>
-   * @param principalName
-   *          the user under whom you wish to run a section of code
-   * @param callable
-   *          {@link Callable#call()} contains the code you wish to run as the given user
+   * situation, the original session and authentication will be restored once your block of code is finished executing,
+   * i.e. the given user will apply only to your {@link Callable}, then the system environment will return to the user
+   * present prior to you calling this method.
+   *
+   * @param <T>      the return type of your operation, specify this type as <code>T</code>
+   * @param callable {@link Callable#call()} contains the code you wish to run as the given user
    * @return the value returned by your implementation of {@link Callable#call()}
    * @throws Exception
    * @see {@link Callable}
@@ -218,13 +199,15 @@ public class SecurityHelper implements ISecurityHelper {
       PentahoSessionHolder.setSession( new StandaloneSession() );
 
       // get anonymous username/role defined in pentaho.xml
-      String user = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
-      String role = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-role", "Anonymous" ); //$NON-NLS-1$//$NON-NLS-2$
+      String user = PentahoSystem
+        .getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
+      String role = PentahoSystem
+        .getSystemSetting( "anonymous-authentication/anonymous-role", "Anonymous" ); //$NON-NLS-1$//$NON-NLS-2$
       GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl( role ) };
 
       Authentication auth =
-          new AnonymousAuthenticationToken( "system session", new User( user, "ignored", true, true, true, true,
-              authorities ), authorities );
+        new AnonymousAuthenticationToken( "anonymousUser", new User( user, "ignored", true, true, true, true,
+          authorities ), authorities );
 
       SecurityContextHolder.getContext().setAuthentication( auth );
       return callable.call();
@@ -236,9 +219,8 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Utility method that communicates with the installed ACLVoter to determine administrator status
-   * 
-   * @param session
-   *          The users IPentahoSession object
+   *
+   * @param session The users IPentahoSession object
    * @return true if the user is considered a Pentaho administrator
    */
   @Override
@@ -247,13 +229,11 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   /**
-   * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted
-   * to the specified user.
-   * 
-   * @param session
-   *          The users' IPentahoSession
-   * @param role
-   *          The role to look for
+   * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted to
+   * the specified user.
+   *
+   * @param session The users' IPentahoSession
+   * @param role    The role to look for
    * @return true if the user is granted the specified role.
    */
   @Override
@@ -279,7 +259,7 @@ public class SecurityHelper implements ISecurityHelper {
   public boolean hasAccess( final IAclHolder aHolder, final int actionOperation, final IPentahoSession session ) {
     int aclMask = -1;
 
-    switch ( actionOperation ) {
+    switch( actionOperation ) {
       case ( IAclHolder.ACCESS_TYPE_READ ): {
         aclMask = IPentahoAclEntry.PERM_EXECUTE;
         break;
@@ -307,54 +287,53 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   /**
-   * Utility method for hydrating a Spring Authentication object (Principal) given just a user name. Note: The
-   * {@link IUserRoleListService} will be consulted for the roles associated with this user.
-   * 
-   * @param principalName
-   *          the subject of this Authentication object
+   * Utility method for hydrating a Spring Authentication object (Principal) given just a user name. Note: The {@link
+   * IUserRoleListService} will be consulted for the roles associated with this user.
+   *
+   * @param principalName the subject of this Authentication object
    * @return a Spring Authentication for the given user
    */
   @Override
   public Authentication createAuthentication( String principalName ) {
-    
+
     //get 'anonymousUser' defined name from pentaho.xml's <anonymous-authentication> block
-    String anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
-    
+    String anonymousUser = PentahoSystem
+      .getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
+
     userDetailsService = getUserDetailsService();
     userRoleListService = getUserRoleListService();
-    UserDetails userDetails = userDetailsService.loadUserByUsername( principalName );
-    
+
+
     List<String> roles = new ArrayList<String>();
-    
+
     // anonymousUser gets its roles from session
-    if( anonymousUser.equals( principalName ) ){
-      
+    if ( anonymousUser.equals( principalName ) ) {
+
       //get 'anonymous' defined role from pentaho.xml's <anonymous-authentication> block
-      String anonymousRole = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-role", "Anonymous" ); //$NON-NLS-1$//$NON-NLS-2$
+      String anonymousRole = PentahoSystem
+        .getSystemSetting( "anonymous-authentication/anonymous-role", "Anonymous" ); //$NON-NLS-1$//$NON-NLS-2$
       roles.add( anonymousRole );
 
-    }else{
+    } else {
 
       // default (standard) role fetching via IUserRoleListService
-      roles = userRoleListService.getRolesForUser(null,principalName);
+      roles = userRoleListService.getRolesForUser( null, principalName );
 
     }
-    
+
     if ( SecurityHelper.logger.isDebugEnabled() ) {
-      SecurityHelper.logger.debug("rolesForUser:" + roles); //$NON-NLS-1$
+      SecurityHelper.logger.debug( "rolesForUser:" + roles ); //$NON-NLS-1$
     }
-    
-    if (!roles.isEmpty()) {
-      GrantedAuthority[] grantedAuthorities = new GrantedAuthority[roles.size()];
-      for (int i = 0; i < roles.size(); i++) {
-        grantedAuthorities[i] = new GrantedAuthorityImpl((String) roles.get(i));
-      }
-      
-      Authentication auth = new UsernamePasswordAuthenticationToken(principalName, null, grantedAuthorities);
-      return auth;
-    } else {
-        return null;
+
+    GrantedAuthority[] grantedAuthorities = new GrantedAuthority[ roles.size() ];
+    for ( int i = 0; i < roles.size(); i++ ) {
+      grantedAuthorities[ i ] = new GrantedAuthorityImpl( roles.get( i ) );
     }
+
+    User user = new User( principalName, "", true, true, true, true, grantedAuthorities );
+    Authentication auth = new UsernamePasswordAuthenticationToken( user, null, grantedAuthorities );
+    return auth;
+
   }
 
   @Override
@@ -364,7 +343,7 @@ public class SecurityHelper implements ISecurityHelper {
 
   /**
    * Remove this method when data-access is JCR-branched
-   * 
+   *
    * @param ignoredSession
    * @param ignoredAllowAnonymous
    * @return
@@ -436,8 +415,8 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   public IUserRoleListService getUserRoleListService() {
-    if(userRoleListService == null){
-      userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+    if ( userRoleListService == null ) {
+      userRoleListService = PentahoSystem.get( IUserRoleListService.class );
     }
     return userRoleListService;
   }

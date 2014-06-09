@@ -15,10 +15,10 @@
         <bean id="osgiListener" class="org.pentaho.platform.osgi.OSGIBoot"/>
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
         <bean class="org.pentaho.platform.plugin.services.security.userrole.SecuritySystemListener"/>
-        <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
+        <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
 
+        <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
-        <bean id="quartzSystemListener" class="org.pentaho.platform.scheduler2.quartz.EmbeddedQuartzSystemListener" />
         <bean id="versionCheckerSystemListener" class="org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener">
           <property name="repeatIntervalSeconds">
             <value>86400</value>
@@ -35,7 +35,6 @@
           class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
         -->
         <bean id="dynamicallyPooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledDatasourceSystemListener" />
-        <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
         <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
         <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
         <bean id="loadDriversListener" class="org.pentaho.commons.system.LoadDriversListener" />
@@ -43,8 +42,9 @@
           <property name="olap4jConnectionList" ref="olap4jConnectionList"/>
           <property name="olap4jConnectionRemoveList" ref="olap4jConnectionRemoveList"/>
         </bean>
-        
-    <!-- Insert system-listeners -->
+        <bean id="quartzSystemListener" class="org.pentaho.platform.scheduler2.quartz.EmbeddedQuartzSystemListener" />
+
+        <!-- Insert system-listeners -->
       </list>
     </constructor-arg>
   </bean>
