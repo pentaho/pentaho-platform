@@ -17,16 +17,22 @@
 
 package org.pentaho.mantle.client.admin;
 
-import org.pentaho.gwt.widgets.client.utils.NameUtils;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -109,29 +115,55 @@ public class UserDialog extends GwtDialog {
 
     return hp;
   }
+  
+  private boolean isValidName( String name, String reservedSymbols ) {
+    return !StringUtils.containsAnyChars( name, reservedSymbols );
+  }
 
-  private boolean nameIsValid( String name ) {
-    if ( !NameUtils.isValidFileName( name ) ) {
-      GwtMessageBox messageBox = new GwtMessageBox();
-      messageBox.setTitle( Messages.getString( "error" ) );
-      messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", name, NameUtils
-          .reservedCharListForDisplay( " " ) ) );
-      messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
-      messageBox.setWidth( 300 );
-      messageBox.show();
-      return false;
-    }
-    return true;
+  private void showErrorMessage( String userName, String reservedCharacters ) {
+    GwtMessageBox messageBox = new GwtMessageBox();
+    messageBox.setTitle( Messages.getString( "error" ) );
+    messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", userName, reservedCharacters ) );
+    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+    messageBox.setWidth( 300 );
+    messageBox.show();
+  }
+  
+  private void performSave() throws RequestException {
+    String url = GWT.getHostPageBaseURL() + "api/repo/files/reservedCharacters";
+    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );    
+    requestBuilder.sendRequest( "", new RequestCallback() {
+
+      @Override
+      public void onResponseReceived( Request request, Response response ) {
+        String userName = nameTextBox.getText();
+        String password = passwordTextBox.getText();
+        String reservedCharacters = response.getText();
+
+        if ( isValidName( userName, reservedCharacters ) ) {
+          controller.saveUser( userName, password );
+          hide();
+        } else {
+          showErrorMessage( userName, reservedCharacters );
+        }
+      }
+
+      @Override
+      public void onError( Request request, Throwable exception ) {
+        hide();
+      }
+
+    } );
   }
 
   class AcceptListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
-      String name = nameTextBox.getText();
-      String password = passwordTextBox.getText();
-
-      if ( nameIsValid( name ) ) {
-        controller.saveUser( name, password );
-        hide();
+      try {
+        performSave();
+      } catch ( RequestException e ) {
+        MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), e.toString(), //$NON-NLS-1$
+            false, false, true );
+        dialogBox.center();
       }
     }
   }
