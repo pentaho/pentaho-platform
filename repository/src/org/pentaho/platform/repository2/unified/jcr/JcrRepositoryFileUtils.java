@@ -89,10 +89,23 @@ public class JcrRepositoryFileUtils {
    */
 //  private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
 //    '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
-  
+
   // This list will drive what characters are not allowed on the client as well as the server
   private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
     '/', '\\', '\t', '\r', '\n' } ) );
+
+  /**
+   * Try to get override reserved chars from PentahoSystem,
+   * otherwise use default
+   */
+  static{
+    List<Character> newOverrideReservedChars = PentahoSystem.get(ArrayList.class,
+      "reservedChars", PentahoSessionHolder.getSession() );
+
+    if( newOverrideReservedChars != null ){
+      reservedChars = newOverrideReservedChars;
+    }
+  }
 
   private static Pattern makePattern( List<Character> list) {
     // escape all reserved characters as they may have special meaning to regex engine
@@ -1261,15 +1274,7 @@ public class JcrRepositoryFileUtils {
    * @return
    */
   public static List<Character> getReservedChars() {
-    List<Character> newOverrideReservedChars = PentahoSystem.get(ArrayList.class,
-      "reservedChars", PentahoSessionHolder.getSession() );
-
-    if( newOverrideReservedChars != null ){
-      return newOverrideReservedChars;
-    }
-    else{
     return reservedChars;
-  }
   }
 
   /**
