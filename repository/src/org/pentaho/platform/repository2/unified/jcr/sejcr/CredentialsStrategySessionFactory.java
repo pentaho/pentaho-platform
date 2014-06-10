@@ -18,15 +18,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.CacheStats;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
-import org.apache.jackrabbit.core.SessionImpl;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -35,12 +26,10 @@ import org.springframework.extensions.jcr.EventListenerDefinition;
 import org.springframework.extensions.jcr.JcrSessionFactory;
 import org.springframework.extensions.jcr.JcrUtils;
 import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.extensions.jcr.SessionFactoryUtils;
 import org.springframework.extensions.jcr.SessionHolder;
 import org.springframework.extensions.jcr.SessionHolderProvider;
 import org.springframework.extensions.jcr.SessionHolderProviderManager;
 import org.springframework.extensions.jcr.support.GenericSessionHolderProvider;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
 import javax.jcr.Credentials;
@@ -48,28 +37,17 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import javax.jcr.ValueFactory;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeTypeDefinition;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.observation.ObservationManager;
-import javax.transaction.xa.XAResource;
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.jackrabbit.api.XASession;
 
 /**
  * Copy-and-paste of {@link JcrSessionFactory} except that this implementation delegates to a {@link
@@ -115,7 +93,8 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   private SessionHolderProvider sessionHolderProvider;
 
   private List<NodeTypeDefinitionProvider> nodeTypeDefinitionProviders;
-  private int cacheDuration = 300;
+
+  protected PentahoJcrSessionFactory sessionFactory;
 
   /**
    * Constructor with all the required fields.
@@ -170,16 +149,19 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     this.credentialsStrategy = credentialsStrategy;
     this.adminCredentialsStrategy = adminCredentialsStrategy;
     this.sessionHolderProviderManager = sessionHolderProviderManager;
-    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-    if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null) {
-      try {
-        this.cacheDuration =
-          Integer.parseInt( (String) systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
-            "repository.cache-duration", "300" ) );
-      } catch ( IOException e ) {
-        LOG.info( "Could not find repository.cache-duration" ); ;
-      }
+  }
+
+
+  public PentahoJcrSessionFactory getSessionFactory() {
+    if ( sessionFactory == null ) {
+      // use default
+      sessionFactory = new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName );
     }
+    return sessionFactory;
+  }
+
+  public void setSessionFactory( PentahoJcrSessionFactory sessionFactory ) {
+    this.sessionFactory = sessionFactory;
   }
 
   public void afterPropertiesSet() throws Exception {
@@ -249,7 +231,6 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   /**
    * Register the namespaces.
    *
-   * @param session
    * @throws RepositoryException
    */
   protected void registerNamespaces() throws Exception {
@@ -363,30 +344,6 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       workspaceName ) : null;
   }
 
-
-  /**
-   * Session cache by credentials, partitioned by thread. Two threads obtaining sessions for the same credentials cannot
-   * use the same Session.
-   */
-  private LoadingCache<CacheKey, Session> sessionCache =
-    CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
-      100 ).removalListener( new RemovalListener<CacheKey, Session>() {
-
-      @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
-
-        // We're not logging out on cache purge as someone may have obtained it from the cache already.
-        // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
-        //        Session value = objectObjectRemovalNotification.getValue();
-        //        if ( value != null && value.isLive() ) {
-        //          value.logout();
-        //        }
-      }
-    } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
-      @Override public Session load( CacheKey credKey ) throws Exception {
-        return repository.login( credKey.creds, workspaceName );
-      }
-    } );
-
   /**
    * @see org.springframework.extensions.jcr.SessionFactory#getSession()
    */
@@ -395,88 +352,8 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     if ( LOG.isDebugEnabled() ) {
       LOG.debug( "using credentials:" + creds );
     }
-
-    // Aquire from cache
-    Session session;
-    if ( !TransactionSynchronizationManager.isSynchronizationActive() ) {
-      if ( LOG.isDebugEnabled() ) {
-        LOG.debug( "Thread is not transacted, checking cache for session: " + creds );
-      }
-      try {
-        CacheKey key = new CacheKey( creds );
-        // find or create
-        session = sessionCache.get( key );
-        if ( !session.isLive() ) {
-          if ( LOG.isDebugEnabled() ) {
-            LOG.debug( "Cached session is not longer alive. disposing: " + creds );
-          }
-          sessionCache.invalidate( key );
-          session = sessionCache.get( key );
-        }
-
-        if ( SessionFactoryUtils.isSessionThreadBound( session, this ) ) {
-          if ( LOG.isDebugEnabled() ) {
-            LOG.debug(
-              "Session is bound to a transaction. This should never happen, ignoring this session and creating a new " +
-                "session: "
-                + creds );
-          }
-          sessionCache.invalidate( key );
-          session = sessionCache.get( key );
-        }
-
-      } catch ( Exception e ) {
-        LOG.error( "Error obtaining session from cache. Creating one directly instead: " + creds, e );
-        session = repository.login( creds, workspaceName );
-      }
-    } else {
-      if ( LOG.isDebugEnabled() ) {
-        LOG.debug( "Thread is transacted, obtaining session directly, not cached: " + creds );
-      }
-      session = repository.login( creds, workspaceName );
-    }
+    Session session = getSessionFactory().getSession( creds );
     return addListeners( session );
-  }
-
-  /**
-   * Used by the sessionCache as a key for Jcr Sessions.
-   */
-  private static class CacheKey {
-    SimpleCredentials creds;
-    Long threadId;
-
-    private CacheKey( Credentials creds ) {
-      this.creds = (SimpleCredentials) creds;
-      this.threadId = Thread.currentThread().getId();
-    }
-
-    @Override
-    public boolean equals( Object o ) {
-      if ( this == o ) {
-        return true;
-      }
-      if ( o == null || getClass() != o.getClass() ) {
-        return false;
-      }
-
-      CacheKey cacheKey = (CacheKey) o;
-
-      if ( creds != null ? !creds.getUserID().equals( cacheKey.creds.getUserID() ) : cacheKey.creds != null ) {
-        return false;
-      }
-      if ( threadId != null ? !threadId.equals( cacheKey.threadId ) : cacheKey.threadId != null ) {
-        return false;
-      }
-
-      return true;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = creds != null ? creds.getUserID().hashCode() : 0;
-      result = 31 * result + ( threadId != null ? threadId.hashCode() : 0 );
-      return result;
-    }
   }
 
   /**
@@ -717,5 +594,6 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   public String getWorkspaceName() {
     return workspaceName;
   }
+
 
 }

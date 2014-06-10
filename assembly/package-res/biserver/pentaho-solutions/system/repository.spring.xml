@@ -592,7 +592,7 @@
     <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="adminJcrTemplate"/>
-    <constructor-arg ref="pathConversionHelper"/>    
+    <constructor-arg ref="pathConversionHelper"/>
     <property name="rolesNeedingExecutePermission">
       <util:list>
         <ref bean="singleTenantAuthenticatedAuthorityName"/>
@@ -600,7 +600,7 @@
       </util:list>
     </property>
   </bean>
-  
+
   <bean id="backingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
     <constructor-arg>
@@ -682,6 +682,12 @@
         <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.VersionableNtdProvider" />
         <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocaleNtdProvider" />
       </list>
+    </property>
+    <property name="sessionFactory">
+      <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory">
+        <constructor-arg ref="jcrRepository"/>
+        <constructor-arg><null/></constructor-arg>
+      </bean>
     </property>
   </bean>
 
@@ -926,6 +932,13 @@
     <constructor-arg ref="jcrAdminCredentialsStrategy"/>
     <property name="sessionHolderProviderManager">
       <ref bean="jcrAdminSessionHolderProviderMgr"/>
+    </property>
+
+    <property name="sessionFactory">
+      <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory">
+        <constructor-arg ref="jcrRepository"/>
+        <constructor-arg><null/></constructor-arg>
+      </bean>
     </property>
   </bean>
 
