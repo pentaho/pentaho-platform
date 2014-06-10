@@ -71,6 +71,15 @@
     <ivy:resolve file="${ivyfile}" conf="pdf-docs" />
     <ivy:retrieve conf="pdf-docs" pattern="${pdf.docs.dir}/[module].[ext]" />
   </target>
+
+	
+  <!-- - - - - - - - - - - - - - - - - - 
+	target: resolve-pdf-docs
+  - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-oss-licenses" depends="install-ivy">
+	 <ivy:resolve file="${ivyfile}" conf="oss-licenses" />
+     <ivy:retrieve conf="oss-licenses" pattern="${bin.dir}/[module].[ext]" />
+  </target>
 	
 	
   <!-- - - - - - - - - - - - - - - - - - 

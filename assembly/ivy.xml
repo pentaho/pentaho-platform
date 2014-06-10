@@ -6,6 +6,7 @@
     <conf name="plugin" />
     <conf name="kettle-plugin" />
     <conf name="pdf-docs" />
+    <conf name="oss-licenses" />
     <conf name="datasource-libs" />
     <conf name="sampledata-libs" />
     <conf name="solution" />
@@ -172,6 +173,12 @@
 	</dependency>
 	<dependency org="pentaho-doc" name="workflows" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
 		<artifact name="workflows" type="pdf" />
+	</dependency>
+
+
+	<!--  OSS Licenses file -->
+	<dependency org="pentaho" name="oss-licenses" rev="${dependency.oss-licenses.revision}" conf="oss-licenses->default">
+		<artifact name="oss-licenses" type="zip" />
 	</dependency>
 
 
