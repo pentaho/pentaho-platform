@@ -19,6 +19,19 @@
 
         <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
+        <!--<bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />-->
+        <!--
+          <bean id="nonPooledDataSourceSystemListener"
+          class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
+        -->
+        <bean id="dynamicallyPooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledDatasourceSystemListener" />
+        <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
+        <bean id="loadDriversListener" class="org.pentaho.commons.system.LoadDriversListener" />
+        <bean id = "olap4jSystemListener" class="org.pentaho.platform.plugin.action.olap.Olap4jSystemListener">
+          <property name="olap4jConnectionList" ref="olap4jConnectionList"/>
+          <property name="olap4jConnectionRemoveList" ref="olap4jConnectionRemoveList"/>
+        </bean>
+        <bean id="quartzSystemListener" class="org.pentaho.platform.scheduler2.quartz.EmbeddedQuartzSystemListener" />
         <bean id="versionCheckerSystemListener" class="org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener">
           <property name="repeatIntervalSeconds">
             <value>86400</value>
@@ -28,21 +41,7 @@
             <value>false</value>
           </property>
         </bean>
-        
-        <!--<bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />-->
-        <!--
-          <bean id="nonPooledDataSourceSystemListener"
-          class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
-        -->
-        <bean id="dynamicallyPooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledDatasourceSystemListener" />
-        <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
         <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
-        <bean id="loadDriversListener" class="org.pentaho.commons.system.LoadDriversListener" />
-        <bean id = "olap4jSystemListener" class="org.pentaho.platform.plugin.action.olap.Olap4jSystemListener">
-          <property name="olap4jConnectionList" ref="olap4jConnectionList"/>
-          <property name="olap4jConnectionRemoveList" ref="olap4jConnectionRemoveList"/>
-        </bean>
-        <bean id="quartzSystemListener" class="org.pentaho.platform.scheduler2.quartz.EmbeddedQuartzSystemListener" />
 
         <!-- Insert system-listeners -->
       </list>
