@@ -16,20 +16,21 @@
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
-package org.pentaho.platform.engine.core;
+package org.pentaho.platform.engine.core.audit;
+
+import java.math.BigDecimal;
 
 import junit.framework.TestCase;
+
 import org.pentaho.platform.api.engine.IAuditEntry;
+import org.pentaho.platform.engine.core.TestOutputHandler;
 import org.pentaho.platform.engine.core.audit.AuditEntry;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.audit.NullAuditEntry;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
-
-import java.math.BigDecimal;
 
 @SuppressWarnings( { "all" } )
 public class AuditEntryTest extends TestCase {
@@ -83,43 +84,21 @@ public class AuditEntryTest extends TestCase {
     new MessageTypes();
     new AuditHelper();
     new AuditEntry();
-
   }
-
-  //Test does not test functionality on current code base
-  /*public void testAuditHelper() throws Exception {
-
-    StandaloneObjectFactory factory = new StandaloneObjectFactory();
-    PentahoSystem.registerObjectFactory( factory );
-    factory.defineObject( IAuditEntry.class.getSimpleName(), TestAuditEntry.class.getName(),
-        StandaloneObjectFactory.Scope.GLOBAL );
-
-    StandaloneSession session = new StandaloneSession( "testuser" );
-    String messageType = "testtype";
-    String messageName = "testname";
-    String messageTxtValue = "testtext";
-    BigDecimal messageNumValue = new BigDecimal( 99 );
-    float duration = (float) 1.23;
-
-    AuditHelper.audit( null, session, messageType, messageName, messageTxtValue, duration, null );
-
-    TestAuditEntry entry = (TestAuditEntry) factory.get( IAuditEntry.class, null );
-
-    assertNotNull("AuditEntry should not be null", entry);
-
-    if (entry != null) {
-      assertEquals( "", entry.instId );
-      assertEquals( "", entry.jobId );
-      assertEquals( "testuser", entry.actor );
-      assertEquals( messageTxtValue, entry.messageTxtValue );
-    }
-  }*/
 
   public void testNullAuditEntry() {
     IAuditEntry auditEntry = new NullAuditEntry();
-
     // this should not fail, even with all nulls as inputs
     auditEntry.auditAll( null, null, null, null, null, null, null, null, null, 0.0 );
   }
 
+  public void testClearCounts() {
+    AuditEntry auditEntry = new AuditEntry();
+    long counterResetDateTime = auditEntry.getCounterResetDateTime().getTime();
+    auditEntry.auditJobTxtValue( null, null, null, null, null, null, null, "messageTxtValue" );
+    assertTrue( !auditEntry.getCounts().isEmpty() );
+    auditEntry.clearCounts();
+    assertTrue( auditEntry.getCounts().isEmpty() );
+    assertTrue( counterResetDateTime < auditEntry.getCounterResetDateTime().getTime() );
+  }
 }

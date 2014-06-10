@@ -18,51 +18,49 @@
 
 package org.pentaho.platform.util;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
-
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import junit.framework.TestCase;
+
+import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
+import org.w3c.dom.Document;
 
 public class XmlW3CHelperTest extends TestCase {
 
+  public void testValidXmlW3C() throws FileNotFoundException, IOException {
+    String domString = "<root><subroot>this is sub root</subroot></root>";//$NON-NLS-1$
+
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNotNull( doc );
+  }
+
+  public void testNotValidXmlW3C() throws FileNotFoundException, IOException {
+    String domString = "<root>this is sub root</subroot></root>";//$NON-NLS-1$
+
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNull( doc );
+  }
+
   public void testXmlW3C() throws FileNotFoundException, IOException {
     String path = "test-res/solution/test/xml/query_without_connection.xaction"; //$NON-NLS-1$
-    //    String domString = "<root><subroot>this is sub root</subroot></root>";//$NON-NLS-1$
 
-    InputStream in = null;
+    byte[] encoded = Files.readAllBytes( Paths.get( path ) );
+    String sourceXml = new String( encoded );
 
-    try {
-      in = new FileInputStream( path );
-
-      byte[] bytes = new byte[10000];
-      in.read( bytes );
-    } catch ( Exception e ) {
-      // should not get here
-      Assert.assertTrue( e.getMessage(), false );
-    } finally {
-      if ( in != null ) {
-        in.close();
-      }
-    }
-
-    // This test doesn't work - needs to be fixed (but it makes no sense as is)
-    // Document doc = XmlW3CHelper.getDomFromString(domString);
-    // System.out.println(doc.toString());
-    // Document doc2 = XmlW3CHelper.getDomFromString(domString);
-    // String str = doc2.toString();
-    // Assert.assertEquals(str, domString);
+    Document doc = XmlW3CHelper.getDomFromString( sourceXml );
+    assertNotNull( doc );
   }
 
   public void testXmlW3CError() {
     try {
       XmlW3CHelper.getDomFromString( null );
-      Assert.assertTrue( true );
-    } catch ( Exception expected ) {
-      //ignored
+      fail( "This should have thrown an exception" );
+    } catch ( IllegalArgumentException e ) {
+      assertEquals( "The source string can not be null", e.getMessage() );
     }
   }
+
 }
