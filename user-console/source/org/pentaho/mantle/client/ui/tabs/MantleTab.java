@@ -101,7 +101,8 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       }
 
       final TextArea urlbox = new TextArea();
-      urlbox.setText( url + startup );
+      //encode any space characters
+      urlbox.setText( ( url + startup ).replaceAll( "\\s", "%20" ) );
       urlbox.setReadOnly( true );
       urlbox.setVisibleLines( 3 );
       dialogBox.setContent( urlbox );
