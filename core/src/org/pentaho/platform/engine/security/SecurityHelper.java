@@ -129,11 +129,12 @@ public class SecurityHelper implements ISecurityHelper {
       session.setAuthenticated( principalName );
     }
 
+    PentahoSessionHolder.setSession( session );
+
     Authentication auth = createAuthentication( principalName );
     // TODO We need to figure out how to inject this
     // Get the tenant id from the principle name and set it as an attribute of the pentaho session
 
-    PentahoSessionHolder.setSession( session );
     SecurityContextHolder.getContext().setAuthentication( auth );
     PentahoSystem.sessionStartup( PentahoSessionHolder.getSession(), paramProvider );
   }
