@@ -359,7 +359,6 @@ public class PentahoSystem {
         new UsernamePasswordAuthenticationToken( user, "", roles ); //$NON-NLS-1$
 
 
-
       // set holders
       PentahoSessionHolder.setSession( session );
       SecurityContextHolder.getContext().setAuthentication( auth );
@@ -378,30 +377,46 @@ public class PentahoSystem {
     }
   }
 
-  private static void notifySystemListenersOfStartup( IPentahoSession session ) throws PentahoSystemException {
+  private static void notifySystemListenersOfStartup( final IPentahoSession session ) throws PentahoSystemException {
     if ( listeners != null && listeners.size() > 0 ) {
 
-      for ( IPentahoSystemListener systemListener : listeners ) {
-        PentahoSystem.systemEntryPoint(); // make sure all startups occur in the context of a transaction
+      for ( final IPentahoSystemListener systemListener : listeners ) {
         try {
-          if ( debug ) {
-            Logger.debug( PentahoSystem.class,
-              "System Listener Start: " + systemListener.getClass().getName() ); //$NON-NLS-1$
+          // ensure that the Authentication/IPentahoSession is correct between ISystemListeners
+          runAsSystem( new Callable<Void>() {
+            @Override public Void call() throws Exception {
+              PentahoSystem.systemEntryPoint(); // make sure all startups occur in the context of a transaction
+
+              try {
+                if ( debug ) {
+                  Logger.debug( PentahoSystem.class,
+                    "System Listener Start: " + systemListener.getClass().getName() ); //$NON-NLS-1$
+                }
+                if ( !systemListener.startup( session ) ) {
+                  throw new PentahoSystemException( Messages.getInstance().getErrorString(
+                    "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName() ) ); //$NON-NLS-1$
+                }
+                if ( debug ) {
+                  Logger.debug( PentahoSystem.class,
+                    "System Listener Complete: " + systemListener.getClass().getName() ); //$NON-NLS-1$
+                }
+              } catch ( Throwable e ) {
+                throw new PentahoSystemException( Messages.getInstance().getErrorString(
+                  "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName() ), e ); //$NON-NLS-1$
+              } finally {
+                PentahoSystem.systemExitPoint(); // commit transaction
+              }
+              return null;
+            }
+          } );
+        } catch ( Exception e ) {
+          if ( e instanceof PentahoSystemException ) {
+            throw (PentahoSystemException) e;
+          } else {
+            throw new PentahoSystemException( e );
           }
-          if ( !systemListener.startup( session ) ) {
-            throw new PentahoSystemException( Messages.getInstance().getErrorString(
-              "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName() ) ); //$NON-NLS-1$
-          }
-          if ( debug ) {
-            Logger.debug( PentahoSystem.class,
-              "System Listener Complete: " + systemListener.getClass().getName() ); //$NON-NLS-1$
-          }
-        } catch ( Throwable e ) {
-          throw new PentahoSystemException( Messages.getInstance().getErrorString(
-            "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName() ), e ); //$NON-NLS-1$
-        } finally {
-          PentahoSystem.systemExitPoint(); // commit transaction
         }
+
       }
     }
   }
