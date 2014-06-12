@@ -219,6 +219,10 @@ button.btn-large.btn-block {
   background: url("../images/prpt.png");
 }
 
+.file-ktr {
+  background: url("../../images/kettle_transformation_onyx_32.png");
+}
+
 .file-xaction {
   background: url("../images/xaction.png");
 }

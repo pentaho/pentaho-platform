@@ -173,7 +173,7 @@
 }
 
 .fileBrowserColumn .body .file .icon.ktr {
-  background-image: url("../../../content/pdi-platform-plugin/resources/images/transformation.png");
+  background: no-repeat url("../../images/kettle_transformation_onyx.png") 50% 50%;
 }
 
 .fileBrowserColumn .body .file .icon.kjb {

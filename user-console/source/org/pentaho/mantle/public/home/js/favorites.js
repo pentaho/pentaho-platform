@@ -44,7 +44,8 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (s
       xcdf: "xcdf",
       html: "html",
       cda: "cda",
-      wcdf: "wcdf"
+      wcdf: "wcdf",
+      ktr: "ktr"
     },
 
     init: function () {
