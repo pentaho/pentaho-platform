@@ -19,6 +19,7 @@
 package org.pentaho.platform.engine.core.system;
 
 import org.apache.commons.collections.list.UnmodifiableList;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -338,7 +339,8 @@ public class PentahoSystem {
    */
   private static <T> T runAsSystem( final Callable<T> callable ) throws Exception {
 
-    final String name = PentahoSystem.get( String.class, "singleTenantAdminUserName", null );
+    final String name =
+      StringUtils.defaultIfEmpty( PentahoSystem.get( String.class, "singleTenantAdminUserName", null ), "admin" );
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
