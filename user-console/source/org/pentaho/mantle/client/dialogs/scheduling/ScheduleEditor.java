@@ -90,7 +90,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
     private long time;
 
     TIME( long time ) {
-      time = time;
+      this.time = time;
     }
 
     public long getTime() {
