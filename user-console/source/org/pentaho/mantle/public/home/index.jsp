@@ -176,6 +176,7 @@
                           {{#if xdash}} <i class="pull-left content-icon file-xdash"/> {{/if}}
                           {{#if xcdf}} <i class="pull-left content-icon file-xcdf"/> {{/if}}
                           {{#if prpti}} <i class="pull-left content-icon file-prpti"/> {{/if}}
+                          {{#if ktr}} <i class="pull-left content-icon file-ktr"/> {{/if}}
                           {{#if prpt}} <i class="pull-left content-icon file-prpt"/> {{/if}}
                           {{#if xaction}} <i class="pull-left content-icon file-xaction"/> {{/if}}
                           {{#if url}} <i class="pull-left content-icon file-url"/> {{/if}}
@@ -240,6 +241,7 @@
                           {{#if xcdf}} <i class="pull-left content-icon file-xcdf"/> {{/if}}
                           {{#if prpti}} <i class="pull-left content-icon file-prpti"/> {{/if}}
                           {{#if prpt}} <i class="pull-left content-icon file-prpt"/> {{/if}}
+                          {{#if ktr}} <i class="pull-left content-icon file-ktr"/> {{/if}}
                           {{#if xaction}} <i class="pull-left content-icon file-xaction"/> {{/if}}
                           {{#if url}} <i class="pull-left content-icon file-url"/> {{/if}}
                           {{#if html}} <i class="pull-left content-icon file-html"/> {{/if}}
