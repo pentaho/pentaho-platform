@@ -16,7 +16,6 @@
 	<util:list id="powerUser">
 		            <value>org.pentaho.scheduler.manage</value>
                 <value>org.pentaho.repository.read</value>
-                <value>org.pentaho.repository.execute</value>
                 <value>org.pentaho.repository.create</value>
                 <value>org.pentaho.security.publish</value>
 	</util:list>
