@@ -337,7 +337,8 @@ public class PentahoSystem {
    * dependencies. </p>
    */
   private static <T> T runAsSystem( final Callable<T> callable ) throws Exception {
-    final String name = "system session"; //$NON-NLS-1$
+
+    final String name = PentahoSystem.get( String.class, "singleTenantAdminUserName", null );
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
