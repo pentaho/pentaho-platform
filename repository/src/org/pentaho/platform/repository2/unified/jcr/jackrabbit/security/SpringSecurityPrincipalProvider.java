@@ -325,12 +325,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     if ( auth != null ) {
       Object ssPrincipal = auth.getPrincipal();
       if ( ssPrincipal instanceof UserDetails ) {
-        String userDetailsUsername = ( (UserDetails) ssPrincipal ).getUsername();
-        if ( username.equals( userDetailsUsername ) ) {
-          return (UserDetails) ssPrincipal;
-        }
-        if ( JcrTenantUtils.isTenantedUser( username ) && !JcrTenantUtils.isTenantedUser( userDetailsUsername )
-          && JcrTenantUtils.getUserNameUtils().getPrincipleName( username ).equals( userDetailsUsername ) ) {
+        if ( username.equals( ( (UserDetails) ssPrincipal ).getUsername() ) ) {
           return (UserDetails) ssPrincipal;
         }
       }
