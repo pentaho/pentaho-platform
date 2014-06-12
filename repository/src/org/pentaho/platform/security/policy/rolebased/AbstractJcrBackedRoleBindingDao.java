@@ -27,6 +27,7 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrStringHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -288,7 +289,9 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
         Node runtimeRoleNode = runtimeRoleNodes.nextNode();
         if ( runtimeRoleNode.hasProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ) ) {
           // get clean runtime role name
-          String runtimeRoleName = runtimeRoleNode.getName().substring( phoNsPrefix.length() );
+          String runtimeRoleName = JcrStringHelper.fileNameDecode(
+                  runtimeRoleNode.getName().substring(phoNsPrefix.length())
+          );
           // get logical role names
           List<String> logicalRoleNames = new ArrayList<String>();
           Value[] values = runtimeRoleNode.getProperty( pentahoJcrConstants.getPHO_BOUNDROLES() ).getValues();
