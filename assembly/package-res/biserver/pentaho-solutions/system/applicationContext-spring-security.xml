@@ -197,10 +197,11 @@
         -->
         <![CDATA[
 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-\A/content/common-ui/resources/web/(.+/)*.+\.js\Z=Anonymous,Authenticated
-\A/.*require-js-cfg.js\Z=Anonymous,Authenticated
-\A/content/common-ui/resources/web/require.js\Z=Anonymous,Authenticated
-\A/content/common-ui/resources/web/require-cfg.js\Z=Anonymous,Authenticated
+\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z=Anonymous,Authenticated
+\A/.*require-cfg.js.*\Z=Anonymous,Authenticated
+\A/.*require-js-cfg.js.*\Z=Anonymous,Authenticated
+\A/content/common-ui/resources/web/require.js.*\Z=Anonymous,Authenticated
+\A/content/common-ui/resources/web/require-cfg.js.*\Z=Anonymous,Authenticated
 \A/content/data-access/resources/gwt/.*css\Z=Anonymous,Authenticated
 \A/webcontext.js.*\Z=Anonymous,Authenticated
 \A/content/common-ui/resources/web/cache/cache-service.js.*\Z=Anonymous,Authenticated
@@ -282,7 +283,8 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/webservices/repositorysync\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/datasourcemgmtservice\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/.*\Z=Authenticated
-\A/api/.*require-js-cfg.js\Z=Anonymous,Authenticated
+\A/api/.*require-cfg.js.*\Z=Anonymous,Authenticated
+\A/api/.*require-js-cfg.js.*\Z=Anonymous,Authenticated
 \A/api/.*\Z=Authenticated
 \A/plugin/.*\Z=Authenticated
       ]]>
