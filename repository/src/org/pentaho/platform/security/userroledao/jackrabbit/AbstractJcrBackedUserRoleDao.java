@@ -184,7 +184,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       for ( String user : memberUserNames ) {
         User jackrabbitUser = getJackrabbitUser( tenant, user, session );
         if ( jackrabbitUser != null ) {
-          finalCollectionOfAssignedUsers.put( tenantedRoleNameUtils.getPrincipleId( tenant, user ), jackrabbitUser );
+          finalCollectionOfAssignedUsers.put(
+            getTenantedUserNameUtils().getPrincipleId( tenant, user ), jackrabbitUser );
         }
       }
     }
@@ -197,6 +198,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
     for ( String userId : usersToRemove ) {
       jackrabbitGroup.removeMember( currentlyAssignedUsers.get( userId ) );
+      purgeUserFromCache( userId );
     }
 
     for ( String userId : usersToAdd ) {
