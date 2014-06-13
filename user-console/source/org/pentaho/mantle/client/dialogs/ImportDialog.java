@@ -294,16 +294,9 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add( loggingLabel );
 
     final CustomListBox loggingDropDown = new CustomListBox();
-    if(loggingDropDown.getElement().getElementsByTagName( "input" ).getLength() > 0){
-      loggingDropDown.getElement().getElementsByTagName( "input" ).getItem( 0 ).setPropertyString( "name", "logLevel" );
-    }
     loggingDropDown.addChangeListener( new ChangeListener() {
         public void onChange( Widget sender ) {
         String value = loggingDropDown.getSelectedItem().getValue().toString();
-        if(loggingDropDown.getElement().getElementsByTagName( "input" ).getLength() > 0) {
-          loggingDropDown.getElement().getElementsByTagName( "input" ).getItem( 0 ).
-              setPropertyString( "value", loggingDropDown.getSelectedItem().getValue().toString() );
-        }
         logLevel.setValue( value );
       }
     } );
