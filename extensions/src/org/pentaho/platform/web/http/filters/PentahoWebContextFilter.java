@@ -190,7 +190,7 @@ public class PentahoWebContextFilter implements Filter {
   private void printHomeFolder( OutputStream out ) throws IOException {
     StringBuilder sb = new StringBuilder( "<!-- Providing home folder location for UI defaults -->\n" );
     if ( PentahoSessionHolder.getSession() != null ) {
-      String homePath = ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      String homePath = ClientRepositoryPaths.getUserHomeFolderPath( StringEscapeUtils.escapeJavaScript( PentahoSessionHolder.getSession().getName() ) );
       sb.append( "var HOME_FOLDER = '" + homePath + "';\n" ); // Global variable
     } else {
       sb.append( "var HOME_FOLDER = null;\n" ); // Global variable
@@ -251,9 +251,9 @@ public class PentahoWebContextFilter implements Filter {
     if ( PentahoSessionHolder.getSession() == null ) {
       sb.append( "var SESSION_NAME = null;\n" ); // Global variable
     } else {
-      sb.append( "var SESSION_NAME = '" + PentahoSessionHolder.getSession().getName() + "';\n" ); // Global variable
+      sb.append( "var SESSION_NAME = '" + StringEscapeUtils.escapeJavaScript( PentahoSessionHolder.getSession().getName() ) + "';\n" ); // Global variable
     }
-    out.write( sb.toString().getBytes() );
+    out.write(  sb.toString().getBytes() );
   }
 
   private void printLocale( Locale effectiveLocale, OutputStream out ) throws IOException {
