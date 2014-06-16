@@ -127,9 +127,12 @@ public class QuartzScheduler implements IScheduler {
    * @param quartzSchedulerFactory
    *          the quartz factory to use for generating scheduler instances
    */
-  public void setQuartzSchedulerFactory( SchedulerFactory quartzSchedulerFactory ) {
+  public void setQuartzSchedulerFactory( SchedulerFactory quartzSchedulerFactory ) throws SchedulerException {
     this.quartzSchedulerFactory = quartzSchedulerFactory;
-    quartzScheduler = null;
+    if( quartzScheduler != null ){
+      this.shutdown();
+      quartzScheduler = null;
+    }
   }
 
   public Scheduler getQuartzScheduler() throws org.quartz.SchedulerException {
