@@ -273,11 +273,15 @@ public class SaveCommand extends AbstractCommand {
     } else if (frame.handle_puc_save) {
       try {
         var result = frame.handle_puc_save(path, filename, overwrite, errorCallback);
+        //We need to decode the result, but we double encoded '/' and '\' in URLEncoder.js to work around a Tomcat issue
+        var almostDecodedResult = result.replace(/%255C/g, "%5C").replace(/%252F/g, "%2F");
+        //Now we decode
+        var decodedResult = decodeURIComponent(almostDecodedResult);
         //if(result) {
         this.@org.pentaho.mantle.client.commands.SaveCommand::doTabRename()();
         //CHECKSTYLE IGNORE LineLength FOR NEXT 2 LINES
-        this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodeURIComponent(result));
-        this.@org.pentaho.mantle.client.commands.SaveCommand::setDeepLinkUrl(Ljava/lang/String;)(decodeURIComponent(result));
+        this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodedResult);
+        this.@org.pentaho.mantle.client.commands.SaveCommand::setDeepLinkUrl(Ljava/lang/String;)(decodedResult);
         //}        
       } catch (e) {
         //TODO: externalize message once a solution to do so is found.
