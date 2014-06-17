@@ -135,9 +135,6 @@
 	<dependency org="pentaho-doc" name="pdi_embed_extend_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
 		<artifact name="pdi_embed_extend_guide" type="pdf" />
 	</dependency>
-	<dependency org="pentaho-doc" name="pdi_upgrade" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
-		<artifact name="pdi_upgrade" type="pdf" />
-	</dependency>
 	<dependency org="pentaho-doc" name="pdi_user_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
 		<artifact name="pdi_user_guide" type="pdf" />
 	</dependency>
