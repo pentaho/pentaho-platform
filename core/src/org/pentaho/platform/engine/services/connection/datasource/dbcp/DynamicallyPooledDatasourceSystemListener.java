@@ -19,21 +19,33 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import javax.sql.DataSource;
 
+import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
 public class DynamicallyPooledDatasourceSystemListener extends PooledDatasourceSystemListener {
+
+  private IDBDatasourceService datasourceService;
+  public IDBDatasourceService getDatasourceService() {
+    if( datasourceService == null ){
+      datasourceService = PentahoSystem.get(
+        IDBDatasourceService.class, null );
+    }
+    return datasourceService;
+  }
+
 
   @Override
   protected DataSource getDataSource( IDatabaseConnection connection ) {
 
     DataSource ds = null;
     try {
-
       ds = connection.isUsingConnectionPool() ? PooledDatasourceHelper
-          .setupPooledDataSource( connection ) : PooledDatasourceHelper.convert( connection );
+          .setupPooledDataSource( connection ) : getDatasourceService().getDataSource( connection.getName() );;
 
     } catch ( DBDatasourceServiceException e ) {
 
