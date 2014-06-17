@@ -168,8 +168,8 @@
 	<dependency org="pentaho-doc" name="troubleshooting_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
 		<artifact name="troubleshooting_guide" type="pdf" />
 	</dependency>
-	<dependency org="pentaho-doc" name="upgrade_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
-		<artifact name="upgrade_guide" type="pdf" />
+	<dependency org="pentaho-doc" name="workflows" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
+		<artifact name="workflows" type="pdf" />
 	</dependency>
 
 
