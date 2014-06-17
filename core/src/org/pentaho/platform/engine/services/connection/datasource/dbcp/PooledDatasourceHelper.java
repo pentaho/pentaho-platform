@@ -57,15 +57,17 @@ public class PooledDatasourceHelper {
     try {
       ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
       IDatabaseDialectService databaseDialectService = PentahoSystem.get( IDatabaseDialectService.class );
-      if(databaseDialectService == null) {
+      if ( databaseDialectService == null ) {
         Logger.warn( PooledDatasourceHelper.class,
-            "Unable to pool datasource with name " + databaseConnection.getName() + "Cause:Database Dialect Service is not available" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          "Unable to pool datasource with name " + databaseConnection.getName()
+            + "Cause:Database Dialect Service is not available" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         return null;
       }
       IDatabaseDialect dialect = databaseDialectService.getDialect( databaseConnection );
-      if(dialect == null || dialect.getDatabaseType() == null) {
+      if ( dialect == null || dialect.getDatabaseType() == null ) {
         Logger.warn( PooledDatasourceHelper.class,
-            "Unable to pool datasource with name " + databaseConnection.getName() + "Cause:Unable to find Database Dialect" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          "Unable to pool datasource with name " + databaseConnection.getName()
+            + "Cause:Unable to find Database Dialect" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         return null;
       }
       if ( databaseConnection.getDatabaseType().getShortName().equals( "GENERIC" ) ) { //$NON-NLS-1$
@@ -84,82 +86,84 @@ public class PooledDatasourceHelper {
       String minIdleConn = PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null ); //$NON-NLS-1$    
       String maxActConn = PentahoSystem.getSystemSetting( "dbcp-defaults/max-act-conn", null ); //$NON-NLS-1$
       String validQuery = null;
-      String whenExhaustedAction = PentahoSystem.getSystemSetting( "dbcp-defaults/when-exhausted-action", null ); //$NON-NLS-1$
+      String whenExhaustedAction =
+        PentahoSystem.getSystemSetting( "dbcp-defaults/when-exhausted-action", null ); //$NON-NLS-1$
       String wait = PentahoSystem.getSystemSetting( "dbcp-defaults/wait", null ); //$NON-NLS-1$
       String testWhileIdleValue = PentahoSystem.getSystemSetting( "dbcp-defaults/test-while-idle", null ); //$NON-NLS-1$
       String testOnBorrowValue = PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-borrow", null ); //$NON-NLS-1$
       String testOnReturnValue = PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-return", null ); //$NON-NLS-1$
-      
+
       // property initialization
       boolean testWhileIdle =
-          !StringUtil.isEmpty( testWhileIdleValue ) ? Boolean.parseBoolean( testWhileIdleValue ) : false;
+        !StringUtil.isEmpty( testWhileIdleValue ) ? Boolean.parseBoolean( testWhileIdleValue ) : false;
       boolean testOnBorrow =
-          !StringUtil.isEmpty( testOnBorrowValue ) ? Boolean.parseBoolean( testOnBorrowValue ) : false;
+        !StringUtil.isEmpty( testOnBorrowValue ) ? Boolean.parseBoolean( testOnBorrowValue ) : false;
       boolean testOnReturn =
-          !StringUtil.isEmpty( testOnReturnValue ) ? Boolean.parseBoolean( testOnReturnValue ) : false;
+        !StringUtil.isEmpty( testOnReturnValue ) ? Boolean.parseBoolean( testOnReturnValue ) : false;
       int maxActiveConnection = !StringUtil.isEmpty( maxActConn ) ? Integer.parseInt( maxActConn ) : -1;
       long waitTime = !StringUtil.isEmpty( wait ) ? Integer.parseInt( wait ) : -1;
-      byte whenExhaustedActionType = !StringUtil.isEmpty( whenExhaustedAction ) ? 
-          Byte.parseByte( whenExhaustedAction ) : GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+      byte whenExhaustedActionType = !StringUtil.isEmpty( whenExhaustedAction ) ?
+        Byte.parseByte( whenExhaustedAction ) : GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
       int minIdleConnection = !StringUtil.isEmpty( minIdleConn ) ? Integer.parseInt( minIdleConn ) : -1;
       int maxIdleConnection = !StringUtil.isEmpty( maxdleConn ) ? Integer.parseInt( maxdleConn ) : -1;
 
       // setting properties according to user specifications 
       Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
 
-      if ( attributes.containsKey( IDBDatasourceService.MAX_ACTIVE_KEY ) 
-          && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_ACTIVE_KEY ) ) ) {
+      if ( attributes.containsKey( IDBDatasourceService.MAX_ACTIVE_KEY )
+        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_ACTIVE_KEY ) ) ) {
         maxActiveConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_ACTIVE_KEY ) );
       }
-      if ( attributes.containsKey( IDBDatasourceService.MAX_WAIT_KEY ) 
-          && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_WAIT_KEY ) ) ) {
+      if ( attributes.containsKey( IDBDatasourceService.MAX_WAIT_KEY )
+        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_WAIT_KEY ) ) ) {
         waitTime = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_WAIT_KEY ) );
       }
-      if(attributes.containsKey( IDBDatasourceService.MIN_IDLE_KEY )  
+      if ( attributes.containsKey( IDBDatasourceService.MIN_IDLE_KEY )
         && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MIN_IDLE_KEY ) ) ) {
-          minIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MIN_IDLE_KEY ) );
+        minIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MIN_IDLE_KEY ) );
       }
-      if(attributes.containsKey( IDBDatasourceService.MAX_IDLE_KEY )  
+      if ( attributes.containsKey( IDBDatasourceService.MAX_IDLE_KEY )
         && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) ) ) {
-          maxIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) );
+        maxIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) );
       }
       if ( attributes.containsKey( IDBDatasourceService.QUERY_KEY ) ) {
         validQuery = attributes.get( IDBDatasourceService.QUERY_KEY );
       }
-      if(attributes.containsKey( IDBDatasourceService.TEST_ON_BORROW ) ) {
+      if ( attributes.containsKey( IDBDatasourceService.TEST_ON_BORROW ) ) {
         testOnBorrow = Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_ON_BORROW ) );
       }
-      if(attributes.containsKey( IDBDatasourceService.TEST_ON_RETURN ) ) {
+      if ( attributes.containsKey( IDBDatasourceService.TEST_ON_RETURN ) ) {
         testOnReturn = Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_ON_RETURN ) );
       }
-      if(attributes.containsKey( IDBDatasourceService.TEST_WHILE_IDLE ) ) {
+      if ( attributes.containsKey( IDBDatasourceService.TEST_WHILE_IDLE ) ) {
         testWhileIdle = Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_WHILE_IDLE ) );
       }
-      
+
       poolingDataSource = new PoolingDataSource();
       Class.forName( driverClass );
       // As the name says, this is a generic pool; it returns basic Object-class objects.
       GenericObjectPool pool = new GenericObjectPool( null );
-      
+
       // if removedAbandoned = true, then an AbandonedObjectPool object will take GenericObjectPool's place
-      if( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED )
-          && true == Boolean.parseBoolean(  attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) ){
-        
+      if ( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED )
+        && true == Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) ) {
+
         AbandonedConfig config = new AbandonedConfig();
-        config.setRemoveAbandoned( Boolean.parseBoolean(  attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) );
-       
-       if(attributes.containsKey( IDBDatasourceService.LOG_ABANDONED ) ){
-         config.setLogAbandoned( Boolean.parseBoolean(  attributes.get( IDBDatasourceService.LOG_ABANDONED ) ) );
-       }
-       
-       if(attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) 
-           && NumberUtils.isNumber( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) ){
-         config.setRemoveAbandonedTimeout( Integer.parseInt( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) );
-       }
-        
-       pool = new AbandonedObjectPool( null, config );
+        config.setRemoveAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) );
+
+        if ( attributes.containsKey( IDBDatasourceService.LOG_ABANDONED ) ) {
+          config.setLogAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.LOG_ABANDONED ) ) );
+        }
+
+        if ( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT )
+          && NumberUtils.isNumber( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) ) {
+          config.setRemoveAbandonedTimeout(
+            Integer.parseInt( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) );
+        }
+
+        pool = new AbandonedObjectPool( null, config );
       }
-      
+
       pool.setWhenExhaustedAction( whenExhaustedActionType );
 
       // Tuning the connection pool
@@ -171,10 +175,11 @@ public class PooledDatasourceHelper {
       pool.setTestOnReturn( testOnReturn );
       pool.setTestOnBorrow( testOnBorrow );
       pool.setTestWhileIdle( testWhileIdle );
-     
-      if(attributes.containsKey( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) 
-          && NumberUtils.isNumber( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) ) {
-        pool.setTimeBetweenEvictionRunsMillis( Long.parseLong( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) );
+
+      if ( attributes.containsKey( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS )
+        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) ) {
+        pool.setTimeBetweenEvictionRunsMillis(
+          Long.parseLong( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) );
       }
       
       /*
@@ -182,34 +187,35 @@ public class PooledDatasourceHelper {
        * DriverManagerConnectionFactory because that essentially uses DriverManager as the source of connections.
        */
       ConnectionFactory factory =
-          new DriverManagerConnectionFactory( url, databaseConnection.getUsername(), databaseConnection.getPassword() );
+        new DriverManagerConnectionFactory( url, databaseConnection.getUsername(), databaseConnection.getPassword() );
 
-      
-      boolean defaultReadOnly = attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY ) ? 
-          Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_WHILE_IDLE ) ) : false; // default to false
-          
-      boolean defaultAutoCommit = attributes.containsKey( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ? 
-           Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ) : true; // default to true
-      
+
+      boolean defaultReadOnly = attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY ) ?
+        Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_WHILE_IDLE ) ) : false; // default to false
+
+      boolean defaultAutoCommit = attributes.containsKey( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ?
+        Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ) : true; // default to true
+
       KeyedObjectPoolFactory kopf = null;
-      
-      if( attributes.containsKey( IDBDatasourceService.POOL_PREPARED_STATEMENTS )
-          && true == Boolean.parseBoolean( attributes.get( IDBDatasourceService.POOL_PREPARED_STATEMENTS ) ) ){
-      
+
+      if ( attributes.containsKey( IDBDatasourceService.POOL_PREPARED_STATEMENTS )
+        && true == Boolean.parseBoolean( attributes.get( IDBDatasourceService.POOL_PREPARED_STATEMENTS ) ) ) {
+
         int maxOpenPreparedStatements = -1; // unlimited
-        
-        if( attributes.containsKey( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) 
-            &&  NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) ) {
-         
-          maxOpenPreparedStatements = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) );
+
+        if ( attributes.containsKey( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS )
+          && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) ) {
+
+          maxOpenPreparedStatements =
+            Integer.parseInt( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) );
         }
-        
-        kopf = new GenericKeyedObjectPoolFactory( 
-          null, 
+
+        kopf = new GenericKeyedObjectPoolFactory(
+          null,
           pool.getMaxActive(),
-          pool.getWhenExhaustedAction(), 
+          pool.getWhenExhaustedAction(),
           pool.getMaxWait(),
-          pool.getMaxIdle(), 
+          pool.getMaxIdle(),
           maxOpenPreparedStatements );
       }
             
@@ -218,23 +224,25 @@ public class PooledDatasourceHelper {
        * "Poolable[ConnectionFactory]."
        */
       PoolableConnectionFactory pcf = new PoolableConnectionFactory( factory, // ConnectionFactory
-          pool, // ObjectPool
-          kopf, // KeyedObjectPoolFactory
-          validQuery, // String (validation query)
-          defaultReadOnly, // boolean (default to read-only?)
-          defaultAutoCommit // boolean (default to auto-commit statements?)
+        pool, // ObjectPool
+        kopf, // KeyedObjectPoolFactory
+        validQuery, // String (validation query)
+        defaultReadOnly, // boolean (default to read-only?)
+        defaultAutoCommit // boolean (default to auto-commit statements?)
       );
-      
-      if( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
-          && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) )) {
-        Isolation isolationLevel = Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
-        
-        if( isolationLevel != null ){
+
+      if ( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
+        && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE
+        .equalsIgnoreCase( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) ) ) {
+        Isolation isolationLevel =
+          Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
+
+        if ( isolationLevel != null ) {
           pcf.setDefaultTransactionIsolation( isolationLevel.value() );
         }
       }
-      
-      if( attributes.containsKey( IDBDatasourceService.DEFAULT_CATALOG ) ) {
+
+      if ( attributes.containsKey( IDBDatasourceService.DEFAULT_CATALOG ) ) {
         pcf.setDefaultCatalog( attributes.get( IDBDatasourceService.DEFAULT_CATALOG ) );
       }
       
@@ -242,24 +250,27 @@ public class PooledDatasourceHelper {
        * initialize the pool to X connections
        */
       Logger
-          .debug(
-              PooledDatasourceHelper.class,
-              "Pool defaults to " + maxActiveConnection + " max active/" + maxIdleConnection + "max idle" + "with " + waitTime + "wait time"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-                  + " idle connections." ); //$NON-NLS-1$
+        .debug(
+          PooledDatasourceHelper.class,
+          "Pool defaults to " + maxActiveConnection + " max active/" + maxIdleConnection + "max idle" + "with "
+            + waitTime + "wait time"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+            + " idle connections." ); //$NON-NLS-1$
 
       for ( int i = 0; i < maxIdleConnection; ++i ) {
         pool.addObject();
       }
       Logger.debug( PooledDatasourceHelper.class,
-          "Pool now has " + pool.getNumActive() + " active/" + pool.getNumIdle() + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "Pool now has " + pool.getNumActive() + " active/" + pool.getNumIdle()
+          + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       /*
        * All of this is wrapped in a DataSource, which client code should already know how to handle (since it's
        * the same class of object they'd fetch via the container's JNDI tree
        */
       poolingDataSource.setPool( pool );
-      
-      if( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
-        poolingDataSource.setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes.get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
+
+      if ( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
+        poolingDataSource.setAccessToUnderlyingConnectionAllowed(
+          Boolean.parseBoolean( attributes.get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
       }
 
       // store the pool, so we can get to it later
@@ -270,15 +281,20 @@ public class PooledDatasourceHelper {
     }
   }
 
-  public static DataSource convert( IDatabaseConnection databaseConnection ) {
+  public static DataSource convert( IDatabaseConnection databaseConnection ) throws DBDatasourceServiceException {
     DriverManagerDataSource basicDatasource = new DriverManagerDataSource(); // From Spring
     IDatabaseDialectService databaseDialectService =
-        PentahoSystem.get( IDatabaseDialectService.class, PentahoSessionHolder.getSession() );
+      PentahoSystem.get( IDatabaseDialectService.class, PentahoSessionHolder.getSession() );
     IDatabaseDialect dialect = databaseDialectService.getDialect( databaseConnection );
+    if ( databaseConnection.getDatabaseType() == null && dialect == null ) {
+      // We do not have enough information to create a DataSource. Throwing exception
+      throw new DBDatasourceServiceException(
+        "Unable to create DataSource for connection: " + databaseConnection.getName() );
+    }
 
     if ( databaseConnection.getDatabaseType().getShortName().equals( "GENERIC" ) ) { //$NON-NLS-1$
       basicDatasource.setDriverClassName( databaseConnection.getAttributes().get(
-          GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS ) );
+        GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS ) );
     } else {
       basicDatasource.setDriverClassName( dialect.getNativeDriver() );
     }
@@ -289,7 +305,7 @@ public class PooledDatasourceHelper {
     }
     basicDatasource.setUsername( databaseConnection.getUsername() );
     basicDatasource.setPassword( databaseConnection.getPassword() );
-    
+
     return basicDatasource;
   }
 }
