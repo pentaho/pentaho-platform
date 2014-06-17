@@ -171,9 +171,6 @@
 	<dependency org="pentaho-doc" name="upgrade_guide" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
 		<artifact name="upgrade_guide" type="pdf" />
 	</dependency>
-	<dependency org="pentaho-doc" name="workflows" rev="${dependency.documentation.revision}" conf="pdf-docs->default">
-		<artifact name="workflows" type="pdf" />
-	</dependency>
 
 
 	<!--  OSS Licenses file -->
