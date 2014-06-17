@@ -266,7 +266,6 @@
     <dependency org="com.sap" name="sapdbc" rev="7.4.4" conf="default->default" transitive="false"/>
     <dependency org="monetdb" name="monetdb-jdbc" rev="2.1" conf="default->default" transitive="false"/>
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
-    <dependency org="interbase" name="interclient" rev="20050506" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="pentaho-hadoop-hive-jdbc-shim" rev="${dependency.pentaho-hadoop-hive-jdbc-shim.revision}" changing="true"
                 transitive="false"/>
 
