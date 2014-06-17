@@ -19,6 +19,7 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -56,7 +57,12 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
           Logger.debug( this, "  Setting up datasource - " + databaseConnection ); //$NON-NLS-1$
 
-          ds = getDataSource( databaseConnection );
+          try {
+            ds = getDataSource( databaseConnection );
+          } catch ( DBDatasourceServiceException e ) {
+            Logger.error(this, "Error retrieving DataSource", e );
+            continue;
+          }
           dsName = databaseConnection.getName();
 
           cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
@@ -81,13 +87,13 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
     } catch ( DatasourceMgmtServiceException dmse ) {
 
       Logger.error( this, Messages.getInstance().getErrorString(
-          "DatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), dmse ); //$NON-NLS-1$
+        "DatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), dmse ); //$NON-NLS-1$
 
       return false;
     }
   }
 
-  protected DataSource getDataSource( IDatabaseConnection connection ) {
+  protected DataSource getDataSource( IDatabaseConnection connection ) throws DBDatasourceServiceException {
 
     return PooledDatasourceHelper.convert( connection );
 
