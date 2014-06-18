@@ -333,9 +333,11 @@ public class PentahoWebContextFilter implements Filter {
     String serverProtocolValue;
     if ( !fullyQualifiedServerURL.endsWith( "/" ) ) { //$NON-NLS-1$
       fullyQualifiedServerURL += "/"; //$NON-NLS-1$
-      serverProtocolValue = "http";
-    } else {
+    }
+    if ( fullyQualifiedServerURL.startsWith( "http" ) ) {
       serverProtocolValue = fullyQualifiedServerURL.substring( 0, fullyQualifiedServerURL.indexOf( ":" ) );
+    } else {
+      serverProtocolValue = "http";
     }
     fullyQualifiedUrl = "var FULL_QUALIFIED_URL = '" + fullyQualifiedServerURL + "';\n\n"; //$NON-NLS-1$ //$NON-NLS-2$
     serverProtocol = "var SERVER_PROTOCOL = '" + serverProtocolValue + "';\n\n"; //$NON-NLS-1$ //$NON-NLS-2$
