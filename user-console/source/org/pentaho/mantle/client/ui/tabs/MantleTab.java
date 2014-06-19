@@ -17,12 +17,20 @@
 
 package org.pentaho.mantle.client.ui.tabs;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.FrameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
+import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -35,13 +43,6 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.FrameUtils;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
-import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
 public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
@@ -84,25 +85,29 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     }
   }
 
-  @SuppressWarnings ( "deprecation" )
   public void createDeepLink() {
     if ( getContent() instanceof IFrameTabPanel ) {
       PromptDialogBox dialogBox =
           new PromptDialogBox(
               Messages.getString( "deepLink" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
               true );
-      String url =
-          Window.Location.getProtocol()
-              + "//" + Window.Location.getHostName() + ":" + Window.Location.getPort() + Window.Location.getPath() //$NON-NLS-1$ //$NON-NLS-2$
-              + "?name=" + getLabelText() + "&startup-url="; //$NON-NLS-1$ //$NON-NLS-2$
+
       String startup = ( (IFrameTabPanel) getContent() ).getUrl();
       if ( !StringUtils.isEmpty( ( (IFrameTabPanel) getContent() ).getDeepLinkUrl() ) ) {
         startup = ( (IFrameTabPanel) getContent() ).getDeepLinkUrl();
       }
 
+      UrlBuilder builder = new UrlBuilder();
+      builder.setProtocol( Window.Location.getProtocol() );
+      builder.setHost( Window.Location.getHostName() );
+      builder.setPort( Integer.parseInt( Window.Location.getPort() ) );
+      builder.setPath( Window.Location.getPath() );
+      builder.setParameter( "name", getLabelText().replaceAll( "\\s", "%20" ) );
+      builder.setParameter( "startup-url", startup.replaceAll( "\\s", "%20" ) );
+      
       final TextArea urlbox = new TextArea();
       //encode any space characters
-      urlbox.setText( ( url + startup ).replaceAll( "\\s", "%20" ) );
+      urlbox.setText( builder.buildString() );
       urlbox.setReadOnly( true );
       urlbox.setVisibleLines( 3 );
       dialogBox.setContent( urlbox );

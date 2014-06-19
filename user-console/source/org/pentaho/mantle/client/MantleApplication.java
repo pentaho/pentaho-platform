@@ -325,7 +325,6 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           dialogBox.center();
         }
 
-        @SuppressWarnings ( "deprecation" )
         @Override
         public void onResponseReceived( Request arg0, Response response ) {
           Boolean isAdministrator = Boolean.parseBoolean( response.getText() );
@@ -369,7 +368,6 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
                 String startupURL = Window.Location.getParameter( "startup-url" ); //$NON-NLS-1$
                 if ( startupURL != null && !"".equals( startupURL ) ) { //$NON-NLS-1$
                   String title = Window.Location.getParameter( "name" ); //$NON-NLS-1$
-                  startupURL = URL.decodeComponent( startupURL );
                   SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( title, title, startupURL,
                       false );
                 }
