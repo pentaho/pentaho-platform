@@ -48,6 +48,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     UpdatePasswordController {
   private String delimiter = "\t";
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
+  private boolean usingLDAPOrJDBC;
 
   public static UserRolesAdminPanelController getInstance() {
     return instance;
@@ -423,7 +424,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean usingLDAPOrJDBC = ( response.getText().contains( "ldap" ) || response.getText().contains( "jdbc" ) );
+          usingLDAPOrJDBC = ( response.getText().contains( "ldap" ) || response.getText().contains( "jdbc" ) );
           usersLabelPanel.setVisible( !usingLDAPOrJDBC );
           usersPanel.setVisible( !usingLDAPOrJDBC );
           newRoleButton.setVisible( !usingLDAPOrJDBC );
@@ -522,7 +523,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
-    mainTabPanel.selectTab( 0 );
+    if( !usingLDAPOrJDBC ) {
+      mainTabPanel.selectTab( 0 );
+    } else {
+      mainTabPanel.selectTab( 1 );
+    }
     callback.onSuccess( true );
   }
 
