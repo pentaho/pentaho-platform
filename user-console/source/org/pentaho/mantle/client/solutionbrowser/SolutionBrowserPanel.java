@@ -253,35 +253,35 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static native String setElementHeightOffset( Element ele, int offset )
   /*-{
-      var h = 0;
-      if ($wnd.innerHeight) {
-          h = $wnd.innerHeight;
-      }
-      else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0) {
-          h = $wnd.document.documentElement.clientHeight;
-      }
-      else if ($wnd.document.body) {
-          h = $wnd.document.body.clientHeight;
-      }
+    var h = 0;
+    if ($wnd.innerHeight) {
+      h = $wnd.innerHeight;
+    }
+    else if ($wnd.document.documentElement && $wnd.document.documentElement.clientHeight != 0) {
+      h = $wnd.document.documentElement.clientHeight;
+    }
+    else if ($wnd.document.body) {
+      h = $wnd.document.body.clientHeight;
+    }
 
-      var height = h + offset - 5;
-      var offSetHeight = height + 'px';
-      ele.style.height = offSetHeight;
+    var height = h + offset - 5;
+    var offSetHeight = height + 'px';
+    ele.style.height = offSetHeight;
   }-*/;
 
   private void adjustHeight() {
     Element pucHeader = DOM.getElementById( "pucHeader" );
     if ( pucHeader != null ) {
-      final boolean isIE = RootPanel.getBodyElement().getClassName().contains( "IE8" ) ||
-        RootPanel.getBodyElement().getClassName().contains( "IE9" ) ||
-        RootPanel.getBodyElement().getClassName().contains( "IE10" );
+      final boolean isIE = RootPanel.getBodyElement().getClassName().contains( "IE8" )
+          || RootPanel.getBodyElement().getClassName().contains( "IE9" )
+          || RootPanel.getBodyElement().getClassName().contains( "IE10" );
       final int offset = pucHeader.getOffsetHeight();
       setElementHeightOffset( navigatorAndContentSplit.getElement(), -1 * offset );
-      setElementHeightOffset( contentTabPanel.getElement(), isIE?  -1 * ( offset + 36 ) :  -1 * offset );
+      setElementHeightOffset( contentTabPanel.getElement(), isIE ? -1 * ( offset + 36 ) : -1 * offset );
       Timer t = new Timer() {
         public void run() {
           setElementHeightOffset( navigatorAndContentSplit.getElement(), -1 * offset );
-          setElementHeightOffset( contentTabPanel.getElement(), isIE?  -1 * ( offset + 36 ) :  -1 * offset );
+          setElementHeightOffset( contentTabPanel.getElement(), isIE ? -1 * ( offset + 36 ) : -1 * offset );
         }
       };
       t.schedule( 100 );
@@ -312,38 +312,38 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static native void setupNativeHooks( SolutionBrowserPanel solutionNavigator )
   /*-{
-      $wnd.sendMouseEvent = function (event) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
-      }
-      $wnd.mantle_setNavigatorShowing = function (show) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
-      }
-      $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
-      }
-      $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
-      }
-      $wnd.mantle_addFavorite = function (pathToFile, title) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
-      }
-      $wnd.mantle_removeFavorite = function (pathToFile) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
-      }
-      $wnd.mantle_isNavigatorShowing = function () {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
-      }
-      $wnd.mantle_setDashboardsFilter = function (filters) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setDashboardsFilter(Lcom/google/gwt/core/client/JsArrayString;)(filters);
-      }
+    $wnd.sendMouseEvent = function (event) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
+    }
+    $wnd.mantle_setNavigatorShowing = function (show) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
+    }
+    $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
+    }
+    $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
+    }
+    $wnd.mantle_addFavorite = function (pathToFile, title) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
+    }
+    $wnd.mantle_removeFavorite = function (pathToFile) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
+    }
+    $wnd.mantle_isNavigatorShowing = function () {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isNavigatorShowing()();
+    }
+    $wnd.mantle_setDashboardsFilter = function (filters) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setDashboardsFilter(Lcom/google/gwt/core/client/JsArrayString;)(filters);
+    }
   }-*/;
 
   public void setDashboardsFilter( JsArrayString filters ) {
@@ -778,7 +778,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static final native String encodeUri( String URI )
   /*-{
-      return encodeURIComponent(URI);
+    return encodeURIComponent(URI);
   }-*/;
 
 }

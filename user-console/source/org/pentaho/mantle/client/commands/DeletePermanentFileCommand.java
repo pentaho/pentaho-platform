@@ -44,6 +44,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
 
   String moduleName = GWT.getModuleName();
+  static final String MULTIPLE_DELETE_TYPE = "multi";
 
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
@@ -106,7 +107,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
           new PromptDialogBox(
               Messages.getString( "emptyTrash" ), Messages.getString( "yesEmptyTrash" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     } else {
-      if ( type == "multi" ) {
+      if ( MULTIPLE_DELETE_TYPE.equals( type ) ) {
         deleteMessage = Messages.getString( "deleteMultiQuestion" );
       } else {
         deleteMessage = Messages.getString( "deleteQuestion", type );

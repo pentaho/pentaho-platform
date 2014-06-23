@@ -295,7 +295,7 @@ public class ImportDialog extends PromptDialogBox {
 
     final CustomListBox loggingDropDown = new CustomListBox();
     loggingDropDown.addChangeListener( new ChangeListener() {
-        public void onChange( Widget sender ) {
+      public void onChange( Widget sender ) {
         String value = loggingDropDown.getSelectedItem().getValue().toString();
         logLevel.setValue( value );
       }

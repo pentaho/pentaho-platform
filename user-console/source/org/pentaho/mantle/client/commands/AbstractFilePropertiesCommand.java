@@ -27,7 +27,6 @@ import com.google.gwt.user.client.Command;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
-import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -78,9 +77,8 @@ public abstract class AbstractFilePropertiesCommand implements Command {
       final RepositoryFile item = getRepositoryFile();
 
       // Checking if the user has access to manage permissions
-       String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId( item.getPath() ) 
-       + "/canAccess?permissions=" + MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
-
+      String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId( item.getPath() )
+          + "/canAccess?permissions=" + MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
       try {
         builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );

@@ -104,7 +104,7 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       builder.setPath( Window.Location.getPath() );
       builder.setParameter( "name", getLabelText().replaceAll( "\\s", "%20" ) );
       builder.setParameter( "startup-url", startup.replaceAll( "\\s", "%20" ) );
-      
+
       final TextArea urlbox = new TextArea();
       //encode any space characters
       urlbox.setText( builder.buildString() );

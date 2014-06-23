@@ -300,7 +300,7 @@ public class PerspectiveManager extends SimplePanel {
       final Widget activeAdminPanel = MantleXul.getInstance().getAdminContentDeck().getWidget( MantleXul.getInstance()
           .getAdminContentDeck().getVisibleWidget() );
       if ( activeAdminPanel != null ) {
-        if( activeAdminPanel instanceof ISysAdminPanel ) {
+        if ( activeAdminPanel instanceof ISysAdminPanel ) {
           ( (ISysAdminPanel) activeAdminPanel ).passivate( new AsyncCallback<Boolean>() {
             @Override
             public void onFailure( Throwable caught ) { }

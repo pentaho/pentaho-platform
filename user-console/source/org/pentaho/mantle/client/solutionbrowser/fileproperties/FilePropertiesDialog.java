@@ -65,14 +65,13 @@ public class FilePropertiesDialog extends PromptDialogBox {
   private String fileName = null;
 
   /**
-   * 
    * @param fileSummary
    * @param propertyTabs
    * @param callback
    * @param defaultTab
    */
   public FilePropertiesDialog( RepositoryFile fileSummary, final PentahoTabPanel propertyTabs,
-      final IDialogCallback callback, Tabs defaultTab, final boolean canManageAcls ) {
+                               final IDialogCallback callback, Tabs defaultTab, final boolean canManageAcls ) {
     super(
         fileSummary.getTitle() + " " + Messages.getString( "properties" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     boolean isInTrash = fileSummary.getPath().contains( "/.trash/pho:" );
@@ -96,13 +95,12 @@ public class FilePropertiesDialog extends PromptDialogBox {
     okButton.getElement().setId( "filePropertiesOKButton" );
     cancelButton.getElement().setId( "filePropertiesCancelButton" );
 
-    if (fileSummary.isFolder()) {
+    if ( fileSummary.isFolder() ) {
       parentPath = fileSummary.getPath();
     } else {
       parentPath = fileSummary.getPath().substring( 0, fileSummary.getPath().lastIndexOf( "/" ) );
       fileName = fileSummary.getName();
     }
-
 
 
     super.setCallback( new IDialogCallback() {
@@ -160,7 +158,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         requestCallback = new RequestCallback() {
           @Override
           public void onError( Request request, Throwable th ) {
-            WaitPopup.getInstance().setVisible(false);
+            WaitPopup.getInstance().setVisible( false );
             MessageDialogBox dialogBox =
                 new MessageDialogBox( Messages.getString( "error" ), th.toString(), false, false, true ); //$NON-NLS-1$
             dialogBox.center();
@@ -168,22 +166,22 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
           @Override
           public void onResponseReceived( Request arg0, Response arg1 ) {
-            WaitPopup.getInstance().setVisible(false);
+            WaitPopup.getInstance().setVisible( false );
             if ( arg1.getStatusCode() == Response.SC_OK ) {
               dirty = false;
               // Refresh current folder or parent folder
               PerspectiveManager.getInstance().setPerspective( PerspectiveManager.BROWSER_PERSPECTIVE );
 
               GenericEvent ge = new GenericEvent();
-              if (fileName == null) { // Filename is null, then it is a folder
+              if ( fileName == null ) { // Filename is null, then it is a folder
                 ge.setEventSubType( "RefreshFolderEvent" );
                 ge.setStringParam( parentPath );
               } else {
                 ge.setEventSubType( "RefreshFileEvent" );
 
                 JSONObject strParam = new JSONObject();
-                strParam.put("path", new JSONString(parentPath));
-                strParam.put("fileName", new JSONString(fileName));
+                strParam.put( "path", new JSONString( parentPath ) );
+                strParam.put( "fileName", new JSONString( fileName ) );
 
                 ge.setStringParam( strParam.toString() );
               }
@@ -204,7 +202,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
     // start the chain
     try {
-      WaitPopup.getInstance().setVisible(true);
+      WaitPopup.getInstance().setVisible( true );
       requestBuilders.get( 0 ).send();
     } catch ( RequestException e ) {
       //ignored
@@ -212,7 +210,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
   }
 
   /**
-   * 
    * @param tab
    */
   public void showTab( Tabs tab ) {
@@ -236,7 +233,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
   }
 
   /**
-   * 
    * @param fileSummary
    */
   protected void getAcls( RepositoryFile fileSummary ) {
@@ -275,7 +271,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
   }
 
   /**
-   * 
    * @param fileSummary
    */
   protected void getMetadata( RepositoryFile fileSummary ) {
@@ -298,7 +293,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             if ( response.getText() != null && !"".equals( response.getText() )
-              && !response.getText().equals( "null" ) ) {
+                && !response.getText().equals( "null" ) ) {
               generalTab.setMetadataResponse( response );
             }
           } else {
@@ -323,20 +318,18 @@ public class FilePropertiesDialog extends PromptDialogBox {
     RequestBuilder nextRequest;
 
     /**
-     * 
      * @param arg0
      * @param arg1
      */
     @Override
     public void onError( Request arg0, Throwable arg1 ) {
-      WaitPopup.getInstance().setVisible(false);
+      WaitPopup.getInstance().setVisible( false );
       MessageDialogBox dialogBox =
           new MessageDialogBox( Messages.getString( "error" ), arg1.toString(), false, false, true ); //$NON-NLS-1$
       dialogBox.center();
     }
 
     /**
-     * 
      * @param arg0
      * @param arg1
      */
@@ -350,7 +343,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         }
         dirty = false;
       } else {
-        WaitPopup.getInstance().setVisible(false);
+        WaitPopup.getInstance().setVisible( false );
         MessageDialogBox dialogBox =
             new MessageDialogBox(
                 Messages.getString( "error" ), Messages.getString( "operationPermissionDenied" ), false, false, true ); //$NON-NLS-1$
@@ -359,7 +352,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     }
 
     /**
-     * 
      * @param nextRequest
      */
     public void setNextRequest( RequestBuilder nextRequest ) {
@@ -367,7 +359,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     }
 
     /**
-     * 
      * @param nextRequest
      */
     public ChainedRequestCallback( RequestBuilder nextRequest ) {
