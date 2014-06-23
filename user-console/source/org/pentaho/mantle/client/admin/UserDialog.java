@@ -115,7 +115,7 @@ public class UserDialog extends GwtDialog {
 
     return hp;
   }
-  
+
   private boolean isValidName( String name, String reservedSymbols ) {
     return !StringUtils.containsAnyChars( name, reservedSymbols );
   }
@@ -128,10 +128,10 @@ public class UserDialog extends GwtDialog {
     messageBox.setWidth( 300 );
     messageBox.show();
   }
-  
+
   private void performSave() throws RequestException {
     String url = GWT.getHostPageBaseURL() + "api/repo/files/reservedCharacters";
-    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );    
+    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     requestBuilder.sendRequest( "", new RequestCallback() {
 
       @Override

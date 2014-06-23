@@ -161,11 +161,12 @@ public class BlockoutPanel extends SimplePanel {
             removeBlockout( jsJob );
             refreshCallBack.okPressed();
           }
+
           public void cancelPressed() {
             refreshCallBack.cancelPressed();
           }
         };
-        
+
         NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog( jsJob, callback, false, true );
         table.selectRow( list.indexOf( jsJob ) );
         blockoutDialog.setUpdateMode();
@@ -181,7 +182,7 @@ public class BlockoutPanel extends SimplePanel {
         final Set<JsJob> selectedSet = getSelectedSet();
 
         final Label messageTextBox = new Label( Messages.getString( "deleteBlockoutWarning", ""
-          + selectedSet.size() ) );
+            + selectedSet.size() ) );
         final PromptDialogBox blockoutDeleteWarningDialogBox =
             new PromptDialogBox( Messages.getString( "delete" ), Messages.getString( "yesDelete" ), Messages
                 .getString( "no" ), true, true );
@@ -213,14 +214,14 @@ public class BlockoutPanel extends SimplePanel {
   private void createTable() {
     int columnSize = 139;
     String[] tableHeaderNames =
-    { Messages.getString( "blockoutColumnStarts" ), Messages.getString( "blockoutColumnEnds" ),
-          Messages.getString( "blockoutColumnRepeats" ), Messages.getString( "blockoutColumnRepeatsEndBy" ) };
-    int[] columnWidths = { columnSize, columnSize, columnSize, columnSize };
+    {Messages.getString( "blockoutColumnStarts" ), Messages.getString( "blockoutColumnEnds" ),
+            Messages.getString( "blockoutColumnRepeats" ), Messages.getString( "blockoutColumnRepeatsEndBy" )};
+    int[] columnWidths = {columnSize, columnSize, columnSize, columnSize};
     BaseColumnComparator[] columnComparators =
-    { BaseColumnComparator.getInstance( ColumnComparatorTypes.DATE ),
-          BaseColumnComparator.getInstance( ColumnComparatorTypes.DATE ),
-          BaseColumnComparator.getInstance( ColumnComparatorTypes.STRING_NOCASE ),
-          BaseColumnComparator.getInstance( ColumnComparatorTypes.STRING_NOCASE ) };
+    {BaseColumnComparator.getInstance( ColumnComparatorTypes.DATE ),
+            BaseColumnComparator.getInstance( ColumnComparatorTypes.DATE ),
+            BaseColumnComparator.getInstance( ColumnComparatorTypes.STRING_NOCASE ),
+            BaseColumnComparator.getInstance( ColumnComparatorTypes.STRING_NOCASE )};
     table = new BaseTable( tableHeaderNames, columnWidths, columnComparators, SelectionPolicy.MULTI_ROW );
     table.getElement().setId( "blockout-table" );
     table.setWidth( "640px" );
@@ -280,7 +281,7 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private void makeServiceCall( final String urlSuffix, final RequestBuilder.Method httpMethod,
-      final String requestData, final String acceptHeader, final RequestCallback callback ) {
+                                final String requestData, final String acceptHeader, final RequestCallback callback ) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
@@ -362,20 +363,20 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private String getStartValue( JsJob block ) {
-    
+
     long now = System.currentTimeMillis();
     long duration = block.getJobTrigger().getBlockDuration();
     Date lastRun = block.getLastRun();
-    
+
     // if we have a last execution and we are still within the range of that, the
     // starts / ends need to still reflect this rather than the next execution
     if ( lastRun != null && now < lastRun.getTime() + duration && now > lastRun.getTime() ) {
       return convertDateToValue( lastRun );
     }
-    
+
     if ( block.getNextRun() != null ) {
       return convertDateToValue( block.getNextRun() );
-    } else if ( block.getJobTrigger() != null && block.getJobTrigger().getStartTime() != null  ) {
+    } else if ( block.getJobTrigger() != null && block.getJobTrigger().getStartTime() != null ) {
       return convertDateToValue( block.getJobTrigger().getStartTime() );
     } else if ( "COMPLETE".equals( block.getState() ) && block.getJobTrigger() != null ) {
       // if a job is complete, it will not have the date in the nextRun attribute
@@ -386,17 +387,17 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private String getEndValue( JsJob block ) {
-    
+
     long now = System.currentTimeMillis();
     long duration = block.getJobTrigger().getBlockDuration();
     Date lastRun = block.getLastRun();
-    
+
     // if we have a last execution and we are still within the range of that, the
     // starts / ends need to still reflect this rather than the next execution
     if ( lastRun != null && now < lastRun.getTime() + duration && now > lastRun.getTime() ) {
       return convertDateToValue( new Date( lastRun.getTime() + duration ) );
-    }    
-    
+    }
+
     if ( block.getNextRun() instanceof Date ) {
       return convertDateToValue( new Date( block.getNextRun().getTime() + duration ) );
     } else if ( "COMPLETE".equals( block.getState() ) && block.getJobTrigger() != null

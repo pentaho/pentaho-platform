@@ -133,8 +133,8 @@ public class PasteFilesCommand extends AbstractCommand {
                     promptForOptions = true;
                     break;
                   } else if ( childNames.contains( fileNameWithExt )
-                      && getSolutionPath().equals( pasteFileParentPath ) &&
-                      SolutionBrowserClipboard.getInstance().getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT ) {
+                      && getSolutionPath().equals( pasteFileParentPath )
+                      && SolutionBrowserClipboard.getInstance().getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT ) {
                     cutSameDir = true;
                     break;
                   }
@@ -155,14 +155,14 @@ public class PasteFilesCommand extends AbstractCommand {
                 };
                 overwriteDialog.setCallback( callback );
                 overwriteDialog.center();
-            } else {
-              if ( !cutSameDir ) {
-                performSave( clipBoard, 2 );
               } else {
-                event.setMessage( "Cancel" );
-                EventBusUtil.EVENT_BUS.fireEvent( event );
+                if ( !cutSameDir ) {
+                  performSave( clipBoard, 2 );
+                } else {
+                  event.setMessage( "Cancel" );
+                  EventBusUtil.EVENT_BUS.fireEvent( event );
+                }
               }
-            }
             } else {
               Window.alert( getChildrenResponse.getText() );
             }
@@ -187,10 +187,10 @@ public class PasteFilesCommand extends AbstractCommand {
     temp = temp.substring( 0, temp.length() - 1 );
     final String filesList = temp;
 
-    String copyUrl =         contextURL
+    String copyUrl = contextURL
         + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
 
-    String moveUrl =         contextURL
+    String moveUrl = contextURL
         + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/move"; //$NON-NLS-1$//$NON-NLS-2$
 
     RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, ( SolutionBrowserClipboard.getInstance()
@@ -240,6 +240,6 @@ public class PasteFilesCommand extends AbstractCommand {
 
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
-      $wnd.mantle_isBrowseRepoDirty = isDirty;
+    $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
 }

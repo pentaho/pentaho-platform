@@ -126,7 +126,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     StringBuilder selectedRoles = new StringBuilder();
     for ( int i = 0; i < rolesListBox.getItemCount(); i++ ) {
       if ( rolesListBox.isItemSelected( i ) ) {
-        selectedRoles.append( encodeUri( rolesListBox.getValue( i ) + delimiter ));
+        selectedRoles.append( encodeUri( rolesListBox.getValue( i ) + delimiter ) );
       }
     }
 
@@ -171,7 +171,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     StringBuilder selectedUsers = new StringBuilder();
     for ( int i = 0; i < usersListBox.getItemCount(); i++ ) {
       if ( usersListBox.isItemSelected( i ) ) {
-        selectedUsers.append( encodeUri( usersListBox.getValue( i ) + delimiter ));
+        selectedUsers.append( encodeUri( usersListBox.getValue( i ) + delimiter ) );
       }
     }
 
@@ -523,7 +523,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
-    if( !usingLDAPOrJDBC ) {
+    if ( !usingLDAPOrJDBC ) {
       mainTabPanel.selectTab( 0 );
     } else {
       mainTabPanel.selectTab( 1 );
@@ -579,7 +579,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       StringBuilder roleNames = new StringBuilder();
       for ( int i = 0; i < availableRolesListBox.getItemCount(); i++ ) {
         if ( availableRolesListBox.isItemSelected( i ) ) {
-          roleNames.append(encodeUri( availableRolesListBox.getValue( i ) + delimiter ));
+          roleNames.append( encodeUri( availableRolesListBox.getValue( i ) + delimiter ) );
         }
       }
 
@@ -597,7 +597,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       StringBuilder roleNames = new StringBuilder();
       for ( int i = 0; i < selectedRolesListBox.getItemCount(); i++ ) {
         if ( selectedRolesListBox.isItemSelected( i ) ) {
-          roleNames.append( encodeUri( selectedRolesListBox.getValue( i ) + delimiter ));
+          roleNames.append( encodeUri( selectedRolesListBox.getValue( i ) + delimiter ) );
         }
       }
 
@@ -633,7 +633,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       StringBuilder userNames = new StringBuilder();
       for ( int i = 0; i < availableMembersListBox.getItemCount(); i++ ) {
         if ( availableMembersListBox.isItemSelected( i ) ) {
-          userNames.append( encodeUri( availableMembersListBox.getValue( i ) + delimiter ));
+          userNames.append( encodeUri( availableMembersListBox.getValue( i ) + delimiter ) );
         }
       }
 
@@ -651,7 +651,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       StringBuilder userNames = new StringBuilder();
       for ( int i = 0; i < selectedMembersListBox.getItemCount(); i++ ) {
         if ( selectedMembersListBox.isItemSelected( i ) ) {
-          userNames.append( encodeUri( selectedMembersListBox.getValue( i ) + delimiter ));
+          userNames.append( encodeUri( selectedMembersListBox.getValue( i ) + delimiter ) );
         }
       }
 
@@ -700,7 +700,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
           }
 
           @Override
-          public void cancelPressed() { }
+          public void cancelPressed() {
+          }
         } );
         warning.center();
       }
@@ -727,7 +728,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
           }
 
           @Override
-          public void cancelPressed() { }
+          public void cancelPressed() {
+          }
         } );
         warning.center();
       }
