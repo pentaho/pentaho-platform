@@ -102,8 +102,10 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       builder.setHost( Window.Location.getHostName() );
       builder.setPort( Integer.parseInt( Window.Location.getPort() ) );
       builder.setPath( Window.Location.getPath() );
+      //UrlBuilder will encode spaces as '+' which is a valid special character so we replace all spaces with '%20'
       builder.setParameter( "name", getLabelText().replaceAll( "\\s", "%20" ) );
-      builder.setParameter( "startup-url", startup.replaceAll( "\\s", "%20" ) );
+      //the startup string is already encoded with ':' being replaced with '\t' and then encoded again...
+      builder.setParameter( "startup-url", startup );
 
       final TextArea urlbox = new TextArea();
       //encode any space characters
