@@ -367,7 +367,9 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
                 // startup-url on the URL for the app, wins over settings
                 String startupURL = Window.Location.getParameter( "startup-url" ); //$NON-NLS-1$
                 if ( startupURL != null && !"".equals( startupURL ) ) { //$NON-NLS-1$
-                  String title = Window.Location.getParameter( "name" ); //$NON-NLS-1$
+                  // Spaces were double encoded so that they wouldn't be replaced with '+' when creating a deep
+                  // link so when following a deep link we need to replace '%20' with a space even after decoding
+                  String title = Window.Location.getParameter( "name" ).replaceAll( "%20", " " ); //$NON-NLS-1$
                   SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( title, title, startupURL,
                       false );
                 }
