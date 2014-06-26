@@ -76,14 +76,15 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
     Properties localeProperties = buildLocaleProperties( localeBundle, localePropertiesFromIndex );
 
-    if ( localeParent != null && unifiedRepository != null && localeBundle.getFile() != null ) {
+    String bundleFileName = localeBundle.getFile() != null ? localeBundle.getFile().getName() : localeBundle.getName();
+    if ( localeParent != null && unifiedRepository != null && bundleFileName != null ) {
       // If the parent file (content) got skipped because it existed then we will not import the locale information
-      String fullPath = RepositoryFilenameUtils.concat( localeBundle.getPath(), localeBundle.getFile().getName() );
+      String fullPath = RepositoryFilenameUtils.concat( localeBundle.getPath(), localeParent.getName() );
       if ( ImportSession.getSession().getSkippedFiles().contains( fullPath ) ) {
         getLogger().trace(
-            "Not importing Locale [" + localeBundle.getFile().getName() + "] since parent file not written " );
+            "Not importing Locale [" + bundleFileName + "] since parent file not written " );
       } else {
-        getLogger().trace( "Processing Locale [" + localeBundle.getFile().getName() + "]" );
+        getLogger().trace( "Processing Locale [" + bundleFileName + "]" );
         unifiedRepository
             .setLocalePropertiesForFile( localeParent, extractLocaleCode( localeBundle ), localeProperties );
       }
