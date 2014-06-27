@@ -53,8 +53,9 @@
 }
 
 .cellTableCell {
-  padding: 2px 15px;
+  padding: 2px 10px;
   overflow: hidden;
+  text-align: left;
 }
 
 .cellTableFirstColumnFooter {

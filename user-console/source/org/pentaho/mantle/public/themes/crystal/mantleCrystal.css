@@ -1199,8 +1199,9 @@ a:active, a:hover {
 }
 
 .pentaho-table .cellTableCell {
-  padding: 10px 15px;
+  padding: 10px 10px;
   overflow: hidden;
+  text-align: left;
 }
 
 .pentaho-table .cellTableFirstColumnFooter {
