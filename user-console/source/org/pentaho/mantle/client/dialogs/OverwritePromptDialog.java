@@ -37,7 +37,8 @@ public class OverwritePromptDialog extends PromptDialogBox {
   protected RadioButton noRenameOrOverwriteRb;
 
   public OverwritePromptDialog() {
-    super( "Overwrite", Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    super(
+        Messages.getString( "overwritePromptDialogTitle" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     VerticalPanel rootPanel = new VerticalPanel();
     Label overwriteInstructions = new Label( Messages.getString( "overwriteInstructions" ) ); //$NON-NLS-1$
