@@ -398,12 +398,14 @@ public class MantleController extends AbstractXulEventHandler {
         public void execute() {
           // confirm the clear
           GwtConfirmBox warning = new GwtConfirmBox();
-          warning.setHeight(117);
-          warning.setMessage(clearMessage);
-          warning.setTitle(menuClearMessage);
-          warning.addDialogCallback(new XulDialogCallback<String>() {
-            public void onClose(XulComponent sender, Status returnCode, String retVal) {
-              if (returnCode == Status.ACCEPT) {
+          warning.setHeight( 117 );
+          warning.setMessage( clearMessage );
+          warning.setTitle( menuClearMessage );
+          warning.setAcceptLabel( Messages.getString( "clearRecentAcceptButtonLabel" ) );
+          warning.setCancelLabel( Messages.getString( "clearRecentCancelButtonLabel" ) );
+          warning.addDialogCallback( new XulDialogCallback<String>() {
+            public void onClose( XulComponent sender, Status returnCode, String retVal ) {
+              if ( returnCode == Status.ACCEPT ) {
                 filePickList.clear();
               }
             }
@@ -415,11 +417,11 @@ public class MantleController extends AbstractXulEventHandler {
         }
       });
     } else {
-      menuBar.addItem(Messages.getString("empty"), new Command() { //$NON-NLS-1$
+      menuBar.addItem( Messages.getString( "empty" ), new Command() { //$NON-NLS-1$
             public void execute() {
               // Do nothing
             }
-          });
+          } );
     }
   }
 
@@ -440,7 +442,8 @@ public class MantleController extends AbstractXulEventHandler {
               } else {
                 favoritePickList = FavoritePickList.getInstance();
               }
-            } catch (Throwable t) {
+            } catch ( Throwable t ) {
+              // ignore
             }
           } else if ("recent".equalsIgnoreCase(setting.getName())) { //$NON-NLS-1$
             try {
@@ -452,8 +455,9 @@ public class MantleController extends AbstractXulEventHandler {
               } else {
                 recentPickList = RecentPickList.getInstance();
               }
-              recentPickList.setMaxSize(10);
-            } catch (Throwable t) {
+              recentPickList.setMaxSize( 10 );
+            } catch ( Throwable t ) {
+              // ignore
             }
           }
         }
@@ -526,7 +530,8 @@ public class MantleController extends AbstractXulEventHandler {
       builder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
       builder.sendRequest(null, internalCallback);
       // TO DO Reset the menuItem click for browser and workspace here?
-    } catch (RequestException e) {
+    } catch ( RequestException e ) {
+      // ignore
     }
   }
 
