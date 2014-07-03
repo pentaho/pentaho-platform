@@ -17,25 +17,9 @@
 
 package org.pentaho.mantle.client.ui.xul;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
@@ -82,8 +66,25 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MantleController extends AbstractXulEventHandler {
 
@@ -407,6 +408,8 @@ public class MantleController extends AbstractXulEventHandler {
           warning.setHeight( 117 );
           warning.setMessage( clearMessage );
           warning.setTitle( menuClearMessage );
+          warning.setAcceptLabel( Messages.getString( "clearRecentAcceptButtonLabel" ) );
+          warning.setCancelLabel( Messages.getString( "clearRecentCancelButtonLabel" ) );
           warning.addDialogCallback( new XulDialogCallback<String>() {
             public void onClose( XulComponent sender, Status returnCode, String retVal ) {
               if ( returnCode == Status.ACCEPT ) {
@@ -422,10 +425,10 @@ public class MantleController extends AbstractXulEventHandler {
       } );
     } else {
       menuBar.addItem( Messages.getString( "empty" ), new Command() { //$NON-NLS-1$
-          public void execute() {
-            // Do nothing
-          }
-        } );
+            public void execute() {
+              // Do nothing
+            }
+          } );
     }
   }
 
@@ -450,7 +453,7 @@ public class MantleController extends AbstractXulEventHandler {
                 favoritePickList = FavoritePickList.getInstance();
               }
             } catch ( Throwable t ) {
-              //ignore
+              // ignore
             }
           } else if ( "recent".equalsIgnoreCase( setting.getName() ) ) { //$NON-NLS-1$
             try {
@@ -464,7 +467,7 @@ public class MantleController extends AbstractXulEventHandler {
               }
               recentPickList.setMaxSize( 10 );
             } catch ( Throwable t ) {
-              //ignore
+              // ignore
             }
           }
         }
@@ -539,7 +542,7 @@ public class MantleController extends AbstractXulEventHandler {
       builder.sendRequest( null, internalCallback );
       // TO DO Reset the menuItem click for browser and workspace here?
     } catch ( RequestException e ) {
-      //ignore
+      // ignore
     }
   }
 
