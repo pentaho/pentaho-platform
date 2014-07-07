@@ -11,6 +11,13 @@
        java.io.tmpdir - Default temp file path -->
   <diskStore path="java.io.tmpdir/_pentaho"/>
 
+  
+  <cacheManagerPeerProviderFactory
+    class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+    properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=32"/>
+  <cacheManagerPeerListenerFactory
+    class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+    properties="port=40001, socketTimeoutMillis=2000"/>
 
   <!--Default Cache configuration. These will applied to caches programmatically created through
       the CacheManager.
@@ -100,9 +107,22 @@
          timeToIdleSeconds="0"
          timeToLiveSeconds="0"
          diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
-
+         diskExpiryThreadIntervalSeconds="120">
+		 <cacheEventListenerFactory
+           class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+  </cache>
+  
+  <cache name="metadata-domain-repository"
+         maxElementsInMemory="30"
+         eternal="false"
+         overflowToDisk="true"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120">
+		 <cacheEventListenerFactory
+           class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+  </cache>
 
   <!--
     Defines a cache used by the reporting engine to hold small datasets.
