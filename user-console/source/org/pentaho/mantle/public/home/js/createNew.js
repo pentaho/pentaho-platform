@@ -56,6 +56,19 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
       var myself = this,
           $content = $();
 
+      // retrieve hasDataAccess permission
+      var hasDataAccess = false;
+      $.ajax({
+        url: myself.getUrlBase() + "plugin/data-access/api/permissions/hasDataAccess",
+        async: false,
+        success: function (result) {
+          hasDataAccess = result;
+        },
+        error: function (err) {
+          console.log("error: " + err);
+        }
+      });
+
       myself.getOverlays(function (result) {
 
         if (result.overlay == undefined) {
@@ -73,13 +86,24 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
                     .addClass(myself.bootstrapButtonClasses);
 
             myself.processOverlay(overlay, $button);
-            $content.push($button);
+            var buttonId = $($button).attr("id");
+            if (buttonId === 'createNewdatasourceButton') {
+              // check permission for createNewdatasourceButton only
+              if (hasDataAccess) {
+                $content.push($button);
+              }
+            } else {
+              $content.push($button);
+            }
           }
         }
 
         //check logic of only jpivot is installed and add the marketplace link to it
-        if ($content.length == 1 && config.hasMarketplacePlugin && config.canAdminister) {
+        if ($content.length > 0 && config.hasMarketplacePlugin && config.canAdminister) {
           var id = $($content[0]).attr("id").toLowerCase();
+          if (id.search("jpivot") < 0 && $content.length > 1) {
+        	  id = $($content[1]).attr("id").toLowerCase();
+          }
           if (id.search("jpivot") > 0) {
             if (config.i18nMap['marketplace'] != undefined) {
               myself.marketplaceButtonText = config.i18nMap['marketplace'];
