@@ -12,20 +12,66 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.metaverse;
 
 /**
- *
+ * The IMetaverseBuilder is a Builder that creates and maintains a metaverse model, which contains nodes and links
  */
 public interface IMetaverseBuilder {
+
+  /**
+   * Adds the specified node to the metaverse model
+   * 
+   * @param node
+   *          the node to add
+   * @return the metaverse builder (for chaining)
+   */
+  IMetaverseBuilder addNode( IMetaverseNode node );
+
+  /**
+   * Adds the specified link to the model. If the link refers to nodes that do not yet exist in the model, then
+   * placeholder node(s) should also be inserted to maintain a valid graph model.
+   * 
+   * @param link
+   *          the link to add
+   * @return the metaverse builder (for chaining)
+   */
+  IMetaverseBuilder addLink( IMetaverseLink link );
+
+  /**
+   * Deletes the specified node from the metaverse model.
+   *
+   * @param node          the node to remove
+   * @return the metaverse builder (for chaining)
+   */
+  IMetaverseBuilder deleteNode( IMetaverseNode node );
+
+  /**
+   * Deletes the specified link from the metaverse model.
+   * 
+   * @param link
+   *          the link to remove
+   * @return the metaverse builder (for chaining)
+   */
+  IMetaverseBuilder deleteLink( IMetaverseLink link );
+
+  /**
+   * Updates the specified node to have the provided attributes. 
+   *
+   * @param updatedNode the node with updated attributes
+   * @return the metaverse builder (for chaining)
+   */
+  IMetaverseBuilder updateNode( IMetaverseNode updatedNode );
   
-  void addNode(IMetaverseNode node);
-  
-  void addLink(IMetaverseLink link);
-  
-  // TODO update, delete, change void return types
+  /**
+   * Updates the specified link to have the provided attributes. 
+   *
+   * @param updatedLink the link with updated attributes
+   * @return the metaverse builder (for chaining)
+   */
+  IMetaverseBuilder updateLink( IMetaverseLink updatedNode );
 
 }
