@@ -18,7 +18,11 @@
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
@@ -28,16 +32,26 @@ import org.springframework.security.providers.ldap.LdapAuthenticator;
 public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvider {
 
   private IAuthenticationRoleMapper roleMapper;
+  private String authenticatedRole;
 
   public DefaultLdapAuthenticationProvider( LdapAuthenticator authenticator, IAuthenticationRoleMapper roleMapper ) {
     super( authenticator );
     this.roleMapper = roleMapper;
+    setAuthenticatedRole( null );
   }
 
   public DefaultLdapAuthenticationProvider( LdapAuthenticator authenticator,
       LdapAuthoritiesPopulator authoritiesPopulator, IAuthenticationRoleMapper roleMapper ) {
     super( authenticator, authoritiesPopulator );
     this.roleMapper = roleMapper;
+    setAuthenticatedRole( null );
+  }
+
+  public DefaultLdapAuthenticationProvider( LdapAuthenticator authenticator,
+      LdapAuthoritiesPopulator authoritiesPopulator, IAuthenticationRoleMapper roleMapper, String authenticatedRole ) {
+    super( authenticator, authoritiesPopulator );
+    this.roleMapper = roleMapper;
+    setAuthenticatedRole( authenticatedRole );
   }
 
   /**
@@ -54,5 +68,21 @@ public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvide
       }
     }
     return authorities;
+  }
+
+  @Override
+  public Authentication authenticate( Authentication authentication ) throws AuthenticationException {
+    final Authentication authenticate = super.authenticate( authentication );
+    for ( GrantedAuthority authority : authenticate.getAuthorities() ) {
+      if ( authority.getAuthority().equals( authenticatedRole ) ) {
+        return authenticate;
+      }
+    }
+    throw new AuthenticationServiceException( "The user doesn't have '" + authenticatedRole + "' role." );
+  }
+
+  private void setAuthenticatedRole( String authenticatedRole ) {
+    this.authenticatedRole = authenticatedRole == null
+        ? PentahoSystem.get( String.class, "singleTenantAuthenticatedAuthorityName", null ) : authenticatedRole;
   }
 }
