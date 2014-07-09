@@ -22,13 +22,32 @@ package org.pentaho.platform.api.metaverse;
  */
 public interface IDocumentLocator {
 
+  /**
+   * Starts the scanning procedure used by this document locator
+   */
   void startScan();
 
+  /**
+   * Stops the scanning procedure used by this document locator
+   */
   void stopScan();
 
+  /**
+   * Adds to the locator a listener for document events (document found, created, deleted, etc.)
+   */
   void addDocumentListener( IDocumentListener listener );
 
+  /**
+   * Removes the specified listener from this locator
+   * 
+   * @param listener the document listener to remove
+   */
   void removeDocumentListener( IDocumentListener listener );
 
+  /**
+   * Notify listeners of a document event
+   *
+   * @param event the document event to report
+   */
   void notifyListeners( IDocumentEvent event );
 }

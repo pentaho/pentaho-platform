@@ -12,14 +12,35 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.metaverse;
 
 /**
- *
+ * The IMetaverseDocument interface represents a document in the metaverse.
  */
 public interface IMetaverseDocument {
+
+  /**
+   * Gets the name of this node.
+   *
+   * @return the String name of the node
+   */
+  String getName();
+
+  /**
+   * Gets the metaverse-unique identifier for this node.
+   *
+   * @return the String ID of the node
+   */
+  String getID();
+
+  /**
+   * Gets the type of this node.
+   *
+   * @return the String type of the node
+   */
+  String getType();
 
 }
