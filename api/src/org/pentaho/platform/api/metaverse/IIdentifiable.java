@@ -17,34 +17,31 @@
 
 package org.pentaho.platform.api.metaverse;
 
-import java.util.Set;
-
 /**
- * The IDocumentAnalyzer interface represents an object capable of analyzing certain types of IMetaverseDocuments.
+ * The IIdentifiable interface provides commonly used methods for identifying entities, such as name, ID, type
  *
  */
-public interface IDocumentAnalyzer {
-  
-  /**
-   * Analyze the given document
-   *
-   * @param document the document
-   */
-  void analyze(IMetaverseDocument document);
-  
-  /**
-   * Gets the types of documents supported by this analyzer
-   *
-   * @return the supported types
-   */
-  Set<String> getSupportedTypes();
-  
-  /**
-   * Sets the metaverse builder, used by the analyzer to create nodes and links in the metaverse generated
-   * by analysis of documents.
-   *
-   * @param builder the metaverse builder
-   */
-  void setMetaverseBuilder(IMetaverseBuilder builder);
+public interface IIdentifiable {
 
+  /**
+   * Gets the name of this entity.
+   *
+   * @return the String name of the entity
+   */
+  String getName();
+
+  /**
+   * Gets the metaverse-unique identifier for this entity.
+   *
+   * @return the String ID of the entity.
+   */
+  String getID();
+
+  /**
+   * Gets the type of this entity.
+   *
+   * @return the String type of the entity
+   */
+  String getType();
+  
 }

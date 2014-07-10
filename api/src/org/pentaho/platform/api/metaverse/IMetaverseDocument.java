@@ -20,27 +20,6 @@ package org.pentaho.platform.api.metaverse;
 /**
  * The IMetaverseDocument interface represents a document in the metaverse.
  */
-public interface IMetaverseDocument {
-
-  /**
-   * Gets the name of this node.
-   *
-   * @return the String name of the node
-   */
-  String getName();
-
-  /**
-   * Gets the metaverse-unique identifier for this node.
-   *
-   * @return the String ID of the node
-   */
-  String getID();
-
-  /**
-   * Gets the type of this node.
-   *
-   * @return the String type of the node
-   */
-  String getType();
+public interface IMetaverseDocument extends IIdentifiable {
 
 }
