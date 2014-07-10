@@ -18,11 +18,23 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * @author mburgess
- *
+ * The IDocumentEvent interface represents events that occur when metaverse documents are being processed,
+ * such as create, read, update, delete.
  */
 public interface IDocumentEvent {
-  
+
+  /**
+   * Gets the document to which this event occurred.
+   *
+   * @return the IMetaverseDocument instance to which this event occurred.
+   */
   IMetaverseDocument getDocument();
+
+  /**
+   * Gets the type of this document event
+   *
+   * @return the event type
+   */
+  String getEventType();
 
 }
