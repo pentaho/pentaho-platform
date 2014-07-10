@@ -20,27 +20,6 @@ package org.pentaho.platform.api.metaverse;
 /**
  * The IMetaverseNode interface represents a node/vertex in the graph model of the metaverse.
  */
-public interface IMetaverseNode {
-
-  /**
-   * Gets the name of this node.
-   *
-   * @return the String name of the node
-   */
-  String getName();
-
-  /**
-   * Gets the metaverse-unique identifier for this node.
-   *
-   * @return the String ID of the node
-   */
-  String getID();
-
-  /**
-   * Gets the type of this node.
-   *
-   * @return the String type of the node
-   */
-  String getType();
+public interface IMetaverseNode extends IIdentifiable {
 
 }
