@@ -17,11 +17,36 @@
 
 package org.pentaho.platform.api.metaverse;
 
+import java.util.Set;
+
 /**
+ * The IDocumentAnalyzer interface represents an object capable of analyzing certain types of
+ * IMetaverseDocuments.
+ * @author mburgess
  *
  */
 public interface IDocumentAnalyzer {
   
+  /**
+   * Analyze the given document
+   *
+   * @param document the document
+   */
   void analyze(IMetaverseDocument document);
+  
+  /**
+   * Gets the types of documents supported by this analyzer
+   *
+   * @return the supported types
+   */
+  Set<String> getSupportedTypes();
+  
+  /**
+   * Sets the metaverse builder, used by the analyzer to create nodes and links in the metaverse generated
+   * by analysis of documents.
+   *
+   * @param builder the metaverse builder
+   */
+  void setMetaverseBuilder(IMetaverseBuilder builder);
 
 }
