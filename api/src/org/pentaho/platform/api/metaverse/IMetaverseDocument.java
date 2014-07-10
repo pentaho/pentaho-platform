@@ -21,5 +21,12 @@ package org.pentaho.platform.api.metaverse;
  * The IMetaverseDocument interface represents a document in the metaverse.
  */
 public interface IMetaverseDocument extends IIdentifiable {
+  
+  /**
+   * Gets the object representing the content of this document
+   *
+   * @return the content of this object
+   */
+  Object getContent();
 
 }
