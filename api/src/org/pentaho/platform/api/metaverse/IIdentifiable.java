@@ -35,7 +35,7 @@ public interface IIdentifiable {
    *
    * @return the String ID of the entity.
    */
-  String getID();
+  String getStringID();
 
   /**
    * Gets the type of this entity.
