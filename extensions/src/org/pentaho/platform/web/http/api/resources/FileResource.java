@@ -542,15 +542,15 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/parameterizable" )
   @Produces( TEXT_PLAIN )
   // have to accept anything for browsers to work
-    public
-    String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
+  public
+  String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
     RepositoryFile repositoryFile = getRepository().getFile( FileResource.idToPath( pathId ) );
     if ( repositoryFile != null ) {
       try {
         hasParameterUi =
-            ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" ) != null );
+          ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
+            repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" ) != null );
       } catch ( NoSuchBeanDefinitionException e ) {
         // Do nothing.
       }
@@ -559,8 +559,8 @@ public class FileResource extends AbstractJaxRSResource {
     if ( hasParameterUi ) {
       try {
         IContentGenerator parameterContentGenerator =
-            PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
+          PentahoSystem.get( IPluginManager.class ).getContentGenerator(
+            repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
         if ( parameterContentGenerator != null ) {
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           parameterContentGenerator.setOutputHandler( new SimpleOutputHandler( outputStream, false ) );
@@ -582,13 +582,13 @@ public class FileResource extends AbstractJaxRSResource {
             for ( int i = 0; i < nodes.size() && !hasParameters; i++ ) {
               Element elem = (Element) nodes.get( i );
               if ( elem.attributeValue( "name" ).equalsIgnoreCase( "output-target" )
-                  && elem.attributeValue( "is-mandatory" ).equalsIgnoreCase( "true" ) ) {
+                && elem.attributeValue( "is-mandatory" ).equalsIgnoreCase( "true" ) ) {
                 hasParameters = true;
                 continue;
               }
               Element attrib =
-                  (Element) elem.selectSingleNode( "attribute[@namespace='http://reporting.pentaho"
-                      + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
+                (Element) elem.selectSingleNode( "attribute[@namespace='http://reporting.pentaho"
+                  + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
               if ( attrib == null || !"system".equals( attrib.attributeValue( "value" ) ) ) {
                 hasParameters = true;
               }
@@ -619,10 +619,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
   // have to accept anything for browsers to work
-    public
-    Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
-        @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest )
-      throws FileNotFoundException {
+  public
+  Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
+                                     @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest )
+    throws FileNotFoundException {
 
     // you have to have PublishAction in order to download
     if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
@@ -694,13 +694,13 @@ public class FileResource extends AbstractJaxRSResource {
         attachment = "attachment; filename=" + quotedFileName;
       }
       response =
-          Response.ok( streamingOutput, APPLICATION_ZIP + "; charset=UTF-8" )
-              .header( "Content-Disposition", attachment ).build();
+        Response.ok( streamingOutput, APPLICATION_ZIP + "; charset=UTF-8" )
+          .header( "Content-Disposition", attachment ).build();
 
       return response;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", encodedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
+        "FileResource.EXPORT_FAILED", encodedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
 
@@ -719,8 +719,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/inline" )
   @Produces( WILDCARD )
   // have to accept anything for browsers to work
-    public
-    Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
+  public
+  Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     String path = null;
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
@@ -750,7 +750,7 @@ public class FileResource extends AbstractJaxRSResource {
 
     try {
       SimpleRepositoryFileData fileData =
-          getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
+        getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
       final InputStream is = fileData.getInputStream();
 
       StreamingOutput streamingOutput;
@@ -765,13 +765,13 @@ public class FileResource extends AbstractJaxRSResource {
 
       // create response
       response =
-          Response.ok( streamingOutput ).header( "Content-Disposition", "inline; filename=" + repositoryFile.getName() )
-              .build();
+        Response.ok( streamingOutput ).header( "Content-Disposition", "inline; filename=" + repositoryFile.getName() )
+          .build();
 
       return response;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
+        "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
 
@@ -1692,6 +1692,7 @@ public class FileResource extends AbstractJaxRSResource {
    *          (list of name value pair of metadata)
    * @return
    */
+  //TODO: Refactor REST endpoint to not include operational logic
   @PUT
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -1701,10 +1702,10 @@ public class FileResource extends AbstractJaxRSResource {
       RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
 
       boolean canManage =
-          PentahoSessionHolder.getSession().getName().equals( fileAcl.getOwner() )
-              || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
-                  && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-                  AdministerSecurityAction.NAME ) );
+        PentahoSessionHolder.getSession().getName().equals( fileAcl.getOwner() )
+          || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
+          && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
+            AdministerSecurityAction.NAME ) );
 
       if ( !canManage ) {
 
@@ -1717,7 +1718,7 @@ public class FileResource extends AbstractJaxRSResource {
           RepositoryFileAclAceDto acl = fileAcl.getAces().get( i );
           if ( acl.getRecipient().equals( PentahoSessionHolder.getSession().getName() ) ) {
             if ( acl.getPermissions().contains( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() )
-                || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
+              || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
               canManage = true;
               break;
             }
