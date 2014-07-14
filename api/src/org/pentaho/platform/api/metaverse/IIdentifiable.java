@@ -44,4 +44,18 @@ public interface IIdentifiable {
    */
   String getType();
   
+  /**
+   * Sets the name.
+   *
+   * @param name the new name
+   */
+  void setName(String name);
+  
+  /**
+   * Sets the type.
+   *
+   * @param type the new type
+   */
+  void setType(String type);
+  
 }
