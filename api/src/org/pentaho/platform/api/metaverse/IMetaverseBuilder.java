@@ -41,10 +41,13 @@ public interface IMetaverseBuilder {
    */
   IMetaverseBuilder addLink( IMetaverseLink link );
 
+  IMetaverseBuilder addLink( IMetaverseNode fromNode, String label, IMetaverseNode toNode );
+
   /**
    * Deletes the specified node from the metaverse model.
-   *
-   * @param node          the node to remove
+   * 
+   * @param node
+   *          the node to remove
    * @return the metaverse builder (for chaining)
    */
   IMetaverseBuilder deleteNode( IMetaverseNode node );
@@ -59,17 +62,19 @@ public interface IMetaverseBuilder {
   IMetaverseBuilder deleteLink( IMetaverseLink link );
 
   /**
-   * Updates the specified node to have the provided attributes. 
-   *
-   * @param updatedNode the node with updated attributes
+   * Updates the specified node to have the provided attributes.
+   * 
+   * @param updatedNode
+   *          the node with updated attributes
    * @return the metaverse builder (for chaining)
    */
   IMetaverseBuilder updateNode( IMetaverseNode updatedNode );
-  
+
   /**
-   * Updates the specified link to have the provided attributes. 
-   *
-   * @param updatedLink the link with updated attributes
+   * Updates the specified link to have the provided attributes.
+   * 
+   * @param updatedLink
+   *          the link with updated attributes
    * @return the metaverse builder (for chaining)
    */
   IMetaverseBuilder updateLink( IMetaverseLink updatedNode );

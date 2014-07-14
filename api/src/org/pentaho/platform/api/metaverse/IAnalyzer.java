@@ -12,21 +12,31 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IMetaverseDocument interface represents a document in the metaverse.
+ * The IAnalyzer interface provides methods for analyzing types of content (with a goal of integrating 
+ * with the metaverse)
+ *
  */
-public interface IMetaverseDocument extends IIdentifiable, IIdentifiableWritable {
+public interface IAnalyzer<T> {
   
   /**
-   * Gets the object representing the content of this document
+   * Analyze the given object
    *
-   * @return the content of this object
+   * @param object the object
    */
-  Object getContent();
+  void analyze(T object);
+  
+  /**
+   * Sets the metaverse builder, used by the analyzer to create nodes and links in the metaverse generated
+   * by analysis of content.
+   *
+   * @param builder the metaverse builder
+   */
+  void setMetaverseBuilder(IMetaverseBuilder builder);
 
 }
