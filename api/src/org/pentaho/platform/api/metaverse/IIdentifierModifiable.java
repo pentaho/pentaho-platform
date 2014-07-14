@@ -18,17 +18,11 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IIdentifiableWriter is the "setter" version of the IIdentifiable interface, it allows for
- * setting the properties of an instance of IIdentifiable
+ * The IIdentifierModifiable interface augments the IIdentifiable interface by allowing for the changing of the
+ * unique string identifier for objects that support it
  */
-public interface IIdentifiableWritable {
+public interface IIdentifierModifiable extends IIdentifiable {
   
-  /**
-   * Sets the name.
-   *
-   * @param name the new name
-   */
-  void setName(String name);
   
   /**
    * Sets the string id.
@@ -36,12 +30,5 @@ public interface IIdentifiableWritable {
    * @param id the new string id
    */
   void setStringID(String id);
-  
-  /**
-   * Sets the type.
-   *
-   * @param type the new type
-   */
-  void setType(String type);
 
 }

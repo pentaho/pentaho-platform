@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * The IMetaverseNode interface represents a node/vertex in the graph model of the metaverse.
  */
-public interface IMetaverseNode extends IIdentifiable, IIdentifiableWritable {
+public interface IMetaverseNode extends IIdentifiable {
   
   /**
      * Return the object value associated with the provided string key.
