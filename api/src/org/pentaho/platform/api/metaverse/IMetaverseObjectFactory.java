@@ -24,21 +24,21 @@ public interface IMetaverseObjectFactory {
 
   /**
    * Creates a new metaverse document object.
-   *
+   * 
    * @return the new IMetaverseDocument instance
    */
   IMetaverseDocument createDocumentObject();
-  
+
   /**
-   * Creates a new metaverse node object.
-   *
+   * Creates a new metaverse node object and adds it to the current metaverse
+   * 
    * @return the new IMetaverseNode instance
    */
-  IMetaverseNode createNodeObject();
-  
+  IMetaverseNode createNodeObject( String id );
+
   /**
-   * Creates a new metaverse link object.
-   *
+   * Creates a new metaverse link object and adds it to the current metaverse
+   * 
    * @return the new IMetaverseLink instance
    */
   IMetaverseLink createLinkObject();
