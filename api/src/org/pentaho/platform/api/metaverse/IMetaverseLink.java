@@ -18,9 +18,49 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * @author mburgess
- *
+ * The IMetaverseLink.
  */
 public interface IMetaverseLink {
 
+  /**
+   * Gets the from node.
+   *
+   * @return the from node
+   */
+  public IMetaverseNode getFromNode();
+
+  /**
+   * Gets the to node.
+   *
+   * @return the to node
+   */
+  public IMetaverseNode getToNode();
+
+  /**
+   * Gets the label.
+   *
+   * @return the label
+   */
+  public String getLabel();
+
+  /**
+   * Sets the from node.
+   *
+   * @param fromNode the new from node
+   */
+  public void setFromNode( IMetaverseNode fromNode );
+
+  /**
+   * Sets the to node.
+   *
+   * @param toNode the new to node
+   */
+  public void setToNode( IMetaverseNode toNode );
+
+  /**
+   * Sets the label.
+   *
+   * @param label the new label
+   */
+  public void setLabel( String label );
 }

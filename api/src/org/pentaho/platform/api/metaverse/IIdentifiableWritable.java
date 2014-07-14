@@ -12,21 +12,36 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IMetaverseDocument interface represents a document in the metaverse.
+ * The IIdentifiableWriter is the "setter" version of the IIdentifiable interface, it allows for
+ * setting the properties of an instance of IIdentifiable
  */
-public interface IMetaverseDocument extends IIdentifiable, IIdentifiableWritable {
+public interface IIdentifiableWritable {
   
   /**
-   * Gets the object representing the content of this document
+   * Sets the name.
    *
-   * @return the content of this object
+   * @param name the new name
    */
-  Object getContent();
+  void setName(String name);
+  
+  /**
+   * Sets the string id.
+   *
+   * @param id the new string id
+   */
+  void setStringID(String id);
+  
+  /**
+   * Sets the type.
+   *
+   * @param type the new type
+   */
+  void setType(String type);
 
 }
