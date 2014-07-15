@@ -18,9 +18,9 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IMetaverseLink.
+ * The IMetaverseLink interface represents methods operating on a link (i.e. relationship) in the metaverse
  */
-public interface IMetaverseLink {
+public interface IMetaverseLink extends IMetaverseElement {
 
   /**
    * Gets the from node.
