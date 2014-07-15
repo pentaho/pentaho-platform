@@ -28,8 +28,10 @@ public interface IAnalyzer<T> {
    * Analyze the given object
    *
    * @param object the object
+   * 
+   * @return the root node resulting from the analysis of the specified object
    */
-  void analyze(T object);
+  IMetaverseNode analyze(T object);
   
   /**
    * Sets the metaverse builder, used by the analyzer to create nodes and links in the metaverse generated
