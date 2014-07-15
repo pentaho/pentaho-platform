@@ -19,43 +19,45 @@ package org.pentaho.platform.api.metaverse;
 
 /**
  * The IIdentifiable interface provides commonly used methods for identifying entities, such as name, ID, type
- *
+ * 
  */
 public interface IIdentifiable {
 
   /**
    * Gets the name of this entity.
-   *
+   * 
    * @return the String name of the entity
    */
   String getName();
 
   /**
    * Gets the metaverse-unique identifier for this entity.
-   *
+   * 
    * @return the String ID of the entity.
    */
   String getStringID();
 
   /**
    * Gets the type of this entity.
-   *
+   * 
    * @return the String type of the entity
    */
   String getType();
-  
+
   /**
    * Sets the name.
-   *
-   * @param name the new name
+   * 
+   * @param name
+   *          the new name
    */
-  void setName(String name);
-  
+  void setName( String name );
+
   /**
    * Sets the type.
-   *
-   * @param type the new type
+   * 
+   * @param type
+   *          the new type
    */
-  void setType(String type);
-  
+  void setType( String type );
+
 }
