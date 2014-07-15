@@ -18,15 +18,14 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IMetaverseBuilder is a Builder that creates and maintains a metaverse model, which contains nodes and links
+ * The IMetaverseBuilder is a Builder that creates and maintains a metaverse model, which contains nodes and links.
  */
 public interface IMetaverseBuilder {
 
   /**
-   * Adds the specified node to the metaverse model
-   * 
-   * @param node
-   *          the node to add
+   * Adds the specified node to the metaverse model.
+   *
+   * @param node          the node to add
    * @return the metaverse builder (for chaining)
    */
   IMetaverseBuilder addNode( IMetaverseNode node );
@@ -41,6 +40,14 @@ public interface IMetaverseBuilder {
    */
   IMetaverseBuilder addLink( IMetaverseLink link );
 
+  /**
+   * Adds the link.
+   *
+   * @param fromNode the from node
+   * @param label the label
+   * @param toNode the to node
+   * @return the i metaverse builder
+   */
   IMetaverseBuilder addLink( IMetaverseNode fromNode, String label, IMetaverseNode toNode );
 
   /**
@@ -72,11 +79,11 @@ public interface IMetaverseBuilder {
 
   /**
    * Updates the specified link to have the provided attributes.
-   * 
-   * @param updatedLink
-   *          the link with updated attributes
+   *
+   * @param link the link
+   * @param newLabel the new label
    * @return the metaverse builder (for chaining)
    */
-  IMetaverseBuilder updateLink( IMetaverseLink updatedNode );
+  IMetaverseBuilder updateLinkLabel( IMetaverseLink link, String newLabel );
 
 }
