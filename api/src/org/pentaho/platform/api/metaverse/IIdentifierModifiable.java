@@ -18,17 +18,17 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IIdentifierModifiable interface augments the IIdentifiable interface by allowing for the changing of the
- * unique string identifier for objects that support it
+ * The IIdentifierModifiable interface augments the IIdentifiable interface by allowing for the changing of the unique
+ * string identifier for objects that support it
  */
 public interface IIdentifierModifiable extends IIdentifiable {
-  
-  
+
   /**
    * Sets the string id.
-   *
-   * @param id the new string id
+   * 
+   * @param id
+   *          the new string id
    */
-  void setStringID(String id);
+  void setStringID( String id );
 
 }
