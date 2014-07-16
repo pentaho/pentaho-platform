@@ -18,7 +18,7 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The MetaverseAnalyzerException class represents an unexpected error that occurs
+ * The MetaverseAnalyzerException class represents an unexpected error that occurs during analysis.
  * 
  */
 public class MetaverseAnalyzerException extends MetaverseException {
@@ -28,12 +28,30 @@ public class MetaverseAnalyzerException extends MetaverseException {
    */
   private static final long serialVersionUID = -4755192809625931317L;
 
+  /**
+   * Instantiates a new default metaverse analyzer exception.
+   */
   public MetaverseAnalyzerException() {
     super();
   }
 
+  /**
+   * Instantiates a new metaverse analyzerexception with the specified message.
+   * 
+   * @param message
+   *          the message
+   */
   public MetaverseAnalyzerException( String message ) {
     super( message );
   }
 
+  /**
+   * Instantiates a new metaverse exception from an existing Throwable.
+   * 
+   * @param t
+   *          the Throwable to wrap
+   */
+  public MetaverseAnalyzerException( Throwable t ) {
+    super( t );
+  }
 }
