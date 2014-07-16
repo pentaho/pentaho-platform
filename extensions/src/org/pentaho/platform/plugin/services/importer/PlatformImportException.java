@@ -39,6 +39,8 @@ public class PlatformImportException extends Exception {
 
   public static final int PUBLISH_CONTENT_EXISTS_ERROR = 9;
 
+  public static final int PUBLISH_PROHIBITED_SYMBOLS_ERROR = 10;
+
   private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 
   public PlatformImportException( String s ) {
