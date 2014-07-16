@@ -20,6 +20,8 @@ package org.pentaho.platform.scheduler2.quartz;
 import java.util.List;
 
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.api.scheduler2.wrappers.ITimeWrapper;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfMonth;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
@@ -60,10 +62,10 @@ public class QuartzCronStringFactory {
     return stringBuffer.toString();
   }
 
-  private static String getRecurrenceString( List<?> recurrences, String defaultString ) {
+  private static String getRecurrenceString( ITimeWrapper recurrences, String defaultString ) {
     String aString = ""; //$NON-NLS-1$
     StringBuffer stringBuffer = new StringBuffer();
-    for ( Object recurrence : recurrences ) {
+    for ( Object recurrence : recurrences.getRecurrences() ) {
       if ( recurrence instanceof RecurrenceList ) {
         aString = getRecurrenceString( (RecurrenceList) recurrence );
       } else if ( recurrence instanceof SequentialRecurrence ) {

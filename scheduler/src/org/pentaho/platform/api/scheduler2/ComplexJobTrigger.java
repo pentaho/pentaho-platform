@@ -21,16 +21,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
-import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.api.scheduler2.wrappers.DayOfMonthWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.DayOfWeekWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.HourlyWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.ITimeWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.MinuteWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.MonthlyWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.SecondWrapper;
+import org.pentaho.platform.api.scheduler2.wrappers.YearlyWrapper;
 import org.pentaho.platform.scheduler2.quartz.QuartzCronStringFactory;
-import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
-import org.pentaho.platform.scheduler2.recur.QualifiedDayOfMonth;
-import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
 
@@ -65,13 +68,13 @@ public class ComplexJobTrigger extends JobTrigger {
   public static final int NOVEMBER = 11;
   public static final int DECEMBER = 12;
 
-  private List<ITimeRecurrence> yearlyRecurrences = new ArrayList<ITimeRecurrence>();
-  private List<ITimeRecurrence> monthlyRecurrences = new ArrayList<ITimeRecurrence>();
-  private List<ITimeRecurrence> dayOfMonthRecurrences = new ArrayList<ITimeRecurrence>();
-  private List<ITimeRecurrence> dayOfWeekRecurrences = new ArrayList<ITimeRecurrence>();
-  private List<ITimeRecurrence> hourlyRecurrences = new ArrayList<ITimeRecurrence>();
-  private List<ITimeRecurrence> minuteRecurrences = new ArrayList<ITimeRecurrence>();
-  private List<ITimeRecurrence> secondRecurrences = new ArrayList<ITimeRecurrence>();
+  private YearlyWrapper yearlyRecurrences = new YearlyWrapper();
+  private MonthlyWrapper monthlyRecurrences = new MonthlyWrapper();
+  private DayOfMonthWrapper dayOfMonthRecurrences = new DayOfMonthWrapper();
+  private DayOfWeekWrapper dayOfWeekRecurrences = new DayOfWeekWrapper();
+  private HourlyWrapper hourlyRecurrences = new HourlyWrapper();
+  private MinuteWrapper minuteRecurrences = new MinuteWrapper();
+  private SecondWrapper secondRecurrences = new SecondWrapper();
 
   /**
    * Creates a recurrence for the specified date/time. Specifying both a day of month and day of week is not supported.
@@ -112,14 +115,14 @@ public class ComplexJobTrigger extends JobTrigger {
     setSecondRecurrence( 0 );
   }
 
-  private void setRecurrences( List<ITimeRecurrence> theList, Integer... recurrences ) {
+  private void setRecurrences( ITimeWrapper theList, Integer... recurrences ) {
     theList.clear();
     addRecurrences( theList, recurrences );
   }
 
-  private void addRecurrences( List<ITimeRecurrence> theList, Integer... recurrences ) {
+  private void addRecurrences( ITimeWrapper theList, Integer... recurrences ) {
     List<Integer> nonNullRecurrences = ( recurrences == null ? new ArrayList<Integer>() : filterNulls( recurrences ) );
-    if (nonNullRecurrences.size() == 0 ) {
+    if ( nonNullRecurrences.size() == 0 ) {
       return;
     }
     if ( nonNullRecurrences.size() == 1 ) {
@@ -487,10 +490,8 @@ public class ComplexJobTrigger extends JobTrigger {
    * 
    * @return the yearly recurrence. An empty list indicates a recurrence of every year.
    */
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
-  public List<ITimeRecurrence> getYearlyRecurrences() {
+  @XmlElement
+  public YearlyWrapper getYearlyRecurrences() {
     return yearlyRecurrences;
   }
 
@@ -499,10 +500,8 @@ public class ComplexJobTrigger extends JobTrigger {
    * 
    * @return the monthly recurrence. An empty list indicates a recurrence of every month.
    */
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
-  public List<ITimeRecurrence> getMonthlyRecurrences() {
+  @XmlElement
+  public MonthlyWrapper getMonthlyRecurrences() {
     return monthlyRecurrences;
   }
 
@@ -511,11 +510,8 @@ public class ComplexJobTrigger extends JobTrigger {
    * 
    * @return the day of month recurrence. An empty list indicates a recurrence of every day of month.
    */
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = QualifiedDayOfMonth.class ),
-    @XmlElementRef( type = RecurrenceList.class ) } )
-  public List<ITimeRecurrence> getDayOfMonthRecurrences() {
+  @XmlElement
+  public DayOfMonthWrapper getDayOfMonthRecurrences() {
     return dayOfMonthRecurrences;
   }
 
@@ -524,43 +520,63 @@ public class ComplexJobTrigger extends JobTrigger {
    * 
    * @return the day of week recurrence. An empty list indicates a recurrence of every day of week.
    */
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ),
-    @XmlElementRef( type = QualifiedDayOfWeek.class ) } )
-  public List<ITimeRecurrence> getDayOfWeekRecurrences() {
+  @XmlElement
+  public DayOfWeekWrapper getDayOfWeekRecurrences() {
     return dayOfWeekRecurrences;
   }
 
   /**
    * Returns the day of hourly recurrence.
-   * 
+   *
    * @return the day of hourly recurrence. An empty list indicates a recurrence of every hour.
    */
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
-  public List<ITimeRecurrence> getHourlyRecurrences() {
-    return hourlyRecurrences;
+  @XmlElement
+  public SecondWrapper getSecondRecurrences() {
+    return secondRecurrences;
   }
 
   /**
    * Returns the day of minute recurrence.
-   * 
+   *
    * @return the day of minute recurrence. An empty list indicates a recurrence of every minute.
    */
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
-  public List<ITimeRecurrence> getSecondRecurrences() {
-    return secondRecurrences;
+  @XmlElement
+  public HourlyWrapper getHourlyRecurrences() {
+    return hourlyRecurrences;
   }
 
-  @XmlElementWrapper
-  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
-    @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
-  public List<ITimeRecurrence> getMinuteRecurrences() {
+  @XmlElement
+  public MinuteWrapper getMinuteRecurrences() {
     return minuteRecurrences;
+  }
+
+  // this setters are for JaxB unmarshalling
+  private void setYearlyRecurrences( YearlyWrapper yearlyRecurrences ) {
+    this.yearlyRecurrences = yearlyRecurrences;
+  }
+
+  private void setMonthlyRecurrences( MonthlyWrapper monthlyRecurrences ) {
+    this.monthlyRecurrences = monthlyRecurrences;
+  }
+
+  private void setDayOfMonthRecurrences( DayOfMonthWrapper dayOfMonthRecurrences ) {
+    this.dayOfMonthRecurrences = dayOfMonthRecurrences;
+  }
+
+  private void setDayOfWeekRecurrences( DayOfWeekWrapper dayOfWeekRecurrences ) {
+    this.dayOfWeekRecurrences = dayOfWeekRecurrences;
+  }
+
+  private void setHourlyRecurrences( HourlyWrapper hourlyRecurrences ) {
+    this.hourlyRecurrences = hourlyRecurrences;
+  }
+
+  private void setMinuteRecurrences( MinuteWrapper minuteRecurrences ) {
+    this.minuteRecurrences = minuteRecurrences;
+  }
+
+  private void setSecondRecurrences( SecondWrapper secondRecurrences ) {
+    this.secondRecurrences = secondRecurrences;
   }
 
   public String toString() {
