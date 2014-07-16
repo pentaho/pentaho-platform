@@ -21,10 +21,10 @@ import java.util.Set;
 
 /**
  * The IMetaverseElement interface provides methods common to metaverse elements (node, links, e.g.)
- *
+ * 
  */
 public interface IMetaverseElement {
-  
+
   /**
    * Return the object value associated with the provided string key. If no value exists for that key, return null.
    * 

@@ -43,4 +43,11 @@ public interface IAnalyzer<T> {
    */
   void setMetaverseBuilder( IMetaverseBuilder builder );
 
+  /**
+   * Sets the metaverse object factory so that the analyzer can generate metaverse objects to send to the builder
+   *
+   * @param metaverseObjectFactory the metaverse object factory
+   */
+  void setMetaverseObjectFactory( IMetaverseObjectFactory metaverseObjectFactory );
+
 }
