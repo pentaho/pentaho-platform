@@ -23,17 +23,33 @@ package org.pentaho.platform.api.metaverse;
  */
 public class MetaverseException extends Exception {
 
+  /** Default ID for serialization. */
+  private static final long serialVersionUID = -947058716721047769L;
+
+  /**
+   * Instantiates a new default metaverse exception.
+   */
   public MetaverseException() {
     super();
   }
 
+  /**
+   * Instantiates a new metaverse exception with the specified message.
+   * 
+   * @param message
+   *          the message
+   */
   public MetaverseException( String message ) {
     super( message );
   }
 
   /**
-   * Default ID for serialization
+   * Instantiates a new metaverse exception from an existing Throwable.
+   * 
+   * @param t
+   *          the Throwable to wrap
    */
-  private static final long serialVersionUID = -947058716721047769L;
-
+  public MetaverseException( Throwable t ) {
+    super( t );
+  }
 }
