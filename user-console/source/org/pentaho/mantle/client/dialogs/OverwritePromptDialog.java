@@ -18,6 +18,7 @@ package org.pentaho.mantle.client.dialogs;
 
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
+
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -35,8 +36,9 @@ public class OverwritePromptDialog extends PromptDialogBox {
   protected RadioButton renameRb;
   protected RadioButton noRenameOrOverwriteRb;
   public OverwritePromptDialog() {
-    super("Overwrite", Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    
+    super(
+        Messages.getString( "overwritePromptDialogTitle" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
     VerticalPanel rootPanel = new VerticalPanel();
     Label overwriteInstructions = new Label(Messages.getString("overwriteInstructions")); //$NON-NLS-1$
     Label selectOption = new Label(Messages.getString("selectOption")); //$NON-NLS-1$
