@@ -169,6 +169,10 @@ define([
       el: myself.$container
 
     });
+    
+    //BISERVER-10586 - need to run listener after fileBrowserModel listener
+    myself.fileBrowserModel.on("change:clickedFolder", myself.fileBrowserModel.updateFileList, myself.fileBrowserModel);
+    
     //Kill text selection in all IE browsers for the browse perspective
     $("#fileBrowser").bind("selectstart", function(){return false});
   };
@@ -251,7 +255,6 @@ define([
       //assign backbone events
       foldersTreeModel.on("change:clicked", myself.updateClicked, myself);
       foldersTreeModel.on("change:clickedFolder", myself.updateFolderClicked, myself);
-      myself.on("change:clickedFolder", myself.updateFileList, myself);
 
       fileListModel.on("change:clickedFile", myself.updateFileClicked, myself);
 
@@ -396,9 +399,10 @@ define([
 
     updateFileList: function () {
       var myself = this;
-      //trigger file list update
-      myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"));
-
+      //trigger file list update. Force event in case path was not changed
+      myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"), {silent:true});
+      myself.get("fileListModel").trigger('change:path');
+      
     },
 
     updateDescriptions: function () {
@@ -650,9 +654,14 @@ define([
                 if (_.isEqual(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")], myself.get("data"))) {
                   myself.trigger('change:data');
                 } else {
-                  myself.set("data", myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")]);
+                  //force event in case data was not changed
+                  myself.set("data", myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")], {silent:true});
+                  myself.trigger("change:data");
                 }
                 xhr.abort();
+                if (myself.get("path") == ".trash" && myself.get("deletedFiles") == "") {
+					FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
+                }
                 myself.set("runSpinner", false);
               }
             }
