@@ -30,8 +30,6 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
-import com.google.gwt.regexp.shared.RegExp;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -109,7 +107,7 @@ public class PentahoWebContextFilter implements Filter {
         response.setContentType( "text/javascript" ); //$NON-NLS-1$
         OutputStream out = response.getOutputStream();
         out.write( initialCommentBytes );
-        
+
         byte[] contextPathBytes = THREAD_LOCAL_CONTEXT_PATH.get();
         byte[] requireScriptBytes = THREAD_LOCAL_REQUIRE_SCRIPT.get();
         if ( contextPathBytes == null ) {
@@ -174,7 +172,7 @@ public class PentahoWebContextFilter implements Filter {
             printResourcesForContext( contextName, out, httpRequest, cssOnly );
           }
         }
-          
+
         // Any subclass can add more information to webcontext.js
         addCustomInfo( out );
 
@@ -192,14 +190,15 @@ public class PentahoWebContextFilter implements Filter {
   private void printHomeFolder( OutputStream out ) throws IOException {
     StringBuilder sb = new StringBuilder( "<!-- Providing home folder location for UI defaults -->\n" );
     if ( PentahoSessionHolder.getSession() != null ) {
-      String homePath = ClientRepositoryPaths.getUserHomeFolderPath( StringEscapeUtils.escapeJavaScript( PentahoSessionHolder.getSession().getName() ) );
+      String homePath = ClientRepositoryPaths.getUserHomeFolderPath( StringEscapeUtils
+          .escapeJavaScript( PentahoSessionHolder.getSession().getName() ) );
       sb.append( "var HOME_FOLDER = '" + homePath + "';\n" ); // Global variable
     } else {
       sb.append( "var HOME_FOLDER = null;\n" ); // Global variable
     }
     out.write( sb.toString().getBytes() );
   }
-  
+
   private void printReservedChars( OutputStream out ) throws IOException {
     StringBuilder sb = new StringBuilder();
     for ( char c : JcrRepositoryFileUtils.getReservedChars() ) {
@@ -211,7 +210,7 @@ public class PentahoWebContextFilter implements Filter {
             + "\";\n";
     out.write( scriptLine.getBytes() );
   }
-  
+
   private void printReservedCharsDisplay( OutputStream out ) throws IOException {
     List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
     StringBuffer sb = new StringBuffer();
@@ -224,19 +223,19 @@ public class PentahoWebContextFilter implements Filter {
       if ( i + 1 < reservedCharacters.size() ) {
         sb.append( ", " );
       }
-    }  
+    }
     String scriptLine =
         "var RESERVED_CHARS_DISPLAY = \""
             + StringEscapeUtils.escapeJavaScript( sb.toString() )
-            + "\";\n";    
+            + "\";\n";
     out.write( scriptLine.getBytes() );
-  }  
-  
-  private void printReservedRegexPattern ( OutputStream out ) throws IOException {
+  }
+
+  private void printReservedRegexPattern( OutputStream out ) throws IOException {
     String scriptLine = "var RESERVED_CHARS_REGEX_PATTERN = /" + makeReservedCharPattern() + "/;\n";
     out.write( scriptLine.getBytes() );
   }
-  
+
   private static String makeReservedCharPattern() {
     // escape all reserved characters as they may have special meaning to regex engine
     StringBuilder buf = new StringBuilder();
@@ -253,7 +252,8 @@ public class PentahoWebContextFilter implements Filter {
     if ( PentahoSessionHolder.getSession() == null ) {
       sb.append( "var SESSION_NAME = null;\n" ); // Global variable
     } else {
-      sb.append( "var SESSION_NAME = '" + StringEscapeUtils.escapeJavaScript( PentahoSessionHolder.getSession().getName() ) + "';\n" ); // Global variable
+      sb.append( "var SESSION_NAME = '" + StringEscapeUtils.escapeJavaScript( PentahoSessionHolder.getSession()
+          .getName() ) + "';\n" ); // Global variable
     }
     out.write(  sb.toString().getBytes() );
   }
