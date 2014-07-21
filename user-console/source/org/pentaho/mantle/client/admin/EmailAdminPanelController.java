@@ -258,6 +258,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       GwtConfirmBox messageBox = new GwtConfirmBox();
       messageBox.setTitle( Messages.getString( "confirm" ) );
       messageBox.setMessage( Messages.getString( "dirtyStateMessage" ) );
+      messageBox.setAcceptLabel( Messages.getString( "yes" ) );
+      messageBox.setCancelLabel( Messages.getString( "no" ) );
       messageBox.addDialogCallback( new XulDialogCallback<String>() {
 
         public void onClose( XulComponent component, XulDialogCallback.Status status, String value ) {

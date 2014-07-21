@@ -716,6 +716,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				GwtConfirmBox warning = new GwtConfirmBox();
 				warning.setMessage(Messages.getString("deleteRoleMessage"));
 				warning.setTitle(Messages.getString("deleteRoleTitle"));
+				warning.setAcceptLabel(Messages.getString( "yesDelete" ));
+				warning.setCancelLabel(Messages.getString( "no" ));
 				warning.addDialogCallback(new XulDialogCallback<String>() {
 					public void onClose(XulComponent sender, Status returnCode, String retVal) {
 						if (returnCode == Status.ACCEPT) {
@@ -746,6 +748,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				warning.setHeight(117); 
 				warning.setMessage(Messages.getString("deleteUserMessage"));
 				warning.setTitle(Messages.getString("deleteUserTitle"));
+				warning.setAcceptLabel(Messages.getString( "yesDelete" ));
+				warning.setCancelLabel(Messages.getString( "no" ));
 				warning.addDialogCallback(new XulDialogCallback<String>() {
 					public void onClose(XulComponent sender, Status returnCode, String retVal) {
 						if (returnCode == Status.ACCEPT) {
