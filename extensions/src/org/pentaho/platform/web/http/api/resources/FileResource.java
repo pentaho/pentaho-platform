@@ -76,6 +76,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.services.FileResourceService;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -139,6 +140,8 @@ public class FileResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
+  private FileResourceService fileResourceService;
+
   protected RepositoryDownloadWhitelist whitelist;
 
   protected static IUnifiedRepository repository;
@@ -158,6 +161,7 @@ public class FileResource extends AbstractJaxRSResource {
   public FileResource( HttpServletResponse httpServletResponse ) {
     this();
     this.httpServletResponse = httpServletResponse;
+    fileResourceService = new FileResourceService();
   }
 
   public static String idToPath( String pathId ) {
@@ -186,14 +190,11 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "/delete" )
   @Consumes( { WILDCARD } )
   public Response doDeleteFiles( String params ) {
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
-      for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFile( sourceFileIds[i], null );
-      }
+      fileResourceService.doDeleteFiles( params );
       return Response.ok().build();
+
     } catch ( Throwable t ) {
-      t.printStackTrace();
       return Response.serverError().entity( t.getMessage() ).build();
     }
   }
