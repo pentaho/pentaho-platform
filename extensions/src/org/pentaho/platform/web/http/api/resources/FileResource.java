@@ -76,7 +76,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
-import org.pentaho.platform.web.http.api.resources.services.FileResourceService;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -140,7 +140,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
-  private FileResourceService fileResourceService;
+  private FileService fileService;
 
   protected RepositoryDownloadWhitelist whitelist;
 
@@ -161,7 +161,7 @@ public class FileResource extends AbstractJaxRSResource {
   public FileResource( HttpServletResponse httpServletResponse ) {
     this();
     this.httpServletResponse = httpServletResponse;
-    fileResourceService = new FileResourceService();
+    fileService = new FileService();
   }
 
   public static String idToPath( String pathId ) {
@@ -181,17 +181,19 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Moves the list of files to the user's trash folder
-   * 
-   * @param params
-   *          List of the files to be deleted
-   * @return
+   *
+   * Move a list of files to the user's trash folder, the list should be comma separated.
+   *
+   * @param params Comma separated list of the files to be deleted
+   *
+   * @return Server Response indicating the success of the operation
    */
   @PUT
   @Path( "/delete" )
   @Consumes( { WILDCARD } )
   public Response doDeleteFiles( String params ) {
     try {
-      fileResourceService.doDeleteFiles( params );
+      fileService.doDeleteFiles( params );
       return Response.ok().build();
 
     } catch ( Throwable t ) {
