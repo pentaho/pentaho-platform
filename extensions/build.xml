@@ -80,4 +80,26 @@
 			<export artifactId="docs" destination="${dist.dir}/${enunciate.packagename}.zip" />
 		</enunciate>
 	</target>
+
+  <property name="jmeter.dir" value="${bin.dir}/jmeter" />
+  <target name="gen-jmeter-full" depends="resolve,dist,gen-jmeter"></target>
+
+  <target name="gen-jmeter">
+    <path id="build.classpath">
+      <fileset dir="${dist.dir}">
+        <include name="${ivy.artifact.id}-${project.revision}.jar" />
+      </fileset>
+
+      <fileset dir="${lib.dir}">
+        <include name="*.jar" />
+      </fileset>
+    </path>
+
+    <mkdir dir="${bin.dir}/jmeter" />
+
+    <java classname="org.pentaho.jmeter.Main" classpathref="build.classpath">
+      <arg value="${classes.dir}" />
+      <arg value="${jmeter.dir}/out.csv" />
+    </java>
+  </target>
 </project>
