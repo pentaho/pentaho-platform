@@ -225,26 +225,26 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Move a file from one location to another
-   * 
-   * @param params
-   *          list of files to be moved
-   * @return
+   * Moves a list of files from its current location to another.
+   *
+   * Moves a list of comma separated values, from its current location to another
+   *
+   * @param destPathId Destiny path where files should be moved
+   * @param params Comma separated list of files to be moved
+   *
+   * @return Response Server Response indicating the success of the operation
    */
   @PUT
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( destPathId ) );
-    if ( repositoryFileDto == null ) {
-      return Response.serverError().entity( "destination path not found" ).build();
-    }
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
-      for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().moveFile( sourceFileIds[i], repositoryFileDto.getPath(), null );
+      if ( fileService.doMoveFiles( destPathId, params ) ) {
+        return Response.ok().build();
+      } else {
+        return Response.serverError().entity(
+          Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ) ).build();
       }
-      return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
       return Response.serverError().entity( t.getMessage() ).build();
