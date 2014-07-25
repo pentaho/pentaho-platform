@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -57,6 +58,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @GET
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @JMeterTest(url = "/user-settings/list", requestType = "GET")
   public ArrayList<Setting> getUserSettings() {
     try {
       IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );

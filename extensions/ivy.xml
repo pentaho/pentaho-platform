@@ -309,6 +309,8 @@
                 changing="true"/>
     <dependency org="pentaho" name="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" changing="true"/>
 
+    <dependency org="pentaho" name="pentaho-jmeter" rev="${project.revision}" changing="true"/>
+
     <!--  import old jars for now until other projects are online -->
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-api" rev="${project.revision}" changing="true"/>
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-core" rev="${project.revision}" changing="true"/>
