@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -115,13 +116,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new RoleListWrapper( allRoles );
   }
 
-  /**
-   * Returns the list of users in the platform
-   * 
-   * @return list of users
-   * 
-   * @throws Exception
-   */
+
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -130,16 +125,22 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return new UserListWrapper( service.getAllUsers() );
   }
 
-  /**
-   * Returns list of roles in the platform
-   * 
-   * @return list of roles
-   * 
-   * @throws Exception
-   */
+    /**
+     * Save or update a User in the system.
+     *
+     * Create or update a system user with the values from the supplied XML document. Existing user
+     * records will be overwritten if the overwrite flag is true. If a user was overwritten,
+     * <code>true</code> will be returned in the Response object.
+     *
+     * @return Response   Response wraps a boolean with true indicating that the save overwrote a
+     *                    previous record
+     *
+     * @throws IllegalStateException
+     */
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/roles", requestType = "GET",  statusCode = "200", postData = "testDATA")
   public RoleListWrapper getRoles() throws Exception {
     IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
     return new RoleListWrapper( userRoleListService.getAllRoles() );
@@ -147,9 +148,9 @@ public class UserRoleListResource extends AbstractJaxRSResource {
 
   /**
    * Returns all role in the platform. This include extra roles which are (Anonymous and Authenticated)
-   * 
+   *
    * @return list of roles
-   * 
+   *
    * @throws Exception
    */
   @GET
