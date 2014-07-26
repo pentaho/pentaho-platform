@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -140,7 +139,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/roles", requestType = "GET",  statusCode = "200", postData = "testDATA")
   public RoleListWrapper getRoles() throws Exception {
     IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
     return new RoleListWrapper( userRoleListService.getAllRoles() );
