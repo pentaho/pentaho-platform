@@ -36,6 +36,7 @@ import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.ws.rs.Consumes;
@@ -92,7 +93,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
     String perspective = null;
     StringBuffer buffer = null;
     String url = null;
-    String path = FileResource.idToPath( pathId );
+
+    FileService.FileServiceUtils fileServiceUtils = new FileService.FileServiceUtils();
+    String path = fileServiceUtils.idToPath(pathId);
     String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     IContentInfo info = pluginManager.getContentTypeInfo( extension );
@@ -243,7 +246,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
       // The context is a repository file (A)
       //
 
-      final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
+      FileService.FileServiceUtils fileServiceUtils = new FileService.FileServiceUtils();
+      final RepositoryFile file = repository.getFile( fileServiceUtils.idToPath( contextId ) );
       if ( file == null ) {
         logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
         return Response.serverError().build();
