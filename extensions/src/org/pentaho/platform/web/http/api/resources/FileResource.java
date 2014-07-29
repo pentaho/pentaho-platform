@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -140,7 +141,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
-  private FileService fileService;
+  private static FileService fileService;
 
   protected RepositoryDownloadWhitelist whitelist;
 
@@ -203,7 +204,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Permanently deletes the selected list of files from the repository
-   * 
+   *
    * @param params
    *          list of files to be deleted
    * @return
@@ -225,26 +226,27 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Move a file from one location to another
-   * 
-   * @param params
-   *          list of files to be moved
-   * @return
+   * Moves a list of files from its current location to another.
+   *
+   * Moves a list of files from its current location to another, the list should be comma separated.
+   *
+   * @param destPathId Destiny path where files should be moved
+   * @param params     Comma separated list of files to be moved
+   * @return Response Server Response indicating the success of the operation
    */
   @PUT
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
+  @JMeterTest( url = "/repo/files/:home:admin/move", requestType = "PUT", statusCode = "200",
+    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( destPathId ) );
-    if ( repositoryFileDto == null ) {
-      return Response.serverError().entity( "destination path not found" ).build();
-    }
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
-      for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().moveFile( sourceFileIds[i], repositoryFileDto.getPath(), null );
+      if ( fileService.doMoveFiles( destPathId, params ) ) {
+        return Response.ok().build();
+      } else {
+        return Response.serverError().entity(
+          Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ) ).build();
       }
-      return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
       return Response.serverError().entity( t.getMessage() ).build();
@@ -252,21 +254,22 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Restore the selected list of files from the user's trash folder to their original location
-   * 
-   * @param params
-   *          list of files to be restored
-   * @return
+   * Restores a list of files from the user's trash folder
+   *
+   * Restores a list of files from the user's trash folder to their previous locations. The list should be comma
+   * separated.
+   *
+   * @param params Comma separated list of files to be restored
+   * @return Response Server Response indicating the success of the operation
    */
   @PUT
   @Path( "/restore" )
   @Consumes( { WILDCARD } )
+  @JMeterTest( url = "/repo/files/restore", requestType = "PUT", statusCode = "200",
+    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doRestore( String params ) {
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
-      for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().undeleteFile( sourceFileIds[i], null );
-      }
+      fileService.doRestoreFiles( params );
       return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
