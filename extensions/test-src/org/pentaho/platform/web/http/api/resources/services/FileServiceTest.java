@@ -51,6 +51,30 @@ public class FileServiceTest {
   }
 
   @Test
+  public void testDoDeleteFilesPermanent() throws Exception {
+    String params = "file1,file2";
+
+    fileService.doDeleteFilesPermanent( params );
+
+    verify ( fileService.repoWs, times(1)).deleteFileWithPermanentFlag( "file1", true, null );
+    verify ( fileService.repoWs, times(1)).deleteFileWithPermanentFlag( "file2", true, null );
+  }
+
+  @Test
+  public void testDoDeleteFilesPermanentException() {
+    String params = "file1,file2";
+    doThrow (new RuntimeException() ).when(
+        fileService.repoWs).deleteFileWithPermanentFlag( anyString(), eq(true), anyString() );
+
+    try{
+      fileService.doDeleteFilesPermanent( params );
+      assert( false ); //This line should never be reached
+    } catch ( Exception e ) {
+      //Expected exception
+    }
+  }
+
+  @Test
   public void testDoMoveFiles() throws Exception {
     String destPathId = "/test";
     String[] params = {"file1","file2"};

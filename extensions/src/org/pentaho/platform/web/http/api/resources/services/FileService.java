@@ -38,6 +38,27 @@ public class FileService {
   }
 
   /**
+   * Permanently deletes the selected list of files from the repository
+   *
+   * Permanently deletes a comma separated list of files without sending them to the trash folder
+   *
+   * @param params Comma separated list of the files to be deleted
+   *
+   * @return Exception containing the string, "SystemResource.GENERAL_ERROR"
+   */
+  public void doDeleteFilesPermanent( String params ) throws Exception {
+    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
+    try {
+      for ( int i = 0; i < sourceFileIds.length; i++ ) {
+        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[i], true, null );
+      }
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      throw e;
+    }
+  }
+
+  /**
    * Moves a list of files from its current location to another.
    *
    * Moves a list of files from its current location to another, the list should be comma separated.

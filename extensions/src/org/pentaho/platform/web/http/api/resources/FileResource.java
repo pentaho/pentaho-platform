@@ -205,19 +205,18 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Permanently deletes the selected list of files from the repository
    *
-   * @param params
-   *          list of files to be deleted
-   * @return
+   * @param params Comma separated list of the files to be deleted
+   *
+   * @return Server Response indicating the success of the operation
    */
   @PUT
   @Path( "/deletepermanent" )
   @Consumes( { WILDCARD } )
+  @JMeterTest( url = "/repo/files/deletePermanent", requestType = "PUT", statusCode = "200",
+      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doDeleteFilesPermanent( String params ) {
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
-      for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[i], true, null );
-      }
+      fileService.doDeleteFilesPermanent( params );
       return Response.ok().build();
     } catch ( Throwable t ) {
       t.printStackTrace();
