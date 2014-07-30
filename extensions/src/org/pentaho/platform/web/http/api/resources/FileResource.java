@@ -74,6 +74,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -133,6 +134,8 @@ public class FileResource extends AbstractJaxRSResource {
 
   private static final Integer MODE_NO_OVERWRITE = 3;
 
+  public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
+
   public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
@@ -159,6 +162,21 @@ public class FileResource extends AbstractJaxRSResource {
     this();
     this.httpServletResponse = httpServletResponse;
     fileService = new FileService();
+  }
+
+  public static String idToPath( String pathId ) {
+    String path = null;
+    // slashes in pathId are illegal.. we scrub them out so the file will not be found
+    // if the pathId was given in slash separated format
+    if ( pathId.contains( PATH_SEPARATOR ) ) {
+      logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) ); //$NON-NLS-1$
+    }
+    path = pathId.replaceAll( PATH_SEPARATOR, "" ); //$NON-NLS-1$
+    path = RepositoryPathEncoder.decodeRepositoryPath(path);
+    if ( !path.startsWith( PATH_SEPARATOR ) ) {
+      path = PATH_SEPARATOR + path;
+    }
+    return path;
   }
 
   /**
