@@ -1,32 +1,41 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
-import com.sun.tools.javac.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.util.RepositoryPathEncoder;
-import org.pentaho.platform.web.http.messages.Messages;
-
-import javax.ws.rs.core.Response;
-import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.OutputStream;
 
 public class FileService {
-  public static final String PATH_SEPARATOR = "/";
 
   private static final Log logger = LogFactory.getLog( FileService.class );
 
-  protected FileServiceFactory fileServiceFactory;
+  protected IAuthorizationPolicy policy;
 
-  protected FileServiceUtils fileServiceUtils;
+  protected DefaultUnifiedRepositoryWebService defaultUnifiedRepositoryWebService;
+
+  protected RepositoryFileOutputStream mockRepositoryFileOutputStream;
+
+  protected IUnifiedRepository repository;
+
+  protected RepositoryDownloadWhitelist whitelist;
 
   /**
    * Moves the list of files to the user's trash folder
@@ -41,10 +50,9 @@ public class FileService {
     String[] sourceFileIds = params.split( "[,]" );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFile( sourceFileIds[i], null );
+        getRepoWs().deleteFile( sourceFileIds[ i ], null );
       }
     } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       throw e;
     }
   }
@@ -82,10 +90,10 @@ public class FileService {
    */
   public void createFile (HttpServletRequest httpServletRequest, String pathId, InputStream fileContents) throws Exception {
     try {
-      String idToPath = getFileServiceUtils().idToPath(pathId);
-      RepositoryFileOutputStream rfos = getFileServiceFactory().getRepositoryFileOutputStream(idToPath);
+      String idToPath = FileUtils.idToPath( pathId );
+      RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
       rfos.setCharsetName(httpServletRequest.getCharacterEncoding());
-      getFileServiceUtils().copy(fileContents, rfos);
+      copy( fileContents, rfos );
       rfos.close();
       fileContents.close();
     } catch (Exception e) {
@@ -108,7 +116,7 @@ public class FileService {
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public boolean doMoveFiles( String destPathId, String params ) throws Exception {
-    String idToPath = getFileServiceUtils().idToPath( destPathId );
+    String idToPath = FileUtils.idToPath( destPathId );
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath );
     if ( repositoryFileDto == null ) {
       return false;
@@ -147,67 +155,121 @@ public class FileService {
     }
   }
 
-  public FileServiceUtils getFileServiceUtils() {
-    if (this.fileServiceUtils == null) {
-      this.fileServiceUtils = new FileServiceUtils();
+  public class RepositoryFileToStreamWrapper {
+    private StreamingOutput outputStream;
+    private RepositoryFile repositoryFile;
+    private String mimetype;
+
+    public RepositoryFileToStreamWrapper( StreamingOutput outputStream, RepositoryFile repositoryFile, String mimetype ) {
+      this.outputStream = outputStream;
+      this.repositoryFile = repositoryFile;
+      this.mimetype = mimetype;
     }
 
-    return this.fileServiceUtils;
+    public StreamingOutput getOutputStream() {
+      return outputStream;
+    }
+
+    public String getMimetype() {
+      return mimetype;
+    }
+
+    public RepositoryFile getRepositoryFile() {
+      return repositoryFile;
+    }
+  }
+  public RepositoryFileToStreamWrapper doGetFileOrDir( String pathId ) throws FileNotFoundException {
+
+    String path = FileUtils.idToPath( pathId );
+
+    if ( !isPathValid( path ) ) {
+      IllegalArgumentException illegalArgument = new IllegalArgumentException();
+      throw illegalArgument;
+    }
+
+    RepositoryFile repoFile = getRepository().getFile( path );
+
+    if ( repoFile == null ) {
+      // file does not exist or is not readable but we can't tell at this point
+      FileNotFoundException fileNotFound = new FileNotFoundException();
+      throw fileNotFound;
+    }
+
+    // check whitelist acceptance of file (based on extension)
+    if ( !getWhitelist().accept( repoFile.getName() ) ) {
+      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
+      if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
+        IllegalArgumentException illegalArgument = new IllegalArgumentException();
+        throw illegalArgument;
+      }
+    }
+
+    final RepositoryFileInputStream is = new RepositoryFileInputStream( repoFile );
+    StreamingOutput streamingOutput = new StreamingOutput() {
+      public void write( OutputStream output ) throws IOException {
+        copy( is, output );
+      }
+    };
+
+    return new RepositoryFileToStreamWrapper( streamingOutput, repoFile, is.getMimeType());
+  }
+
+  private RepositoryDownloadWhitelist getWhitelist() {
+    if ( whitelist == null ) {
+      whitelist = new RepositoryDownloadWhitelist();
+    }
+    return whitelist;
+  }
+
+  /**
+   * Validate path and send appropriate response if necessary TODO: Add validation to IUnifiedRepository interface
+   *
+   * @param path
+   * @return
+   */
+  private boolean isPathValid( String path ) {
+    if ( path.startsWith( "/etc" ) || path.startsWith( "/system" ) ) {
+      return false;
+    }
+    return true;
+  }
+
+  public IAuthorizationPolicy getPolicy() {
+    if ( policy == null ) {
+      policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    }
+    return policy;
   }
 
   protected DefaultUnifiedRepositoryWebService getRepoWs() {
-    return getFileServiceFactory().getDefaultUnifiedRepositoryWebService();
+    return getDefaultUnifiedRepositoryWebService();
   }
 
-  protected FileServiceFactory getFileServiceFactory() {
-    if ( fileServiceFactory == null ) {
-      fileServiceFactory = new FileServiceFactory();
-    }
-
-    return fileServiceFactory;
+  public int copy(InputStream input, OutputStream output) throws IOException {
+    return IOUtils.copy( input, output );
   }
 
-  public static class FileServiceUtils {
-    public int copy(InputStream obj1, RepositoryFileOutputStream obj2) throws IOException {
-      return IOUtils.copy(obj1, obj2);
+  public DefaultUnifiedRepositoryWebService getDefaultUnifiedRepositoryWebService() {
+    if ( defaultUnifiedRepositoryWebService == null ) {
+      defaultUnifiedRepositoryWebService = new DefaultUnifiedRepositoryWebService();
     }
-
-    public String idToPath( String pathId ) {
-      String path = null;
-      // slashes in pathId are illegal.. we scrub them out so the file will not be found
-      // if the pathId was given in slash separated format
-      if ( pathId.contains( PATH_SEPARATOR ) ) {
-        logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) );
-      }
-      path = pathId.replaceAll( PATH_SEPARATOR, "" );
-      path = RepositoryPathEncoder.decodeRepositoryPath(path);
-      if ( !path.startsWith( PATH_SEPARATOR ) ) {
-        path = PATH_SEPARATOR + path;
-      }
-      return path;
-    }
+    return defaultUnifiedRepositoryWebService;
   }
 
-  public static class FileServiceFactory {
-
-    protected DefaultUnifiedRepositoryWebService defaultUnifiedRepositoryWebService;
-    protected RepositoryFileOutputStream mockRepositoryFileOutputStream;
-
-    public DefaultUnifiedRepositoryWebService getDefaultUnifiedRepositoryWebService() {
-      if (this.defaultUnifiedRepositoryWebService == null) {
-        this.defaultUnifiedRepositoryWebService = new DefaultUnifiedRepositoryWebService();
-      }
-
-      return this.defaultUnifiedRepositoryWebService;
+  public RepositoryFileOutputStream getRepositoryFileOutputStream( String path ) {
+    if ( mockRepositoryFileOutputStream != null ) {
+      return mockRepositoryFileOutputStream;
     }
 
-    public RepositoryFileOutputStream getRepositoryFileOutputStream(String path) {
-      if (this.mockRepositoryFileOutputStream != null) {
-        return this.mockRepositoryFileOutputStream;
-      }
-
-      return new RepositoryFileOutputStream(path);
-    }
-
+    return new RepositoryFileOutputStream( path );
   }
+
+  public IUnifiedRepository getRepository() {
+    if ( repository == null ) {
+      repository = PentahoSystem.get( IUnifiedRepository.class );
+    }
+    return repository;
+  }
+
+
 }
