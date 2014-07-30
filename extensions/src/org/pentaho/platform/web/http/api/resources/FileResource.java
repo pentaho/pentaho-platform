@@ -26,60 +26,6 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.pentaho.jmeter.annotation.JMeterTest;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IContentGenerator;
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
-import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
-import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
-import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.util.RepositoryPathEncoder;
-import org.pentaho.platform.web.http.api.resources.services.FileService;
-import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
-import org.pentaho.platform.web.http.messages.Messages;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,6 +35,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
+import java.nio.file.InvalidPathException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,6 +66,55 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.pentaho.jmeter.annotation.JMeterTest;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IContentGenerator;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
+import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.messages.Messages;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
@@ -582,107 +580,67 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Download the selected file from the repository. In order to download file from the repository, the user needs to
-   * have Publish action
+   * Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
+   * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
    * @param pathId
-   *          (colon separated path for the repository file)
+   *          colon separated path for the repository file
+   *          <pre function="syntax.xml">
+   *            :Path:to:file:id
+   *          </pre>
+   *          
    * @param strWithManifest
-   *          (download file with manifest)
+   *          true or false (download file with manifest).  Defaults to true (include manifest) if this string can't
+   *          be directly parsed to 'false' (case sensitive).  This argument is only used if a directory is being
+   *          downloaded.
    *
-   * @return
-   *
-   * @throws FileNotFoundException
+   * @param userAgent
+   *          A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
+   *          requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not 
+   *          supplied and the filename is not quoted.
+   * @return a Response object that contains either
+   *            1) a response code of SUCCESS and a pay load that contains one of the follow
+   *               A) An attachment that represents a single file
+   *               B) An attachment that represents a zip file of the directory and all of its descendants and structure.
+   *            2) a response code of 400 (Bad Request) - Usually a bad pathId
+   *            3) a response code of 403 (Forbidden) - pathId points at a file the user doesn't have access to.
+   *            4) a response code of 404 (Not found) - file was not found.
+   *            5) a response with of 500 (Internal Server Error) an unexpected error.
    */
   @GET
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/download", requestType = "GET" )
   // have to accept anything for browsers to work
   public
   Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
-                                     @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest )
-    throws FileNotFoundException {
-
-    // you have to have PublishAction in order to download
-    if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
-      return Response.status( FORBIDDEN ).build();
-    }
-
-    String originalFileName, encodedFileName = null;
-
-    // send zip with manifest by default
-    boolean withManifest = "false".equals( strWithManifest ) ? false : true;
-
-    // change file id to path
-    String path = FileUtils.idToPath( pathId );
-
-    // if no path is sent, return bad request
-    if ( StringUtils.isEmpty( pathId ) ) {
-      return Response.status( BAD_REQUEST ).build();
-    }
-
-    // check if path is valid
-    if ( !isPathValid( path ) ) {
-      return Response.status( FORBIDDEN ).build();
-    }
-
-    // check if entity exists in repo
-    RepositoryFile repositoryFile = getRepository().getFile( path );
-
-    if ( repositoryFile == null ) {
-      // file does not exist or is not readable but we can't tell at this point
-      return Response.status( NOT_FOUND ).build();
-    }
-
+                                     @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest ) {
+    FileService.DownloadFileWrapper wrapper = null;
     try {
-      final InputStream is;
-      StreamingOutput streamingOutput;
-      Response response;
-      BaseExportProcessor exportProcessor;
-
-      // create processor
-      if ( repositoryFile.isFolder() || withManifest ) {
-        exportProcessor = new ZipExportProcessor( path, FileResource.repository, withManifest );
-        originalFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
-      } else {
-        exportProcessor = new SimpleExportProcessor( path, FileResource.repository );
-        originalFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
-      }
-      encodedFileName = URLEncoder.encode( originalFileName, "UTF-8" ).replaceAll( "\\+", "%20" );
-      String quotedFileName = "\"" + originalFileName + "\"";
-
-      // add export handlers for each expected file type
-      exportProcessor.addExportHandler( PentahoSystem.get( DefaultExportHandler.class ) );
-
-      File zipFile = exportProcessor.performExport( repositoryFile );
-      is = new FileInputStream( zipFile );
-
-      // copy streaming output
-      streamingOutput = new StreamingOutput() {
-        public void write( OutputStream output ) throws IOException {
-          IOUtils.copy( is, output );
-        }
-      };
-
-      // create response
-      final String attachment;
-      if ( userAgent.contains( "Firefox" ) ) {
-        // special content-disposition for firefox browser to support utf8-encoded symbols in filename
-        attachment = "attachment; filename*=UTF-8\'\'" + encodedFileName;
-      } else {
-        attachment = "attachment; filename=" + quotedFileName;
-      }
-      response =
-        Response.ok( streamingOutput, APPLICATION_ZIP + "; charset=UTF-8" )
-          .header( "Content-Disposition", attachment ).build();
-
-      return response;
-    } catch ( Exception e ) {
+      wrapper = fileService.doGetFileOrDirAsDownload( userAgent, pathId, strWithManifest );
+      return Response.ok( wrapper.getOutputStream(), APPLICATION_ZIP + "; charset=UTF-8" )
+          .header( "Content-Disposition", wrapper.getAttachment() ).build();
+    } catch ( InvalidParameterException e ) {
       logger.error( Messages.getInstance().getString(
-        "FileResource.EXPORT_FAILED", encodedFileName + " " + e.getMessage() ), e ); //$NON-NLS-1$
+          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
+      return Response.status( BAD_REQUEST ).build();
+    } catch ( InvalidPathException e ) {
+      logger.error( Messages.getInstance().getString(
+          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
+      return Response.status( FORBIDDEN ).build();
+    } catch ( GeneralSecurityException e) {
+      logger.error( Messages.getInstance().getString(
+          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
+      return Response.status( FORBIDDEN ).build();
+    } catch ( FileNotFoundException e) {
+      logger.error( Messages.getInstance().getString(
+          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
+      return Response.status( NOT_FOUND ).build();
+    } catch ( Throwable e ) {
+      logger.error( Messages.getInstance().getString(
+        "FileResource.EXPORT_FAILED", wrapper.getEncodedFileName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
-
   }
 
   /**

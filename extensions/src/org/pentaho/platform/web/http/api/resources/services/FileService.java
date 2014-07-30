@@ -1,12 +1,31 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.file.InvalidPathException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
+import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
@@ -15,13 +34,6 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public class FileService {
 
@@ -149,6 +161,101 @@ public class FileService {
     }
   }
 
+  public class DownloadFileWrapper {
+    private StreamingOutput outputStream;
+    private String attachment;
+    private String encodedFileName;
+    
+    public DownloadFileWrapper( StreamingOutput outputStream, String attachment, String encodedFileName ) {
+      super();
+      this.outputStream = outputStream;
+      this.attachment = attachment;
+      this.encodedFileName = encodedFileName;
+    }
+    
+    public StreamingOutput getOutputStream() {
+      return outputStream;
+    }
+    public String getAttachment() {
+      return attachment;
+    }
+    public String getEncodedFileName() {
+      return encodedFileName;
+    }
+  }
+  
+  public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
+    throws Throwable {
+
+    // you have to have PublishAction in order to download
+    if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
+      throw new GeneralSecurityException();
+    }
+
+    String originalFileName, encodedFileName = null;
+
+    // change file id to path
+    String path = FileUtils.idToPath( pathId );
+
+    // if no path is sent, return bad request
+    if ( StringUtils.isEmpty( pathId ) ) {
+      throw new InvalidParameterException(pathId);
+    }
+
+    // check if path is valid
+    if ( !isPathValid( path ) ) {
+      throw new InvalidPathException(path, null);
+    }
+
+    // check if entity exists in repo
+    RepositoryFile repositoryFile = getRepository().getFile( path );
+
+    if ( repositoryFile == null ) {
+      // file does not exist or is not readable but we can't tell at this point
+      throw new FileNotFoundException( path );
+    }
+
+    final InputStream is;
+    StreamingOutput streamingOutput;
+    BaseExportProcessor exportProcessor;
+
+    // create processor
+    // send zip with manifest by default
+    boolean withManifest = "false".equals( strWithManifest ) ? false : true;
+    if ( repositoryFile.isFolder() || withManifest ) {
+      exportProcessor = new ZipExportProcessor( path, repository, withManifest );
+      originalFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
+    } else {
+      exportProcessor = new SimpleExportProcessor( path, repository );
+      originalFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
+    }
+    encodedFileName = URLEncoder.encode( originalFileName, "UTF-8" ).replaceAll( "\\+", "%20" );
+    String quotedFileName = "\"" + originalFileName + "\"";
+
+    // add export handlers for each expected file type
+    exportProcessor.addExportHandler( PentahoSystem.get( DefaultExportHandler.class ) );
+
+    File zipFile = exportProcessor.performExport( repositoryFile );
+    is = new FileInputStream( zipFile );
+
+    // copy streaming output
+    streamingOutput = new StreamingOutput() {
+      public void write( OutputStream output ) throws IOException {
+        IOUtils.copy( is, output );
+      }
+    };
+
+    final String attachment;
+    if ( userAgent.contains( "Firefox" ) ) {
+      // special content-disposition for firefox browser to support utf8-encoded symbols in filename
+      attachment = "attachment; filename*=UTF-8\'\'" + encodedFileName;
+    } else {
+      attachment = "attachment; filename=" + quotedFileName;
+    }
+
+    return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+  }
+
   public class RepositoryFileToStreamWrapper {
     private StreamingOutput outputStream;
     private RepositoryFile repositoryFile;
@@ -272,6 +379,5 @@ public class FileService {
     }
     return repository;
   }
-
 
 }
