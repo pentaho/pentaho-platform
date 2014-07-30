@@ -2,32 +2,29 @@ package org.pentaho.platform.web.http.api.resources.services;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.InputStream;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 public class FileServiceTest {
 
   private static FileService fileService;
 
-@Before
-  public void setUp(){
+  @Before
+  public void setUp() {
     fileService = new FileService();
     fileService.defaultUnifiedRepositoryWebService =
-            mock( DefaultUnifiedRepositoryWebService.class );
+      mock( DefaultUnifiedRepositoryWebService.class );
   }
 
   @After
@@ -41,17 +38,17 @@ public class FileServiceTest {
 
     fileService.doDeleteFiles( params );
 
-    verify ( fileService.getDefaultUnifiedRepositoryWebService(), times(1)).deleteFile( "file1", null );
-    verify ( fileService.getDefaultUnifiedRepositoryWebService(), times(1)).deleteFile( "file2", null );
+    verify( fileService.getDefaultUnifiedRepositoryWebService(), times( 1 ) ).deleteFile( "file1", null );
+    verify( fileService.getDefaultUnifiedRepositoryWebService(), times( 1 ) ).deleteFile( "file2", null );
   }
 
   @Test
   public void testDoDeleteFilesException() {
     String params = "file1,file2";
-    doThrow(new RuntimeException()).when(
+    doThrow( new RuntimeException() ).when(
       fileService.getDefaultUnifiedRepositoryWebService() ).deleteFile( anyString(), anyString() );
 
-    try{
+    try {
       fileService.doDeleteFiles( params );
       fail(); //This line should never be reached
     } catch ( RuntimeException e ) {
@@ -61,40 +58,37 @@ public class FileServiceTest {
     }
   }
 
-  //todo: refactor test to mock the call to copy in FileService before the test starts
-  @Ignore
+  @Test
   public void testDoCreateFile() throws Exception {
-    RepositoryFileOutputStream mockOutputStream = mock(RepositoryFileOutputStream.class);
-    fileService.mockRepositoryFileOutputStream = mockOutputStream;
+    FileService fileServiceSpy = spy( fileService );
 
-    HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-    InputStream mockInputStream = mock(InputStream.class);
+    RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
+    fileServiceSpy.mockRepositoryFileOutputStream = mockOutputStream;
 
-    FileService mockFileServiceUtils = mock( FileService.class );
+    HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+    InputStream mockInputStream = mock( InputStream.class );
 
-    fileService.createFile(mockRequest, "testString", mockInputStream);
+    doReturn( 1 ).when( fileServiceSpy ).copy( mockInputStream, mockOutputStream );
 
-    verify(mockOutputStream, times(1)).setCharsetName(anyString());
-    verify(mockOutputStream, times(1)).close();
-    verify(mockInputStream, times(1)).close();
+    fileServiceSpy.createFile( mockRequest, "testString", mockInputStream );
+
+    verify( mockOutputStream, times( 1 ) ).setCharsetName( anyString() );
+    verify( mockOutputStream, times( 1 ) ).close();
+    verify( mockInputStream, times( 1 ) ).close();
   }
 
-  //todo: refactor test to mock the call to copy in FileService before the test starts
-  @Ignore
+  @Test
   public void testDoCreateFileException() {
-    RepositoryFileOutputStream mockOutputStream = mock(RepositoryFileOutputStream.class);
-    doThrow(new RuntimeException()).when(mockOutputStream).setCharsetName(anyString());
+    RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
+    doThrow( new RuntimeException() ).when( mockOutputStream ).setCharsetName( anyString() );
     fileService.mockRepositoryFileOutputStream = mockOutputStream;
 
-    FileService mockFileServiceUtils = mock( FileService.class );
-    fileService = mockFileServiceUtils;
-
     try {
-      fileService.createFile(null, null, null);
+      fileService.createFile( null, null, null );
       fail();
-    } catch (RuntimeException e) {
+    } catch ( RuntimeException e ) {
       // expected
-    } catch (Exception e) {
+    } catch ( Exception e ) {
       fail();
     }
   }
@@ -105,19 +99,19 @@ public class FileServiceTest {
 
     fileService.doDeleteFilesPermanent( params );
 
-    verify ( fileService.getRepoWs(), times(1)).deleteFileWithPermanentFlag( "file1", true, null );
-    verify ( fileService.getRepoWs(), times(1)).deleteFileWithPermanentFlag( "file2", true, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).deleteFileWithPermanentFlag( "file1", true, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).deleteFileWithPermanentFlag( "file2", true, null );
   }
 
   @Test
   public void testDoDeleteFilesPermanentException() {
     String params = "file1,file2";
-    doThrow (new RuntimeException() ).when(
-        fileService.getRepoWs()).deleteFileWithPermanentFlag( anyString(), eq(true), anyString() );
+    doThrow( new RuntimeException() ).when(
+      fileService.getRepoWs() ).deleteFileWithPermanentFlag( anyString(), eq( true ), anyString() );
 
-    try{
+    try {
       fileService.doDeleteFilesPermanent( params );
-      assert( false ); //This line should never be reached
+      assert ( false ); //This line should never be reached
     } catch ( Exception e ) {
       //Expected exception
     }
@@ -126,7 +120,7 @@ public class FileServiceTest {
   @Test
   public void testDoMoveFiles() throws Exception {
     String destPathId = "/test";
-    String[] params = {"file1","file2"};
+    String[] params = { "file1", "file2" };
 
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
     doReturn( destPathId ).when( repositoryFileDto ).getPath();
@@ -135,64 +129,64 @@ public class FileServiceTest {
 
     Assert.assertTrue( fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) ) );
 
-    verify ( fileService.getRepoWs(), times(1)).moveFile( params[0], destPathId, null );
-    verify ( fileService.getRepoWs(), times(1)).moveFile( params[1], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 1 ], destPathId, null );
   }
 
   @Test
   public void testDoMoveFilesForUnknownDestPath() throws Exception {
     String destPathId = "/test";
-    String[] params = {"file1","file2"};
+    String[] params = { "file1", "file2" };
 
     doReturn( null ).when( fileService.getRepoWs() ).getFile( destPathId );
 
     Assert.assertFalse( fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) ) );
-    verify ( fileService.getRepoWs(), times(0)).moveFile( params[0], destPathId, null );
-    verify ( fileService.getRepoWs(), times(0)).moveFile( params[1], destPathId, null );
+    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 0 ], destPathId, null );
+    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
   }
 
   @Test
   public void testDoMoveFilesException() throws Exception {
     String destPathId = "/test";
-    String[] params = {"file1","file2"};
+    String[] params = { "file1", "file2" };
 
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
     doReturn( destPathId ).when( repositoryFileDto ).getPath();
 
     doReturn( repositoryFileDto ).when( fileService.getRepoWs() ).getFile( destPathId );
-    doThrow( new RuntimeException() ).when( fileService.getRepoWs() ).moveFile( params[0], destPathId, null );
+    doThrow( new RuntimeException() ).when( fileService.getRepoWs() ).moveFile( params[ 0 ], destPathId, null );
 
-    try{
+    try {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
-      assert( false ); //This line should never be reached
+      fail(); //This line should never be reached
     } catch ( Exception e ) {
-      verify ( fileService.getRepoWs(), times(1)).moveFile( params[0], destPathId, null );
-      verify ( fileService.getRepoWs(), times(0)).moveFile( params[1], destPathId, null );
+      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
     }
   }
 
   @Test
   public void testDoRestoreFiles() throws Exception {
-    String[] params = {"file1","file2"};
+    String[] params = { "file1", "file2" };
 
     fileService.doRestoreFiles( StringUtils.join( params, "," ) );
 
-    verify ( fileService.getRepoWs(), times(1)).undeleteFile( params[0], null );
-    verify ( fileService.getRepoWs(), times(1)).undeleteFile( params[1], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 1 ], null );
   }
 
   @Test
   public void testDoRestoreFilesException() throws Exception {
-    String[] params = {"file1","file2"};
+    String[] params = { "file1", "file2" };
 
     doThrow( new RuntimeException() ).when( fileService.getRepoWs() ).undeleteFile( params[ 0 ], null );
 
     try {
       fileService.doRestoreFiles( StringUtils.join( params, "," ) );
-      assert( false ); //This line should never be reached
+      fail(); //This line should never be reached
     } catch ( Exception e ) {
-      verify ( fileService.getRepoWs(), times(1)).undeleteFile( params[0], null );
-      verify ( fileService.getRepoWs(), times(0)).undeleteFile( params[1], null );
+      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
+      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[ 1 ], null );
     }
   }
 }
