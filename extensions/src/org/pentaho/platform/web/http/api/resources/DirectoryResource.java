@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
@@ -40,6 +41,7 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 @Path( "/repo/dirs/" )
 public class DirectoryResource extends AbstractJaxRSResource {
   protected DefaultUnifiedRepositoryWebService repoWs;
+  protected FileService.FileServiceUtils fileServiceUtils;
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
@@ -47,6 +49,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
     super();
 
     repoWs = new DefaultUnifiedRepositoryWebService();
+    fileServiceUtils = new FileService.FileServiceUtils();
   }
 
   /**
@@ -61,21 +64,21 @@ public class DirectoryResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )
   public Response createDirs( @PathParam( "pathId" ) String pathId ) {
-    String path = FileResource.idToPath( pathId );
-    String[] folders = path.split( "[" + FileResource.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
-    RepositoryFileDto parentDir = repoWs.getFile( FileResource.PATH_SEPARATOR );
+    String path = fileServiceUtils.idToPath(pathId);
+    String[] folders = path.split( "[" + FileService.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
+    RepositoryFileDto parentDir = repoWs.getFile( FileService.PATH_SEPARATOR );
     boolean dirCreated = false;
     for ( String folder : folders ) {
-      String currentFolderPath = ( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder ).substring( 1 );
-      if ( !currentFolderPath.startsWith( FileResource.PATH_SEPARATOR ) ) {
-        currentFolderPath = FileResource.PATH_SEPARATOR + currentFolderPath;
+      String currentFolderPath = ( parentDir.getPath() + FileService.PATH_SEPARATOR + folder ).substring( 1 );
+      if ( !currentFolderPath.startsWith( FileService.PATH_SEPARATOR ) ) {
+        currentFolderPath = FileService.PATH_SEPARATOR + currentFolderPath;
       }
       RepositoryFileDto currentFolder = repoWs.getFile( currentFolderPath );
       if ( currentFolder == null ) {
         currentFolder = new RepositoryFileDto();
         currentFolder.setFolder( true );
         currentFolder.setName( decode( folder ) );
-        currentFolder.setPath( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder );
+        currentFolder.setPath( parentDir.getPath() + FileService.PATH_SEPARATOR + folder );
         currentFolder = repoWs.createFolder( parentDir.getId(), currentFolder, currentFolderPath );
         dirCreated = true;
       }
