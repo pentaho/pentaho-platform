@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
@@ -97,7 +98,7 @@ public class FileService {
   public void createFile( HttpServletRequest httpServletRequest, String pathId, InputStream fileContents )
     throws Exception {
     try {
-      String idToPath = FileUtils.idToPath( pathId );
+      String idToPath = idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
       rfos.setCharsetName( httpServletRequest.getCharacterEncoding() );
       copy( fileContents, rfos );
@@ -122,7 +123,7 @@ public class FileService {
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public boolean doMoveFiles( String destPathId, String params ) throws Exception {
-    String idToPath = FileUtils.idToPath( destPathId );
+    String idToPath = idToPath( destPathId );
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath );
     if ( repositoryFileDto == null ) {
       return false;
@@ -165,30 +166,32 @@ public class FileService {
     private StreamingOutput outputStream;
     private String attachment;
     private String encodedFileName;
-    
+
     public DownloadFileWrapper( StreamingOutput outputStream, String attachment, String encodedFileName ) {
       super();
       this.outputStream = outputStream;
       this.attachment = attachment;
       this.encodedFileName = encodedFileName;
     }
-    
+
     public StreamingOutput getOutputStream() {
       return outputStream;
     }
+
     public String getAttachment() {
       return attachment;
     }
+
     public String getEncodedFileName() {
       return encodedFileName;
     }
   }
-  
+
   public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
     throws Throwable {
 
     // you have to have PublishAction in order to download
-    if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
+    if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
       throw new GeneralSecurityException();
     }
 
@@ -199,12 +202,12 @@ public class FileService {
 
     // if no path is sent, return bad request
     if ( StringUtils.isEmpty( pathId ) ) {
-      throw new InvalidParameterException(pathId);
+      throw new InvalidParameterException( pathId );
     }
 
     // check if path is valid
     if ( !isPathValid( path ) ) {
-      throw new InvalidPathException(path, null);
+      throw new InvalidPathException( path, null );
     }
 
     // check if entity exists in repo
@@ -256,15 +259,77 @@ public class FileService {
     return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
   }
 
+  /**
+   * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
+   * document
+   *
+   * @param pathId (colon separated path for the repository file)
+   * @return RepositoryFileToStreamWrapper
+   * @throws FileNotFoundException
+   */
+  // have to accept anything for browsers to work
+  public RepositoryFileToStreamWrapper doGetFileAsInline( String pathId ) throws FileNotFoundException {
+    String path = null;
+    RepositoryFile repositoryFile = null;
+    // Check if the path is actually and ID
+    if ( isPath( pathId ) ) {
+      path = pathId;
+      if ( !isPathValid( path ) ) {
+        throw new IllegalArgumentException();
+      }
+      repositoryFile = getRepository().getFile( path );
+    } else {
+      // Yes path provided is an ID
+      repositoryFile = getRepository().getFileById( pathId );
+    }
+
+    if ( repositoryFile == null ) {
+      // file does not exist or is not readable but we can't tell at this point
+      throw new FileNotFoundException();
+    }
+
+    // check whitelist acceptance of file (based on extension)
+    if ( !getWhitelist().accept( repositoryFile.getName() ) ) {
+      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
+      if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
+        throw new IllegalArgumentException();
+      }
+    }
+
+    try {
+      SimpleRepositoryFileData fileData =
+        getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
+      final InputStream is = fileData.getInputStream();
+
+      // copy streaming output
+      StreamingOutput streamingOutput = getStreamingOutput( is );
+
+      RepositoryFileToStreamWrapper wrapper = new RepositoryFileToStreamWrapper();
+      wrapper.setOutputStream( streamingOutput );
+      wrapper.setRepositoryFile( repositoryFile );
+
+      return wrapper;
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString(
+        "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e );
+      throw new InternalError();
+    }
+  }
+
   public class RepositoryFileToStreamWrapper {
     private StreamingOutput outputStream;
     private RepositoryFile repositoryFile;
     private String mimetype;
 
-    public RepositoryFileToStreamWrapper( StreamingOutput outputStream, RepositoryFile repositoryFile,
-                                          String mimetype ) {
+    public void setOutputStream( StreamingOutput outputStream ) {
       this.outputStream = outputStream;
+    }
+
+    public void setRepositoryFile( RepositoryFile repositoryFile ) {
       this.repositoryFile = repositoryFile;
+    }
+
+    public void setMimetype( String mimetype ) {
       this.mimetype = mimetype;
     }
 
@@ -291,7 +356,7 @@ public class FileService {
    */
   public RepositoryFileToStreamWrapper doGetFileOrDir( String pathId ) throws FileNotFoundException {
 
-    String path = FileUtils.idToPath( pathId );
+    String path = idToPath( pathId );
 
     if ( !isPathValid( path ) ) {
       throw new IllegalArgumentException();
@@ -313,33 +378,32 @@ public class FileService {
     }
 
     final RepositoryFileInputStream is = getRepositoryFileInputStream( repoFile );
-    StreamingOutput streamingOutput = new StreamingOutput() {
-      public void write( OutputStream output ) throws IOException {
-        copy( is, output );
-      }
-    };
+    StreamingOutput streamingOutput = getStreamingOutput( is );
 
-    return new RepositoryFileToStreamWrapper( streamingOutput, repoFile, is.getMimeType() );
+    RepositoryFileToStreamWrapper wrapper = new RepositoryFileToStreamWrapper();
+    wrapper.setOutputStream( streamingOutput );
+    wrapper.setRepositoryFile( repoFile );
+    wrapper.setMimetype( is.getMimeType() );
+
+    return wrapper;
   }
 
-  private RepositoryDownloadWhitelist getWhitelist() {
+  protected RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
     }
     return whitelist;
   }
 
-  /**
-   * Validate path and send appropriate response if necessary TODO: Add validation to IUnifiedRepository interface
-   *
-   * @param path
-   * @return
-   */
-  private boolean isPathValid( String path ) {
+  protected boolean isPathValid( String path ) {
     if ( path.startsWith( "/etc" ) || path.startsWith( "/system" ) ) {
       return false;
     }
     return true;
+  }
+
+  protected boolean isPath( String pathId ) {
+    return pathId != null && pathId.contains( "/" );
   }
 
   public IAuthorizationPolicy getPolicy() {
@@ -350,18 +414,14 @@ public class FileService {
   }
 
   protected DefaultUnifiedRepositoryWebService getRepoWs() {
-    return getDefaultUnifiedRepositoryWebService();
-  }
-
-  public int copy( InputStream input, OutputStream output ) throws IOException {
-    return IOUtils.copy( input, output );
-  }
-
-  public DefaultUnifiedRepositoryWebService getDefaultUnifiedRepositoryWebService() {
     if ( defaultUnifiedRepositoryWebService == null ) {
       defaultUnifiedRepositoryWebService = new DefaultUnifiedRepositoryWebService();
     }
     return defaultUnifiedRepositoryWebService;
+  }
+
+  public int copy( InputStream input, OutputStream output ) throws IOException {
+    return IOUtils.copy( input, output );
   }
 
   public RepositoryFileOutputStream getRepositoryFileOutputStream( String path ) {
@@ -372,6 +432,13 @@ public class FileService {
     return new RepositoryFileInputStream( repositoryFile );
   }
 
+  public StreamingOutput getStreamingOutput( final InputStream is ) {
+    return new StreamingOutput() {
+      public void write( OutputStream output ) throws IOException {
+        copy( is, output );
+      }
+    };
+  }
 
   public IUnifiedRepository getRepository() {
     if ( repository == null ) {
@@ -380,4 +447,7 @@ public class FileService {
     return repository;
   }
 
+  protected String idToPath( String pathId ) {
+    return FileUtils.idToPath( pathId );
+  }
 }

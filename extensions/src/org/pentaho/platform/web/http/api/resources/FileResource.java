@@ -87,7 +87,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -170,7 +169,7 @@ public class FileResource extends AbstractJaxRSResource {
       logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) ); //$NON-NLS-1$
     }
     path = pathId.replaceAll( PATH_SEPARATOR, "" ); //$NON-NLS-1$
-    path = RepositoryPathEncoder.decodeRepositoryPath(path);
+    path = RepositoryPathEncoder.decodeRepositoryPath( path );
     if ( !path.startsWith( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR + path;
     }
@@ -289,10 +288,10 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}", requestType = "PUT")
+  @JMeterTest( url = "/repo/files/{pathId : .+}", requestType = "PUT" )
   public Response createFile( @PathParam( "pathId" ) String pathId, InputStream fileContents ) {
-    try{
-      fileService.createFile(httpServletRequest, pathId, fileContents);
+    try {
+      fileService.createFile( httpServletRequest, pathId, fileContents );
       return Response.ok().build();
     } catch ( Throwable t ) {
       return Response.serverError().entity( t.getMessage() ).build();
@@ -430,7 +429,7 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}" )
   @Produces( { WILDCARD } )
-  public Response doGetFileOrDir( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
+  public Response doGetFileOrDir( @PathParam( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
 
@@ -644,74 +643,40 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
+   * Retrieves the file from the repository as inline.
+   *
    * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
    * document
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @return
-   * @throws FileNotFoundException
+   * @param pathId colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   *
+   * @return Response wraps the output stream and file name
+   *
+   * @throws IllegalStateException
    */
   @GET
   @Path( "{pathId : .+}/inline" )
   @Produces( WILDCARD )
-  // have to accept anything for browsers to work
-  public
-  Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
-    String path = null;
-    RepositoryFile repositoryFile = null;
-    // Check if the path is actually and ID
-    if ( isPath( pathId ) ) {
-      path = pathId;
-      if ( !isPathValid( path ) ) {
-        return Response.status( FORBIDDEN ).build();
-      }
-      repositoryFile = getRepository().getFile( path );
-    } else {
-      // Yes path provided is an ID
-      repositoryFile = getRepository().getFileById( pathId );
-    }
-
-    if ( repositoryFile == null ) {
-      // file does not exist or is not readable but we can't tell at this point
-      return Response.status( NOT_FOUND ).build();
-    }
-
-    // check whitelist acceptance of file (based on extension)
-    if ( getWhitelist().accept( repositoryFile.getName() ) == false ) {
-      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
-      if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
-        return Response.status( FORBIDDEN ).build();
-      }
-    }
-
+  @JMeterTest( url = "/repo/files/{pathId : .+}/inline", requestType = "GET" )
+  public Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) {
     try {
-      SimpleRepositoryFileData fileData =
-        getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
-      final InputStream is = fileData.getInputStream();
-
-      StreamingOutput streamingOutput;
-      Response response;
-
-      // copy streaming output
-      streamingOutput = new StreamingOutput() {
-        public void write( OutputStream output ) throws IOException {
-          IOUtils.copy( is, output );
-        }
-      };
-
-      // create response
-      response =
-        Response.ok( streamingOutput ).header( "Content-Disposition", "inline; filename=" + repositoryFile.getName() )
-          .build();
-
-      return response;
-    } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString(
-        "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
+      FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileAsInline( pathId );
+      return Response.ok( wrapper.getOutputStream() )
+        .header( "Content-Disposition", "inline; filename=" + wrapper.getRepositoryFile().getName() )
+        .build();
+    } catch ( IllegalArgumentException e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      return Response.status( FORBIDDEN ).build();
+    } catch ( FileNotFoundException e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      return Response.status( NOT_FOUND ).build();
+    } catch ( InternalError e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
-
   }
 
   /**
