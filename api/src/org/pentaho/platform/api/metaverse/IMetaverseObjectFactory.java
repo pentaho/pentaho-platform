@@ -31,10 +31,19 @@ public interface IMetaverseObjectFactory {
 
   /**
    * Creates a new metaverse node object and adds it to the current metaverse
-   * 
+   * @param id id of the new node
    * @return the new IMetaverseNode instance
    */
   IMetaverseNode createNodeObject( String id );
+
+  /**
+   * Creates a new metaverse node and sets its name and type properties as well
+   * @param id id of the new node
+   * @param name name of the new node
+   * @param type type of the new node
+   * @return
+   */
+  IMetaverseNode createNodeObject( String id, String name, String type );
 
   /**
    * Creates a new metaverse link object and adds it to the current metaverse
