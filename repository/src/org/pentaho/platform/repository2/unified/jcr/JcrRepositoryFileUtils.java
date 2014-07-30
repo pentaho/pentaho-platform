@@ -42,6 +42,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.lock.Lock;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -493,9 +494,29 @@ public class JcrRepositoryFileUtils {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
       return JcrStringHelper.fileNameDecode( node.getParent().getName() );
     }
+    Version version = getBaseVersion( session, node );
+    return version != null ? JcrStringHelper.fileNameDecode( version.getName() ) : null;
+  }
 
-    return JcrStringHelper.fileNameDecode( session.getWorkspace().getVersionManager().getBaseVersion( node.getPath() )
-        .getName() );
+  /**
+   * Getting base version of the node. In the case of getting NullPointerException from Jackrabbit Content Repository
+   * (see https://issues.apache.org/jira/browse/JCR-2382), catching it, logging the error and returning null
+   * 
+   * @param node
+   * @return version of the node or null
+   * @throws UnsupportedRepositoryOperationException
+   * @throws RepositoryException
+   */
+  private static Version getBaseVersion( final Session session, final Node node )
+    throws UnsupportedRepositoryOperationException, RepositoryException {
+    Version version = null;
+    VersionManager versionManager = session.getWorkspace().getVersionManager();
+    try {
+      version = versionManager.getBaseVersion( node.getPath() );
+    } catch ( NullPointerException ex ) {
+      logger.warn( Messages.getInstance().getString( "JcrRepositoryFileUtils.WARN_0001_NPE_FROM_CR" ), ex );
+    }
+    return version;
   }
 
   public static Node createFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
