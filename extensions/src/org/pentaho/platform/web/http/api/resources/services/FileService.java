@@ -43,7 +43,6 @@ public class FileService {
    * Move a list of files to the user's trash folder, the list should be comma separated.
    *
    * @param params Comma separated list of the files to be deleted
-   *
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteFiles( String params ) throws Exception {
@@ -63,14 +62,13 @@ public class FileService {
    * Permanently deletes a comma separated list of files without sending them to the trash folder
    *
    * @param params Comma separated list of the files to be deleted
-   *
    * @return Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteFilesPermanent( String params ) throws Exception {
     String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[i], true, null );
+        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[ i ], true, null );
       }
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
@@ -81,22 +79,21 @@ public class FileService {
   /**
    * Creates a new file with the provided contents at a given path
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param fileContents
-   *          (content of the file)
+   * @param pathId (colon separated path for the repository file)
+   * @param fileContents (content of the file)
    * @return
    * @throws IOException
    */
-  public void createFile (HttpServletRequest httpServletRequest, String pathId, InputStream fileContents) throws Exception {
+  public void createFile( HttpServletRequest httpServletRequest, String pathId, InputStream fileContents )
+    throws Exception {
     try {
       String idToPath = FileUtils.idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
-      rfos.setCharsetName(httpServletRequest.getCharacterEncoding());
+      rfos.setCharsetName( httpServletRequest.getCharacterEncoding() );
       copy( fileContents, rfos );
       rfos.close();
       fileContents.close();
-    } catch (Exception e) {
+    } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       throw e;
     }
@@ -112,7 +109,6 @@ public class FileService {
    *
    * @return boolean <code>true</code>  if all files were moved correctly or <code>false</code> if the destiny path is
    * not available
-   *
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public boolean doMoveFiles( String destPathId, String params ) throws Exception {
@@ -147,9 +143,9 @@ public class FileService {
     String[] sourceFileIds = params.split( "[,]" );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().undeleteFile( sourceFileIds[i], null );
+        getRepoWs().undeleteFile( sourceFileIds[ i ], null );
       }
-    } catch ( Exception e ){
+    } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       throw e;
     }
@@ -160,7 +156,8 @@ public class FileService {
     private RepositoryFile repositoryFile;
     private String mimetype;
 
-    public RepositoryFileToStreamWrapper( StreamingOutput outputStream, RepositoryFile repositoryFile, String mimetype ) {
+    public RepositoryFileToStreamWrapper( StreamingOutput outputStream, RepositoryFile repositoryFile,
+                                          String mimetype ) {
       this.outputStream = outputStream;
       this.repositoryFile = repositoryFile;
       this.mimetype = mimetype;
@@ -178,6 +175,7 @@ public class FileService {
       return repositoryFile;
     }
   }
+
   public RepositoryFileToStreamWrapper doGetFileOrDir( String pathId ) throws FileNotFoundException {
 
     String path = FileUtils.idToPath( pathId );
@@ -211,7 +209,7 @@ public class FileService {
       }
     };
 
-    return new RepositoryFileToStreamWrapper( streamingOutput, repoFile, is.getMimeType());
+    return new RepositoryFileToStreamWrapper( streamingOutput, repoFile, is.getMimeType() );
   }
 
   private RepositoryDownloadWhitelist getWhitelist() {
@@ -245,7 +243,7 @@ public class FileService {
     return getDefaultUnifiedRepositoryWebService();
   }
 
-  public int copy(InputStream input, OutputStream output) throws IOException {
+  public int copy( InputStream input, OutputStream output ) throws IOException {
     return IOUtils.copy( input, output );
   }
 
