@@ -585,6 +585,9 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId
    *          colon separated path for the repository file
+   *          <pre function="syntax.xml">
+   *            :Path:to:file:id
+   *          </pre>
    *          
    * @param strWithManifest
    *          true or false (download file with manifest).  Defaults to true (include manifest) if this string can't
@@ -607,6 +610,7 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/download", requestType = "GET" )
   // have to accept anything for browsers to work
   public
   Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
