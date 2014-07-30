@@ -422,7 +422,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Takes a pathId and returns a response object
+   * Takes a pathId and returns a response object with the output stream based on the file located at the pathID
    *
    * @param pathId pathId to the file
    * @return Response object containing the file stream for the file located at the pathId, along with the mimetype,

@@ -31,8 +31,6 @@ public class FileService {
 
   protected DefaultUnifiedRepositoryWebService defaultUnifiedRepositoryWebService;
 
-  protected RepositoryFileOutputStream mockRepositoryFileOutputStream;
-
   protected IUnifiedRepository repository;
 
   protected RepositoryDownloadWhitelist whitelist;
@@ -176,33 +174,38 @@ public class FileService {
     }
   }
 
+  /**
+   * Takes a pathId and returns a response object with the output stream based on the file located at the pathID
+   *
+   * @param pathId pathId to the file
+   * @return Response object containing the file stream for the file located at the pathId, along with the mimetype,
+   *                  and file name.
+   * @throws FileNotFoundException, IllegalArgumentException
+   */
   public RepositoryFileToStreamWrapper doGetFileOrDir( String pathId ) throws FileNotFoundException {
 
     String path = FileUtils.idToPath( pathId );
 
     if ( !isPathValid( path ) ) {
-      IllegalArgumentException illegalArgument = new IllegalArgumentException();
-      throw illegalArgument;
+      throw new IllegalArgumentException();
     }
 
     RepositoryFile repoFile = getRepository().getFile( path );
 
     if ( repoFile == null ) {
       // file does not exist or is not readable but we can't tell at this point
-      FileNotFoundException fileNotFound = new FileNotFoundException();
-      throw fileNotFound;
+      throw new FileNotFoundException();
     }
 
     // check whitelist acceptance of file (based on extension)
     if ( !getWhitelist().accept( repoFile.getName() ) ) {
       // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
       if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
-        IllegalArgumentException illegalArgument = new IllegalArgumentException();
-        throw illegalArgument;
+        throw new IllegalArgumentException();
       }
     }
 
-    final RepositoryFileInputStream is = new RepositoryFileInputStream( repoFile );
+    final RepositoryFileInputStream is = getRepositoryFileInputStream( repoFile );
     StreamingOutput streamingOutput = new StreamingOutput() {
       public void write( OutputStream output ) throws IOException {
         copy( is, output );
@@ -255,12 +258,13 @@ public class FileService {
   }
 
   public RepositoryFileOutputStream getRepositoryFileOutputStream( String path ) {
-    if ( mockRepositoryFileOutputStream != null ) {
-      return mockRepositoryFileOutputStream;
-    }
-
     return new RepositoryFileOutputStream( path );
   }
+
+  public RepositoryFileInputStream getRepositoryFileInputStream( RepositoryFile repositoryFile ) throws FileNotFoundException {
+    return new RepositoryFileInputStream( repositoryFile );
+  }
+
 
   public IUnifiedRepository getRepository() {
     if ( repository == null ) {
