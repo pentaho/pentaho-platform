@@ -7,9 +7,9 @@
 
 -- conn admin/password@pentaho
 
-drop user quartz cascade;
+DROP USER pentaho_user CASCADE;
 
-create tablespace pentaho_tablespace
+CREATE TABLESPACE pentaho_tablespace
   logging
   datafile 'ptho_ts.dbf' 
   size 32m 
@@ -17,13 +17,13 @@ create tablespace pentaho_tablespace
   next 32m maxsize 2048m
   extent management local;
 
-create user quartz identified by "password" default tablespace pentaho_tablespace quota unlimited on pentaho_tablespace temporary tablespace temp quota 5M on system;
+CREATE USER pentaho_user IDENTIFIED BY "password" DEFAULT TABLESPACE pentaho_tablespace QUOTA unlimited ON pentaho_tablespace temporary tablespace temp quota 5M on system;
 
-grant create session, create procedure, create table to quartz;
+GRANT create session, create procedure, create table TO pentaho_user;
 
 --CREATE QUARTZ TABLES
 
-CONN quartz/password
+CONN pentaho_user/password
 
 CREATE TABLE QRTZ5_JOB_DETAILS 
   (

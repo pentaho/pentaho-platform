@@ -20,7 +20,4 @@ create user jcr_user identified by "password" default tablespace pentaho_tablesp
 
 grant create session, create procedure, create table, create trigger, create sequence to jcr_user;
 
---CREATE ADDITIONAL REPOSITORY TABLES
-
-conn jcr_user/password;
 commit;
