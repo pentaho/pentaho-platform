@@ -86,5 +86,6 @@
     	<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="test->default"/>
         <dependency org="org.mockito" name="mockito-all" rev="1.8.4" transitive="false" conf="test->default"/>
 
+        <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
     </dependencies>
 </ivy-module>

@@ -402,5 +402,7 @@
 
     <override org="junit" module="junit" rev="4.4"/>
     <override org="asm" module="asm" rev="3.1"/>
+
+    <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
   </dependencies>
 </ivy-module>

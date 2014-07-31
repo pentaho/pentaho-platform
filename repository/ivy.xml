@@ -153,5 +153,6 @@
 	    <dependency org="org.jmock" 			name="jmock-legacy" rev="2.5.1" conf="test->default" />
 	    <dependency org="com.sun.jersey" 		name="jersey-test-framework" rev="1.8" conf="test->default"/>
 	    
+        <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
 	</dependencies>
 </ivy-module>
