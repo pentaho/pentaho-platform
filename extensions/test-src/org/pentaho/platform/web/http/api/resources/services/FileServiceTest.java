@@ -17,6 +17,7 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import javax.servlet.http.HttpServletRequest;
@@ -151,16 +152,15 @@ public class FileServiceTest {
     doReturn( mockInputStream ).when( fileService ).getRepositoryFileInputStream( any( RepositoryFile.class ) );
 
     String pathId = "/usr/folder/file.txt";
-    fileService.doGetFileOrDir( pathId );
+    FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
+
+    Assert.assertTrue( wrapper.getRepositoryFile().getName().compareTo( "file.txt" ) == 0 );
   }
 
   @Test
   public void testDoGetFileOrDirException() throws Exception {
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( "file.txt" ).when( file ).getName();
-
-    //This will return null when getting a file, triggering our filenotfound exception
-    fileService.repository = mock( IUnifiedRepository.class );
 
     RepositoryFileInputStream mockInputStream = mock( RepositoryFileInputStream.class );
 
@@ -173,6 +173,33 @@ public class FileServiceTest {
       fail(); //This line should never be reached
     } catch ( FileNotFoundException fileNotFound ) {
       //Expected exception
+    }
+  }
+
+  @Test
+  public void testSetFileAcls() throws Exception {
+    RepositoryFileDto file = mock( RepositoryFileDto.class );
+    doReturn( "file.txt" ).when( file ).getName();
+    when( fileService.defaultUnifiedRepositoryWebService.getFile( anyString() ) ).thenReturn( file );
+
+    String pathId = "/usr/folder/file.txt";
+    RepositoryFileAclDto acl = mock( RepositoryFileAclDto.class );
+    fileService.setFileAcls( pathId, acl );
+
+    verify( acl, times( 1 ) ).setId( anyString() );
+    verify( file, times( 1 ) ).getId();
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).updateAcl( acl );
+  }
+
+  @Test
+  public void testSetFileAclsException() throws Exception {
+    String pathId = "/usr/folder/file.txt";
+    RepositoryFileAclDto acl = mock( RepositoryFileAclDto.class );
+    try {
+      fileService.setFileAcls( pathId, acl );
+      fail();
+    } catch ( FileNotFoundException e ) {
+      //expected exception
     }
   }
 

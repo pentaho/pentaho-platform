@@ -330,7 +330,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Takes a pathId and returns a response object with the output stream based on the file located at the pathID
    *
-   * @param pathId pathId to the file
+   * @param pathId @param pathId colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @return Response object containing the file stream for the file located at the pathId, along with the mimetype,
    * and file name.
    * @throws FileNotFoundException, IllegalArgumentException
@@ -582,30 +585,42 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Save the acls of the selected file to the repository
    *
-   * @param pathId (colon separated path for the repository file)
+   * This method is used to update and save the acls of the selected file to the repository
+   *
+   * @param pathId @param pathId colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
-   * @return
+   *
+   * Request object example:
+   *               <pre function="syntax.xml">
+   *               {@code
+   *                 < xml>
+   *                   < repositoryFileAclDto>
+   *                     < entriesInheriting>true< /entriesInheriting>
+   *                     < id>068390ba-f90d-46e3-8c55-bbe55e24b2fe< /id>
+   *                     < owner>admin< /owner>
+   *                     < ownerType>0< /ownerType>
+   *                   < /repositoryFileAclDto>
+   *                 < /xml>
+   *               }
+   *               </pre>
+   *
+   * @return response object indicating the success or failure of this operation
    */
 
   @PUT
   @Path( "{pathId : .+}/acl" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response setFileAcls( @PathParam( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
-    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-    acl.setId( file.getId() );
-    // here we remove fake admin role added for display purpose only
-    List<RepositoryFileAclAceDto> aces = acl.getAces();
-    if ( aces != null ) {
-      Iterator<RepositoryFileAclAceDto> it = aces.iterator();
-      while ( it.hasNext() ) {
-        RepositoryFileAclAceDto ace = it.next();
-        if ( !ace.isModifiable() ) {
-          it.remove();
-        }
-      }
+    try {
+      fileService.setFileAcls( pathId, acl );
+      return Response.ok().build();
+    } catch (Exception exception) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
+      return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
-    getRepoWs().updateAcl( acl );
-    return Response.ok().build();
   }
 
   /**

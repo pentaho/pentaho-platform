@@ -10,6 +10,8 @@ import java.net.URLEncoder;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,8 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
@@ -89,7 +93,7 @@ public class FileService {
     String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[i], true, null );
+        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[ i ], true, null );
       }
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
@@ -324,36 +328,6 @@ public class FileService {
     }
   }
 
-  public class RepositoryFileToStreamWrapper {
-    private StreamingOutput outputStream;
-    private RepositoryFile repositoryFile;
-    private String mimetype;
-
-    public void setOutputStream( StreamingOutput outputStream ) {
-      this.outputStream = outputStream;
-    }
-
-    public void setRepositoryFile( RepositoryFile repositoryFile ) {
-      this.repositoryFile = repositoryFile;
-    }
-
-    public void setMimetype( String mimetype ) {
-      this.mimetype = mimetype;
-    }
-
-    public StreamingOutput getOutputStream() {
-      return outputStream;
-    }
-
-    public String getMimetype() {
-      return mimetype;
-    }
-
-    public RepositoryFile getRepositoryFile() {
-      return repositoryFile;
-    }
-  }
-
   /**
    * Copy files to a new location
    *
@@ -571,6 +545,28 @@ public class FileService {
     return repositoryFileData;
   }
 
+  public void setFileAcls( String pathId, RepositoryFileAclDto acl ) throws FileNotFoundException {
+    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+    if ( file == null ) {
+      // file does not exist or is not readable but we can't tell at this point
+      throw new FileNotFoundException();
+    }
+
+    acl.setId( file.getId() );
+    // here we remove fake admin role added for display purpose only
+    List<RepositoryFileAclAceDto> aces = acl.getAces();
+    if ( aces != null ) {
+      Iterator<RepositoryFileAclAceDto> it = aces.iterator();
+      while ( it.hasNext() ) {
+        RepositoryFileAclAceDto ace = it.next();
+        if ( !ace.isModifiable() ) {
+          it.remove();
+        }
+      }
+    }
+    getRepoWs().updateAcl( acl );
+  }
+
   protected RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
@@ -633,5 +629,35 @@ public class FileService {
 
   protected String idToPath( String pathId ) {
     return FileUtils.idToPath( pathId );
+  }
+
+  public class RepositoryFileToStreamWrapper {
+    private StreamingOutput outputStream;
+    private RepositoryFile repositoryFile;
+    private String mimetype;
+
+    public void setOutputStream( StreamingOutput outputStream ) {
+      this.outputStream = outputStream;
+    }
+
+    public void setRepositoryFile( RepositoryFile repositoryFile ) {
+      this.repositoryFile = repositoryFile;
+    }
+
+    public void setMimetype( String mimetype ) {
+      this.mimetype = mimetype;
+    }
+
+    public StreamingOutput getOutputStream() {
+      return outputStream;
+    }
+
+    public String getMimetype() {
+      return mimetype;
+    }
+
+    public RepositoryFile getRepositoryFile() {
+      return repositoryFile;
+    }
   }
 }
