@@ -22,7 +22,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.repository2.unified.*;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
@@ -95,6 +100,23 @@ public class FileService {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
         getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[ i ], true, null );
       }
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      throw e;
+    }
+  }
+  
+  /**
+   * Delete the locale for the selected file and locale
+   *
+   * @param pathId Colon separated path for the repository file
+   * @param locale The locale to be deleted
+   * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
+   */
+  public void doDeleteLocale(String pathId, String locale) throws Exception {
+    try {
+      RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+      getRepoWs().deleteLocalePropertiesForFile( file.getId(), locale );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       throw e;
