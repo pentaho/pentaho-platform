@@ -6,8 +6,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
@@ -36,6 +39,7 @@ public class FileServiceTest {
     fileService = spy( new FileService() );
     fileService.defaultUnifiedRepositoryWebService = mock( DefaultUnifiedRepositoryWebService.class );
     fileService.repository = mock( IUnifiedRepository.class );
+    fileService.policy = mock( IAuthorizationPolicy.class );
   }
 
   @After
@@ -57,7 +61,7 @@ public class FileServiceTest {
   public void testDoDeleteFilesException() {
     String params = "file1,file2";
     doThrow( new IllegalArgumentException() ).when(
-      fileService.defaultUnifiedRepositoryWebService ).deleteFile( anyString(), anyString() );
+        fileService.defaultUnifiedRepositoryWebService ).deleteFile( anyString(), anyString() );
 
     try {
       fileService.doDeleteFiles( params );
@@ -70,11 +74,75 @@ public class FileServiceTest {
   }
 
   @Test
+  public void testDoCopyFiles() throws Exception {
+
+    String destinationPath = "/path/to/destination";
+    String destinationPathColon = ":path:to:destination";
+
+    String filePath1 = "/path/to/source/file1.ext";
+    String fileId1 = "file1";
+
+    String filePath2 = "/path/to/source/file2.ext";
+    String fileId2 = "file2";
+
+    when( fileService.policy.isAllowed( anyString() ) ).thenReturn( true );
+
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( fileService.repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
+        IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() ) ).thenReturn( repositoryFile );
+
+    RepositoryFile destDir = mock( RepositoryFile.class );
+    when( destDir.isFolder() ).thenReturn( true );
+    when( destDir.getPath() ).thenReturn( destinationPath );
+    when( fileService.repository.getFile( destinationPath ) ).thenReturn( destDir );
+
+    RepositoryFile repositoryFile1 = mock( RepositoryFile.class );
+    when( repositoryFile1.isFolder() ).thenReturn( false );
+    when( repositoryFile1.getPath() ).thenReturn( filePath1 );
+    when( fileService.repository.getFileById( fileId1 ) ).thenReturn( repositoryFile1 );
+
+    RepositoryFile repositoryFile2 = mock( RepositoryFile.class );
+    when( repositoryFile2.isFolder() ).thenReturn( false );
+    when( repositoryFile2.getPath() ).thenReturn( filePath2 );
+    when( fileService.repository.getFileById( fileId2 ) ).thenReturn( repositoryFile2 );
+
+    fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
+
+    verify( fileService.repository, times( 2 ) )
+        .createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
+            IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() );
+    verify( fileService.repository ).getFile( destinationPath );
+    verify( fileService.repository ).getFileById( fileId1 );
+    verify( fileService.repository ).getFileById( fileId2 );
+  }
+
+  @Test
+  public void doCopyFilesException() throws Exception {
+
+    String destinationPath = "/path/to/destination";
+    String destinationPathColon = ":path:to:destination";
+
+    String filePath1 = "/path/to/source/file1.ext";
+    String fileId1 = "file1";
+
+    String filePath2 = "/path/to/source/file2.ext";
+    String fileId2 = "file2";
+
+    when( fileService.policy.isAllowed( anyString() ) ).thenReturn( false );
+
+    try {
+      fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //Should catch the exception
+    }
+  }
+
+  @Test
   public void testDoGetFileOrDir() throws Exception {
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( "file.txt" ).when( file ).getName();
 
-    fileService.repository = mock( IUnifiedRepository.class );
     when( fileService.repository.getFile( anyString() ) ).thenReturn( file );
 
     RepositoryFileInputStream mockInputStream = mock( RepositoryFileInputStream.class );
@@ -154,8 +222,8 @@ public class FileServiceTest {
   public void testDoDeleteFilesPermanentException() {
     String params = "file1,file2";
     doThrow( new IllegalArgumentException() ).when(
-      fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( anyString(), eq( true ),
-      anyString() );
+        fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( anyString(), eq( true ),
+        anyString() );
 
     try {
       fileService.doDeleteFilesPermanent( params );
@@ -177,8 +245,8 @@ public class FileServiceTest {
 
     Assert.assertTrue( fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) ) );
 
-    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
-    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 1 ], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[0], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[1], destPathId, null );
   }
 
   @Test
@@ -189,8 +257,8 @@ public class FileServiceTest {
     doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( destPathId );
 
     Assert.assertFalse( fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) ) );
-    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 0 ], destPathId, null );
-    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[0], destPathId, null );
+    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[1], destPathId, null );
   }
 
   @Test
@@ -203,14 +271,14 @@ public class FileServiceTest {
 
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( destPathId );
     doThrow( new IllegalArgumentException() ).when( fileService.defaultUnifiedRepositoryWebService )
-      .moveFile( params[ 0 ], destPathId, null );
+        .moveFile( params[0], destPathId, null );
 
     try {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
       fail(); //This line should never be reached
     } catch ( Exception e ) {
-      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
-      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[0], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[1], destPathId, null );
     }
   }
 
@@ -220,8 +288,8 @@ public class FileServiceTest {
 
     fileService.doRestoreFiles( StringUtils.join( params, "," ) );
 
-    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
-    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 1 ], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[0], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[1], null );
   }
 
   @Test
@@ -229,14 +297,14 @@ public class FileServiceTest {
     String[] params = { "file1", "file2" };
 
     doThrow( new IllegalArgumentException() ).when( fileService.defaultUnifiedRepositoryWebService )
-      .undeleteFile( params[ 0 ], null );
+        .undeleteFile( params[0], null );
 
     try {
       fileService.doRestoreFiles( StringUtils.join( params, "," ) );
       fail(); //This line should never be reached
     } catch ( Exception e ) {
-      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
-      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[ 1 ], null );
+      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[0], null );
+      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[1], null );
     }
   }
 
@@ -349,7 +417,7 @@ public class FileServiceTest {
      */
     doReturn( true ).when( mockWhiteList ).accept( anyString() );
     doThrow( new IllegalArgumentException() ).when( fileService.repository )
-      .getDataForRead( any( Serializable.class ), any( Class.class ) );
+        .getDataForRead( any( Serializable.class ), any( Class.class ) );
 
     try {
       fileService.doGetFileAsInline( "test" );

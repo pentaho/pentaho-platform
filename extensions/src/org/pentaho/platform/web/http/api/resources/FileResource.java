@@ -120,7 +120,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 /**
  * Represents a file node in the getRepository(). This api provides methods for discovering information about repository
  * files as well as CRUD operations
- * 
+ *
  * @author aaron
  */
 @Path( "/repo/files/" )
@@ -178,13 +178,13 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Moves the list of files to the user's trash folder
-   *
+   * <p/>
    * Move a list of files to the user's trash folder, the list should be comma separated.
    *
    * @param params Comma separated list of the files to be deleted
-   * <pre function="syntax.xml">
-   *  a06ef783-203d-4b76-bb9a-2fa15b0904bd,de2b05b8-38f1-4e90-9660-b172f85a7e48,356f21dd-96f2-44d5-9321-fedde0f429dd
-   * </pre>
+   *               <pre function="syntax.xml">
+   *               a06ef783-203d-4b76-bb9a-2fa15b0904bd,de2b05b8-38f1-4e90-9660-b172f85a7e48,356f21dd-96f2-44d5-9321-fedde0f429dd
+   *               </pre>
    * @return Server Response indicating the success of the operation
    */
   @PUT
@@ -204,7 +204,6 @@ public class FileResource extends AbstractJaxRSResource {
    * Permanently deletes the selected list of files from the repository
    *
    * @param params Comma separated list of the files to be deleted
-   *
    * @return Server Response indicating the success of the operation
    */
   @PUT
@@ -224,7 +223,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Moves a list of files from its current location to another.
-   *
+   * <p/>
    * Moves a list of files from its current location to another, the list should be comma separated.
    *
    * @param destPathId Destiny path where files should be moved
@@ -235,14 +234,14 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
   @JMeterTest( url = "/repo/files/:home:admin/move", requestType = "PUT", statusCode = "200",
-    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
+      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     try {
       if ( fileService.doMoveFiles( destPathId, params ) ) {
         return Response.ok().build();
       } else {
         return Response.serverError().entity(
-          Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ) ).build();
+            Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ) ).build();
       }
     } catch ( Throwable t ) {
       t.printStackTrace();
@@ -252,7 +251,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Restores a list of files from the user's trash folder
-   *
+   * <p/>
    * Restores a list of files from the user's trash folder to their previous locations. The list should be comma
    * separated.
    *
@@ -263,7 +262,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "/restore" )
   @Consumes( { WILDCARD } )
   @JMeterTest( url = "/repo/files/restore", requestType = "PUT", statusCode = "200",
-    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
+      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doRestore( String params ) {
     try {
       fileService.doRestoreFiles( params );
@@ -276,13 +275,11 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Create a new file
-   *
+   * <p/>
    * Creates a new file with the provided contents at a given path
    *
-   * @param pathId Colon separated path for the repository file
-   *
+   * @param pathId       Colon separated path for the repository file
    * @param fileContents An Input Stream with the contents of the file
-   *
    * @return Server Response indicating the success of the operation
    */
   @PUT
@@ -301,120 +298,32 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Copy selected list of files to a new specified location
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param mode
-   *          (MODE_OVERWITE or MODE_NO_OVERWRITE)
-   * @param params
-   *          (List of files to be copied)
+   * @param pathId Colon separated path for the destination for files to be copied
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @param mode   MODE_OVERWITE or MODE_NO_OVERWRITE
+   * @param params Comma separated list of file ids to be copied
+   *               <pre function="syntax.xml">
+   *               fileId1,fileId2
+   *               </pre>
    * @return
    */
   @PUT
   @Path( "{pathId : .+}/children" )
   @Consumes( { TEXT_PLAIN } )
-  public Response copyFiles( @PathParam( "pathId" ) String pathId, @QueryParam( "mode" ) Integer mode, String params ) {
-    if ( mode == null ) {
-      mode = MODE_RENAME;
-    }
-    if ( !getPolicy().isAllowed( RepositoryCreateAction.NAME ) ) {
-      return Response.status( FORBIDDEN ).build();
-    }
+  @JMeterTest( url = "/repo/files/:home:admin/children", requestType = "PUT", statusCode = "200",
+      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
+  public Response doCopyFiles( @PathParam( "pathId" ) String pathId, @QueryParam( "mode" ) Integer mode,
+      String params ) {
     try {
-      String path = FileUtils.idToPath( pathId );
-      RepositoryFile destDir = getRepository().getFile( path );
-      String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
-      if ( mode == MODE_OVERWRITE || mode == MODE_NO_OVERWRITE ) {
-        for ( String sourceFileId : sourceFileIds ) {
-          RepositoryFile sourceFile = getRepository().getFileById( sourceFileId );
-          if ( destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder() ) {
-            String fileName = sourceFile.getName();
-            String sourcePath = sourceFile.getPath().substring( 0, sourceFile.getPath().lastIndexOf( FileUtils.PATH_SEPARATOR ) );
-            if ( !sourcePath.equals( destDir.getPath() ) ) { // We're saving to a different folder than we're copying
-                                                             // from
-              IRepositoryFileData data = getData( sourceFile );
-              RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
-              RepositoryFile destFile = getRepository().getFile( destDir.getPath() + FileUtils.PATH_SEPARATOR + fileName );
-              if ( destFile == null ) { // destFile doesn't exist so we'll create it.
-                RepositoryFile duplicateFile =
-                    new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).versioned(
-                        sourceFile.isVersioned() ).build();
-                final RepositoryFile repositoryFile =
-                    getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
-                getRepository()
-                    .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
-              } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
-                RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto( destFile, null, false );
-                destFileDto.setHidden( sourceFile.isHidden() );
-                destFile = RepositoryFileAdapter.toFile( destFileDto );
-                final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
-                getRepository().updateAcl( acl );
-                getRepository()
-                    .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
-              }
-            }
-          }
-        }
-      } else {
-        for ( String sourceFileId : sourceFileIds ) {
-          RepositoryFile sourceFile = getRepository().getFileById( sourceFileId );
-          if ( destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder() ) {
-
-            // First try to see if regular name is available
-            String fileName = sourceFile.getName();
-            String copyText = "";
-            String rootCopyText = "";
-            String nameNoExtension = fileName;
-            String extension = "";
-            int indexOfDot = fileName.lastIndexOf( '.' );
-            if ( !( indexOfDot == -1 ) ) {
-              nameNoExtension = fileName.substring( 0, indexOfDot );
-              extension = fileName.substring( indexOfDot );
-            }
-
-            RepositoryFileDto testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
-            if ( testFile != null ) {
-              // Second try COPY_PREFIX, If the name already ends with a COPY_PREFIX don't append twice
-              if ( !nameNoExtension.endsWith( Messages.getInstance().getString( "FileResource.COPY_PREFIX" ) ) ) { //$NON-NLS-1$
-                copyText = rootCopyText = Messages.getInstance().getString( "FileResource.COPY_PREFIX" );
-                fileName = nameNoExtension + copyText + extension;
-                testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + fileName );
-              }
-            }
-
-            // Third try COPY_PREFIX + DUPLICATE_INDICATOR
-            Integer nameCount = 1;
-            while ( testFile != null ) {
-              nameCount++;
-              copyText =
-                  rootCopyText + Messages.getInstance().getString( "FileResource.DUPLICATE_INDICATOR", nameCount );
-              fileName = nameNoExtension + copyText + extension;
-              testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + fileName );
-            }
-            IRepositoryFileData data = getData( sourceFile );
-            RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
-            RepositoryFile duplicateFile = null;
-
-            // If the title is different than the source file, copy it separately
-            if ( !sourceFile.getName().equals( sourceFile.getTitle() ) ) {
-              duplicateFile =
-                  new RepositoryFile.Builder( fileName ).title( RepositoryFile.DEFAULT_LOCALE,
-                      sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() ).versioned(
-                      sourceFile.isVersioned() ).build();
-            } else {
-              duplicateFile = new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).build();
-            }
-
-            final RepositoryFile repositoryFile =
-                getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
-            getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
-          }
-        }
-      }
-    } catch ( Throwable t ) {
-      t.printStackTrace();
+      fileService.doCopyFiles( pathId, mode, params );
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       return Response.serverError().entity(
-          new SafeHtmlBuilder().appendEscapedLines( t.getLocalizedMessage() ).toSafeHtml().asString() ).build();
+          new SafeHtmlBuilder().appendEscapedLines( e.getLocalizedMessage() ).toSafeHtml().asString() ).build();
     }
+
     return Response.ok().build();
   }
 
@@ -423,7 +332,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId pathId to the file
    * @return Response object containing the file stream for the file located at the pathId, along with the mimetype,
-   *                  and file name.
+   * and file name.
    * @throws FileNotFoundException, IllegalArgumentException
    */
   @GET
@@ -434,7 +343,7 @@ public class FileResource extends AbstractJaxRSResource {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
 
       return Response.ok( wrapper.getOutputStream(), wrapper.getMimetype() ).header( "Content-Disposition",
-        "inline; filename=\"" + wrapper.getRepositoryFile().getName() + "\"" ).build();
+          "inline; filename=\"" + wrapper.getRepositoryFile().getName() + "\"" ).build();
 
     } catch ( FileNotFoundException fileNotFound ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
@@ -473,7 +382,6 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   *
    * @param repositoryFile
    * @return
    */
@@ -509,8 +417,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Determines whether a selected file supports parameters or not
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return ("true" or "false")
    * @throws FileNotFoundException
    */
@@ -518,15 +425,15 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/parameterizable" )
   @Produces( TEXT_PLAIN )
   // have to accept anything for browsers to work
-  public
-  String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
+  public String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
     RepositoryFile repositoryFile = getRepository().getFile( FileUtils.idToPath( pathId ) );
     if ( repositoryFile != null ) {
       try {
         hasParameterUi =
-          ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-            repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" ) != null );
+            ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
+                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" )
+                != null );
       } catch ( NoSuchBeanDefinitionException e ) {
         // Do nothing.
       }
@@ -535,8 +442,8 @@ public class FileResource extends AbstractJaxRSResource {
     if ( hasParameterUi ) {
       try {
         IContentGenerator parameterContentGenerator =
-          PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-            repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
+            PentahoSystem.get( IPluginManager.class ).getContentGenerator(
+                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
         if ( parameterContentGenerator != null ) {
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           parameterContentGenerator.setOutputHandler( new SimpleOutputHandler( outputStream, false ) );
@@ -558,13 +465,13 @@ public class FileResource extends AbstractJaxRSResource {
             for ( int i = 0; i < nodes.size() && !hasParameters; i++ ) {
               Element elem = (Element) nodes.get( i );
               if ( elem.attributeValue( "name" ).equalsIgnoreCase( "output-target" )
-                && elem.attributeValue( "is-mandatory" ).equalsIgnoreCase( "true" ) ) {
+                  && elem.attributeValue( "is-mandatory" ).equalsIgnoreCase( "true" ) ) {
                 hasParameters = true;
                 continue;
               }
               Element attrib =
-                (Element) elem.selectSingleNode( "attribute[@namespace='http://reporting.pentaho"
-                  + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
+                  (Element) elem.selectSingleNode( "attribute[@namespace='http://reporting.pentaho"
+                      + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
               if ( attrib == null || !"system".equals( attrib.attributeValue( "value" ) ) ) {
                 hasParameters = true;
               }
@@ -572,7 +479,8 @@ public class FileResource extends AbstractJaxRSResource {
           }
         }
       } catch ( Exception e ) {
-        logger.error( Messages.getInstance().getString( "FileResource.PARAM_FAILURE", e.getMessage() ), e ); //$NON-NLS-1$
+        logger
+            .error( Messages.getInstance().getString( "FileResource.PARAM_FAILURE", e.getMessage() ), e ); //$NON-NLS-1$
       }
     }
     return Boolean.toString( hasParameters );
@@ -582,38 +490,32 @@ public class FileResource extends AbstractJaxRSResource {
    * Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
    * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
-   * @param pathId
-   *          colon separated path for the repository file
-   *          <pre function="syntax.xml">
-   *            :Path:to:file:id
-   *          </pre>
-   *          
-   * @param strWithManifest
-   *          true or false (download file with manifest).  Defaults to true (include manifest) if this string can't
-   *          be directly parsed to 'false' (case sensitive).  This argument is only used if a directory is being
-   *          downloaded.
-   *
-   * @param userAgent
-   *          A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
-   *          requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not 
-   *          supplied and the filename is not quoted.
+   * @param pathId          colon separated path for the repository file
+   *                        <pre function="syntax.xml">
+   *                        :Path:to:file:id
+   *                        </pre>
+   * @param strWithManifest true or false (download file with manifest).  Defaults to true (include manifest) if this string can't
+   *                        be directly parsed to 'false' (case sensitive).  This argument is only used if a directory is being
+   *                        downloaded.
+   * @param userAgent       A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
+   *                        requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not
+   *                        supplied and the filename is not quoted.
    * @return a Response object that contains either
-   *            1) a response code of SUCCESS and a pay load that contains one of the follow
-   *               A) An attachment that represents a single file
-   *               B) An attachment that represents a zip file of the directory and all of its descendants and structure.
-   *            2) a response code of 400 (Bad Request) - Usually a bad pathId
-   *            3) a response code of 403 (Forbidden) - pathId points at a file the user doesn't have access to.
-   *            4) a response code of 404 (Not found) - file was not found.
-   *            5) a response with of 500 (Internal Server Error) an unexpected error.
+   * 1) a response code of SUCCESS and a pay load that contains one of the follow
+   * A) An attachment that represents a single file
+   * B) An attachment that represents a zip file of the directory and all of its descendants and structure.
+   * 2) a response code of 400 (Bad Request) - Usually a bad pathId
+   * 3) a response code of 403 (Forbidden) - pathId points at a file the user doesn't have access to.
+   * 4) a response code of 404 (Not found) - file was not found.
+   * 5) a response with of 500 (Internal Server Error) an unexpected error.
    */
   @GET
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
   @JMeterTest( url = "/repo/files/{pathId : .+}/download", requestType = "GET" )
   // have to accept anything for browsers to work
-  public
-  Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
-                                     @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest ) {
+  public Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
+      @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest ) {
     FileService.DownloadFileWrapper wrapper = null;
     try {
       wrapper = fileService.doGetFileOrDirAsDownload( userAgent, pathId, strWithManifest );
@@ -627,34 +529,32 @@ public class FileResource extends AbstractJaxRSResource {
       logger.error( Messages.getInstance().getString(
           "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( FORBIDDEN ).build();
-    } catch ( GeneralSecurityException e) {
+    } catch ( GeneralSecurityException e ) {
       logger.error( Messages.getInstance().getString(
           "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( FORBIDDEN ).build();
-    } catch ( FileNotFoundException e) {
+    } catch ( FileNotFoundException e ) {
       logger.error( Messages.getInstance().getString(
           "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( NOT_FOUND ).build();
     } catch ( Throwable e ) {
       logger.error( Messages.getInstance().getString(
-        "FileResource.EXPORT_FAILED", wrapper.getEncodedFileName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
+          "FileResource.EXPORT_FAILED", wrapper.getEncodedFileName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }
 
   /**
    * Retrieves the file from the repository as inline.
-   *
+   * <p/>
    * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
    * document
    *
    * @param pathId colon separated path for the repository file
-   * <pre function="syntax.xml">
-   *    :path:to:file:id
-   * </pre>
-   *
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @return Response wraps the output stream and file name
-   *
    * @throws IllegalStateException
    */
   @GET
@@ -665,8 +565,8 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileAsInline( pathId );
       return Response.ok( wrapper.getOutputStream() )
-        .header( "Content-Disposition", "inline; filename=" + wrapper.getRepositoryFile().getName() )
-        .build();
+          .header( "Content-Disposition", "inline; filename=" + wrapper.getRepositoryFile().getName() )
+          .build();
     } catch ( IllegalArgumentException e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       return Response.status( FORBIDDEN ).build();
@@ -682,10 +582,8 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Save the acls of the selected file to the repository
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param acl
-   *          Acl of the repository file <code> RepositoryFileAclDto </code>
+   * @param pathId (colon separated path for the repository file)
+   * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
    * @return
    */
 
@@ -713,10 +611,8 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Store content creator of the selected repository file
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param contentCreator
-   *          <code> RepositoryFileDto </code>
+   * @param pathId         (colon separated path for the repository file)
+   * @param contentCreator <code> RepositoryFileDto </code>
    * @return
    */
   @PUT
@@ -737,8 +633,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the list of locale map for the selected repository file
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return
    */
   @GET
@@ -759,8 +654,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of locale properties for a given locale
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @param locale
    * @return
    */
@@ -785,11 +679,9 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Save list of locale properties for a given locale
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId     (colon separated path for the repository file)
    * @param locale
-   * @param properties
-   *          list of <code> StringKeyStringValueDto </code>
+   * @param properties list of <code> StringKeyStringValueDto </code>
    * @return
    */
   @PUT
@@ -816,8 +708,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Delete the locale for the selected file and locale
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @param locale
    * @return
    */
@@ -845,10 +736,8 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user has permissions to the selected files
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param permissions
-   *          (list of permissions to be checked)
+   * @param pathId      (colon separated path for the repository file)
+   * @param permissions (list of permissions to be checked)
    * @return
    */
   @GET
@@ -870,8 +759,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user has permissions to the provided list of paths
    *
-   * @param pathsWrapper
-   *          (list of paths to be checked)
+   * @param pathsWrapper (list of paths to be checked)
    * @return
    */
   @POST
@@ -905,15 +793,15 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Check whether the current user has specific permission on the selected repository file
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId      (colon separated path for the repository file)
    * @param permissions
    * @return
    */
   @GET
   @Path( "{pathId : .+}/canAccess" )
   @Produces( TEXT_PLAIN )
-  public String doGetCanAccess( @PathParam( "pathId" ) String pathId, @QueryParam( "permissions" ) String permissions ) {
+  public String doGetCanAccess( @PathParam( "pathId" ) String pathId,
+      @QueryParam( "permissions" ) String permissions ) {
     StringTokenizer tokenizer = new StringTokenizer( permissions, "|" );
     List<Integer> permissionList = new ArrayList<Integer>();
     while ( tokenizer.hasMoreTokens() ) {
@@ -1013,8 +901,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the acls of the selected repository file
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return <code> RepositoryFileAclDto </code>
    */
   @GET
@@ -1056,8 +943,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the properties of a selected repository file
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
@@ -1070,8 +956,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the file by creator id
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
@@ -1095,8 +980,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of executed contents for a selected content from the repository.
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return list of <code> RepositoryFileDto </code>
    */
   @GET
@@ -1129,10 +1013,8 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the executed contents for a selected repository file and a given user
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param user
-   *          (user of the platform)
+   * @param pathId (colon separated path for the repository file)
+   * @param user   (user of the platform)
    * @return list of <code> RepositoryFileDto </code>
    */
   @GET
@@ -1194,12 +1076,9 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of files from root of the repository.
    *
-   * @param depth
-   *          (how many level should the search go)
-   * @param filter
-   *          (filter to be applied for search)
-   * @param showHidden
-   *          (include or exclude hidden files from the file list)
+   * @param depth      (how many level should the search go)
+   * @param filter     (filter to be applied for search)
+   * @param showHidden (include or exclude hidden files from the file list)
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
@@ -1214,8 +1093,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of files from root of the repository.
    *
-   * @param filter
-   *          (filter to be applied for search)
+   * @param filter (filter to be applied for search)
    * @return list of files <code> RepositoryFileDto </code>
    */
   @GET
@@ -1231,41 +1109,35 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the children of the selected repository file. This is a recursive search with a selected level depth and
    * filter
    *
-   * @param pathId
-   *          The path from the root folder to the root node of the tree to return using colon characters in place of /
-   *          or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
-   * @param depth
-   *          (how many level should the search go)
-   * @param filter
-   *          (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
-   *          Filter, and Member Filters. Each part is separated with a pipe (|) character.
-   *          <p>
-   *          File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
-   *          accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
-   *          whether to return files, folders, or both files and folders, respectively.
-   *          <p>
-   *          The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
-   *          name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
-   *          filter does not apply to root node.
-   *          <p>
-   *          The Member Filter portion of the filter parameter allows the caller to specify which properties of the
-   *          metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
-   *          comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *          be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
-   *          Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
-   *          excludeMembers= clause in the same service call.
-   *          <p>
-   *          Example:
-   *          http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/tree?showHidden=false&filter=*|FILES
-   *          |includeMembers=name,fileSize,description,folder,id,title
-   *          <p>
-   *          will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
-   *          include the name, filesize, description, id and title.
-   *
-   * @param showHidden
-   *          (include or exclude hidden files from the file list)
-   * @param includeAcls
-   *          (Include permission information about the file in the output)
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   * @param depth       (how many level should the search go)
+   * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
+   *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   *                    <p/>
+   *                    File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
+   *                    accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
+   *                    whether to return files, folders, or both files and folders, respectively.
+   *                    <p/>
+   *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
+   *                    name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
+   *                    filter does not apply to root node.
+   *                    <p/>
+   *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
+   *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
+   *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
+   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
+   *                    excludeMembers= clause in the same service call.
+   *                    <p/>
+   *                    Example:
+   *                    http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/tree?showHidden=false&filter=*|FILES
+   *                    |includeMembers=name,fileSize,description,folder,id,title
+   *                    <p/>
+   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
+   *                    include the name, filesize, description, id and title.
+   * @param showHidden  (include or exclude hidden files from the file list)
+   * @param includeAcls (Include permission information about the file in the output)
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
@@ -1316,40 +1188,35 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the children of the selected repository file. This is a recursive search with a selected level depth and
    * filter
    *
-   * @param pathId
-   *          The path from the root folder to the root node of the tree to return using colon characters in place of /
-   *          or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
-   * @param filter
-   *          (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
-   *          Filter, and Member Filters. Each part is separated with a pipe (|) character.
-   *          <p>
-   *          File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
-   *          accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
-   *          whether to return files, folders, or both files and folders, respectively.
-   *          <p>
-   *          The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
-   *          name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
-   *          filter does not apply to root node.
-   *          <p>
-   *          The Member Filter portion of the filter parameter allows the caller to specify which properties of the
-   *          metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
-   *          comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *          be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
-   *          Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
-   *          excludeMembers= clause in the same service call.
-   *          <p>
-   *          Example:
-   *          <p>
-   *          http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/children?showHidden=false&filter=*|
-   *          FILES |includeMembers=name,fileSize,description,folder,id,title
-   *          <p>
-   *          will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
-   *          include the name, filesize, description, id and title.
-   *
-   * @param showHidden
-   *          (include or exclude hidden files from the file list)
-   * @param includeAcls
-   *          (Include permission information about the file in the output)
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
+   *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   *                    <p/>
+   *                    File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
+   *                    accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
+   *                    whether to return files, folders, or both files and folders, respectively.
+   *                    <p/>
+   *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
+   *                    name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
+   *                    filter does not apply to root node.
+   *                    <p/>
+   *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
+   *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
+   *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
+   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
+   *                    excludeMembers= clause in the same service call.
+   *                    <p/>
+   *                    Example:
+   *                    <p/>
+   *                    http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/children?showHidden=false&filter=*|
+   *                    FILES |includeMembers=name,fileSize,description,folder,id,title
+   *                    <p/>
+   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
+   *                    include the name, filesize, description, id and title.
+   * @param showHidden  (include or exclude hidden files from the file list)
+   * @param includeAcls (Include permission information about the file in the output)
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
@@ -1392,8 +1259,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the metadata of the selected repository file.
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
+   * @param pathId (colon separated path for the repository file)
    * @return list of <code> StringKeyStringValueDto </code>
    */
   @GET
@@ -1436,10 +1302,8 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Rename the name of the selected file
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param newName
-   *          (New name of the file)
+   * @param pathId  (colon separated path for the repository file)
+   * @param newName (New name of the file)
    * @return
    */
   @PUT
@@ -1588,10 +1452,8 @@ public class FileResource extends AbstractJaxRSResource {
    * Store the metadata of the selected fle. Even though the hidden flag is a property of the file node itself, and not
    * the metadata child, it is considered metadata from PUC and is included in the setMetadata call
    *
-   * @param pathId
-   *          (colon separated path for the repository file)
-   * @param metadata
-   *          (list of name value pair of metadata)
+   * @param pathId   (colon separated path for the repository file)
+   * @param metadata (list of name value pair of metadata)
    * @return
    */
   //TODO: Refactor REST endpoint to not include operational logic
@@ -1604,10 +1466,10 @@ public class FileResource extends AbstractJaxRSResource {
       RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
 
       boolean canManage =
-        PentahoSessionHolder.getSession().getName().equals( fileAcl.getOwner() )
-          || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
-          && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-            AdministerSecurityAction.NAME ) );
+          PentahoSessionHolder.getSession().getName().equals( fileAcl.getOwner() )
+              || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
+              && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
+              AdministerSecurityAction.NAME ) );
 
       if ( !canManage ) {
 
@@ -1620,7 +1482,7 @@ public class FileResource extends AbstractJaxRSResource {
           RepositoryFileAclAceDto acl = fileAcl.getAces().get( i );
           if ( acl.getRecipient().equals( PentahoSessionHolder.getSession().getName() ) ) {
             if ( acl.getPermissions().contains( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() )
-              || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
+                || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
               canManage = true;
               break;
             }
@@ -1683,7 +1545,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Validate path and send appropriate response if necessary TODO: Add validation to IUnifiedRepository interface
-   * 
+   *
    * @param path
    * @return
    */
