@@ -538,7 +538,7 @@ public class FileServiceTest {
     doReturn( propertiesList ).when( properties ).stringPropertyNames();
 
     doReturn( properties ).when( fileService.defaultUnifiedRepositoryWebService )
-        .getLocalePropertiesForFileById( anyString(), anyString() );
+      .getLocalePropertiesForFileById( anyString(), anyString() );
 
     List<StringKeyStringValueDto> keyValueList = fileService.doGetLocaleProperties( pathId, locale );
 
@@ -580,7 +580,7 @@ public class FileServiceTest {
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( "/path/to/file/file1.ext" );
     verify( fileService.defaultUnifiedRepositoryWebService )
-        .setLocalePropertiesForFileByFileId( anyString(), anyString(), any( Properties.class ) );
+      .setLocalePropertiesForFileByFileId( anyString(), anyString(), any( Properties.class ) );
   }
 
   @Test
@@ -612,7 +612,8 @@ public class FileServiceTest {
 
     doReturn( param ).when( repositoryFileDto ).getId();
     when( fileService.idToPath( param ) ).thenReturn( "/file1" );
-    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( fileService.idToPath( param ) );
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService )
+      .getFile( fileService.idToPath( param ) );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenReturn( fileMetadata );
 
     try {
@@ -638,7 +639,8 @@ public class FileServiceTest {
     try {
       fileService.doSetContentCreator( param, mockFileDto );
       fail();
-    } catch ( FileNotFoundException e ) {}
+    } catch ( FileNotFoundException e ) {
+    }
   }
 
   @Test
@@ -719,5 +721,31 @@ public class FileServiceTest {
     } catch ( InternalError e ) {
       verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
     }
+  }
+
+  @Test
+  public void testDoGetReservedChars() throws Exception {
+
+    StringBuffer stringBuffer = new StringBuffer();
+    stringBuffer.append( '/' );
+    stringBuffer.append( '\\' );
+    stringBuffer.append( '\t' );
+    stringBuffer.append( '\r' );
+    stringBuffer.append( '\n' );
+
+    List<Character> characters = new ArrayList<Character>();
+    characters.add( '/' );
+    characters.add( '\\' );
+    characters.add( '\t' );
+    characters.add( '\r' );
+    characters.add( '\n' );
+
+    doReturn( characters ).when( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
+
+    StringBuffer buffer = fileService.doGetReservedChars();
+
+    verify( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
+
+    assertEquals( stringBuffer.toString(), buffer.toString() );
   }
 }
