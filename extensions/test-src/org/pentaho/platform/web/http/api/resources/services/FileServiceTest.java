@@ -175,7 +175,7 @@ public class FileServiceTest {
     String pathId = "/usr/folder/file.txt";
     FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
 
-    Assert.assertTrue( wrapper.getRepositoryFile().getName().compareTo( "file.txt" ) == 0 );
+    assertEquals( "file.txt", wrapper.getRepositoryFile().getName() );
   }
 
   @Test
@@ -220,6 +220,28 @@ public class FileServiceTest {
       fileService.setFileAcls( pathId, acl );
       fail();
     } catch ( FileNotFoundException e ) {
+      //expected exception
+    }
+  }
+
+  @Test
+  public void testDoGetProperties() throws Exception {
+    RepositoryFileDto file = mock( RepositoryFileDto.class );
+    when( fileService.defaultUnifiedRepositoryWebService.getFile( anyString() ) ).thenReturn( file );
+
+    String pathId = "/usr/folder/file.txt";
+    fileService.doGetProperties( pathId );
+
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getFile( anyString() );
+  }
+
+  @Test
+  public void testDoGetPropertiesException() throws Exception {
+    String pathId = "/usr/folder/file.txt";
+    try {
+      fileService.doGetProperties( pathId );
+      fail();
+    } catch ( FileNotFoundException fileNotFound ) {
       //expected exception
     }
   }

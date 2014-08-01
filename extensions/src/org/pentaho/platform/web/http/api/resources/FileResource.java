@@ -591,17 +591,20 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Save the acls of the selected file to the repository
+   * <p>Save the acls of the selected file to the repository<p/>
    *
-   * This method is used to update and save the acls of the selected file to the repository
+   * <p>This method is used to update and save the acls of the selected file to the repository<p/>
    *
-   * @param pathId @param pathId colon separated path for the repository file
+   * @param pathId colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
    * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
    *
-   * Request object example:
+   * <p>Example Request:<br>
+   *               PUT /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl HTTP/1.1<br>
+   *               Content-Type: application/xml
+   *               <p/>
    *               <pre function="syntax.xml">
    *               {@code
    *                 < xml>
@@ -614,7 +617,9 @@ public class FileResource extends AbstractJaxRSResource {
    *                 < /xml>
    *               }
    *               </pre>
-   *
+   * <p>Example Response:<br/>
+   *               HTTP/1.1 200 OK
+   *               </p>
    * @return response object indicating the success or failure of this operation
    */
 
@@ -1027,14 +1032,55 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the properties of a selected repository file
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * <p>Example Request:
+   *               <br>
+   *               GET /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/properties HTTP/1.1
+   *               <p/>
+   * <p></p>Example Response:
+   *               <br/>
+   *               HTTP/1.1 200 OK
+   *               Content-Type: application/json
+   *               <p/>
+   *               <pre function="syntax.xml">
+   *               {
+   *                 "createdDate":"1406732545857",
+   *                 "description":"afile.prpti",
+   *                 "fileSize":"7672",
+   *                 "folder":"false",
+   *                 "hidden":"false",
+   *                 "id":"068390ba-f90d-46e3-8c55-bbe55e24b2fe",
+   *                 "lastModifiedDate":"1406732545858",
+   *                 "locale":"en",
+   *                 "localePropertiesMapEntries":[{"locale":"default",
+   *                 "properties":[{"key":"file.title","value":"afile"},
+   *                 {"key":"description","value":"afile.prpti"},
+   *                 {"key":"jcr:primaryType","value":"nt:unstructured"},
+   *                 {"key":"title","value":"afile"},
+   *                 {"key":"file.description","value":"afile.prpti"}]}],
+   *                 "locked":"false",
+   *                 "name":"afile.prpti",
+   *                 "ownerType":"-1","path":"/home/admin/afile.prpti",
+   *                 "title":"afile","versioned":"false"
+   *                }
+   *                </pre>
+   *
    * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
   @Path( "{pathId : .+}/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RepositoryFileDto doGetProperties( @PathParam( "pathId" ) String pathId ) {
-    return getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+    try {
+      return fileService.doGetProperties( pathId );
+    } catch (FileNotFoundException fileNotFound) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
+      //TODO: What do we return in this error case?
+      return null;
+    }
   }
 
   /**
