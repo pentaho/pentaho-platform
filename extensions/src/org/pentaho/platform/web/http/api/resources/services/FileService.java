@@ -115,8 +115,10 @@ public class FileService {
    */
   public void doDeleteLocale(String pathId, String locale) throws Exception {
     try {
-      RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-      getRepoWs().deleteLocalePropertiesForFile( file.getId(), locale );
+      RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
+      if( file != null) {
+        getRepoWs().deleteLocalePropertiesForFile( file.getId(), locale );
+      }
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       throw e;
