@@ -38,6 +38,9 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+
+import java.util.*;
 
 public class FileServiceTest {
 
@@ -472,4 +475,74 @@ public class FileServiceTest {
       fail();
     }
   }
+
+  @Test
+  public void testDoGetLocalProperties() throws Exception {
+    String pathId = "path:to:file:file1.ext";
+    String fileId = "file1";
+    String locale = "";
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+
+    Set<String> propertiesList = new HashSet<String>();
+    propertiesList.add( "prop1" );
+    propertiesList.add( "prop2" );
+
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( fileId ).when( repositoryFileDto ).getId();
+
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+
+    Properties properties = mock( Properties.class );
+    doReturn( "value1" ).when( properties ).getProperty( "prop1" );
+    doReturn( "value2" ).when( properties ).getProperty( "prop2" );
+    doReturn( false ).when( properties ).isEmpty();
+    doReturn( propertiesList ).when( properties ).stringPropertyNames();
+
+    doReturn( properties ).when( fileService.defaultUnifiedRepositoryWebService )
+        .getLocalePropertiesForFileById( anyString(), anyString() );
+
+    List<StringKeyStringValueDto> keyValueList = fileService.doGetLocaleProperties( pathId, locale );
+
+    verify( fileService.defaultUnifiedRepositoryWebService ).getFile( "/path/to/file/file1.ext" );
+    verify( properties ).getProperty( "prop1" );
+    verify( properties ).getProperty( "prop2" );
+    verify( properties ).isEmpty();
+    verify( properties ).stringPropertyNames();
+    verify( fileService.defaultUnifiedRepositoryWebService ).getLocalePropertiesForFileById( anyString(), anyString() );
+
+    assertEquals( 2, keyValueList.size() );
+    assertEquals( "prop1", keyValueList.get( 1 ).getKey() );
+    assertEquals( "prop2", keyValueList.get( 0 ).getKey() );
+    assertEquals( "value1", keyValueList.get( 1 ).getValue() );
+    assertEquals( "value2", keyValueList.get( 0 ).getValue() );
+  }
+
+  @Test
+  public void testDoSetLocalProperties() throws Exception {
+    String pathId = "path:to:file:file1.ext";
+    String fileId = "file1";
+    String locale = "";
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( fileId ).when( repositoryFileDto ).getId();
+
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+
+    Properties fileProperties = mock( Properties.class );
+    doReturn( false ).when( fileProperties ).isEmpty();
+
+    List<StringKeyStringValueDto> properties = new ArrayList<StringKeyStringValueDto>();
+    properties.add( new StringKeyStringValueDto( "key1", "value1" ) );
+    properties.add( new StringKeyStringValueDto( "key2", "value2" ) );
+
+    fileService.doSetLocaleProperties( pathId, locale, properties );
+
+    verify( fileService.defaultUnifiedRepositoryWebService ).getFile( "/path/to/file/file1.ext" );
+    verify( fileService.defaultUnifiedRepositoryWebService )
+        .setLocalePropertiesForFileByFileId( anyString(), anyString(), any( Properties.class ) );
+  }
+
 }
