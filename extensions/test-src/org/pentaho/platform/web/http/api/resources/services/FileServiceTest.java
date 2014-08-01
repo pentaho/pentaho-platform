@@ -13,9 +13,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.InvalidPathException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -40,6 +44,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
@@ -747,5 +753,97 @@ public class FileServiceTest {
     verify( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
 
     assertEquals( stringBuffer.toString(), buffer.toString() );
+  }
+  
+  
+  @Test
+  public void testDoGetFileOrDirAsDownload() throws Throwable {
+    final String fileName = "mockFileName";
+    
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn(true).when( mockAuthPolicy ).isAllowed( anyString() );
+    
+    BaseExportProcessor mockExportProcessor = mock( BaseExportProcessor.class );
+    File mockExportFile = mock( File.class );
+    ExportHandler mockExportHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class);
+    
+    RepositoryFile mockRepoFile = mock( RepositoryFile.class );
+    doReturn( fileName ).when( mockRepoFile ).getName();
+    doReturn( mockExportFile ).when( mockExportProcessor ).performExport( mockRepoFile );
+
+    doReturn( mockRepoFile ).when( fileService.repository ).getFile( anyString() );
+    doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+    doReturn( mockExportProcessor ).when( fileService ).getDownloadExportProcessor( anyString(), anyBoolean(), anyBoolean() );
+    doReturn( mockExportHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockRepoFile, mockExportProcessor );
+    
+    FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, "true" );
+    
+    verify( fileService.repository, times( 1 ) ).getFile( anyString() );
+    
+    
+    assertEquals( mockStream, wrapper.getOutputStream() );
+    assertEquals( fileName+".zip", wrapper.getEncodedFileName() );
+    assertEquals( true, wrapper.getAttachment().equals( "attachment; filename=\"mockFileName.zip\"" ));
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownloadException() {
+    /*
+     * Test 1
+     */
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( false ).when( mockAuthPolicy ).isAllowed( anyString() );
+    doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+    
+    try {
+      FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      fail();
+    } catch (GeneralSecurityException e) {
+      // Expected
+    } catch (Throwable t) {
+      fail();
+    }
+    
+    /*
+     * Test 2
+     */
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
+    try {
+      FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "", "true" );
+      fail();
+    } catch (InvalidParameterException e) {
+      // Expected
+    } catch ( Throwable e ) {
+      fail();
+    }
+    
+    /*
+     * Test 3
+     */
+    doReturn( false ).when( fileService ).isPathValid( anyString() );
+    try {
+      fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      fail();
+    } catch (InvalidPathException e) {
+      // Expected
+    } catch (Throwable t) {
+      fail();
+    }
+
+    /*
+     * Test 4
+     */
+    doReturn( true ).when( fileService ).isPathValid( anyString() );
+    doReturn( null ).when( fileService.repository ).getFile( anyString() );
+    try {
+      fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      fail();
+    } catch (FileNotFoundException e) {
+      // Expected
+    } catch (Throwable t) {
+      fail();
+    }
   }
 }
