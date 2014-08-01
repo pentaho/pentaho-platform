@@ -11,7 +11,13 @@ import java.net.URLEncoder;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
@@ -21,7 +27,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.repository2.unified.*;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
@@ -36,14 +48,16 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
-import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.web.http.api.resources.Setting;
+import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -122,6 +136,41 @@ public class FileService {
       throw e;
     }
   }
+  
+  public List<Setting> doGetCanAccessList( String pathId, String permissions ) {
+    StringTokenizer tokenizer = new StringTokenizer( permissions, "|" );
+    ArrayList<Setting> permMap = new ArrayList<Setting>();
+    while ( tokenizer.hasMoreTokens() ) {
+      Integer perm = Integer.valueOf( tokenizer.nextToken() );
+      EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[perm] );
+      permMap.add( new Setting( perm.toString(), new Boolean( getRepository()
+          .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
+    }
+    return permMap;
+  }
+  
+  public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
+    List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
+
+    String permissions =
+        RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
+            + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
+            + RepositoryFilePermission.ALL.ordinal();
+
+    List<String> paths = pathsWrapper.getStrings();
+    for ( String path : paths ) {
+      List<Setting> permList = doGetCanAccessList( path, permissions );
+      for ( Setting perm : permList ) {
+        if ( Boolean.parseBoolean( perm.getValue() ) ) {
+          Setting setting = new Setting();
+          setting.setName( path );
+          setting.setValue( perm.getName() );
+          pathsPermissonsSettings.add( setting );
+        }
+      }
+    }
+    return pathsPermissonsSettings;
+  }  
 
   /**
    * Creates a new file with the provided contents at a given path
