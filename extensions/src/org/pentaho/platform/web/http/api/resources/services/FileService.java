@@ -10,11 +10,7 @@ import java.net.URLEncoder;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
@@ -24,12 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.*;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
@@ -632,6 +623,44 @@ public class FileService {
       }
     }
     getRepoWs().updateAcl( acl );
+  }
+
+  /**
+   * Check whether the current user has specific permission on the selected repository file
+   *
+   * @param pathId
+   * @param permissions
+   * @return
+   */
+  public String doGetCanAccess( String pathId, String permissions ) {
+    StringTokenizer tokenizer = new StringTokenizer( permissions, "|" );
+    List<Integer> permissionList = new ArrayList<Integer>();
+    while ( tokenizer.hasMoreTokens() ) {
+      Integer perm = Integer.valueOf( tokenizer.nextToken() );
+      switch ( perm ) {
+        case 0: {
+          permissionList.add( RepositoryFilePermission.READ.ordinal() );
+          break;
+        }
+        case 1: {
+          permissionList.add( RepositoryFilePermission.WRITE.ordinal() );
+          break;
+        }
+        case 2: {
+          permissionList.add( RepositoryFilePermission.DELETE.ordinal() );
+          break;
+        }
+        case 3: {
+          permissionList.add( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() );
+          break;
+        }
+        case 4: {
+          permissionList.add( RepositoryFilePermission.ALL.ordinal() );
+          break;
+        }
+      }
+    }
+    return getRepoWs().hasAccess( idToPath( pathId ), permissionList ) ? "true" : "false";
   }
 
   protected RepositoryDownloadWhitelist getWhitelist() {

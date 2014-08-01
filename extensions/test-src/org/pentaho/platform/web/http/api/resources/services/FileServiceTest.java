@@ -2,9 +2,7 @@ package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -543,6 +541,28 @@ public class FileServiceTest {
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( "/path/to/file/file1.ext" );
     verify( fileService.defaultUnifiedRepositoryWebService )
         .setLocalePropertiesForFileByFileId( anyString(), anyString(), any( Properties.class ) );
+  }
+
+  @Test
+  public void testDoGetCanAccess() throws Exception {
+    String pathId = "path:to:file:file1.ext";
+    String permissions = "0|1|2|3|4";
+
+    List<Integer> permissionsList = new ArrayList<Integer>();
+    permissionsList.add( 0 );
+    permissionsList.add( 1 );
+    permissionsList.add( 2 );
+    permissionsList.add( 3 );
+    permissionsList.add( 4 );
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+    doReturn( true ).when( fileService.defaultUnifiedRepositoryWebService ).hasAccess( anyString(), anyList() );
+
+    String hasAccess = fileService.doGetCanAccess( pathId, permissions );
+
+    verify( fileService.defaultUnifiedRepositoryWebService ).hasAccess( "/path/to/file/file1.ext", permissionsList );
+
+    assertEquals( "true", hasAccess );
   }
 
 }
