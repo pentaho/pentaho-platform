@@ -226,26 +226,31 @@ public class FileResource extends AbstractJaxRSResource {
    * <p/>
    * Moves a list of files from its current location to another, the list should be comma separated.
    *
-   * @param destPathId Destiny path where files should be moved
-   * @param params     Comma separated list of files to be moved
+   * @param destPathId colon separated path for the destiny path
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @param params comma separated list of files to be moved
+   * <pre function="syntax.xml">
+   *    pathId1,pathId2,...
+   * </pre>
    * @return Response Server Response indicating the success of the operation
    */
   @PUT
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
-  @JMeterTest( url = "/repo/files/:home:admin/move", requestType = "PUT", statusCode = "200",
+  @JMeterTest( url = "/repo/files/{pathId : .+}/move", requestType = "PUT", statusCode = "200",
       postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     try {
-      if ( fileService.doMoveFiles( destPathId, params ) ) {
-        return Response.ok().build();
-      } else {
-        return Response.serverError().entity(
-            Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ) ).build();
-      }
+      fileService.doMoveFiles( destPathId, params );
+      return Response.ok().build();
+    } catch ( FileNotFoundException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ), e );
+      return Response.status( NOT_FOUND ).build();
     } catch ( Throwable t ) {
-      t.printStackTrace();
-      return Response.serverError().entity( t.getMessage() ).build();
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
+      return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }
 
@@ -255,7 +260,10 @@ public class FileResource extends AbstractJaxRSResource {
    * Restores a list of files from the user's trash folder to their previous locations. The list should be comma
    * separated.
    *
-   * @param params Comma separated list of files to be restored
+   * @param params comma separated list of file ids to be restored
+   * <pre function="syntax.xml">
+   *    pathId1,pathId2,...
+   * </pre>
    * @return Response Server Response indicating the success of the operation
    */
   @PUT
@@ -267,9 +275,9 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       fileService.doRestoreFiles( params );
       return Response.ok().build();
-    } catch ( Throwable t ) {
-      t.printStackTrace();
-      return Response.serverError().entity( t.getMessage() ).build();
+    } catch ( InternalError e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }
 
@@ -626,44 +634,125 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Store content creator of the selected repository file
    *
-   * @param pathId         (colon separated path for the repository file)
-   * @param contentCreator <code> RepositoryFileDto </code>
-   * @return
+   * @param pathId colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @param contentCreator repository file
+   * <pre function="syntax.xml">
+   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *     &lt;repositoryFileDto&gt;
+   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *     &lt;folder&gt;false&lt;/folder&gt;
+   *     &lt;hidden&gt;false&lt;/hidden&gt;
+   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *     &lt;locale&gt;en&lt;/locale&gt;
+   *     &lt;localePropertiesMapEntries&gt;
+   *       &lt;localeMapDto&gt;
+   *         &lt;locale&gt;default&lt;/locale&gt;
+   *         &lt;properties&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.description&lt;/key&gt;
+   *             &lt;value&gt;myFile Description&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *         &lt;/properties&gt;
+   *       &lt;/localeMapDto&gt;
+   *     &lt;/localePropertiesMapEntries&gt;
+   *     &lt;locked&gt;false&lt;/locked&gt;
+   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *     &lt;title&gt;myFile&lt;/title&gt;
+   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *     &lt;versioned&gt;true&lt;/versioned&gt;
+   *   &lt;/repositoryFileAclDto&gt;
+   * </pre>
+   * @returns response object indicating the success or failure of this operation
+   * @throws FileNotFoundException
    */
   @PUT
   @Path( "{pathId : .+}/creator" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
-  public Response setContentCreator( @PathParam( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
+  @JMeterTest( url = "/repo/files/{pathId : .+}/creator", requestType = "PUT", statusCode = "200",
+    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22" )
+  public Response doSetContentCreator( @PathParam( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
-      RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-      Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( file.getId() );
-      fileMetadata.put( PentahoJcrConstants.PHO_CONTENTCREATOR, contentCreator.getId() );
-      getRepository().setFileMetadata( file.getId(), fileMetadata );
+      fileService.doSetContentCreator( pathId, contentCreator );
       return Response.ok().build();
+    } catch ( FileNotFoundException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+      return Response.status( NOT_FOUND ).build();
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
+      return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }
 
   /**
-   * Retrieves the list of locale map for the selected repository file
+   * Retrieves the list of locale map for the selected repository file. The list will be empty if a problem occurs.
    *
-   * @param pathId (colon separated path for the repository file)
-   * @return
+   * @param pathId colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @return <code>List<LocaleMapDto></code> the list of locales
+   *         <pre function="syntax.xml">
+   *           <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *           &lt;localePropertiesMapEntries&gt;
+   *             &lt;localeMapDto&gt;
+   *               &lt;locale&gt;default&lt;/locale&gt;
+   *               &lt;properties&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;file.title&lt;/key&gt;
+   *                   &lt;value&gt;myFile&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *                   &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;title&lt;/key&gt;
+   *                   &lt;value&gt;myFile&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;file.description&lt;/key&gt;
+   *                   &lt;value&gt;myFile Description&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *               &lt;/properties&gt;
+   *             &lt;/localeMapDto&gt;
+   *           &lt;/localePropertiesMapEntries&gt;
+   *         </pre>
    */
   @GET
   @Path( "{pathId : .+}/locales" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/locales", requestType = "GET", statusCode = "200",
+    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22" )
   public List<LocaleMapDto> doGetFileLocales( @PathParam( "pathId" ) String pathId ) {
-    List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
-    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-    List<PentahoLocale> locales = getRepoWs().getAvailableLocalesForFileById( file.getId() );
-    if ( locales != null && !locales.isEmpty() ) {
-      for ( PentahoLocale locale : locales ) {
-        availableLocales.add( new LocaleMapDto( locale.toString(), null ) );
-      }
+    List<LocaleMapDto> locales = new ArrayList<LocaleMapDto>();
+    try {
+      locales = fileService.doGetFileLocales( pathId );
+    } catch ( FileNotFoundException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+    } catch ( Throwable t ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
     }
-    return availableLocales;
+    return locales;
   }
 
   /**
