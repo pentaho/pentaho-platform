@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Pentaho Monitoring Event Bus Plugin" name="monitoring-eventbus-plugin">
+
+  <content-generator/>
+
+</plugin>
