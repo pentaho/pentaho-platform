@@ -11,8 +11,10 @@ import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
@@ -44,6 +46,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAce
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
@@ -234,7 +237,7 @@ public class FileService {
     String originalFileName, encodedFileName = null;
 
     // change file id to path
-    String path = FileUtils.idToPath( pathId );
+    String path = idToPath( pathId );
 
     // if no path is sent, return bad request
     if ( StringUtils.isEmpty( pathId ) ) {
@@ -353,6 +356,46 @@ public class FileService {
   }
 
   /**
+   * Retrieve the list of locale properties for a given locale
+   *
+   * @param pathId (colon separated path for the repository file)
+   * @param locale
+   * @return
+   */
+  public List<StringKeyStringValueDto> doGetLocaleProperties( String pathId, String locale ) {
+    RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
+    List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
+    if ( file != null ) {
+      Properties properties = getRepoWs().getLocalePropertiesForFileById( file.getId(), locale );
+      if ( properties != null && !properties.isEmpty() ) {
+        for ( String key : properties.stringPropertyNames() ) {
+          keyValueList.add( getStringKeyStringValueDto( key, properties.getProperty( key ) ) );
+        }
+      }
+    }
+    return keyValueList;
+  }
+
+  /**
+   * Set the list of locale properties for a given locale
+   *
+   * @param pathId
+   * @param locale
+   * @param properties
+   */
+  public void doSetLocaleProperties( String pathId, String locale, List<StringKeyStringValueDto> properties )
+      throws Exception {
+    RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
+    Properties fileProperties = new Properties();
+    if ( properties != null && !properties.isEmpty() ) {
+      for ( StringKeyStringValueDto dto : properties ) {
+        fileProperties.put( dto.getKey(), dto.getValue() );
+      }
+    }
+    getRepoWs().setLocalePropertiesForFileByFileId( file.getId(), locale, fileProperties );
+  }
+
+  /**
    * Copy files to a new location
    *
    * @param pathId
@@ -368,7 +411,7 @@ public class FileService {
       mode = MODE_RENAME;
     }
 
-    String path = FileUtils.idToPath( pathId );
+    String path = idToPath( pathId );
     RepositoryFile destDir = getRepository().getFile( path );
     String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     if ( mode == MODE_OVERWRITE || mode == MODE_NO_OVERWRITE ) {
@@ -570,7 +613,7 @@ public class FileService {
   }
 
   public void setFileAcls( String pathId, RepositoryFileAclDto acl ) throws FileNotFoundException {
-    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+    RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     if ( file == null ) {
       // file does not exist or is not readable but we can't tell at this point
       throw new FileNotFoundException();
@@ -642,6 +685,10 @@ public class FileService {
         copy( is, output );
       }
     };
+  }
+
+  public StringKeyStringValueDto getStringKeyStringValueDto( String key, String value ) {
+    return new StringKeyStringValueDto( key, value );
   }
 
   public IUnifiedRepository getRepository() {

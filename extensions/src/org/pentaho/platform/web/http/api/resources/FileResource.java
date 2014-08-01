@@ -669,35 +669,55 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of locale properties for a given locale
    *
-   * @param pathId (colon separated path for the repository file)
-   * @param locale
-   * @return
+   * @param pathId Colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @param locale The specified locale
+   * @return <code>&lt;stringKeyStringValueDtoes&gt;
+   * &lt;stringKeyStringValueDto&gt;
+   * &lt;key&gt;file.title&lt;/key&gt;
+   * &lt;value&gt;File Title&lt;/value&gt;
+   * &lt;/stringKeyStringValueDto&gt;
+   * &lt;stringKeyStringValueDto&gt;
+   * &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   * &lt;value&gt;nt:unstructured&lt;/value&gt;
+   * &lt;/stringKeyStringValueDto&gt;
+   * &lt;stringKeyStringValueDto&gt;
+   * &lt;key&gt;title&lt;/key&gt;
+   * &lt;value&gt;File Title&lt;/value&gt;
+   * &lt;/stringKeyStringValueDto&gt;
+   * &lt;/stringKeyStringValueDtoes&gt;</code>
    */
   @GET
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public List<StringKeyStringValueDto> doGetLocaleProperties( @PathParam( "pathId" ) String pathId,
       @QueryParam( "locale" ) String locale ) {
-    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-    List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
-    if ( file != null ) {
-      Properties properties = getRepoWs().getLocalePropertiesForFileById( file.getId(), locale );
-      if ( properties != null && !properties.isEmpty() ) {
-        for ( String key : properties.stringPropertyNames() ) {
-          keyValueList.add( new StringKeyStringValueDto( key, properties.getProperty( key ) ) );
-        }
-      }
-    }
-    return keyValueList;
+    return fileService.doGetLocaleProperties( pathId, locale );
   }
 
   /**
    * Save list of locale properties for a given locale
    *
-   * @param pathId     (colon separated path for the repository file)
-   * @param locale
-   * @param properties list of <code> StringKeyStringValueDto </code>
-   * @return
+   * @param pathId Colon separated path for the repository file
+   * @param locale The specified locale
+   * @param properties
+   * <code>&lt;stringKeyStringValueDtoes&gt;
+   * &lt;stringKeyStringValueDto&gt;
+   * &lt;key&gt;file.title&lt;/key&gt;
+   * &lt;value&gt;File Title&lt;/value&gt;
+   * &lt;/stringKeyStringValueDto&gt;
+   * &lt;stringKeyStringValueDto&gt;
+   * &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   * &lt;value&gt;nt:unstructured&lt;/value&gt;
+   * &lt;/stringKeyStringValueDto&gt;
+   * &lt;stringKeyStringValueDto&gt;
+   * &lt;key&gt;title&lt;/key&gt;
+   * &lt;value&gt;File Title&lt;/value&gt;
+   * &lt;/stringKeyStringValueDto&gt;
+   * &lt;/stringKeyStringValueDtoes&gt;</code>
+   * @return Response object indicating the success or failure of this operation
    */
   @PUT
   @Path( "{pathId : .+}/localeProperties" )
@@ -705,15 +725,7 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doSetLocaleProperties( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale,
       List<StringKeyStringValueDto> properties ) {
     try {
-      RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-      Properties fileProperties = new Properties();
-      if ( properties != null && !properties.isEmpty() ) {
-        for ( StringKeyStringValueDto dto : properties ) {
-          fileProperties.put( dto.getKey(), dto.getValue() );
-        }
-      }
-      getRepoWs().setLocalePropertiesForFileByFileId( file.getId(), locale, fileProperties );
-
+      fileService.doSetLocaleProperties( pathId, locale, properties );
       return Response.ok().build();
     } catch ( Throwable t ) {
       return Response.serverError().entity( t.getMessage() ).build();
