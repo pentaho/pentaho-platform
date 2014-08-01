@@ -666,6 +666,18 @@ public class FileService {
     return repositoryFileData;
   }
 
+  /**
+   * Save the acls of the selected file to the repository
+   *
+   * This method is used to update and save the acls of the selected file to the repository
+   *
+   * @param pathId @param pathId colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
+   * @throws FileNotFoundException
+   */
   public void setFileAcls( String pathId, RepositoryFileAclDto acl ) throws FileNotFoundException {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     if ( file == null ) {
@@ -733,6 +745,24 @@ public class FileService {
       buffer.append( reservedCharacters.get( i ) );
     }
     return buffer;
+  }
+  
+  /**
+   * Retrieves the properties of a selected repository file
+   *
+   * @param pathId @param pathId colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @return file properties object <code> RepositoryFileDto </code>
+   * @throws FileNotFoundException
+   */
+  public RepositoryFileDto doGetProperties( String pathId ) throws FileNotFoundException {
+    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+    if ( file == null ) {
+      throw new FileNotFoundException();
+    }
+    return file;
   }
 
   protected RepositoryDownloadWhitelist getWhitelist() {
