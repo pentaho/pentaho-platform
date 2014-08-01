@@ -39,6 +39,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
+import org.pentaho.platform.plugin.services.importexport.ExportException;
+import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -300,7 +302,7 @@ public class FileService {
 
     // check if path is valid
     if ( !isPathValid( path ) ) {
-      throw new InvalidPathException( path, null );
+      throw new InvalidPathException( path, "invalid" );
     }
 
     // check if entity exists in repo
@@ -311,35 +313,19 @@ public class FileService {
       throw new FileNotFoundException( path );
     }
 
-    final InputStream is;
-    StreamingOutput streamingOutput;
-    BaseExportProcessor exportProcessor;
-
-    // create processor
-    // send zip with manifest by default
+   // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
-    if ( repositoryFile.isFolder() || withManifest ) {
-      exportProcessor = new ZipExportProcessor( path, repository, withManifest );
-      originalFileName = repositoryFile.getName() + ".zip"; //$NON-NLS-1$//$NON-NLS-2$
-    } else {
-      exportProcessor = new SimpleExportProcessor( path, repository );
-      originalFileName = repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
-    }
+    boolean requiresZip = repositoryFile.isFolder() || withManifest;
+    BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
+    originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
     encodedFileName = URLEncoder.encode( originalFileName, "UTF-8" ).replaceAll( "\\+", "%20" );
     String quotedFileName = "\"" + originalFileName + "\"";
 
     // add export handlers for each expected file type
-    exportProcessor.addExportHandler( PentahoSystem.get( DefaultExportHandler.class ) );
-
-    File zipFile = exportProcessor.performExport( repositoryFile );
-    is = new FileInputStream( zipFile );
+    exportProcessor.addExportHandler( getDownloadExportHandler() );
 
     // copy streaming output
-    streamingOutput = new StreamingOutput() {
-      public void write( OutputStream output ) throws IOException {
-        IOUtils.copy( is, output );
-      }
-    };
+    StreamingOutput streamingOutput = getDownloadStream( repositoryFile, exportProcessor );
 
     final String attachment;
     if ( userAgent.contains( "Firefox" ) ) {
@@ -955,6 +941,25 @@ public class FileService {
 
   protected String idToPath( String pathId ) {
     return FileUtils.idToPath( pathId );
+  }
+  
+  protected BaseExportProcessor getDownloadExportProcessor( String path, boolean requiresZip, boolean withManifest ) {
+    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
+  }
+  
+  protected ExportHandler getDownloadExportHandler() {
+    return PentahoSystem.get( DefaultExportHandler.class );
+  }
+  
+  protected StreamingOutput getDownloadStream(RepositoryFile repositoryFile, BaseExportProcessor exportProcessor) throws ExportException, IOException {
+    File zipFile = exportProcessor.performExport( repositoryFile );
+    final FileInputStream is = new FileInputStream( zipFile );
+    // copy streaming output
+    return new StreamingOutput() {
+      public void write( OutputStream output ) throws IOException {
+        IOUtils.copy( is, output );
+      }
+    };
   }
 
   public class RepositoryFileToStreamWrapper {
