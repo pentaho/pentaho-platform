@@ -602,7 +602,7 @@ public class FileResource extends AbstractJaxRSResource {
    * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
    *
    * <p>Example Request:<br>
-   *               PUT /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl HTTP/1.1<br>
+   *               PUT api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl HTTP/1.1<br>
    *               Content-Type: application/xml
    *               <p/>
    *               <pre function="syntax.xml">
@@ -853,11 +853,40 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Retrieves the properties of the root directory
+   *
+   *<p>Example Request:<br>
+   *               GET api/repo/files/properties<br>
+   *               <p/>
+   *
+   * <p>Example Response:<br/>
+   *               HTTP/1.1 200 OK
+   *               </p>
+   *               <pre function="syntax.xml">
+   *               &lt;repositoryFileDto&gt;
+   *                 &lt;createdDate&gt;1406731649407&lt;/createdDate&gt;
+   *                 &lt;fileSize&gt;-1&lt;/fileSize&gt;
+   *                 &lt;folder&gt;true&lt;/folder&gt;
+   *                 &lt;hidden&gt;false&lt;/hidden&gt;
+   *                 &lt;id&gt;6d93372c-4908-47af-9815-3aa6307e392c&lt;/id&gt;
+   *                 &lt;locale&gt;en&lt;/locale&gt;
+   *                 &lt;locked&gt;false&lt;/locked&gt;
+   *                 &lt;name/&gt;
+   *                 &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *                 &lt;path&gt;/&lt;/path&gt;
+   *                 &lt;title/&gt;
+   *                 &lt;versioned&gt;false&lt;/versioned&gt;
+   *               &lt;/repositoryFileDto&gt;
+   *               </pre>
+   *
+   * @return file properties object <code> RepositoryFileDto </code> for the root directory
+   */
   @GET
   @Path( "/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RepositoryFileDto doGetRootProperties() {
-    return getRepoWs().getFile( FileUtils.PATH_SEPARATOR );
+    return fileService.doGetRootProperties();
   }
 
   /**

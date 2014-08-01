@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.mockrunner.util.FileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -58,6 +59,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
 public class FileServiceTest {
 
@@ -229,6 +231,13 @@ public class FileServiceTest {
     } catch ( FileNotFoundException e ) {
       //expected exception
     }
+  }
+  @Test
+  public void testDoGetRootProperties() {
+    fileService.doGetRootProperties();
+
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).
+      getFile( FileUtils.PATH_SEPARATOR );
   }
 
   @Test

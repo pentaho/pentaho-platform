@@ -732,7 +732,16 @@ public class FileService {
     }
     return buffer;
   }
-  
+
+  /**
+   * Retrieves the properties of the root directory
+   *
+   * @return file properties object <code> RepositoryFileDto </code> for the root directory
+   */
+  public RepositoryFileDto doGetRootProperties() {
+    return getRepoWs().getFile( FileUtils.PATH_SEPARATOR );
+  }
+
   /**
    * Retrieves the properties of a selected repository file
    *
