@@ -940,12 +940,9 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/reservedCharacters" )
   @Produces( { TEXT_PLAIN } )
+  @JMeterTest( url = "/repo/files/reservedCharacters", requestType = "PUT", statusCode = "200" )
   public Response doGetReservedChars() {
-    List<Character> reservedCharacters = getRepoWs().getReservedChars();
-    StringBuffer buffer = new StringBuffer();
-    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
-      buffer.append( reservedCharacters.get( i ) );
-    }
+    StringBuffer buffer = fileService.doGetReservedChars();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
 

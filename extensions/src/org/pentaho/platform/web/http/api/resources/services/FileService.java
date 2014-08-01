@@ -726,6 +726,15 @@ public class FileService {
     return getRepoWs().hasAccess( idToPath( pathId ), permissionList ) ? "true" : "false";
   }
 
+  public StringBuffer doGetReservedChars() {
+    List<Character> reservedCharacters = getRepoWs().getReservedChars();
+    StringBuffer buffer = new StringBuffer();
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
+      buffer.append( reservedCharacters.get( i ) );
+    }
+    return buffer;
+  }
+
   protected RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
