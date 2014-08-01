@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
@@ -30,12 +31,15 @@ import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
@@ -99,7 +103,7 @@ public class FileService {
       throw e;
     }
   }
-  
+
   /**
    * Delete the locale for the selected file and locale
    *
@@ -107,10 +111,10 @@ public class FileService {
    * @param locale The locale to be deleted
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
-  public void doDeleteLocale(String pathId, String locale) throws Exception {
+  public void doDeleteLocale( String pathId, String locale ) throws Exception {
     try {
       RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
-      if( file != null) {
+      if ( file != null ) {
         getRepoWs().deleteLocalePropertiesForFile( file.getId(), locale );
       }
     } catch ( Exception e ) {
@@ -128,7 +132,7 @@ public class FileService {
    * @throws IOException
    */
   public void createFile( HttpServletRequest httpServletRequest, String pathId, InputStream fileContents )
-      throws Exception {
+    throws Exception {
     try {
       String idToPath = idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
@@ -147,28 +151,38 @@ public class FileService {
    * <p/>
    * Moves a list of files from its current location to another, the list should be comma separated.
    *
-   * @param destPathId Destiny path where files should be moved
-   * @param params     Comma separated list of files to be moved
+   * @param destPathId colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @param params comma separated list of files to be moved
+   * <pre function="syntax.xml">
+   *    path1,path2,...
+   * </pre>
+   *
    * @return boolean <code>true</code>  if all files were moved correctly or <code>false</code> if the destiny path is
    * not available
-   * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
+   * @throws Throwable containing the string, "SystemResource.GENERAL_ERROR"
    */
-  public boolean doMoveFiles( String destPathId, String params ) throws Exception {
+  public void doMoveFiles( String destPathId, String params ) throws FileNotFoundException {
     String idToPath = idToPath( destPathId );
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath );
     if ( repositoryFileDto == null ) {
-      return false;
+      throw new FileNotFoundException( idToPath );
     }
     String[] sourceFileIds = params.split( "[,]" );
+    int i = 0;
     try {
-      for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().moveFile( sourceFileIds[i], repositoryFileDto.getPath(), null );
+      for ( ; i < sourceFileIds.length; i++ ) {
+        getRepoWs().moveFile( sourceFileIds[ i ], repositoryFileDto.getPath(), null );
       }
-    } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+    } catch ( IllegalArgumentException e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED", sourceFileIds[ i ] ), e );
       throw e;
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED", sourceFileIds[ i ] ), e );
+      throw new InternalError();
     }
-    return true;
   }
 
   /**
@@ -180,15 +194,15 @@ public class FileService {
    * @param params Comma separated list of files to be restored
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
-  public void doRestoreFiles( String params ) throws Exception {
+  public void doRestoreFiles( String params ) throws InternalError {
     String[] sourceFileIds = params.split( "[,]" );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
         getRepoWs().undeleteFile( sourceFileIds[i], null );
       }
     } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      throw e;
+      logger.error( Messages.getInstance().getString( "SystemResource.FILE_RESTORE_FAILED" ), e );
+      throw new InternalError();
     }
   }
 
@@ -218,7 +232,7 @@ public class FileService {
   }
 
   public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
-      throws Throwable {
+    throws Throwable {
 
     // you have to have PublishAction in order to download
     if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
@@ -688,6 +702,130 @@ public class FileService {
     return policy;
   }
 
+  /**
+   * Store content creator of the selected repository file
+   *
+   * @param pathId colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @param contentCreator repository file
+   * <pre function="syntax.xml">
+   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *     &lt;repositoryFileDto&gt;
+   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *     &lt;folder&gt;false&lt;/folder&gt;
+   *     &lt;hidden&gt;false&lt;/hidden&gt;
+   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *     &lt;locale&gt;en&lt;/locale&gt;
+   *     &lt;localePropertiesMapEntries&gt;
+   *       &lt;localeMapDto&gt;
+   *         &lt;locale&gt;default&lt;/locale&gt;
+   *         &lt;properties&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.description&lt;/key&gt;
+   *             &lt;value&gt;myFile Description&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *         &lt;/properties&gt;
+   *       &lt;/localeMapDto&gt;
+   *     &lt;/localePropertiesMapEntries&gt;
+   *     &lt;locked&gt;false&lt;/locked&gt;
+   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *     &lt;title&gt;myFile&lt;/title&gt;
+   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *     &lt;versioned&gt;true&lt;/versioned&gt;
+   *   &lt;/repositoryFileAclDto&gt;
+   * </pre>
+   * @throws FileNotFoundException
+   */
+  public void doSetContentCreator( String pathId, RepositoryFileDto contentCreator ) throws FileNotFoundException {
+    RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
+    if ( file == null ) {
+      throw new FileNotFoundException();
+    }
+    try {
+      Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( file.getId() );
+      fileMetadata.put( PentahoJcrConstants.PHO_CONTENTCREATOR, contentCreator.getId() );
+      getRepository().setFileMetadata( file.getId(), fileMetadata );
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.FILE_SET_CONTENT_CREATOR", pathId ), e );
+      throw new InternalError();
+    }
+  }
+
+  /**
+   * Retrieves the list of locale map for the selected repository file. The list will be empty if a problem occurs.
+   *
+   * @param pathId colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @return <code>List<LocaleMapDto></code> the list of locales
+   *         <pre function="syntax.xml">
+   *           <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *           &lt;localePropertiesMapEntries&gt;
+   *             &lt;localeMapDto&gt;
+   *               &lt;locale&gt;default&lt;/locale&gt;
+   *               &lt;properties&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;file.title&lt;/key&gt;
+   *                   &lt;value&gt;myFile&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *                   &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;title&lt;/key&gt;
+   *                   &lt;value&gt;myFile&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *                 &lt;stringKeyStringValueDto&gt;
+   *                   &lt;key&gt;file.description&lt;/key&gt;
+   *                   &lt;value&gt;myFile Description&lt;/value&gt;
+   *                 &lt;/stringKeyStringValueDto&gt;
+   *               &lt;/properties&gt;
+   *             &lt;/localeMapDto&gt;
+   *           &lt;/localePropertiesMapEntries&gt;
+   *         </pre>
+   * @throws FileNotFoundException
+   */
+  public List<LocaleMapDto> doGetFileLocales( String pathId ) throws FileNotFoundException {
+    List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
+    RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
+    if ( file == null ) {
+      throw new FileNotFoundException();
+    }
+    try {
+      List<PentahoLocale> locales = getRepoWs().getAvailableLocalesForFileById( file.getId() );
+      if ( locales != null && !locales.isEmpty() ) {
+        for ( PentahoLocale locale : locales ) {
+          availableLocales.add( new LocaleMapDto( locale.toString(), null ) );
+        }
+      }
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.FILE_GET_LOCALES", pathId ), e );
+      throw new InternalError();
+    }
+    return availableLocales;
+  }
+
   protected DefaultUnifiedRepositoryWebService getRepoWs() {
     if ( defaultUnifiedRepositoryWebService == null ) {
       defaultUnifiedRepositoryWebService = new DefaultUnifiedRepositoryWebService();
@@ -704,7 +842,7 @@ public class FileService {
   }
 
   public RepositoryFileInputStream getRepositoryFileInputStream( RepositoryFile repositoryFile )
-      throws FileNotFoundException {
+    throws FileNotFoundException {
     return new RepositoryFileInputStream( repositoryFile );
   }
 

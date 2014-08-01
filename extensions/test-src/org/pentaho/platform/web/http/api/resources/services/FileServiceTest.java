@@ -14,6 +14,9 @@ import static org.mockito.Mockito.when;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
@@ -31,8 +34,10 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
@@ -71,7 +76,7 @@ public class FileServiceTest {
   public void testDoDeleteFilesException() {
     String params = "file1,file2";
     doThrow( new IllegalArgumentException() ).when(
-        fileService.defaultUnifiedRepositoryWebService ).deleteFile( anyString(), anyString() );
+      fileService.defaultUnifiedRepositoryWebService ).deleteFile( anyString(), anyString() );
 
     try {
       fileService.doDeleteFiles( params );
@@ -99,7 +104,7 @@ public class FileServiceTest {
 
     RepositoryFile repositoryFile = mock( RepositoryFile.class );
     when( fileService.repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
-        IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() ) ).thenReturn( repositoryFile );
+      IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() ) ).thenReturn( repositoryFile );
 
     RepositoryFile destDir = mock( RepositoryFile.class );
     when( destDir.isFolder() ).thenReturn( true );
@@ -119,8 +124,8 @@ public class FileServiceTest {
     fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
 
     verify( fileService.repository, times( 2 ) )
-        .createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
-            IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() );
+      .createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
+        IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() );
     verify( fileService.repository ).getFile( destinationPath );
     verify( fileService.repository ).getFileById( fileId1 );
     verify( fileService.repository ).getFileById( fileId2 );
@@ -261,14 +266,14 @@ public class FileServiceTest {
     doReturn( "file.txt" ).when( file ).getId();
     fileService.doDeleteLocale( file.getId(), "en_US" );
     verify( fileService.getRepoWs(), times( 1 ) ).deleteLocalePropertiesForFile( "file.txt", "en_US" );
-  }  
-  
+  }
+
   @Test
   public void testDoDeleteFilesPermanentException() {
     String params = "file1,file2";
     doThrow( new IllegalArgumentException() ).when(
-        fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( anyString(), eq( true ),
-        anyString() );
+      fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( anyString(), eq( true ),
+      anyString() );
 
     try {
       fileService.doDeleteFilesPermanent( params );
@@ -288,10 +293,10 @@ public class FileServiceTest {
 
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( destPathId );
 
-    Assert.assertTrue( fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) ) );
+    fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
 
-    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[0], destPathId, null );
-    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[1], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 1 ], destPathId, null );
   }
 
   @Test
@@ -301,9 +306,13 @@ public class FileServiceTest {
 
     doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( destPathId );
 
-    Assert.assertFalse( fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) ) );
-    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[0], destPathId, null );
-    verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[1], destPathId, null );
+    try {
+      fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
+      Assert.assertTrue( false );
+    } catch ( FileNotFoundException e ) {
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 0 ], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+    }
   }
 
   @Test
@@ -315,15 +324,15 @@ public class FileServiceTest {
     doReturn( destPathId ).when( repositoryFileDto ).getPath();
 
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( destPathId );
-    doThrow( new IllegalArgumentException() ).when( fileService.defaultUnifiedRepositoryWebService )
-        .moveFile( params[0], destPathId, null );
+    doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService ).moveFile(
+      params[ 0 ], destPathId, null );
 
     try {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
       fail(); //This line should never be reached
-    } catch ( Exception e ) {
-      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[0], destPathId, null );
-      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[1], destPathId, null );
+    } catch ( Throwable e ) {
+      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
     }
   }
 
@@ -333,23 +342,23 @@ public class FileServiceTest {
 
     fileService.doRestoreFiles( StringUtils.join( params, "," ) );
 
-    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[0], null );
-    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[1], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 1 ], null );
   }
 
   @Test
   public void testDoRestoreFilesException() throws Exception {
     String[] params = { "file1", "file2" };
 
-    doThrow( new IllegalArgumentException() ).when( fileService.defaultUnifiedRepositoryWebService )
-        .undeleteFile( params[0], null );
+    doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService ).undeleteFile(
+      params[ 0 ], null );
 
     try {
       fileService.doRestoreFiles( StringUtils.join( params, "," ) );
       fail(); //This line should never be reached
-    } catch ( Exception e ) {
-      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[0], null );
-      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[1], null );
+    } catch ( InternalError e ) {
+      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
+      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[ 1 ], null );
     }
   }
 
@@ -461,8 +470,8 @@ public class FileServiceTest {
      * TEST 4
      */
     doReturn( true ).when( mockWhiteList ).accept( anyString() );
-    doThrow( new IllegalArgumentException() ).when( fileService.repository )
-        .getDataForRead( any( Serializable.class ), any( Class.class ) );
+    doThrow( new InternalError() ).when( fileService.repository )
+      .getDataForRead( any( Serializable.class ), any( Class.class ) );
 
     try {
       fileService.doGetFileAsInline( "test" );
@@ -565,4 +574,119 @@ public class FileServiceTest {
     assertEquals( "true", hasAccess );
   }
 
+  public void testDoSetContentCreator() throws Exception {
+    String param = "file1";
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    Map<String, Serializable> fileMetadata = mock( Map.class );
+
+    doReturn( param ).when( repositoryFileDto ).getId();
+    when( fileService.idToPath( param ) ).thenReturn( "/file1" );
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( fileService.idToPath( param ) );
+    when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenReturn( fileMetadata );
+
+    try {
+      fileService.doSetContentCreator( param, repositoryFileDto );
+      verify( fileService.getRepository(), times( 1 ) ).getFileMetadata( repositoryFileDto.getId() );
+      verify( fileService.getRepository(), times( 1 ) ).setFileMetadata( param, fileMetadata );
+    } catch ( FileNotFoundException e ) {
+      fail();
+    } catch ( InternalError e ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testDoSetContentCreatorFileNotFoundException() throws Exception {
+    String param = "file1";
+    RepositoryFileDto mockFileDto = mock( RepositoryFileDto.class );
+    Map<String, Serializable> fileMetadata = mock( Map.class );
+
+    when( fileService.idToPath( param ) ).thenReturn( "/file1" );
+    doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/file1" );
+
+    try {
+      fileService.doSetContentCreator( param, mockFileDto );
+      fail();
+    } catch ( FileNotFoundException e ) {}
+  }
+
+  @Test
+  public void testDoSetContentCreatorFileException() throws Exception {
+    String param = "file1";
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    Map<String, Serializable> fileMetadata = mock( Map.class );
+
+    doReturn( param ).when( repositoryFileDto ).getId();
+    when( fileService.idToPath( param ) ).thenReturn( "/file1" );
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/file1" );
+    when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenThrow( new InternalError() );
+
+    //failing in get
+    try {
+      fileService.doSetContentCreator( param, repositoryFileDto );
+    } catch ( FileNotFoundException e ) {
+      fail();
+    } catch ( InternalError e ) {
+      verify( fileMetadata, times( 0 ) ).put( PentahoJcrConstants.PHO_CONTENTCREATOR, param );
+      verify( fileService.repository, times( 0 ) ).setFileMetadata( param, fileMetadata );
+    }
+  }
+
+  @Test
+  public void testDoGetFileLocales() {
+    String param = "file1";
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    List<PentahoLocale> locales = new ArrayList<PentahoLocale>();
+    PentahoLocale mockedLocale = mock( PentahoLocale.class );
+    locales.add( mockedLocale );
+
+    doReturn( param ).when( repositoryFileDto ).getId();
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/" + param );
+    when( fileService.defaultUnifiedRepositoryWebService.getAvailableLocalesForFileById( repositoryFileDto.getId() ) )
+      .thenReturn( locales );
+
+    try {
+      fileService.doGetFileLocales( param );
+      verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
+    } catch ( FileNotFoundException e ) {
+      fail();
+    } catch ( InternalError e ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testDoGetFileLocalesFileNotFoundException() {
+    String param = "file1";
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+
+    doReturn( param ).when( repositoryFileDto ).getId();
+    doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/" + param );
+
+    try {
+      fileService.doGetFileLocales( param );
+      fail();
+    } catch ( FileNotFoundException e ) {
+      verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
+    }
+  }
+
+  @Test
+  public void testDoGetFileLocalesException() {
+    String param = "file1";
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+
+    doReturn( param ).when( repositoryFileDto ).getId();
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/" + param );
+    when( fileService.defaultUnifiedRepositoryWebService.getAvailableLocalesForFileById( repositoryFileDto.getId() ) )
+      .thenThrow( new InternalError() );
+
+    try {
+      fileService.doGetFileLocales( param );
+    } catch ( FileNotFoundException e ) {
+      fail();
+    } catch ( InternalError e ) {
+      verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
+    }
+  }
 }
