@@ -1,8 +1,10 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -15,8 +17,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
@@ -32,6 +38,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
@@ -42,8 +49,8 @@ import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedReposi
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
-
-import java.util.*;
+import org.pentaho.platform.web.http.api.resources.Setting;
+import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 
 public class FileServiceTest {
 
@@ -267,6 +274,30 @@ public class FileServiceTest {
     fileService.doDeleteLocale( file.getId(), "en_US" );
     verify( fileService.getRepoWs(), times( 1 ) ).deleteLocalePropertiesForFile( "file.txt", "en_US" );
   }
+  
+  @Test
+  public void testDoGetCanAccessList() {
+    String permissions = RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|" + RepositoryFilePermission.DELETE.ordinal();
+    doReturn( true ).when( fileService.repository ).hasAccess(  anyString() , any( EnumSet.class) );
+    List<Setting> settings = fileService.doGetCanAccessList( "pathId", permissions );
+    assertTrue( settings.size() > 0 );
+  }  
+  
+  @Test
+  public void testDoGetPathsAccessList() {
+    List<String> paths = new ArrayList<String>();
+    paths.add( "path1" );
+    paths.add( "path2" );
+    paths.add( "path3" );
+    
+    doReturn( true ).when( fileService.repository ).hasAccess(  anyString() , any( EnumSet.class) );
+    List<Setting> settings = fileService.doGetPathsAccessList( new StringListWrapper(paths) );
+    assertTrue( settings.size() > 0 );
+    
+    doReturn( false ).when( fileService.repository ).hasAccess(  anyString() , any( EnumSet.class) );
+    settings = fileService.doGetPathsAccessList( new StringListWrapper(paths) );
+    assertEquals(0, settings.size() );
+  }  
 
   @Test
   public void testDoDeleteFilesPermanentException() {

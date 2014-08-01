@@ -858,58 +858,44 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user has permissions to the selected files
    *
-   * @param pathId      (colon separated path for the repository file)
-   * @param permissions (list of permissions to be checked)
-   * @return
-   */
+   * @param pathId Colon separated path for the repository file
+   * <pre function="syntax.xml">
+   *   path:to:file:id
+   * </pre>
+   *     
+   * @param permissions Pipe separated permissions to be checked
+   * <pre function="syntax.xml">
+   *   permission1|permission2|permission3
+   * </pre>    
+   * @return List of permissions for the selected files
+   */   
   @GET
   @Path( "{pathId : .+}/canAccessMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/canAccessMap", requestType = "PUT" )
   public List<Setting> doGetCanAccessList( @PathParam( "pathId" ) String pathId,
       @QueryParam( "permissions" ) String permissions ) {
-    StringTokenizer tokenizer = new StringTokenizer( permissions, "|" );
-    ArrayList<Setting> permMap = new ArrayList<Setting>();
-    while ( tokenizer.hasMoreTokens() ) {
-      Integer perm = Integer.valueOf( tokenizer.nextToken() );
-      EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[perm] );
-      permMap.add( new Setting( perm.toString(), new Boolean( getRepository()
-          .hasAccess( FileUtils.idToPath( pathId ), permission ) ).toString() ) );
-    }
-    return permMap;
+    return fileService.doGetCanAccessList( pathId, permissions );
   }
 
   /**
    * Checks whether the current user has permissions to the provided list of paths
    *
-   * @param pathsWrapper (list of paths to be checked)
-   * @return
-   */
+   * @param pathsWrapper Collection of paths to be checked
+   * <pre function="syntax.xml">
+   *   pathToFileId1
+   *   pathToFileId2
+   *   pathToFileId3
+   * </pre>
+   * @return A collection of the permission settings for the paths
+   */  
   @POST
   @Path( "/pathsAccessList" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/pathsAccessList", requestType = "PUT" )
   public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
-
-    List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
-
-    String permissions =
-        RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
-            + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
-            + RepositoryFilePermission.ALL.ordinal();
-
-    List<String> paths = pathsWrapper.getStrings();
-    for ( String path : paths ) {
-      List<Setting> permList = doGetCanAccessList( path, permissions );
-      for ( Setting perm : permList ) {
-        if ( Boolean.parseBoolean( perm.getValue() ) ) {
-          Setting setting = new Setting();
-          setting.setName( path );
-          setting.setValue( perm.getName() );
-          pathsPermissonsSettings.add( setting );
-        }
-      }
-    }
-    return pathsPermissonsSettings;
+    return fileService.doGetPathsAccessList( pathsWrapper );
   }
 
   /**
