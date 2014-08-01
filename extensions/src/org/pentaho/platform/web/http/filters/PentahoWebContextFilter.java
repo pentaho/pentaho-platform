@@ -121,6 +121,7 @@ public class PentahoWebContextFilter implements Filter {
 
         out.write(contextPathBytes);
         out.write(fullyQualifiedUrl.getBytes());
+        out.write(serverProtocol.getBytes());
         // Compute the effective locale and set it in the global scope. Also provide it as a module if the RequireJs
         // system is available.
         Locale effectiveLocale = LocaleHelper.getLocale();
