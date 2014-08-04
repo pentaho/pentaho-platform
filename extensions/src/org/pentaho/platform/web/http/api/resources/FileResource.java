@@ -1409,44 +1409,23 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the metadata of the selected repository file.
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId Colon separated path for the destination for files to be copied
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @return list of <code> StringKeyStringValueDto </code>
    */
   @GET
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/:home:admin:file.txt/metadata", requestType = "PUT", statusCode = "200" )
   public List<StringKeyStringValueDto> doGetMetadata( @PathParam( "pathId" ) String pathId ) {
-    List<StringKeyStringValueDto> list = null;
-    String path = null;
-    if ( pathId == null || pathId.equals( FileUtils.PATH_SEPARATOR ) ) {
-      path = FileUtils.PATH_SEPARATOR;
-    } else {
-      if ( !pathId.startsWith( FileUtils.PATH_SEPARATOR ) ) {
-        path = FileUtils.idToPath( pathId );
-      }
+    try {
+      return fileService.doGetMetadata( pathId );
+    } catch ( FileNotFoundException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+      return null;
     }
-    final RepositoryFileDto file = getRepoWs().getFile( path );
-    if ( file != null ) {
-      list = getRepoWs().getFileMetadata( file.getId() );
-    }
-    if ( list != null ) {
-      boolean hasSchedulable = false;
-      for ( StringKeyStringValueDto value : list ) {
-        if ( value.getKey().equals( "_PERM_SCHEDULABLE" ) ) {
-          hasSchedulable = true;
-          break;
-        }
-      }
-      if ( !hasSchedulable ) {
-        StringKeyStringValueDto schedPerm = new StringKeyStringValueDto( "_PERM_SCHEDULABLE", "true" );
-        list.add( schedPerm );
-      }
-
-      // check file object for hidden value and add it to the list
-      list.add( new StringKeyStringValueDto( "_PERM_HIDDEN", String.valueOf( file.isHidden() ) ) );
-    }
-
-    return list;
   }
 
   /**
