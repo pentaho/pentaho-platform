@@ -1,18 +1,8 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +11,7 @@ import java.io.Serializable;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -45,6 +36,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
@@ -1200,5 +1192,34 @@ public class FileServiceTest {
     }
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+  }
+  
+  @Test
+  public void testDoGetChildren() {
+    RepositoryFileDto mockRepositoryFileDto = mock(RepositoryFileDto.class);
+    Collator mockCollator = mock( Collator.class );
+    List<RepositoryFileDto> mockRepositoryFileDtos = new ArrayList<RepositoryFileDto>();
+    mockRepositoryFileDtos.add(mockRepositoryFileDto);
+    RepositoryRequest mockRepositoryRequest = mock(RepositoryRequest.class);
+
+    doReturn( true ).when( fileService ).isPathValid( anyString() );
+    doReturn( mockRepositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+    doReturn( mockCollator ).when( fileService ).getCollator( anyInt() );
+    doReturn( mockRepositoryRequest ).when( fileService ).getRepositoryRequest( (RepositoryFileDto) anyObject(), anyBoolean(), anyString() , anyBoolean() );
+    doReturn( mockRepositoryFileDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getChildrenFromRequest( mockRepositoryRequest );
+    doReturn( true ).when( fileService ).isShowingTitle( mockRepositoryRequest );
+    
+    List<RepositoryFileDto> repositoryFileDtos = fileService.doGetChildren( "mock:path:fileName", null, true, true );
+    
+    verify( fileService, times(1) ).isPathValid( anyString() );
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getFile( anyString() );
+    verify( fileService, times( 1 ) ).getCollator( anyInt() ); 
+    verify( fileService, times( 1 ) ).getRepositoryRequest( (RepositoryFileDto) anyObject(), anyBoolean(), anyString() , anyBoolean() );
+    verify( fileService.defaultUnifiedRepositoryWebService, times(1) ).getChildrenFromRequest( mockRepositoryRequest );
+    verify( fileService, times( 1 ) ).isShowingTitle( mockRepositoryRequest );
+    
+    assertEquals( mockRepositoryFileDtos, repositoryFileDtos );
+    assertEquals( 1, repositoryFileDtos.size() );
+    assertEquals( mockRepositoryFileDto, repositoryFileDtos.get( 0 ) );
   }
 }
