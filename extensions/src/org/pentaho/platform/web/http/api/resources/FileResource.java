@@ -42,15 +42,12 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -123,12 +120,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
  */
 @Path( "/repo/files/" )
 public class FileResource extends AbstractJaxRSResource {
-  private static final Integer MODE_OVERWRITE = 1;
-
-  private static final Integer MODE_RENAME = 2;
-
-  private static final Integer MODE_NO_OVERWRITE = 3;
-
   public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
 
   public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
@@ -1240,18 +1231,45 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of files from root of the repository.
+   * Retrieve a recursive list of files from the root of the repository
    *
-   * @param filter (filter to be applied for search)
-   * @return list of files <code> RepositoryFileDto </code>
+   * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
+   *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   *                    <p/>
+   *                    File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
+   *                    accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
+   *                    whether to return files, folders, or both files and folders, respectively.
+   *                    <p/>
+   *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
+   *                    name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
+   *                    filter does not apply to root node.
+   *                    <p/>
+   *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
+   *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
+   *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
+   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
+   *                    excludeMembers= clause in the same service call.
+   *                    <p/>
+   *                    Example:
+   *                    <p/>
+   *                    http://localhost:8080/pentaho/api/repo/files/children?showHidden=false&filter=*|
+   *                    FILES |includeMembers=name,fileSize,description,folder,id,title
+   *                    <p/>
+   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
+   *                    include the name, filesize, description, id and title.
+   * @param showHidden  (include or exclude hidden files from the file list)
+   * @param includeAcls (Include permission information about the file in the output)
+   * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
   @Path( "/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/children?filter=*|FILES |includeMembers=name,fileSize,description,folder,id,title&includeAcls=true", requestType = "GET" )
   public List<RepositoryFileDto> doGetRootChildren( @QueryParam( "filter" ) String filter,
       @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
-    return doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden, includeAcls );
+    return fileService.doGetChildren(  FileUtils.PATH_SEPARATOR, filter, showHidden, includeAcls );
   }
 
   /**
@@ -1371,26 +1389,12 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/children?filter=*|FILES |includeMembers=name,fileSize,description,folder,id,title&includeAcls=true", requestType = "GET" )
   public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
 
-    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-
-    if ( repositoryFileDto != null && isPathValid( repositoryFileDto.getPath() ) ) {
-      RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
-      repositoryRequest.setIncludeAcls( includeAcls );
-      repositoryFileDtoList = getRepoWs().getChildrenFromRequest( repositoryRequest );
-
-      // BISERVER-9599 - Use special sort order
-      if ( isShowingTitle( repositoryRequest ) ) {
-        Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
-        collator.setStrength( Collator.PRIMARY ); // ignore case
-        sortByLocaleTitle( collator, repositoryFileDtoList );
-      }
-    }
-    return repositoryFileDtoList;
+    return fileService.doGetChildren( pathId, filter, showHidden, includeAcls );
   }
 
   /**
@@ -1685,10 +1689,6 @@ public class FileResource extends AbstractJaxRSResource {
     return true;
   }
 
-  private boolean isPath( String pathId ) {
-    return pathId != null && pathId.contains( "/" );
-  }
-
   private void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
 
     if ( tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0 ) {
@@ -1702,29 +1702,6 @@ public class FileResource extends AbstractJaxRSResource {
         public int compare( RepositoryFileTreeDto repositoryFileTree, RepositoryFileTreeDto repositoryFileTree2 ) {
           String title1 = repositoryFileTree.getFile().getTitle();
           String title2 = repositoryFileTree2.getFile().getTitle();
-
-          if ( collator.compare( title1, title2 ) == 0 ) {
-            return title1.compareTo( title2 ); // use lexical order if equals ignore case
-          }
-
-          return collator.compare( title1, title2 );
-        }
-      } );
-    }
-  }
-
-  private void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
-
-    if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
-      return;
-    }
-
-    for ( RepositoryFileDto rft : repositoryFileDtoList ) {
-      Collections.sort( repositoryFileDtoList, new Comparator<RepositoryFileDto>() {
-        @Override
-        public int compare( RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
-          String title1 = repositoryFile.getTitle();
-          String title2 = repositoryFile2.getTitle();
 
           if ( collator.compare( title1, title2 ) == 0 ) {
             return title1.compareTo( title2 ); // use lexical order if equals ignore case

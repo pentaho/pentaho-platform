@@ -11,7 +11,10 @@ import java.net.URLEncoder;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +23,9 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
@@ -35,7 +41,9 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
@@ -56,6 +64,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAce
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
@@ -1122,5 +1131,70 @@ public class FileService {
     public RepositoryFile getRepositoryFile() {
       return repositoryFile;
     }
+  }
+  
+  public List<RepositoryFileDto> doGetChildren( String pathId, String filter, Boolean showHidden, Boolean includeAcls ) {
+
+    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+
+    if ( repositoryFileDto != null && isPathValid( repositoryFileDto.getPath() ) ) {
+      RepositoryRequest repositoryRequest = getRepositoryRequest( repositoryFileDto, showHidden, filter, includeAcls );
+      repositoryFileDtoList = getRepoWs().getChildrenFromRequest( repositoryRequest );
+
+      // BISERVER-9599 - Use special sort order
+      if ( isShowingTitle( repositoryRequest ) ) {
+        Collator collator = getCollator();
+        sortByLocaleTitle( collator, repositoryFileDtoList );
+      }
+    }
+    return repositoryFileDtoList;
+  }
+
+  private boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
+    if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
+      if ( repositoryRequest.getExcludeMemberSet().contains( "title" ) ) {
+        return false;
+      }
+    } else if ( repositoryRequest.getIncludeMemberSet() != null
+        && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
+      return false;
+    }
+    return true;
+  }
+  
+  private void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
+
+    if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
+      return;
+    }
+
+    for ( RepositoryFileDto rft : repositoryFileDtoList ) {
+      Collections.sort( repositoryFileDtoList, new Comparator<RepositoryFileDto>() {
+        @Override
+        public int compare( RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
+          String title1 = repositoryFile.getTitle();
+          String title2 = repositoryFile2.getTitle();
+
+          if ( collator.compare( title1, title2 ) == 0 ) {
+            return title1.compareTo( title2 ); // use lexical order if equals ignore case
+          }
+
+          return collator.compare( title1, title2 );
+        }
+      } );
+    }
+  }
+  
+  protected RepositoryRequest getRepositoryRequest(RepositoryFileDto repositoryFileDto, boolean showHidden, String filter, boolean includeAcls ) {
+    RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
+    repositoryRequest.setIncludeAcls( includeAcls );
+    return repositoryRequest;
+  }
+  
+  protected Collator getCollator() {
+    Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
+    collator.setStrength( Collator.PRIMARY ); // ignore case
+    return collator;
   }
 }

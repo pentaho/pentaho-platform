@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.nio.file.InvalidPathException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -1200,5 +1201,23 @@ public class FileServiceTest {
     }
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+  }
+  
+  @Test
+  public void testDoGetChildren() {
+    List<RepositoryFileDto> repositoryFileDtos = fileService.doGetChildren( "mock:path:fileName", null, true, true );
+    assertEquals(repositoryFileDtos.size(), 0);
+  
+    RepositoryFileDto mockRepositoryFileDto = mock(RepositoryFileDto.class);
+    Collator mockCollator = mock( Collator.class );
+
+    doReturn( true ).when( fileService ).isPathValid( anyString() );
+    doReturn( mockRepositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+    doReturn(mockCollator).when( fileService ).getCollator();
+    
+    repositoryFileDtos = fileService.doGetChildren( "mock:path:fileName", null, true, true );
+    verify( fileService, times(1) ).isPathValid( anyString() );
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 2 ) ).getFile( anyString() );
+    verify( fileService, times( 1 ) ).getCollator(); 
   }
 }
