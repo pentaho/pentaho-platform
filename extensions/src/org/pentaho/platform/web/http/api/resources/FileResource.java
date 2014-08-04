@@ -1606,92 +1606,23 @@ public class FileResource extends AbstractJaxRSResource {
    * Store the metadata of the selected fle. Even though the hidden flag is a property of the file node itself, and not
    * the metadata child, it is considered metadata from PUC and is included in the setMetadata call
    *
-   * @param pathId   (colon separated path for the repository file)
-   * @param metadata (list of name value pair of metadata)
-   * @return
+   * @param pathId Colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @param metadata A list of <code> StringKeyStringValueDto </code>
+   * @return Server Response indicating the success of the operation
    */
-  //TODO: Refactor REST endpoint to not include operational logic
   @PUT
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/:home:admin/metadata", requestType = "PUT", statusCode = "200" )
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
-      RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-      RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
-
-      boolean canManage =
-          PentahoSessionHolder.getSession().getName().equals( fileAcl.getOwner() )
-              || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
-              && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-              AdministerSecurityAction.NAME ) );
-
-      if ( !canManage ) {
-
-        if ( fileAcl.isEntriesInheriting() ) {
-          List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAces( file.getId() );
-          fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
-        }
-
-        for ( int i = 0; i < fileAcl.getAces().size(); i++ ) {
-          RepositoryFileAclAceDto acl = fileAcl.getAces().get( i );
-          if ( acl.getRecipient().equals( PentahoSessionHolder.getSession().getName() ) ) {
-            if ( acl.getPermissions().contains( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() )
-                || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
-              canManage = true;
-              break;
-            }
-          }
-        }
-      }
-
-      if ( canManage ) {
-        Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( file.getId() );
-        boolean isHidden = false;
-
-        for ( StringKeyStringValueDto nv : metadata ) {
-          // don't add hidden to the list because it is not actually part of the metadata node
-          if ( ( nv.getKey().contentEquals( "_PERM_HIDDEN" ) ) ) {
-            isHidden = Boolean.parseBoolean( nv.getValue() );
-          } else {
-            fileMetadata.put( nv.getKey(), nv.getValue() );
-          }
-        }
-
-        // now update the rest of the metadata
-        if ( !file.isFolder() ) {
-          getRepository().setFileMetadata( file.getId(), fileMetadata );
-        }
-
-        // handle hidden flag if it is different
-        if ( file.isHidden() != isHidden ) {
-          file.setHidden( isHidden );
-
-          /*
-           * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
-           * update the original.
-           */
-          RepositoryFile sourceFile = getRepository().getFileById( file.getId() );
-          RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto( sourceFile, null, false );
-
-          destFileDto.setHidden( isHidden );
-
-          RepositoryFile destFile = RepositoryFileAdapter.toFile( destFileDto );
-
-          // add the existing acls and file data
-          RepositoryFileAcl acl = getRepository().getAcl( sourceFile.getId() );
-          if ( !file.isFolder() ) {
-            IRepositoryFileData data = getData( sourceFile );
-
-            getRepository().updateFile( destFile, data, null );
-            getRepository().updateAcl( acl );
-          } else {
-            getRepository().updateFolder( destFile, null );
-          }
-        }
-        return Response.ok().build();
-      } else {
-        return Response.status( Response.Status.UNAUTHORIZED ).build();
-      }
+      fileService.doSetMetadata( pathId, metadata );
+      return Response.ok().build();
+    } catch ( GeneralSecurityException e ) {
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     } catch ( Throwable t ) {
       return Response.serverError().entity( t.getMessage() ).build();
     }
