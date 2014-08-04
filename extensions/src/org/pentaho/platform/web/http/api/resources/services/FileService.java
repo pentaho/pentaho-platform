@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1130,6 +1131,45 @@ public class FileService {
       logger.error( Messages.getInstance().getString( "SystemResource.CAN_ADMINISTER" ), e );
     }
     return status;
+  }
+
+  /**
+   * Retrieves the acls of the selected repository file
+   *
+   * @param pathId (colon separated path for the repository file)
+   * @return <code> RepositoryFileAclDto </code>
+   */
+  public RepositoryFileAclDto doGetFileAcl( String pathId ) {
+    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+    RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
+    if ( fileAcl.isEntriesInheriting() ) {
+      List<RepositoryFileAclAceDto> aces =
+        getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
+      fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
+    }
+    addAdminRole( fileAcl );
+    return fileAcl;
+  }
+
+  protected void addAdminRole( RepositoryFileAclDto fileAcl ) {
+    String adminRoleName =
+      PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
+    if ( fileAcl.getAces() == null ) {
+      fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
+    }
+    for ( RepositoryFileAclAceDto facl : fileAcl.getAces() ) {
+      if ( facl.getRecipient().equals( adminRoleName ) && facl.getRecipientType() == 1 ) {
+        return;
+      }
+    }
+    RepositoryFileAclAceDto adminGroup = new RepositoryFileAclAceDto();
+    adminGroup.setRecipient( adminRoleName );
+    adminGroup.setRecipientType( 1 );
+    adminGroup.setModifiable( false );
+    List<Integer> perms = new LinkedList<Integer>();
+    perms.add( 4 );
+    adminGroup.setPermissions( perms );
+    fileAcl.getAces().add( adminGroup );
   }
 
   protected DefaultUnifiedRepositoryWebService getRepoWs() {

@@ -596,14 +596,12 @@ public class FileResource extends AbstractJaxRSResource {
    *               <p/>
    *               <pre function="syntax.xml">
    *               {@code
-   *                 < xml>
-   *                   < repositoryFileAclDto>
-   *                     < entriesInheriting>true< /entriesInheriting>
-   *                     < id>068390ba-f90d-46e3-8c55-bbe55e24b2fe< /id>
-   *                     < owner>admin< /owner>
-   *                     < ownerType>0< /ownerType>
-   *                   < /repositoryFileAclDto>
-   *                 < /xml>
+   *                 &lt;repositoryFileAclDto&gt;
+   *                   &lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;
+   *                   &lt;id&gt;068390ba-f90d-46e3-8c55-bbe55e24b2fe&lt;/id&gt;
+   *                   &lt;owner&gt;admin&lt;/owner&gt;
+   *                   &lt;ownerType&gt;0&lt;/ownerType&gt;
+   *                 &lt;/repositoryFileAclDto&gt;
    *               }
    *               </pre>
    * <p>Example Response:<br/>
@@ -611,7 +609,6 @@ public class FileResource extends AbstractJaxRSResource {
    *               </p>
    * @return response object indicating the success or failure of this operation
    */
-
   @PUT
   @Path( "{pathId : .+}/acl" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
@@ -1003,43 +1000,48 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the acls of the selected repository file
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * <p>Example Request:
+   *               <br>
+   *               GET /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl
+   *               <p/>
+   * <p></p>Example Response:
+   *               <br/>
+   *               HTTP/1.1 200 OK
+   *               Content-Type: application/xml
+   *               <p/>
+   *               <pre function="syntax.xml">
+   *               {
+   *                 &lt;repositoryFileAclDto&gt;
+   *                   &lt;aces&gt;
+   *                     &lt;modifiable&gt;true&lt;/modifiable&gt;
+   *                     &lt;permissions&gt;4&lt;/permissions&gt;
+   *                     &lt;recipient&gt;admin&lt;/recipient&gt;
+   *                     &lt;recipientType&gt;0&lt;/recipientType&gt;
+   *                   &lt;/aces&gt;
+   *                   &lt;aces&gt;
+   *                     &lt;modifiable&gt;false&lt;/modifiable&gt;
+   *                     &lt;permissions&gt;4&lt;/permissions&gt;
+   *                     &lt;recipient&gt;Administrator&lt;/recipient&gt;
+   *                     &lt;recipientType&gt;1&lt;/recipientType&gt;
+   *                   &lt;/aces&gt;
+   *                   &lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;
+   *                   &lt;id&gt;068390ba-f90d-46e3-8c55-bbe55e24b2fe&lt;/id&gt;
+   *                   &lt;owner&gt;admin&lt;/owner&gt;
+   *                   &lt;ownerType&gt;0&lt;/ownerType&gt;
+   *                   &lt;/repositoryFileAclDto&gt;
+   *                }
+   *                </pre>
    * @return <code> RepositoryFileAclDto </code>
    */
   @GET
   @Path( "{pathId : .+}/acl" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RepositoryFileAclDto doGetFileAcl( @PathParam( "pathId" ) String pathId ) {
-    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-    RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
-    if ( fileAcl.isEntriesInheriting() ) {
-      List<RepositoryFileAclAceDto> aces =
-          getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
-      fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
-    }
-    addAdminRole( fileAcl );
-    return fileAcl;
-  }
-
-  private void addAdminRole( RepositoryFileAclDto fileAcl ) {
-    String adminRoleName =
-        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
-    if ( fileAcl.getAces() == null ) {
-      fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
-    }
-    for ( RepositoryFileAclAceDto facl : fileAcl.getAces() ) {
-      if ( facl.getRecipient().equals( adminRoleName ) && facl.getRecipientType() == 1 ) {
-        return;
-      }
-    }
-    RepositoryFileAclAceDto adminGroup = new RepositoryFileAclAceDto();
-    adminGroup.setRecipient( adminRoleName );
-    adminGroup.setRecipientType( 1 );
-    adminGroup.setModifiable( false );
-    List<Integer> perms = new LinkedList<Integer>();
-    perms.add( 4 );
-    adminGroup.setPermissions( perms );
-    fileAcl.getAces().add( adminGroup );
+    return fileService.doGetFileAcl( pathId );
   }
 
   /**
@@ -1051,7 +1053,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               </pre>
    * <p>Example Request:
    *               <br>
-   *               GET /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/properties HTTP/1.1
+   *               GET api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/properties
    *               <p/>
    * <p></p>Example Response:
    *               <br/>
