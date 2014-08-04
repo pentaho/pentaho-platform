@@ -1048,4 +1048,28 @@ public class FileServiceTest {
       //Should catch the exception
     }
   }
+
+  @Test
+  public void doGetDeletedFiles() {
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    RepositoryFileDto repositoryFileDto1 = mock( RepositoryFileDto.class );
+
+    List<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>();
+    fileDtos.add( repositoryFileDto );
+    fileDtos.add( repositoryFileDto1 );
+
+    //Test 1
+    doReturn( fileDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getDeletedFiles();
+
+    List<RepositoryFileDto> repositoryFiles = fileService.doGetDeletedFiles();
+    assertEquals( 2, repositoryFiles.size() );
+
+    //Test 2
+    doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getDeletedFiles();
+
+    repositoryFiles = fileService.doGetDeletedFiles();
+    assertEquals( null, repositoryFiles );
+
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 2 ) ).getDeletedFiles();
+  }
 }

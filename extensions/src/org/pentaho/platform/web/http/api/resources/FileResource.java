@@ -1413,8 +1413,9 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/deleted" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/deleted", requestType = "GET", statusCode = "200" )
   public List<RepositoryFileDto> doGetDeletedFiles() {
-    return getRepoWs().getDeletedFiles();
+    return fileService.doGetDeletedFiles();
   }
 
   /**
