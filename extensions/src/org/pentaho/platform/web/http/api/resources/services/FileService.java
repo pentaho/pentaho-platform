@@ -762,6 +762,35 @@ public class FileService {
     return file;
   }
 
+  /**
+   * Gets the permission for whether or not a user can create files
+   *
+   * @return Boolean representing whether or not user can create files
+   */
+  public String doGetCanCreate() {
+    return getPolicy().isAllowed( RepositoryCreateAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+  }
+
+  /**
+   * Gets the content creator of the specified file
+   *
+   * @param pathId
+   * @return
+   */
+  public RepositoryFileDto doGetContentCreator( String pathId ) throws FileNotFoundException {
+    RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
+    if ( file == null ) {
+      throw new FileNotFoundException();
+    }
+    Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( file.getId() );
+    String creatorId = (String) fileMetadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
+    if ( creatorId != null && creatorId.length() > 0 ) {
+      return getRepoWs().getFileById( creatorId );
+    }
+
+    return null;
+  }
+
   protected RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
