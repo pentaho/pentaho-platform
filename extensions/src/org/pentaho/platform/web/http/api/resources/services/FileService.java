@@ -791,6 +791,15 @@ public class FileService {
     return null;
   }
 
+  /**
+   * Get deleted files
+   *
+   * @return
+   */
+  public List<RepositoryFileDto> doGetDeletedFiles() {
+    return getRepoWs().getDeletedFiles();
+  }
+
   protected RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
