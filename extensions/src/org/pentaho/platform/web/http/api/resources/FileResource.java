@@ -1258,14 +1258,23 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <p/>
    *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
    *                    include the name, filesize, description, id and title.
+   *                    <pre function="syntax.xml">
+   *                      *|FILES |includeMembers=name,fileSize,description,folder,id,title
+   *                    </pre>
    * @param showHidden  (include or exclude hidden files from the file list)
+   *                    <pre function="syntax.xml">
+   *                      true
+   *                    </pre>
    * @param includeAcls (Include permission information about the file in the output)
+   *                    <pre function="syntax.xml">
+   *                      false
+   *                    </pre>
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
   @Path( "/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/children?filter=*|FILES |includeMembers=name,fileSize,description,folder,id,title&includeAcls=true", requestType = "GET" )
+  @JMeterTest( url = "/repo/files/children", requestType = "GET" )
   public List<RepositoryFileDto> doGetRootChildren( @QueryParam( "filter" ) String filter,
       @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1356,7 +1365,10 @@ public class FileResource extends AbstractJaxRSResource {
    * filter
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
-   *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be 
+   *                    <pre function="syntax.xml">
+   *                      :public:Steel%20Wheels
+   *                    </pre>
    * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
    *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
    *                    <p/>
@@ -1382,14 +1394,23 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <p/>
    *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
    *                    include the name, filesize, description, id and title.
+   *                    <pre function="syntax.xml">
+   *                      *|FILES |includeMembers=name,fileSize,description,folder,id,title
+   *                    </pre>
    * @param showHidden  (include or exclude hidden files from the file list)
+   *                    <pre function="syntax.xml">
+   *                      true
+   *                    </pre>
    * @param includeAcls (Include permission information about the file in the output)
+   *                    <pre function="syntax.xml">
+   *                      false
+   *                    </pre>
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
   @Path( "{pathId : .+}/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/children?filter=*|FILES |includeMembers=name,fileSize,description,folder,id,title&includeAcls=true", requestType = "GET" )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/children", requestType = "GET" )
   public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {

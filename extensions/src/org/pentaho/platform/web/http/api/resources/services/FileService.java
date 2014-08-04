@@ -1144,14 +1144,14 @@ public class FileService {
 
       // BISERVER-9599 - Use special sort order
       if ( isShowingTitle( repositoryRequest ) ) {
-        Collator collator = getCollator();
+        Collator collator = getCollator(Collator.PRIMARY);
         sortByLocaleTitle( collator, repositoryFileDtoList );
       }
     }
     return repositoryFileDtoList;
   }
 
-  private boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
+  protected boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
     if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
       if ( repositoryRequest.getExcludeMemberSet().contains( "title" ) ) {
         return false;
@@ -1163,7 +1163,7 @@ public class FileService {
     return true;
   }
   
-  private void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
+  protected void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
     if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
       return;
@@ -1192,9 +1192,9 @@ public class FileService {
     return repositoryRequest;
   }
   
-  protected Collator getCollator() {
+  protected Collator getCollator(int strength) {
     Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
-    collator.setStrength( Collator.PRIMARY ); // ignore case
+    collator.setStrength( strength ); // ignore case
     return collator;
   }
 }
