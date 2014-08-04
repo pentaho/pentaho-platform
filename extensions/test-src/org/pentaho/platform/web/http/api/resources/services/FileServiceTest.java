@@ -51,6 +51,7 @@ import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedReposi
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
@@ -230,6 +231,7 @@ public class FileServiceTest {
       //expected exception
     }
   }
+
   @Test
   public void testDoGetRootProperties() {
     fileService.doGetRootProperties();
@@ -310,30 +312,31 @@ public class FileServiceTest {
     fileService.doDeleteLocale( file.getId(), "en_US" );
     verify( fileService.getRepoWs(), times( 1 ) ).deleteLocalePropertiesForFile( "file.txt", "en_US" );
   }
-  
+
   @Test
   public void testDoGetCanAccessList() {
-    String permissions = RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|" + RepositoryFilePermission.DELETE.ordinal();
-    doReturn( true ).when( fileService.repository ).hasAccess(  anyString() , any( EnumSet.class) );
+    String permissions = RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
+      + RepositoryFilePermission.DELETE.ordinal();
+    doReturn( true ).when( fileService.repository ).hasAccess( anyString(), any( EnumSet.class ) );
     List<Setting> settings = fileService.doGetCanAccessList( "pathId", permissions );
     assertTrue( settings.size() > 0 );
-  }  
-  
+  }
+
   @Test
   public void testDoGetPathsAccessList() {
     List<String> paths = new ArrayList<String>();
     paths.add( "path1" );
     paths.add( "path2" );
     paths.add( "path3" );
-    
-    doReturn( true ).when( fileService.repository ).hasAccess(  anyString() , any( EnumSet.class) );
-    List<Setting> settings = fileService.doGetPathsAccessList( new StringListWrapper(paths) );
+
+    doReturn( true ).when( fileService.repository ).hasAccess( anyString(), any( EnumSet.class ) );
+    List<Setting> settings = fileService.doGetPathsAccessList( new StringListWrapper( paths ) );
     assertTrue( settings.size() > 0 );
-    
-    doReturn( false ).when( fileService.repository ).hasAccess(  anyString() , any( EnumSet.class) );
-    settings = fileService.doGetPathsAccessList( new StringListWrapper(paths) );
-    assertEquals(0, settings.size() );
-  }  
+
+    doReturn( false ).when( fileService.repository ).hasAccess( anyString(), any( EnumSet.class ) );
+    settings = fileService.doGetPathsAccessList( new StringListWrapper( paths ) );
+    assertEquals( 0, settings.size() );
+  }
 
   @Test
   public void testDoDeleteFilesPermanentException() {
@@ -647,10 +650,12 @@ public class FileServiceTest {
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
     Map<String, Serializable> fileMetadata = mock( Map.class );
 
+    String idToPathResult = "file1Result";
+    doReturn( idToPathResult ).when( fileService ).idToPath( param );
     doReturn( param ).when( repositoryFileDto ).getId();
     when( fileService.idToPath( param ) ).thenReturn( "/file1" );
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getFile( fileService.idToPath( param ) );
+      .getFile( idToPathResult );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenReturn( fileMetadata );
 
     try {
@@ -789,14 +794,14 @@ public class FileServiceTest {
   @Test
   public void testDoGetReservedCharactersDisplay() throws Exception {
     String stringBuffer = "/,\\,\\t,\\r,\\n";
-    
+
     List<Character> characters = new ArrayList<Character>();
     characters.add( '/' );
     characters.add( '\\' );
     characters.add( '\t' );
     characters.add( '\r' );
     characters.add( '\n' );
-    
+
     doReturn( "\\t" ).when( fileService ).escapeJava( "" + characters.get( 2 ) );
     doReturn( "\\r" ).when( fileService ).escapeJava( "" + characters.get( 3 ) );
     doReturn( "\\n" ).when( fileService ).escapeJava( "" + characters.get( 4 ) );
@@ -804,22 +809,22 @@ public class FileServiceTest {
     doReturn( characters ).when( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
     assertEquals( buffer.toString(), stringBuffer.toString() );
-    
+
     verify( fileService, times( 3 ) ).escapeJava( anyString() );
   }
-  
+
   @Test
   public void testDoGetFileOrDirAsDownload() throws Throwable {
     final String fileName = "mockFileName";
-    
+
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
-    doReturn(true).when( mockAuthPolicy ).isAllowed( anyString() );
-    
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
+
     BaseExportProcessor mockExportProcessor = mock( BaseExportProcessor.class );
     File mockExportFile = mock( File.class );
     ExportHandler mockExportHandler = mock( ExportHandler.class );
-    StreamingOutput mockStream = mock( StreamingOutput.class);
-    
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
     RepositoryFile mockRepoFile = mock( RepositoryFile.class );
     doReturn( fileName ).when( mockRepoFile ).getName();
     doReturn( mockExportFile ).when( mockExportProcessor ).performExport( mockRepoFile );
@@ -830,15 +835,16 @@ public class FileServiceTest {
       anyBoolean() );
     doReturn( mockExportHandler ).when( fileService ).getDownloadExportHandler();
     doReturn( mockStream ).when( fileService ).getDownloadStream( mockRepoFile, mockExportProcessor );
-    
-    FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, "true" );
-    
+
+    FileService.DownloadFileWrapper wrapper =
+      fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, "true" );
+
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
-    
-    
+
+
     assertEquals( mockStream, wrapper.getOutputStream() );
-    assertEquals( fileName+".zip", wrapper.getEncodedFileName() );
-    assertEquals( true, wrapper.getAttachment().equals( "attachment; filename=\"mockFileName.zip\"" ));
+    assertEquals( fileName + ".zip", wrapper.getEncodedFileName() );
+    assertEquals( true, wrapper.getAttachment().equals( "attachment; filename=\"mockFileName.zip\"" ) );
   }
 
   @Test
@@ -851,11 +857,12 @@ public class FileServiceTest {
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
 
     try {
-      FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      FileService.DownloadFileWrapper wrapper =
+        fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
-    } catch (GeneralSecurityException e) {
+    } catch ( GeneralSecurityException e ) {
       // Expected
-    } catch (Throwable t) {
+    } catch ( Throwable t ) {
       fail();
     }
     
@@ -866,7 +873,7 @@ public class FileServiceTest {
     try {
       FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "", "true" );
       fail();
-    } catch (InvalidParameterException e) {
+    } catch ( InvalidParameterException e ) {
       // Expected
     } catch ( Throwable e ) {
       fail();
@@ -879,9 +886,9 @@ public class FileServiceTest {
     try {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
-    } catch (InvalidPathException e) {
+    } catch ( InvalidPathException e ) {
       // Expected
-    } catch (Throwable t) {
+    } catch ( Throwable t ) {
       fail();
     }
 
@@ -893,9 +900,9 @@ public class FileServiceTest {
     try {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
-    } catch (FileNotFoundException e) {
+    } catch ( FileNotFoundException e ) {
       // Expected
-    } catch (Throwable t) {
+    } catch ( Throwable t ) {
     }
   }
 
@@ -1002,7 +1009,7 @@ public class FileServiceTest {
     // Test 1
     RepositoryFileDto repositoryFileDto2 = null;
     try {
-       repositoryFileDto2 = fileService.doGetContentCreator( pathId );
+      repositoryFileDto2 = fileService.doGetContentCreator( pathId );
     } catch ( Exception e ) {
       fail();
     }
@@ -1029,9 +1036,9 @@ public class FileServiceTest {
       fail();
     }
 
-    verify( fileService, times(3) ).idToPath( pathId );
-    verify( fileService.repository, times(3) ).getFileMetadata( fileId );
-    verify( fileService.defaultUnifiedRepositoryWebService, times(3) ).getFile( anyString() );
+    verify( fileService, times( 3 ) ).idToPath( pathId );
+    verify( fileService.repository, times( 3 ) ).getFileMetadata( fileId );
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 3 ) ).getFile( anyString() );
     verify( fileService.defaultUnifiedRepositoryWebService ).getFileById( anyString() );
   }
 
@@ -1197,7 +1204,7 @@ public class FileServiceTest {
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
   }
-  
+
   @Test
   public void testDoGetChildren() {
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
@@ -1459,6 +1466,7 @@ public class FileServiceTest {
     verify( fileService.defaultUnifiedRepositoryWebService ).getAcl( anyString() );
     verify( repositoryFileAclDto ).getOwner();
     verify( fileService.policy ).isAllowed( anyString() );
+  }
 
   @Test
   public void testDoGetFileAcl() {
@@ -1476,5 +1484,66 @@ public class FileServiceTest {
     fileService.doGetFileAcl( pathId );
 
     verify( fileService ).addAdminRole( fileAcl );
+  }
+
+  public void testDoGetTree() {
+    String pathId = ":path:to:file:file1.ext";
+    int depth = 1;
+    String filter = "*|FOLDERS";
+    boolean showHidden = true;
+    boolean includeAcls = true;
+
+    // Test 1
+    doReturn( "test" ).when( fileService ).idToPath( anyString() );
+
+    RepositoryRequest mockRequest = mock( RepositoryRequest.class );
+    doReturn( mockRequest ).when( fileService )
+      .getRepositoryRequest( anyString(), anyBoolean(), anyInt(), anyString() );
+
+    RepositoryFileDto mockChildFile = mock( RepositoryFileDto.class );
+    doReturn( "test" ).when( mockChildFile ).getId();
+
+    RepositoryFileTreeDto mockChildDto = mock( RepositoryFileTreeDto.class );
+    doReturn( mockChildFile ).when( mockChildDto ).getFile();
+
+    List<RepositoryFileTreeDto> mockChildrenDto = new ArrayList<RepositoryFileTreeDto>();
+    mockChildrenDto.add( mockChildDto );
+
+    RepositoryFileTreeDto mockTreeDto = mock( RepositoryFileTreeDto.class );
+    doReturn( mockChildrenDto ).when( mockTreeDto ).getChildren();
+    doReturn( mockTreeDto ).when( fileService.defaultUnifiedRepositoryWebService ).getTreeFromRequest( mockRequest );
+
+    doReturn( true ).when( fileService ).isShowingTitle( mockRequest );
+
+    Collator mockCollator = mock( Collator.class );
+    doReturn( mockCollator ).when( fileService ).getCollatorInstance();
+    doNothing().when( fileService ).sortByLocaleTitle( mockCollator, mockTreeDto );
+
+    Map<String, Serializable> fileMeta = new HashMap<String, Serializable>();
+    fileMeta.put( IUnifiedRepository.SYSTEM_FOLDER, new Boolean( false ) );
+
+    doReturn( fileMeta ).when( fileService.repository ).getFileMetadata( anyString() );
+
+    fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
+
+    verify( fileService, times( 1 ) ).idToPath( anyString() );
+    verify( mockRequest, times( 1 ) ).setIncludeAcls( anyBoolean() );
+    verify( mockCollator, times( 1 ) ).setStrength( Collator.PRIMARY );
+    verify( fileService, times( 1 ) ).sortByLocaleTitle( mockCollator, mockTreeDto );
+    verify( mockTreeDto ).setChildren( mockChildrenDto );
+
+    // Test 2 - path id is null
+    pathId = null;
+    fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
+
+    verify( fileService, times( 1 ) )
+      .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
+
+    // Test 3 - path id is set to the file utils path separator
+    pathId = FileUtils.PATH_SEPARATOR;
+    fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
+
+    verify( fileService, times( 2 ) )
+      .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
   }
 }

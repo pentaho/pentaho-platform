@@ -25,9 +25,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
@@ -153,7 +150,7 @@ public class FileService {
       throw e;
     }
   }
-  
+
   public List<Setting> doGetCanAccessList( String pathId, String permissions ) {
     StringTokenizer tokenizer = new StringTokenizer( permissions, "|" );
     ArrayList<Setting> permMap = new ArrayList<Setting>();
@@ -165,7 +162,7 @@ public class FileService {
     }
     return permMap;
   }
-  
+
   public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
     List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
 
@@ -607,7 +604,7 @@ public class FileService {
     return wrapper;
   }
 
-  protected IRepositoryFileData getData( RepositoryFile repositoryFile ) {
+  public IRepositoryFileData getData( RepositoryFile repositoryFile ) {
     IRepositoryContentConverterHandler converterHandler;
     Map<String, Converter> converters;
     NameBaseMimeResolver mimeResolver;
@@ -887,7 +884,7 @@ public class FileService {
       getSession().getName().equals( fileAcl.getOwner() )
         || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
         && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-        AdministerSecurityAction.NAME ) );
+          AdministerSecurityAction.NAME ) );
 
     if ( !canManage ) {
 
@@ -965,21 +962,21 @@ public class FileService {
     return RepositoryFileAdapter.toFile( repositoryFileDto );
   }
 
-  protected RepositoryDownloadWhitelist getWhitelist() {
+  public RepositoryDownloadWhitelist getWhitelist() {
     if ( whitelist == null ) {
       whitelist = new RepositoryDownloadWhitelist();
     }
     return whitelist;
   }
 
-  protected boolean isPathValid( String path ) {
+  public boolean isPathValid( String path ) {
     if ( path.startsWith( "/etc" ) || path.startsWith( "/system" ) ) {
       return false;
     }
     return true;
   }
 
-  protected boolean isPath( String pathId ) {
+  public boolean isPath( String pathId ) {
     return pathId != null && pathId.contains( "/" );
   }
 
@@ -1172,6 +1169,67 @@ public class FileService {
     fileAcl.getAces().add( adminGroup );
   }
 
+  public RepositoryFileTreeDto doGetTree( String pathId, Integer depth, String filter, Boolean showHidden,
+                                          Boolean includeAcls ) {
+    String path = null;
+    if ( pathId == null || pathId.equals( FileUtils.PATH_SEPARATOR ) ) {
+      path = FileUtils.PATH_SEPARATOR;
+    } else if ( !pathId.startsWith( FileUtils.PATH_SEPARATOR ) ) {
+      path = idToPath( pathId );
+    }
+
+    RepositoryRequest repositoryRequest = getRepositoryRequest( path, showHidden, depth, filter );
+    repositoryRequest.setIncludeAcls( includeAcls );
+
+    RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
+    List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
+
+    // BISERVER-9599 - Use special sort order
+    if ( isShowingTitle( repositoryRequest ) ) {
+      Collator collator = getCollatorInstance();
+      collator.setStrength( Collator.PRIMARY ); // ignore case
+      sortByLocaleTitle( collator, tree );
+    }
+
+    for ( RepositoryFileTreeDto child : tree.getChildren() ) {
+      RepositoryFileDto file = child.getFile();
+      Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
+      boolean isSystemFolder =
+        fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
+          .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
+      if ( !isSystemFolder ) {
+        filteredChildren.add( child );
+      }
+    }
+    tree.setChildren( filteredChildren );
+
+    return tree;
+  }
+
+  public void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
+
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0 ) {
+      return;
+    }
+
+    for ( RepositoryFileTreeDto rft : tree.getChildren() ) {
+      sortByLocaleTitle( collator, rft );
+      Collections.sort( tree.getChildren(), new Comparator<RepositoryFileTreeDto>() {
+        @Override
+        public int compare( RepositoryFileTreeDto repositoryFileTree, RepositoryFileTreeDto repositoryFileTree2 ) {
+          String title1 = repositoryFileTree.getFile().getTitle();
+          String title2 = repositoryFileTree2.getFile().getTitle();
+
+          if ( collator.compare( title1, title2 ) == 0 ) {
+            return title1.compareTo( title2 ); // use lexical order if equals ignore case
+          }
+
+          return collator.compare( title1, title2 );
+        }
+      } );
+    }
+  }
+
   protected DefaultUnifiedRepositoryWebService getRepoWs() {
     if ( defaultUnifiedRepositoryWebService == null ) {
       defaultUnifiedRepositoryWebService = new DefaultUnifiedRepositoryWebService();
@@ -1211,7 +1269,7 @@ public class FileService {
     return repository;
   }
 
-  protected String idToPath( String pathId ) {
+  public String idToPath( String pathId ) {
     return FileUtils.idToPath( pathId );
   }
 
@@ -1222,16 +1280,17 @@ public class FileService {
   protected String escapeJava( String value ) {
     return StringEscapeUtils.escapeJava( value );
   }
-  
+
   protected BaseExportProcessor getDownloadExportProcessor( String path, boolean requiresZip, boolean withManifest ) {
     return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
   }
-  
+
   protected ExportHandler getDownloadExportHandler() {
     return PentahoSystem.get( DefaultExportHandler.class );
   }
-  
-  protected StreamingOutput getDownloadStream(RepositoryFile repositoryFile, BaseExportProcessor exportProcessor) throws ExportException, IOException {
+
+  protected StreamingOutput getDownloadStream( RepositoryFile repositoryFile, BaseExportProcessor exportProcessor )
+    throws ExportException, IOException {
     File zipFile = exportProcessor.performExport( repositoryFile );
     final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
@@ -1240,6 +1299,14 @@ public class FileService {
         IOUtils.copy( is, output );
       }
     };
+  }
+
+  protected RepositoryRequest getRepositoryRequest( String  path, boolean showHidden, int depth, String filter ) {
+    return new RepositoryRequest( path, showHidden, depth, filter );
+  }
+
+  protected Collator getCollatorInstance() {
+    return Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
   }
 
   public class RepositoryFileToStreamWrapper {
@@ -1271,8 +1338,9 @@ public class FileService {
       return repositoryFile;
     }
   }
-  
-  public List<RepositoryFileDto> doGetChildren( String pathId, String filter, Boolean showHidden, Boolean includeAcls ) {
+
+  public List<RepositoryFileDto> doGetChildren( String pathId, String filter, Boolean showHidden,
+                                                Boolean includeAcls ) {
 
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
@@ -1283,14 +1351,14 @@ public class FileService {
 
       // BISERVER-9599 - Use special sort order
       if ( isShowingTitle( repositoryRequest ) ) {
-        Collator collator = getCollator(Collator.PRIMARY);
+        Collator collator = getCollator( Collator.PRIMARY );
         sortByLocaleTitle( collator, repositoryFileDtoList );
       }
     }
     return repositoryFileDtoList;
   }
 
-  protected boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
+  public boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
     if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
       if ( repositoryRequest.getExcludeMemberSet().contains( "title" ) ) {
         return false;
@@ -1302,7 +1370,7 @@ public class FileService {
     return true;
   }
   
-  protected void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
+  public void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
     if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
       return;
@@ -1324,14 +1392,15 @@ public class FileService {
       } );
     }
   }
-  
-  protected RepositoryRequest getRepositoryRequest(RepositoryFileDto repositoryFileDto, boolean showHidden, String filter, boolean includeAcls ) {
+
+  protected RepositoryRequest getRepositoryRequest( RepositoryFileDto repositoryFileDto, boolean showHidden,
+                                                    String filter, boolean includeAcls ) {
     RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
     repositoryRequest.setIncludeAcls( includeAcls );
     return repositoryRequest;
   }
-  
-  protected Collator getCollator(int strength) {
+
+  protected Collator getCollator( int strength ) {
     Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
     collator.setStrength( strength ); // ignore case
     return collator;
