@@ -15,7 +15,7 @@
   <dependencies defaultconf="default->default">
 
     <!-- Pentaho -->
-    <dependency org="pentaho" name="pentaho-platform-extensions" rev="${project.revision}" changing="true">
+    <dependency org="pentaho" name="pentaho-platform-extensions" rev="${dependency.pentaho-platform.revision}" changing="true">
 		<exclude org="pentaho-reporting-engine" module="pentaho-reporting-engine-classic-core-test" />
     </dependency>
     <!-- Pentaho Commons  -->
