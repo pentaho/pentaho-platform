@@ -18,7 +18,7 @@
 
   <bean id="jcrRepository" class="org.springframework.extensions.jcr.jackrabbit.RepositoryFactoryBean">
     <property name="configuration" value="classpath:/jackrabbit-test-repo.xml"/>
-    <property name="homeDir" value="file:/tmp/extensions/jackrabbit-test-TRUNK"/>
+    <property name="homeDir" value="file:/tmp/extensions-monitoring/jackrabbit-test-TRUNK"/>
   </bean>
 
   <!-- override to keep only the required managers -->
