@@ -40,10 +40,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -80,8 +77,6 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterH
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -89,22 +84,16 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -151,18 +140,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   public static String idToPath( String pathId ) {
-    String path = null;
-    // slashes in pathId are illegal.. we scrub them out so the file will not be found
-    // if the pathId was given in slash separated format
-    if ( pathId.contains( PATH_SEPARATOR ) ) {
-      logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) ); //$NON-NLS-1$
-    }
-    path = pathId.replaceAll( PATH_SEPARATOR, "" ); //$NON-NLS-1$
-    path = RepositoryPathEncoder.decodeRepositoryPath( path );
-    if ( !path.startsWith( PATH_SEPARATOR ) ) {
-      path = PATH_SEPARATOR + path;
-    }
-    return path;
+    return fileService.idToPath( pathId );
   }
 
   /**
@@ -616,7 +594,7 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       fileService.setFileAcls( pathId, acl );
       return Response.ok().build();
-    } catch (Exception exception) {
+    } catch ( Exception exception ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
@@ -825,7 +803,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   en_US
    * </pre>    
    * @return Server Response indicating the success of the operation
-   */  
+   */
   @PUT
   @Path( "{pathId : .+}/deleteLocale" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -888,7 +866,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   permission1|permission2|permission3
    * </pre>    
    * @return List of permissions for the selected files
-   */   
+   */
   @GET
   @Path( "{pathId : .+}/canAccessMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
@@ -908,7 +886,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   pathToFileId3
    * </pre>
    * @return A collection of the permission settings for the paths
-   */  
+   */
   @POST
   @Path( "/pathsAccessList" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
@@ -950,7 +928,7 @@ public class FileResource extends AbstractJaxRSResource {
   @JMeterTest( url = "/repo/files/canAdminister", requestType = "GET", statusCode = "200" )
   public String doGetCanAdminister() {
     try {
-      return fileService.doCanAdminister()? "true" : "false";
+      return fileService.doCanAdminister() ? "true" : "false";
     } catch ( Exception e ) {
       return "false";
     }
@@ -1091,7 +1069,7 @@ public class FileResource extends AbstractJaxRSResource {
   public RepositoryFileDto doGetProperties( @PathParam( "pathId" ) String pathId ) {
     try {
       return fileService.doGetProperties( pathId );
-    } catch (FileNotFoundException fileNotFound) {
+    } catch ( FileNotFoundException fileNotFound ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
       //TODO: What do we return in this error case?
       return null;
@@ -1218,9 +1196,44 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of files from root of the repository.
    *
-   * @param depth      (how many level should the search go)
-   * @param filter     (filter to be applied for search)
-   * @param showHidden (include or exclude hidden files from the file list)
+   * @param depth       (how many level should the search go)
+   *                    <pre function="syntax.xml">
+   *                      1
+   *                    </pre>
+   *
+   * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
+   *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   *                    <p/>
+   *                    File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
+   *                    accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
+   *                    whether to return files, folders, or both files and folders, respectively.
+   *                    <p/>
+   *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
+   *                    name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
+   *                    filter does not apply to root node.
+   *                    <p/>
+   *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
+   *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
+   *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
+   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
+   *                    excludeMembers= clause in the same service call.
+   *                    <p/>
+   *                    Example:
+   *                    http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/tree?showHidden=false&filter=*|FILES
+   *                    |includeMembers=name,fileSize,description,folder,id,title
+   *                    <p/>
+   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
+   *                    include the name, filesize, description, id and title.
+   *                    <pre function="syntax.xml">
+   *                      *|FOLDERS
+   *                    </pre>
+   *
+   * @param showHidden  (include or exclude hidden files from the file list)
+   *                    <pre function="syntax.xml">
+   *                      true
+   *                    </pre>
+   *
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
@@ -1229,7 +1242,7 @@ public class FileResource extends AbstractJaxRSResource {
   public RepositoryFileTreeDto doGetRootTree( @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
-    return doGetTree( FileUtils.PATH_SEPARATOR, depth, filter, showHidden, includeAcls );
+    return fileService.doGetTree( FileUtils.PATH_SEPARATOR, depth, filter, showHidden, includeAcls );
   }
 
   /**
@@ -1289,7 +1302,15 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   *                    <pre function="syntax.xml">
+   *                      :path:to:id
+   *                    </pre>
+   *
    * @param depth       (how many level should the search go)
+   *                    <pre function="syntax.xml">
+   *                      1
+   *                    </pre>
+   *
    * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
    *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
    *                    <p/>
@@ -1314,52 +1335,30 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <p/>
    *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
    *                    include the name, filesize, description, id and title.
+   *                    <pre function="syntax.xml">
+   *                      *|FOLDERS
+   *                    </pre>
+   *
    * @param showHidden  (include or exclude hidden files from the file list)
+   *                    <pre function="syntax.xml">
+   *                      true
+   *                    </pre>
+   *
    * @param includeAcls (Include permission information about the file in the output)
+   *                    <pre function="syntax.xml">
+   *                      true
+   *                    </pre>
+   *
    * @return list of files <code> RepositoryFileTreeDto </code>
    */
   @GET
   @Path( "{pathId : .+}/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/tree", requestType = "GET" )
   public RepositoryFileTreeDto doGetTree( @PathParam( "pathId" ) String pathId, @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
-
-    String path = null;
-    if ( pathId == null || pathId.equals( FileUtils.PATH_SEPARATOR ) ) {
-      path = FileUtils.PATH_SEPARATOR;
-    } else {
-      if ( !pathId.startsWith( FileUtils.PATH_SEPARATOR ) ) {
-        path = FileUtils.idToPath( pathId );
-      }
-    }
-
-    RepositoryRequest repositoryRequest = new RepositoryRequest( path, showHidden, depth, filter );
-    repositoryRequest.setIncludeAcls( includeAcls );
-
-    RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
-    List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
-
-    // BISERVER-9599 - Use special sort order
-    if ( isShowingTitle( repositoryRequest ) ) {
-      Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
-      collator.setStrength( Collator.PRIMARY ); // ignore case
-      sortByLocaleTitle( collator, tree );
-    }
-
-    for ( RepositoryFileTreeDto child : tree.getChildren() ) {
-      RepositoryFileDto file = child.getFile();
-      Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
-      boolean isSystemFolder =
-          fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
-              .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
-      if ( !isSystemFolder ) {
-        filteredChildren.add( child );
-      }
-    }
-    tree.setChildren( filteredChildren );
-
-    return tree;
+    return fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
   }
 
   /**
@@ -1537,63 +1536,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   private IRepositoryFileData getData( RepositoryFile repositoryFile ) {
-    IRepositoryContentConverterHandler converterHandler;
-    Map<String, Converter> converters;
-    NameBaseMimeResolver mimeResolver;
-
-    IRepositoryFileData repositoryFileData = null;
-
-    if ( !repositoryFile.isFolder() ) {
-      // Get the extension
-      final String ext = RepositoryFilenameUtils.getExtension( repositoryFile.getName() );
-      if ( ( ext == null ) || ( ext.isEmpty() ) ) {
-        return null;
-      }
-
-      // Find the converter
-
-      // If we have not been given a handler, try PentahoSystem
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
-
-      // fail if we have no converter handler
-      if ( converterHandler == null ) {
-        return null;
-      }
-
-      converters = converterHandler.getConverters();
-
-      final Converter converter = converters.get( ext );
-      if ( converter == null ) {
-        return null;
-      }
-
-      // Check the mime type
-      mimeResolver = PentahoSystem.get( NameBaseMimeResolver.class );
-
-      // fail if we have no mime resolver
-      if ( mimeResolver == null ) {
-        return null;
-      }
-
-      final String mimeType = mimeResolver.resolveMimeTypeForFileName( repositoryFile.getName() ).getName();
-      if ( ( mimeType == null ) || ( mimeType.isEmpty() ) ) {
-        return null;
-      }
-
-      // Get the input stream
-      InputStream inputStream = converter.convert( repositoryFile.getId() );
-      if ( inputStream == null ) {
-        return null;
-      }
-
-      // Get the file data
-      repositoryFileData = converter.convert( inputStream, "UTF-8", mimeType );
-      if ( repositoryFileData == null ) {
-        return null;
-      }
-    }
-
-    return repositoryFileData;
+    return fileService.getData( repositoryFile );
   }
 
   private String getExtension( final String name ) {
@@ -1630,41 +1573,12 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  /**
-   * Validate path and send appropriate response if necessary TODO: Add validation to IUnifiedRepository interface
-   *
-   * @param path
-   * @return
-   */
   private boolean isPathValid( String path ) {
-    if ( path.startsWith( "/etc" ) || path.startsWith( "/system" ) ) {
-      return false;
-    }
-    return true;
+    return fileService.isPathValid( path );
   }
 
   private void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
-
-    if ( tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0 ) {
-      return;
-    }
-
-    for ( RepositoryFileTreeDto rft : tree.getChildren() ) {
-      sortByLocaleTitle( collator, rft );
-      Collections.sort( tree.getChildren(), new Comparator<RepositoryFileTreeDto>() {
-        @Override
-        public int compare( RepositoryFileTreeDto repositoryFileTree, RepositoryFileTreeDto repositoryFileTree2 ) {
-          String title1 = repositoryFileTree.getFile().getTitle();
-          String title2 = repositoryFileTree2.getFile().getTitle();
-
-          if ( collator.compare( title1, title2 ) == 0 ) {
-            return title1.compareTo( title2 ); // use lexical order if equals ignore case
-          }
-
-          return collator.compare( title1, title2 );
-        }
-      } );
-    }
+    fileService.sortByLocaleTitle( collator, tree );
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
@@ -1700,15 +1614,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   private boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
-    if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
-      if ( repositoryRequest.getExcludeMemberSet().contains( "title" ) ) {
-        return false;
-      }
-    } else if ( repositoryRequest.getIncludeMemberSet() != null
-        && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
-      return false;
-    }
-    return true;
+    return fileService.isShowingTitle( repositoryRequest );
   }
 
   public void setConverterHandler( IRepositoryContentConverterHandler converterHandler ) {
