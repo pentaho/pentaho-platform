@@ -843,7 +843,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/deleteLocale" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/deleteLocale", requestType = "PUT", statusCode = "200" ) 
+  @JMeterTest( url = "/repo/files/deleteLocale", requestType = "PUT", statusCode = "200" )
   public Response doDeleteLocale( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale ) {
     try {
       fileService.doDeleteLocale( pathId, locale );
@@ -1011,13 +1011,14 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user can create content in the repository
    *
-   * @return
+   * @return "true" or "false"
    */
   @GET
   @Path( "/canCreate" )
   @Produces( TEXT_PLAIN )
+  @JMeterTest( url = "/repo/files/canCreate", requestType = "GET", statusCode = "200" )
   public String doGetCanCreate() {
-    return getPolicy().isAllowed( RepositoryCreateAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return fileService.doGetCanCreate();
   }
 
   /**
@@ -1119,22 +1120,19 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the file by creator id
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId Colon separated path for the destination for files to be copied
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
   @Path( "{pathId : .+}/creator" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/creator", requestType = "GET", statusCode = "200" )
   public RepositoryFileDto doGetContentCreator( @PathParam( "pathId" ) String pathId ) {
     try {
-      RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-      Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( file.getId() );
-      String creatorId = (String) fileMetadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
-      if ( creatorId != null && creatorId.length() > 0 ) {
-        return getRepoWs().getFileById( creatorId );
-      } else {
-        return null;
-      }
+      return fileService.doGetContentCreator( pathId );
     } catch ( Throwable t ) {
       return null;
     }

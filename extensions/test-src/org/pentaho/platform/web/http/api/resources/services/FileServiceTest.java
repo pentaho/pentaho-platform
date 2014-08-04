@@ -23,6 +23,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -791,8 +792,7 @@ public class FileServiceTest {
 
     assertEquals( stringBuffer.toString(), buffer.toString() );
   }
-  
-  
+
   @Test
   public void testDoGetFileOrDirAsDownload() throws Throwable {
     final String fileName = "mockFileName";
@@ -946,6 +946,106 @@ public class FileServiceTest {
       assertFalse( fileService.doCanAdminister() );
     } catch ( InternalError e ) { //the second comparison fail and the result should be false and no exception returned
       fail();
+    }
+  }
+
+  @Test
+  public void testDoGetCanCreate() {
+    doReturn( true ).when( fileService.policy ).isAllowed( anyString() );
+
+    String canCreate = fileService.doGetCanCreate();
+
+    verify( fileService.policy ).isAllowed( anyString() );
+
+    assertEquals( "true", canCreate );
+  }
+
+  @Test
+  public void doGetContentCreator() {
+    String pathId = "path:to:file:file1.ext";
+    String fileId = "file1";
+    String creatorId = "creatorId";
+
+    Map<String, Serializable> fileMetadata = mock( HashMap.class );
+    doReturn( creatorId ).when( fileMetadata ).get( "contentCreator" );
+
+    doReturn( fileMetadata ).when( fileService.repository ).getFileMetadata( fileId );
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( fileId ).when( repositoryFileDto ).getId();
+
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+
+    RepositoryFileDto repositoryFileDto1 = mock( RepositoryFileDto.class );
+
+    doReturn( repositoryFileDto1 ).when( fileService.defaultUnifiedRepositoryWebService ).getFileById( creatorId );
+
+
+    // Test 1
+    RepositoryFileDto repositoryFileDto2 = null;
+    try {
+       repositoryFileDto2 = fileService.doGetContentCreator( pathId );
+    } catch ( Exception e ) {
+      fail();
+    }
+
+    assertEquals( repositoryFileDto1, repositoryFileDto2 );
+
+    // Test 2
+    doReturn( null ).when( fileMetadata ).get( "contentCreator" );
+
+    try {
+      repositoryFileDto2 = fileService.doGetContentCreator( pathId );
+      assertEquals( null, repositoryFileDto2 );
+    } catch ( Exception e ) {
+      fail();
+    }
+
+    // Test 3
+    doReturn( "" ).when( fileMetadata ).get( "contentCreator" );
+
+    try {
+      repositoryFileDto2 = fileService.doGetContentCreator( pathId );
+      assertEquals( null, repositoryFileDto2 );
+    } catch ( Exception e ) {
+      fail();
+    }
+
+    verify( fileService, times(3) ).idToPath( pathId );
+    verify( fileService.repository, times(3) ).getFileMetadata( fileId );
+    verify( fileService.defaultUnifiedRepositoryWebService, times(3) ).getFile( anyString() );
+    verify( fileService.defaultUnifiedRepositoryWebService ).getFileById( anyString() );
+  }
+
+  @Test
+  public void doGetContentCreatorException() {
+    String pathId = "path:to:file:file1.ext";
+    String fileId = "file1";
+    String creatorId = "creatorId";
+
+    Map<String, Serializable> fileMetadata = mock( HashMap.class );
+    doReturn( creatorId ).when( fileMetadata ).get( "contentCreator" );
+
+    doReturn( fileMetadata ).when( fileService.repository ).getFileMetadata( fileId );
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+
+    RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( fileId ).when( repositoryFileDto ).getId();
+
+    doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
+
+    RepositoryFileDto repositoryFileDto1 = mock( RepositoryFileDto.class );
+
+    doReturn( repositoryFileDto1 ).when( fileService.defaultUnifiedRepositoryWebService ).getFileById( creatorId );
+
+    try {
+      fileService.doGetContentCreator( pathId );
+      fail();
+    } catch ( FileNotFoundException e ) {
+      //Should catch the exception
     }
   }
 }
