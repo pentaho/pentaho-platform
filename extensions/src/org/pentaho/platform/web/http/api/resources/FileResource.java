@@ -68,7 +68,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -94,7 +93,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -987,24 +985,14 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Returns the repository reserved characters
    *
-   * @return list of characters
+   * @return List of characters
    */
   @GET
   @Path( "/reservedCharactersDisplay" )
   @Produces( { TEXT_PLAIN } )
+  @JMeterTest( url = "/repo/files/reservedCharactersDisplay", requestType = "GET", statusCode = "200" )
   public Response doGetReservedCharactersDisplay() {
-    List<Character> reservedCharacters = getRepoWs().getReservedChars();
-    StringBuffer buffer = new StringBuffer();
-    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
-      if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
-        buffer.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
-      } else {
-        buffer.append( reservedCharacters.get( i ) );
-      }
-      if ( i + 1 < reservedCharacters.size() ) {
-        buffer.append( ',' );
-      }
-    }
+    StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
 

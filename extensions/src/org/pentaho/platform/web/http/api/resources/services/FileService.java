@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -734,6 +735,22 @@ public class FileService {
     }
     return buffer;
   }
+  
+  public StringBuffer doGetReservedCharactersDisplay() {
+    List<Character> reservedCharacters = getRepoWs().getReservedChars();
+    StringBuffer buffer = new StringBuffer();
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
+      if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
+        buffer.append( escapeJava( "" + reservedCharacters.get( i ) ) );
+      } else {
+        buffer.append( reservedCharacters.get( i ) );
+      }
+      if ( i + 1 < reservedCharacters.size() ) {
+        buffer.append( ',' );
+      }
+    }
+    return buffer;
+  }
 
   /**
    * Retrieves the properties of the root directory
@@ -1052,6 +1069,10 @@ public class FileService {
 
   protected String idToPath( String pathId ) {
     return FileUtils.idToPath( pathId );
+  }
+  
+  protected String escapeJava( String value ) {
+    return StringEscapeUtils.escapeJava( value );
   }
   
   protected BaseExportProcessor getDownloadExportProcessor( String path, boolean requiresZip, boolean withManifest ) {

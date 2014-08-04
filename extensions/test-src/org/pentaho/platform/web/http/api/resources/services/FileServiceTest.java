@@ -33,7 +33,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
-import com.mockrunner.util.FileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -64,8 +63,6 @@ import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-
-import java.util.*;
 
 public class FileServiceTest {
 
@@ -793,6 +790,28 @@ public class FileServiceTest {
     assertEquals( stringBuffer.toString(), buffer.toString() );
   }
 
+  @Test
+  public void testDoGetReservedCharactersDisplay() throws Exception {
+    String stringBuffer = "/,\\,\\t,\\r,\\n";
+    
+    List<Character> characters = new ArrayList<Character>();
+    characters.add( '/' );
+    characters.add( '\\' );
+    characters.add( '\t' );
+    characters.add( '\r' );
+    characters.add( '\n' );
+    
+    doReturn( "\\t" ).when( fileService ).escapeJava( "" + characters.get( 2 ) );
+    doReturn( "\\r" ).when( fileService ).escapeJava( "" + characters.get( 3 ) );
+    doReturn( "\\n" ).when( fileService ).escapeJava( "" + characters.get( 4 ) );
+
+    doReturn( characters ).when( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
+    StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
+    assertEquals( buffer.toString(), stringBuffer.toString() );
+    
+    verify( fileService, times( 3 ) ).escapeJava( anyString() );
+  }
+  
   @Test
   public void testDoGetFileOrDirAsDownload() throws Throwable {
     final String fileName = "mockFileName";
