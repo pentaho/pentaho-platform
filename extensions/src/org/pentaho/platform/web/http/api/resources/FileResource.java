@@ -956,14 +956,18 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user can administer the platform
    *
-   * @return ("true" or "false")
+   * @return String <code>"true"</code> if the user can administer the platform, or "false" otherwise
    */
   @GET
   @Path( "/canAdminister" )
   @Produces( TEXT_PLAIN )
+  @JMeterTest( url = "/repo/files/canAdminister", requestType = "GET", statusCode = "200" )
   public String doGetCanAdminister() {
-    return getPolicy().isAllowed( RepositoryReadAction.NAME ) && getPolicy().isAllowed( RepositoryCreateAction.NAME )
-        && getPolicy().isAllowed( AdministerSecurityAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    try {
+      return fileService.doCanAdminister()? "true" : "false";
+    } catch ( Exception e ) {
+      return "false";
+    }
   }
 
   /**
