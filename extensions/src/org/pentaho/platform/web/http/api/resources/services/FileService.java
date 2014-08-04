@@ -56,10 +56,12 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -907,6 +909,25 @@ public class FileService {
       throw new InternalError();
     }
     return availableLocales;
+  }
+
+  /**
+   * Checks whether the current user can administer the platform.
+   * The conditions are <code>RepositoryReadAction</code>, <code>RepositoryCreateAction</code> and
+   * <code>AdministerSecurityAction</code>
+   *
+   * @return <code>boolean</code>
+   */
+  public boolean doCanAdminister() throws Exception {
+    boolean status = false;
+    try {
+      status = getPolicy().isAllowed( RepositoryReadAction.NAME )
+        && getPolicy().isAllowed( RepositoryCreateAction.NAME )
+        && getPolicy().isAllowed( AdministerSecurityAction.NAME );
+    } catch ( Exception e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.CAN_ADMINISTER" ), e );
+    }
+    return status;
   }
 
   protected DefaultUnifiedRepositoryWebService getRepoWs() {

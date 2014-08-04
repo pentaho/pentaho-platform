@@ -60,6 +60,11 @@ import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValue
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+
+import java.util.*;
 
 public class FileServiceTest {
 
@@ -828,7 +833,7 @@ public class FileServiceTest {
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( false ).when( mockAuthPolicy ).isAllowed( anyString() );
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
-    
+
     try {
       FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
@@ -875,6 +880,71 @@ public class FileServiceTest {
     } catch (FileNotFoundException e) {
       // Expected
     } catch (Throwable t) {
+    }
+  }
+
+  public void testDoCanAdminister() throws Exception {
+    IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( authorizationPolicy ).when( fileService ).getPolicy();
+
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+    assertTrue( fileService.doCanAdminister() );
+
+    doReturn( false ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+    assertFalse( fileService.doCanAdminister() );
+
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( false ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+    assertFalse( fileService.doCanAdminister() );
+
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( false ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+    assertFalse( fileService.doCanAdminister() );
+
+    doReturn( false ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( false ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( false ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+    assertFalse( fileService.doCanAdminister() );
+  }
+
+  @Test
+  public void testDoCanAdministerException() throws Exception {
+    IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( authorizationPolicy ).when( fileService ).getPolicy();
+
+    doThrow( new InternalError() ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( false ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+
+    try {
+      assertFalse( fileService.doCanAdminister() );
+      fail();
+    } catch ( InternalError e ) {
+    }
+
+    doReturn( false ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doThrow( new InternalError() ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+
+    try {
+      assertFalse( fileService.doCanAdminister() );
+    } catch ( InternalError e ) { //the second comparison fail and the result should be false and no exception returned
+      fail();
+    }
+
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( false ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doThrow( new InternalError() ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+
+    try {
+      assertFalse( fileService.doCanAdminister() );
+    } catch ( InternalError e ) { //the second comparison fail and the result should be false and no exception returned
       fail();
     }
   }
