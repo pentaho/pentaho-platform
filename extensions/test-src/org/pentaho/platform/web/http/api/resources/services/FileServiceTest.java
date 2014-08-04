@@ -39,6 +39,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -640,6 +641,7 @@ public class FileServiceTest {
     assertEquals( "true", hasAccess );
   }
 
+  @Test
   public void testDoSetContentCreator() throws Exception {
     String param = "file1";
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
@@ -1457,5 +1459,22 @@ public class FileServiceTest {
     verify( fileService.defaultUnifiedRepositoryWebService ).getAcl( anyString() );
     verify( repositoryFileAclDto ).getOwner();
     verify( fileService.policy ).isAllowed( anyString() );
+
+  @Test
+  public void testDoGetFileAcl() {
+    RepositoryFileDto file = mock( RepositoryFileDto.class );
+
+    RepositoryFileAclDto fileAcl = mock( RepositoryFileAclDto.class );
+    when( fileAcl.isEntriesInheriting() ).thenReturn( false );
+
+    when( fileService.defaultUnifiedRepositoryWebService.getFile( anyString() ) ).thenReturn( file );
+    when( fileService.defaultUnifiedRepositoryWebService.getAcl( anyString() ) ).thenReturn( fileAcl );
+
+    doNothing().when( fileService ).addAdminRole( fileAcl );
+
+    String pathId = "/usr/dir/file.txt";
+    fileService.doGetFileAcl( pathId );
+
+    verify( fileService ).addAdminRole( fileAcl );
   }
 }
