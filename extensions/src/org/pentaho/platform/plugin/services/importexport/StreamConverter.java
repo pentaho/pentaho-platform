@@ -48,8 +48,12 @@ public class StreamConverter implements Converter {
   }
 
   public InputStream convert( final Serializable fileId ) {
-    SimpleRepositoryFileData fileData = repository.getDataForRead( fileId, SimpleRepositoryFileData.class );
-    return fileData.getStream();
+    InputStream stream = null;
+    if ( repository != null ) {
+      SimpleRepositoryFileData fileData = repository.getDataForRead( fileId, SimpleRepositoryFileData.class );
+      stream = fileData.getStream();
+    }
+    return stream;
   }
 
   public IRepositoryFileData convert( final InputStream inputStream, final String charset, final String mimeType ) {
