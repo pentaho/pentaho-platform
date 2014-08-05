@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +47,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.JcrConstants;
@@ -75,7 +77,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Class of static methods where the real JCR work takes place.
- *
+ * 
  * @author mlowery
  */
 public class JcrRepositoryFileUtils {
@@ -83,31 +85,30 @@ public class JcrRepositoryFileUtils {
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileUtils.class );
 
   /**
-   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in
-   * a "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing
-   * '.' is legal. It is up to this implementation to prohibit permutations of legal characters.
+   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in a
+   * "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing '.' is
+   * legal. It is up to this implementation to prohibit permutations of legal characters.
    */
-//  private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
-//    '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
+  // private static final List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
+  // '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' } ) );
 
   // This list will drive what characters are not allowed on the client as well as the server
-  private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
-    '/', '\\', '\t', '\r', '\n' } ) );
+  private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] { '/',
+    '\\', '\t', '\r', '\n' } ) );
 
   /**
-   * Try to get override reserved chars from PentahoSystem,
-   * otherwise use default
+   * Try to get override reserved chars from PentahoSystem, otherwise use default
    */
-  static{
-    List<Character> newOverrideReservedChars = PentahoSystem.get(ArrayList.class,
-      "reservedChars", PentahoSessionHolder.getSession() );
+  static {
+    List<Character> newOverrideReservedChars =
+        PentahoSystem.get( ArrayList.class, "reservedChars", PentahoSessionHolder.getSession() );
 
-    if( newOverrideReservedChars != null ){
+    if ( newOverrideReservedChars != null ) {
       reservedChars = newOverrideReservedChars;
     }
   }
 
-  private static Pattern makePattern( List<Character> list) {
+  private static Pattern makePattern( List<Character> list ) {
     // escape all reserved characters as they may have special meaning to regex engine
     StringBuilder buf = new StringBuilder();
     buf.append( ".*" ); //$NON-NLS-1$
@@ -140,11 +141,11 @@ public class JcrRepositoryFileUtils {
     Node node = session.getRootNode();
     RepositoryFile file =
         new RepositoryFile.Builder( node.getIdentifier(), "" ).folder( true ).versioned( false ).path( //$NON-NLS-1$
-          JcrStringHelper.pathDecode( node.getPath() ) ).build();
+            JcrStringHelper.pathDecode( node.getPath() ) ).build();
     return file;
   }
 
-  public static RepositoryFile nodeToFileOld(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static RepositoryFile nodeToFileOld( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Node node,
       final boolean loadMaps, IPentahoLocale pentahoLocale ) throws RepositoryException {
 
@@ -226,8 +227,8 @@ public class JcrRepositoryFileUtils {
     if ( isPentahoHierarchyNode( session, pentahoJcrConstants, node ) ) {
       if ( node.hasNode( pentahoJcrConstants.getPHO_LOCALES() ) ) {
         // Expensive
-        localePropertiesMap = getLocalePropertiesMap(session, pentahoJcrConstants,
-           node.getNode(pentahoJcrConstants.getPHO_LOCALES()));
+        localePropertiesMap =
+            getLocalePropertiesMap( session, pentahoJcrConstants, node.getNode( pentahoJcrConstants.getPHO_LOCALES() ) );
 
         // [BISERVER-8337] localize title and description
         LocalePropertyResolver lpr = new LocalePropertyResolver( name );
@@ -287,35 +288,35 @@ public class JcrRepositoryFileUtils {
     return file;
   }
 
+  public static RepositoryFile nodeToFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Node node,
+      final boolean loadMaps, IPentahoLocale pentahoLocale ) throws RepositoryException {
 
-  public static RepositoryFile nodeToFile(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-                                          final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Node node,
-                                          final boolean loadMaps, IPentahoLocale pentahoLocale) throws RepositoryException {
-
-    if (session.getRootNode().isSame(node)) {
-      return getRootFolder(session);
+    if ( session.getRootNode().isSame( node ) ) {
+      return getRootFolder( session );
     }
     // Get default locale if null
-    if (pentahoLocale == null) {
+    if ( pentahoLocale == null ) {
       Locale currentLocale = LocaleHelper.getLocale();
-      if(currentLocale != null){
-        pentahoLocale = new PentahoLocale(currentLocale);
+      if ( currentLocale != null ) {
+        pentahoLocale = new PentahoLocale( currentLocale );
       } else {
         pentahoLocale = new PentahoLocale();
       }
     }
-    return getRepositoryFileProxyFactory().getProxy(node, pentahoLocale);
+    return getRepositoryFileProxyFactory().getProxy( node, pentahoLocale );
   }
 
   private static RepositoryFileProxyFactory fileProxyFactory;
-  private static RepositoryFileProxyFactory getRepositoryFileProxyFactory(){
-    if(fileProxyFactory == null){
-      fileProxyFactory = PentahoSystem.get(RepositoryFileProxyFactory.class);
+
+  private static RepositoryFileProxyFactory getRepositoryFileProxyFactory() {
+    if ( fileProxyFactory == null ) {
+      fileProxyFactory = PentahoSystem.get( RepositoryFileProxyFactory.class );
     }
     return fileProxyFactory;
   }
 
-  public static String getLocalizedString(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static String getLocalizedString( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node localizedStringNode, IPentahoLocale pentahoLocale ) throws RepositoryException {
     Assert.isTrue( isLocalizedString( session, pentahoJcrConstants, localizedStringNode ) );
 
@@ -468,7 +469,7 @@ public class JcrRepositoryFileUtils {
     return JcrStringHelper.pathDecode( node.getPath() );
   }
 
-  public static Serializable getNodeId(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static Serializable getNodeId( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
       return node.getProperty( pentahoJcrConstants.getJCR_FROZENUUID() ).getString();
@@ -477,7 +478,7 @@ public class JcrRepositoryFileUtils {
     return node.getIdentifier();
   }
 
-  public static String getNodeName(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static String getNodeName( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
       return JcrStringHelper.fileNameDecode( session.getNodeByIdentifier(
@@ -487,14 +488,14 @@ public class JcrRepositoryFileUtils {
     return JcrStringHelper.fileNameDecode( node.getName() );
   }
 
-  public static String getVersionId(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static String getVersionId( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node node ) throws RepositoryException {
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
       return JcrStringHelper.fileNameDecode( node.getParent().getName() );
     }
 
-    return JcrStringHelper.fileNameDecode( session.getWorkspace().getVersionManager().getBaseVersion(
-        node.getPath() ).getName() );
+    return JcrStringHelper.fileNameDecode( session.getWorkspace().getVersionManager().getBaseVersion( node.getPath() )
+        .getName() );
   }
 
   public static Node createFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -509,10 +510,9 @@ public class JcrRepositoryFileUtils {
 
     // guard against using a file retrieved from a more lenient session inside a more strict session
     Assert.notNull( parentFolderNode );
-    
+
     String encodedfolderName = JcrStringHelper.fileNameEncode( folder.getName() );
-    Node folderNode =
-        parentFolderNode.addNode( encodedfolderName, pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER() );
+    Node folderNode = parentFolderNode.addNode( encodedfolderName, pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER() );
     folderNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden() );
     // folderNode.setProperty(pentahoJcrConstants.getPHO_TITLE(), folder.getTitle());
     Node localeNodes = null;
@@ -588,9 +588,9 @@ public class JcrRepositoryFileUtils {
   }
 
   public static Node
-  updateFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile file,
+    updateFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile file,
         final IRepositoryFileData content, final ITransformer<IRepositoryFileData> transformer )
-    throws RepositoryException {
+      throws RepositoryException {
 
     Node fileNode = session.getNodeByIdentifier( file.getId().toString() );
     // guard against using a file retrieved from a more lenient session inside a more strict session
@@ -668,9 +668,9 @@ public class JcrRepositoryFileUtils {
     return transformer.fromContentNode( session, pentahoJcrConstants, fileNode );
   }
 
-  public static List<RepositoryFile> getChildren( final Session session,
-      final PentahoJcrConstants pentahoJcrConstants, final IPathConversionHelper pathConversionHelper,
-      final ILockHelper lockHelper, final RepositoryRequest repositoryRequest ) throws RepositoryException {
+  public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
+      final RepositoryRequest repositoryRequest ) throws RepositoryException {
     Node folderNode = session.getNodeByIdentifier( JcrStringHelper.pathEncode( repositoryRequest.getPath() ) );
     Assert.isTrue( isPentahoFolder( pentahoJcrConstants, folderNode ) );
 
@@ -704,16 +704,16 @@ public class JcrRepositoryFileUtils {
   @Deprecated
   public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Serializable folderId,
-      final String filter) throws RepositoryException {
-    return getChildren(session, pentahoJcrConstants, pathConversionHelper, lockHelper, folderId, filter, null);
+      final String filter ) throws RepositoryException {
+    return getChildren( session, pentahoJcrConstants, pathConversionHelper, lockHelper, folderId, filter, null );
   }
 
   @Deprecated
   public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final Serializable folderId,
-      final String filter, Boolean showHiddenFiles) throws RepositoryException {
+      final String filter, Boolean showHiddenFiles ) throws RepositoryException {
     RepositoryRequest repositoryRequest = new RepositoryRequest( folderId.toString(), showHiddenFiles, 0, filter );
-    return getChildren( session, pentahoJcrConstants, pathConversionHelper, lockHelper, repositoryRequest);
+    return getChildren( session, pentahoJcrConstants, pathConversionHelper, lockHelper, repositoryRequest );
   }
 
   public static boolean isPentahoFolder( final PentahoJcrConstants pentahoJcrConstants, final Node node )
@@ -740,7 +740,7 @@ public class JcrRepositoryFileUtils {
     return node.isNodeType( pentahoJcrConstants.getPHO_NT_PENTAHOHIERARCHYNODE() );
   }
 
-  public static boolean isLocked( final PentahoJcrConstants pentahoJcrConstants, final Node node)
+  public static boolean isLocked( final PentahoJcrConstants pentahoJcrConstants, final Node node )
     throws RepositoryException {
     Assert.notNull( node );
     if ( node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
@@ -864,7 +864,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Conditionally checks in node if node is versionable.
-   *
+   * 
    * TODO mlowery move commented out version labeling to its own method
    */
   public static void checkinNearestVersionableNodeIfNecessary( final Session session,
@@ -873,8 +873,8 @@ public class JcrRepositoryFileUtils {
     Assert.notNull( node );
     session.save();
     /*
-     * session.save must be called inside the versionable node block and outside to ensure user changes are made
-     * when a file is not versioned.
+     * session.save must be called inside the versionable node block and outside to ensure user changes are made when a
+     * file is not versioned.
      */
     Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, node );
 
@@ -1002,7 +1002,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Returns the node as it was at the given version.
-   *
+   * 
    * @param version
    *          version to get
    * @return node at version
@@ -1041,8 +1041,7 @@ public class JcrRepositoryFileUtils {
     return fileNode.getProperty( pentahoJcrConstants.getPHO_CONTENTTYPE() ).getString();
   }
 
-  public static Serializable getParentId( final Session session,
-                                          final Serializable fileId ) throws RepositoryException {
+  public static Serializable getParentId( final Session session, final Serializable fileId ) throws RepositoryException {
     Node node = session.getNodeByIdentifier( fileId.toString() );
     return node.getParent().getIdentifier();
   }
@@ -1077,59 +1076,141 @@ public class JcrRepositoryFileUtils {
     Assert.isTrue( fileItem.isNode() );
     Node fileNode = (Node) fileItem;
 
-    return getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode, repositoryRequest.getDepth(),
-        repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden(), accessVoterManager, repositoryRequest.getTypes() );
+    return getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode, repositoryRequest
+        .getDepth(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden(), accessVoterManager,
+        repositoryRequest.getTypes(), new MutableBoolean( false ) );
 
   }
 
+  /**
+   * Returns a RepositoryFileTree for a given node.  This method will be called recursively for each folder
+   * it processes.  The childNodeFilter is a filter used directly by the JCR jar to filter node names.
+   * Since JCR does not know a folder from a file (that is our construct), it is not capable of filtering out
+   * filenames but not folder names.  Therefore, this logic will create two sets of children nodes.  The 
+   * <code>filteredChildrenSet</code> keeps the child nodes that satisfied the childNodeFilter.  The <code>
+   * childrenFolderSet</code> keeps a set of all child folder nodes regardless of the value of the filter.  We
+   * use the <code>childrenFolderSet</code> to know what folders to traverse, but we use the <code>filteredChildrenSet
+   * </code> to determine what actual files to include in the returned tree.
+   * <p>Just because we process a folder node does not necessarily mean the folder will be reported in the tree.  It
+   * must first find a file that satisfies the criteria of the <code>childNodeFilter</code> mask.  A file meeting the
+   * criteria may be any number of folders down the repository structure, so the <code>foundFiltered</code> MutableBoolean
+   * tells the caller if a file was found, at any level, meeting that criteria. 
+   *   
+   * @param session The current session in progress
+   * @param pentahoJcrConstants 
+   * @param pathConversionHelper
+   * @param lockHelper
+   * @param fileNode  The node which will serve as the root of the tree
+   * @param depth how many levels do we go down.
+   * @param childNodeFilter The filter sent to JCR to retrieve defining which files are in scope
+   * @param showHidden  Whether to return hidden files
+   * @param accessVoterManager See IRepositoryAccessVoterManager
+   * @param types <code>FILE_TYPE_FILTERS</code> Types of files to return including FILES, FOLDERS, FILES_FOLDERS
+   * @param foundFiltered This <code>MutableBoolean</code> will tell the caller if there was a file encountered,
+   *  (at any level up to the depth), that was compliant with the childNodeFilter.  This will determine if this
+   *  node, (and its children), should be discarded because there are no relevant files.
+   * @return A RepositoryFileTree representing the entire tree at and below the given node that complies with
+   * file filtering and other parameters of the tree request.
+   * @throws RepositoryException
+   */
   private static RepositoryFileTree getTreeByNode( final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final IPathConversionHelper pathConversionHelper,
       final ILockHelper lockHelper, final Node fileNode, final int depth, final String childNodeFilter,
-      final boolean showHidden, IRepositoryAccessVoterManager accessVoterManager, RepositoryRequest.FILES_TYPE_FILTER types )
-    throws RepositoryException {
+      final boolean showHidden, IRepositoryAccessVoterManager accessVoterManager,
+      RepositoryRequest.FILES_TYPE_FILTER types, MutableBoolean foundFiltered ) throws RepositoryException {
 
     RepositoryFile rootFile =
-        nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode,
-            false, null );
+        nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode, false, null );
     if ( ( !showHidden && rootFile.isHidden() )
         || ( !accessVoterManager.hasAccess( rootFile, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
             session, pentahoJcrConstants, rootFile.getId() ), PentahoSessionHolder.getSession() ) ) ) {
       return null;
     }
     List<RepositoryFileTree> children;
+    HashSet<Node> childrenFolderSet;
     // if depth is neither negative (indicating unlimited depth) nor positive (indicating at least one more level
     // to go)
     if ( depth != 0 ) {
       children = new ArrayList<RepositoryFileTree>();
-      if ( isPentahoFolder( pentahoJcrConstants, fileNode ) ) {
-        NodeIterator childNodes = childNodeFilter != null ? fileNode.getNodes( childNodeFilter ) : fileNode.getNodes();
-        while ( childNodes.hasNext() ) {
-          Node childNode = childNodes.nextNode();
+      int numberOfPasses = childNodeFilter != null && !childNodeFilter.equals( "*" ) ? 2 : 1;
 
-          boolean pentahoFolder = isPentahoFolder( pentahoJcrConstants, childNode );
-          if ( !pentahoFolder && types == RepositoryRequest.FILES_TYPE_FILTER.FOLDERS || pentahoFolder
-              && types == RepositoryRequest.FILES_TYPE_FILTER.FILES ) {
-            continue;
-          }
+      // get Filtered Children set
+      HashSet<Node> filteredChildrenSet;
+      filteredChildrenSet = new HashSet<Node>();
+      NodeIterator childNodes = fileNode.getNodes( childNodeFilter );
+      while ( childNodes.hasNext() ) {
+        Node childNode = childNodes.nextNode();
 
-          RepositoryFile file = nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode );
-          if ( isSupportedNodeType( pentahoJcrConstants, childNode )
-              && ( accessVoterManager.hasAccess( file, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
-                  session, pentahoJcrConstants, file.getId() ), PentahoSessionHolder.getSession() ) ) ) {
-            RepositoryFileTree repositoryFileTree =
-                getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode, depth - 1,
-                    childNodeFilter, showHidden, accessVoterManager, types );
-            if ( repositoryFileTree != null ) {
-              children.add( repositoryFileTree );
+        boolean pentahoFolder = isPentahoFolder( pentahoJcrConstants, childNode );
+        if ( !( !pentahoFolder && types == RepositoryRequest.FILES_TYPE_FILTER.FOLDERS || pentahoFolder
+            && types == RepositoryRequest.FILES_TYPE_FILTER.FILES ) ) {
+          filteredChildrenSet.add( childNode );
+        }
+      }
+
+      // Now get the unfiltered folder set not already in Filtered Set
+      childrenFolderSet = new HashSet<Node>();
+      if ( numberOfPasses == 2 ) {
+        if ( isPentahoFolder( pentahoJcrConstants, fileNode ) ) {
+          childNodes = fileNode.getNodes();
+          while ( childNodes.hasNext() ) {
+            Node childNode = childNodes.nextNode();
+            boolean pentahoFolder = isPentahoFolder( pentahoJcrConstants, childNode );
+            if ( pentahoFolder ) {
+              childrenFolderSet.add( childNode );
             }
           }
         }
       }
+
+      // Now work on the unfiltered set of folders, if any, add them only if file have been found somewhere down the
+      // tree
+      for ( Node childNode : childrenFolderSet ) {
+        checkNodeForTree( childNode, children, session, pentahoJcrConstants, pathConversionHelper, childNodeFilter,
+            lockHelper, depth, showHidden, accessVoterManager, types, foundFiltered, false );
+      }
+
+      // And finally, add Children in filtered
+      for ( Node childNode : filteredChildrenSet ) {
+        foundFiltered.setValue( true );
+        checkNodeForTree( childNode, children, session, pentahoJcrConstants, pathConversionHelper, childNodeFilter,
+            lockHelper, depth, showHidden, accessVoterManager, types, foundFiltered, true );
+      }
+
       Collections.sort( children );
     } else {
       children = null;
     }
     return new RepositoryFileTree( rootFile, children );
+  }
+
+   /**
+   * This method is called twice by <code>getTreeNode</code>.  It's job is to determine whether the current child
+   * node should be added to the list of children for the node being processed.  It is a separate method simply
+   * because it is too much code to appear twice in the above <code>getTreeNode</code> method.  It also makes the
+   * recursive call back getTreeByNode to process the next lower level of folder node (it must process the lower
+   * levels to know if the folder should be added).  Finally, it returns the foundFiltered boolean to let the caller
+   * know if a file was found that satisfied the childNodeFilter.
+   */
+  private static void checkNodeForTree( final Node childNode, List<RepositoryFileTree> children, final Session session,
+      final PentahoJcrConstants pentahoJcrConstants, final IPathConversionHelper pathConversionHelper,
+      final String childNodeFilter, final ILockHelper lockHelper, final int depth, final boolean showHidden,
+      final IRepositoryAccessVoterManager accessVoterManager, RepositoryRequest.FILES_TYPE_FILTER types,
+      MutableBoolean foundFiltered, boolean isRootFiltered ) throws RepositoryException {
+
+    RepositoryFile file = nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode );
+    if ( isSupportedNodeType( pentahoJcrConstants, childNode )
+        && ( accessVoterManager.hasAccess( file, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
+            session, pentahoJcrConstants, file.getId() ), PentahoSessionHolder.getSession() ) ) ) {
+      MutableBoolean foundFilteredAtomic = new MutableBoolean( !isPentahoFolder( pentahoJcrConstants, childNode ) );
+      RepositoryFileTree repositoryFileTree =
+          getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode, depth - 1,
+              childNodeFilter, showHidden, accessVoterManager, types, foundFilteredAtomic );
+      if ( repositoryFileTree != null && foundFilteredAtomic.isTrue() || isRootFiltered ) {
+        foundFiltered.setValue( true );
+        children.add( repositoryFileTree );
+      }
+    }
   }
 
   public static Node updateFileLocaleProperties( final Session session, final Serializable fileId, String locale,
@@ -1271,6 +1352,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Use override list from PentahoSystem if it exists
+   * 
    * @return
    */
   public static List<Character> getReservedChars() {
@@ -1307,16 +1389,9 @@ public class JcrRepositoryFileUtils {
       JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants, folderNode,
           versionMessage );
     }
-    JcrRepositoryFileUtils
-        .checkinNearestVersionableFileIfNecessary(
-          session,
-          pentahoJcrConstants,
-          parentFolderId,
-          Messages
-            .getInstance()
-            .getString(
-              "JcrRepositoryFileDao.USER_0001_VER_COMMENT_ADD_FOLDER", folder.getName(),
-              ( parentFolderId == null ? "root" : parentFolderId.toString() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId,
+        Messages.getInstance().getString( "JcrRepositoryFileDao.USER_0001_VER_COMMENT_ADD_FOLDER", folder.getName(),
+            ( parentFolderId == null ? "root" : parentFolderId.toString() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     return JcrRepositoryFileUtils.getFileById( session, pentahoJcrConstants, pathConversionHelper, null, folderNode
         .getIdentifier() );
   }
@@ -1334,7 +1409,7 @@ public class JcrRepositoryFileUtils {
     } catch ( PathNotFoundException e ) {
       fileNode = null;
     }
-    return fileNode != null ? nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
-        lockHelper, (Node) fileNode, loadMaps, locale ) : null;
+    return fileNode != null ? nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+        (Node) fileNode, loadMaps, locale ) : null;
   }
 }
