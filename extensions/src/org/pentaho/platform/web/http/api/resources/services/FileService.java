@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -1344,6 +1345,84 @@ public class FileService {
       repositoryFileAdapter = new RepositoryFileAdapter();
     }
     return repositoryFileAdapter;
+  }
+
+  /**
+   * Rename the name of the selected file
+   *
+   * @param pathId  (colon separated path for the repository file)
+   * @param newName (New name of the file)
+   * @return
+   */
+  public boolean doRename( String pathId, String newName ) throws Exception {
+    IUnifiedRepository repository = getRepository();
+    RepositoryFile fileToBeRenamed = repository.getFile( FileUtils.idToPath( pathId ) );
+    StringBuilder buf = new StringBuilder( fileToBeRenamed.getPath().length() );
+    buf.append( getParentPath( fileToBeRenamed.getPath() ) );
+    buf.append( RepositoryFile.SEPARATOR );
+    buf.append( newName );
+    if ( !fileToBeRenamed.isFolder() ) {
+      String extension = getExtension( fileToBeRenamed.getName() );
+      if ( extension != null ) {
+        buf.append( extension );
+      }
+    }
+    repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
+    RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
+    if ( movedFile != null ) {
+      if ( !movedFile.isFolder() ) {
+        Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
+        if ( localePropertiesMap == null ) {
+          localePropertiesMap = new HashMap<String, Properties>();
+          Properties properties = new Properties();
+          properties.setProperty( "file.title", newName );
+          properties.setProperty( "title", newName );
+          localePropertiesMap.put( "default", properties );
+        } else {
+          for ( Map.Entry<String, Properties> entry : localePropertiesMap.entrySet() ) {
+            Properties properties = entry.getValue();
+            if ( properties.containsKey( "file.title" ) ) {
+              properties.setProperty( "file.title", newName );
+            }
+            if ( properties.containsKey( "title" ) ) {
+              properties.setProperty( "title", newName );
+            }
+          }
+        }
+        RepositoryFile updatedFile =
+          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
+            newName ).build();
+        repository.updateFile( updatedFile, getData( movedFile ), "Updating the file" );
+      }
+      return true;
+    } else {
+      return false;
+      //return Response.ok( "File to be renamed does not exist" ).build();
+    }
+  }
+
+  private String getParentPath( final String path ) {
+    if ( path == null ) {
+      throw new IllegalArgumentException();
+    } else if ( RepositoryFile.SEPARATOR.equals( path ) ) {
+      return null;
+    }
+    int lastSlashIndex = path.lastIndexOf( RepositoryFile.SEPARATOR );
+    if ( lastSlashIndex == 0 ) {
+      return RepositoryFile.SEPARATOR;
+    } else if ( lastSlashIndex > 0 ) {
+      return path.substring( 0, lastSlashIndex );
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
+  private String getExtension( final String name ) {
+    int startIndex = name.lastIndexOf( '.' );
+    if ( startIndex >= 0 ) {
+      return name.substring( startIndex, name.length() );
+    }
+    return null;
   }
 
   protected DefaultUnifiedRepositoryWebService getRepoWs() {

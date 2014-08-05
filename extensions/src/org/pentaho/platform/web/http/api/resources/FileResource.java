@@ -1573,9 +1573,24 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Rename the name of the selected file
    *
-   * @param pathId  (colon separated path for the repository file)
-   * @param newName (New name of the file)
-   * @return
+   * @param pathId Colon separated path for the repository file
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @param newName String indicating the new name of the file
+   *
+   * <p>Example Request:
+   * <br>
+   * PUT /pentaho/api/repo/files/PATH/rename
+   * <p/>
+   * <p></p>Example Response:
+   * <br/>
+   * HTTP/1.1 200 OK
+   * Content-Type: text/plain
+   * <p/>
+   *
+   * @return Response with 200 OK, if the file does not exist to be renamed the response will return 200 OK with the string "File to be renamed does not exist"
+   *
    */
   @PUT
   @Path( "{pathId : .+}/rename" )
@@ -1583,84 +1598,15 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( { WILDCARD } )
   public Response doRename( @PathParam( "pathId" ) String pathId, @QueryParam( "newName" ) String newName ) {
     try {
-      IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class, PentahoSessionHolder.getSession() );
-      RepositoryFile fileToBeRenamed = repository.getFile( FileUtils.idToPath( pathId ) );
-      StringBuilder buf = new StringBuilder( fileToBeRenamed.getPath().length() );
-      buf.append( getParentPath( fileToBeRenamed.getPath() ) );
-      buf.append( RepositoryFile.SEPARATOR );
-      buf.append( newName );
-      if ( !fileToBeRenamed.isFolder() ) {
-        String extension = getExtension( fileToBeRenamed.getName() );
-        if ( extension != null ) {
-          buf.append( extension );
-        }
-      }
-      repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
-      RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
-      if ( movedFile != null ) {
-        if ( !movedFile.isFolder() ) {
-          Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
-          if ( localePropertiesMap == null ) {
-            localePropertiesMap = new HashMap<String, Properties>();
-            Properties properties = new Properties();
-            properties.setProperty( "file.title", newName );
-            properties.setProperty( "title", newName );
-            localePropertiesMap.put( "default", properties );
-          } else {
-            for ( Entry<String, Properties> entry : localePropertiesMap.entrySet() ) {
-              Properties properties = entry.getValue();
-              if ( properties.containsKey( "file.title" ) ) {
-                properties.setProperty( "file.title", newName );
-              }
-              if ( properties.containsKey( "title" ) ) {
-                properties.setProperty( "title", newName );
-              }
-            }
-          }
-          RepositoryFile updatedFile =
-              new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
-                  newName ).build();
-          repository.updateFile( updatedFile, getData( movedFile ), "Updating the file" );
-        }
+      boolean success = fileService.doRename( pathId, newName );
+      if ( success ) {
         return Response.ok().build();
       } else {
         return Response.ok( "File to be renamed does not exist" ).build();
       }
     } catch ( Throwable t ) {
-      return processErrorResponse( t.getClass().getName() );
+      return Response.serverError().entity( t.getMessage() ).build();
     }
-  }
-
-  private Response processErrorResponse( String errMessage ) {
-    return Response.ok( errMessage ).build();
-  }
-
-  private String getParentPath( final String path ) {
-    if ( path == null ) {
-      throw new IllegalArgumentException();
-    } else if ( RepositoryFile.SEPARATOR.equals( path ) ) {
-      return null;
-    }
-    int lastSlashIndex = path.lastIndexOf( RepositoryFile.SEPARATOR );
-    if ( lastSlashIndex == 0 ) {
-      return RepositoryFile.SEPARATOR;
-    } else if ( lastSlashIndex > 0 ) {
-      return path.substring( 0, lastSlashIndex );
-    } else {
-      throw new IllegalArgumentException();
-    }
-  }
-
-  private IRepositoryFileData getData( RepositoryFile repositoryFile ) {
-    return fileService.getData( repositoryFile );
-  }
-
-  private String getExtension( final String name ) {
-    int startIndex = name.lastIndexOf( '.' );
-    if ( startIndex >= 0 ) {
-      return name.substring( startIndex, name.length() );
-    }
-    return null;
   }
 
   /**
