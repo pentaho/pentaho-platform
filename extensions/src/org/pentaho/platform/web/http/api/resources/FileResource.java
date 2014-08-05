@@ -216,7 +216,7 @@ public class FileResource extends AbstractJaxRSResource {
       logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ), e );
       return Response.status( NOT_FOUND ).build();
     } catch ( Throwable t ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
+      logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED" ), t );
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }
@@ -243,7 +243,7 @@ public class FileResource extends AbstractJaxRSResource {
       fileService.doRestoreFiles( params );
       return Response.ok().build();
     } catch ( InternalError e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      logger.error( Messages.getInstance().getString( "FileResource.FILE_GET_LOCALES" ), e );
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }
@@ -664,7 +664,7 @@ public class FileResource extends AbstractJaxRSResource {
       fileService.doSetContentCreator( pathId, contentCreator );
       return Response.ok().build();
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
       return Response.status( NOT_FOUND ).build();
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
@@ -717,7 +717,7 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       locales = fileService.doGetFileLocales( pathId );
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
     }
@@ -920,7 +920,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user can administer the platform
    *
-   * @return String <code>"true"</code> if the user can administer the platform, or "false" otherwise
+   * @return String <code>"true"</code> if the user can administer the platform, or <code>"false"</code> otherwise
    */
   @GET
   @Path( "/canAdminister" )
@@ -1098,99 +1098,215 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of executed contents for a selected content from the repository.
+   * Retrieve the list of executed contents for a selected content from the repository
    *
-   * @param pathId (colon separated path for the repository file)
-   * @return list of <code> RepositoryFileDto </code>
+   * @param pathId the path for the file
+   * <pre function="syntax.xml">
+   *    :path:to:file:id
+   * </pre>
+   * @return list of <code> repositoryFileDto </code>
+   * <pre function="syntax.xml">
+   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *    &lt;List&gt;
+   *     &lt;repositoryFileDto&gt;
+   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *     &lt;folder&gt;false&lt;/folder&gt;
+   *     &lt;hidden&gt;false&lt;/hidden&gt;
+   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *     &lt;locale&gt;en&lt;/locale&gt;
+   *     &lt;localePropertiesMapEntries&gt;
+   *       &lt;localeMapDto&gt;
+   *         &lt;locale&gt;default&lt;/locale&gt;
+   *         &lt;properties&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.description&lt;/key&gt;
+   *             &lt;value&gt;myFile Description&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *         &lt;/properties&gt;
+   *       &lt;/localeMapDto&gt;
+   *     &lt;/localePropertiesMapEntries&gt;
+   *     &lt;locked&gt;false&lt;/locked&gt;
+   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *     &lt;title&gt;myFile&lt;/title&gt;
+   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *     &lt;versioned&gt;true&lt;/versioned&gt;
+   *   &lt;/repositoryFileAclDto&gt;
+   *  &lt;/List&gt;
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/generatedContent" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/generatedContent", requestType = "GET", statusCode = "200",
+    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22" )
   public List<RepositoryFileDto> doGetGeneratedContent( @PathParam( "pathId" ) String pathId ) {
-    RepositoryFileDto targetFile = doGetProperties( pathId );
-    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
-    if ( targetFile != null ) {
-      String targetFileId = targetFile.getId();
-      SessionResource sessionResource = new SessionResource();
-
-      RepositoryFile workspaceFolder = getRepository().getFile( sessionResource.doGetCurrentUserDir() );
-      if ( workspaceFolder != null ) {
-        List<RepositoryFile> children = getRepository().getChildren( workspaceFolder.getId() );
-        for ( RepositoryFile child : children ) {
-          if ( !child.isFolder() ) {
-            Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
-            String creatorId = (String) fileMetadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
-            if ( creatorId != null && creatorId.equals( targetFileId ) ) {
-              content.add( RepositoryFileAdapter.toFileDto( child, null, false ) );
-            }
-          }
-        }
-      }
+    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
+    try {
+      repositoryFileDtoList = fileService.doGetGeneratedContent( pathId );
+    } catch ( FileNotFoundException e ) {
+      //return the empty list
+    } catch ( Throwable t ) {
+      logger.error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FAILED", pathId ), t );
     }
-    return content;
+    return repositoryFileDtoList;
   }
 
   /**
    * Retrieve the executed contents for a selected repository file and a given user
    *
-   * @param pathId (colon separated path for the repository file)
-   * @param user   (user of the platform)
-   * @return list of <code> RepositoryFileDto </code>
+   * @param pathId the path for the file <pre function="syntax.xml"> :path:to:file:id </pre>
+   * @param user   the username for the generated content folder
+   * @return list of <code> repositoryFileDto </code>
+   * <pre function="syntax.xml">
+   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *    &lt;List&gt;
+   *     &lt;repositoryFileDto&gt;
+   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *     &lt;folder&gt;false&lt;/folder&gt;
+   *     &lt;hidden&gt;false&lt;/hidden&gt;
+   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *     &lt;locale&gt;en&lt;/locale&gt;
+   *     &lt;localePropertiesMapEntries&gt;
+   *       &lt;localeMapDto&gt;
+   *         &lt;locale&gt;default&lt;/locale&gt;
+   *         &lt;properties&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.description&lt;/key&gt;
+   *             &lt;value&gt;myFile Description&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *         &lt;/properties&gt;
+   *       &lt;/localeMapDto&gt;
+   *     &lt;/localePropertiesMapEntries&gt;
+   *     &lt;locked&gt;false&lt;/locked&gt;
+   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *     &lt;title&gt;myFile&lt;/title&gt;
+   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *     &lt;versioned&gt;true&lt;/versioned&gt;
+   *   &lt;/repositoryFileAclDto&gt;
+   *  &lt;/List&gt;
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/generatedContentForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/repo/files/{pathId : .+}/generatedContentForUser", requestType = "GET", statusCode = "200",
+    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22, admin" )
   public List<RepositoryFileDto> doGetGeneratedContentForUser( @PathParam( "pathId" ) String pathId,
-      @QueryParam( "user" ) String user ) {
-    RepositoryFileDto targetFile = doGetProperties( pathId );
-    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
-    if ( targetFile != null ) {
-      String targetFileId = targetFile.getId();
-      SessionResource sessionResource = new SessionResource();
-
-      RepositoryFile workspaceFolder = getRepository().getFile( sessionResource.doGetUserDir( user ) );
-      if ( workspaceFolder != null ) {
-        List<RepositoryFile> children = getRepository().getChildren( workspaceFolder.getId() );
-        for ( RepositoryFile child : children ) {
-          if ( !child.isFolder() ) {
-            Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
-            String creatorId = (String) fileMetadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
-            if ( creatorId != null && creatorId.equals( targetFileId ) ) {
-              content.add( RepositoryFileAdapter.toFileDto( child, null, false ) );
-            }
-          }
-        }
-      }
+                                                               @QueryParam( "user" ) String user ) {
+    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
+    try {
+      repositoryFileDtoList = fileService.doGetGeneratedContent( pathId, user );
+    } catch ( FileNotFoundException e ) {
+      //return the empty list
+    } catch ( Throwable t ) {
+      logger
+        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", pathId, user ), t );
     }
-    return content;
+    return repositoryFileDtoList;
   }
 
   /**
    * Retrieve the list of execute content by lineage id.
    *
-   * @param lineageId
-   * @return list of <code> RepositoryFileDto </code>
+   * @param lineageId the path for the file
+   * <pre function="syntax.xml">
+   *  :path:to:file:id
+   * </pre>
+   * @return list of <code> repositoryFileDto </code>
+   * <pre function="syntax.xml">
+   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *    &lt;List&gt;
+   *     &lt;repositoryFileDto&gt;
+   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *     &lt;folder&gt;false&lt;/folder&gt;
+   *     &lt;hidden&gt;false&lt;/hidden&gt;
+   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *     &lt;locale&gt;en&lt;/locale&gt;
+   *     &lt;localePropertiesMapEntries&gt;
+   *       &lt;localeMapDto&gt;
+   *         &lt;locale&gt;default&lt;/locale&gt;
+   *         &lt;properties&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;title&lt;/key&gt;
+   *             &lt;value&gt;myFile&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *           &lt;stringKeyStringValueDto&gt;
+   *             &lt;key&gt;file.description&lt;/key&gt;
+   *             &lt;value&gt;myFile Description&lt;/value&gt;
+   *           &lt;/stringKeyStringValueDto&gt;
+   *         &lt;/properties&gt;
+   *       &lt;/localeMapDto&gt;
+   *     &lt;/localePropertiesMapEntries&gt;
+   *     &lt;locked&gt;false&lt;/locked&gt;
+   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *     &lt;title&gt;myFile&lt;/title&gt;
+   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *     &lt;versioned&gt;true&lt;/versioned&gt;
+   *   &lt;/repositoryFileAclDto&gt;
+   *  &lt;/List&gt;
+   * </pre>
    */
   @GET
   @Path( "/generatedContentForSchedule" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
-    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
-    SessionResource sessionResource = new SessionResource();
-    RepositoryFile workspaceFolder = getRepository().getFile( sessionResource.doGetCurrentUserDir() );
-    if ( workspaceFolder != null ) {
-      List<RepositoryFile> children = getRepository().getChildren( workspaceFolder.getId() );
-      for ( RepositoryFile child : children ) {
-        if ( !child.isFolder() ) {
-          Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
-          String lineageIdMeta = (String) fileMetadata.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-          if ( lineageIdMeta != null && lineageIdMeta.equals( lineageId ) ) {
-            content.add( RepositoryFileAdapter.toFileDto( child, null, false ) );
-          }
-        }
-      }
+    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
+    try {
+      repositoryFileDtoList = fileService.doGetGeneratedContentForSchedule( lineageId );
+    } catch ( FileNotFoundException e ) {
+      //return the empty list
+    } catch ( Throwable t ) {
+      logger
+        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", lineageId ), t );
     }
-    return content;
+    return repositoryFileDtoList;
   }
 
   /**

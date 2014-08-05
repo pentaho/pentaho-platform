@@ -29,13 +29,14 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 
 /**
  * Converts {@code RepositoryFileTree} into JAXB-safe object and vice-versa.
- * 
+ *
  * @author mlowery
  */
 public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto, RepositoryFileTree> {
   private Set<String> membersSet;
   private boolean exclude;
   private boolean includeAcls;
+  private RepositoryFileAdapter repositoryFileAdapter;
 
   public RepositoryFileTreeAdapter() {
 
@@ -50,13 +51,14 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
       this.membersSet = repositoryRequest.getIncludeMemberSet();
     }
     this.includeAcls = repositoryRequest.isIncludeAcls();
+    this.repositoryFileAdapter = new RepositoryFileAdapter( repositoryRequest );
 
   }
 
   @Override
   public RepositoryFileTreeDto marshal( final RepositoryFileTree v ) {
     RepositoryFileTreeDto treeDto = new RepositoryFileTreeDto();
-    treeDto.setFile( RepositoryFileAdapter.toFileDto( v.getFile(), membersSet, exclude, includeAcls ) );
+    treeDto.setFile( repositoryFileAdapter.toFileDto( v.getFile(), membersSet, exclude, includeAcls ) );
 
     List<RepositoryFileTreeDto> children = null;
     if ( v.getChildren() != null ) {
@@ -81,6 +83,6 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
       }
     }
 
-    return new RepositoryFileTree( RepositoryFileAdapter.toFile( v.file ), children );
+    return new RepositoryFileTree( repositoryFileAdapter.toFile( v.file ), children );
   }
 }
