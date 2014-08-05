@@ -650,12 +650,11 @@ public class FileServiceTest {
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
     Map<String, Serializable> fileMetadata = mock( Map.class );
 
-    String idToPathResult = "file1Result";
-    doReturn( idToPathResult ).when( fileService ).idToPath( param );
+    String idToPathResult = "/file1";
     doReturn( param ).when( repositoryFileDto ).getId();
-    when( fileService.idToPath( param ) ).thenReturn( "/file1" );
+    when( fileService.idToPath( param ) ).thenReturn( idToPathResult );
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getFile( idToPathResult );
+      .getFile( eq( idToPathResult ) );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenReturn( fileMetadata );
 
     try {
