@@ -1734,4 +1734,33 @@ public class FileServiceTest {
     verify( fileService, times( 2 ) )
       .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
   }
+
+  @Test
+  public void testDoRename() throws Exception {
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
+    when( repositoryFile.getName() ).thenReturn( "file.txt" );
+
+    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile );
+    when( fileService.repository.getFileById( anyString() ) ).thenReturn( repositoryFile );
+    String pathId = ":dir:file.txt";
+    String newName = "file1.txt";
+
+    boolean success = fileService.doRename( pathId, newName );
+    assertTrue( success );
+  }
+
+  @Test
+  public void testDoRenameNegative() throws Exception {
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
+    when( repositoryFile.getName() ).thenReturn( "file.txt" );
+
+    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile );
+    String pathId = ":dir:file.txt";
+    String newName = "file1.txt";
+
+    boolean success = fileService.doRename( pathId, newName );
+    assertFalse( success );
+  }
 }
