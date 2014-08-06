@@ -18,11 +18,13 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.SystemResourceUtil;
+import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 public class UserRoleListService {
 
@@ -42,6 +44,11 @@ public class UserRoleListService {
     }
   }
 
+  public UserListWrapper getUsers() {
+    IUserRoleListService service = getUserRoleListService();
+    return new UserListWrapper( service.getAllUsers() );
+  }
+
   protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
@@ -54,6 +61,10 @@ public class UserRoleListService {
 
   protected String getUsersInRole( String role ) throws Exception {
     return SystemResourceUtil.getUsersInRole( role ).asXML();
+  }
+
+  protected IUserRoleListService getUserRoleListService() {
+    return PentahoSystem.get( IUserRoleListService.class );
   }
 
   public class UnauthorizedException extends Exception {
