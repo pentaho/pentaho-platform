@@ -17,6 +17,35 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,39 +59,14 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.services.RepositoryService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path( "/repos" )
 public class RepositoryResource extends AbstractJaxRSResource {
@@ -70,11 +74,21 @@ public class RepositoryResource extends AbstractJaxRSResource {
   protected IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
 
   private static final Log logger = LogFactory.getLog( RepositoryResource.class );
-  public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
 
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
 
   protected RepositoryDownloadWhitelist whitelist;
+  
+  private static RepositoryService repositoryService;
+
+  public RepositoryResource() {
+  }
+
+  public RepositoryResource( HttpServletResponse httpServletResponse ) {
+    this();
+    this.httpServletResponse = httpServletResponse;
+    repositoryService = new RepositoryService();
+  }
 
   @GET
   @Path( "{pathId : .+}/content" )
@@ -85,34 +99,26 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return fileResource.doGetFileOrDir( pathId );
   }
 
+  /**
+   * Takes a pathId to a file and generates a URI that represents the URL to call to generate content from
+   * that file.
+   *
+   * @param pathId @param pathId 
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @return URI that represents a forwarding URL to execute to generate content from the file (pathId)
+   * @throws FileNotFoundException, MalformedURLException, URISyntaxException
+   * 
+   * @JMeterTest( url = "/repos/{pathId : .+}/default", requestType = "GET" )
+   */
   @GET
   @Path( "{pathId : .+}/default" )
   @Produces( { WILDCARD } )
   public Response doExecuteDefault( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException,
     MalformedURLException, URISyntaxException {
-    String perspective = null;
-    StringBuffer buffer = null;
-    String url = null;
-
-    String path = FileUtils.idToPath( pathId );
-    String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-    IContentInfo info = pluginManager.getContentTypeInfo( extension );
-    for ( IPluginOperation operation : info.getOperations() ) {
-      if ( operation.getId().equalsIgnoreCase( "RUN" ) ) { //$NON-NLS-1$
-        perspective = operation.getPerspective();
-        break;
-      }
-    }
-    if ( perspective == null ) {
-      perspective = GENERATED_CONTENT_PERSPECTIVE;
-    }
-
-    buffer = httpServletRequest.getRequestURL();
-    String queryString = httpServletRequest.getQueryString();
-    url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
-      ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
-    return Response.seeOther( ( new URL( url ) ).toURI() ).build();
+    return Response.seeOther( repositoryService.doExecuteDefault( pathId, httpServletRequest.getRequestURL(), 
+        httpServletRequest.getQueryString() ) ).build();
   }
 
   /**
