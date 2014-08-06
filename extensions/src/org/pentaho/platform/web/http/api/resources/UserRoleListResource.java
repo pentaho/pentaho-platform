@@ -135,18 +135,33 @@ public class UserRoleListResource extends AbstractJaxRSResource {
      * records will be overwritten if the overwrite flag is true. If a user was overwritten,
      * <code>true</code> will be returned in the Response object.
      *
+     * <p>Example Request:</p>
+     * <pre function="syntax.xml">
+     * GET api/userrolelist/roles
+     * </pre>
+     *
      * @return Response   Response wraps a boolean with true indicating that the save overwrote a
      *                    previous record
      *
-     * @throws IllegalStateException
+     * <p>Example Response:</p>
+     * <pre function="syntax.xml">
+     * HTTP/1.1 200 OK
+     *
+     * &lt;roleList&gt;
+     *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+     *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+     *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+     *  &lt;roles&gt;Report Author&gt;/roles&gt;
+     *  &lt;roles&gt;Power User&gt;/roles&gt;
+     * &lt;/roleList&gt;
+     * </pre>
      */
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/roles", requestType = "GET",  statusCode = "200", postData = "testDATA")
-  public RoleListWrapper getRoles() throws Exception {
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    return new RoleListWrapper( userRoleListService.getAllRoles() );
+  @JMeterTest( url = "/userrolelist/roles", requestType = "GET",  statusCode = "200")
+  public RoleListWrapper getRoles() {
+    return userRoleListService.getRoles();
   }
 
   /**
