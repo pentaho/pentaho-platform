@@ -19,11 +19,17 @@ package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 public class UserRoleListServiceTest {
 
@@ -68,4 +74,20 @@ public class UserRoleListServiceTest {
       assertTrue( e instanceof UserRoleListService.UnauthorizedException );
     }
   }
+
+  @Test
+  public void testGetUsers() {
+    IUserRoleListService service = mock( IUserRoleListService.class );
+    doReturn( service ).when( userRoleListService ).getUserRoleListService();
+
+    List<String> users = new ArrayList<String>();
+    users.add( "admin" );
+    users.add( "joe" );
+    users.add( "suzy" );
+    doReturn( users ).when( service ).getAllUsers();
+
+    UserListWrapper usersWrapper = userRoleListService.getUsers();
+    assertTrue( usersWrapper.getUsers().size() == 3 );
+  }
+
 }
