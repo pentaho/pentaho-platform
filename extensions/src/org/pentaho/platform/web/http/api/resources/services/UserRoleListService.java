@@ -18,13 +18,17 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemResourceUtil;
 
 public class UserRoleListService {
+
+  protected IUserRoleListService userRoleListService;
 
   public String doGetRolesForUser( String user ) throws Exception {
     if ( canAdminister() ) {
@@ -42,10 +46,21 @@ public class UserRoleListService {
     }
   }
 
+  public RoleListWrapper getRoles() {
+    return new RoleListWrapper( getUserRoleListService().getAllRoles() );
+  }
+
   protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
         && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
+  }
+
+  public IUserRoleListService getUserRoleListService() {
+    if ( userRoleListService == null ) {
+      userRoleListService = PentahoSystem.get( IUserRoleListService.class );
+    }
+    return userRoleListService;
   }
 
   protected String getRolesForUser( String user ) throws Exception {

@@ -17,13 +17,18 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRoleListServiceTest {
 
@@ -67,5 +72,24 @@ public class UserRoleListServiceTest {
     } catch ( Exception e ) {
       assertTrue( e instanceof UserRoleListService.UnauthorizedException );
     }
+  }
+
+  @Test
+  public void testDoGetRoles() {
+    List<String> roles = new ArrayList<String>();
+    roles.add( "ROLE1" );
+    roles.add( "ROLE2" );
+
+    IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
+
+    doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
+    doReturn( roles ).when( userRoleListService1 ).getAllRoles();
+
+    RoleListWrapper roleListWrapper = userRoleListService.getRoles();
+
+    verify( userRoleListService ).getUserRoleListService();
+    verify( userRoleListService1 ).getAllRoles();
+
+    assertEquals( roles, roleListWrapper.getRoles() );
   }
 }
