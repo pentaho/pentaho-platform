@@ -174,13 +174,18 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
    *
    * @param contextId  identifies the context in which the resource should be retrieved
+   *                   <pre function="syntax.xml">
+   *                   </pre>
    * @param resourceId identifies a resource to be retrieved
+   *                   <pre function="syntax.xml">
+   *                   </pre>
    * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
    * returned to the caller
    */
   @Path( "/{contextId}/{resourceId : .+}" )
   @GET
   @Produces( { WILDCARD } )
+  @JMeterTest( url = "/repos/{contextId}/{resourceId : .+}", requestType = "GET" )
   public Response doGet( @PathParam( "contextId" ) String contextId, @PathParam( "resourceId" ) String resourceId )
     throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
