@@ -17,14 +17,12 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.pentaho.jmeter.annotation.JMeterTest;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,12 +31,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import org.pentaho.jmeter.annotation.JMeterTest;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.UnauthorizedException;
 
 /**
  * UserRoleList resource manage platform's implementation <code> IUserRoleListService </code>
@@ -52,6 +51,8 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   private String adminRole;
   private String anonymousRole;
   private ArrayList<String> extraRoles;
+  
+  private static UserRoleListService userRoleListService;
 
   public UserRoleListResource() {
     this( PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession() ),
@@ -72,6 +73,8 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     this.adminRole = adminRole;
     this.anonymousRole = anonymousRole;
     this.extraRoles = extraRoles;
+    
+    userRoleListService = new UserRoleListService();
   }
 
   /**
@@ -191,57 +194,66 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   public RoleListWrapper getExtraRoles() throws Exception {
     return new RoleListWrapper( extraRoles );
   }
-
+  
   /**
    * Returns roles for a given user
-   * 
-   * @param user
-   * @return list of roles
-   * @throws Exception
+   *
+   * @param user The user to get the roles for
+   * <pre function="syntax.xml">
+   *               {@code
+   *                 &lt;roles&gt;
+   *                   &lt;role&gt;Administrator&lt;/role&gt;                 
+   *                   &lt;role&gt;Report Author&lt;/role&gt;
+   *                 &lt;/roles&gt;
+   *               }
+   * </pre>
+   * @return List of roles
+   * @throws Exception 
    */
   @GET
   @Path( "/getRolesForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/getRolesForUser", requestType = "GET", statusCode = "200" )
   public Response getRolesForUser( @QueryParam( "user" ) String user ) throws Exception {
-    if ( canAdminister() ) {
-      try {
-        return Response.ok( SystemResourceUtil.getRolesForUser( user ).asXML() ).type( MediaType.APPLICATION_XML )
+    try {
+        String roles = userRoleListService.doGetRolesForUser( user );
+        return Response.ok( roles ).type( MediaType.APPLICATION_XML )
             .build();
+      } catch ( UnauthorizedException t ) {
+        return Response.status( UNAUTHORIZED ).build();
       } catch ( Throwable t ) {
         throw new WebApplicationException( t );
-      }
-    } else {
-      return Response.status( UNAUTHORIZED ).build();
-    }
+      }  
   }
 
   /**
-   * Returns all the users that are part of a given role
-   * 
-   * @param role
-   * @return list of users
-   * 
-   * @throws Exception
+   * Returns roles for a given user
+   *
+   * @param role The role to get the users for
+   * <pre function="syntax.xml">
+   *               {@code
+   *                 &lt;users&gt;
+   *                   &lt;user&gt;pat&lt;/user&gt;
+   *                   &lt;user&gt;suzy&lt;/user&gt;                   
+   *                 &lt;/users&gt;
+   *               }
+   * </pre>
+   * @return List of users
+   * @throws Exception 
    */
   @GET
   @Path( "/getUsersInRole" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/getUsersInRole", requestType = "GET", statusCode = "200" )
   public Response getUsersInRole( @QueryParam( "role" ) String role ) throws Exception {
-    if ( canAdminister() ) {
-      try {
-        return Response.ok( SystemResourceUtil.getUsersInRole( role ).asXML() ).type( MediaType.APPLICATION_XML )
-            .build();
-      } catch ( Throwable t ) {
-        throw new WebApplicationException( t );
-      }
-    } else {
+    try {
+      String roles = userRoleListService.doGetUsersInRole( role );
+      return Response.ok( roles ).type( MediaType.APPLICATION_XML )
+          .build();
+    } catch ( UnauthorizedException t ) {
       return Response.status( UNAUTHORIZED ).build();
-    }
-  }
-
-  private boolean canAdminister() {
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-        && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
+    } catch ( Throwable t ) {
+      throw new WebApplicationException( t );
+    }  
   }
 }
