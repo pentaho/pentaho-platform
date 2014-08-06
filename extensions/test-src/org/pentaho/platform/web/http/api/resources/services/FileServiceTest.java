@@ -1104,7 +1104,9 @@ public class FileServiceTest {
     RepositoryFileAdapter mockedRepositoryFileAdapter = mock( RepositoryFileAdapter.class );
 
     RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
-    doReturn( mockedRepositoryFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( mockedChild, null, false );
+    doReturn( mockedRepositoryFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( mockedChild );
+
+    doReturn( mockedRepositoryFileAdapter ).when( fileService ).getRepositoryFileAdapter();
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
@@ -1165,7 +1167,9 @@ public class FileServiceTest {
     RepositoryFileAdapter mockedRepositoryFileAdapter = mock( RepositoryFileAdapter.class );
 
     RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
-    doReturn( mockedRepositoryFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( mockedChild, null, false );
+    doReturn( mockedRepositoryFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( mockedChild );
+
+    doReturn( mockedRepositoryFileAdapter ).when( fileService ).getRepositoryFileAdapter();
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
@@ -1227,7 +1231,9 @@ public class FileServiceTest {
     RepositoryFileAdapter mockedRepositoryFileAdapter = mock( RepositoryFileAdapter.class );
 
     RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
-    doReturn( mockedRepositoryFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( mockedChild, null, false );
+    doReturn( mockedRepositoryFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( mockedChild );
+
+    doReturn( mockedRepositoryFileAdapter ).when( fileService ).getRepositoryFileAdapter();
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
@@ -1478,6 +1484,9 @@ public class FileServiceTest {
     doReturn( repositoryFileAclAceDtos ).when( fileService.defaultUnifiedRepositoryWebService )
       .getEffectiveAces( anyString() );
 
+    RepositoryFileAdapter mockedRepositoryFileAdapter = mock( RepositoryFileAdapter.class );
+    doReturn( mockedRepositoryFileAdapter ).when( fileService ).getRepositoryFileAdapter();
+
     Map<String, Serializable> metadata = new HashMap<String, Serializable>();
     doReturn( metadata ).when( fileService.repository ).getFileMetadata( anyString() );
 
@@ -1485,10 +1494,10 @@ public class FileServiceTest {
     doReturn( sourceFile ).when( fileService.repository ).getFileById( anyString() );
 
     RepositoryFileDto destFileDto = mock( RepositoryFileDto.class );
-    doReturn( destFileDto ).when( fileService ).toFileDto( sourceFile, null, false );
+    doReturn( destFileDto ).when( mockedRepositoryFileAdapter ).toFileDto( sourceFile );
 
     RepositoryFile destFile = mock( RepositoryFile.class );
-    doReturn( destFile ).when( fileService ).toFile( destFileDto );
+    doReturn( destFile ).when( mockedRepositoryFileAdapter ).toFile( destFileDto );
 
     RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
     doReturn( acl ).when( fileService.repository ).getAcl( acl );
@@ -1605,8 +1614,8 @@ public class FileServiceTest {
     verify( fileService.repository, times( 7 ) ).setFileMetadata( anyString(), any( Map.class ) );
     verify( file, times( 8 ) ).setHidden( anyBoolean() );
     verify( fileService.repository, times( 8 ) ).getFileById( anyString() );
-    verify( fileService, times( 8 ) ).toFileDto( any( RepositoryFile.class ), anySet(), anyBoolean() );
-    verify( fileService, times( 8 ) ).toFile( any( RepositoryFileDto.class ) );
+    verify( mockedRepositoryFileAdapter, times( 8 ) ).toFileDto( any( RepositoryFile.class ) );
+    verify( mockedRepositoryFileAdapter, times( 8 ) ).toFile( any( RepositoryFileDto.class ) );
     verify( destFileDto, times( 8 ) ).setHidden( anyBoolean() );
     verify( fileService.repository, times( 8 ) ).getAcl( anyString() );
     verify( fileService, times( 7 ) ).getData( any( RepositoryFile.class ) );

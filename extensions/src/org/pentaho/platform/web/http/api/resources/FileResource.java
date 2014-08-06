@@ -131,12 +131,12 @@ public class FileResource extends AbstractJaxRSResource {
   protected NameBaseMimeResolver mimeResolver;
 
   public FileResource() {
+    fileService = new FileService();
   }
 
   public FileResource( HttpServletResponse httpServletResponse ) {
     this();
     this.httpServletResponse = httpServletResponse;
-    fileService = new FileService();
   }
 
   public static String idToPath( String pathId ) {

@@ -58,47 +58,48 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     this.includeAcls = repositoryRequest.isIncludeAcls();
   }
 
+  public RepositoryFileAdapter( Set<String> membersSet, boolean exclude, boolean includeAcls ) {
+    this.exclude = exclude;
+    this.membersSet = membersSet;
+    this.includeAcls = includeAcls;
+  }
+
   @Override
   public RepositoryFileDto marshal( final RepositoryFile v ) {
-    return toFileDto( v, membersSet, exclude, includeAcls );
+    return toFileDto( v );
   }
 
   private boolean include( String key, Set<String> set, boolean exclude ) {
     return !exclude && ( set == null || set.contains( key ) ) || ( exclude && !set.contains( key ) );
   }
 
-  public RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude ) {
-    return toFileDto( v, memberSet, exclude, false );
-  }
-
-  public RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude,
-                                      boolean includeAcls ) {
+  public RepositoryFileDto toFileDto( final RepositoryFile v ) {
     if ( v == null ) {
       return null;
     }
     RepositoryFileDto f = new RepositoryFileDto();
-    if ( include( "name", memberSet, exclude ) ) {
+    if ( include( "name", membersSet, exclude ) ) {
       f.name = v.getName();
     }
-    if ( include( "path", memberSet, exclude ) ) {
+    if ( include( "path", membersSet, exclude ) ) {
       f.path = v.getPath();
     }
-    if ( include( "hidden", memberSet, exclude ) ) {
+    if ( include( "hidden", membersSet, exclude ) ) {
       f.hidden = v.isHidden();
     }
-    if ( include( "createDate", memberSet, exclude ) ) {
+    if ( include( "createDate", membersSet, exclude ) ) {
       f.createdDate = v.getCreatedDate();
     }
-    if ( include( "creatorId", memberSet, exclude ) ) {
+    if ( include( "creatorId", membersSet, exclude ) ) {
       f.creatorId = v.getCreatorId();
     }
-    if ( include( "fileSize", memberSet, exclude ) ) {
+    if ( include( "fileSize", membersSet, exclude ) ) {
       f.fileSize = v.getFileSize();
     }
-    if ( include( "description", memberSet, exclude ) ) {
+    if ( include( "description", membersSet, exclude ) ) {
       f.description = v.getDescription();
     }
-    if ( include( "folder", memberSet, exclude ) ) {
+    if ( include( "folder", membersSet, exclude ) ) {
       f.folder = v.isFolder();
     }
     //The include check is intentionally omitted on the Id field because
@@ -106,37 +107,37 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if ( v.getId() != null ) {
       f.id = v.getId().toString();
     }
-    if ( include( "lastModifiedDate", memberSet, exclude ) ) {
+    if ( include( "lastModifiedDate", membersSet, exclude ) ) {
       f.lastModifiedDate = v.getLastModifiedDate();
     }
-    if ( include( "locale", memberSet, exclude ) ) {
+    if ( include( "locale", membersSet, exclude ) ) {
       f.locale = v.getLocale();
     }
-    if ( include( "originalParentFolderPath", memberSet, exclude ) ) {
+    if ( include( "originalParentFolderPath", membersSet, exclude ) ) {
       f.originalParentFolderPath = v.getOriginalParentFolderPath();
     }
-    if ( include( "deletedDate", memberSet, exclude ) ) {
+    if ( include( "deletedDate", membersSet, exclude ) ) {
       f.deletedDate = v.getDeletedDate();
     }
-    if ( include( "lockDate", memberSet, exclude ) ) {
+    if ( include( "lockDate", membersSet, exclude ) ) {
       f.lockDate = v.getLockDate();
     }
-    if ( include( "locked", memberSet, exclude ) ) {
+    if ( include( "locked", membersSet, exclude ) ) {
       f.locked = v.isLocked();
     }
-    if ( include( "lockMessage", memberSet, exclude ) ) {
+    if ( include( "lockMessage", membersSet, exclude ) ) {
       f.lockMessage = v.getLockMessage();
     }
-    if ( include( "lockOwner", memberSet, exclude ) ) {
+    if ( include( "lockOwner", membersSet, exclude ) ) {
       f.lockOwner = v.getLockOwner();
     }
-    if ( include( "title", memberSet, exclude ) ) {
+    if ( include( "title", membersSet, exclude ) ) {
       f.title = v.getTitle();
     }
-    if ( include( "versioned", memberSet, exclude ) ) {
+    if ( include( "versioned", membersSet, exclude ) ) {
       f.versioned = v.isVersioned();
     }
-    if ( include( "versionId", memberSet, exclude ) ) {
+    if ( include( "versionId", membersSet, exclude ) ) {
       if ( v.getVersionId() != null ) {
         f.versionId = v.getVersionId().toString();
       }
@@ -156,7 +157,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       }
     }
 
-    if ( include( "locales", memberSet, exclude ) ) {
+    if ( include( "locales", membersSet, exclude ) ) {
       if ( v.getLocalePropertiesMap() != null ) {
         f.localePropertiesMapEntries = new ArrayList<LocaleMapDto>();
         for ( Map.Entry<String, Properties> entry : v.getLocalePropertiesMap().entrySet() ) {

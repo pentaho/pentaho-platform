@@ -98,6 +98,9 @@ public class FileService {
 
   protected SessionResource sessionResource;
 
+  private static final Set<String> MEMBERS_SET_DEFAULT = null;
+  private static final boolean EXCLUDE_DEFAULT = false;
+  private static final boolean INCLUDEACLS_DEFAULT = false;
   protected RepositoryFileAdapter repositoryFileAdapter;
 
   /**
@@ -495,9 +498,9 @@ public class FileService {
               getRepository()
                   .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
             } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
-              RepositoryFileDto destFileDto = repositoryFileAdapter.toFileDto( destFile, null, false );
+              RepositoryFileDto destFileDto = getRepositoryFileAdapter().toFileDto( destFile );
               destFileDto.setHidden( sourceFile.isHidden() );
-              destFile = repositoryFileAdapter.toFile( destFileDto );
+              destFile = getRepositoryFileAdapter().toFile( destFileDto );
               final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
               getRepository().updateAcl( acl );
               getRepository()
@@ -937,11 +940,11 @@ public class FileService {
            * update the original.
            */
         RepositoryFile sourceFile = getRepository().getFileById( file.getId() );
-        RepositoryFileDto destFileDto = toFileDto( sourceFile, null, false );
+        RepositoryFileDto destFileDto = getRepositoryFileAdapter().toFileDto( sourceFile );
 
         destFileDto.setHidden( isHidden );
 
-        RepositoryFile destFile = toFile( destFileDto );
+        RepositoryFile destFile = getRepositoryFileAdapter().toFile( destFileDto );
 
         // add the existing acls and file data
         RepositoryFileAcl acl = getRepository().getAcl( sourceFile.getId() );
@@ -957,14 +960,6 @@ public class FileService {
     } else {
       throw new GeneralSecurityException();
     }
-  }
-
-  protected RepositoryFileDto toFileDto( RepositoryFile repositoryFile, Set<String> memberSet, boolean exclude ) {
-    return repositoryFileAdapter.toFileDto( repositoryFile, memberSet, exclude );
-  }
-
-  public RepositoryFile toFile( final RepositoryFileDto repositoryFileDto ) {
-    return repositoryFileAdapter.toFile( repositoryFileDto );
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
@@ -1311,7 +1306,7 @@ public class FileService {
           Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
           String creatorId = (String) fileMetadata.get( metadataConstant );
           if ( creatorId != null && creatorId.equals( targetComparator ) ) {
-            content.add( getRepositoryFileAdapter().toFileDto( child, null, false ) );
+            content.add( getRepositoryFileAdapter().toFileDto( child ) );
           }
         }
       }
@@ -1342,7 +1337,7 @@ public class FileService {
    */
   protected RepositoryFileAdapter getRepositoryFileAdapter() {
     if ( repositoryFileAdapter == null ) {
-      repositoryFileAdapter = new RepositoryFileAdapter();
+      repositoryFileAdapter = new RepositoryFileAdapter( MEMBERS_SET_DEFAULT, EXCLUDE_DEFAULT, INCLUDEACLS_DEFAULT );
     }
     return repositoryFileAdapter;
   }
