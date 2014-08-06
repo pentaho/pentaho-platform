@@ -76,17 +76,22 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     
     userRoleListService = new UserRoleListService();
   }
-
+  
   /**
    * Returns the list of users in the platform
-   * 
-   * @return list of users
-   * 
-   * @throws Exception
+   * @return <code>
+   * &lt;userList&gt; 
+   * &lt;users&gt;
+   * &lsqb;admin, joe, suzy&rsqb;
+   * &lt;/users&gt;
+   * &lt;/userList&gt; 
+   * </code>
+   * @throws Exception 
    */
   @GET
   @Path( "/permission-users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/permission-users", requestType = "GET", statusCode = "200" )
   public UserListWrapper getPermissionUsers() throws Exception {
     return getUsers();
   }
@@ -120,7 +125,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
  
   /**
-   * Returns users
+   * Returns the list of users in the platform
    * @return <code>
    * &lt;userList&gt; 
    * &lt;users&gt;
