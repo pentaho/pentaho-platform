@@ -25,6 +25,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAc
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemResourceUtil;
+import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 public class UserRoleListService {
 
@@ -46,6 +47,11 @@ public class UserRoleListService {
     }
   }
 
+  public UserListWrapper getUsers() {
+    IUserRoleListService service = getUserRoleListService();
+    return new UserListWrapper( service.getAllUsers() );
+  }
+  
   public RoleListWrapper getRoles() {
     return new RoleListWrapper( getUserRoleListService().getAllRoles() );
   }

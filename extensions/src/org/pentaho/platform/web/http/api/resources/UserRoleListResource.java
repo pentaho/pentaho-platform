@@ -118,14 +118,24 @@ public class UserRoleListResource extends AbstractJaxRSResource {
 
     return new RoleListWrapper( allRoles );
   }
-
-
+ 
+  /**
+   * Returns users
+   * @return <code>
+   * &lt;userList&gt; 
+   * &lt;users&gt;
+   * &lsqb;admin, joe, suzy&rsqb;
+   * &lt;/users&gt;
+   * &lt;/userList&gt; 
+   * </code>
+   * @throws Exception 
+   */
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/users", requestType = "GET", statusCode = "200" )
   public UserListWrapper getUsers() throws Exception {
-    IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
-    return new UserListWrapper( service.getAllUsers() );
+    return userRoleListService.getUsers();
   }
 
     /**
@@ -215,14 +225,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @param user The user to get the roles for
    * <pre function="syntax.xml">
-   *               {@code
-   *                 &lt;roles&gt;
-   *                   &lt;role&gt;Administrator&lt;/role&gt;                 
-   *                   &lt;role&gt;Report Author&lt;/role&gt;
-   *                 &lt;/roles&gt;
-   *               }
+   *  joe
    * </pre>
-   * @return List of roles
+   * @return <code>
+   * &lt;roles&gt;
+   * &lt;role&gt;Administrator&lt;/role&gt;                 
+   * &lt;role&gt;Report Author&lt;/role&gt;
+   * &lt;/roles&gt;
+   * </code>
    * @throws Exception 
    */
   @GET
@@ -246,14 +256,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @param role The role to get the users for
    * <pre function="syntax.xml">
-   *               {@code
-   *                 &lt;users&gt;
-   *                   &lt;user&gt;pat&lt;/user&gt;
-   *                   &lt;user&gt;suzy&lt;/user&gt;                   
-   *                 &lt;/users&gt;
-   *               }
+   *  Administrator
    * </pre>
-   * @return List of users
+   * @return <code>
+   * &lt;users&gt;
+   * &lt;user&gt;pat&lt;/user&gt;
+   * &lt;user&gt;suzy&lt;/user&gt;                   
+   * &lt;/users&gt;
+   * </code>
    * @throws Exception 
    */
   @GET
