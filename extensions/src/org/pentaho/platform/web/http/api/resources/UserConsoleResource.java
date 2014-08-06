@@ -24,7 +24,6 @@ import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -32,6 +31,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
 import org.pentaho.platform.plugin.services.pluginmgr.IAdminContentConditionalLogic;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.services.UserConsoleService;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -57,34 +57,45 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 public class UserConsoleResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( UserConsoleResource.class );
-
+  private static UserConsoleService userConsoleService;
   public UserConsoleResource() {
-  }
-
-  private IPentahoSession getPentahoSession() {
-    return PentahoSessionHolder.getSession();
+    userConsoleService = new UserConsoleService();
   }
 
   /**
    * Returns whether the current user is an administrator
-   * 
-   * @return "true" or "false"
+   * <p>Example Request:<br>
+   *               GET api/mantle/isAdministrator<br>
+   *               Content-Type: text/plain
+   *               <p/>
+   * <p>Example Response:<br/>
+   *               HTTP/1.1 200 OK
+   *               Content-Type: text/plain
+   *               </p>
+   * @return Response object containing the boolean value of the request
    */
   @GET
   @Path( "/isAdministrator" )
   public Response isAdministrator() {
-    return Response.ok( "" + ( SecurityHelper.getInstance().isPentahoAdministrator( getPentahoSession() ) ) ).build();
+    return Response.ok( userConsoleService.isAdministrator() ).build();
   }
 
   /**
    * Returns whether the user is authenticated or not
-   * 
-   * @return "true" or "false"
+   * <p>Example Request:<br>
+   *               GET api/mantle/isAuthenticated<br>
+   *               Content-Type: text/plain
+   *               <p/>
+   * <p>Example Response:<br/>
+   *               HTTP/1.1 200 OK
+   *               Content-Type: text/plain
+   *               </p>
+   * @return Response object containing the boolean value of the request
    */
   @GET
   @Path( "/isAuthenticated" )
   public Response isAuthenticated() {
-    return Response.ok( "" + ( getPentahoSession() != null && getPentahoSession().isAuthenticated() ) ).build();
+    return Response.ok( userConsoleService.isAuthenticated() ).build();
   }
 
   /**
@@ -99,7 +110,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
     ArrayList<Setting> settings = new ArrayList<Setting>();
     try {
-      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, getPentahoSession() );
+      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, UserConsoleService.getPentahoSession() );
       List<String> pluginIds = pluginManager.getRegisteredPlugins();
     nextPlugin:
       for ( String pluginId : pluginIds ) {
@@ -182,7 +193,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
       settings.add( new Setting( "new-report-command-title", overrideNewReportTitle ) ); //$NON-NLS-1$
     }
 
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, getPentahoSession() ); //$NON-NLS-1$
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, UserConsoleService.getPentahoSession() ); //$NON-NLS-1$
     if ( pluginManager != null ) {
       // load content types from IPluginSettings
       int i = 0;
@@ -218,8 +229,9 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     ArrayList<Cube> cubes = new ArrayList<Cube>();
 
     IMondrianCatalogService mondrianCatalogService =
-        PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", getPentahoSession() ); //$NON-NLS-1$
-    List<MondrianCatalog> catalogs = mondrianCatalogService.listCatalogs( getPentahoSession(), true );
+        PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", UserConsoleService
+          .getPentahoSession() ); //$NON-NLS-1$
+    List<MondrianCatalog> catalogs = mondrianCatalogService.listCatalogs( UserConsoleService.getPentahoSession(), true );
 
     for ( MondrianCatalog cat : catalogs ) {
       for ( MondrianCube cube : cat.getSchema().getCubes() ) {
@@ -262,7 +274,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @POST
   @Path( "/session-variable" )
   public Response setSessionVariable( @QueryParam( "key" ) String key, @QueryParam( "value" ) String value ) {
-    IPentahoSession session = getPentahoSession();
+    IPentahoSession session = UserConsoleService.getPentahoSession();
     session.setAttribute( key, value );
     return Response.ok( session.getAttribute( key ) ).build();
   }
@@ -270,12 +282,12 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path( "/session-variable" )
   public Response getSessionVariable( @QueryParam( "key" ) String key ) {
-    return Response.ok( getPentahoSession().getAttribute( key ) ).build();
+    return Response.ok( UserConsoleService.getPentahoSession().getAttribute( key ) ).build();
   }
   
   @DELETE
   @Path( "/session-variable" )
   public Response clearSessionVariable( @QueryParam( "key" ) String key ) {
-    return Response.ok( getPentahoSession().removeAttribute( key ) ).build();
+    return Response.ok( UserConsoleService.getPentahoSession().removeAttribute( key ) ).build();
   }
 }
