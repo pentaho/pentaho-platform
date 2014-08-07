@@ -17,30 +17,28 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.nio.channels.IllegalSelectorException;
-import java.security.GeneralSecurityException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -56,40 +54,21 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.IllegalSelectorException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IContentGenerator;
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
-import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
-import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
-import org.pentaho.platform.web.http.api.resources.services.FileService;
-import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
-import org.pentaho.platform.web.http.messages.Messages;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.Response.Status.*;
 
 /**
  * Represents a file node in the getRepository(). This api provides methods for discovering information about repository
@@ -385,64 +364,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( TEXT_PLAIN )
   // have to accept anything for browsers to work
   public String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
-    boolean hasParameterUi = false;
-    RepositoryFile repositoryFile = getRepository().getFile( FileUtils.idToPath( pathId ) );
-    if ( repositoryFile != null ) {
-      try {
-        hasParameterUi =
-            ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" )
-                != null );
-      } catch ( NoSuchBeanDefinitionException e ) {
-        // Do nothing.
-      }
-    }
-    boolean hasParameters = false;
-    if ( hasParameterUi ) {
-      try {
-        IContentGenerator parameterContentGenerator =
-            PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
-        if ( parameterContentGenerator != null ) {
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-          parameterContentGenerator.setOutputHandler( new SimpleOutputHandler( outputStream, false ) );
-          parameterContentGenerator.setMessagesList( new ArrayList<String>() );
-          Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
-          SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-          parameterProvider.setParameter( "path", URLEncoder.encode( repositoryFile.getPath(), "UTF-8" ) );
-          parameterProvider.setParameter( "renderMode", "PARAMETER" );
-          parameterProviders.put( IParameterProvider.SCOPE_REQUEST, parameterProvider );
-          parameterContentGenerator.setParameterProviders( parameterProviders );
-          parameterContentGenerator.setSession( PentahoSessionHolder.getSession() );
-          parameterContentGenerator.createContent();
-          if ( outputStream.size() > 0 ) {
-            Document document = DocumentHelper.parseText( outputStream.toString() );
-
-            // exclude all parameters that are of type "system", xactions set system params that have to be ignored.
-            @SuppressWarnings( "rawtypes" )
-            List nodes = document.selectNodes( "parameters/parameter" );
-            for ( int i = 0; i < nodes.size() && !hasParameters; i++ ) {
-              Element elem = (Element) nodes.get( i );
-              if ( elem.attributeValue( "name" ).equalsIgnoreCase( "output-target" )
-                  && elem.attributeValue( "is-mandatory" ).equalsIgnoreCase( "true" ) ) {
-                hasParameters = true;
-                continue;
-              }
-              Element attrib =
-                  (Element) elem.selectSingleNode( "attribute[@namespace='http://reporting.pentaho"
-                      + ".org/namespaces/engine/parameter-attributes/core' and @name='role']" );
-              if ( attrib == null || !"system".equals( attrib.attributeValue( "value" ) ) ) {
-                hasParameters = true;
-              }
-            }
-          }
-        }
-      } catch ( Exception e ) {
-        logger
-            .error( Messages.getInstance().getString( "FileResource.PARAM_FAILURE", e.getMessage() ), e ); //$NON-NLS-1$
-      }
-    }
-    return Boolean.toString( hasParameters );
+    return new ContentResource().doIsParameterizable( pathId );
   }
 
   /**
