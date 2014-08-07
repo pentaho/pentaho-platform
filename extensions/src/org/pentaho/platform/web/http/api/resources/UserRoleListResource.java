@@ -98,31 +98,34 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the list of roles in the platform.
-   * 
-   * @return list of roles
-   * 
-   * @throws Exception
+   * Return a list of the roles in the platform.
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/permission-roles
+   * </pre>
+   *
+   * @return A list of roles
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;roles&gt;Report Author&gt;/roles&gt;
+   *  &lt;roles&gt;Power User&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
    */
   @GET
   @Path( "/permission-roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/permission-roles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getPermissionRoles() throws Exception {
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    List<String> allRoles = userRoleListService.getAllRoles();
-    // We will not allow user to update permission for Administrator
-    if ( allRoles.contains( adminRole ) ) {
-      allRoles.remove( adminRole );
-    }
-
-    // Add extra roles to the list of roles
-    for ( String extraRole : extraRoles ) {
-      if ( !allRoles.contains( extraRole ) ) {
-        allRoles.add( extraRole );
-      }
-    }
-
-    return new RoleListWrapper( allRoles );
+    return userRoleListService.getPermissionRoles( adminRole );
   }
  
   /**
