@@ -25,7 +25,8 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.config.PropertiesFileConfiguration;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
@@ -40,13 +41,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
  * This resource is responsible to managing the user console 
@@ -58,8 +63,30 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( UserConsoleResource.class );
   private static UserConsoleService userConsoleService;
+  private static ISystemConfig systemConfig;
+  private static List<String> setSessionVarWhiteList;
+  private static List<String> getSessionVarWhiteList;
   public UserConsoleResource() {
     userConsoleService = new UserConsoleService();
+
+    systemConfig = PentahoSystem.get( ISystemConfig.class );
+    String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
+    PropertiesFileConfiguration config =
+      new PropertiesFileConfiguration( "rest", new File( solutionRootPath + "/system/restConfig.properties" ) );
+
+    try {
+      systemConfig.registerConfiguration( config );
+      setSessionVarWhiteList = Arrays
+        .asList( systemConfig.getProperty( "rest.userConsoleResource.setSessionVarWhiteList" ).split( "," ) );
+      getSessionVarWhiteList = Arrays
+        .asList( systemConfig.getProperty( "rest.userConsoleResource.getSessionVarWhiteList" ).split( "," ) );
+    } catch ( IOException e ) {
+      //Default to hard coded white list
+      setSessionVarWhiteList.add( "scheduler_folder" );
+      setSessionVarWhiteList.add( "showOverrideDialog" );
+      getSessionVarWhiteList.add( "scheduler_folder" );
+      getSessionVarWhiteList.add( "showOverrideDialog" );
+    }
   }
 
   /**
@@ -274,15 +301,21 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @POST
   @Path( "/session-variable" )
   public Response setSessionVariable( @QueryParam( "key" ) String key, @QueryParam( "value" ) String value ) {
-    IPentahoSession session = UserConsoleService.getPentahoSession();
-    session.setAttribute( key, value );
-    return Response.ok( session.getAttribute( key ) ).build();
+    if ( setSessionVarWhiteList.contains( key ) ) {
+      IPentahoSession session = UserConsoleService.getPentahoSession();
+      session.setAttribute( key, value );
+      return Response.ok( session.getAttribute( key ) ).build();
+    }
+    return Response.status( FORBIDDEN ).build();
   }
 
   @GET
   @Path( "/session-variable" )
   public Response getSessionVariable( @QueryParam( "key" ) String key ) {
-    return Response.ok( UserConsoleService.getPentahoSession().getAttribute( key ) ).build();
+    if ( getSessionVarWhiteList.contains( key ) ) {
+      return Response.ok( UserConsoleService.getPentahoSession().getAttribute( key ) ).build();
+    }
+    return Response.status( FORBIDDEN ).build();
   }
   
   @DELETE
