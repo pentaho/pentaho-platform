@@ -591,10 +591,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/blockoutJobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getJobs() {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-      return Response.ok( blockoutManager.getBlockOutJobs() ).build();
-    }
-    return Response.status( Status.UNAUTHORIZED ).build();
+    return Response.ok( blockoutManager.getBlockOutJobs() ).build();
   }
 
   /**
@@ -606,12 +603,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/hasBlockouts" )
   @Produces( { TEXT_PLAIN } )
   public Response hasBlockouts() {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-      List<Job> jobs = blockoutManager.getBlockOutJobs();
-      return Response.ok( ( jobs != null && jobs.size() > 0 ) ? Boolean.TRUE.toString() : Boolean.FALSE.toString() )
-        .build();
-    }
-    return Response.status( Status.UNAUTHORIZED ).build();
+    List<Job> jobs = blockoutManager.getBlockOutJobs();
+    return Response.ok( ( jobs != null && jobs.size() > 0 ) ? Boolean.TRUE.toString() : Boolean.FALSE.toString() )
+      .build();
   }
 
   /**
@@ -670,19 +664,16 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( { TEXT_PLAIN } )
   public Response blockoutWillFire( JobScheduleRequest request ) {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-      Boolean willFire;
-      try {
-        willFire =
-          blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
-      } catch ( UnifiedRepositoryException e ) {
-        return Response.serverError().entity( e ).build();
-      } catch ( SchedulerException e ) {
-        return Response.serverError().entity( e ).build();
-      }
-      return Response.ok( willFire.toString() ).build();
+    Boolean willFire;
+    try {
+      willFire =
+        blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+    } catch ( UnifiedRepositoryException e ) {
+      return Response.serverError().entity( e ).build();
+    } catch ( SchedulerException e ) {
+      return Response.serverError().entity( e ).build();
     }
-    return Response.status( Status.UNAUTHORIZED ).build();
+    return Response.ok( willFire.toString() ).build();
   }
 
   /**
@@ -694,11 +685,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/blockoutShouldFireNow" )
   @Produces( { TEXT_PLAIN } )
   public Response shouldFireNow() {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-      Boolean result = blockoutManager.shouldFireNow();
-      return Response.ok( result.toString() ).build();
-    }
-    return Response.status( Status.UNAUTHORIZED ).build();
+    Boolean result = blockoutManager.shouldFireNow();
+    return Response.ok( result.toString() ).build();
   }
 
   /**
@@ -716,18 +704,15 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getBlockStatus( JobScheduleRequest request ) throws UnifiedRepositoryException,
     SchedulerException {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-      Boolean totallyBlocked = false;
-      Boolean partiallyBlocked =
-        blockoutManager
-          .isPartiallyBlocked( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
-      if ( partiallyBlocked ) {
-        totallyBlocked =
-          !blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
-      }
-      return Response.ok( new BlockStatusProxy( totallyBlocked, partiallyBlocked ) ).build();
+    Boolean totallyBlocked = false;
+    Boolean partiallyBlocked =
+      blockoutManager
+        .isPartiallyBlocked( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+    if ( partiallyBlocked ) {
+      totallyBlocked =
+        !blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
     }
-    return Response.status( Status.UNAUTHORIZED ).build();
+    return Response.ok( new BlockStatusProxy( totallyBlocked, partiallyBlocked ) ).build();
   }
 
   private void updateStartDateForTimeZone( JobScheduleRequest request ) {
