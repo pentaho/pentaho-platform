@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentInfo;
@@ -31,7 +30,6 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
 import org.pentaho.platform.plugin.services.pluginmgr.IAdminContentConditionalLogic;
-import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.services.UserConsoleService;
 
 import javax.ws.rs.DELETE;
@@ -46,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -188,14 +185,14 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     settings.add( new Setting( "user-console-revision", PentahoSystem.getSystemSetting( "user-console-revision", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     settings.add( new Setting( "startupPerspective", PentahoSystem.getSystemSetting( "startup-perspective", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     settings.add( new Setting( "showOnlyPerspective", PentahoSystem.getSystemSetting( "show-only-perspective", "" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    
-    int startupUrls = Integer.parseInt(PentahoSystem.getSystemSetting( "num-startup-urls", "0" ));
+
+    int startupUrls = Integer.parseInt( PentahoSystem.getSystemSetting( "num-startup-urls", "0" ) );
     settings.add( new Setting( "num-startup-urls", PentahoSystem.getSystemSetting( "num-startup-urls", "0" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     for ( int i = 1; i <= startupUrls; i++ ) {
       settings.add( new Setting( "startup-url-" + i, PentahoSystem.getSystemSetting( "startup-url-" + i, "" ) ) ); //$NON-NLS-1$
       settings.add( new Setting( "startup-name-" + i, PentahoSystem.getSystemSetting( "startup-name-" + i, "" ) ) ); //$NON-NLS-1$
     }
-    
+
     // Check for override of New Analysis View via pentaho.xml
     // Poked in via pentaho.xml entries
     // <new-analysis-view>
@@ -255,10 +252,10 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   public List<Cube> getMondrianCatalogs() {
     ArrayList<Cube> cubes = new ArrayList<Cube>();
 
-    IMondrianCatalogService mondrianCatalogService =
+    IMondrianCatalogService catalogService =
         PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", UserConsoleService
           .getPentahoSession() ); //$NON-NLS-1$
-    List<MondrianCatalog> catalogs = mondrianCatalogService.listCatalogs( UserConsoleService.getPentahoSession(), true );
+    List<MondrianCatalog> catalogs = catalogService.listCatalogs( UserConsoleService.getPentahoSession(), true );
 
     for ( MondrianCatalog cat : catalogs ) {
       for ( MondrianCube cube : cat.getSchema().getCubes() ) {
@@ -278,13 +275,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @POST
   @Path( "/locale" )
   public Response setLocaleOverride( String locale ) {
-    httpServletRequest.getSession().setAttribute( "locale_override", locale );
-    if ( !StringUtils.isEmpty( locale ) ) {
-      LocaleHelper.setLocaleOverride( new Locale( locale ) );
-    } else {
-      LocaleHelper.setLocaleOverride( null );
-    }
-    return getLocale();
+    return new SystemResource().setLocaleOverride( locale );
   }
 
   /**
@@ -295,7 +286,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path( "/locale" )
   public Response getLocale() {
-    return Response.ok( LocaleHelper.getLocale().toString() ).build();
+    return new  SystemResource().getLocale();
   }
 
   @POST
@@ -317,7 +308,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     }
     return Response.status( FORBIDDEN ).build();
   }
-  
+
   @DELETE
   @Path( "/session-variable" )
   public Response clearSessionVariable( @QueryParam( "key" ) String key ) {
