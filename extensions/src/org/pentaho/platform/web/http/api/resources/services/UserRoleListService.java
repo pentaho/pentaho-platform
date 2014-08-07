@@ -24,7 +24,6 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
-import org.pentaho.platform.web.http.api.resources.SystemResourceUtil;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.ArrayList;
@@ -104,11 +103,11 @@ public class UserRoleListService {
   }
 
   protected String getRolesForUser( String user ) throws Exception {
-    return SystemResourceUtil.getRolesForUser( user ).asXML();
+    return SystemResourceService.getRolesForUser( user ).asXML();
   }
 
   protected String getUsersInRole( String role ) throws Exception {
-    return SystemResourceUtil.getUsersInRole( role ).asXML();
+    return SystemResourceService.getUsersInRole( role ).asXML();
   }
 
   public void setExtraRoles( ArrayList<String> extraRoles ) { this.extraRoles = extraRoles; }
