@@ -77,7 +77,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Class of static methods where the real JCR work takes place.
- * 
+ *
  * @author mlowery
  */
 public class JcrRepositoryFileUtils {
@@ -96,8 +96,13 @@ public class JcrRepositoryFileUtils {
   private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] { '/',
     '\\', '\t', '\r', '\n' } ) );
 
+  // versioning and version comments enabled flags default to true
+  private static boolean versioningEnabled = true;
+  private static boolean versionCommentsEnabled = true;
+
   /**
-   * Try to get override reserved chars from PentahoSystem, otherwise use default
+   * Try to get parameters from PentahoSystem,
+   * otherwise use default
    */
   static {
     List<Character> newOverrideReservedChars =
@@ -106,6 +111,20 @@ public class JcrRepositoryFileUtils {
     if ( newOverrideReservedChars != null ) {
       reservedChars = newOverrideReservedChars;
     }
+
+      Boolean systemVersioningEnabled = PentahoSystem.get(Boolean.class,
+              "versioningEnabled", PentahoSessionHolder.getSession());
+
+      if (systemVersioningEnabled != null) {
+          versioningEnabled = systemVersioningEnabled;
+  }
+
+      Boolean systemVersionCommentsEnabled = PentahoSystem.get(Boolean.class,
+          "versionCommentsEnabled", PentahoSessionHolder.getSession());
+
+      if (systemVersionCommentsEnabled != null) {
+        versionCommentsEnabled = systemVersionCommentsEnabled;
+      }
   }
 
   private static Pattern makePattern( List<Character> list ) {
@@ -864,7 +883,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Conditionally checks in node if node is versionable.
-   * 
+   *
    * TODO mlowery move commented out version labeling to its own method
    */
   public static void checkinNearestVersionableNodeIfNecessary( final Session session,
@@ -897,7 +916,9 @@ public class JcrRepositoryFileUtils {
         }
       }
       session.save(); // required before checkin since we set some properties above
-      Calendar cal = Calendar.getInstance();
+      // only call checkin() if versioning is enabled
+      if (Boolean.TRUE.equals(versioningEnabled)) {
+            Calendar cal = Calendar.getInstance();
       if ( versionDate != null ) {
         cal.setTime( versionDate );
       } else {
@@ -909,6 +930,7 @@ public class JcrRepositoryFileUtils {
       // newVersion.getContainingHistory().addVersionLabel(newVersion.getName(), versionMessageAndLabel[1], true);
       // }
     }
+  }
   }
 
   private static String getUsername() {
@@ -986,7 +1008,10 @@ public class JcrRepositoryFileUtils {
     List<String> labels = Arrays.asList( versionHistory.getVersionLabels( version ) );
     // get custom Pentaho properties (i.e. author and message)
     Node nodeAtVersion = getNodeAtVersion( pentahoJcrConstants, version );
-    String author = nodeAtVersion.getProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR() ).getString();
+    String author = "BASE_VERSION";
+    if ( nodeAtVersion.hasProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR() ) ) {
+      author = nodeAtVersion.getProperty(pentahoJcrConstants.getPHO_VERSIONAUTHOR()).getString();
+    }
     String message = null;
     if ( nodeAtVersion.hasProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ) ) {
       message = nodeAtVersion.getProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ).getString();
@@ -1002,7 +1027,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Returns the node as it was at the given version.
-   * 
+   *
    * @param version
    *          version to get
    * @return node at version
@@ -1064,6 +1089,22 @@ public class JcrRepositoryFileUtils {
       version = vMgr.getBaseVersion( fileNode.getPath() );
     }
     return toVersionSummary( pentahoJcrConstants, versionHistory, version );
+  }
+
+  /**
+   * Send versioning enabled flag
+   * @return
+   */
+  public static boolean getVersioningEnabled(){
+    return versioningEnabled;
+  }
+
+  /**
+   * Send version comments enabled flag
+   * @return
+   */
+  public static boolean getVersionCommentsEnabled(){
+    return versionCommentsEnabled;
   }
 
   public static RepositoryFileTree getTree( final Session session, final PentahoJcrConstants pentahoJcrConstants,
