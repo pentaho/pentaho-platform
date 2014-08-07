@@ -33,18 +33,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -67,32 +63,26 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
@@ -176,8 +166,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "/deletepermanent" )
   @Consumes( { WILDCARD } )
-  @JMeterTest( url = "/repo/files/deletePermanent", requestType = "PUT", statusCode = "200",
-      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doDeleteFilesPermanent( String params ) {
     try {
       fileService.doDeleteFilesPermanent( params );
@@ -206,8 +194,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/move", requestType = "PUT", statusCode = "200",
-      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     try {
       fileService.doMoveFiles( destPathId, params );
@@ -236,8 +222,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "/restore" )
   @Consumes( { WILDCARD } )
-  @JMeterTest( url = "/repo/files/restore", requestType = "PUT", statusCode = "200",
-      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doRestore( String params ) {
     try {
       fileService.doRestoreFiles( params );
@@ -260,7 +244,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}", requestType = "PUT" )
   public Response createFile( @PathParam( "pathId" ) String pathId, InputStream fileContents ) {
     try {
       fileService.createFile( httpServletRequest, pathId, fileContents );
@@ -287,8 +270,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/children" )
   @Consumes( { TEXT_PLAIN } )
-  @JMeterTest( url = "/repo/files/:home:admin/children", requestType = "PUT", statusCode = "200",
-      postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22,ff11ac89-7eda-4c03-aab1-e27f9048fd38" )
   public Response doCopyFiles( @PathParam( "pathId" ) String pathId, @QueryParam( "mode" ) Integer mode,
       String params ) {
     try {
@@ -490,7 +471,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/download", requestType = "GET" )
   // have to accept anything for browsers to work
   public Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
       @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest ) {
@@ -538,7 +518,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/inline" )
   @Produces( WILDCARD )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/inline", requestType = "GET" )
   public Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileAsInline( pathId );
@@ -657,8 +636,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/creator" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/creator", requestType = "PUT", statusCode = "200",
-    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22" )
   public Response doSetContentCreator( @PathParam( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
       fileService.doSetContentCreator( pathId, contentCreator );
@@ -710,8 +687,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/locales" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/locales", requestType = "GET", statusCode = "200",
-    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22" )
   public List<LocaleMapDto> doGetFileLocales( @PathParam( "pathId" ) String pathId ) {
     List<LocaleMapDto> locales = new ArrayList<LocaleMapDto>();
     try {
@@ -807,7 +782,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/deleteLocale" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/deleteLocale", requestType = "PUT", statusCode = "200" )
   public Response doDeleteLocale( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale ) {
     try {
       fileService.doDeleteLocale( pathId, locale );
@@ -870,7 +844,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/canAccessMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/canAccessMap", requestType = "PUT" )
   public List<Setting> doGetCanAccessList( @PathParam( "pathId" ) String pathId,
       @QueryParam( "permissions" ) String permissions ) {
     return fileService.doGetCanAccessList( pathId, permissions );
@@ -891,7 +864,6 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "/pathsAccessList" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/pathsAccessList", requestType = "PUT" )
   public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
     return fileService.doGetPathsAccessList( pathsWrapper );
   }
@@ -925,7 +897,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/canAdminister" )
   @Produces( TEXT_PLAIN )
-  @JMeterTest( url = "/repo/files/canAdminister", requestType = "GET", statusCode = "200" )
   public String doGetCanAdminister() {
     try {
       return fileService.doCanAdminister() ? "true" : "false";
@@ -942,7 +913,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/reservedCharacters" )
   @Produces( { TEXT_PLAIN } )
-  @JMeterTest( url = "/repo/files/reservedCharacters", requestType = "PUT", statusCode = "200" )
   public Response doGetReservedChars() {
     StringBuffer buffer = fileService.doGetReservedChars();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
@@ -956,7 +926,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/reservedCharactersDisplay" )
   @Produces( { TEXT_PLAIN } )
-  @JMeterTest( url = "/repo/files/reservedCharactersDisplay", requestType = "GET", statusCode = "200" )
   public Response doGetReservedCharactersDisplay() {
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
@@ -970,7 +939,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/canCreate" )
   @Produces( TEXT_PLAIN )
-  @JMeterTest( url = "/repo/files/canCreate", requestType = "GET", statusCode = "200" )
   public String doGetCanCreate() {
     return fileService.doGetCanCreate();
   }
@@ -1088,7 +1056,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/creator" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/creator", requestType = "GET", statusCode = "200" )
   public RepositoryFileDto doGetContentCreator( @PathParam( "pathId" ) String pathId ) {
     try {
       return fileService.doGetContentCreator( pathId );
@@ -1154,8 +1121,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/generatedContent" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/generatedContent", requestType = "GET", statusCode = "200",
-    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22" )
   public List<RepositoryFileDto> doGetGeneratedContent( @PathParam( "pathId" ) String pathId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
@@ -1223,8 +1188,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/generatedContentForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/generatedContentForUser", requestType = "GET", statusCode = "200",
-    postData = "34ae56a4-2d96-4cd3-ad7a-21156f186c22, admin" )
   public List<RepositoryFileDto> doGetGeneratedContentForUser( @PathParam( "pathId" ) String pathId,
                                                                @QueryParam( "user" ) String user ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
@@ -1405,7 +1368,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/children", requestType = "GET" )
   public List<RepositoryFileDto> doGetRootChildren( @QueryParam( "filter" ) String filter,
       @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1470,7 +1432,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/tree", requestType = "GET" )
   public RepositoryFileTreeDto doGetTree( @PathParam( "pathId" ) String pathId, @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1527,7 +1488,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/{pathId : .+}/children", requestType = "GET" )
   public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1543,7 +1503,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "/deleted" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/deleted", requestType = "GET", statusCode = "200" )
   public List<RepositoryFileDto> doGetDeletedFiles() {
     return fileService.doGetDeletedFiles();
   }
@@ -1560,7 +1519,6 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/:home:admin:file.txt/metadata", requestType = "PUT", statusCode = "200" )
   public List<StringKeyStringValueDto> doGetMetadata( @PathParam( "pathId" ) String pathId ) {
     try {
       return fileService.doGetMetadata( pathId );
@@ -1623,7 +1581,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/repo/files/:home:admin/metadata", requestType = "PUT", statusCode = "200" )
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
       fileService.doSetMetadata( pathId, metadata );
@@ -1637,10 +1594,6 @@ public class FileResource extends AbstractJaxRSResource {
 
   private boolean isPathValid( String path ) {
     return fileService.isPathValid( path );
-  }
-
-  private void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
-    fileService.sortByLocaleTitle( collator, tree );
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
@@ -1673,10 +1626,6 @@ public class FileResource extends AbstractJaxRSResource {
       repoWs = new DefaultUnifiedRepositoryWebService();
     }
     return repoWs;
-  }
-
-  private boolean isShowingTitle( RepositoryRequest repositoryRequest ) {
-    return fileService.isShowingTitle( repositoryRequest );
   }
 
   public void setConverterHandler( IRepositoryContentConverterHandler converterHandler ) {
