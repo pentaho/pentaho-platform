@@ -75,6 +75,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     this.extraRoles = extraRoles;
     
     userRoleListService = new UserRoleListService();
+    userRoleListService.setExtraRoles( extraRoles );
   }
   
   /**
@@ -143,57 +144,66 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     return userRoleListService.getUsers();
   }
 
-    /**
-     * Save or update a User in the system.
-     *
-     * Create or update a system user with the values from the supplied XML document. Existing user
-     * records will be overwritten if the overwrite flag is true. If a user was overwritten,
-     * <code>true</code> will be returned in the Response object.
-     *
-     * <p>Example Request:</p>
-     * <pre function="syntax.xml">
-     * GET api/userrolelist/roles
-     * </pre>
-     *
-     * @return Response   Response wraps a boolean with true indicating that the save overwrote a
-     *                    previous record
-     *
-     * <p>Example Response:</p>
-     * <pre function="syntax.xml">
-     * HTTP/1.1 200 OK
-     *
-     * &lt;roleList&gt;
-     *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-     *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
-     *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-     *  &lt;roles&gt;Report Author&gt;/roles&gt;
-     *  &lt;roles&gt;Power User&gt;/roles&gt;
-     * &lt;/roleList&gt;
-     * </pre>
-     */
+  /**
+   * Return a list of the roles in the platform.
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/roles
+   * </pre>
+   *
+   * @return A list of roles
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;roles&gt;Report Author&gt;/roles&gt;
+   *  &lt;roles&gt;Power User&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
+   */
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/roles", requestType = "GET",  statusCode = "200")
+  @JMeterTest( url = "/userrolelist/roles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getRoles() {
     return userRoleListService.getRoles();
   }
 
   /**
-   * Returns all role in the platform. This include extra roles which are (Anonymous and Authenticated)
+   * Returns all roles in the platform. This include extra roles which are (Anonymous and Authenticated)
    *
-   * @return list of roles
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/allRoles
+   * </pre>
    *
-   * @throws Exception
+   * @return A list of roles
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;roles&gt;Report Author&gt;/roles&gt;
+   *  &lt;roles&gt;Power User&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
    */
   @GET
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @JMeterTest( url = "/userrolelist/allRoles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getAllRoles() throws Exception {
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    List<String> roles = userRoleListService.getAllRoles();
-    roles.addAll( extraRoles );
-    return new RoleListWrapper( roles );
+    return userRoleListService.getAllRoles();
   }
 
   /**

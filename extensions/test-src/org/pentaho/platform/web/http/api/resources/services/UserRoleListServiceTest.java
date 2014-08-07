@@ -111,4 +111,29 @@ public class UserRoleListServiceTest {
 
     assertEquals( roles, roleListWrapper.getRoles() );
   }
+
+  @Test
+  public void testDoGetAllRoles() {
+    List<String> roles = new ArrayList<String>();
+    roles.add( "ROLE1" );
+    roles.add( "ROLE2" );
+
+    List<String> extraRoles = new ArrayList<String>();
+    extraRoles.add( "ROLE3" );
+    extraRoles.add( "ROLE4" );
+
+    IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
+
+    doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
+    doReturn( roles ).when( userRoleListService1 ).getAllRoles();
+    doReturn( extraRoles ).when( userRoleListService ).getExtraRoles();
+
+    RoleListWrapper roleListWrapper = userRoleListService.getAllRoles();
+
+    verify( userRoleListService ).getUserRoleListService();
+    verify( userRoleListService1 ).getAllRoles();
+    verify( userRoleListService ).getExtraRoles();
+
+    assertEquals( 4, roleListWrapper.getRoles().size() );
+  }
 }
