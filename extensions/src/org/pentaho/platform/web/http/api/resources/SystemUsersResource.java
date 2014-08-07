@@ -22,6 +22,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.services.SystemResourceService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -47,7 +48,7 @@ public class SystemUsersResource extends AbstractJaxRSResource {
   public Response getUsers() throws Exception {
     try {
       if ( canAdminister() ) {
-        return Response.ok( SystemResourceUtil.getUsers().asXML() ).type( MediaType.APPLICATION_XML ).build();
+        return Response.ok( SystemResourceService.getUsers().asXML() ).type( MediaType.APPLICATION_XML ).build();
       } else {
         return Response.status( UNAUTHORIZED ).build();
       }

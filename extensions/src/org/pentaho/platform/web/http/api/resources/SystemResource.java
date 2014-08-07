@@ -32,6 +32,7 @@ import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDt
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.services.SystemResourceService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.ws.rs.GET;
@@ -86,7 +87,7 @@ public class SystemResource extends AbstractJaxRSResource {
   public Response getAll() throws Exception {
     try {
       if ( canAdminister() ) {
-        return Response.ok( SystemResourceUtil.getAll().asXML() ).type( MediaType.APPLICATION_XML ).build();
+        return Response.ok( SystemResourceService.getAll().asXML() ).type( MediaType.APPLICATION_XML ).build();
       } else {
         return Response.status( UNAUTHORIZED ).build();
       }
