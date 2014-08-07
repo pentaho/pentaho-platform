@@ -86,6 +86,10 @@ public class UserRoleListService {
     return new RoleListWrapper( allRoles );
   }
 
+  public RoleListWrapper getExtraRolesList() {
+    return new RoleListWrapper( getExtraRoles() );
+  }
+
   protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
