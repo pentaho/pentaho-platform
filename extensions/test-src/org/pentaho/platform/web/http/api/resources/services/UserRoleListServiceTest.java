@@ -158,4 +158,22 @@ public class UserRoleListServiceTest {
 
     assertEquals( 4, roleListWrapper.getRoles().size() );
   }
+
+  @Test
+  public void testDoGetExtraRolesList() {
+    List<String> extraRoles = new ArrayList<String>();
+    extraRoles.add( "ROLE1" );
+    extraRoles.add( "ROLE2" );
+    extraRoles.add( "ROLE3" );
+    extraRoles.add( "ROLE4" );
+
+    doReturn( extraRoles ).when( userRoleListService ).getExtraRoles();
+
+    RoleListWrapper roleListWrapper = userRoleListService.getExtraRolesList();
+
+    verify( userRoleListService ).getExtraRoles();
+
+    assertEquals( 4, roleListWrapper.getRoles().size() );
+    assertEquals( extraRoles, roleListWrapper.getRoles() );
+  }
 }

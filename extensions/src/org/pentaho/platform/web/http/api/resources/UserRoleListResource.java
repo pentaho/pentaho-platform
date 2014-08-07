@@ -240,16 +240,25 @@ public class UserRoleListResource extends AbstractJaxRSResource {
 
   /**
    * Returns roles identified as "extra roles" from the repository
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/extraRoles
+   * </pre>
    * 
    * @return extra roles
-   * 
-   * @throws Exception
+   *
+   * &lt;roleList&gt;
+   * &lt;roles>Authenticated&lt;/roles&gt;
+   * &lt;roles>Anonymous&lt;/roles&gt;
+   * &lt;/roleList&gt;
    */
   @GET
   @Path( "/extraRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RoleListWrapper getExtraRoles() throws Exception {
-    return new RoleListWrapper( extraRoles );
+  @JMeterTest( url = "/userrolelist/extraRoles", requestType = "GET", statusCode = "200" )
+  public RoleListWrapper getExtraRoles() {
+    return userRoleListService.getExtraRolesList();
   }
   
   /**
