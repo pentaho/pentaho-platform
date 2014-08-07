@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.nio.file.InvalidPathException;
+import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
@@ -322,7 +321,7 @@ public class FileService {
 
     // check if path is valid
     if ( !isPathValid( path ) ) {
-      throw new InvalidPathException( path, "invalid" );
+      throw new IllegalSelectorException();
     }
 
     // check if entity exists in repo

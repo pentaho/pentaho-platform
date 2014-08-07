@@ -35,7 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.nio.file.InvalidPathException;
+import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -503,7 +503,7 @@ public class FileResource extends AbstractJaxRSResource {
       logger.error( Messages.getInstance().getString(
           "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( BAD_REQUEST ).build();
-    } catch ( InvalidPathException e ) {
+    } catch ( IllegalSelectorException e ) {
       logger.error( Messages.getInstance().getString(
           "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
       return Response.status( FORBIDDEN ).build();
