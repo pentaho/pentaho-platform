@@ -29,8 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -38,18 +36,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IContentGenerator;
-import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -57,7 +51,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.services.RepositoryService;
@@ -207,35 +200,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getExecutableTypes() {
-    ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
-    for ( String contentType : pluginManager.getContentTypes() ) {
-      IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
-      ExecutableFileTypeDto executableFileType = new ExecutableFileTypeDto();
-      executableFileType.setDescription( contentInfo.getDescription() );
-      executableFileType.setExtension( contentInfo.getExtension() );
-      executableFileType.setTitle( contentInfo.getTitle() );
-      executableFileType.setCanSchedule( hasOperationId( contentInfo.getOperations(), "SCHEDULE_NEW" ) );
-      executableFileType.setCanEdit( hasOperationId( contentInfo.getOperations(), "EDIT" ) );
-      executableTypes.add( executableFileType );
-    }
-
-    final GenericEntity<List<ExecutableFileTypeDto>> entity =
-      new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
-      };
-    return Response.ok( entity ).build();
-  }
-
-  private boolean hasOperationId( final List<IPluginOperation> operations, final String operationId ) {
-    if ( operations != null && StringUtils.isNotBlank( operationId ) ) {
-      for ( IPluginOperation operation : operations ) {
-        if ( operation != null && StringUtils.isNotBlank( operation.getId() ) ) {
-          if ( operation.getId().equals( operationId ) && StringUtils.isNotBlank( operation.getPerspective() ) ) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+    return new SystemResource().getExecutableTypes();
   }
 
   protected Response doService( String contextId, String resourceId )
