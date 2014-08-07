@@ -668,10 +668,12 @@ public class JcrRepositoryFileUtils {
     return transformer.fromContentNode( session, pentahoJcrConstants, fileNode );
   }
 
+
   public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
       final RepositoryRequest repositoryRequest ) throws RepositoryException {
-    Node folderNode = session.getNodeByIdentifier( JcrStringHelper.pathEncode( repositoryRequest.getPath() ) );
+    Node folderNode = session.getNodeByIdentifier( JcrStringHelper.idEncode( repositoryRequest.getPath() ) );
+
     Assert.isTrue( isPentahoFolder( pentahoJcrConstants, folderNode ) );
 
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
