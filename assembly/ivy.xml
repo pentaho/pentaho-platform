@@ -11,9 +11,6 @@
     <conf name="sampledata-libs" />
     <conf name="solution" />
     <conf name="test" visibility="private" />
-    <conf name="bundle" visibility="private"/>
-    <conf name="core-bundle" visibility="private"/>
-    <conf name="fragment-bundle" visibility="private"/>
   </configurations>
   <dependencies defaultconf="default->default">
 
@@ -248,6 +245,10 @@
 
 
 
+    <dependency org="pentaho" name="pentaho-karaf-assembly" rev="${dependency.pentaho-karaf-assembly.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="pentaho-karaf-assembly" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
     <!-- Solutions bundles -->
     <dependency org="pentaho" name="pentaho-cdf-samples" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="solution->default">
       <artifact name="pentaho-cdf-samples" type="zip" /> <!-- download the zip file, not the jar -->
@@ -274,32 +275,6 @@
     <dependency org="pentaho" name="pdi-teradata-tpt-plugin-package" rev="${dependency.pdi-teradata-tpt-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="pdi-teradata-tpt-plugin-package" type="zip"/>
     </dependency>
-
-    <!-- OSGI Bundles -->
-    <dependency org="org.apache.aries" name="org.apache.aries.util" rev="1.1.0" conf="core-bundle->default" />
-    <dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.aopalliance" rev="1.0_6" conf="core-bundle->default"/>
-
-    <dependency org="org.springframework" name="org.springframework.beans" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
-    <dependency org="org.springframework" name="org.springframework.core" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
-    <dependency org="org.springframework" name="org.springframework.context" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
-    <dependency org="org.springframework" name="org.springframework.expression" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
-
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-core" rev="1.0.2.RELEASE" conf="core-bundle->default"/>
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-extender" rev="1.0.2.RELEASE" conf="core-bundle->default"/>
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-io" rev="1.0.2.RELEASE" conf="core-bundle->default"/>
-    <dependency org="org.ow2.asm" name="asm-all" rev="4.0" conf="core-bundle->default"/>
-    <dependency org="org.apache.commons" name="com.springsource.org.apache.commons.logging" rev="1.1.1"  conf="core-bundle->default"/>
-    <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="core-bundle->default" />
-    <dependency org="org.slf4j" name="osgi-over-slf4j" rev="1.7.5" conf="core-bundle->default"/>
-    <dependency org="log4j" name="log4j" rev="1.2.17" conf="core-bundle->default"/>
-    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.5" conf="core-bundle->default"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.configadmin" rev="1.8.0" conf="core-bundle->default"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.fileinstall" rev="3.2.6" conf="core-bundle->default"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.utils" rev="1.4.0" conf="core-bundle->default"/>
-
-    <exclude org="org.osgi"  module="org.osgi.core" conf="core-bundle" />
-
 
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
