@@ -41,7 +41,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -91,7 +90,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/default" )
   @Produces( { WILDCARD } )
-  @JMeterTest( url = "/repos/{pathId : .+}/default", requestType = "GET" )
   public Response doExecuteDefault( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException,
     MalformedURLException, URISyntaxException {
     return Response.seeOther( repositoryService.doExecuteDefault( pathId, httpServletRequest.getRequestURL(),
@@ -131,7 +129,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @POST
   @Consumes( APPLICATION_FORM_URLENCODED )
   @Produces( { WILDCARD } )
-  @JMeterTest( url = "/repos/{contextId}/{resourceId : .+}", requestType = "POST" )
   public Response doFormPost( @PathParam( "contextId" ) String contextId, @PathParam( "resourceId" ) String resourceId,
                               final MultivaluedMap<String, String> formParams )
     throws ObjectFactoryException, PluginBeanException,
@@ -178,7 +175,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @Path( "/{contextId}/{resourceId : .+}" )
   @GET
   @Produces( { WILDCARD } )
-  @JMeterTest( url = "/repos/{contextId}/{resourceId : .+}", requestType = "GET" )
   public Response doGet( @PathParam( "contextId" ) String contextId, @PathParam( "resourceId" ) String resourceId )
     throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
