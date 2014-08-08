@@ -1247,7 +1247,7 @@ public class JcrRepositoryFileUtils {
       RepositoryFileTree repositoryFileTree =
           getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode, depth - 1,
               childNodeFilter, showHidden, accessVoterManager, types, foundFilteredAtomic );
-      if ( repositoryFileTree != null && ( foundFilteredAtomic.isTrue() || isRootFiltered  ) ) {
+      if ( repositoryFileTree != null && ( foundFilteredAtomic.booleanValue() || isRootFiltered  ) ) {
         foundFiltered.setValue( true );
         children.add( repositoryFileTree );
       }
