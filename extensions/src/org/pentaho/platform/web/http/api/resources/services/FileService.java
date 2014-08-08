@@ -97,11 +97,6 @@ public class FileService {
 
   protected SessionResource sessionResource;
 
-  private static final Set<String> MEMBERS_SET_DEFAULT = null;
-  private static final boolean EXCLUDE_DEFAULT = false;
-  private static final boolean INCLUDEACLS_DEFAULT = false;
-  protected RepositoryFileAdapter repositoryFileAdapter;
-
   /**
    * Moves the list of files to the user's trash folder
    * <p/>
@@ -497,9 +492,9 @@ public class FileService {
               getRepository()
                   .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
             } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
-              RepositoryFileDto destFileDto = getRepositoryFileAdapter().toFileDto( destFile );
+              RepositoryFileDto destFileDto = toFileDto( destFile, null, false );
               destFileDto.setHidden( sourceFile.isHidden() );
-              destFile = getRepositoryFileAdapter().toFile( destFileDto );
+              destFile = toFile( destFileDto );
               final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
               getRepository().updateAcl( acl );
               getRepository()
@@ -939,11 +934,11 @@ public class FileService {
            * update the original.
            */
         RepositoryFile sourceFile = getRepository().getFileById( file.getId() );
-        RepositoryFileDto destFileDto = getRepositoryFileAdapter().toFileDto( sourceFile );
+        RepositoryFileDto destFileDto = toFileDto( sourceFile, null, false );
 
         destFileDto.setHidden( isHidden );
 
-        RepositoryFile destFile = getRepositoryFileAdapter().toFile( destFileDto );
+        RepositoryFile destFile = toFile( destFileDto );
 
         // add the existing acls and file data
         RepositoryFileAcl acl = getRepository().getAcl( sourceFile.getId() );
@@ -959,6 +954,14 @@ public class FileService {
     } else {
       throw new GeneralSecurityException();
     }
+  }
+
+  protected RepositoryFileDto toFileDto( RepositoryFile repositoryFile, Set<String> memberSet, boolean exclude ) {
+    return RepositoryFileAdapter.toFileDto( repositoryFile, memberSet, exclude );
+  }
+
+  public RepositoryFile toFile( final RepositoryFileDto repositoryFileDto ) {
+    return RepositoryFileAdapter.toFile( repositoryFileDto );
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
@@ -1305,7 +1308,7 @@ public class FileService {
           Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
           String creatorId = (String) fileMetadata.get( metadataConstant );
           if ( creatorId != null && creatorId.equals( targetComparator ) ) {
-            content.add( getRepositoryFileAdapter().toFileDto( child ) );
+            content.add( toFileDto( child, null, false ) );
           }
         }
       }
@@ -1327,18 +1330,6 @@ public class FileService {
       sessionResource = new SessionResource();
     }
     return sessionResource;
-  }
-
-  /**
-   * Gets an instance of RepositoryFileAdapter
-   *
-   * @return <code>RepositoryFileAdapter</code>
-   */
-  protected RepositoryFileAdapter getRepositoryFileAdapter() {
-    if ( repositoryFileAdapter == null ) {
-      repositoryFileAdapter = new RepositoryFileAdapter( MEMBERS_SET_DEFAULT, EXCLUDE_DEFAULT, INCLUDEACLS_DEFAULT );
-    }
-    return repositoryFileAdapter;
   }
 
   /**

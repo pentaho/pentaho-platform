@@ -32,7 +32,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.pentaho.jmeter.annotation.JMeterTest;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -92,7 +91,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/permission-users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/permission-users", requestType = "GET", statusCode = "200" )
   public UserListWrapper getPermissionUsers() throws Exception {
     return getUsers();
   }
@@ -123,7 +121,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/permission-roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/permission-roles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getPermissionRoles() throws Exception {
     return userRoleListService.getPermissionRoles( adminRole );
   }
@@ -142,7 +139,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/users", requestType = "GET", statusCode = "200" )
   public UserListWrapper getUsers() throws Exception {
     return userRoleListService.getUsers();
   }
@@ -173,7 +169,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/roles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getRoles() {
     return userRoleListService.getRoles();
   }
@@ -204,7 +199,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/allRoles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getAllRoles() throws Exception {
     return userRoleListService.getAllRoles();
   }
@@ -233,7 +227,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/systemRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/systemRoles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getSystemRoles() throws Exception {
     return new RoleListWrapper( systemRoles );
   }
@@ -256,7 +249,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/extraRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/extraRoles", requestType = "GET", statusCode = "200" )
   public RoleListWrapper getExtraRoles() {
     return userRoleListService.getExtraRolesList();
   }
@@ -279,7 +271,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/getRolesForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/getRolesForUser", requestType = "GET", statusCode = "200" )
   public Response getRolesForUser( @QueryParam( "user" ) String user ) throws Exception {
     try {
         String roles = userRoleListService.doGetRolesForUser( user );
@@ -310,7 +301,6 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/getUsersInRole" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/getUsersInRole", requestType = "GET", statusCode = "200" )
   public Response getUsersInRole( @QueryParam( "role" ) String role ) throws Exception {
     try {
       String roles = userRoleListService.doGetUsersInRole( role );
