@@ -22,13 +22,6 @@
     <constructor-arg>
       <ref local="ldapRoleMapper" />
     </constructor-arg>
-    <constructor-arg>
-      <pen:bean class="java.lang.String">
-        <pen:attributes>
-          <pen:attr key="id" value="singleTenantAuthenticatedAuthorityName"/>
-        </pen:attributes>
-      </pen:bean>
-    </constructor-arg>
     <pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
       <pen:attributes>
         <pen:attr key="providerName" value="ldap"/>
