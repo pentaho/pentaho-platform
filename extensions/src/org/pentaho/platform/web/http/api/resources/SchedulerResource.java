@@ -263,9 +263,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the all the job(s) visible to the current users
+   * Retrieve the all the job(s) visible to the current users.  This method is PRIVATE and subject to change/removal in the future.
+   * Callers should instead use the "/getJobs" signature instead.
    *
-   * @param asCronString (Cron string)
+   * @param asCronString (Cron string) - UNUSED
    * @return list of <code> Job </code>
    */
   @GET
@@ -273,20 +274,23 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public List<Job> getJobs( @DefaultValue( "false" ) @QueryParam( "asCronString" ) Boolean asCronString ) {
     try {
-      IPentahoSession session = PentahoSessionHolder.getSession();
-      final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
-                                                      // changed to get name via the current session
-      final Boolean canAdminister = canAdminister( session );
+      return schedulerService.getJobs();
+    } catch ( SchedulerException e ) {
+      throw new RuntimeException( e );
+    }
+  }
 
-      List<Job> jobs = scheduler.getJobs( new IJobFilter() {
-        public boolean accept( Job job ) {
-          if ( canAdminister ) {
-            return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
-          }
-          return principalName.equals( job.getUserName() );
-        }
-      } );
-      return jobs;
+  /**
+   * Retrieve the all the job(s) visible to the current users
+   *
+   * @return list of <code> Job </code>
+   */
+  @GET
+  @Path( "/getJobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  public List<Job> getNonCRONJobs() {
+    try {
+      return schedulerService.getJobs();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }

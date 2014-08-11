@@ -17,13 +17,18 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import java.util.List;
+
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
 
@@ -48,6 +53,27 @@ public class SchedulerService {
     return job;
   }
 
+  public List<Job> getJobs() throws SchedulerException {
+    try {
+      IPentahoSession session = getSession();
+      final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
+                                                      // changed to get name via the current session
+      final Boolean canAdminister = canAdminister( session );
+
+      List<Job> jobs = scheduler.getJobs( new IJobFilter() {
+        public boolean accept( Job job ) {
+          if ( canAdminister ) {
+            return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
+          }
+          return principalName.equals( job.getUserName() );
+        }
+      } );
+      return jobs;
+    } catch ( SchedulerException e ) {
+      throw new RuntimeException( e );
+    }
+  }
+
   protected IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
@@ -67,4 +93,12 @@ public class SchedulerService {
 
     return policy;
   }
+  
+  protected Boolean canAdminister( IPentahoSession session ) {
+    if ( policy.isAllowed( AdministerSecurityAction.NAME ) ) {
+      return true;
+    }
+    return false;
+  }
+
 }
