@@ -32,10 +32,12 @@ import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDt
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.services.SystemResourceService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -45,6 +47,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -141,6 +144,36 @@ public class SystemResource extends AbstractJaxRSResource {
       }
     }
     return new TimeZoneWrapper( timeZones, TimeZone.getDefault().getID() );
+  }
+
+  /**
+   * Return the server side locale
+   *
+   * @return server's locale
+   */
+  @GET
+  @Path( "/locale" )
+  public Response getLocale() {
+    return Response.ok( LocaleHelper.getLocale().toString() ).build();
+  }
+
+  /**
+   * Apply the selected locale to the user console
+   *
+   * @param locale (user console's locale)
+   *
+   * @return
+   */
+  @POST
+  @Path( "/locale" )
+  public Response setLocaleOverride( String locale ) {
+    httpServletRequest.getSession().setAttribute( "locale_override", locale );
+    if ( !StringUtils.isEmpty( locale ) ) {
+      LocaleHelper.setLocaleOverride( new Locale( locale ) );
+    } else {
+      LocaleHelper.setLocaleOverride( null );
+    }
+    return getLocale();
   }
 
   /**
