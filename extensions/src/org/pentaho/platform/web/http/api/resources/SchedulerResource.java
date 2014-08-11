@@ -166,9 +166,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
         parameterMap.put( param.getName(), param.getValue() );
       }
 
-      if ( isPdiFile( file ) ) {
-        parameterMap = handlePDIScheduling( file, parameterMap );
-      }
+      // if the file is not a pdi file, the parameterMap is returned unchanged
+      parameterMap = SchedulerResourceUtil.handlePDIScheduling( file, parameterMap );
 
       parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
 
@@ -583,7 +582,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @return list of <code> Job </code>
    */
   @GET
-  @Path( "/blockoutJobs" )
+  @Path( "/blockout/blockoutJobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getJobs() {
     return Response.ok( blockoutManager.getBlockOutJobs() ).build();
@@ -595,7 +594,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @return true if the system has any blockouts
    */
   @GET
-  @Path( "/hasBlockouts" )
+  @Path( "/blockout/hasBlockouts" )
   @Produces( { TEXT_PLAIN } )
   public Response hasBlockouts() {
     List<Job> jobs = blockoutManager.getBlockOutJobs();
@@ -611,14 +610,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @throws IOException
    */
   @POST
-  @Path( "/createBlockout" )
+  @Path( "/blockout/createBlockout" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   public Response addBlockout( JobScheduleRequest request ) throws IOException {
     if ( policy.isAllowed( SchedulerAction.NAME ) ) {
       request.setActionClass( BlockoutAction.class.getCanonicalName() );
       request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.DURATION_PARAM, request.getDuration() ) );
       request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, request.getTimeZone() ) );
-      updateStartDateForTimeZone( request );
+      SchedulerResourceUtil.updateStartDateForTimeZone( request );
       return createJob( request );
     }
     return Response.status( Status.UNAUTHORIZED ).build();
@@ -633,7 +632,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @throws IOException
    */
   @POST
-  @Path( "/updateBlockout" )
+  @Path( "/blockout/updateBlockout" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest request ) throws IOException {
     if ( policy.isAllowed( SchedulerAction.NAME ) ) {
@@ -655,7 +654,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @return
    */
   @GET
-  @Path( "/blockoutWillFire" )
+  @Path( "/blockout/blockoutWillFire" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( { TEXT_PLAIN } )
   public Response blockoutWillFire( JobScheduleRequest request ) {
@@ -677,7 +676,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @return
    */
   @GET
-  @Path( "/blockoutShouldFireNow" )
+  @Path( "/blockout/blockoutShouldFireNow" )
   @Produces( { TEXT_PLAIN } )
   public Response shouldFireNow() {
     Boolean result = blockoutManager.shouldFireNow();
@@ -694,7 +693,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @throws SchedulerException
    */
   @POST
-  @Path( "/blockStatus" )
+  @Path( "/blockout/blockStatus" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getBlockStatus( JobScheduleRequest request ) throws UnifiedRepositoryException,
@@ -710,87 +709,4 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return Response.ok( new BlockStatusProxy( totallyBlocked, partiallyBlocked ) ).build();
   }
 
-  private void updateStartDateForTimeZone( JobScheduleRequest request ) {
-    if ( request.getSimpleJobTrigger() != null ) {
-      if ( request.getSimpleJobTrigger().getStartTime() != null ) {
-        Date origStartDate = request.getSimpleJobTrigger().getStartTime();
-        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
-        request.getSimpleJobTrigger().setStartTime( serverTimeZoneStartDate );
-      }
-    } else if ( request.getComplexJobTrigger() != null ) {
-      if ( request.getComplexJobTrigger().getStartTime() != null ) {
-        Date origStartDate = request.getComplexJobTrigger().getStartTime();
-        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
-        request.getComplexJobTrigger().setStartTime( serverTimeZoneStartDate );
-      }
-    } else if ( request.getCronJobTrigger() != null ) {
-      if ( request.getCronJobTrigger().getStartTime() != null ) {
-        Date origStartDate = request.getCronJobTrigger().getStartTime();
-        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
-        request.getCronJobTrigger().setStartTime( serverTimeZoneStartDate );
-      }
-    }
-  }
-
-  private Date convertDateToServerTimeZone( Date dateTime, String timeZone ) {
-    Calendar userDefinedTime = Calendar.getInstance();
-    userDefinedTime.setTime( dateTime );
-    if ( !TimeZone.getDefault().getID().equalsIgnoreCase( timeZone ) ) {
-      logger.warn( "original defined time: " + userDefinedTime.getTime().toString() + " on tz:" + timeZone );
-      Calendar quartzStartDate = new GregorianCalendar( TimeZone.getTimeZone( timeZone ) );
-      quartzStartDate.set( Calendar.YEAR, userDefinedTime.get( Calendar.YEAR ) );
-      quartzStartDate.set( Calendar.MONTH, userDefinedTime.get( Calendar.MONTH ) );
-      quartzStartDate.set( Calendar.DAY_OF_MONTH, userDefinedTime.get( Calendar.DAY_OF_MONTH ) );
-      quartzStartDate.set( Calendar.HOUR_OF_DAY, userDefinedTime.get( Calendar.HOUR_OF_DAY ) );
-      quartzStartDate.set( Calendar.MINUTE, userDefinedTime.get( Calendar.MINUTE ) );
-      quartzStartDate.set( Calendar.SECOND, userDefinedTime.get( Calendar.SECOND ) );
-      quartzStartDate.set( Calendar.MILLISECOND, userDefinedTime.get( Calendar.MILLISECOND ) );
-      logger.warn( "adapted time for " + TimeZone.getDefault().getID() + ": " + quartzStartDate.getTime().toString() );
-      return quartzStartDate.getTime();
-    } else {
-      return dateTime;
-    }
-  }
-
-
-  private static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                                    HashMap<String, Serializable> parameterMap ) {
-
-    if ( file != null && isPdiFile( file ) ) {
-
-      HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>();
-      Map<String, String> pdiParameterMap = new HashMap<String, String>();
-      convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
-
-      String type = isTransformation( file ) ? "transformation" : "job";
-      convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
-
-      Iterator it = parameterMap.keySet().iterator();
-
-      while ( it.hasNext() ) {
-
-        String param = (String) it.next();
-
-        if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
-          pdiParameterMap.put( param, parameterMap.get( param ).toString() );
-        }
-      }
-
-      convertedParameterMap.put( "parameters", (Serializable) pdiParameterMap );
-      return convertedParameterMap;
-    }
-    return parameterMap;
-  }
-
-  private static boolean isPdiFile( RepositoryFile file ) {
-    return isTransformation( file ) || isJob( file );
-  }
-
-  private static boolean isTransformation( RepositoryFile file ) {
-    return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
-  }
-
-  private static boolean isJob( RepositoryFile file ) {
-    return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
-  }
 }
