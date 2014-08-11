@@ -72,6 +72,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository
@@ -93,8 +94,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
   private IBlockoutManager blockoutManager =
     PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
 
+  private SchedulerService schedulerService;
+
 
   public SchedulerResource() {
+    schedulerService = new SchedulerService();
   }
 
 
@@ -209,7 +213,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Execute a selected job/schedule
    *
    * @param jobRequest <code> JobScheduleRequest </code>
-   * @return
+   * @return A response object
    */
   @POST
   @Path( "/triggerNow" )
@@ -217,16 +221,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response triggerNow( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.triggerNow( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.triggerNow( jobRequest.getJobId() );
-        }
-      }
-      // udpate job state
-      job = scheduler.getJob( jobRequest.getJobId() );
+      Job job = schedulerService.triggerNow( jobRequest );
       return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
