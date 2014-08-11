@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -33,12 +34,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SystemResourceService {
+/**
+ * Service class for System endpoints
+ */
+public class SystemService {
+
+  private static SystemService systemService;
+
+  //This class does not need to be a singleton but putting a get instance method here removes the need to reproduce
+  //getter code in the several resource classes grabbing thing object. Getter code is required in case the class is being
+  //set through spring.
+  public static SystemService getSystemService() {
+    if ( systemService == null ) {
+      systemService = PentahoSystem.get( SystemService.class );
+      if ( systemService == null ) {
+        systemService = new SystemService();
+      }
+    }
+    return systemService;
+  }
 
   /**
-   * Returns XML for list of users.
+   * Returns XML for list of users in the platform.
    */
-  public static Document getUsers() throws ServletException, IOException {
+  public Document getUsers() throws ServletException, IOException, IllegalAccessException {
+    if ( !canAdminister() ) {
+      throw new IllegalAccessException();
+    }
+
     IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
     Element rootElement = new DefaultElement( "users" ); //$NON-NLS-1$
     Document doc = DocumentHelper.createDocument( rootElement );
@@ -57,7 +80,7 @@ public class SystemResourceService {
   /**
    * Returns XML for list of roles.
    */
-  public static Document getRoles() throws ServletException, IOException {
+  public Document getRoles() throws ServletException, IOException {
     IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
     Element rootElement = new DefaultElement( "roles" ); //$NON-NLS-1$
     Document doc = DocumentHelper.createDocument( rootElement );
@@ -76,7 +99,7 @@ public class SystemResourceService {
   /**
    * Returns XML for list of Roles for a given User.
    */
-  public static Document getRolesForUser( String user ) throws ServletException, IOException {
+  public Document getRolesForUser( String user ) throws ServletException, IOException {
     IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
     Element rootElement = new DefaultElement( "roles" ); //$NON-NLS-1$
     Document doc = DocumentHelper.createDocument( rootElement );
@@ -95,7 +118,7 @@ public class SystemResourceService {
   /**
    * Returns XML for list of Users for a given Role.
    */
-  public static Document getUsersInRole( String role ) throws ServletException, IOException {
+  public Document getUsersInRole( String role ) throws ServletException, IOException {
     IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
     Element rootElement = new DefaultElement( "users" ); //$NON-NLS-1$
     Document doc = DocumentHelper.createDocument( rootElement );
@@ -114,7 +137,7 @@ public class SystemResourceService {
   /**
    * Returns XML for list of Permission.
    */
-  public static Document getPermissions() throws ServletException, IOException {
+  public Document getPermissions() throws ServletException, IOException {
     Map<?, ?> validPermissionsNameMap =
         PentahoAclEntry.getValidPermissionsNameMap( IPentahoAclEntry.PERMISSIONS_LIST_ALL );
     Element rootElement = new DefaultElement( "acls" ); //$NON-NLS-1$
@@ -137,14 +160,14 @@ public class SystemResourceService {
     return doc;
   }
 
-  public static Document getAll() throws ServletException, IOException {
+  public Document getAll() throws ServletException, IOException, IllegalAccessException {
     Document userDoc = getUsers();
     Document roleDoc = getRoles();
     Document permissionDoc = getPermissions();
     return mergeAllDocument( new Document[] { userDoc, roleDoc, permissionDoc } );
   }
 
-  private static Document mergeAllDocument( Document[] documents ) {
+  private Document mergeAllDocument( Document[] documents ) {
     Document document = DocumentHelper.createDocument();
     Element element = new DefaultElement( "content" ); //$NON-NLS-1$
     document.add( element );
@@ -154,5 +177,9 @@ public class SystemResourceService {
       }
     }
     return document;
+  }
+
+  protected boolean canAdminister() {
+    return SystemUtils.canAdminister();
   }
 }
