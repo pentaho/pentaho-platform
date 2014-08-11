@@ -17,8 +17,12 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import java.util.List;
+
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
@@ -26,12 +30,17 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
 public class SchedulerService {
 
   protected static IScheduler scheduler;
 
   protected static IAuthorizationPolicy policy;
+  
+  protected static IBlockoutManager blockoutManager =
+      PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
+
 
   public Job triggerNow( JobRequest jobRequest ) throws SchedulerException {
     Job job = getScheduler().getJob( jobRequest.getJobId() );
@@ -48,6 +57,32 @@ public class SchedulerService {
     return job;
   }
 
+  public List<Job> getBlockOutJobs() {
+    return blockoutManager.getBlockOutJobs();
+  }
+
+  public boolean hasBlockouts() {
+    List<Job> jobs = blockoutManager.getBlockOutJobs();
+    return jobs != null && jobs.size() > 0;
+  }
+
+  public boolean willFire( IJobTrigger trigger ) {
+    return blockoutManager.willFire( trigger );
+  }
+  
+  public boolean shouldFireNow() {
+    return blockoutManager.shouldFireNow();    
+  }
+  
+  public BlockStatusProxy getBlockStatus( IJobTrigger trigger ) {
+    Boolean totallyBlocked = false;
+    Boolean partiallyBlocked = blockoutManager.isPartiallyBlocked( trigger );
+    if ( partiallyBlocked ) {
+      totallyBlocked = !blockoutManager.willFire( trigger );
+    }
+    return new BlockStatusProxy( totallyBlocked, partiallyBlocked );
+  }
+  
   protected IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
@@ -67,4 +102,5 @@ public class SchedulerService {
 
     return policy;
   }
+  
 }
