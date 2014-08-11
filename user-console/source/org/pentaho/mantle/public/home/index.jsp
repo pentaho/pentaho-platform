@@ -191,7 +191,7 @@
                           {{#if isFavorite}}
                           <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"/>
                           {{else}}
-                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{escapeQuotes fullPath}}', '{{title}}'); return false;"/>
+                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{escapeQuotes fullPath}}', '{{escapeQuotes title}}'); return false;"/>
                           {{/if}}
                           {{/unless}}
                         </div>
