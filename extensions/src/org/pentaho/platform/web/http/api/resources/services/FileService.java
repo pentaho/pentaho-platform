@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,12 +66,14 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapte
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -91,6 +94,8 @@ public class FileService {
   protected IUnifiedRepository repository;
 
   protected RepositoryDownloadWhitelist whitelist;
+
+  protected SessionResource sessionResource;
 
   /**
    * Moves the list of files to the user's trash folder
@@ -224,7 +229,7 @@ public class FileService {
    *
    * @return boolean <code>true</code>  if all files were moved correctly or <code>false</code> if the destiny path is
    * not available
-   * @throws Throwable containing the string, "SystemResource.GENERAL_ERROR"
+   * @throws FileNotFoundException
    */
   public void doMoveFiles( String destPathId, String params ) throws FileNotFoundException {
     String idToPath = idToPath( destPathId );
@@ -239,10 +244,8 @@ public class FileService {
         getRepoWs().moveFile( sourceFileIds[ i ], repositoryFileDto.getPath(), null );
       }
     } catch ( IllegalArgumentException e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED", sourceFileIds[ i ] ), e );
       throw e;
     } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED", sourceFileIds[ i ] ), e );
       throw new InternalError();
     }
   }
@@ -489,9 +492,9 @@ public class FileService {
               getRepository()
                   .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
             } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
-              RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto( destFile, null, false );
+              RepositoryFileDto destFileDto = toFileDto( destFile, null, false );
               destFileDto.setHidden( sourceFile.isHidden() );
-              destFile = RepositoryFileAdapter.toFile( destFileDto );
+              destFile = toFile( destFileDto );
               final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
               getRepository().updateAcl( acl );
               getRepository()
@@ -1049,7 +1052,6 @@ public class FileService {
       fileMetadata.put( PentahoJcrConstants.PHO_CONTENTCREATOR, contentCreator.getId() );
       getRepository().setFileMetadata( file.getId(), fileMetadata );
     } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.FILE_SET_CONTENT_CREATOR", pathId ), e );
       throw new InternalError();
     }
   }
@@ -1104,7 +1106,6 @@ public class FileService {
         }
       }
     } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.FILE_GET_LOCALES", pathId ), e );
       throw new InternalError();
     }
     return availableLocales;
@@ -1227,6 +1228,186 @@ public class FileService {
         }
       } );
     }
+  }
+
+  /**
+   * Retrieve the executed contents for a selected repository file
+   *
+   * @param pathId the path for the file
+   * @return list of <code> repositoryFileDto </code>
+   * @throws FileNotFoundException if the file is not found
+   */
+  public List<RepositoryFileDto> doGetGeneratedContent( String pathId ) throws FileNotFoundException {
+    SessionResource sessionResource = getSessionResource();
+    return doGetGeneratedContentForUser( pathId, sessionResource.doGetCurrentUserDir() );
+  }
+
+  /**
+   * Retrieve the executed contents for a selected repository file and a given user
+   *
+   * @param pathId the path for the file
+   * @param user   the username for the generated content folder
+   * @return list of <code> repositoryFileDto </code>
+   * @throws FileNotFoundException
+   */
+  public List<RepositoryFileDto> doGetGeneratedContent( String pathId, String user ) throws FileNotFoundException {
+    SessionResource sessionResource = getSessionResource();
+    return doGetGeneratedContentForUser( pathId, sessionResource.doGetUserDir( user ) );
+  }
+
+  /**
+   * Retrieve the executed contents for a selected repository file and a given user
+   *
+   * @param pathId  the path for the file
+   * @param userDir the user home directory
+   * @return list of <code> repositoryFileDto </code>
+   * @throws FileNotFoundException
+   * @private
+   */
+  private List<RepositoryFileDto> doGetGeneratedContentForUser( String pathId, String userDir )
+    throws FileNotFoundException {
+    RepositoryFileDto targetFile = doGetProperties( pathId );
+    if ( targetFile != null ) {
+      String targetFileId = targetFile.getId();
+      return searchGeneratedContent( userDir, targetFileId, PentahoJcrConstants.PHO_CONTENTCREATOR );
+    } else {
+      logger.error( Messages.getInstance().getString( "FileResource.FILE_NOT_FOUND", pathId ) );
+      throw new FileNotFoundException( pathId );
+    }
+  }
+
+  /**
+   * @param lineageId
+   * @return
+   * @throws FileNotFoundException
+   */
+  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( String lineageId ) throws FileNotFoundException {
+    SessionResource sessionResource = getSessionResource();
+    return searchGeneratedContent( sessionResource.doGetCurrentUserDir(), lineageId,
+      QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+  }
+
+  /**
+   * @param userDir          the user home directory
+   * @param targetComparator the comparator to filter
+   * @param metadataConstant the property used to get the file property to compare
+   * @return list of <code> repositoryFileDto </code>
+   * @throws FileNotFoundException
+   * @private
+   */
+  private List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
+                                                          String metadataConstant )
+    throws FileNotFoundException {
+    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
+
+    RepositoryFile workspaceFolder = getRepository().getFile( userDir );
+    if ( workspaceFolder != null ) {
+      List<RepositoryFile> children = getRepository().getChildren( workspaceFolder.getId() );
+      for ( RepositoryFile child : children ) {
+        if ( !child.isFolder() ) {
+          Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( child.getId() );
+          String creatorId = (String) fileMetadata.get( metadataConstant );
+          if ( creatorId != null && creatorId.equals( targetComparator ) ) {
+            content.add( toFileDto( child, null, false ) );
+          }
+        }
+      }
+    } else {
+      logger.error( Messages.getInstance().getString( "FileResource.WORKSPACE_FOLDER_NOT_FOUND", userDir ) );
+      throw new FileNotFoundException( userDir );
+    }
+
+    return content;
+  }
+
+  /**
+   * Gets an instance of SessionResource
+   *
+   * @return <code>SessionResource</code>
+   */
+  protected SessionResource getSessionResource() {
+    if ( sessionResource == null ) {
+      sessionResource = new SessionResource();
+    }
+    return sessionResource;
+  }
+
+  /**
+   * Rename the name of the selected file
+   *
+   * @param pathId  (colon separated path for the repository file)
+   * @param newName (New name of the file)
+   * @return
+   */
+  public boolean doRename( String pathId, String newName ) throws Exception {
+    IUnifiedRepository repository = getRepository();
+    RepositoryFile fileToBeRenamed = repository.getFile( FileUtils.idToPath( pathId ) );
+    StringBuilder buf = new StringBuilder( fileToBeRenamed.getPath().length() );
+    buf.append( getParentPath( fileToBeRenamed.getPath() ) );
+    buf.append( RepositoryFile.SEPARATOR );
+    buf.append( newName );
+    if ( !fileToBeRenamed.isFolder() ) {
+      String extension = getExtension( fileToBeRenamed.getName() );
+      if ( extension != null ) {
+        buf.append( extension );
+      }
+    }
+    repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
+    RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
+    if ( movedFile != null ) {
+      if ( !movedFile.isFolder() ) {
+        Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
+        if ( localePropertiesMap == null ) {
+          localePropertiesMap = new HashMap<String, Properties>();
+          Properties properties = new Properties();
+          properties.setProperty( "file.title", newName );
+          properties.setProperty( "title", newName );
+          localePropertiesMap.put( "default", properties );
+        } else {
+          for ( Map.Entry<String, Properties> entry : localePropertiesMap.entrySet() ) {
+            Properties properties = entry.getValue();
+            if ( properties.containsKey( "file.title" ) ) {
+              properties.setProperty( "file.title", newName );
+            }
+            if ( properties.containsKey( "title" ) ) {
+              properties.setProperty( "title", newName );
+            }
+          }
+        }
+        RepositoryFile updatedFile =
+          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
+            newName ).build();
+        repository.updateFile( updatedFile, getData( movedFile ), "Updating the file" );
+      }
+      return true;
+    } else {
+      return false;
+      //return Response.ok( "File to be renamed does not exist" ).build();
+    }
+  }
+
+  private String getParentPath( final String path ) {
+    if ( path == null ) {
+      throw new IllegalArgumentException();
+    } else if ( RepositoryFile.SEPARATOR.equals( path ) ) {
+      return null;
+    }
+    int lastSlashIndex = path.lastIndexOf( RepositoryFile.SEPARATOR );
+    if ( lastSlashIndex == 0 ) {
+      return RepositoryFile.SEPARATOR;
+    } else if ( lastSlashIndex > 0 ) {
+      return path.substring( 0, lastSlashIndex );
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
+  private String getExtension( final String name ) {
+    int startIndex = name.lastIndexOf( '.' );
+    if ( startIndex >= 0 ) {
+      return name.substring( startIndex, name.length() );
+    }
+    return null;
   }
 
   protected DefaultUnifiedRepositoryWebService getRepoWs() {

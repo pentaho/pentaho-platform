@@ -1,3 +1,19 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.*;
@@ -8,7 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.InvalidPathException;
+import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -49,10 +65,14 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
@@ -885,7 +905,7 @@ public class FileServiceTest {
     try {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
-    } catch ( InvalidPathException e ) {
+    } catch ( IllegalSelectorException e ) {
       // Expected
     } catch ( Throwable t ) {
       fail();
@@ -956,7 +976,7 @@ public class FileServiceTest {
 
     try {
       assertFalse( fileService.doCanAdminister() );
-    } catch ( InternalError e ) { //the second comparison fail and the result should be false and no exception returned
+    } catch ( InternalError e ) { //the first comparison fail and the result should be false and no exception returned
       fail();
     }
 
@@ -1068,6 +1088,185 @@ public class FileServiceTest {
       fail();
     } catch ( FileNotFoundException e ) {
       //Should catch the exception
+    }
+  }
+
+  @Test
+  public void testDoGetGeneratedContent() {
+    String pathId = "test.prpt",
+      user = "admin",
+      userFolder = "public/admin";
+
+    RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
+    RepositoryFile workspaceFolder = mock( RepositoryFile.class );
+    doReturn( userFolder ).when( workspaceFolder ).getId();
+    SessionResource sessionResource = mock( SessionResource.class );
+
+    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    RepositoryFile mockedChild = mock( RepositoryFile.class );
+    doReturn( false ).when( mockedChild ).isFolder();
+    children.add( mockedChild );
+
+    Map<String, Serializable> mockedFileMetadata = mock( Map.class );
+    doReturn( pathId ).when( mockedFileMetadata ).get( PentahoJcrConstants.PHO_CONTENTCREATOR );
+    when( fileService.repository.getFileMetadata( mockedChild.getId() ) ).thenReturn( mockedFileMetadata );
+
+    doReturn( pathId ).when( fileDetailsMock ).getId();
+    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
+    doReturn( workspaceFolder ).when( fileService.repository ).getFile( userFolder );
+    doReturn( sessionResource ).when( fileService ).getSessionResource();
+    doReturn( children ).when( fileService.repository ).getChildren( userFolder );
+
+    RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( mockedRepositoryFileDto ).when( fileService ).toFileDto( mockedChild, null, false );
+
+    try {
+      doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
+      List<RepositoryFileDto> list = fileService.doGetGeneratedContent( pathId );
+      assertEquals( list.size(), 1 );
+    } catch ( FileNotFoundException e ) {
+      e.printStackTrace();
+      fail();
+    } catch ( Throwable t ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testDoGetGeneratedContentFileNotFound() {
+    String pathId = "test.prpt",
+      userFolder = "public/admin";
+
+    SessionResource sessionResource = mock( SessionResource.class );
+
+    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
+    doReturn( sessionResource ).when( fileService ).getSessionResource();
+
+    try {
+      doReturn( null ).when( fileService ).doGetProperties( pathId );
+      fileService.doGetGeneratedContent( pathId );
+      fail();
+    } catch ( FileNotFoundException e ) {
+    }
+  }
+
+  @Test
+  public void testDoGetGeneratedContentForUser() {
+    String pathId = "test.prpt",
+      user = "admin",
+      userFolder = "public/admin";
+
+    RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
+    RepositoryFile workspaceFolder = mock( RepositoryFile.class );
+    doReturn( userFolder ).when( workspaceFolder ).getId();
+    SessionResource sessionResource = mock( SessionResource.class );
+
+    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    RepositoryFile mockedChild = mock( RepositoryFile.class );
+    doReturn( false ).when( mockedChild ).isFolder();
+    children.add( mockedChild );
+
+    Map<String, Serializable> mockedFileMetadata = mock( Map.class );
+    doReturn( pathId ).when( mockedFileMetadata ).get( PentahoJcrConstants.PHO_CONTENTCREATOR );
+    when( fileService.repository.getFileMetadata( mockedChild.getId() ) ).thenReturn( mockedFileMetadata );
+
+    doReturn( pathId ).when( fileDetailsMock ).getId();
+    doReturn( userFolder ).when( sessionResource ).doGetUserDir( user );
+    doReturn( workspaceFolder ).when( fileService.repository ).getFile( userFolder );
+    doReturn( sessionResource ).when( fileService ).getSessionResource();
+    doReturn( children ).when( fileService.repository ).getChildren( userFolder );
+
+    RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( mockedRepositoryFileDto ).when( fileService ).toFileDto( mockedChild, null, false );
+
+    try {
+      doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
+      List<RepositoryFileDto> list = fileService.doGetGeneratedContent( pathId, user );
+      assertEquals( list.size(), 1 );
+    } catch ( FileNotFoundException e ) {
+      e.printStackTrace();
+      fail();
+    } catch ( Throwable t ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testDoGetGeneratedContentForUserFileNotFound() {
+    String pathId = "test.prpt",
+      user = "admin",
+      userFolder = "public/admin";
+
+    SessionResource sessionResource = mock( SessionResource.class );
+
+    doReturn( userFolder ).when( sessionResource ).doGetUserDir( user );
+    doReturn( sessionResource ).when( fileService ).getSessionResource();
+
+    try {
+      doReturn( null ).when( fileService ).doGetProperties( pathId );
+      fileService.doGetGeneratedContent( pathId, user );
+      fail();
+    } catch ( FileNotFoundException e ) {
+    }
+  }
+
+  @Test
+  public void testDoGetGeneratedContentForSchedule() {
+    String lineageId = "test.prpt",
+      pathId = "test.prpt",
+      userFolder = "public/admin";
+
+    RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
+    RepositoryFile workspaceFolder = mock( RepositoryFile.class );
+    doReturn( userFolder ).when( workspaceFolder ).getId();
+    SessionResource sessionResource = mock( SessionResource.class );
+
+    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    RepositoryFile mockedChild = mock( RepositoryFile.class );
+    doReturn( false ).when( mockedChild ).isFolder();
+    children.add( mockedChild );
+
+    Map<String, Serializable> mockedFileMetadata = mock( Map.class );
+    doReturn( lineageId ).when( mockedFileMetadata ).get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+    when( fileService.repository.getFileMetadata( mockedChild.getId() ) ).thenReturn( mockedFileMetadata );
+
+    doReturn( pathId ).when( fileDetailsMock ).getId();
+    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
+    doReturn( workspaceFolder ).when( fileService.repository ).getFile( userFolder );
+    doReturn( sessionResource ).when( fileService ).getSessionResource();
+    doReturn( children ).when( fileService.repository ).getChildren( userFolder );
+
+    RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( mockedRepositoryFileDto ).when( fileService ).toFileDto( mockedChild, null, false );
+
+    try {
+      doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
+      List<RepositoryFileDto> list = fileService.doGetGeneratedContentForSchedule( lineageId );
+      assertEquals( list.size(), 1 );
+    } catch ( FileNotFoundException e ) {
+      e.printStackTrace();
+      fail();
+    } catch ( Throwable t ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testDoGetGeneratedContentForSheduleFileNotFound() {
+    String lineageId = "test.prpt",
+      pathId = "test.prpt",
+      userFolder = "public/admin";
+
+    SessionResource sessionResource = mock( SessionResource.class );
+
+    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
+    doReturn( sessionResource ).when( fileService ).getSessionResource();
+
+    try {
+      doReturn( null ).when( fileService ).doGetProperties( pathId );
+      fileService.doGetGeneratedContentForSchedule( lineageId );
+      fail();
+    } catch ( FileNotFoundException e ) {
     }
   }
 
@@ -1544,5 +1743,34 @@ public class FileServiceTest {
 
     verify( fileService, times( 2 ) )
       .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
+  }
+
+  @Test
+  public void testDoRename() throws Exception {
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
+    when( repositoryFile.getName() ).thenReturn( "file.txt" );
+
+    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile );
+    when( fileService.repository.getFileById( anyString() ) ).thenReturn( repositoryFile );
+    String pathId = ":dir:file.txt";
+    String newName = "file1.txt";
+
+    boolean success = fileService.doRename( pathId, newName );
+    assertTrue( success );
+  }
+
+  @Test
+  public void testDoRenameNegative() throws Exception {
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
+    when( repositoryFile.getName() ).thenReturn( "file.txt" );
+
+    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile );
+    String pathId = ":dir:file.txt";
+    String newName = "file1.txt";
+
+    boolean success = fileService.doRename( pathId, newName );
+    assertFalse( success );
   }
 }

@@ -17,21 +17,12 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
-import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
-import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.services.RepositoryPublishService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -40,14 +31,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.io.File;
 import java.io.InputStream;
 
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * Publishes a content file to the repository. Used for Analyzer and Report Writer publish
- * 
+ *
  * @author tkafalas
  */
 @Path( "/repo/publish" )
@@ -55,63 +45,47 @@ public class RepositoryPublishResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
-  
+  private static RepositoryPublishService repositoryPublishService;
+
+  public RepositoryPublishResource() {
+    repositoryPublishService = new RepositoryPublishService();
+  }
+
   /**
    * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
    * is set to true
-   *  
+   *
    * @param pathId (colon separated path for the repository file)
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @param fileContents (input stream containing the data)
-   * @param fileInfo (information about the file being imported)
    * @param overwriteFile (flag to determine whether to overwrite the existing file in the repository or not)
-   * 
-   * @return 
+   *               <pre function="syntax.xml">
+   *               true
+   *               </pre>
+   *
+   * @returns response object indicating the success or failure of this operation
    */
   @POST
   @Path( "/publishfile" )
   @Consumes( { MediaType.MULTIPART_FORM_DATA } )
   @Produces( MediaType.TEXT_PLAIN )
   public Response writeFile( @FormDataParam( "importPath" ) String pathId,
-      @FormDataParam( "fileUpload" ) InputStream fileContents, @FormDataParam( "overwriteFile" ) Boolean overwriteFile,
-      @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) throws PentahoAccessControlException {
-
+                             @FormDataParam( "fileUpload" ) InputStream fileContents,
+                             @FormDataParam( "overwriteFile" ) Boolean overwriteFile ) {
     try {
-      validateAccess();
+      repositoryPublishService.writeFile( pathId, fileContents, overwriteFile );
+      return Response.ok( "SUCCESS" ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( PentahoAccessControlException e ) {
       return Response.status( UNAUTHORIZED ).entity(
         Integer.toString( PlatformImportException.PUBLISH_USERNAME_PASSWORD_FAIL ) ).build();
-    }
-    File file = new File( pathId );
-    RepositoryFileImportBundle.Builder bundleBuilder =
-        new RepositoryFileImportBundle.Builder().input( fileContents ).charSet( "UTF-8" ).hidden( false ).mime(
-          "text/xml" ).path( file.getParent() ).name( file.getName() ).overwriteFile( overwriteFile );
-
-    IPlatformImportBundle bundle = bundleBuilder.build();
-    try {
-      IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
-      importer.importFile( bundle );
-      return Response.ok( "SUCCESS" ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( PlatformImportException e ) {
       logger.error( e );
       return Response.status( Status.PRECONDITION_FAILED ).entity( Integer.toString( e.getErrorStatus() ) ).build();
     } catch ( Exception e ) {
       logger.error( e );
       return Response.serverError().entity( Integer.toString( PlatformImportException.PUBLISH_GENERAL_ERROR ) ).build();
-    }
-  }
-
-  /**
-   * Check if user has the rights to publish or is administrator
-   * 
-   * @throws PentahoAccessControlException
-   */
-  private void validateAccess() throws PentahoAccessControlException {
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    boolean isAdmin =
-        policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-            && ( policy.isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
-    if ( !isAdmin ) {
-      throw new PentahoAccessControlException( "Access Denied" );
     }
   }
 }

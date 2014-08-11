@@ -17,14 +17,12 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.pentaho.jmeter.annotation.JMeterTest;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -36,9 +34,11 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.UnauthorizedException;
 
 /**
  * UserRoleList resource manage platform's implementation <code> IUserRoleListService </code>
@@ -52,6 +52,8 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   private String adminRole;
   private String anonymousRole;
   private ArrayList<String> extraRoles;
+  
+  private static UserRoleListService userRoleListService;
 
   public UserRoleListResource() {
     this( PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession() ),
@@ -72,14 +74,21 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     this.adminRole = adminRole;
     this.anonymousRole = anonymousRole;
     this.extraRoles = extraRoles;
+    
+    userRoleListService = new UserRoleListService();
+    userRoleListService.setExtraRoles( extraRoles );
   }
-
+  
   /**
    * Returns the list of users in the platform
-   * 
-   * @return list of users
-   * 
-   * @throws Exception
+   * @return <code>
+   * &lt;userList&gt; 
+   * &lt;users&gt;
+   * &lsqb;admin, joe, suzy&rsqb;
+   * &lt;/users&gt;
+   * &lt;/userList&gt; 
+   * </code>
+   * @throws Exception 
    */
   @GET
   @Path( "/permission-users" )
@@ -89,87 +98,133 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the list of roles in the platform.
-   * 
-   * @return list of roles
-   * 
-   * @throws Exception
+   * Return a list of the roles in the platform.
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/permission-roles
+   * </pre>
+   *
+   * @return A list of roles
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;roles&gt;Report Author&gt;/roles&gt;
+   *  &lt;roles&gt;Power User&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
    */
   @GET
   @Path( "/permission-roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RoleListWrapper getPermissionRoles() throws Exception {
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    List<String> allRoles = userRoleListService.getAllRoles();
-    // We will not allow user to update permission for Administrator
-    if ( allRoles.contains( adminRole ) ) {
-      allRoles.remove( adminRole );
-    }
-
-    // Add extra roles to the list of roles
-    for ( String extraRole : extraRoles ) {
-      if ( !allRoles.contains( extraRole ) ) {
-        allRoles.add( extraRole );
-      }
-    }
-
-    return new RoleListWrapper( allRoles );
+    return userRoleListService.getPermissionRoles( adminRole );
   }
-
-
+ 
+  /**
+   * Returns the list of users in the platform
+   * @return <code>
+   * &lt;userList&gt; 
+   * &lt;users&gt;
+   * &lsqb;admin, joe, suzy&rsqb;
+   * &lt;/users&gt;
+   * &lt;/userList&gt; 
+   * </code>
+   * @throws Exception 
+   */
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public UserListWrapper getUsers() throws Exception {
-    IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
-    return new UserListWrapper( service.getAllUsers() );
-  }
-
-    /**
-     * Save or update a User in the system.
-     *
-     * Create or update a system user with the values from the supplied XML document. Existing user
-     * records will be overwritten if the overwrite flag is true. If a user was overwritten,
-     * <code>true</code> will be returned in the Response object.
-     *
-     * @return Response   Response wraps a boolean with true indicating that the save overwrote a
-     *                    previous record
-     *
-     * @throws IllegalStateException
-     */
-  @GET
-  @Path( "/roles" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  @JMeterTest( url = "/userrolelist/roles", requestType = "GET",  statusCode = "200", postData = "testDATA")
-  public RoleListWrapper getRoles() throws Exception {
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    return new RoleListWrapper( userRoleListService.getAllRoles() );
+    return userRoleListService.getUsers();
   }
 
   /**
-   * Returns all role in the platform. This include extra roles which are (Anonymous and Authenticated)
+   * Return a list of the roles in the platform.
    *
-   * @return list of roles
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/roles
+   * </pre>
    *
-   * @throws Exception
+   * @return A list of roles
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;roles&gt;Report Author&gt;/roles&gt;
+   *  &lt;roles&gt;Power User&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
+   */
+  @GET
+  @Path( "/roles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  public RoleListWrapper getRoles() {
+    return userRoleListService.getRoles();
+  }
+
+  /**
+   * Returns all roles in the platform. This include extra roles which are (Anonymous and Authenticated)
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/allRoles
+   * </pre>
+   *
+   * @return A list of roles
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;roles&gt;Report Author&gt;/roles&gt;
+   *  &lt;roles&gt;Power User&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
    */
   @GET
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public RoleListWrapper getAllRoles() throws Exception {
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    List<String> roles = userRoleListService.getAllRoles();
-    roles.addAll( extraRoles );
-    return new RoleListWrapper( roles );
+    return userRoleListService.getAllRoles();
   }
 
   /**
    * Returns roles identified as "system roles" from the repository
-   * 
-   * 
-   * @return system roles
-   * 
-   * @throws Exception
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/systemRoles
+   * </pre>
+   *
+   * @return A list of system roles
+   * @throws Exception 
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * HTTP/1.1 200 OK
+   *
+   * &lt;roleList&gt;
+   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
+   * &lt;/roleList&gt;
+   * </pre>
    */
   @GET
   @Path( "/systemRoles" )
@@ -180,68 +235,83 @@ public class UserRoleListResource extends AbstractJaxRSResource {
 
   /**
    * Returns roles identified as "extra roles" from the repository
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   * GET api/userrolelist/extraRoles
+   * </pre>
    * 
    * @return extra roles
-   * 
-   * @throws Exception
+   *
+   * &lt;roleList&gt;
+   * &lt;roles>Authenticated&lt;/roles&gt;
+   * &lt;roles>Anonymous&lt;/roles&gt;
+   * &lt;/roleList&gt;
    */
   @GET
   @Path( "/extraRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RoleListWrapper getExtraRoles() throws Exception {
-    return new RoleListWrapper( extraRoles );
+  public RoleListWrapper getExtraRoles() {
+    return userRoleListService.getExtraRolesList();
   }
-
+  
   /**
    * Returns roles for a given user
-   * 
-   * @param user
-   * @return list of roles
-   * @throws Exception
+   *
+   * @param user The user to get the roles for
+   * <pre function="syntax.xml">
+   *  joe
+   * </pre>
+   * @return <code>
+   * &lt;roles&gt;
+   * &lt;role&gt;Administrator&lt;/role&gt;                 
+   * &lt;role&gt;Report Author&lt;/role&gt;
+   * &lt;/roles&gt;
+   * </code>
+   * @throws Exception 
    */
   @GET
   @Path( "/getRolesForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getRolesForUser( @QueryParam( "user" ) String user ) throws Exception {
-    if ( canAdminister() ) {
-      try {
-        return Response.ok( SystemResourceUtil.getRolesForUser( user ).asXML() ).type( MediaType.APPLICATION_XML )
+    try {
+        String roles = userRoleListService.doGetRolesForUser( user );
+        return Response.ok( roles ).type( MediaType.APPLICATION_XML )
             .build();
+      } catch ( UnauthorizedException t ) {
+        return Response.status( UNAUTHORIZED ).build();
       } catch ( Throwable t ) {
         throw new WebApplicationException( t );
-      }
-    } else {
-      return Response.status( UNAUTHORIZED ).build();
-    }
+      }  
   }
 
   /**
-   * Returns all the users that are part of a given role
-   * 
-   * @param role
-   * @return list of users
-   * 
-   * @throws Exception
+   * Returns roles for a given user
+   *
+   * @param role The role to get the users for
+   * <pre function="syntax.xml">
+   *  Administrator
+   * </pre>
+   * @return <code>
+   * &lt;users&gt;
+   * &lt;user&gt;pat&lt;/user&gt;
+   * &lt;user&gt;suzy&lt;/user&gt;                   
+   * &lt;/users&gt;
+   * </code>
+   * @throws Exception 
    */
   @GET
   @Path( "/getUsersInRole" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getUsersInRole( @QueryParam( "role" ) String role ) throws Exception {
-    if ( canAdminister() ) {
-      try {
-        return Response.ok( SystemResourceUtil.getUsersInRole( role ).asXML() ).type( MediaType.APPLICATION_XML )
-            .build();
-      } catch ( Throwable t ) {
-        throw new WebApplicationException( t );
-      }
-    } else {
+    try {
+      String roles = userRoleListService.doGetUsersInRole( role );
+      return Response.ok( roles ).type( MediaType.APPLICATION_XML )
+          .build();
+    } catch ( UnauthorizedException t ) {
       return Response.status( UNAUTHORIZED ).build();
-    }
-  }
-
-  private boolean canAdminister() {
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-        && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
+    } catch ( Throwable t ) {
+      throw new WebApplicationException( t );
+    }  
   }
 }

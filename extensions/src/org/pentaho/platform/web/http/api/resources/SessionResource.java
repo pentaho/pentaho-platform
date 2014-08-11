@@ -16,6 +16,7 @@ package org.pentaho.platform.web.http.api.resources;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.web.http.api.resources.services.SessionService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,9 +34,26 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 @Path( "/session/" )
 public class SessionResource extends AbstractJaxRSResource {
 
+  private static SessionService sessionService;
+
+  public SessionResource() {
+    sessionService = new SessionService();
+  }
+
   /**
    * Returns the current user's workspace folder path
-   * 
+   *
+   * <p>Example Request:<br>
+   *               GET api/session/userWorkspaceDir<br>
+   *               <p/>
+   *
+   * <p>Example Response:<br/>
+   *               HTTP/1.1 200 OK
+   *               </p>
+   *               pre function="syntax.xml">
+   *               /home/admin/workspace
+   *               </pre>
+   *
    * @return workspace folder path
    */
   @GET
@@ -49,6 +67,18 @@ public class SessionResource extends AbstractJaxRSResource {
    * Returns the workspace folder path for the selected user.
    * 
    * @param user (user name)
+   *
+   * <p>Example Request:<br>
+   *               GET api/session/workspaceDirForUser<br>
+   *               <p/>
+   *
+   * <p>Example Response:<br/>
+   *               HTTP/1.1 200 OK
+   *               </p>
+   *               pre function="syntax.xml">
+   *               /home/user/workspace
+   *               </pre>
+   *               
    * @return workspace folder path
    */
   @GET

@@ -26,11 +26,14 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -51,7 +54,6 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -65,16 +67,18 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository
  * files as well as CRUD operations
- * 
+ *
  * @author aaron
- * 
  */
 @Path( "/scheduler" )
 public class SchedulerResource extends AbstractJaxRSResource {
@@ -85,17 +89,22 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   protected IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
 
-  IPluginManager pluginMgr = PentahoSystem.get( IPluginManager.class );
-
   private static final Log logger = LogFactory.getLog( SchedulerResource.class );
 
+  private IBlockoutManager blockoutManager =
+    PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
+
+  private SchedulerService schedulerService;
+
+
   public SchedulerResource() {
+    schedulerService = new SchedulerService();
   }
 
 
   /**
    * Create a new job/schedule
-   * 
+   *
    * @param scheduleRequest <code> JobScheduleRequest </code>
    * @return
    * @throws IOException
@@ -108,8 +117,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
     // Used to determine if created by a RunInBackgroundCommand
     boolean runInBackground =
-        scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
-            && scheduleRequest.getCronJobTrigger() == null;
+      scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
+        && scheduleRequest.getCronJobTrigger() == null;
 
     if ( !runInBackground && !policy.isAllowed( SchedulerAction.NAME ) ) {
       return Response.status( UNAUTHORIZED ).build();
@@ -131,7 +140,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       scheduleRequest.setJobName( file.getName().substring( 0, file.getName().lastIndexOf( "." ) ) ); //$NON-NLS-1$
     } else if ( !StringUtils.isEmpty( scheduleRequest.getActionClass() ) ) {
       String actionClass =
-          scheduleRequest.getActionClass().substring( scheduleRequest.getActionClass().lastIndexOf( "." ) + 1 );
+        scheduleRequest.getActionClass().substring( scheduleRequest.getActionClass().lastIndexOf( "." ) + 1 );
       scheduleRequest.setJobName( actionClass ); //$NON-NLS-1$
     } else if ( !hasInputFile && StringUtils.isEmpty( scheduleRequest.getJobName() ) ) {
       // just make up a name
@@ -157,21 +166,22 @@ public class SchedulerResource extends AbstractJaxRSResource {
         parameterMap.put( param.getName(), param.getValue() );
       }
 
-      if( isPdiFile( file ) ){
-    	  parameterMap = handlePDIScheduling( file, parameterMap );
+      if ( isPdiFile( file ) ) {
+        parameterMap = handlePDIScheduling( file, parameterMap );
       }
 
       parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
-      
+
       if ( hasInputFile ) {
         SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );
         String outputFile = outputPathResolver.resolveOutputFilePath();
         String actionId =
-            RepositoryFilenameUtils.getExtension( scheduleRequest.getInputFile() ) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
+          RepositoryFilenameUtils.getExtension( scheduleRequest.getInputFile() )
+            + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
         job =
-            scheduler.createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
-                new RepositoryFileStreamProvider( scheduleRequest.getInputFile(), outputFile,
-                    getAutoCreateUniqueFilename( scheduleRequest ) ) );
+          scheduler.createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
+            new RepositoryFileStreamProvider( scheduleRequest.getInputFile(), outputFile,
+              getAutoCreateUniqueFilename( scheduleRequest ) ) );
       } else {
         // need to locate actions from plugins if done this way too (but for now, we're just on main)
         String actionClass = scheduleRequest.getActionClass();
@@ -201,9 +211,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Execute a selected job/schedule
-   * 
+   *
    * @param jobRequest <code> JobScheduleRequest </code>
-   * @return
+   * @return A response object
    */
   @POST
   @Path( "/triggerNow" )
@@ -211,16 +221,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response triggerNow( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.triggerNow( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.triggerNow( jobRequest.getJobId() );
-        }
-      }
-      // udpate job state
-      job = scheduler.getJob( jobRequest.getJobId() );
+      Job job = schedulerService.triggerNow( jobRequest );
       return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -229,7 +230,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Return the content cleaner job/schedule
-   * 
+   *
    * @return <code> Job </code>
    */
   @GET
@@ -249,7 +250,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
             return true;
           }
           return principalName.equals( job.getUserName() )
-              && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass );
+            && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass );
         }
       } );
 
@@ -264,9 +265,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Retrieve the all the job(s) visible to the current users
-   * 
-   * @param asCronString  (Cron string) 
-   * 
+   *
+   * @param asCronString (Cron string)
    * @return list of <code> Job </code>
    */
   @GET
@@ -331,9 +331,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks whether the current user has authority to schedule any content in the platform and the selected report
-   * is schedule able
-   * 
+   * Checks whether the current user has authority to schedule any content in the platform and the selected report is
+   * schedule able
+   *
    * @param id (Repository file ID of the report that is being scheduled
    * @return ("true" or "false")
    */
@@ -354,6 +354,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Checks whether the current user has authority to schedule any content in the platform
+   *
    * @return ("true" or "false")
    */
   @GET
@@ -366,6 +367,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Returns the state of the scheduler (Schedule could be either paused or normal)
+   *
    * @return status of the scheduler
    */
   @GET
@@ -381,7 +383,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * If the scheduler is in the PAUSE state, this will resume the scheduler
-   * 
+   *
    * @return
    */
   @POST
@@ -400,7 +402,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * If the schedule in the state of "NORMAL", this will "PAUSE" the scheduler
-   * 
+   *
    * @return
    */
   @POST
@@ -419,7 +421,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Shuts down the scheduler
-   * 
+   *
    * @return
    */
   @POST
@@ -438,7 +440,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Checks the state of the selected job/schedule.
-   * 
+   *
    * @param jobRequest <code> JobRequest </code>
    * @return state of the job/schedule
    */
@@ -464,8 +466,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Pause the selected job/schedule
-   * 
-   * @param jobRequest  <code> JobRequest </code>
+   *
+   * @param jobRequest <code> JobRequest </code>
    * @return
    */
   @POST
@@ -492,7 +494,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Resume the selected job/schedule
-   * @param jobRequest   <code> JobRequest </code>
+   *
+   * @param jobRequest <code> JobRequest </code>
    * @return
    */
   @POST
@@ -519,8 +522,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Delete the selected job/schedule from the platform
-   * 
-   * @param jobRequest  <code> JobRequest </code>
+   *
+   * @param jobRequest <code> JobRequest </code>
    * @return
    */
   @DELETE
@@ -547,7 +550,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Return the information regarding a specific job, identified by ID
-   * 
+   *
    * @param jobId
    * @param asCronString
    * @return
@@ -556,18 +559,18 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/jobinfo" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Job getJob( @QueryParam( "jobId" ) String jobId,
-      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
+                     @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
       Job job = scheduler.getJob( jobId );
       if ( SecurityHelper.getInstance().isPentahoAdministrator( PentahoSessionHolder.getSession() )
-          || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
+        || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
         for ( String key : job.getJobParams().keySet() ) {
           Serializable value = job.getJobParams().get( key );
           if ( value.getClass().isArray() ) {
-            String[] sa = ( new String[0] ).getClass().cast( value );
+            String[] sa = ( new String[ 0 ] ).getClass().cast( value );
             ArrayList<String> list = new ArrayList<String>();
             for ( int i = 0; i < sa.length; i++ ) {
-              list.add( sa[i] );
+              list.add( sa[ i ] );
             }
             job.getJobParams().put( key, list );
           }
@@ -603,44 +606,221 @@ public class SchedulerResource extends AbstractJaxRSResource {
     jobRequest.setJobParameters( jobParams );
     return jobRequest;
   }
-  
-  private static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file, HashMap<String, Serializable> parameterMap ) {
-    
-	  if ( file != null && isPdiFile( file ) ) {
-      
-		  HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>(); 
-		  Map<String, String> pdiParameterMap = new HashMap<String, String>();
-		  convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
-      
-		  String type = isTransformation( file ) ? "transformation" : "job";
-		  convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
-      
-	      Iterator it = parameterMap.keySet().iterator();
-      
-	      while ( it.hasNext() ) {
-	
-	          String param = (String)it.next();
-	
-	          if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
-	        	  pdiParameterMap.put(param, parameterMap.get( param ).toString() );
-	          }
-	      }
-	      
-	      convertedParameterMap.put("parameters", (Serializable) pdiParameterMap);
-	      return convertedParameterMap;
+
+  /**
+   * Retrieves all blockout jobs in the system
+   *
+   * @return list of <code> Job </code>
+   */
+  @GET
+  @Path( "/blockoutJobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  public Response getJobs() {
+    return Response.ok( blockoutManager.getBlockOutJobs() ).build();
+  }
+
+  /**
+   * Determines whether there are any blockouts in the system
+   *
+   * @return true if the system has any blockouts
+   */
+  @GET
+  @Path( "/hasBlockouts" )
+  @Produces( { TEXT_PLAIN } )
+  public Response hasBlockouts() {
+    List<Job> jobs = blockoutManager.getBlockOutJobs();
+    return Response.ok( ( jobs != null && jobs.size() > 0 ) ? Boolean.TRUE.toString() : Boolean.FALSE.toString() )
+      .build();
+  }
+
+  /**
+   * Creates a new blockout schedule
+   *
+   * @param request <code> JobScheduleRequest </code>
+   * @return
+   * @throws IOException
+   */
+  @POST
+  @Path( "/createBlockout" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  public Response addBlockout( JobScheduleRequest request ) throws IOException {
+    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+      request.setActionClass( BlockoutAction.class.getCanonicalName() );
+      request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.DURATION_PARAM, request.getDuration() ) );
+      request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, request.getTimeZone() ) );
+      updateStartDateForTimeZone( request );
+      return createJob( request );
+    }
+    return Response.status( Status.UNAUTHORIZED ).build();
+  }
+
+  /**
+   * Updates a selected blockout schedule
+   *
+   * @param jobId   (ID of the blockout schedule to be updated)
+   * @param request <code> JobScheduleRequest </code>
+   * @return
+   * @throws IOException
+   */
+  @POST
+  @Path( "/updateBlockout" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest request ) throws IOException {
+    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+      JobRequest jobRequest = new JobRequest();
+      jobRequest.setJobId( jobId );
+      Response response = removeJob( jobRequest );
+      if ( response.getStatus() == 200 ) {
+        response = addBlockout( request );
+      }
+      return response;
+    }
+    return Response.status( Status.UNAUTHORIZED ).build();
+  }
+
+  /**
+   * Checks if the selected blockout schedule will be fired
+   *
+   * @param request <code> JobScheduleRequest </code>
+   * @return
+   */
+  @GET
+  @Path( "/blockoutWillFire" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { TEXT_PLAIN } )
+  public Response blockoutWillFire( JobScheduleRequest request ) {
+    Boolean willFire;
+    try {
+      willFire =
+        blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+    } catch ( UnifiedRepositoryException e ) {
+      return Response.serverError().entity( e ).build();
+    } catch ( SchedulerException e ) {
+      return Response.serverError().entity( e ).build();
+    }
+    return Response.ok( willFire.toString() ).build();
+  }
+
+  /**
+   * Checks if the selected blockout schedule should be fired now
+   *
+   * @return
+   */
+  @GET
+  @Path( "/blockoutShouldFireNow" )
+  @Produces( { TEXT_PLAIN } )
+  public Response shouldFireNow() {
+    Boolean result = blockoutManager.shouldFireNow();
+    return Response.ok( result.toString() ).build();
+  }
+
+  /**
+   * Check the status of the selected blockout schedule. The status will display whether it is completely blocked or
+   * partially blocked
+   *
+   * @param request
+   * @return <code> BlockStatusProxy </code>
+   * @throws UnifiedRepositoryException
+   * @throws SchedulerException
+   */
+  @POST
+  @Path( "/blockStatus" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  public Response getBlockStatus( JobScheduleRequest request ) throws UnifiedRepositoryException,
+    SchedulerException {
+    Boolean totallyBlocked = false;
+    Boolean partiallyBlocked =
+      blockoutManager
+        .isPartiallyBlocked( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+    if ( partiallyBlocked ) {
+      totallyBlocked =
+        !blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+    }
+    return Response.ok( new BlockStatusProxy( totallyBlocked, partiallyBlocked ) ).build();
+  }
+
+  private void updateStartDateForTimeZone( JobScheduleRequest request ) {
+    if ( request.getSimpleJobTrigger() != null ) {
+      if ( request.getSimpleJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getSimpleJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
+        request.getSimpleJobTrigger().setStartTime( serverTimeZoneStartDate );
+      }
+    } else if ( request.getComplexJobTrigger() != null ) {
+      if ( request.getComplexJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getComplexJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
+        request.getComplexJobTrigger().setStartTime( serverTimeZoneStartDate );
+      }
+    } else if ( request.getCronJobTrigger() != null ) {
+      if ( request.getCronJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getCronJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
+        request.getCronJobTrigger().setStartTime( serverTimeZoneStartDate );
+      }
+    }
+  }
+
+  private Date convertDateToServerTimeZone( Date dateTime, String timeZone ) {
+    Calendar userDefinedTime = Calendar.getInstance();
+    userDefinedTime.setTime( dateTime );
+    if ( !TimeZone.getDefault().getID().equalsIgnoreCase( timeZone ) ) {
+      logger.warn( "original defined time: " + userDefinedTime.getTime().toString() + " on tz:" + timeZone );
+      Calendar quartzStartDate = new GregorianCalendar( TimeZone.getTimeZone( timeZone ) );
+      quartzStartDate.set( Calendar.YEAR, userDefinedTime.get( Calendar.YEAR ) );
+      quartzStartDate.set( Calendar.MONTH, userDefinedTime.get( Calendar.MONTH ) );
+      quartzStartDate.set( Calendar.DAY_OF_MONTH, userDefinedTime.get( Calendar.DAY_OF_MONTH ) );
+      quartzStartDate.set( Calendar.HOUR_OF_DAY, userDefinedTime.get( Calendar.HOUR_OF_DAY ) );
+      quartzStartDate.set( Calendar.MINUTE, userDefinedTime.get( Calendar.MINUTE ) );
+      quartzStartDate.set( Calendar.SECOND, userDefinedTime.get( Calendar.SECOND ) );
+      quartzStartDate.set( Calendar.MILLISECOND, userDefinedTime.get( Calendar.MILLISECOND ) );
+      logger.warn( "adapted time for " + TimeZone.getDefault().getID() + ": " + quartzStartDate.getTime().toString() );
+      return quartzStartDate.getTime();
+    } else {
+      return dateTime;
+    }
+  }
+
+
+  private static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
+                                                                    HashMap<String, Serializable> parameterMap ) {
+
+    if ( file != null && isPdiFile( file ) ) {
+
+      HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>();
+      Map<String, String> pdiParameterMap = new HashMap<String, String>();
+      convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
+
+      String type = isTransformation( file ) ? "transformation" : "job";
+      convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
+
+      Iterator it = parameterMap.keySet().iterator();
+
+      while ( it.hasNext() ) {
+
+        String param = (String) it.next();
+
+        if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
+          pdiParameterMap.put( param, parameterMap.get( param ).toString() );
+        }
+      }
+
+      convertedParameterMap.put( "parameters", (Serializable) pdiParameterMap );
+      return convertedParameterMap;
     }
     return parameterMap;
   }
-  
-  private static boolean isPdiFile( RepositoryFile file ){
-	  return isTransformation( file ) || isJob( file );
-  }
-  
-  private static boolean isTransformation( RepositoryFile file ){
-	  return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+
+  private static boolean isPdiFile( RepositoryFile file ) {
+    return isTransformation( file ) || isJob( file );
   }
 
-  private static boolean isJob( RepositoryFile file ){
-	  return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+  private static boolean isTransformation( RepositoryFile file ) {
+    return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+  }
+
+  private static boolean isJob( RepositoryFile file ) {
+    return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
   }
 }

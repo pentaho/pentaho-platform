@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.web.http.api.resources.services;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SystemResourceUtil {
+public class SystemResourceService {
 
   /**
    * Returns XML for list of users.
