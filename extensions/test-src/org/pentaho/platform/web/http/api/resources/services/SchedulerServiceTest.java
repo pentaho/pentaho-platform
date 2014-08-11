@@ -20,11 +20,15 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
@@ -80,4 +84,26 @@ public class SchedulerServiceTest {
     verify( schedulerService.policy, times( 2 ) ).isAllowed( anyString() );
   }
 
+  @Test 
+  public void testGetJobs() throws SchedulerException {
+    Job job = mock( Job.class );
+    List<Job> mockJobs = new ArrayList<Job>();
+    mockJobs.add( job );
+    
+    IPentahoSession mockPentahoSession = mock ( IPentahoSession.class );
+    
+    
+    doReturn( mockPentahoSession ).when( schedulerService ).getSession();
+    doReturn( "admin" ).when( mockPentahoSession ).getName();
+    doReturn( true ).when( schedulerService ).canAdminister( mockPentahoSession );
+    doReturn( mockJobs ).when( schedulerService.scheduler ).getJobs( (IJobFilter) anyObject() );
+    
+    List<Job> jobs = schedulerService.getJobs();
+    
+    assertEquals(mockJobs, jobs);
+    
+    verify( schedulerService, times( 1 ) ).getSession();
+    verify( mockPentahoSession, times( 1 ) ).getName();
+    verify( schedulerService, times( 1 ) ).canAdminister( mockPentahoSession );
+  }
 }
