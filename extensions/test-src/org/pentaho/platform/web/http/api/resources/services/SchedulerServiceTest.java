@@ -23,15 +23,34 @@ import static org.mockito.Mockito.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
+import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
+import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SchedulerServiceTest {
-
 
   private static SchedulerService schedulerService;
 
@@ -40,6 +59,7 @@ public class SchedulerServiceTest {
     schedulerService = spy( new SchedulerService() );
     schedulerService.policy = mock( IAuthorizationPolicy.class );
     schedulerService.scheduler = mock( IScheduler.class );
+    schedulerService.repository = mock( IUnifiedRepository.class );
   }
 
   @After
@@ -47,9 +67,196 @@ public class SchedulerServiceTest {
     schedulerService = null;
   }
 
+  @Test
+  public void testCreateJob() throws Exception {
+
+    List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+    JobScheduleParam jobScheduleParam1 = mock( JobScheduleParam.class );
+    doReturn( "name1" ).when( jobScheduleParam1 ).getName();
+    doReturn( "value1" ).when( jobScheduleParam1 ).getValue();
+    jobParameters.add( jobScheduleParam1 );
+
+    Job job = mock( Job.class );
+
+    JobScheduleRequest scheduleRequest = mock( JobScheduleRequest.class );
+    doReturn( "className" ).when( scheduleRequest ).getActionClass();
+    doReturn( "jobName" ).when( scheduleRequest ).getJobName();
+    doReturn( jobParameters ).when( scheduleRequest ).getJobParameters();
+    doNothing().when( scheduleRequest ).setJobName( anyString() );
+
+    doReturn( true ).when( schedulerService ).isPdiFile( any( RepositoryFile.class ) );
+
+    SchedulerOutputPathResolver schedulerOutputPathResolver = mock( SchedulerOutputPathResolver.class );
+    doReturn( "outputFile" ).when( schedulerOutputPathResolver ).resolveOutputFilePath();
+
+    SimpleJobTrigger simpleJobTrigger = mock( SimpleJobTrigger.class );
+    ComplexJobTriggerProxy complexJobTriggerProxy = mock( ComplexJobTriggerProxy.class );
+    CronJobTrigger cronJobTrigger = mock( CronJobTrigger.class );
+
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    doReturn( "file.ext" ).when( repositoryFile ).getName();
+
+    Map<String, Serializable> metadata = mock( Map.class );
+    doReturn( metadata ).when( schedulerService.repository ).getFileMetadata( anyString() );
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "true" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
+
+    doReturn( simpleJobTrigger ).when( scheduleRequest ).getSimpleJobTrigger();
+    doReturn( complexJobTriggerProxy ).when( scheduleRequest ).getComplexJobTrigger();
+    doReturn( cronJobTrigger ).when( scheduleRequest ).getCronJobTrigger();
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doReturn( "file.ext" ).when( scheduleRequest ).getInputFile();
+    doReturn( repositoryFile ).when( schedulerService.repository ).getFile( anyString() );
+
+    doReturn( "ext" ).when( schedulerService ).getExtension( anyString() );
+
+    doReturn( true ).when( schedulerService ).getAutoCreateUniqueFilename( any( JobScheduleRequest.class ) );
+
+    doReturn( job ).when( schedulerService.scheduler )
+      .createJob( anyString(), anyString(), any( Map.class ), any( IJobTrigger.class ),
+        any( IBackgroundExecutionStreamProvider.class ) );
+
+    doReturn( Class.class ).when( schedulerService ).getAction( anyString() );
+
+    doReturn( job ).when( schedulerService.scheduler )
+      .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+
+    //Test 1
+    schedulerService.createJob( scheduleRequest );
+
+    //Test 2
+    doReturn( "" ).when( scheduleRequest ).getJobName();
+
+    schedulerService.createJob( scheduleRequest );
+
+    //Test 3
+    doReturn( "" ).when( scheduleRequest ).getInputFile();
+    doReturn( "" ).when( scheduleRequest ).getActionClass();
+
+    schedulerService.createJob( scheduleRequest );
+
+    verify( scheduleRequest, times( 15 ) ).getSimpleJobTrigger();
+    verify( scheduleRequest, times( 11 ) ).getInputFile();
+    verify( schedulerService.policy, times( 3 ) ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.repository, times( 2 ) ).getFile( anyString() );
+    verify( scheduleRequest, times( 9 ) ).getJobName();
+    verify( scheduleRequest, times( 3 ) ).setJobName( anyString() );
+    verify( scheduleRequest, times( 5 ) ).getActionClass();
+    verify( schedulerService.repository, times( 2 ) ).getFileMetadata( anyString() );
+    verify( schedulerService, times( 3 ) ).isPdiFile( any( RepositoryFile.class ) );
+    verify( schedulerService, times( 3 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ) );
+    verify( schedulerService, times( 2 ) ).getSchedulerOutputPathResolver( any( JobScheduleRequest.class ) );
+    verify( schedulerService, times( 2 ) ).getExtension( anyString() );
+    verify( scheduleRequest, times( 5 ) ).getActionClass();
+    verify( schedulerService ).getAction( anyString() );
+    verify( schedulerService.scheduler )
+      .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+  }
 
   @Test
-  public void testTriggerNow() throws SchedulerException {
+  public void testCreateJobException() throws Exception {
+
+
+    List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+    JobScheduleParam jobScheduleParam1 = mock( JobScheduleParam.class );
+    doReturn( "name1" ).when( jobScheduleParam1 ).getName();
+    doReturn( "value1" ).when( jobScheduleParam1 ).getValue();
+    jobParameters.add( jobScheduleParam1 );
+
+    Job job = mock( Job.class );
+
+    JobScheduleRequest scheduleRequest = mock( JobScheduleRequest.class );
+    doReturn( "className" ).when( scheduleRequest ).getActionClass();
+    doReturn( "jobName" ).when( scheduleRequest ).getJobName();
+    doReturn( jobParameters ).when( scheduleRequest ).getJobParameters();
+    doNothing().when( scheduleRequest ).setJobName( anyString() );
+
+    doReturn( true ).when( schedulerService ).isPdiFile( any( RepositoryFile.class ) );
+
+    SchedulerOutputPathResolver schedulerOutputPathResolver = mock( SchedulerOutputPathResolver.class );
+    doReturn( "outputFile" ).when( schedulerOutputPathResolver ).resolveOutputFilePath();
+
+    SimpleJobTrigger simpleJobTrigger = mock( SimpleJobTrigger.class );
+    ComplexJobTriggerProxy complexJobTriggerProxy = mock( ComplexJobTriggerProxy.class );
+    CronJobTrigger cronJobTrigger = mock( CronJobTrigger.class );
+
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    doReturn( "file.ext" ).when( repositoryFile ).getName();
+
+    Map<String, Serializable> metadata = mock( Map.class );
+    doReturn( metadata ).when( schedulerService.repository ).getFileMetadata( anyString() );
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "True" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
+
+    doReturn( simpleJobTrigger ).when( scheduleRequest ).getSimpleJobTrigger();
+    doReturn( complexJobTriggerProxy ).when( scheduleRequest ).getComplexJobTrigger();
+    doReturn( cronJobTrigger ).when( scheduleRequest ).getCronJobTrigger();
+    doReturn( false ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doReturn( "file.ext" ).when( scheduleRequest ).getInputFile();
+    doReturn( repositoryFile ).when( schedulerService.repository ).getFile( anyString() );
+
+    doReturn( "ext" ).when( schedulerService ).getExtension( anyString() );
+
+    doReturn( true ).when( schedulerService ).getAutoCreateUniqueFilename( any( JobScheduleRequest.class ) );
+
+    doReturn( job ).when( schedulerService.scheduler )
+      .createJob( anyString(), anyString(), any( Map.class ), any( IJobTrigger.class ),
+        any( IBackgroundExecutionStreamProvider.class ) );
+
+    doReturn( Class.class ).when( schedulerService ).getAction( anyString() );
+
+    doReturn( job ).when( schedulerService.scheduler )
+      .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+
+
+    //Test 1
+    try {
+      schedulerService.createJob( scheduleRequest );
+      fail();
+    } catch ( SecurityException e ) {
+      //Should catch it
+    }
+
+    //Test 2
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+    doReturn( "false" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
+
+    try {
+      schedulerService.createJob( scheduleRequest );
+      fail();
+    } catch ( IllegalAccessException e ) {
+      //Should catch it
+    }
+
+    //Test 3
+    doReturn( "" ).when( scheduleRequest ).getInputFile();
+    doThrow( new ClassNotFoundException() ).when( schedulerService ).getAction( anyString() );
+
+    try {
+      schedulerService.createJob( scheduleRequest );
+      fail();
+    } catch ( RuntimeException e ) {
+      //Should catch it
+    }
+
+    verify( scheduleRequest, times( 7 ) ).getSimpleJobTrigger();
+    verify( scheduleRequest, times( 3 ) ).getInputFile();
+    verify( schedulerService.policy, times( 3 ) ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.repository, times( 1 ) ).getFile( anyString() );
+    verify( scheduleRequest, times( 1 ) ).getJobName();
+    verify( scheduleRequest, times( 2 ) ).setJobName( anyString() );
+    verify( scheduleRequest, times( 7 ) ).getActionClass();
+    verify( schedulerService.repository, times( 1 ) ).getFileMetadata( anyString() );
+    verify( schedulerService, times( 1 ) ).isPdiFile( any( RepositoryFile.class ) );
+    verify( schedulerService, times( 1 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ) );
+    verify( scheduleRequest, times( 7 ) ).getActionClass();
+    verify( schedulerService ).getAction( anyString() );
+  }
+
+  @Test
+  public void testTriggerNow() throws Exception {
 
     JobRequest jobRequest = mock( JobRequest.class );
     Job job = mock( Job.class );

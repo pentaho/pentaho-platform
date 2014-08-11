@@ -94,99 +94,32 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
 
   /**
-   * Create a new job/schedule
+   * Creates a new Job/Schedule
    *
-   * @param scheduleRequest <code> JobScheduleRequest </code>
-   * @return
-   * @throws IOException
+   * Creates a new job/schedule with the values from the supplied XML document.
+   *
+   * @param scheduleRequest <pre function="syntax.xml">
+   *
+   *                        </pre>
+   * @return Returns response based on the success of the operation
    */
   @POST
   @Path( "/job" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( "text/plain" )
-  public Response createJob( JobScheduleRequest scheduleRequest ) throws IOException {
-
-    // Used to determine if created by a RunInBackgroundCommand
-    boolean runInBackground =
-      scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
-        && scheduleRequest.getCronJobTrigger() == null;
-
-    if ( !runInBackground && !policy.isAllowed( SchedulerAction.NAME ) ) {
-      return Response.status( UNAUTHORIZED ).build();
-    }
-
-    boolean hasInputFile = !StringUtils.isEmpty( scheduleRequest.getInputFile() );
-    RepositoryFile file = null;
-    if ( hasInputFile ) {
-      try {
-        file = repository.getFile( scheduleRequest.getInputFile() );
-      } catch ( UnifiedRepositoryException ure ) {
-        hasInputFile = false;
-        logger.warn( ure.getMessage(), ure );
-      }
-    }
-
-    // if we have an inputfile, generate job name based on that if the name is not passed in
-    if ( hasInputFile && StringUtils.isEmpty( scheduleRequest.getJobName() ) ) {
-      scheduleRequest.setJobName( file.getName().substring( 0, file.getName().lastIndexOf( "." ) ) ); //$NON-NLS-1$
-    } else if ( !StringUtils.isEmpty( scheduleRequest.getActionClass() ) ) {
-      String actionClass =
-        scheduleRequest.getActionClass().substring( scheduleRequest.getActionClass().lastIndexOf( "." ) + 1 );
-      scheduleRequest.setJobName( actionClass ); //$NON-NLS-1$
-    } else if ( !hasInputFile && StringUtils.isEmpty( scheduleRequest.getJobName() ) ) {
-      // just make up a name
-      scheduleRequest.setJobName( "" + System.currentTimeMillis() ); //$NON-NLS-1$
-    }
-
-    if ( hasInputFile ) {
-      Map<String, Serializable> metadata = repository.getFileMetadata( file.getId() );
-      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
-        boolean schedulable = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
-        if ( !schedulable ) {
-          return Response.status( FORBIDDEN ).build();
-        }
-      }
-    }
-
-    Job job = null;
+  public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
-      IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
-
-      HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
-      for ( JobScheduleParam param : scheduleRequest.getJobParameters() ) {
-        parameterMap.put( param.getName(), param.getValue() );
-      }
-
-      // if the file is not a pdi file, the parameterMap is returned unchanged
-      parameterMap = SchedulerResourceUtil.handlePDIScheduling( file, parameterMap );
-
-      parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
-
-      if ( hasInputFile ) {
-        SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );
-        String outputFile = outputPathResolver.resolveOutputFilePath();
-        String actionId =
-          RepositoryFilenameUtils.getExtension( scheduleRequest.getInputFile() )
-            + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
-        job =
-          scheduler.createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
-            new RepositoryFileStreamProvider( scheduleRequest.getInputFile(), outputFile,
-              getAutoCreateUniqueFilename( scheduleRequest ) ) );
-      } else {
-        // need to locate actions from plugins if done this way too (but for now, we're just on main)
-        String actionClass = scheduleRequest.getActionClass();
-        try {
-          @SuppressWarnings( "unchecked" )
-          Class<IAction> iaction = ( (Class<IAction>) Class.forName( actionClass ) );
-          job = scheduler.createJob( scheduleRequest.getJobName(), iaction, parameterMap, jobTrigger );
-        } catch ( ClassNotFoundException e ) {
-          throw new RuntimeException( e );
-        }
-      }
+      Job job = schedulerService.createJob( scheduleRequest );
+      return Response.ok( job.getJobId() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       return Response.serverError().entity( e.getCause().getMessage() ).build();
+    } catch ( IOException e ) {
+      return Response.serverError().entity( e.getCause().getMessage() ).build();
+    } catch ( SecurityException e ) {
+      return Response.status( UNAUTHORIZED ).build();
+    } catch ( IllegalAccessException e ) {
+      return Response.status( FORBIDDEN ).build();
     }
-    return Response.ok( job.getJobId() ).type( MediaType.TEXT_PLAIN ).build();
   }
 
   private boolean getAutoCreateUniqueFilename( final JobScheduleRequest scheduleRequest ) {
@@ -705,5 +638,4 @@ public class SchedulerResource extends AbstractJaxRSResource {
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler );
     return Response.ok( schedulerService.getBlockStatus( trigger ) ).build();
   }
-
 }

@@ -214,15 +214,15 @@ public class SchedulerResourceUtil {
     return parameterMap;
   }
 
-  private static boolean isPdiFile( RepositoryFile file ) {
+  public static boolean isPdiFile( RepositoryFile file ) {
     return isTransformation( file ) || isJob( file );
   }
 
-  private static boolean isTransformation( RepositoryFile file ) {
+  public static boolean isTransformation( RepositoryFile file ) {
     return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
   }
 
-  private static boolean isJob( RepositoryFile file ) {
+  public static boolean isJob( RepositoryFile file ) {
     return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
   }  
   
