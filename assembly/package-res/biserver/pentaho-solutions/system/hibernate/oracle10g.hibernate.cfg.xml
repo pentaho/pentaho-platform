@@ -12,7 +12,7 @@
 
     <!--  Oracle 10g Configuration -->
     <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
-    <property name="connection.url">jdbc:oracle:thin:@localhost:1521:pentaho</property>
+    <property name="connection.url">jdbc:oracle:thin:@localhost:1521:XE</property>
     <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
     <property name="connection.username">hibuser</property>
     <property name="connection.password">password</property>
