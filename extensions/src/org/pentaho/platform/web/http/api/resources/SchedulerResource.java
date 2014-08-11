@@ -26,14 +26,10 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,7 +43,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +66,6 @@ import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
 /**
@@ -90,9 +84,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
   protected IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
 
   private static final Log logger = LogFactory.getLog( SchedulerResource.class );
-
-  private IBlockoutManager blockoutManager =
-    PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
 
   private SchedulerService schedulerService;
 
@@ -577,6 +568,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
+   * @deprecated
+   * Method is deprecated as the name getBlockoutJobs is preferred over getJobs
+   * 
+   * Retrieves all blockout jobs in the system
+   *
+   * @return list of <code> Job </code>
+   */
+  @Deprecated
+  public Response getJobs() {
+    return getBlockoutJobs();
+  }
+
+  /**
    * Retrieves all blockout jobs in the system
    *
    * @return list of <code> Job </code>
@@ -584,10 +588,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path( "/blockout/blockoutJobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
-  public Response getJobs() {
-    return Response.ok( blockoutManager.getBlockOutJobs() ).build();
+  public Response getBlockoutJobs() {
+    return Response.ok( schedulerService.getBlockOutJobs() ).build();
   }
-
+  
+  
   /**
    * Determines whether there are any blockouts in the system
    *
@@ -597,9 +602,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/blockout/hasBlockouts" )
   @Produces( { TEXT_PLAIN } )
   public Response hasBlockouts() {
-    List<Job> jobs = blockoutManager.getBlockOutJobs();
-    return Response.ok( ( jobs != null && jobs.size() > 0 ) ? Boolean.TRUE.toString() : Boolean.FALSE.toString() )
-      .build();
+    Boolean hasBlockouts = schedulerService.hasBlockouts();
+    return Response.ok( hasBlockouts.toString() ).build();
   }
 
   /**
@@ -661,7 +665,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     Boolean willFire;
     try {
       willFire =
-        blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+        schedulerService.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
     } catch ( UnifiedRepositoryException e ) {
       return Response.serverError().entity( e ).build();
     } catch ( SchedulerException e ) {
@@ -679,7 +683,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/blockout/blockoutShouldFireNow" )
   @Produces( { TEXT_PLAIN } )
   public Response shouldFireNow() {
-    Boolean result = blockoutManager.shouldFireNow();
+    Boolean result = schedulerService.shouldFireNow();
     return Response.ok( result.toString() ).build();
   }
 
@@ -698,15 +702,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getBlockStatus( JobScheduleRequest request ) throws UnifiedRepositoryException,
     SchedulerException {
-    Boolean totallyBlocked = false;
-    Boolean partiallyBlocked =
-      blockoutManager
-        .isPartiallyBlocked( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
-    if ( partiallyBlocked ) {
-      totallyBlocked =
-        !blockoutManager.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
-    }
-    return Response.ok( new BlockStatusProxy( totallyBlocked, partiallyBlocked ) ).build();
+    IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler );
+    return Response.ok( schedulerService.getBlockStatus( trigger ) ).build();
   }
 
 }
