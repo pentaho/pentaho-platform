@@ -285,9 +285,12 @@
     <dependency org="org.springframework" name="org.springframework.context" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
     <dependency org="org.springframework" name="org.springframework.expression" rev="3.2.4.RELEASE"  conf="core-bundle->default"/>
 
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-core" rev="1.0.2.RELEASE" conf="core-bundle->default"/>
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-extender" rev="1.0.2.RELEASE" conf="core-bundle->default"/>
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-io" rev="1.0.2.RELEASE" conf="core-bundle->default"/>
+    <dependency org="org.apache.aries.proxy" name="org.apache.aries.proxy.api" rev="1.0.0"  conf="core-bundle->default"/>
+    <dependency org="org.apache.aries.proxy" name="org.apache.aries.proxy.impl" rev="1.0.2"  conf="core-bundle->default"/>
+    <dependency org="org.apache.aries.blueprint" name="org.apache.aries.blueprint.api" rev="1.0.0"  conf="core-bundle->default"/>
+    <dependency org="org.apache.aries.blueprint" name="org.apache.aries.blueprint.core" rev="1.4.0"  conf="core-bundle->default"/>
+    <dependency org="org.apache.aries.blueprint" name="org.apache.aries.blueprint.cm" rev="1.0.3"  conf="core-bundle->default"/>
+
     <dependency org="org.ow2.asm" name="asm-all" rev="4.0" conf="core-bundle->default"/>
     <dependency org="org.apache.commons" name="com.springsource.org.apache.commons.logging" rev="1.1.1"  conf="core-bundle->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="core-bundle->default" />
