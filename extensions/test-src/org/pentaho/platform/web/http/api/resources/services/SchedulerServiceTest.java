@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,12 +32,14 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
@@ -285,6 +288,68 @@ public class SchedulerServiceTest {
     verify( schedulerService.scheduler, times( 4 ) ).getJob( anyString() );
     verify( schedulerService.scheduler, times( 2 ) ).triggerNow( anyString() );
     verify( schedulerService.policy, times( 2 ) ).isAllowed( anyString() );
+  }
+
+  @Test
+  public void testGetContentCleanerJob() throws Exception {
+
+    IJobFilter jobFilter = mock( IJobFilter.class );
+
+    List<Job> jobs = new ArrayList<Job>();
+
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( session ).when( schedulerService ).getSession();
+    doReturn( "sessionName" ).when( session ).getName();
+
+    doReturn( true ).when( schedulerService.policy ).isAllowed( AdministerSecurityAction.NAME );
+    doReturn( jobFilter ).when( schedulerService ).getJobFilter( anyBoolean(), anyString() );
+    doReturn( jobs ).when( schedulerService.scheduler ).getJobs( any( IJobFilter.class ) );
+
+    //Test 1
+    Job job = schedulerService.getContentCleanerJob();
+
+    assertNull( job );
+
+    //Test 2
+    Job job1 = mock( Job.class );
+    jobs.add( job1 );
+
+    job = schedulerService.getContentCleanerJob();
+
+    assertNotNull( job );
+
+    verify( schedulerService, times( 2 ) ).getSession();
+    verify( session, times( 2 ) ).getName();
+    verify( schedulerService.policy, times( 2 ) ).isAllowed( AdministerSecurityAction.NAME );
+    verify( schedulerService.scheduler, times( 2 ) ).getJobs( any( IJobFilter.class ) );
+  }
+
+  @Test
+  public void testGetContentCleanerJobException() throws Exception {
+
+    IJobFilter jobFilter = mock( IJobFilter.class );
+
+    List<Job> jobs = new ArrayList<Job>();
+
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( session ).when( schedulerService ).getSession();
+    doReturn( "sessionName" ).when( session ).getName();
+
+    doReturn( true ).when( schedulerService.policy ).isAllowed( AdministerSecurityAction.NAME );
+    doReturn( jobFilter ).when( schedulerService ).getJobFilter( anyBoolean(), anyString() );
+    doThrow( new SchedulerException( "" ) ).when( schedulerService.scheduler ).getJobs( any( IJobFilter.class ) );
+
+    try {
+      schedulerService.getContentCleanerJob();
+      fail();
+    } catch (SchedulerException e ) {
+      //Should catch the exception
+    }
+
+    verify( schedulerService ).getSession();
+    verify( session ).getName();
+    verify( schedulerService.policy ).isAllowed( AdministerSecurityAction.NAME );
+    verify( schedulerService.scheduler ).getJobs( any( IJobFilter.class ) );
   }
 
 }
