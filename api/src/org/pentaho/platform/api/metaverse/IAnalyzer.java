@@ -22,7 +22,7 @@ package org.pentaho.platform.api.metaverse;
  * metaverse)
  * 
  */
-public interface IAnalyzer<T> extends IRequiresMetaverseBuilder, IRequiresNamespace {
+public interface IAnalyzer<T> extends IRequiresMetaverseBuilder {
 
   /**
    * Analyze the given object.
@@ -33,6 +33,6 @@ public interface IAnalyzer<T> extends IRequiresMetaverseBuilder, IRequiresNamesp
    * @throws MetaverseAnalyzerException
    *           the metaverse analyzer exception
    */
-  IMetaverseNode analyze( T object ) throws MetaverseAnalyzerException;
+  IMetaverseNode analyze( IMetaverseComponentDescriptor descriptor, T object ) throws MetaverseAnalyzerException;
 
 }
