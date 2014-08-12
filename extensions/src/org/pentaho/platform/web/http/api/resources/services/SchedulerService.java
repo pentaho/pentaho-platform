@@ -313,8 +313,33 @@ public class SchedulerService {
     }
     return true;
   }
+  
+  public List<Job> getJobs() throws SchedulerException {
+    IPentahoSession session = getSession();
+    final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
+                                                    // changed to get name via the current session
+    final Boolean canAdminister = canAdminister( session );
+
+    List<Job> jobs = scheduler.getJobs( new IJobFilter() {
+      public boolean accept( Job job ) {
+        if ( canAdminister ) {
+          return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
+        }
+        return principalName.equals( job.getUserName() );
+      }
+    } );
+    return jobs;
+  }
+
+  protected Boolean canAdminister( IPentahoSession session ) {
+    if ( policy.isAllowed( AdministerSecurityAction.NAME ) ) {
+      return true;
+    }
+    return false;
+  }
 
   protected String getExtension( String filename ) {
     return RepositoryFilenameUtils.getExtension( filename );
   }
+  
 }
