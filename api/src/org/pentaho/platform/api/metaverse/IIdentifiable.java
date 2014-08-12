@@ -21,7 +21,7 @@ package org.pentaho.platform.api.metaverse;
  * The IIdentifiable interface provides commonly used methods for identifying entities, such as name, ID, type
  * 
  */
-public interface IIdentifiable extends INamespace {
+public interface IIdentifiable {
 
   /**
    * Gets the name of this entity.
