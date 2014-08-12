@@ -29,6 +29,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
@@ -36,6 +37,7 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
@@ -165,6 +167,45 @@ public class SchedulerService {
     job = getScheduler().getJob( jobRequest.getJobId() );
 
     return job;
+  }
+
+  public Job getContentCleanerJob() throws SchedulerException {
+    IPentahoSession session = getSession();
+    final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
+    // changed to get name via the current session
+    final Boolean canAdminister = policy.isAllowed( AdministerSecurityAction.NAME );
+
+    List<Job> jobs = getScheduler().getJobs( getJobFilter( canAdminister, principalName ) );
+
+    if ( jobs.size() > 0 ) {
+      return jobs.get( 0 );
+    }
+
+    return null;
+  }
+
+  public IJobFilter getJobFilter( boolean canAdminister, String principalName ) {
+    return new JobFilter( canAdminister, principalName );
+  }
+
+  private class JobFilter implements IJobFilter {
+
+    private boolean canAdminister;
+    private String principalName;
+
+    public JobFilter( boolean canAdminister, String principalName ) {
+      this.canAdminister = canAdminister;
+      this.principalName = principalName;
+    }
+
+    public boolean accept( Job job ) {
+      String actionClass = (String) job.getJobParams().get( "ActionAdapterQuartzJob-ActionClass" );
+      if ( canAdminister && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass ) ) {
+        return true;
+      }
+      return principalName.equals( job.getUserName() )
+        && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass );
+    }
   }
 
   public List<Job> getBlockOutJobs() {

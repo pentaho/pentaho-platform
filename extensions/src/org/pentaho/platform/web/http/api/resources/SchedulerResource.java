@@ -152,7 +152,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Return the content cleaner job/schedule
+   * Return the content cleaner Job/Schedule
    *
    * @return <code> Job </code>
    */
@@ -161,26 +161,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Job getContentCleanerJob() {
     try {
-      IPentahoSession session = PentahoSessionHolder.getSession();
-      final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
-                                                      // changed to get name via the current session
-      final Boolean canAdminister = canAdminister( session );
-
-      List<Job> jobs = scheduler.getJobs( new IJobFilter() {
-        public boolean accept( Job job ) {
-          String actionClass = (String) job.getJobParams().get( "ActionAdapterQuartzJob-ActionClass" );
-          if ( canAdminister && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass ) ) {
-            return true;
-          }
-          return principalName.equals( job.getUserName() )
-            && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass );
-        }
-      } );
-
-      if ( jobs.size() > 0 ) {
-        return jobs.get( 0 );
-      }
-      return null;
+      return schedulerService.getContentCleanerJob();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
