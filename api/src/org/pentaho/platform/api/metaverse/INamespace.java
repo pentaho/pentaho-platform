@@ -1,13 +1,7 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * Created by gmoran on 8/7/14.
- */
-
-/**
  * This interface allows for multiple levels of namespacing entities within the metaverse.
- *
- *
  */
 public interface INamespace {
 
@@ -25,16 +19,13 @@ public interface INamespace {
    */
   public INamespace getParentNamespace();
 
-
   /**
-   *  get the name space for the current level entity
+   * get the name space for the current level entity
    *
    * @param child the string representation of hte current entity's contribution to the namespace path
    * @return the namespace object for the entity represented by child
    */
-  public INamespace getChildNamespace(String child);
-
-
+  public INamespace getChildNamespace( String child );
 
 }
 
