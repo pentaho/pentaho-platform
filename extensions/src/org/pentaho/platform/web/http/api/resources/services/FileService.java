@@ -1481,7 +1481,7 @@ public class FileService {
     };
   }
 
-  protected RepositoryRequest getRepositoryRequest( String  path, boolean showHidden, int depth, String filter ) {
+  protected RepositoryRequest getRepositoryRequest( String  path, Boolean showHidden, Integer depth, String filter ) {
     return new RepositoryRequest( path, showHidden, depth, filter );
   }
 
