@@ -33,7 +33,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.api.resources.services.SystemResourceService;
+import org.pentaho.platform.web.http.api.resources.services.SystemService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.ws.rs.GET;
@@ -68,6 +68,7 @@ public class SystemResource extends AbstractJaxRSResource {
   private ISystemConfig systemConfig;
   private IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
 
+
   public SystemResource() {
     this( PentahoSystem.get( ISystemConfig.class ) );
   }
@@ -90,7 +91,7 @@ public class SystemResource extends AbstractJaxRSResource {
   public Response getAll() throws Exception {
     try {
       if ( canAdminister() ) {
-        return Response.ok( SystemResourceService.getAll().asXML() ).type( MediaType.APPLICATION_XML ).build();
+        return Response.ok( SystemService.getSystemService().getAll().asXML() ).type( MediaType.APPLICATION_XML ).build();
       } else {
         return Response.status( UNAUTHORIZED ).build();
       }

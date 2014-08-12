@@ -103,11 +103,11 @@ public class UserRoleListService {
   }
 
   protected String getRolesForUser( String user ) throws Exception {
-    return SystemResourceService.getRolesForUser( user ).asXML();
+    return SystemService.getSystemService().getRolesForUser( user ).asXML();
   }
 
   protected String getUsersInRole( String role ) throws Exception {
-    return SystemResourceService.getUsersInRole( role ).asXML();
+    return SystemService.getSystemService().getUsersInRole( role ).asXML();
   }
 
   public void setExtraRoles( ArrayList<String> extraRoles ) { this.extraRoles = extraRoles; }
