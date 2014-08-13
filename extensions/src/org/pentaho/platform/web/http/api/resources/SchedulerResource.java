@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,14 +42,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
@@ -61,11 +55,9 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
-import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
 /**
@@ -82,8 +74,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
 
   protected IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-
-  private static final Log logger = LogFactory.getLog( SchedulerResource.class );
 
   private SchedulerService schedulerService;
 
@@ -120,16 +110,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } catch ( IllegalAccessException e ) {
       return Response.status( FORBIDDEN ).build();
     }
-  }
-
-  private boolean getAutoCreateUniqueFilename( final JobScheduleRequest scheduleRequest ) {
-    ArrayList<JobScheduleParam> jobParameters = scheduleRequest.getJobParameters();
-    for ( JobScheduleParam jobParameter : jobParameters ) {
-      if ( "autoCreateUniqueFilename".equals( jobParameter.getName() ) && "boolean".equals( jobParameter.getType() ) ) {
-        return (Boolean) jobParameter.getValue();
-      }
-    }
-    return true;
   }
 
   /**
@@ -494,10 +474,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return getBlockoutJobs();
   }
 
+  
   /**
-   * Retrieves all blockout jobs in the system
-   *
-   * @return list of <code> Job </code>
+   * Retrieves all blockout jobs
+   * <p/>
+   * This endpoint will return a list of all blockout jobs in the system.  
+   * 
+   * @return a Response object that contains a list of blockout jobs
    */
   @GET
   @Path( "/blockout/blockoutJobs" )
@@ -508,9 +491,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
   
   
   /**
-   * Determines whether there are any blockouts in the system
+   * Checks if there are blockouts
+   * <p/>
+   * This endpoint determines whether there are any blockouts in the system
    *
-   * @return true if the system has any blockouts
+   * @return true if the system has any blockouts, false otherwise
    */
   @GET
   @Path( "/blockout/hasBlockouts" )
@@ -521,10 +506,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Creates a new blockout schedule
+   * Creates a new blockout
+   * <p>
+   * Creates a new blockout with the values from the supplied XML/JSON payload
+   * 
+   * @param scheduleRequest <pre function="syntax.xml">
    *
-   * @param request <code> JobScheduleRequest </code>
-   * @return
+   *                        </pre>
+   * @return a Response object which contains one of the following:
+   * 1) the ID of the blockout which was created
+   * 2) a response code of 401 (UNAUTHORIZED) - user not allowed to create blockout
+   * 
    * @throws IOException
    */
   @POST
@@ -542,11 +534,20 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Updates a selected blockout schedule
+   * Update existing blockout
+   * <p>
+   * This endpoint will edit an existing blockout with the values from the supplied XML/JSON payload
+   * 
+   * @param jobId The jobId we are editing <pre function="syntax.xml">
    *
-   * @param jobId   (ID of the blockout schedule to be updated)
-   * @param request <code> JobScheduleRequest </code>
-   * @return
+   *                        </pre>
+   * @param scheduleRequest The payload containing the definition of the blockout <pre function="syntax.xml">
+   *
+   *                        </pre>
+   * @return a Response object which contains one of the following:
+   * 1) the ID of the blockout which was created
+   * 2) a response code of 401 (UNAUTHORIZED) - user not allowed to create blockout
+   * 
    * @throws IOException
    */
   @POST
@@ -567,9 +568,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Checks if the selected blockout schedule will be fired
+   * <p>
+   * Checks if the selected blockout schedule will be fired
+   * 
+   * @param scheduleRequest <pre function="syntax.xml">
    *
-   * @param request <code> JobScheduleRequest </code>
-   * @return
+   *                        </pre>
+   * @return a Response object which contains one of the following:
+   * 1) true/false if the provided schedule (blockout) will fire
+   * 2) a response code of 500 (Internal Server Error) with a root cause of:
+   * A) UnifiedRepositoryException
+   * B) SchedulerException
    */
   @GET
   @Path( "/blockout/blockoutWillFire" )
@@ -590,8 +599,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Checks if the selected blockout schedule should be fired now
-   *
-   * @return
+   * <p>
+   * Checks if the selected blockout schedule should be fired now
+   * 
+   * @return true if the selected blockout should be fired now, false otherwise
    */
   @GET
   @Path( "/blockout/blockoutShouldFireNow" )
@@ -601,15 +612,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return Response.ok( result.toString() ).build();
   }
 
+  
   /**
+   * Check the status of the selected blockout schedule. 
+   * <p>
    * Check the status of the selected blockout schedule. The status will display whether it is completely blocked or
    * partially blocked
+   * 
+   * @param scheduleRequest <pre function="syntax.xml">
    *
-   * @param request
-   * @return <code> BlockStatusProxy </code>
+   *                        </pre>
+   * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags
+   * 
    * @throws UnifiedRepositoryException
    * @throws SchedulerException
-   */
+   */  
   @POST
   @Path( "/blockout/blockStatus" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
