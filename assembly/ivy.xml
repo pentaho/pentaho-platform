@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ivy-module version="2.0">
+<ivy-module version="2.0" xmlns:maven="http://maven.apache.org">
   <info organisation="pentaho" module="pentaho-platform-assembly" revision="${project.revision}" />
   <configurations>
     <conf name="default" />
@@ -252,7 +252,7 @@
 
 
     <dependency org="pentaho" name="pentaho-karaf-assembly" rev="${dependency.pentaho-karaf-assembly.revision}" changing="true" transitive="false" conf="plugin->default">
-      <artifact name="pentaho-karaf-assembly" type="zip" /> <!-- download the zip file, not the jar -->
+      <artifact name="pentaho-karaf-assembly" type="zip"  maven:classifier="server"/> <!-- download the zip file, not the jar -->
     </dependency>
 
     <!-- Solutions bundles -->
