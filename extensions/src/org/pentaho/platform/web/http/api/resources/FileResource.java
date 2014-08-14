@@ -737,7 +737,13 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
+   * <p>Retrieves the list of locale map for the selected repository file.</p>
+   *
    * Retrieves the list of locale map for the selected repository file. The list will be empty if a problem occurs.
+   *
+   * <p>Example Request:<br>
+   *          GET api/repo/files/pathToFile/locales
+   * </p>
    *
    * @param pathId colon separated path for the repository file
    * <pre function="syntax.xml">
@@ -774,6 +780,11 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/locales" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved locale information." ),
+      @ResponseCode( code = 404, condition = "Failed to retrieve locales because the file was not found."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve locales due to some other error.")
+})
   public List<LocaleMapDto> doGetFileLocales( @PathParam( "pathId" ) String pathId ) {
     List<LocaleMapDto> locales = new ArrayList<LocaleMapDto>();
     try {
@@ -787,13 +798,22 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of locale properties for a given locale
+   * <p>Retrieve the list of locale properties for a given locale.</p>
+   *
+   * Retrieve the list of locale properties for a given locale.  The properties are returned as key value pairs.
+   *
+   *  <p>Example Request:<br>
+   *     GET api/repo/files/pathToFile/localeProperties
+   * </p>
    *
    * @param pathId Colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
    * @param locale The specified locale
+   * <pre function="syntax.xml">
+   *   en_US
+   * </pre>
    * @return <code>&lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
@@ -812,16 +832,30 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved locale properties." ),
+      @ResponseCode( code = 500, condition = "Unable to retrieve locale properties due to some other error.")
+  })
   public List<StringKeyStringValueDto> doGetLocaleProperties( @PathParam( "pathId" ) String pathId,
       @QueryParam( "locale" ) String locale ) {
     return fileService.doGetLocaleProperties( pathId, locale );
   }
 
   /**
-   * Save list of locale properties for a given locale
+   * <p>Save list of locale properties for a given locale.</p>
+   *
+   * This method saves a list of locale properties for a given locale.  The method requires a pathId to the file,
+   * a specified locale, and a properties object.
+   *
+   * <p>Example Request:<br>
+   *     PUT api/repo/files/pathToFile/localeProperties
+   * </p>
    *
    * @param pathId Colon separated path for the repository file
-   * @param locale The specified locale
+   * @param locale A string representation of the locale to set properties on
+   * <pre function="syntax.xml">
+   *   en_US
+   * </pre>
    * @param properties
    * <code>&lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
@@ -837,11 +871,16 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
    * &lt;/stringKeyStringValueDtoes&gt;</code>
-   * @return Response object indicating the success or failure of this operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully updated locale properties." ),
+      @ResponseCode( code = 500, condition = "Unable to update locale properties due to some other error.")
+  })
   public Response doSetLocaleProperties( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale,
       List<StringKeyStringValueDto> properties ) {
     try {
@@ -853,22 +892,35 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete the locale for the selected file and locale
+   * <p>Delete the locale for the selected file and locale.</p>
+   *
+   * Delete the locale for the selected file and locale.  This method takes in a file path, a String representing
+   * the locale to be deleted.
+   *
+   *  <p>Example Request:<br>
+   *     PUT api/repo/files/pathToFile/localeProperties
+   * </p>
    *
    * @param pathId Colon separated path for the repository file
    * <pre function="syntax.xml">
    *   path:to:file:id
    * </pre>
    *     
-   * @param locale The locale to be deleted
+   * @param locale A string representations of the locale to be deleted.
    * <pre function="syntax.xml">
    *   en_US
    * </pre>    
-   * @return Server Response indicating the success of the operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @PUT
   @Path( "{pathId : .+}/deleteLocale" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully deleted the locale." ),
+      @ResponseCode( code = 500, condition = "Unable to delete the locale properties due to some other error.")
+  })
   public Response doDeleteLocale( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale ) {
     try {
       fileService.doDeleteLocale( pathId, locale );
@@ -879,13 +931,17 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves the properties of the root directory
+   * <p>Retrieves the properties of the root directory.</p>
+   *
+   * Retrieves the properties of the root directory.  The properties are returned in a string value pair format.
    *
    *<p>Example Request:<br>
-   *               GET api/repo/files/properties<br>
-   *               <p/>
+   *      GET api/repo/files/properties
+   *</p>
    *
-   * <p>Example Response:<br/>
+   * @return file properties object <code> RepositoryFileDto </code> for the root directory
+   *
+   *    <p>Example Response:<br/>
    *               HTTP/1.1 200 OK
    *               </p>
    *               <pre function="syntax.xml">
@@ -903,54 +959,104 @@ public class FileResource extends AbstractJaxRSResource {
    *                 &lt;title/&gt;
    *                 &lt;versioned&gt;false&lt;/versioned&gt;
    *               &lt;/repositoryFileDto&gt;
-   *               </pre>
-   *
-   * @return file properties object <code> RepositoryFileDto </code> for the root directory
+   *              </pre>
    */
   @GET
   @Path( "/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved the properties of the root directory."),
+      @ResponseCode( code = 404, condition = "Unable to retrieve the properties of the root directory due to file not found error."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve the properties of the root directory due to some other error.")
+  })
   public RepositoryFileDto doGetRootProperties() {
     return fileService.doGetRootProperties();
   }
 
   /**
-   * Checks whether the current user has permissions to the selected files
+   * <p>Checks if user can access selected files.</p>
+   *
+   * Checks whether the current user has permissions to the selected files.  Can check for more than one permission at once.
+   *
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/pathToFile/canAccessMap?permissions=1
+   *</p>
    *
    * @param pathId Colon separated path for the repository file
    * <pre function="syntax.xml">
    *   path:to:file:id
    * </pre>
    *     
-   * @param permissions Pipe separated permissions to be checked
+   * @param permissions Pipe separated permissions to be checked for
    * <pre function="syntax.xml">
    *   permission1|permission2|permission3
    * </pre>    
    * @return List of permissions for the selected files
+   * Example Response:
+   *
+   * <pre function="syntax.xml">
+   *   {"setting":[{"name":"1","value":"true"}]}
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/canAccessMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved the permissions of the file."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve the permissions of the file due to some other error.")
+  })
   public List<Setting> doGetCanAccessList( @PathParam( "pathId" ) String pathId,
       @QueryParam( "permissions" ) String permissions ) {
     return fileService.doGetCanAccessList( pathId, permissions );
   }
 
   /**
-   * Checks whether the current user has permissions to the provided list of paths
+   * <p>Check if user has permissions to view data on a path or paths.</p>
    *
-   * @param pathsWrapper Collection of paths to be checked
+   * Checks whether the current user has permissions to the provided list of paths.
+   *
+   *  <p>Example Request:<br>
+   *   Post /api/repo/files/pathsAccessList
+   *  </p>
+   * @param pathsWrapper Collection of Strings containing the paths to be checked
    * <pre function="syntax.xml">
-   *   pathToFileId1
-   *   pathToFileId2
-   *   pathToFileId3
+   *  <stringListWrapper>
+   *  <strings>/public</strings>
+   *  </stringListWrapper>
    * </pre>
    * @return A collection of the permission settings for the paths
+   *
+   * Example Response:
+   * <pre function="syntax.xml">
+   *    <settings>
+   *      <setting>
+   *       <name>
+   *         /public
+   *       </name>
+   *       <value>
+   *         0
+   *       </value>
+   *     </setting>
+   *     <setting>
+   *      <name>
+   *        /public
+   *      </name>
+   *      <value>
+   *         1
+   *      </value>
+   *    </setting>
+   *   </settings>
+   * </pre>
+   *
    */
   @POST
   @Path( "/pathsAccessList" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved the permissions of the given paths."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error.")
+  })
   public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
     return fileService.doGetPathsAccessList( pathsWrapper );
   }
