@@ -270,7 +270,7 @@ public class SchedulerServiceTest {
     doNothing().when( schedulerService.scheduler ).triggerNow( anyString() );
 
     //Test 1
-    Job resultJob1 = schedulerService.triggerNow( jobRequest );
+    Job resultJob1 = schedulerService.triggerNow( jobRequest.getJobId() );
 
     assertEquals( job, resultJob1 );
 
@@ -282,7 +282,7 @@ public class SchedulerServiceTest {
     doReturn( "test" ).when( pentahoSession ).getName();
     doReturn( pentahoSession ).when( schedulerService ).getSession();
 
-    Job resultJob2 = schedulerService.triggerNow( jobRequest );
+    Job resultJob2 = schedulerService.triggerNow( jobRequest.getJobId() );
 
     assertEquals( job, resultJob2 );
 

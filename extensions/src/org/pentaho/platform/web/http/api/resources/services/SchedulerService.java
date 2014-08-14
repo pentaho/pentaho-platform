@@ -38,6 +38,7 @@ import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -45,7 +46,6 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
@@ -112,7 +112,7 @@ public class SchedulerService {
     }
 
     Job job = null;
-    IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
+    IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest  );
 
     HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
     for ( JobScheduleParam param : scheduleRequest.getJobParameters() ) {
@@ -150,17 +150,17 @@ public class SchedulerService {
     return job;
   }
 
-  public Job triggerNow( JobRequest jobRequest ) throws SchedulerException {
-    Job job = getScheduler().getJob( jobRequest.getJobId() );
+  public Job triggerNow( String jobId ) throws SchedulerException {
+    Job job = getScheduler().getJob( jobId );
     if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
-      getScheduler().triggerNow( jobRequest.getJobId() );
+      getScheduler().triggerNow( jobId );
     } else {
       if ( getSession().getName().equals( job.getUserName() ) ) {
-        getScheduler().triggerNow( jobRequest.getJobId() );
+        getScheduler().triggerNow( jobId );
       }
     }
     // udpate job state
-    job = getScheduler().getJob( jobRequest.getJobId() );
+    job = getScheduler().getJob( jobId );
 
     return job;
   }
@@ -169,7 +169,7 @@ public class SchedulerService {
     IPentahoSession session = getSession();
     final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
     // changed to get name via the current session
-    final Boolean canAdminister = policy.isAllowed( AdministerSecurityAction.NAME );
+    final Boolean canAdminister = getPolicy().isAllowed( AdministerSecurityAction.NAME );
 
     List<Job> jobs = getScheduler().getJobs( getJobFilter( canAdminister, principalName ) );
 
@@ -180,6 +180,25 @@ public class SchedulerService {
     return null;
   }
 
+  public Job getJob( String jobId ) throws SchedulerException {
+    return scheduler.getJob( jobId );
+  }
+  
+  public boolean isScheduleAllowed() {
+    return getPolicy().isAllowed( SchedulerAction.NAME );
+  }
+  
+  public boolean isScheduleAllowed( String id ) {
+    Boolean canSchedule = isScheduleAllowed();
+    if ( canSchedule ) {
+      Map<String, Serializable> metadata = repository.getFileMetadata( id );
+      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
+        canSchedule = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
+      }
+    }
+    return canSchedule; 
+  }
+  
   public IJobFilter getJobFilter( boolean canAdminister, String principalName ) {
     return new JobFilter( canAdminister, principalName );
   }
@@ -221,19 +240,46 @@ public class SchedulerService {
   }
 
   public String pause() throws SchedulerException {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+    if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
       scheduler.pause();
     }
     return getScheduler().getStatus().name();
   }
 
   public String shutdown() throws SchedulerException {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+    if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
       scheduler.shutdown();
     }
     return getScheduler().getStatus().name();
   }
 
+  public JobState pauseJob( String jobId ) throws SchedulerException {
+    Job job = getJob( jobId );
+    if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
+      scheduler.pauseJob( jobId );
+    }
+    job = getJob( jobId );
+    return job.getState();
+  }
+  
+  public JobState resumeJob( String jobId ) throws SchedulerException {
+    Job job = getJob( jobId );
+    if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
+      scheduler.resumeJob( jobId );
+    }
+    job = getJob( jobId );
+    return job.getState();
+  }  
+  
+  public boolean removeJob( String jobId ) throws SchedulerException {
+    Job job = getJob( jobId );
+    if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
+      scheduler.removeJob( jobId );
+      return true;
+    }
+    return false;
+  }
+  
   public List<Job> getBlockOutJobs() {
     return blockoutManager.getBlockOutJobs();
   }
@@ -332,7 +378,7 @@ public class SchedulerService {
   }
 
   protected Boolean canAdminister( IPentahoSession session ) {
-    if ( policy.isAllowed( AdministerSecurityAction.NAME ) ) {
+    if ( getPolicy().isAllowed( AdministerSecurityAction.NAME ) ) {
       return true;
     }
     return false;
