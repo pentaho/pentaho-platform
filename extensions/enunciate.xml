@@ -1,7 +1,11 @@
 <enunciate basedir="src/" defaultRestSubcontext="/api">
-  <modules>
+<facets>
+    <exclude name="Unsupported"/>
+</facets>  
+<modules>
     <docs splashPackage="com.pentaho.api" title="Pentaho BIServer api doc" copyright="Pentaho.com" docsDir="apidocs">
     </docs>
+
     <c disabled="true"/>
   	<obj-c disabled="true"/>
   	<csharp disabled="true"/> 
