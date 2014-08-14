@@ -42,6 +42,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -207,86 +209,130 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks whether the current user has authority to schedule any content in the platform
+   * <p>Checks whether the current user has authority to schedule any content in the platform</p>
    *
-   * @return ("true" or "false")
+   * <p>Example Request:<br />
+   *  api/scheduler/canSchedule
+   * </p>
+   *
+   * <p>Checks whether the current user has authority to schedule any content in the platform and returns the response as a true/false value.</p>
+   *
+   * @return "true" or "false"
    */
   @GET
   @Path( "/canSchedule" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 500, condition = "An error occurred while completing the operation." )
+  })
   public String doGetCanSchedule() {
-    Boolean isAllowed = policy.isAllowed( SchedulerAction.NAME );
-    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return schedulerService.doGetCanSchedule();
   }
 
   /**
-   * Returns the state of the scheduler (Schedule could be either paused or normal)
+   * <p>Returns the state of the scheduler</p>
    *
-   * @return status of the scheduler
+   * <p>Example Request:<br />
+   *  api/scheduler/state
+   * </p>
+   *
+   * <p>Returns the state of the scheduler with the value of RUNNING, NORMAL or PAUSED</p>
+   *
+   * @return status of the scheduler as RUNNING, NORMAL or PAUSED
    */
   @GET
   @Path( "/state" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the state of the scheduler." ),
+    @ResponseCode( code = 500, condition = "An error occurred when getting the state of the scheduler." )
+  })
   public Response getState() {
     try {
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String state = schedulerService.getState();
+      return Response.ok( state ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * If the scheduler is in the PAUSE state, this will resume the scheduler
+   * <p>Resume the scheduler</p>
    *
-   * @return
+   * <p>Example Request:<br />
+   *  api/scheduler/start
+   * </p>
+   *
+   * <p>If the scheduler is in the PAUSE state, this will resume the scheduler</p>
+   *
+   * @return A jax-rs Response object with the status of the scheduler
    */
   @POST
   @Path( "/start" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully started the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when resuming the scheduler." )
+  })
   public Response start() {
     try {
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.start();
-      }
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String status = schedulerService.start();
+      return Response.ok( status ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * If the schedule in the state of "NORMAL", this will "PAUSE" the scheduler
+   * <p>Pause the scheduler</p>
    *
-   * @return
+   * <p>Example Request:<br />
+   *  api/scheduler/pause
+   * </p>
+   *
+   * <p>If the scheduler is in the RUNNING state, this will pause the scheduler</p>
+   *
+   * @return A jax-rs Response object with the status of the scheduler
    */
   @POST
   @Path( "/pause" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully paused the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when pausing the scheduler." )
+  })
   public Response pause() {
     try {
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.pause();
-      }
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String status = schedulerService.pause();
+      return Response.ok( status ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Shuts down the scheduler
+   * <p>Shuts down the scheduler</p>
    *
-   * @return
+   * <p>Example Request:<br />
+   *  api/scheduler/shutdown
+   * </p>
+   *
+   * <p>Regardless of the scheduler state, this will shut down the scheduler</p>
+   *
+   * @return A jax-rs Response object with the status of the scheduler
    */
   @POST
   @Path( "/shutdown" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully shut down the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when shutting down the scheduler." )
+  })
   public Response shutdown() {
     try {
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.shutdown();
-      }
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String status = schedulerService.shutdown();
+      return Response.ok( status ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }

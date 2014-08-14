@@ -17,6 +17,7 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -342,7 +343,7 @@ public class SchedulerServiceTest {
     try {
       schedulerService.getContentCleanerJob();
       fail();
-    } catch (SchedulerException e ) {
+    } catch ( SchedulerException e ) {
       //Should catch the exception
     }
 
@@ -350,6 +351,185 @@ public class SchedulerServiceTest {
     verify( session ).getName();
     verify( schedulerService.policy ).isAllowed( AdministerSecurityAction.NAME );
     verify( schedulerService.scheduler ).getJobs( any( IJobFilter.class ) );
+  }
+
+  @Test
+  public void testDoCanSchedule() {
+
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    //Test 1
+    String isAllowed = schedulerService.doGetCanSchedule();
+
+    assertEquals( "true", isAllowed );
+
+    //Test 2
+    doReturn( false ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    isAllowed = schedulerService.doGetCanSchedule();
+
+    assertEquals( "false", isAllowed );
+
+    verify( schedulerService.policy, times( 2 ) ).isAllowed( SchedulerAction.NAME );
+  }
+
+  @Test
+  public void testGetState() throws SchedulerException {
+
+    doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
+
+    String state = schedulerService.getState();
+
+    assertEquals( "RUNNING", state );
+
+    verify( schedulerService.scheduler ).getStatus();
+  }
+
+  @Test
+  public void testGetStateException() throws SchedulerException {
+
+    doThrow( new SchedulerException( "" ) ).when( schedulerService.scheduler ).getStatus();
+
+    try {
+      schedulerService.getState();
+      fail();
+    } catch ( SchedulerException e ) {
+      //Should go here
+    }
+
+    verify( schedulerService.scheduler ).getStatus();
+  }
+
+  @Test
+  public void testStart() throws SchedulerException {
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doNothing().when( schedulerService.scheduler ).start();
+
+    doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
+
+    //Test 1
+    String state = schedulerService.start();
+
+    assertEquals( "RUNNING", state );
+
+    //Test 2
+    doReturn( IScheduler.SchedulerStatus.STOPPED ).when( schedulerService.scheduler ).getStatus();
+    doReturn( false ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    state = schedulerService.start();
+
+    assertEquals( "STOPPED", state );
+
+    verify( schedulerService.policy, times( 2 ) ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.scheduler, times( 1 ) ).start();
+    verify( schedulerService.scheduler, times( 2 ) ).getStatus();
+  }
+
+
+  @Test
+  public void testStartException() throws SchedulerException {
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doThrow( new SchedulerException( "" ) ).when( schedulerService.scheduler ).start();
+
+    try {
+      schedulerService.start();
+      fail();
+    } catch ( SchedulerException e ) {
+      //Should go here
+    }
+
+    verify( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.scheduler ).start();
+  }
+
+  @Test
+  public void testPause() throws SchedulerException {
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doNothing().when( schedulerService.scheduler ).pause();
+
+    doReturn( IScheduler.SchedulerStatus.PAUSED ).when( schedulerService.scheduler ).getStatus();
+
+    //Test 1
+    String state = schedulerService.pause();
+
+    assertEquals( "PAUSED", state );
+
+    //Test 2
+    doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
+    doReturn( false ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    state = schedulerService.pause();
+
+    assertEquals( "RUNNING", state );
+
+    verify( schedulerService.policy, times( 2 ) ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.scheduler, times( 1 ) ).pause();
+    verify( schedulerService.scheduler, times( 2 ) ).getStatus();
+  }
+
+
+  @Test
+  public void testPauseException() throws SchedulerException {
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doThrow( new SchedulerException( "" ) ).when( schedulerService.scheduler ).pause();
+
+    try {
+      schedulerService.pause();
+      fail();
+    } catch ( SchedulerException e ) {
+      //Should go here
+    }
+
+    verify( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.scheduler ).pause();
+  }
+
+  @Test
+  public void testShutdown() throws SchedulerException {
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doNothing().when( schedulerService.scheduler ).shutdown();
+
+    doReturn( IScheduler.SchedulerStatus.STOPPED ).when( schedulerService.scheduler ).getStatus();
+
+    //Test 1
+    String state = schedulerService.shutdown();
+
+    assertEquals( "STOPPED", state );
+
+    //Test 2
+    doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
+    doReturn( false ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    state = schedulerService.shutdown();
+
+    assertEquals( "RUNNING", state );
+
+    verify( schedulerService.policy, times( 2 ) ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.scheduler, times( 1 ) ).shutdown();
+    verify( schedulerService.scheduler, times( 2 ) ).getStatus();
+  }
+
+
+  @Test
+  public void testShutdownException() throws SchedulerException {
+    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+
+    doThrow( new SchedulerException( "" ) ).when( schedulerService.scheduler ).shutdown();
+
+    try {
+      schedulerService.shutdown();
+      fail();
+    } catch ( SchedulerException e ) {
+      //Should go here
+    }
+
+    verify( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+    verify( schedulerService.scheduler ).shutdown();
   }
 
 }

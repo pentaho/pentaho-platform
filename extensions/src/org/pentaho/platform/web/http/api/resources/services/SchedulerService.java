@@ -204,6 +204,36 @@ public class SchedulerService {
     }
   }
 
+  public String doGetCanSchedule() {
+    Boolean isAllowed = getPolicy().isAllowed( SchedulerAction.NAME );
+    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+  }
+
+  public String getState() throws SchedulerException {
+    return getScheduler().getStatus().name();
+  }
+
+  public String start() throws SchedulerException {
+    if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
+      getScheduler().start();
+    }
+    return getScheduler().getStatus().name();
+  }
+
+  public String pause() throws SchedulerException {
+    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+      scheduler.pause();
+    }
+    return getScheduler().getStatus().name();
+  }
+
+  public String shutdown() throws SchedulerException {
+    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+      scheduler.shutdown();
+    }
+    return getScheduler().getStatus().name();
+  }
+
   public List<Job> getBlockOutJobs() {
     return blockoutManager.getBlockOutJobs();
   }
