@@ -55,7 +55,7 @@
     <param name="user" value="jcr_user"/>
     <param name="password" value="password"/>
     <param name="schemaObjectPrefix" value="fs_repos_"/>
-    <param name="tablespace" value="pentaho_tablespace"/>
+    <param name="tablespace" value="jackrabbit"/>
   </FileSystem>
 
   <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
@@ -208,7 +208,7 @@
       <param name="user" value="jcr_user"/>
       <param name="password" value="password"/>
       <param name="schemaObjectPrefix" value="fs_ws_"/>
-      <param name="tablespace" value="pentaho_tablespace"/>
+      <param name="tablespace" value="jcr_user"/>
     </FileSystem>
 
     <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
@@ -256,7 +256,7 @@
       <param name="password" value="password"/>
       <param name="schema" value="oracle"/>
       <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
-      <param name="tablespace" value="pentaho_tablespace"/>
+      <param name="tablespace" value="jackrabbit"/>
     </PersistenceManager>
 
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
@@ -338,7 +338,7 @@ value="{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:w
       <param name="user" value="jcr_user"/>
       <param name="password" value="password"/>
       <param name="schemaObjectPrefix" value="fs_ver_"/>
-      <param name="tablespace" value="pentaho_tablespace"/>
+      <param name="tablespace" value="jackrabbit"/>
     </FileSystem>
 
     <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
@@ -386,7 +386,7 @@ value="{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:w
       <param name="password" value="password"/>
       <param name="schema" value="oracle"/>
       <param name="schemaObjectPrefix" value="pm_ver_"/>
-      <param name="tablespace" value="pentaho_tablespace"/>
+      <param name="tablespace" value="jackrabbit"/>
     </PersistenceManager>
 
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
