@@ -41,6 +41,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.doc.ExcludeFromDocumentation;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
@@ -450,7 +451,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path( "/jobinfotest" )
   @Produces( { APPLICATION_JSON } )
-  @ExcludeFromDocumentation
+  @Facet ( name = "Unsupported" )
   public JobScheduleRequest getJobInfo() {
     JobScheduleRequest jobRequest = new JobScheduleRequest();
     ComplexJobTriggerProxy proxyTrigger = new ComplexJobTriggerProxy();
@@ -480,7 +481,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @return list of <code> Job </code>
    */
   @Deprecated
-  @ExcludeFromDocumentation
+  @Facet( name = "Unsupported" )
   public Response getJobs() {
     return getBlockoutJobs();
   }
