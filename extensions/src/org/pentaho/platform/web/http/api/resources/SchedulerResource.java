@@ -344,14 +344,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getJobState( JobRequest jobRequest ) {
     try {
-      Job job = schedulerService.getJob( jobRequest.getJobId() );
-      if ( schedulerService.isScheduleAllowed() ) {
-        return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
-        }
-      }
+      return Response.ok( schedulerService.getJobState( jobRequest ).name() ).type( MediaType.TEXT_PLAIN ).build();
+    } catch ( UnsupportedOperationException e ) {
       return Response.status( Status.UNAUTHORIZED ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );

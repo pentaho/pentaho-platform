@@ -49,6 +49,7 @@ import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
@@ -56,6 +57,9 @@ import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class SchedulerService {
 
@@ -323,6 +327,15 @@ public class SchedulerService {
       totallyBlocked = !blockoutManager.willFire( trigger );
     }
     return new BlockStatusProxy( totallyBlocked, partiallyBlocked );
+  }
+
+  public JobState getJobState( JobRequest jobRequest ) throws SchedulerException {
+    Job job = getJob( jobRequest.getJobId() );
+    if ( isScheduleAllowed() || getSession().getName().equals( job.getUserName() ) ) {
+      return job.getState();
+    }
+
+    throw new UnsupportedOperationException();
   }
 
   protected IPentahoSession getSession() {

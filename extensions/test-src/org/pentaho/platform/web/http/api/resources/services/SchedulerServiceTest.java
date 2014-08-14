@@ -572,4 +572,72 @@ public class SchedulerServiceTest {
     List<RepositoryFileDto> list = schedulerService.doGetGeneratedContentForSchedule( lineageId );
     assertEquals( mockList, list );
   }
+
+  @Test
+  public void testGetJobState() throws Exception {
+    JobRequest mockJobRequest = mock( JobRequest.class );
+
+    String jobId = "jobId";
+    doReturn( jobId ).when( mockJobRequest ).getJobId();
+
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    doReturn( mockSession ).when( schedulerService ).getSession();
+
+    Job mockJob = mock( Job.class );
+    doReturn( mockJob ).when( schedulerService ).getJob( jobId );
+    doReturn( Job.JobState.BLOCKED ).when( mockJob ).getState();
+
+    String username = "username";
+    doReturn( username ).when( mockJob ).getUserName();
+    doReturn( username ).when( mockSession ).getName();
+
+    // Test 1
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+
+    Job.JobState testState = schedulerService.getJobState( mockJobRequest );
+    assertEquals( Job.JobState.BLOCKED, testState );
+
+    // Test 2
+    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+
+    testState = schedulerService.getJobState( mockJobRequest );
+    assertEquals( Job.JobState.BLOCKED, testState );
+
+    verify( mockJobRequest, times( 2 ) ).getJobId();
+    verify( schedulerService, times( 1 ) ).getSession();
+    verify( schedulerService, times( 2 ) ).getJob( jobId );
+    verify( mockJob, times( 2 ) ).getState();
+    verify( mockJob, times( 1 ) ).getUserName();
+    verify( mockSession, times( 1 ) ).getName();
+  }
+
+  @Test
+  public void testGetJobStateError() throws Exception {
+    JobRequest mockJobRequest = mock( JobRequest.class );
+
+    String jobId = "jobId";
+    doReturn( jobId ).when( mockJobRequest ).getJobId();
+
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    doReturn( mockSession ).when( schedulerService ).getSession();
+
+    Job mockJob = mock( Job.class );
+    doReturn( mockJob ).when( schedulerService ).getJob( jobId );
+    doReturn( Job.JobState.BLOCKED ).when( mockJob ).getState();
+
+    String username = "username";
+    doReturn( username ).when( mockJob ).getUserName();
+
+    String sessionName = "notUsername";
+    doReturn( sessionName ).when( mockSession ).getName();
+
+    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+
+    try {
+      schedulerService.getJobState( mockJobRequest );
+      fail();
+    } catch ( UnsupportedOperationException e ) {
+      // Expected
+    }
+  }
 }
