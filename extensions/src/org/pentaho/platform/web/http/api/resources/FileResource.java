@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
@@ -64,12 +65,15 @@ import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.doc.ExcludeFromDocumentation;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
@@ -80,6 +84,7 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
+import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -107,9 +112,9 @@ public class FileResource extends AbstractJaxRSResource {
 
   public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
 
-  private static final Log logger = LogFactory.getLog( FileResource.class );
+  protected static final Log logger = LogFactory.getLog( FileResource.class );
 
-  private static FileService fileService;
+  protected FileService fileService;
 
   protected RepositoryDownloadWhitelist whitelist;
 
@@ -134,7 +139,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   public static String idToPath( String pathId ) {
-    return fileService.idToPath( pathId );
+    return FileUtils.idToPath( pathId );
   }
 
   /**
@@ -158,10 +163,10 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doDeleteFiles( String params ) {
     try {
       fileService.doDeleteFiles( params );
-      return Response.ok().build();
+      return buildOkResponse();
 
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t );
     }
   }
 
@@ -178,10 +183,10 @@ public class FileResource extends AbstractJaxRSResource {
     public Response doDeleteFilesPermanent( String params ) {
     try {
       fileService.doDeleteFilesPermanent( params );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( Throwable t ) {
       t.printStackTrace();
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t );
     }
   }
 
@@ -214,13 +219,13 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     try {
       fileService.doMoveFiles( destPathId, params );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( FileNotFoundException e ) {
       logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINATION_PATH_UNKNOWN", destPathId ), e );
-      return Response.status( NOT_FOUND ).build();
+      return buildStatusResponse( NOT_FOUND );
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED" ), t );
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
+      return buildStatusResponse( INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -249,10 +254,10 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doRestore( String params ) {
     try {
       fileService.doRestoreFiles( params );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( InternalError e ) {
       logger.error( Messages.getInstance().getString( "FileResource.FILE_GET_LOCALES" ), e );
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
+      return buildStatusResponse( INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -278,10 +283,10 @@ public class FileResource extends AbstractJaxRSResource {
   })
   public Response createFile( @PathParam( "pathId" ) String pathId, InputStream fileContents ) {
     try {
-      fileService.createFile( httpServletRequest, pathId, fileContents );
-      return Response.ok().build();
+      fileService.createFile( httpServletRequest.getCharacterEncoding(), pathId, fileContents );
+      return buildOkResponse();
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t );
     }
   }
 
@@ -324,11 +329,10 @@ public class FileResource extends AbstractJaxRSResource {
       fileService.doCopyFiles( pathId, mode, params );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return Response.serverError().entity(
-          new SafeHtmlBuilder().appendEscapedLines( e.getLocalizedMessage() ).toSafeHtml().asString() ).build();
+      return buildSafeHtmlServerErrorResponse( e );
     }
 
-    return Response.ok().build();
+    return buildOkResponse();
   }
 
   /**
@@ -358,16 +362,13 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doGetFileOrDir( @PathParam( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
-
-      return Response.ok( wrapper.getOutputStream(), wrapper.getMimetype() ).header( "Content-Disposition",
-          "inline; filename=\"" + wrapper.getRepositoryFile().getName() + "\"" ).build();
-
+      return buildOkResponse( wrapper );
     } catch ( FileNotFoundException fileNotFound ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
-      return Response.status( NOT_FOUND ).build();
+      return buildStatusResponse( NOT_FOUND );
     } catch ( IllegalArgumentException illegalArgument ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), illegalArgument );
-      return Response.status( FORBIDDEN ).build();
+      return buildStatusResponse( FORBIDDEN );
     }
   }
 
@@ -377,22 +378,22 @@ public class FileResource extends AbstractJaxRSResource {
   // @Path("{pathId : .+}")
   // @Produces({ APPLICATION_ZIP })
   public Response doGetDirAsZip( @PathParam( "pathId" ) String pathId ) {
-    String path = FileUtils.idToPath( pathId );
+    String path = fileService.idToPath( pathId );
 
     if ( !isPathValid( path ) ) {
-      return Response.status( FORBIDDEN ).build();
+      return buildStatusResponse( FORBIDDEN );
     }
 
     // you have to have PublishAction in order to get dir as zip
-    if ( getPolicy().isAllowed( PublishAction.NAME ) == false ) {
-      return Response.status( FORBIDDEN ).build();
+    if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
+      return buildStatusResponse( FORBIDDEN );
     }
 
     RepositoryFile repoFile = getRepository().getFile( path );
 
     if ( repoFile == null ) {
       // file does not exist or is not readable but we can't tell at this point
-      return Response.status( NOT_FOUND ).build();
+      return buildStatusResponse( NOT_FOUND );
     }
 
     return doGetDirAsZip( repoFile );
@@ -407,28 +408,21 @@ public class FileResource extends AbstractJaxRSResource {
     String path = repositoryFile.getPath();
 
     final InputStream is;
-    StreamingOutput streamingOutput = null;
 
     try {
-      org.pentaho.platform.plugin.services.importexport.Exporter exporter =
-          new org.pentaho.platform.plugin.services.importexport.Exporter( repository );
+      Exporter exporter = getExporter();
       exporter.setRepoPath( path );
       exporter.setRepoWs( repoWs );
 
       File zipFile = exporter.doExportAsZip( repositoryFile );
-      is = new FileInputStream( zipFile );
+      is = getFileInputStream( zipFile );
     } catch ( Exception e ) {
-      return Response.serverError().entity( e.toString() ).build();
+      return buildServerErrorResponse( e.toString() );
     }
 
-    streamingOutput = new StreamingOutput() {
-      public void write( OutputStream output ) throws IOException {
-        IOUtils.copy( is, output );
-      }
-    };
-    Response response = null;
-    response = Response.ok( streamingOutput, APPLICATION_ZIP ).build();
-    return response;
+    StreamingOutput streamingOutput = getStreamingOutput( is );
+
+    return buildOkResponse( streamingOutput, APPLICATION_ZIP );
   }
 
   /**
@@ -445,13 +439,10 @@ public class FileResource extends AbstractJaxRSResource {
   // have to accept anything for browsers to work
   public String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
-    RepositoryFile repositoryFile = getRepository().getFile( FileUtils.idToPath( pathId ) );
+    RepositoryFile repositoryFile = getRepository().getFile( fileService.idToPath( pathId ) );
     if ( repositoryFile != null ) {
       try {
-        hasParameterUi =
-            ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" )
-                != null );
+        hasParameterUi = hasParameterUi( repositoryFile );
       } catch ( NoSuchBeanDefinitionException e ) {
         // Do nothing.
       }
@@ -459,23 +450,25 @@ public class FileResource extends AbstractJaxRSResource {
     boolean hasParameters = false;
     if ( hasParameterUi ) {
       try {
-        IContentGenerator parameterContentGenerator =
-            PentahoSystem.get( IPluginManager.class ).getContentGenerator(
-                repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
+        IContentGenerator parameterContentGenerator = getContentGenerator( repositoryFile );
         if ( parameterContentGenerator != null ) {
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          ByteArrayOutputStream outputStream = getByteArrayOutputStream();
           parameterContentGenerator.setOutputHandler( new SimpleOutputHandler( outputStream, false ) );
           parameterContentGenerator.setMessagesList( new ArrayList<String>() );
+
           Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
-          SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-          parameterProvider.setParameter( "path", URLEncoder.encode( repositoryFile.getPath(), "UTF-8" ) );
+
+          SimpleParameterProvider parameterProvider = getSimpleParameterProvider();
+          parameterProvider.setParameter( "path", encode( repositoryFile.getPath() ) );
           parameterProvider.setParameter( "renderMode", "PARAMETER" );
           parameterProviders.put( IParameterProvider.SCOPE_REQUEST, parameterProvider );
+
           parameterContentGenerator.setParameterProviders( parameterProviders );
-          parameterContentGenerator.setSession( PentahoSessionHolder.getSession() );
+          parameterContentGenerator.setSession( getSession() );
           parameterContentGenerator.createContent();
+
           if ( outputStream.size() > 0 ) {
-            Document document = DocumentHelper.parseText( outputStream.toString() );
+            Document document = parseText( outputStream.toString() );
 
             // exclude all parameters that are of type "system", xactions set system params that have to be ignored.
             @SuppressWarnings( "rawtypes" )
@@ -497,8 +490,7 @@ public class FileResource extends AbstractJaxRSResource {
           }
         }
       } catch ( Exception e ) {
-        logger
-            .error( Messages.getInstance().getString( "FileResource.PARAM_FAILURE", e.getMessage() ), e ); //$NON-NLS-1$
+        logger.error( getMessagesInstance().getString( "FileResource.PARAM_FAILURE", e.getMessage() ), e );
       }
     }
     return Boolean.toString( hasParameters );
@@ -545,28 +537,22 @@ public class FileResource extends AbstractJaxRSResource {
     FileService.DownloadFileWrapper wrapper = null;
     try {
       wrapper = fileService.doGetFileOrDirAsDownload( userAgent, pathId, strWithManifest );
-      return Response.ok( wrapper.getOutputStream(), APPLICATION_ZIP + "; charset=UTF-8" )
-          .header( "Content-Disposition", wrapper.getAttachment() ).build();
+      return buildZipOkResponse( wrapper );
     } catch ( InvalidParameterException e ) {
-      logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
-      return Response.status( BAD_REQUEST ).build();
+      logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
+      return buildStatusResponse( BAD_REQUEST );
     } catch ( IllegalSelectorException e ) {
-      logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
-      return Response.status( FORBIDDEN ).build();
+      logger.error( getMessagesInstance().getString("FileResource.EXPORT_FAILED", e.getMessage() ), e );
+      return buildStatusResponse( FORBIDDEN );
     } catch ( GeneralSecurityException e ) {
-      logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
-      return Response.status( FORBIDDEN ).build();
+      logger.error( getMessagesInstance().getString("FileResource.EXPORT_FAILED", e.getMessage() ), e );
+      return buildStatusResponse( FORBIDDEN );
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", e.getMessage() ), e ); //$NON-NLS-1$
-      return Response.status( NOT_FOUND ).build();
+      logger.error( getMessagesInstance().getString("FileResource.EXPORT_FAILED", e.getMessage() ), e );
+      return buildStatusResponse( NOT_FOUND );
     } catch ( Throwable e ) {
-      logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", wrapper.getEncodedFileName() + " " + e.getMessage() ), e ); //$NON-NLS-1$
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
+      logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", pathId + " " + e.getMessage() ), e );
+      return buildStatusResponse( INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -599,18 +585,16 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileAsInline( pathId );
-      return Response.ok( wrapper.getOutputStream() )
-          .header( "Content-Disposition", "inline; filename=" + wrapper.getRepositoryFile().getName() )
-          .build();
+      return buildOkResponse( wrapper );
     } catch ( IllegalArgumentException e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return Response.status( FORBIDDEN ).build();
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      return buildStatusResponse( FORBIDDEN );
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return Response.status( NOT_FOUND ).build();
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      return buildStatusResponse( NOT_FOUND );
     } catch ( InternalError e ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
+      return buildStatusResponse( INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -653,10 +637,10 @@ public class FileResource extends AbstractJaxRSResource {
   public Response setFileAcls( @PathParam( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
     try {
       fileService.setFileAcls( pathId, acl );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( Exception exception ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
+      return buildStatusResponse( INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -726,13 +710,13 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doSetContentCreator( @PathParam( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
       fileService.doSetContentCreator( pathId, contentCreator );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
-      return Response.status( NOT_FOUND ).build();
+      logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
+      return buildStatusResponse( NOT_FOUND );
     } catch ( Throwable t ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
+      return buildStatusResponse( INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -1679,7 +1663,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  private boolean isPathValid( String path ) {
+  protected boolean isPathValid( String path ) {
     return fileService.isPathValid( path );
   }
 
@@ -1721,5 +1705,97 @@ public class FileResource extends AbstractJaxRSResource {
 
   public void setMimeResolver( NameBaseMimeResolver mimeResolver ) {
     this.mimeResolver = mimeResolver;
+  }
+
+  protected Response buildOkResponse() {
+    return Response.ok().build();
+  }
+
+  protected Response buildStatusResponse( Response.Status status ) {
+    return Response.status( status ).build();
+  }
+
+  protected Response buildServerErrorResponse( Throwable t ) {
+    return buildServerErrorResponse( t.getMessage() );
+  }
+
+  protected Response buildServerErrorResponse( String msg ) {
+    return Response.serverError().entity( msg ).build();
+  }
+
+  protected Response buildSafeHtmlServerErrorResponse( Exception e ) {
+    return Response.serverError()
+      .entity( new SafeHtmlBuilder().appendEscapedLines( e.getLocalizedMessage() ).toSafeHtml().asString() ).build();
+  }
+
+  protected Response buildOkResponse( FileService.RepositoryFileToStreamWrapper wrapper ) {
+    Response.ResponseBuilder builder = Response.ok( wrapper.getOutputStream() );
+
+    if ( wrapper.getMimetype() != null ) {
+      builder = Response.ok( wrapper.getOutputStream(), wrapper.getMimetype() );
+    }
+
+    return builder.header( "Content-Disposition", "inline; filename=\"" + wrapper.getRepositoryFile().getName() + "\"" )
+      .build();
+  }
+
+  protected Response buildZipOkResponse( FileService.DownloadFileWrapper wrapper ) {
+    return Response.ok( wrapper.getOutputStream(), APPLICATION_ZIP + "; charset=UTF-8" )
+      .header( "Content-Disposition", wrapper.getAttachment() ).build();
+  }
+
+  protected Response buildOkResponse( Object o, String s ) {
+    return Response.ok( o, s ).build();
+  }
+
+  protected Exporter getExporter() {
+    return new Exporter( repository );
+  }
+
+  protected FileInputStream getFileInputStream( File file ) throws FileNotFoundException {
+    return new FileInputStream( file );
+  }
+
+  protected StreamingOutput getStreamingOutput( final InputStream is ) {
+    return new StreamingOutput() {
+      public void write( OutputStream output ) throws IOException {
+        IOUtils.copy( is, output );
+      }
+    };
+  }
+
+  protected boolean hasParameterUi( RepositoryFile repositoryFile ) {
+    return ( PentahoSystem.get( IPluginManager.class ).getContentGenerator(
+      repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameterUi" )
+      != null );
+  }
+
+  protected IContentGenerator getContentGenerator( RepositoryFile repositoryFile ) {
+    return PentahoSystem.get( IPluginManager.class ).getContentGenerator(
+      repositoryFile.getName().substring( repositoryFile.getName().lastIndexOf( '.' ) + 1 ), "parameter" );
+  }
+
+  protected SimpleParameterProvider getSimpleParameterProvider() {
+    return new SimpleParameterProvider();
+  }
+
+  protected String encode( String s ) throws UnsupportedEncodingException {
+    return URLEncoder.encode( s, "UTF-8" );
+  }
+
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
+  }
+
+  protected ByteArrayOutputStream getByteArrayOutputStream() {
+    return new ByteArrayOutputStream();
+  }
+
+  protected Document parseText( String text ) throws DocumentException {
+    return DocumentHelper.parseText( text );
+  }
+
+  protected Messages getMessagesInstance() {
+    return Messages.getInstance();
   }
 }
