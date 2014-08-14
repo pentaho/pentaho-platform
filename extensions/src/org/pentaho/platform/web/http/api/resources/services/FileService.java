@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
@@ -198,12 +197,12 @@ public class FileService {
    * @return
    * @throws IOException
    */
-  public void createFile( HttpServletRequest httpServletRequest, String pathId, InputStream fileContents )
+  public void createFile( String charsetName, String pathId, InputStream fileContents )
     throws Exception {
     try {
       String idToPath = idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
-      rfos.setCharsetName( httpServletRequest.getCharacterEncoding() );
+      rfos.setCharsetName( charsetName );
       copy( fileContents, rfos );
       rfos.close();
       fileContents.close();
@@ -1456,7 +1455,7 @@ public class FileService {
   protected IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
-  
+
   protected String escapeJava( String value ) {
     return StringEscapeUtils.escapeJava( value );
   }
