@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -42,21 +41,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.enunciate.doc.ExcludeFromDocumentation;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
-import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
 /**
@@ -68,14 +64,7 @@ import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 @Path( "/scheduler" )
 public class SchedulerResource extends AbstractJaxRSResource {
 
-  protected IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-
-  protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
-
-  protected IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-
   private SchedulerService schedulerService;
-
 
   public SchedulerResource() {
     schedulerService = new SchedulerService();
@@ -96,6 +85,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path( "/job" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Schedule created successfully." ),
+    @ResponseCode( code = 401, condition = "User is not allowed to create schedules." ),
+    @ResponseCode( code = 403, condition = "Cannot create schedules for the specified file." ),
+    @ResponseCode( code = 500, condition = "An error occurred while completing the operation." )
+  })
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
       Job job = schedulerService.createJob( scheduleRequest );
@@ -123,7 +118,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response triggerNow( JobRequest jobRequest ) {
     try {
-      Job job = schedulerService.triggerNow( jobRequest );
+      Job job = schedulerService.triggerNow( jobRequest.getJobId() );
       return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -182,25 +177,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
  
   /**
+   * Checks if a file can be scheduled by the user
+   *<p>
    * Checks whether the current user has authority to schedule any content in the platform and the selected report is
    * schedule able
    *
-   * @param id (Repository file ID of the report that is being scheduled
+   * @param id The repository file ID of the content to checked <pre function="syntax.xml">
+   *
+   *                        </pre>
    * @return ("true" or "false")
    */
   @GET
   @Path( "/isScheduleAllowed" )
   @Produces( TEXT_PLAIN )
   public String isScheduleAllowed( @QueryParam( "id" ) String id ) {
-    Boolean canSchedule = false;
-    canSchedule = policy.isAllowed( SchedulerAction.NAME );
-    if ( canSchedule ) {
-      Map<String, Serializable> metadata = repository.getFileMetadata( id );
-      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
-        canSchedule = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
-      }
-    }
-    return "" + canSchedule; //$NON-NLS-1$
+    return "" + schedulerService.isScheduleAllowed( id );
   }
 
   /**
@@ -345,8 +336,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getJobState( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+      Job job = schedulerService.getJob( jobRequest.getJobId() );
+      if ( schedulerService.isScheduleAllowed() ) {
         return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
       } else {
         if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
@@ -371,17 +362,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response pauseJob( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.pauseJob( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.pauseJob( jobRequest.getJobId() );
-        }
-      }
-      // update job state
-      job = scheduler.getJob( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
+      return Response.ok( state.name() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -399,17 +381,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response resumeJob( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.resumeJob( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.resumeJob( jobRequest.getJobId() );
-        }
-      }
-      // udpate job state
-      job = scheduler.getJob( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
+      return Response.ok( state.name() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -427,16 +400,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   public Response removeJob( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.removeJob( jobRequest.getJobId() );
+      if (schedulerService.removeJob( jobRequest.getJobId() ) ) {
         return Response.ok( "REMOVED" ).type( MediaType.TEXT_PLAIN ).build();
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.removeJob( jobRequest.getJobId() );
-          return Response.ok( "REMOVED" ).type( MediaType.TEXT_PLAIN ).build();
-        }
       }
+      Job job = schedulerService.getJob( jobRequest.getJobId() );
       return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -456,7 +423,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Job getJob( @QueryParam( "jobId" ) String jobId,
                      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
-      Job job = scheduler.getJob( jobId );
+      Job job = schedulerService.getJob( jobId );
       if ( SecurityHelper.getInstance().isPentahoAdministrator( PentahoSessionHolder.getSession() )
         || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
         for ( String key : job.getJobParams().keySet() ) {
@@ -479,9 +446,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  @Deprecated
   @GET
   @Path( "/jobinfotest" )
   @Produces( { APPLICATION_JSON } )
+  @ExcludeFromDocumentation
   public JobScheduleRequest getJobInfo() {
     JobScheduleRequest jobRequest = new JobScheduleRequest();
     ComplexJobTriggerProxy proxyTrigger = new ComplexJobTriggerProxy();
@@ -511,6 +480,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @return list of <code> Job </code>
    */
   @Deprecated
+  @ExcludeFromDocumentation
   public Response getJobs() {
     return getBlockoutJobs();
   }
@@ -554,17 +524,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @param scheduleRequest <pre function="syntax.xml">
    *
    *                        </pre>
-   * @return a Response object which contains one of the following:
-   * 1) the ID of the blockout which was created
-   * 2) a response code of 401 (UNAUTHORIZED) - user not allowed to create blockout
+   * @return a Response object which contains the ID of the blockout which was created
    * 
    * @throws IOException
    */
   @POST
   @Path( "/blockout/createBlockout" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to create blockout." )
+  })
   public Response addBlockout( JobScheduleRequest request ) throws IOException {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+    if ( schedulerService.isScheduleAllowed() ) {
       request.setActionClass( BlockoutAction.class.getCanonicalName() );
       request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.DURATION_PARAM, request.getDuration() ) );
       request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, request.getTimeZone() ) );
@@ -585,17 +557,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @param scheduleRequest The payload containing the definition of the blockout <pre function="syntax.xml">
    *
    *                        </pre>
-   * @return a Response object which contains one of the following:
-   * 1) the ID of the blockout which was created
-   * 2) a response code of 401 (UNAUTHORIZED) - user not allowed to create blockout
+   * @return a Response object which contains the ID of the blockout which was created
    * 
    * @throws IOException
    */
   @POST
   @Path( "/blockout/updateBlockout" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to update blockout." )
+  })
   public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest request ) throws IOException {
-    if ( policy.isAllowed( SchedulerAction.NAME ) ) {
+    if ( schedulerService.isScheduleAllowed() ) {
       JobRequest jobRequest = new JobRequest();
       jobRequest.setJobId( jobId );
       Response response = removeJob( jobRequest );
@@ -615,21 +589,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @param scheduleRequest <pre function="syntax.xml">
    *
    *                        </pre>
-   * @return a Response object which contains one of the following:
-   * 1) true/false if the provided schedule (blockout) will fire
-   * 2) a response code of 500 (Internal Server Error) with a root cause of:
-   * A) UnifiedRepositoryException
-   * B) SchedulerException
+   * @return a Response object which contains true/false if the provided schedule (blockout) will fire
    */
   @GET
   @Path( "/blockout/blockoutWillFire" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 500, condition = "An error occurred while completing the operation, UnifiedRepositoryException or SchedulerException." )
+  })
   public Response blockoutWillFire( JobScheduleRequest request ) {
     Boolean willFire;
     try {
       willFire =
-        schedulerService.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler ) );
+        schedulerService.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request ) );
     } catch ( UnifiedRepositoryException e ) {
       return Response.serverError().entity( e ).build();
     } catch ( SchedulerException e ) {
@@ -674,7 +648,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getBlockStatus( JobScheduleRequest request ) throws UnifiedRepositoryException,
     SchedulerException {
-    IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, scheduler );
+    IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request );
     return Response.ok( schedulerService.getBlockStatus( trigger ) ).build();
   }
 }

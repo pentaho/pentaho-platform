@@ -28,6 +28,7 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
@@ -47,7 +48,7 @@ public class SchedulerResourceUtil {
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
   
   public static IJobTrigger
-  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
+  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest )
     throws SchedulerException, UnifiedRepositoryException {
 
     // Used to determine if created by a RunInBackgroundCommand
@@ -119,6 +120,8 @@ public class SchedulerResourceUtil {
       jobTrigger = complexJobTrigger;
 
     } else if ( scheduleRequest.getCronJobTrigger() != null ) {
+
+      IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
 
       if ( scheduler instanceof QuartzScheduler ) {
         String cronString = scheduleRequest.getCronJobTrigger().getCronString();
