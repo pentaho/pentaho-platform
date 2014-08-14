@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -39,7 +38,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -49,9 +47,7 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
@@ -266,7 +262,7 @@ public class FileServiceTest {
     }
   }
 
-  @Ignore
+  @Test
   public void testDoCreateFile() throws Exception {
     RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
     doReturn( mockOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
@@ -276,14 +272,15 @@ public class FileServiceTest {
 
     doReturn( 1 ).when( fileService ).copy( mockInputStream, mockOutputStream );
 
-    fileService.createFile( mockRequest, "testString", mockInputStream );
+    String charsetName = "test";
+    fileService.createFile( charsetName, "testString", mockInputStream );
 
-    verify( mockOutputStream, times( 1 ) ).setCharsetName( anyString() );
+    verify( mockOutputStream, times( 1 ) ).setCharsetName( eq( charsetName ) );
     verify( mockOutputStream, times( 1 ) ).close();
     verify( mockInputStream, times( 1 ) ).close();
   }
 
-  @Ignore
+  @Test
   public void testDoCreateFileException() {
     RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
     doThrow( new IllegalArgumentException() ).when( fileService ).idToPath( anyString() );
@@ -852,9 +849,7 @@ public class FileServiceTest {
 
   @Test
   public void testDoGetFileOrDirAsDownloadException() {
-    /*
-     * Test 1
-     */
+    // Test 1
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( false ).when( mockAuthPolicy ).isAllowed( anyString() );
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
@@ -868,23 +863,19 @@ public class FileServiceTest {
     } catch ( Throwable t ) {
       fail();
     }
-    
-    /*
-     * Test 2
-     */
+
+    // Test 2
     doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
     try {
-      FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "", "true" );
+      fileService.doGetFileOrDirAsDownload( "", "", "true" );
       fail();
     } catch ( InvalidParameterException e ) {
       // Expected
     } catch ( Throwable e ) {
       fail();
     }
-    
-    /*
-     * Test 3
-     */
+
+    // Test 3
     doReturn( false ).when( fileService ).isPathValid( anyString() );
     try {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
