@@ -532,4 +532,23 @@ public class SchedulerServiceTest {
     verify( schedulerService.scheduler ).shutdown();
   }
 
+  public void testGetJobs() throws Exception {
+    IPentahoSession mockPentahoSession = mock( IPentahoSession.class );
+    
+    doReturn( mockPentahoSession ).when( schedulerService ).getSession();
+    doReturn( "admin" ).when( mockPentahoSession ).getName();
+    doReturn( true ).when( schedulerService ).canAdminister( mockPentahoSession );
+    List<Job> mockJobs = new ArrayList<Job>();
+    mockJobs.add( mock( Job.class ) );
+    doReturn( mockJobs ).when( schedulerService.scheduler ).getJobs( ( IJobFilter ) anyObject() );
+    
+    List<Job> jobs = schedulerService.getJobs();
+    
+    assertEquals( mockJobs, jobs );
+    
+    verify( schedulerService, times( 1 ) ).getSession();
+    verify( mockPentahoSession, times( 1 ) ).getName();
+    verify( schedulerService, times( 1 ) ).canAdminister( mockPentahoSession );
+    verify( schedulerService.scheduler, times( 1 ) ).getJobs( ( IJobFilter ) anyObject() );
+  }
 }
