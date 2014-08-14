@@ -60,6 +60,10 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
+import org.codehaus.enunciate.doc.ExcludeFromDocumentation;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -134,19 +138,23 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Moves the list of files to the user's trash folder
+   * <p>Moves the list of files to the user's trash folder
    * <p/>
    * Move a list of files to the user's trash folder, the list should be comma separated.
    *
    * @param params Comma separated list of the files to be deleted
    *               <pre function="syntax.xml">
-   *               a06ef783-203d-4b76-bb9a-2fa15b0904bd,de2b05b8-38f1-4e90-9660-b172f85a7e48,356f21dd-96f2-44d5-9321-fedde0f429dd
+   *               fileid1, fileid2 ...
    *               </pre>
-   * @return Server Response indicating the success of the operation
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "/delete" )
   @Consumes( { WILDCARD } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successful deletion of file." ),
+      @ResponseCode( code = 500, condition = "Failure to delete the file." )
+  })
   public Response doDeleteFiles( String params ) {
     try {
       fileService.doDeleteFiles( params );
@@ -166,7 +174,8 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "/deletepermanent" )
   @Consumes( { WILDCARD } )
-  public Response doDeleteFilesPermanent( String params ) {
+  @Facet ( name = "Unsupported" )
+    public Response doDeleteFilesPermanent( String params ) {
     try {
       fileService.doDeleteFilesPermanent( params );
       return Response.ok().build();
@@ -177,11 +186,11 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Moves a list of files from its current location to another.
+   * <p>Moves a list of files from its current location to another.
    * <p/>
    * Moves a list of files from its current location to another, the list should be comma separated.
    *
-   * @param destPathId colon separated path for the destiny path
+   * @param destPathId colon separated path for the destination path
    * <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
@@ -189,17 +198,25 @@ public class FileResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *    pathId1,pathId2,...
    * </pre>
-   * @return Response Server Response indicating the success of the operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @PUT
   @Path( "{pathId : .+}/move" )
   @Consumes( { WILDCARD } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully moved the file." ),
+      @ResponseCode( code = 403, condition = "Failure to move the file due to path not found." ),
+      @ResponseCode( code = 500, condition = "Failure to move the file." )
+
+  })
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     try {
       fileService.doMoveFiles( destPathId, params );
       return Response.ok().build();
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINY_PATH_UNKNOWN", destPathId ), e );
+      logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINATION_PATH_UNKNOWN", destPathId ), e );
       return Response.status( NOT_FOUND ).build();
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED" ), t );
@@ -208,7 +225,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Restores a list of files from the user's trash folder
+   * <p>Restores a list of files from the user's trash folder
    * <p/>
    * Restores a list of files from the user's trash folder to their previous locations. The list should be comma
    * separated.
@@ -217,11 +234,18 @@ public class FileResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *    pathId1,pathId2,...
    * </pre>
-   * @return Response Server Response indicating the success of the operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @PUT
   @Path( "/restore" )
   @Consumes( { WILDCARD } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully restored the file." ),
+      @ResponseCode( code = 403, condition = "Failure to Restore the file." ),
+
+  })
   public Response doRestore( String params ) {
     try {
       fileService.doRestoreFiles( params );
@@ -233,17 +257,25 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Create a new file
-   * <p/>
+   * <p>Create a new file.</p>
+   *
    * Creates a new file with the provided contents at a given path
    *
-   * @param pathId       Colon separated path for the repository file
+   * @param pathId Colon separated path for the destination for files to be copied
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
    * @param fileContents An Input Stream with the contents of the file
-   * @return Server Response indicating the success of the operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully restored the file." ),
+      @ResponseCode( code = 403, condition = "Failure to Restore the file due to permissions, file already exists, or invalid path id." ),
+  })
   public Response createFile( @PathParam( "pathId" ) String pathId, InputStream fileContents ) {
     try {
       fileService.createFile( httpServletRequest, pathId, fileContents );
@@ -254,22 +286,38 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Copy selected list of files to a new specified location
+   * <p>Copy selected list of files to a new specified location.</p>
+   *
+   * Copy selected list of files to a new specified location.  List of files path ids should be comma separated.
+   * An overwrite mode can be specified as below.
+   *
+   *  <p>Example Request:<br>
+   *               PUT api/repo/files/pathToDir/children?mode=2
+   *               </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @param mode   MODE_OVERWITE or MODE_NO_OVERWRITE
+   * @param mode   Default is RENAME (2) which adds a number to the end of the file name. MODE_OVERWRITE (1) will just replace existing
+   *               or MODE_NO_OVERWRITE (3) will not copy if file exists.
+   *               <pre function="syntax.xml">
+   *               2
+   *               </pre>
    * @param params Comma separated list of file ids to be copied
    *               <pre function="syntax.xml">
-   *               fileId1,fileId2
+   *               fileId1,fileId2...
    *               </pre>
-   * @return
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @PUT
   @Path( "{pathId : .+}/children" )
   @Consumes( { TEXT_PLAIN } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully copied the file." ),
+      @ResponseCode( code = 500, condition = "Failure to Copy file due to exception while getting file with id fileid..."),
+  })
   public Response doCopyFiles( @PathParam( "pathId" ) String pathId, @QueryParam( "mode" ) Integer mode,
       String params ) {
     try {
@@ -284,19 +332,29 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Takes a pathId and returns a response object with the output stream based on the file located at the pathID
+   * <p>Retrieve a file or folder by path</p>
    *
-   * @param pathId @param pathId colon separated path for the repository file
+   *  <p>Example Request:<br>
+   *     GET api/repo/files/pathToFile
+   *  </p>
+   *
+   * Takes a pathId and returns a response object with the output stream based on the file located at the pathId
+   *
+   * @param pathId Colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @return Response object containing the file stream for the file located at the pathId, along with the mimetype,
-   * and file name.
-   * @throws FileNotFoundException, IllegalArgumentException
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @GET
   @Path( "{pathId : .+}" )
   @Produces( { WILDCARD } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully get the file or dir." ),
+      @ResponseCode( code = 404, condition = "Failed to find the file or resource."),
+      @ResponseCode( code = 500, condition = "Failed to open content.")
+  })
   public Response doGetFileOrDir( @PathParam( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
@@ -383,6 +441,7 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/parameterizable" )
   @Produces( TEXT_PLAIN )
+  @Facet ( name = "Unsupported" )
   // have to accept anything for browsers to work
   public String doIsParameterizable( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
@@ -446,6 +505,12 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
+   * <p>Download a file or folder from the repository.</p>
+   *
+   *   <p>Example Request:<br>
+   *     GET api/repo/files/pathToFile/download?withManifest=true
+   *  </p>
+   *
    * Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
    * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
@@ -459,18 +524,21 @@ public class FileResource extends AbstractJaxRSResource {
    * @param userAgent       A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
    *                        requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not
    *                        supplied and the filename is not quoted.
-   * @return a Response object that contains either
-   * 1) a response code of SUCCESS and a pay load that contains one of the follow
-   * A) An attachment that represents a single file
-   * B) An attachment that represents a zip file of the directory and all of its descendants and structure.
-   * 2) a response code of 400 (Bad Request) - Usually a bad pathId
-   * 3) a response code of 403 (Forbidden) - pathId points at a file the user doesn't have access to.
-   * 4) a response code of 404 (Not found) - file was not found.
-   * 5) a response with of 500 (Internal Server Error) an unexpected error.
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @GET
   @Path( "{pathId : .+}/download" )
   @Produces( WILDCARD )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successful download." ),
+      @ResponseCode( code = 400, condition = "Usually a bad pathId." ),
+      @ResponseCode( code = 403, condition = "pathId points at a file the user doesn't have access to."),
+      @ResponseCode( code = 404, condition = "File not found."),
+      @ResponseCode( code = 500, condition = "Failed to download file for another reason.")
+
+})
   // have to accept anything for browsers to work
   public Response doGetFileOrDirAsDownload( @HeaderParam( "user-agent" ) String userAgent,
       @PathParam( "pathId" ) String pathId, @QueryParam( "withManifest" ) String strWithManifest ) {
@@ -503,21 +571,31 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves the file from the repository as inline.
-   * <p/>
-   * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
-   * document
+   * <p>Retrieves the file from the repository as inline.
+   * </p>
+   * Retrieves the file from the repository as inline. This is mainly used for css and dependent files for the html
+   * document.
    *
-   * @param pathId colon separated path for the repository file
+   *  <p>Example Request:<br>
+   *     GET api/repo/files/pathToFile/inline
+   *  </p>
+   *
+   * @param pathId Colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @return Response wraps the output stream and file name
-   * @throws IllegalStateException
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @GET
   @Path( "{pathId : .+}/inline" )
   @Produces( WILDCARD )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved file." ),
+      @ResponseCode( code = 403, condition = "Failed to retrieve file due to permission problem."),
+      @ResponseCode( code = 404, condition = "Failed to retrieve file due because file was not found."),
+      @ResponseCode( code = 500, condition = "Failed to download file because of some other error.")
+  })
   public Response doGetFileAsInline( @PathParam( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileAsInline( pathId );
@@ -537,38 +615,41 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Save the acls of the selected file to the repository<p/>
+   * <p>Save the acls of the selected file to the repository</p>
    *
-   * <p>This method is used to update and save the acls of the selected file to the repository<p/>
+   * <p>This method is used to update and save the acls of the selected file to the repository</p>
    *
-   * @param pathId colon separated path for the repository file
+   * <p> Example Request:<br>
+   *     PUT api/repo/files/pathToFile/acl
+   * </p>
+   *
+   * @param pathId Colon separated path for the repository file <br/>
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
    * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
-   *
-   * <p>Example Request:<br>
-   *               PUT api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl HTTP/1.1<br>
-   *               Content-Type: application/xml
-   *               <p/>
    *               <pre function="syntax.xml">
-   *               {@code
    *                 &lt;repositoryFileAclDto&gt;
    *                   &lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;
    *                   &lt;id&gt;068390ba-f90d-46e3-8c55-bbe55e24b2fe&lt;/id&gt;
    *                   &lt;owner&gt;admin&lt;/owner&gt;
    *                   &lt;ownerType&gt;0&lt;/ownerType&gt;
    *                 &lt;/repositoryFileAclDto&gt;
-   *               }
    *               </pre>
-   * <p>Example Response:<br/>
-   *               HTTP/1.1 200 OK
-   *               </p>
-   * @return response object indicating the success or failure of this operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @PUT
   @Path( "{pathId : .+}/acl" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully saved file." ),
+      @ResponseCode( code = 403, condition = "Failed to save acls due to missing or incorrect properties."),
+      @ResponseCode( code = 400, condition = "Failed to save acls due to malformed xml."),
+      @ResponseCode( code = 500, condition = "Failed to save acls due to another error.")
+  })
+
   public Response setFileAcls( @PathParam( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
     try {
       fileService.setFileAcls( pathId, acl );
@@ -580,7 +661,9 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Store content creator of the selected repository file
+   * <p>Store content creator.</p>
+   *
+   * Store content creator of the selected repository file.
    *
    * @param pathId colon separated path for the repository file
    * <pre function="syntax.xml">
@@ -588,7 +671,6 @@ public class FileResource extends AbstractJaxRSResource {
    * </pre>
    * @param contentCreator repository file
    * <pre function="syntax.xml">
-   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *     &lt;repositoryFileDto&gt;
    *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
    *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
@@ -630,12 +712,17 @@ public class FileResource extends AbstractJaxRSResource {
    *     &lt;versioned&gt;true&lt;/versioned&gt;
    *   &lt;/repositoryFileAclDto&gt;
    * </pre>
-   * @returns response object indicating the success or failure of this operation
-   * @throws FileNotFoundException
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/creator" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved file." ),
+      @ResponseCode( code = 500, condition = "Failed to download file because of some other error.")
+  })
+
   public Response doSetContentCreator( @PathParam( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
       fileService.doSetContentCreator( pathId, contentCreator );
