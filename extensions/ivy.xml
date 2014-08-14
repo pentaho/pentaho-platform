@@ -252,7 +252,7 @@
                 transitive="false"/>
     <dependency org="com.healthmarketscience.jackcess" name="jackcess" rev="1.2.4" conf="default->default"
                 transitive="false"/>
-    <dependency org="postgresql" name="postgresql" rev="9.1-902.jdbc4" conf="default->default" transitive="false"/>
+    <dependency org="org.postgresql" name="postgresql" rev="9.3-1102-jdbc4" conf="default->default" transitive="false"/>
     <dependency org="hsqldb" name="hsqldb" rev="1.8.0" conf="default->default" transitive="false"/>
     <dependency org="com.h2database" name="h2" rev="1.2.131" conf="default->default" />
 
