@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,6 +44,8 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -51,6 +54,7 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
 public class SchedulerService {
@@ -60,6 +64,10 @@ public class SchedulerService {
   protected IAuthorizationPolicy policy;
 
   protected IUnifiedRepository repository;
+
+  protected SessionResource sessionResource;
+
+  protected FileService fileService;
 
   protected static IBlockoutManager blockoutManager =
     PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
@@ -180,14 +188,25 @@ public class SchedulerService {
     return null;
   }
 
+  /**
+   * @param lineageId
+   * @return
+   * @throws java.io.FileNotFoundException
+   */
+  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( String lineageId ) throws FileNotFoundException {
+    SessionResource sessionResource = getSessionResource();
+    return getFileService().searchGeneratedContent( sessionResource.doGetCurrentUserDir(), lineageId,
+      QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+  }
+
   public Job getJob( String jobId ) throws SchedulerException {
     return scheduler.getJob( jobId );
   }
-  
+
   public boolean isScheduleAllowed() {
     return getPolicy().isAllowed( SchedulerAction.NAME );
   }
-  
+
   public boolean isScheduleAllowed( String id ) {
     Boolean canSchedule = isScheduleAllowed();
     if ( canSchedule ) {
@@ -196,9 +215,9 @@ public class SchedulerService {
         canSchedule = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
       }
     }
-    return canSchedule; 
+    return canSchedule;
   }
-  
+
   public IJobFilter getJobFilter( boolean canAdminister, String principalName ) {
     return new JobFilter( canAdminister, principalName );
   }
@@ -261,7 +280,7 @@ public class SchedulerService {
     job = getJob( jobId );
     return job.getState();
   }
-  
+
   public JobState resumeJob( String jobId ) throws SchedulerException {
     Job job = getJob( jobId );
     if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
@@ -269,8 +288,8 @@ public class SchedulerService {
     }
     job = getJob( jobId );
     return job.getState();
-  }  
-  
+  }
+
   public boolean removeJob( String jobId ) throws SchedulerException {
     Job job = getJob( jobId );
     if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
@@ -279,7 +298,7 @@ public class SchedulerService {
     }
     return false;
   }
-  
+
   public List<Job> getBlockOutJobs() {
     return blockoutManager.getBlockOutJobs();
   }
@@ -292,11 +311,11 @@ public class SchedulerService {
   public boolean willFire( IJobTrigger trigger ) {
     return blockoutManager.willFire( trigger );
   }
-  
+
   public boolean shouldFireNow() {
-    return blockoutManager.shouldFireNow();    
+    return blockoutManager.shouldFireNow();
   }
-  
+
   public BlockStatusProxy getBlockStatus( IJobTrigger trigger ) {
     Boolean totallyBlocked = false;
     Boolean partiallyBlocked = blockoutManager.isPartiallyBlocked( trigger );
@@ -305,7 +324,7 @@ public class SchedulerService {
     }
     return new BlockStatusProxy( totallyBlocked, partiallyBlocked );
   }
-  
+
   protected IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
@@ -359,7 +378,7 @@ public class SchedulerService {
     }
     return true;
   }
-  
+
   public List<Job> getJobs() throws SchedulerException {
     IPentahoSession session = getSession();
     final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
@@ -387,5 +406,24 @@ public class SchedulerService {
   protected String getExtension( String filename ) {
     return RepositoryFilenameUtils.getExtension( filename );
   }
-  
+
+  /**
+   * Gets an instance of SessionResource
+   *
+   * @return <code>SessionResource</code>
+   */
+  protected SessionResource getSessionResource() {
+    if ( sessionResource == null ) {
+      sessionResource = new SessionResource();
+    }
+    return sessionResource;
+  }
+
+  protected FileService getFileService() {
+    if ( fileService == null ) {
+      fileService = new FileService();
+    }
+
+    return fileService;
+  }
 }

@@ -21,16 +21,13 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
@@ -39,7 +36,8 @@ import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
@@ -47,6 +45,7 @@ import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -532,23 +531,45 @@ public class SchedulerServiceTest {
     verify( schedulerService.scheduler ).shutdown();
   }
 
+  @Test
   public void testGetJobs() throws Exception {
     IPentahoSession mockPentahoSession = mock( IPentahoSession.class );
-    
+
     doReturn( mockPentahoSession ).when( schedulerService ).getSession();
     doReturn( "admin" ).when( mockPentahoSession ).getName();
     doReturn( true ).when( schedulerService ).canAdminister( mockPentahoSession );
     List<Job> mockJobs = new ArrayList<Job>();
     mockJobs.add( mock( Job.class ) );
-    doReturn( mockJobs ).when( schedulerService.scheduler ).getJobs( ( IJobFilter ) anyObject() );
-    
+    doReturn( mockJobs ).when( schedulerService.scheduler ).getJobs( any( IJobFilter.class ) );
+
     List<Job> jobs = schedulerService.getJobs();
-    
+
     assertEquals( mockJobs, jobs );
-    
+
     verify( schedulerService, times( 1 ) ).getSession();
     verify( mockPentahoSession, times( 1 ) ).getName();
     verify( schedulerService, times( 1 ) ).canAdminister( mockPentahoSession );
-    verify( schedulerService.scheduler, times( 1 ) ).getJobs( ( IJobFilter ) anyObject() );
+    verify( schedulerService.scheduler, times( 1 ) ).getJobs( any( IJobFilter.class ) );
+  }
+
+  @Test
+  public void testDoGetGeneratedContentForSchedule() throws Exception {
+    String lineageId = "test.prpt";
+
+    FileService mockFileService = mock( FileService.class );
+    doReturn( mockFileService ).when( schedulerService ).getFileService();
+
+    SessionResource mockSessionResource = mock( SessionResource.class );
+    doReturn( mockSessionResource ).when( schedulerService ).getSessionResource();
+
+    String currentUserDir = "currentUserDir";
+    doReturn( currentUserDir ).when( mockSessionResource ).doGetCurrentUserDir();
+
+    List<RepositoryFileDto> mockList = mock( List.class );
+    doReturn( mockList ).when( mockFileService )
+      .searchGeneratedContent( currentUserDir, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+
+    List<RepositoryFileDto> list = schedulerService.doGetGeneratedContentForSchedule( lineageId );
+    assertEquals( mockList, list );
   }
 }

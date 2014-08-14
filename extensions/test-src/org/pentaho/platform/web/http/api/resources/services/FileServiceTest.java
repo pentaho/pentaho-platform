@@ -1202,7 +1202,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoGetGeneratedContentForSchedule() {
+  public void testSearchGeneratedContent() {
     String lineageId = "test.prpt",
       pathId = "test.prpt",
       userFolder = "public/admin";
@@ -1232,7 +1232,7 @@ public class FileServiceTest {
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
-      List<RepositoryFileDto> list = fileService.doGetGeneratedContentForSchedule( lineageId );
+      List<RepositoryFileDto> list = fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       assertEquals( list.size(), 1 );
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();
@@ -1243,7 +1243,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoGetGeneratedContentForSheduleFileNotFound() {
+  public void testSearchGeneratedContentFileNotFound() {
     String lineageId = "test.prpt",
       pathId = "test.prpt",
       userFolder = "public/admin";
@@ -1255,7 +1255,7 @@ public class FileServiceTest {
 
     try {
       doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.doGetGeneratedContentForSchedule( lineageId );
+      fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       fail();
     } catch ( FileNotFoundException e ) {
     }
