@@ -1,11 +1,9 @@
---
---Quartz seems to work best with the driver mm.mysql-2.0.7-bin.jar
---
--- In your Quartz properties file, you'll need to set 
--- org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.StdJDBCDelegate
---
-DROP DATABASE IF EXISTS `quartz`;
-DROP USER 'pentaho_user'@'localhost';
+#
+# Quartz seems to work best with the driver mm.mysql-2.0.7-bin.jar
+#
+# In your Quartz properties file, you'll need to set 
+# org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+#
 
 CREATE DATABASE IF NOT EXISTS `quartz` DEFAULT CHARACTER SET latin1;
 

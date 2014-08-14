@@ -4,14 +4,14 @@
 
 -- \connect postgres postgres
 
-DROP DATABASE IF EXISTS quartz;
-DROP USER IF EXISTS pentaho_user;
+drop database if exists quartz;
+drop user if exists pentaho_user;
 
 CREATE USER pentaho_user PASSWORD 'password';
 
 CREATE DATABASE quartz  WITH OWNER = pentaho_user  ENCODING = 'UTF8' TABLESPACE = pg_default;
 
-GRANT ALL ON DATABASE quartz TO pentaho_user;
+GRANT ALL ON DATABASE quartz to pentaho_user;
 
 --End--
 --Begin Connect--
@@ -19,18 +19,18 @@ GRANT ALL ON DATABASE quartz TO pentaho_user;
 
 begin;
 
-DROP TABLE IF EXISTS qrtz5_job_listeners;
-DROP TABLE IF EXISTS qrtz5_trigger_listeners;
-DROP TABLE IF EXISTS qrtz5_fired_triggers;
-DROP TABLE IF EXISTS qrtz5_paused_trigger_grps;
-DROP TABLE IF EXISTS qrtz5_scheduler_state;
-DROP TABLE IF EXISTS qrtz5_locks;
-DROP TABLE IF EXISTS qrtz5_simple_triggers;
-DROP TABLE IF EXISTS qrtz5_cron_triggers;
-DROP TABLE IF EXISTS qrtz5_blob_triggers;
-DROP TABLE IF EXISTS qrtz5_triggers;
-DROP TABLE IF EXISTS qrtz5_job_details;
-DROP TABLE IF EXISTS qrtz5_calendars;
+drop table if exists qrtz5_job_listeners;
+drop table if exists qrtz5_trigger_listeners;
+drop table if exists qrtz5_fired_triggers;
+drop table if exists qrtz5_paused_trigger_grps;
+drop table if exists qrtz5_scheduler_state;
+drop table if exists qrtz5_locks;
+drop table if exists qrtz5_simple_triggers;
+drop table if exists qrtz5_cron_triggers;
+drop table if exists qrtz5_blob_triggers;
+drop table if exists qrtz5_triggers;
+drop table if exists qrtz5_job_details;
+drop table if exists qrtz5_calendars;
 
 CREATE TABLE qrtz5_job_details
   (
