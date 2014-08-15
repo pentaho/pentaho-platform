@@ -1,3 +1,19 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ */
 package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.*;
@@ -1186,7 +1202,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoGetGeneratedContentForSchedule() {
+  public void testSearchGeneratedContent() {
     String lineageId = "test.prpt",
       pathId = "test.prpt",
       userFolder = "public/admin";
@@ -1216,7 +1232,7 @@ public class FileServiceTest {
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
-      List<RepositoryFileDto> list = fileService.doGetGeneratedContentForSchedule( lineageId );
+      List<RepositoryFileDto> list = fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       assertEquals( list.size(), 1 );
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();
@@ -1227,7 +1243,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoGetGeneratedContentForSheduleFileNotFound() {
+  public void testSearchGeneratedContentFileNotFound() {
     String lineageId = "test.prpt",
       pathId = "test.prpt",
       userFolder = "public/admin";
@@ -1239,7 +1255,7 @@ public class FileServiceTest {
 
     try {
       doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.doGetGeneratedContentForSchedule( lineageId );
+      fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       fail();
     } catch ( FileNotFoundException e ) {
     }
