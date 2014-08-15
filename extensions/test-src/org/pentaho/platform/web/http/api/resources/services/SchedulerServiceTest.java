@@ -471,8 +471,76 @@ public class SchedulerServiceTest {
     verify( schedulerService.scheduler, times( 1 ) ).pause();
     verify( schedulerService.scheduler, times( 2 ) ).getStatus();
   }
+  
+  @Test
+  public void testPauseJob() throws SchedulerException {
+    Job job = mock( Job.class );
+    doReturn( job ).when( schedulerService ).getJob( anyString() );
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doNothing().when( schedulerService.scheduler ).pauseJob( anyString() );
+    doReturn( IScheduler.SchedulerStatus.PAUSED ).when( schedulerService.scheduler ).getStatus();
+    schedulerService.pauseJob( "job-id" );
+  }
+  
+  @Test
+  public void testPauseJobException() throws SchedulerException {
+    Job job = mock( Job.class );
+    doReturn( job ).when( schedulerService ).getJob( anyString() );
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doThrow( new SchedulerException("pause-exception") ).when( schedulerService.scheduler ).pauseJob( anyString() );
+    try {
+      schedulerService.pauseJob( "job-id" );
+    } catch (SchedulerException e) {
+      assertEquals( "pause-exception", e.getMessage() );
+    }
+  }
 
-
+  @Test
+  public void testResumeJob() throws SchedulerException {
+    Job job = mock( Job.class );
+    doReturn( job ).when( schedulerService ).getJob( anyString() );
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doNothing().when( schedulerService.scheduler ).resumeJob( anyString() );
+    doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
+    schedulerService.resumeJob( "job-id" );
+  }
+  
+  @Test
+  public void testResumeJobException() throws SchedulerException {
+    Job job = mock( Job.class );
+    doReturn( job ).when( schedulerService ).getJob( anyString() );
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doThrow( new SchedulerException("pause-exception") ).when( schedulerService.scheduler ).resumeJob( anyString() );
+    try {
+      schedulerService.resumeJob( "job-id" );
+    } catch (SchedulerException e) {
+      assertEquals( "pause-exception", e.getMessage() );
+    }
+  }
+  
+  @Test
+  public void testRemoveJob() throws SchedulerException {
+    Job job = mock( Job.class );
+    doReturn( job ).when( schedulerService ).getJob( anyString() );
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doNothing().when( schedulerService.scheduler ).removeJob( anyString() );
+    doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
+    schedulerService.removeJob( "job-id" );
+  }
+  
+  @Test
+  public void testRemoveJobException() throws SchedulerException {
+    Job job = mock( Job.class );
+    doReturn( job ).when( schedulerService ).getJob( anyString() );
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doThrow( new SchedulerException("pause-exception") ).when( schedulerService.scheduler ).removeJob( anyString() );
+    try {
+      schedulerService.removeJob( "job-id" );
+    } catch (SchedulerException e) {
+      assertEquals( "pause-exception", e.getMessage() );
+    }
+  }
+  
   @Test
   public void testPauseException() throws SchedulerException {
     doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
