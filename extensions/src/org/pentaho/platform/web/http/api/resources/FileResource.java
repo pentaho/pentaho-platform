@@ -716,7 +716,7 @@ public class FileResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @return <code>List<LocaleMapDto></code> the list of locales
+   * @return List<LocaleMapDto> the list of locales
    *         <pre function="syntax.xml">
    *           &lt;localePropertiesMapEntries&gt;
    *             &lt;localeMapDto&gt;
@@ -778,7 +778,7 @@ public class FileResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *   en_US
    * </pre>
-   * @return <code>&lt;stringKeyStringValueDtoes&gt;
+   * @return &lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
@@ -791,7 +791,7 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;key&gt;title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
-   * &lt;/stringKeyStringValueDtoes&gt;</code>
+   * &lt;/stringKeyStringValueDtoes&gt;
    */
   @GET
   @Path( "{pathId : .+}/localeProperties" )
@@ -821,7 +821,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   en_US
    * </pre>
    * @param properties
-   * <code>&lt;stringKeyStringValueDtoes&gt;
+   * &lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
@@ -834,7 +834,7 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;key&gt;title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
-   * &lt;/stringKeyStringValueDtoes&gt;</code>
+   * &lt;/stringKeyStringValueDtoes&gt;
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
@@ -899,7 +899,7 @@ public class FileResource extends AbstractJaxRSResource {
    *      GET api/repo/files/properties
    *</p>
    *
-   * @return file properties object <code> RepositoryFileDto </code> for the root directory
+   * @return file properties object  RepositoryFileDto  for the root directory
    *
    *    <p>Example Response:<br/>
    *               HTTP/1.1 200 OK
@@ -1053,7 +1053,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   GET /api/repo/files/canAdminister
    * </p>
    *
-   * @return String <code>"true"</code> if the user can administer the platform, or <code>"false"</code> otherwise
+   * @return String "true" if the user can administer the platform, or "false" otherwise
    */
   @GET
   @Path( "/canAdminister" )
@@ -1125,7 +1125,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   GET /api/repo/files/canCreate
    * </p>
    *
-   * @return String <code>"true"</code> if the user can create new content, or <code>"false"</code> otherwise
+   * @return String "true" if the user can create new content, or "false" otherwise
    */
   @GET
   @Path( "/canCreate" )
@@ -1150,7 +1150,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               :path:to:file:id
    *               </pre>
    *
-   * @return <code> RepositoryFileAclDto </code> object containing the ACL settings of the requested file
+   * @return  RepositoryFileAclDto  object containing the ACL settings of the requested file
    * <p>Example Response:
    *               <p/>
    *               <pre function="syntax.xml">
@@ -1256,7 +1256,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @return file properties object <code> RepositoryFileDto </code>
+   * @return file properties object  RepositoryFileDto 
    */
   @GET
   @Path( "{pathId : .+}/creator" )
@@ -1536,7 +1536,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
    *                    <p/>
@@ -1625,7 +1625,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
    *                    <pre function="syntax.xml">
@@ -1709,7 +1709,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
    *                    <pre function="syntax.xml">
