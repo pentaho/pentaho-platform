@@ -756,9 +756,9 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       locales = fileService.doGetFileLocales( pathId );
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
+      logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
     } catch ( Throwable t ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
     }
     return locales;
   }
@@ -885,9 +885,9 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doDeleteLocale( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale ) {
     try {
       fileService.doDeleteLocale( pathId, locale );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t );
     }
   }
 
@@ -1091,7 +1091,7 @@ public class FileResource extends AbstractJaxRSResource {
   })
   public Response doGetReservedChars() {
     StringBuffer buffer = fileService.doGetReservedChars();
-    return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
+    return buildPlainTextOkResponse( buffer.toString() );
   }
 
   /**
@@ -1115,7 +1115,7 @@ public class FileResource extends AbstractJaxRSResource {
   })
   public Response doGetReservedCharactersDisplay() {
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
-    return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
+    return buildPlainTextOkResponse( buffer.toString() );
   }
 
   /**
@@ -1243,7 +1243,7 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       return fileService.doGetProperties( pathId );
     } catch ( FileNotFoundException fileNotFound ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
       //TODO: What do we return in this error case?
       return null;
     }
@@ -1344,7 +1344,7 @@ public class FileResource extends AbstractJaxRSResource {
     } catch ( FileNotFoundException e ) {
       //return the empty list
     } catch ( Throwable t ) {
-      logger.error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FAILED", pathId ), t );
+      logger.error( getMessagesInstance().getString( "FileResource.GENERATED_CONTENT_FAILED", pathId ), t );
     }
     return repositoryFileDtoList;
   }
@@ -1425,7 +1425,7 @@ public class FileResource extends AbstractJaxRSResource {
       //return the empty list
     } catch ( Throwable t ) {
       logger
-        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", pathId, user ), t );
+        .error( getMessagesInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", pathId, user ), t );
     }
     return repositoryFileDtoList;
   }
@@ -1864,7 +1864,7 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       return fileService.doGetMetadata( pathId );
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+      logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
       return null;
     }
   }
@@ -1899,12 +1899,12 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       boolean success = fileService.doRename( pathId, newName );
       if ( success ) {
-        return Response.ok().build();
+        return buildOkResponse();
       } else {
-        return Response.ok( "File to be renamed does not exist" ).build();
+        return buildOkResponse( "File to be renamed does not exist" );
       }
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t.getMessage() );
     }
   }
 
@@ -1940,11 +1940,11 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
       fileService.doSetMetadata( pathId, metadata );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( GeneralSecurityException e ) {
-      return Response.status( Response.Status.UNAUTHORIZED ).build();
+      return buildStatusResponse( Response.Status.UNAUTHORIZED );
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t.getMessage() );
     }
   }
 
@@ -1994,6 +1994,14 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected Response buildOkResponse() {
     return Response.ok().build();
+  }
+
+  protected Response buildOkResponse( String msg ) {
+    return Response.ok( msg ).build();
+  }
+
+  protected Response buildPlainTextOkResponse( String msg ) {
+    return Response.ok( msg, MediaType.TEXT_PLAIN ).build();
   }
 
   protected Response buildStatusResponse( Response.Status status ) {
