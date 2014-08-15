@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -43,6 +44,7 @@ import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
@@ -57,9 +59,6 @@ import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 public class SchedulerService {
 
@@ -204,7 +203,7 @@ public class SchedulerService {
   }
 
   public Job getJob( String jobId ) throws SchedulerException {
-    return scheduler.getJob( jobId );
+    return getScheduler().getJob( jobId );
   }
 
   public boolean isScheduleAllowed() {
@@ -301,6 +300,27 @@ public class SchedulerService {
       return true;
     }
     return false;
+  }
+
+  public Job getJobInfo( String jobId ) throws SchedulerException {
+    Job job = getJob( jobId );
+    if ( getSecurityHelper().isPentahoAdministrator( getSession() )
+      || getSession().getName().equals( job.getUserName() ) ) {
+      for ( String key : job.getJobParams().keySet() ) {
+        Serializable value = job.getJobParams().get( key );
+        if ( value.getClass().isArray() ) {
+          String[] sa = ( new String[ 0 ] ).getClass().cast( value );
+          ArrayList<String> list = new ArrayList<String>();
+          for ( int i = 0; i < sa.length; i++ ) {
+            list.add( sa[ i ] );
+          }
+          job.getJobParams().put( key, list );
+        }
+      }
+      return job;
+    } else {
+      throw new RuntimeException( "Job not found or improper credentials for access" );
+    }
   }
 
   public List<Job> getBlockOutJobs() {
@@ -438,5 +458,9 @@ public class SchedulerService {
     }
 
     return fileService;
+  }
+
+  protected ISecurityHelper getSecurityHelper() {
+    return SecurityHelper.getInstance();
   }
 }

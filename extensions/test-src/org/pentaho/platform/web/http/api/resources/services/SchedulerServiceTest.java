@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
@@ -50,8 +51,10 @@ import org.pentaho.platform.web.http.api.resources.SessionResource;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SchedulerServiceTest {
 
@@ -637,6 +640,88 @@ public class SchedulerServiceTest {
       schedulerService.getJobState( mockJobRequest );
       fail();
     } catch ( UnsupportedOperationException e ) {
+      // Expected
+    }
+  }
+
+  @Test
+  public void testGetJobInfo() throws Exception {
+    String jobId = "jobId";
+
+    Job mockJob = mock( Job.class );
+    doReturn( mockJob ).when( schedulerService ).getJob( jobId );
+
+    ISecurityHelper mockSecurityHelper = mock( ISecurityHelper.class );
+    doReturn( mockSecurityHelper ).when( schedulerService ).getSecurityHelper();
+
+    IPentahoSession mockPentahoSession = mock( IPentahoSession.class );
+    doReturn( mockPentahoSession ).when( schedulerService ).getSession();
+
+    String sessionName = "sessionName";
+    doReturn( sessionName ).when( mockPentahoSession ).getName();
+    doReturn( sessionName ).when( mockJob ).getUserName();
+
+    Map<String, Serializable> mockJobParams = mock( Map.class );
+    doReturn( mockJobParams ).when( mockJob ).getJobParams();
+
+    Set<String> jobParamsKeyset = new HashSet<String>();
+    doReturn( jobParamsKeyset ).when( mockJobParams ).keySet();
+
+    String jobParamKey = "key";
+    jobParamsKeyset.add( jobParamKey );
+
+    String value = "value";
+    String[] testArray = new String[] { value };
+    doReturn( testArray ).when( mockJobParams ).get( jobParamKey );
+
+    // Test 1
+    doReturn( true ).when( mockSecurityHelper ).isPentahoAdministrator( mockPentahoSession );
+
+    Job testJob = schedulerService.getJobInfo( jobId );
+    assertEquals( mockJob, testJob );
+
+    // Test 2
+    doReturn( false ).when( mockSecurityHelper ).isPentahoAdministrator( mockPentahoSession );
+    testJob = schedulerService.getJobInfo( jobId );
+    assertEquals( mockJob, testJob );
+
+    verify( mockJobParams, times( 2 ) ).put( eq( jobParamKey ), any( Serializable.class ) );
+    verify( schedulerService, times( 2 ) ).getJob( jobId );
+    verify( schedulerService, times( 2 ) ).getSecurityHelper();
+    verify( schedulerService, times( 3 ) ).getSession();
+    verify( mockPentahoSession, times( 1 ) ).getName();
+    verify( mockJob, times( 1 ) ).getUserName();
+    verify( mockJob, times( 6 ) ).getJobParams();
+    verify( mockJobParams, times( 2 ) ).keySet();
+    verify( mockJobParams, times( 2 ) ).get( jobParamKey );
+    verify( mockSecurityHelper, times( 2 ) ).isPentahoAdministrator( mockPentahoSession );
+  }
+
+  @Test
+  public void testGetJobInfoError() throws Exception {
+    String jobId = "jobId";
+
+    Job mockJob = mock( Job.class );
+    doReturn( mockJob ).when( schedulerService ).getJob( jobId );
+
+    ISecurityHelper mockSecurityHelper = mock( ISecurityHelper.class );
+    doReturn( mockSecurityHelper ).when( schedulerService ).getSecurityHelper();
+
+    IPentahoSession mockPentahoSession = mock( IPentahoSession.class );
+    doReturn( mockPentahoSession ).when( schedulerService ).getSession();
+
+    doReturn( false ).when( mockSecurityHelper ).isPentahoAdministrator( mockPentahoSession );
+
+    String sessionName = "sessionName";
+    doReturn( sessionName ).when( mockPentahoSession ).getName();
+
+    String username = "username";
+    doReturn( username ).when( mockJob ).getUserName();
+
+    try {
+      schedulerService.getJobInfo( jobId );
+      fail();
+    } catch ( RuntimeException e ) {
       // Expected
     }
   }
