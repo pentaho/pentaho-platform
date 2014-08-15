@@ -1268,7 +1268,7 @@ public class FileResource extends AbstractJaxRSResource {
       //return the empty list
     } catch ( Throwable t ) {
       logger
-        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", pathId, user ), t );
+        .error( getMessagesInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", pathId, user ), t );
     }
     return repositoryFileDtoList;
   }
@@ -1594,7 +1594,7 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       return fileService.doGetMetadata( pathId );
     } catch ( FileNotFoundException e ) {
-      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
+      logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
       return null;
     }
   }
@@ -1629,12 +1629,12 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       boolean success = fileService.doRename( pathId, newName );
       if ( success ) {
-        return Response.ok().build();
+        return buildOkResponse();
       } else {
-        return Response.ok( "File to be renamed does not exist" ).build();
+        return buildOkResponse( "File to be renamed does not exist" );
       }
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t.getMessage() );
     }
   }
 
@@ -1655,11 +1655,11 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
       fileService.doSetMetadata( pathId, metadata );
-      return Response.ok().build();
+      return buildOkResponse();
     } catch ( GeneralSecurityException e ) {
-      return Response.status( Response.Status.UNAUTHORIZED ).build();
+      return buildStatusResponse( Response.Status.UNAUTHORIZED );
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return buildServerErrorResponse( t.getMessage() );
     }
   }
 
@@ -1709,6 +1709,10 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected Response buildOkResponse() {
     return Response.ok().build();
+  }
+
+  protected Response buildOkResponse( String msg ) {
+    return Response.ok( msg ).build();
   }
 
   protected Response buildPlainTextOkResponse( String msg ) {
