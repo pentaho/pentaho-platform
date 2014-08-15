@@ -82,4 +82,6 @@ public interface IHasProperties {
    */
   void clearProperties();
 
+  boolean containsKey(String key);
+
 }
