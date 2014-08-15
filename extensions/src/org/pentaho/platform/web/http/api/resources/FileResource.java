@@ -327,7 +327,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Takes a pathId and returns a <pre function="syntax.xml"> Response </pre> with the output stream based on the file located at the pathId
+   * Takes a pathId and returns a Response with the output stream based on the file located at the pathId
    *
    *  <p>Example Request:<br>
    *     GET api/repo/files/pathToFile
@@ -499,9 +499,8 @@ public class FileResource extends AbstractJaxRSResource {
    *                        <pre function="syntax.xml">
    *                        :Path:to:file:id
    *                        </pre>
-   * @param strWithManifest <pre function="syntax.xml">true</pre> or <pre function="syntax.xml">false</pre> (download file with manifest).  Defaults to <pre function="syntax.xml">true</pre>
-   *                        (include manifest) if this string can't be directly parsed to 'false' (case sensitive).  This argument is only used if a directory is being
-   *                        downloaded.
+   * @param strWithManifest true or false (download file with manifest).  Defaults to true  (include manifest) if this string can't be directly
+   *                        parsed to 'false' (case sensitive).  This argument is only used if a directory is being downloaded.
    * @param userAgent       A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
    *                        requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not
    *                        supplied and the filename is not quoted.
@@ -598,7 +597,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @param acl    Acl of the repository file  <pre function="syntax.xml"> RepositoryFileAclDto </pre>
+   * @param acl    Acl of the repository file RepositoryFileAclDto
    *               <pre function="syntax.xml">
    *                 &lt;repositoryFileAclDto&gt;
    *                   &lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;
@@ -608,7 +607,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                 &lt;/repositoryFileAclDto&gt;
    *               </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> object with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @PUT
@@ -683,7 +682,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   &lt;/repositoryFileAclDto&gt;
    * </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> object with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/creator" )
@@ -1037,7 +1036,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                    0|1|2|3|4
    *                    </pre>
-   * @return String <code>"true"</code> if the user has requested permissions on the file, or <code>"false"</code> otherwise
+   * @return String "true" if the user has requested permissions on the file, or "false" otherwise
    */
   @GET
   @Path( "{pathId : .+}/canAccess" )
@@ -1463,7 +1462,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <pre function="syntax.xml"> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</pre>.
+   *                    be found in org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
    *                    <pre function="syntax.xml">
@@ -1475,7 +1474,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                      true
    *                    </pre>
    *
-   * @return A <pre function="syntax.xml">RepositoryFileTreeDto</pre> object containing the files at the root of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1552,7 +1551,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                      false
    *                    </pre>
-   * @return A <pre function="syntax.xml">RepositoryFileTreeDto</pre> object containing the files at the root of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1643,7 +1642,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                      true
    *                    </pre>
    *
-   * @return A <pre function="syntax.xml">RepositoryFileTreeDto</pre> object containing the files at the root of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1724,7 +1723,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                      false
    *                    </pre>
-   * @return A <pre function="syntax.xml">RepositoryFileTreeDto</pre> object containing the files at the selected repository path of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the selected repository path of the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1925,7 +1924,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                      :path:to:file
    *                    </pre>
    *
-   * @param metadata    A list of <pre function="syntax.xml"> StringKeyStringValueDto </pre>
+   * @param metadata    A list of StringKeyStringValueDto objects.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
