@@ -13,6 +13,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -44,46 +46,51 @@ public class SessionResource extends AbstractJaxRSResource {
    * Returns the current user's workspace folder path
    *
    * <p>Example Request:<br>
-   *               GET api/session/userWorkspaceDir<br>
-   *               <p/>
-   *
-   * <p>Example Response:<br/>
-   *               HTTP/1.1 200 OK
+   *               GET api/session/userWorkspaceDir
    *               </p>
-   *               pre function="syntax.xml">
-   *               /home/admin/workspace
+   *
+   * @return String object containing the workspace folder path
+
+   * <p>Example Response:
+   *               </p>
+   *               <pre function="syntax.xml">
+   *                 /home/admin/workspace
    *               </pre>
    *
-   * @return workspace folder path
    */
   @GET
   @Path( "/userWorkspaceDir" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Returns the requested file path")
+  })
   public String doGetCurrentUserDir() {
     return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) + "/workspace";
   }
   
   /**
    * Returns the workspace folder path for the selected user.
-   * 
-   * @param user (user name)
    *
    * <p>Example Request:<br>
-   *               GET api/session/workspaceDirForUser<br>
-   *               <p/>
+   *   GET api/session/workspaceDirForUser<br>
+   * </p>
    *
-   * <p>Example Response:<br/>
-   *               HTTP/1.1 200 OK
-   *               </p>
-   *               pre function="syntax.xml">
-   *               /home/user/workspace
-   *               </pre>
-   *               
-   * @return workspace folder path
+   * @param user String of the user name
+   *
+   * @return String object containing the workspace folder path
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   *   /home/user/workspace
+   * </pre>
    */
   @GET
   @Path( "/workspaceDirForUser" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Returns the workspace file path for the specified user."),
+          @ResponseCode( code = 500, condition = "File path failed to be retrieved. This could be caused by an invalid user request.")
+  })
   public String doGetUserDir( @PathParam( "user" ) String user ) {
     return ClientRepositoryPaths.getUserHomeFolderPath( user ) + "/workspace";
   }

@@ -19,6 +19,8 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -90,34 +92,33 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    * Returns whether the current user is an administrator
    * <p>Example Request:<br>
    *               GET api/mantle/isAdministrator<br>
-   *               Content-Type: text/plain
-   *               <p/>
-   * <p>Example Response:<br/>
-   *               HTTP/1.1 200 OK
-   *               Content-Type: text/plain
    *               </p>
-   * @return Response object containing the boolean value of the request
+   *
+   * @return String true if the user is an administrator, or false otherwise
    */
   @GET
   @Path( "/isAdministrator" )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Returns the boolean response"),
+  })
   public Response isAdministrator() {
     return Response.ok( userConsoleService.isAdministrator() ).build();
   }
 
   /**
-   * Returns whether the user is authenticated or not
+   * Returns whether the user is sn authenticated user or not
+   *
    * <p>Example Request:<br>
    *               GET api/mantle/isAuthenticated<br>
-   *               Content-Type: text/plain
-   *               <p/>
-   * <p>Example Response:<br/>
-   *               HTTP/1.1 200 OK
-   *               Content-Type: text/plain
    *               </p>
-   * @return Response object containing the boolean value of the request
+   *
+   * @return String true if the user is an administrator, or false otherwise
    */
   @GET
   @Path( "/isAuthenticated" )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Returns the boolean response"),
+  })
   public Response isAuthenticated() {
     return Response.ok( userConsoleService.isAuthenticated() ).build();
   }
