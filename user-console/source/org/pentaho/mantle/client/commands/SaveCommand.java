@@ -21,6 +21,7 @@ import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
@@ -239,21 +240,27 @@ public class SaveCommand extends AbstractCommand {
 
     String unableToSaveMessage = Messages.getString( "unableToSaveMessage" );
     String save = Messages.getString( "save" );
+    String error = Messages.getString( "error" );
+    String errorEncounteredWhileSaving = Messages.getString( " error.EncounteredWhileSaving" );
 
-    doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage );
+    doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage, error, errorEncounteredWhileSaving );
   }
 
   /**
    * This method will call saveReportSpecAs(string filename, string solution, string path, bool overwrite)
    * 
-   * @param elementId
+   * @param save - externalize message save 
+   * @param unableToSaveMessage - externalize message unable to save 
+   * @param error - externalize message error
+   * @param errorEncounteredWhileSaving - externalize message errorEncounteredWhileSaving
    */
   private native void doSaveAsNativeWrapper( String elementId, String filename, String path,
-      SolutionFileInfo.Type type, boolean overwrite, String save, String unableToSaveMessage )
+      SolutionFileInfo.Type type, boolean overwrite, String save, String unableToSaveMessage, String error, String errorEncounteredWhileSaving   )
   /*-{
-
+    var isSavedSuccessfully = true;
     var errorCallback = function() {
       window.top.mantle_showMessage(save, unableToSaveMessage);
+      isSavedSuccessfully = false;
     }
 
     var frame = $doc.getElementById(elementId);
@@ -273,23 +280,22 @@ public class SaveCommand extends AbstractCommand {
     } else if (frame.handle_puc_save) {
       try {
         var result = frame.handle_puc_save(path, filename, overwrite, errorCallback);
-        //We need to decode the result, but we double encoded '/' and '\' in URLEncoder.js to work around a Tomcat issue
-        var almostDecodedResult = result.replace(/%255C/g, "%5C").replace(/%252F/g, "%2F");
-        //Now we decode
-        var decodedResult = decodeURIComponent(almostDecodedResult);
-        //if(result) {
-        this.@org.pentaho.mantle.client.commands.SaveCommand::doTabRename()();
-        //CHECKSTYLE IGNORE LineLength FOR NEXT 2 LINES
-        this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodedResult);
-        this.@org.pentaho.mantle.client.commands.SaveCommand::setDeepLinkUrl(Ljava/lang/String;)(decodedResult);
-        //}        
+        if (isSavedSuccessfully){
+          //We need to decode the result, but we double encoded '/' and '\' in URLEncoder.js to work around a Tomcat issue
+          var almostDecodedResult = result.replace(/%255C/g, "%5C").replace(/%252F/g, "%2F");
+          //Now we decode
+          var decodedResult = decodeURIComponent(almostDecodedResult);
+          this.@org.pentaho.mantle.client.commands.SaveCommand::doTabRename()();
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 2 LINES
+          this.@org.pentaho.mantle.client.commands.SaveCommand::addToRecentList(Ljava/lang/String;)(decodedResult);
+          this.@org.pentaho.mantle.client.commands.SaveCommand::setDeepLinkUrl(Ljava/lang/String;)(decodedResult);
+        }        
       } catch (e) {
-        //TODO: externalize message once a solution to do so is found.
-        $wnd.mantle_showMessage("Error","Error encountered while saving: "+e);
+        $wnd.mantle_showMessage(error, errorEncounteredWhileSaving + e);
       }
     } else {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      $wnd.mantle_showMessage("Error","The plugin has not defined a handle_puc_save function to handle the save of the content");
+      $wnd.mantle_showMessage(error,"The plugin has not defined a handle_puc_save function to handle the save of the content");
     }
     $wnd.mantle_setIsRepoDirty(true);
     $wnd.mantle_isBrowseRepoDirty=true;
