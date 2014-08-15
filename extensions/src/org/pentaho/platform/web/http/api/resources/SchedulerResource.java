@@ -425,24 +425,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Job getJob( @QueryParam( "jobId" ) String jobId,
                      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
-      Job job = schedulerService.getJob( jobId );
-      if ( SecurityHelper.getInstance().isPentahoAdministrator( PentahoSessionHolder.getSession() )
-        || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-        for ( String key : job.getJobParams().keySet() ) {
-          Serializable value = job.getJobParams().get( key );
-          if ( value.getClass().isArray() ) {
-            String[] sa = ( new String[ 0 ] ).getClass().cast( value );
-            ArrayList<String> list = new ArrayList<String>();
-            for ( int i = 0; i < sa.length; i++ ) {
-              list.add( sa[ i ] );
-            }
-            job.getJobParams().put( key, list );
-          }
-        }
-        return job;
-      } else {
-        throw new RuntimeException( "Job not found or improper credentials for access" );
-      }
+      return schedulerService.getJobInfo( jobId );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
