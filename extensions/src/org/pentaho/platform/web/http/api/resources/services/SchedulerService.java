@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
@@ -349,6 +351,26 @@ public class SchedulerService {
     return new BlockStatusProxy( totallyBlocked, partiallyBlocked );
   }
 
+  public JobScheduleRequest getJobInfo() {
+    JobScheduleRequest jobRequest = new JobScheduleRequest();
+    ComplexJobTriggerProxy proxyTrigger = new ComplexJobTriggerProxy();
+    proxyTrigger.setDaysOfMonth( new int[] { 1, 2, 3 } );
+    proxyTrigger.setDaysOfWeek( new int[] { 1, 2, 3 } );
+    proxyTrigger.setMonthsOfYear( new int[] { 1, 2, 3 } );
+    proxyTrigger.setYears( new int[] { 2012, 2013 } );
+    proxyTrigger.setStartTime( new Date() );
+    jobRequest.setComplexJobTrigger( proxyTrigger );
+    jobRequest.setInputFile( "aaaaa" );
+    jobRequest.setOutputFile( "bbbbb" );
+    ArrayList<JobScheduleParam> jobParams = new ArrayList<JobScheduleParam>();
+    jobParams.add( new JobScheduleParam( "param1", "aString" ) );
+    jobParams.add( new JobScheduleParam( "param2", 1 ) );
+    jobParams.add( new JobScheduleParam( "param3", true ) );
+    jobParams.add( new JobScheduleParam( "param4", new Date() ) );
+    jobRequest.setJobParameters( jobParams );
+    return jobRequest;
+  }
+  
   public JobState getJobState( JobRequest jobRequest ) throws SchedulerException {
     Job job = getJob( jobRequest.getJobId() );
     if ( isScheduleAllowed() || getSession().getName().equals( job.getUserName() ) ) {

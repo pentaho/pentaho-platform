@@ -437,23 +437,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   public JobScheduleRequest getJobInfo() {
-    JobScheduleRequest jobRequest = new JobScheduleRequest();
-    ComplexJobTriggerProxy proxyTrigger = new ComplexJobTriggerProxy();
-    proxyTrigger.setDaysOfMonth( new int[] { 1, 2, 3 } );
-    proxyTrigger.setDaysOfWeek( new int[] { 1, 2, 3 } );
-    proxyTrigger.setMonthsOfYear( new int[] { 1, 2, 3 } );
-    proxyTrigger.setYears( new int[] { 2012, 2013 } );
-    proxyTrigger.setStartTime( new Date() );
-    jobRequest.setComplexJobTrigger( proxyTrigger );
-    jobRequest.setInputFile( "aaaaa" );
-    jobRequest.setOutputFile( "bbbbb" );
-    ArrayList<JobScheduleParam> jobParams = new ArrayList<JobScheduleParam>();
-    jobParams.add( new JobScheduleParam( "param1", "aString" ) );
-    jobParams.add( new JobScheduleParam( "param2", 1 ) );
-    jobParams.add( new JobScheduleParam( "param3", true ) );
-    jobParams.add( new JobScheduleParam( "param4", new Date() ) );
-    jobRequest.setJobParameters( jobParams );
-    return jobRequest;
+    return schedulerService.getJobInfo();
   }
 
   /**
