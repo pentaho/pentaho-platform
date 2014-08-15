@@ -958,9 +958,8 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Checks if user can access selected files.</p>
-   *
-   * Checks whether the current user has permissions to the selected files.  Can check for more than one permission at once.
+   * Checks whether the current user has permissions to the selected files.  This can check for more than one permission at once
+   * but will only return true if all permissions checked are valid.
    *
    * <p>Example Request:<br>
    *   GET /api/repo/files/pathToFile/canAccessMap?permissions=1
@@ -1048,6 +1047,12 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Check whether the current user has specific permission on the selected repository file
    *
+   * Check whether the current user has specific permission on the selected repository file and returns true or false
+   *
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/PATH:TO:FILE/canAccess
+   * </p>
+   *
    * @param pathId      Colon separated path for the repository file
    *                    <pre function="syntax.xml">
    *                    :path:to:file:id
@@ -1056,7 +1061,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                    0|1|2|3|4
    *                    </pre>
-   * @return "true" or "false"
+   * @return String <code>"true"</code> if the user has requested permissions on the file, or <code>"false"</code> otherwise
    */
   @GET
   @Path( "{pathId : .+}/canAccess" )
@@ -1067,13 +1072,20 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks whether the current user can administer the platform
+   * Checks to see if the current user is an administer of the platform and returns a boolean response.
+   *
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/canAdminister
+   * </p>
    *
    * @return String <code>"true"</code> if the user can administer the platform, or <code>"false"</code> otherwise
    */
   @GET
   @Path( "/canAdminister" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns a boolean value, either true or false")
+  })
   public String doGetCanAdminister() {
     try {
       return fileService.doCanAdminister() ? "true" : "false";
@@ -1083,61 +1095,90 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the repository reserved characters
+   * Returns the list of reserved characters from the repository.
    *
-   * @return list of characters
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/reservedCharacters
+   * </p>
+   *
+   * @return List of characters that are reserved by the repository.
+   *
+   * <p>Example Response:</p>
+   *   <pre function="syntax.xml">
+   *   "/ \"
+   *   </pre>
    */
   @GET
   @Path( "/reservedCharacters" )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns a list of repositroy reserved characters")
+  })
   public Response doGetReservedChars() {
     StringBuffer buffer = fileService.doGetReservedChars();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
 
   /**
-   * Returns the repository reserved characters
-   *
-   * @return List of characters
-   */
+  * Returns the list of reserved characters from the repository.
+  *
+  * <p>Example Request:<br>
+  *   GET /api/repo/files/reservedCharactersDisplay
+  * </p>
+  *
+  * @return List of characters that are reserved by the repository.
+  * <p>Example Response:</p>
+  *   <pre function="syntax.xml">
+  *   "/, \, \t, \r, \nF"
+  *   </pre>
+  */
   @GET
   @Path( "/reservedCharactersDisplay" )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns a list of repositroy reserved characters")
+  })
   public Response doGetReservedCharactersDisplay() {
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
 
   /**
-   * Checks whether the current user can create content in the repository
+   *  Checks the users permission to determine if that user can create new content in the repository
    *
-   * @return "true" or "false"
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/canCreate
+   * </p>
+   *
+   * @return String <code>"true"</code> if the user can create new content, or <code>"false"</code> otherwise
    */
   @GET
   @Path( "/canCreate" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns true or false depending on the users permissions")
+  })
   public String doGetCanCreate() {
     return fileService.doGetCanCreate();
   }
 
   /**
-   * Retrieves the acls of the selected repository file
+   * Retrieves the ACL settings of the requested repository file in either xml or json format
+   *
+   * <p>Example Request:
+   *               <br>
+   *               GET /pentaho/api/repo/files/PATH:TO:FILE/acl
+   *               </p>
    *
    * @param pathId colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * <p>Example Request:
-   *               <br>
-   *               GET /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl
-   *               <p/>
-   * <p></p>Example Response:
-   *               <br/>
-   *               HTTP/1.1 200 OK
-   *               Content-Type: application/xml
+   *
+   * @return <code> RepositoryFileAclDto </code> object containing the ACL settings of the requested file
+   * <p>Example Response:
    *               <p/>
    *               <pre function="syntax.xml">
-   *               {
    *                 &lt;repositoryFileAclDto&gt;
    *                   &lt;aces&gt;
    *                     &lt;modifiable&gt;true&lt;/modifiable&gt;
@@ -1156,13 +1197,16 @@ public class FileResource extends AbstractJaxRSResource {
    *                   &lt;owner&gt;admin&lt;/owner&gt;
    *                   &lt;ownerType&gt;0&lt;/ownerType&gt;
    *                   &lt;/repositoryFileAclDto&gt;
-   *                }
    *                </pre>
-   * @return <code> RepositoryFileAclDto </code>
+   *               </p>
    */
   @GET
   @Path( "{pathId : .+}/acl" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Returns the requested file permissions in xml or json format"),
+          @ResponseCode( code = 500, condition = "File failed to be retrieved. This could be caused by an invalid path, or the file does not exist.")
+  })
   public RepositoryFileAclDto doGetFileAcl( @PathParam( "pathId" ) String pathId ) {
     return fileService.doGetFileAcl( pathId );
   }
