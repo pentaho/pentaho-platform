@@ -1492,7 +1492,6 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return repositoryFileDtoList;
   }
->>>>>>> [BACKLOG-194] add more doc
 
   /**
    * <p>Retrieve the recursive list of files from root of the repository.</p>
