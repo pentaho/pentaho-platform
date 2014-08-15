@@ -18,41 +18,44 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * MetaverseException is the base class representing an unexpected error while interacting with the metaverse.
+ * The MetaverseLocatorException class represents an unexpected error that occurs during a
+ * metaverse source repository scan.
  * 
  */
-public class MetaverseException extends Exception {
-
-  /** Default ID for serialization. */
-  private static final long serialVersionUID = -947058716721047769L;
+public class MetaverseLocatorException extends MetaverseException {
 
   /**
-   * Instantiates a new default metaverse exception.
+   * Default ID for serialization
    */
-  public MetaverseException() {
+  private static final long serialVersionUID = 5725877205157962898L;
+
+  /**
+   * Instantiates a new default metaverse locator exception.
+   */
+  public MetaverseLocatorException() {
     super();
   }
 
   /**
-   * Instantiates a new metaverse exception with the specified message.
-   * 
+   * Instantiates a new metaverse locator exception with the specified message.
+   *
    * @param message
    *          the message
    */
-  public MetaverseException( String message ) {
+  public MetaverseLocatorException( String message ) {
     super( message );
   }
 
   /**
    * Instantiates a new metaverse exception from an existing Throwable.
-   * 
+   *
    * @param t
    *          the Throwable to wrap
    */
-  public MetaverseException( Throwable t ) {
+  public MetaverseLocatorException( Throwable t ) {
     super( t );
-
   }
+
   /**
    * Instantiates a new metaverse exception from an existing Throwable
    * with the specified new message.
@@ -62,7 +65,7 @@ public class MetaverseException extends Exception {
    * @param t
    *          the Throwable to wrap
    */
-  public MetaverseException( String message, Throwable t ) {
+  public MetaverseLocatorException( String message, Throwable t ) {
     super( message, t );
   }
 

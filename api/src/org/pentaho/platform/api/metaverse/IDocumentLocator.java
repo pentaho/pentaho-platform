@@ -24,8 +24,10 @@ public interface IDocumentLocator extends IRequiresMetaverseBuilder {
 
   /**
    * Starts the scanning procedure used by this document locator
+   * @throws org.pentaho.platform.api.metaverse.MetaverseLocatorException if
+   * scan cannot be executed
    */
-  void startScan();
+  void startScan() throws MetaverseLocatorException;
 
   /**
    * Stops the scanning procedure used by this document locator
