@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.services.SystemService;
 
@@ -36,19 +38,14 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 public class SystemUsersResource extends AbstractJaxRSResource {
 
   /**
-   * Returns the list of users in the platform
-   *
    * Returns the list of users in the platform, this list is in an xml format as shown in the example response.
    *
    * <p>Example Request:<br>
    *               GET api/users<br>
-   *               <p/>
+   *               </p>
    *
    * @return Response object containing an xml list of users in the platform
-   * <p>Example Response:<br/>
-   *               200 OK
-   *               application/xml
-   *               </p>
+   * <p>Example Response:</p>
    *               <pre function="syntax.xml">
    *               &lt;xml&gt;
    *               &lt;userList&gt;
@@ -59,13 +56,14 @@ public class SystemUsersResource extends AbstractJaxRSResource {
    *               &lt;/userList&gt;
    *               &lt;/xml&gt;
    *               </pre>
-   * <p>Response object can also be unauthorized or internal service error.<br>
-   *    The unauthorized response occurs when the user does not have administration privileges.<br>
-   *    The internal server error occurs when the system has errors obtaining the users.
-   *   </p>
    */
   @GET
   @Produces( { MediaType.APPLICATION_XML } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Response object containing an xml list of the users in the platform."),
+          @ResponseCode( code = 403, condition = "Response due to the requesting user not having sufficient privileges."),
+          @ResponseCode( code = 500, condition = "Internal server error occurs when the server cannot retrieve the list of users.")
+  })
   public Response getUsers() throws Exception {
     try {
       return Response.ok( SystemService.getSystemService().getUsers().asXML() ).type( MediaType.APPLICATION_XML ).build();
