@@ -18,8 +18,12 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- *
+ * Listens for events fired from IDocumentLocator objects
  */
 public interface IDocumentListener {
+  /**
+   * Called by when a new IDocument is discovered
+   * @param event
+   */
   void onEvent( IDocumentEvent event );
 }
