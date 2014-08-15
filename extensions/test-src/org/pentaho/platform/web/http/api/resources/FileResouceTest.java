@@ -14,8 +14,10 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -37,6 +39,7 @@ import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 public class FileResouceTest {
@@ -821,5 +824,306 @@ public class FileResouceTest {
     verify( fileResource.fileService, times( 2 ) ).doSetContentCreator( pathId, mockRepositoryFileDto );
     verify( mockMessages, times( 1 ) ).getErrorString( "FileResource.FILE_NOT_FOUND", pathId );
     verify( mockMessages, times( 1 ) ).getString( "SystemResource.GENERAL_ERROR" );
+  }
+
+  @Test
+  public void testDoGetFileLocales() throws Exception {
+    String pathId = "pathId";
+
+    List<LocaleMapDto> mockList = mock( List.class );
+    doReturn( mockList ).when( fileResource.fileService ).doGetFileLocales( pathId );
+
+    List<LocaleMapDto> testLocales = fileResource.doGetFileLocales( pathId );
+    assertEquals( mockList, testLocales );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetFileLocales( pathId );
+  }
+
+  @Test
+  public void testDoGetFileLocalesError() throws Exception {
+    String pathId = "pathId";
+
+    Messages mockMessages = mock( Messages.class );
+    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+
+    // Test 1
+    Exception mockFileNotFoundException = mock( FileNotFoundException.class );
+    doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetFileLocales( pathId );
+
+    List<LocaleMapDto> testLocales = fileResource.doGetFileLocales( pathId );
+    assertEquals( 0, testLocales.size() );
+
+    // Test 2
+    Throwable mockThrowable = mock( RuntimeException.class );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doGetFileLocales( pathId );
+
+    testLocales = fileResource.doGetFileLocales( pathId );
+    assertEquals( 0, testLocales.size() );
+
+    verify( fileResource, times( 2 ) ).getMessagesInstance();
+    verify( mockMessages, times( 1 ) ).getErrorString( "FileResource.FILE_NOT_FOUND", pathId );
+    verify( mockMessages, times( 1 ) ).getString( "SystemResource.GENERAL_ERROR" );
+  }
+
+  @Test
+  public void testDoGetLocaleProperties() {
+    String pathId = "pathId";
+    String locale = "locale";
+
+    List<StringKeyStringValueDto> mockList = mock( List.class );
+    doReturn( mockList ).when( fileResource.fileService ).doGetLocaleProperties( pathId, locale );
+
+    List<StringKeyStringValueDto> testList = fileResource.doGetLocaleProperties( pathId, locale );
+    assertEquals( testList, mockList );
+  }
+
+  @Test
+  public void testDoDeleteLocale() throws Exception {
+    String pathId = "pathId";
+    String locale = "locale";
+
+    doNothing().when( fileResource.fileService ).doDeleteLocale( pathId, locale );
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( fileResource ).buildOkResponse();
+
+    Response testResponse = fileResource.doDeleteLocale( pathId, locale );
+    assertEquals( mockResponse, testResponse );
+
+    verify( fileResource.fileService, times( 1 ) ).doDeleteLocale( pathId, locale );
+    verify( fileResource, times( 1 ) ).buildOkResponse();
+  }
+
+  @Test
+  public void testDoDeleteLocaleError() throws Exception {
+    String pathId = "pathId";
+    String locale = "locale";
+
+    Throwable mockThrowable = mock( RuntimeException.class );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doDeleteLocale( pathId, locale );
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( fileResource ).buildServerErrorResponse( mockThrowable );
+
+    Response testResponse = fileResource.doDeleteLocale( pathId, locale );
+    assertEquals( mockResponse, testResponse );
+
+    verify( fileResource.fileService, times( 1 ) ).doDeleteLocale( pathId, locale );
+    verify( fileResource, times( 1 ) ).buildServerErrorResponse( mockThrowable );
+  }
+
+  @Test
+  public void testDoGetRootProperties() {
+    RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( mockRepositoryFileDto ).when( fileResource.fileService ).doGetRootProperties();
+
+    RepositoryFileDto testRepositoryFileDto = fileResource.doGetRootProperties();
+    assertEquals( mockRepositoryFileDto, testRepositoryFileDto );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetRootProperties();
+  }
+
+  @Test
+  public void testDoGetPathsAccessList() {
+    StringListWrapper pathsWrapper = mock( StringListWrapper.class );
+
+    List<Setting> mockList = mock( List.class );
+    doReturn( mockList ).when( fileResource.fileService ).doGetPathsAccessList( pathsWrapper );
+
+    List<Setting> testList = fileResource.doGetPathsAccessList( pathsWrapper );
+    assertEquals( mockList, testList );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetPathsAccessList( pathsWrapper );
+  }
+
+  @Test
+  public void testDoGetCanAccessList() {
+    String pathId = "pathId";
+    String permissions = "permissions";
+
+    List<Setting> mockList = mock( List.class );
+    doReturn( mockList ).when( fileResource.fileService ).doGetCanAccessList( pathId, permissions );
+
+    List<Setting> testList = fileResource.doGetCanAccessList( pathId, permissions );
+    assertEquals( mockList, testList );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetCanAccessList( pathId, permissions );
+  }
+
+  @Test
+  public void testDoGetCanAccess() {
+    String pathId = "pathId";
+    String permissions = "permissions";
+
+    String canAccess = "canAccess";
+    doReturn( canAccess ).when( fileResource.fileService ).doGetCanAccess( pathId, permissions );
+
+    String testString = fileResource.doGetCanAccess( pathId, permissions );
+    assertEquals( canAccess, testString );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetCanAccess( pathId, permissions );
+  }
+
+  @Test
+  public void testDoGetCanAdminister() throws Exception {
+    // Test 1
+    doReturn( true ).when( fileResource.fileService ).doCanAdminister();
+
+    String result = fileResource.doGetCanAdminister();
+    assertEquals( Boolean.TRUE.toString(), result );
+
+    // Test 2
+    doReturn( false ).when( fileResource.fileService ).doCanAdminister();
+
+    result = fileResource.doGetCanAdminister();
+    assertEquals( Boolean.FALSE.toString(), result );
+  }
+
+  @Test
+  public void testDoGetReservedChars() {
+    StringBuffer sb = new StringBuffer();
+    doReturn( sb ).when( fileResource.fileService ).doGetReservedChars();
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( fileResource ).buildPlainTextOkResponse( sb.toString() );
+
+    Response testResponse = fileResource.doGetReservedChars();
+    assertEquals( mockResponse, testResponse );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetReservedChars();
+    verify( fileResource, times( 1 ) ).buildPlainTextOkResponse( sb.toString() );
+  }
+
+  @Test
+  public void testDoGetReservedCharactersDisplay() {
+    StringBuffer sb = new StringBuffer();
+    doReturn( sb ).when( fileResource.fileService ).doGetReservedCharactersDisplay();
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( fileResource ).buildPlainTextOkResponse( sb.toString() );
+
+    Response testResponse = fileResource.doGetReservedCharactersDisplay();
+    assertEquals( mockResponse, testResponse );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetReservedCharactersDisplay();
+    verify( fileResource, times( 1 ) ).buildPlainTextOkResponse( sb.toString() );
+  }
+
+  @Test
+  public void testDoGetCanCreate() {
+    String canCreate = "canCreate";
+    doReturn( canCreate ).when( fileResource.fileService ).doGetCanCreate();
+
+    String result = fileResource.doGetCanCreate();
+    assertEquals( canCreate, result );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetCanCreate();
+  }
+
+  @Test
+  public void testDoGetFileAcl() {
+    String pathId = "pathId";
+
+    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( mockRepositoryFileAclDto ).when( fileResource.fileService ).doGetFileAcl( pathId );
+
+    RepositoryFileAclDto testResult = fileResource.doGetFileAcl( pathId );
+    assertEquals( mockRepositoryFileAclDto, testResult );
+  }
+
+  @Test
+  public void testDoGetProperties() throws Exception {
+    String pathId = "pathId";
+
+    RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( mockRepositoryFileDto ).when( fileResource.fileService ).doGetProperties( pathId );
+
+    RepositoryFileDto testDto = fileResource.doGetProperties( pathId );
+    assertEquals( mockRepositoryFileDto, testDto );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetProperties( pathId );
+  }
+
+  @Test
+  public void testDoGetPropertiesError() throws Exception {
+    String pathId = "pathId";
+
+    Exception mockFileNotFoundException = mock( FileNotFoundException.class );
+    doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetProperties( pathId );
+
+    Messages mockMessages = mock( Messages.class );
+    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+
+    RepositoryFileDto testDto = fileResource.doGetProperties( pathId );
+    assertNull( testDto );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetProperties( pathId );
+    verify( fileResource, times( 1 ) ).getMessagesInstance();
+    verify( mockMessages, times( 1 ) ).getString( "SystemResource.GENERAL_ERROR" );
+  }
+
+  @Test
+  public void testDoGetContentCreator() throws Exception {
+    String pathId = "pathId";
+
+    RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
+    doReturn( mockRepositoryFileDto ).when( fileResource.fileService ).doGetContentCreator( pathId );
+
+    RepositoryFileDto testDto = fileResource.doGetContentCreator( pathId );
+    assertEquals( mockRepositoryFileDto, testDto );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetContentCreator( pathId );
+  }
+
+  @Test
+  public void testDoGetContentCreatorError() throws Exception {
+    String pathId = "pathId";
+
+    Throwable mockThrowable = mock( RuntimeException.class );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doGetContentCreator( pathId );
+
+    RepositoryFileDto testDto = fileResource.doGetContentCreator( pathId );
+    assertNull( testDto );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetContentCreator( pathId );
+  }
+
+  @Test
+  public void testDoGetGeneratedContent() throws Exception {
+    String pathId = "pathId";
+
+    List<RepositoryFileDto> mockList = mock( List.class );
+    doReturn( mockList ).when( fileResource.fileService ).doGetGeneratedContent( pathId );
+
+    List<RepositoryFileDto> testList = fileResource.doGetGeneratedContent( pathId );
+    assertEquals( mockList, testList );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetGeneratedContent( pathId );
+  }
+
+  @Test
+  public void testDoGetGeneratedContentError() throws Exception {
+    String pathId = "pathId";
+
+    Exception mockFileNotFoundException = mock( FileNotFoundException.class );
+    doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetGeneratedContent( pathId );
+
+    Messages mockMessages = mock( Messages.class );
+    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+
+    // Test 1
+    List<RepositoryFileDto> testList = fileResource.doGetGeneratedContent( pathId );
+    assertEquals( 0, testList.size() );
+
+    // Test 2
+    Throwable mockThrowable = mock( RuntimeException.class );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doGetGeneratedContent( pathId );
+
+    testList = fileResource.doGetGeneratedContent( pathId );
+    assertEquals( 0, testList.size() );
+
+    verify( fileResource.fileService, times( 2 ) ).doGetGeneratedContent( pathId );
+    verify( fileResource, times( 1 ) ).getMessagesInstance();
+    verify( mockMessages, times( 1 ) ).getString( "FileResource.GENERATED_CONTENT_FAILED", pathId );
   }
 }
