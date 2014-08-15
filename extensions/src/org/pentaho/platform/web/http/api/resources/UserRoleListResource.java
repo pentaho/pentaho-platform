@@ -34,6 +34,8 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -78,21 +80,35 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     userRoleListService = new UserRoleListService();
     userRoleListService.setExtraRoles( extraRoles );
   }
-  
+
   /**
-   * Returns the list of users in the platform
-   * @return <code>
-   * &lt;userList&gt; 
-   * &lt;users&gt;
-   * &lsqb;admin, joe, suzy&rsqb;
-   * &lt;/users&gt;
-   * &lt;/userList&gt; 
-   * </code>
-   * @throws Exception 
+   * Returns the list of permission users in the platform
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   *  GET api/userrolelist/permission-users
+   * </pre>
+   *
+   * @return A list of User objects for users with permissions in the platform
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   *  &lt;userList&gt;
+   *    &lt;users&gt;user1&lt;/users&gt;
+   *    &lt;users&gt;user2&lt;/users&gt;
+   *    &lt;users&gt;user3&lt;/users&gt;
+   *  &lt;/userList&gt;
+   * </pre>
+   *
+   * @throws Exception
    */
   @GET
   @Path( "/permission-users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve User objects." )
+  })
   public UserListWrapper getPermissionUsers() throws Exception {
     return getUsers();
   }
@@ -102,7 +118,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * <p>Example Request:</p>
    * <pre function="syntax.xml">
-   * GET api/userrolelist/permission-roles
+   *  GET api/userrolelist/permission-roles
    * </pre>
    *
    * @return A list of roles
@@ -129,78 +145,95 @@ public class UserRoleListResource extends AbstractJaxRSResource {
  
   /**
    * Returns the list of users in the platform
-   * @return <code>
-   * &lt;userList&gt; 
-   * &lt;users&gt;
-   * &lsqb;admin, joe, suzy&rsqb;
-   * &lt;/users&gt;
-   * &lt;/userList&gt; 
-   * </code>
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   *  GET api/userrolelist/users
+   * </pre>
+   *
+   * @return A list of User objects for users in the platform
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   *  &lt;userList&gt;
+   *    &lt;users&gt;user1&lt;/users&gt;
+   *    &lt;users&gt;user2&lt;/users&gt;
+   *    &lt;users&gt;user3&lt;/users&gt;
+   *  &lt;/userList&gt;
+   * </pre>
+   *
    * @throws Exception 
    */
   @GET
   @Path( "/users" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve User objects." )
+  })
   public UserListWrapper getUsers() throws Exception {
     return userRoleListService.getUsers();
   }
 
   /**
-   * Return a list of the roles in the platform.
+   * Get a list of the standard roles in the platform
    *
    * <p>Example Request:</p>
    * <pre function="syntax.xml">
-   * GET api/userrolelist/roles
+   *  GET api/userrolelist/roles
    * </pre>
    *
-   * @return A list of roles
+   * @return A list of Role objects that contains the standard roles in the platform
    *
    * <p>Example Response:</p>
    * <pre function="syntax.xml">
-   * HTTP/1.1 200 OK
-   *
-   * &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   *  &lt;roles&gt;Report Author&gt;/roles&gt;
-   *  &lt;roles&gt;Power User&gt;/roles&gt;
-   * &lt;/roleList&gt;
+   *  &lt;roleList&gt;
+   *    &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *    &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *    &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *    &lt;roles&gt;Report Author&gt;/roles&gt;
+   *    &lt;roles&gt;Power User&gt;/roles&gt;
+   *  &lt;/roleList&gt;
    * </pre>
    */
   @GET
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ),
+  })
   public RoleListWrapper getRoles() {
     return userRoleListService.getRoles();
   }
 
   /**
-   * Returns all roles in the platform. This include extra roles which are (Anonymous and Authenticated)
+   * Get a list of the all roles in the platform including Anonymous and Administrator
    *
    * <p>Example Request:</p>
    * <pre function="syntax.xml">
-   * GET api/userrolelist/allRoles
+   *  GET api/userrolelist/roles
    * </pre>
    *
-   * @return A list of roles
+   * @return A list of Role objects that contains all the roles in the platform
    *
    * <p>Example Response:</p>
    * <pre function="syntax.xml">
-   * HTTP/1.1 200 OK
-   *
-   * &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   *  &lt;roles&gt;Report Author&gt;/roles&gt;
-   *  &lt;roles&gt;Power User&gt;/roles&gt;
-   * &lt;/roleList&gt;
+   *  &lt;roleList&gt;
+   *    &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *    &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *    &lt;roles&gt;Business Analyst&gt;/roles&gt;
+   *    &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *    &lt;roles&gt;Report Author&gt;/roles&gt;
+   *    &lt;roles&gt;Power User&gt;/roles&gt;
+   *  &lt;/roleList&gt;
    * </pre>
    */
   @GET
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ),
+  })
   public RoleListWrapper getAllRoles() throws Exception {
     return userRoleListService.getAllRoles();
   }
@@ -256,23 +289,37 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
   
   /**
-   * Returns roles for a given user
+   * Gets the roles for the given user
    *
-   * @param user The user to get the roles for
+   * <p>Example Request:</p>
    * <pre function="syntax.xml">
-   *  joe
+   *  GET api/userrolelist/getRolesForUser?user=user
    * </pre>
-   * @return <code>
+   *
+   * @param user The username to get the roles for
+   * <pre function="syntax.xml">
+   *  user
+   * </pre>
+   *
+   * @return A list of Role objects containing the roles for the given user
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
    * &lt;roles&gt;
-   * &lt;role&gt;Administrator&lt;/role&gt;                 
-   * &lt;role&gt;Report Author&lt;/role&gt;
-   * &lt;/roles&gt;
-   * </code>
-   * @throws Exception 
+   *  &lt;role&gt;Administrator&lt;/role&gt;
+   *  &lt;role&gt;Report Author&lt;/role&gt;
+   *  &lt;/roles&gt;
+   * </pre>
+   *
+   * @throws Exception
    */
   @GET
   @Path( "/getRolesForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ),
+    @ResponseCode( code = 500, condition = "Invalid user parameter." )
+  })
   public Response getRolesForUser( @QueryParam( "user" ) String user ) throws Exception {
     try {
         String roles = userRoleListService.doGetRolesForUser( user );
@@ -282,27 +329,41 @@ public class UserRoleListResource extends AbstractJaxRSResource {
         return Response.status( UNAUTHORIZED ).build();
       } catch ( Throwable t ) {
         throw new WebApplicationException( t );
-      }  
+      }
   }
 
   /**
-   * Returns roles for a given user
+   * Gets the list of users that have the role specified by the role parameter. The list of valid roles can be obtained by calling the /roles endpoint.
+   *
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   *  GET api/userrolelist/getUsersInRole?role=Authenticated
+   * </pre>
    *
    * @param role The role to get the users for
    * <pre function="syntax.xml">
-   *  Administrator
+   *  Authenticated
    * </pre>
-   * @return <code>
-   * &lt;users&gt;
-   * &lt;user&gt;pat&lt;/user&gt;
-   * &lt;user&gt;suzy&lt;/user&gt;                   
-   * &lt;/users&gt;
-   * </code>
+   *
+   * @return A list of User objects that have the roles specified in the role parameter
+   *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   *  &lt;users&gt;
+   *    &lt;user&gt;user1&lt;/user&gt;
+   *    &lt;user&gt;user2&lt;/user&gt;
+   *  &lt;/users&gt;
+   * </pre>
+   *
    * @throws Exception 
    */
   @GET
   @Path( "/getUsersInRole" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
+    @ResponseCode( code = 500, condition = "Missing the role parameter." )
+  })
   public Response getUsersInRole( @QueryParam( "role" ) String role ) throws Exception {
     try {
       String roles = userRoleListService.doGetUsersInRole( role );
