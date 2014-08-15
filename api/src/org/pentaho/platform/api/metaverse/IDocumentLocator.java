@@ -17,8 +17,10 @@
 
 package org.pentaho.platform.api.metaverse;
 
+import java.net.URI;
+
 /**
- *
+ * Discovers documents intended to be scanned for Metaverse-relevant content
  */
 public interface IDocumentLocator extends IRequiresMetaverseBuilder {
 
@@ -52,4 +54,11 @@ public interface IDocumentLocator extends IRequiresMetaverseBuilder {
    * @param event the document event to report
    */
   void notifyListeners( IDocumentEvent event );
+
+  /**
+   * Get the root location that this IDocumentLocator is responsible for
+   * @return URI root location
+   */
+  URI getRootUri();
+
 }
