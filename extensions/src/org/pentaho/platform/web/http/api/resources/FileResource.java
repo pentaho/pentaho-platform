@@ -150,7 +150,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               fileid1, fileid2 ...
    *               </pre>
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "/delete" )
@@ -201,7 +201,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    pathId1,pathId2,...
    * </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @PUT
@@ -234,7 +234,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    pathId1,pathId2,...
    * </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @PUT
@@ -265,7 +265,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    </pre>
    * @param fileContents An Input Stream with the contents of the file to be created
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}" )
@@ -304,7 +304,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               fileId1,fileId2...
    *               </pre>
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @PUT
@@ -337,7 +337,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @GET
@@ -506,7 +506,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                        requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not
    *                        supplied and the filename is not quoted.
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @GET
@@ -559,7 +559,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               :path:to:file:id
    *               </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @GET
   @Path( "{pathId : .+}/inline" )
@@ -837,7 +837,7 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;/stringKeyStringValueDto&gt;
    * &lt;/stringKeyStringValueDtoes&gt;</code>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/localeProperties" )
@@ -873,7 +873,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   en_US
    * </pre>    
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    */
   @PUT
@@ -1201,7 +1201,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               :path:to:file:id
    *               </pre>
    *
-   * @return A <pre function="syntax.xml"> RepositoryFileDto </pre> object containing the properties for the given file
+   * @return A RepositoryDto object containing the properties for the given file
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1283,7 +1283,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    :path:to:file:id
    * </pre>
    *
-   * @return A list of <pre function="syntax.xml">RepositoryFileDto</pre> objects containing the executed contents for a selected content from the repository.
+   * @return A list of RepositoryDto objects containing the executed contents for a selected content from the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1361,7 +1361,7 @@ public class FileResource extends AbstractJaxRSResource {
    * @param pathId The path for the file <pre function="syntax.xml"> :path:to:file:id </pre>
    * @param user   The username for the generated content folder
    *
-   * @return A list of <pre function="syntax.xml">RepositoryFileDto</pre> objects containing the executed contents for a selected file from the repository.
+   * @return A list of RepositoryDto objects containing the executed contents for a selected file from the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1769,7 +1769,7 @@ public class FileResource extends AbstractJaxRSResource {
    *  GET api/repo/files/deleted
    * </p>
    *
-   * @return A list of <pre function="syntax.xml">RepositoryFileDto</pre> objects containing the files in the trash folder of the repository.
+   * @return A list of RepositoryDto objects containing the files in the trash folder of the repository.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1841,7 +1841,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                      :path:to:file
    *                    </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    * <p>Example Response:<br/>
    * <pre function="syntax.xml">
@@ -1927,7 +1927,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param metadata    A list of <pre function="syntax.xml"> StringKeyStringValueDto </pre>
    *
-   * @return A jax-rs <pre function="syntax.xml"> Response </pre> with the appropriate status code, header, and body.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/metadata" )
