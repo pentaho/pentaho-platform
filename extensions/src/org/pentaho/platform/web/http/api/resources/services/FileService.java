@@ -1276,17 +1276,6 @@ public class FileService {
   }
 
   /**
-   * @param lineageId
-   * @return
-   * @throws FileNotFoundException
-   */
-  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( String lineageId ) throws FileNotFoundException {
-    SessionResource sessionResource = getSessionResource();
-    return searchGeneratedContent( sessionResource.doGetCurrentUserDir(), lineageId,
-      QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-  }
-
-  /**
    * @param userDir          the user home directory
    * @param targetComparator the comparator to filter
    * @param metadataConstant the property used to get the file property to compare
@@ -1294,7 +1283,7 @@ public class FileService {
    * @throws FileNotFoundException
    * @private
    */
-  private List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
+  protected List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
                                                           String metadataConstant )
     throws FileNotFoundException {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();

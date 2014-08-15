@@ -143,11 +143,10 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Moves the list of files to the user's trash folder
-   * <p/>
-   * Move a list of files to the user's trash folder, the list should be comma separated.
    *
-   * @param params Comma separated list of the files to be deleted
+   * Move a list of files to the user's trash folder.
+   *
+   * @param params Comma separated list of the files to be moved to trash folder
    *               <pre function="syntax.xml">
    *               fileid1, fileid2 ...
    *               </pre>
@@ -157,8 +156,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "/delete" )
   @Consumes( { WILDCARD } )
   @StatusCodes({
-      @ResponseCode( code = 200, condition = "Successful deletion of file." ),
-      @ResponseCode( code = 500, condition = "Failure to delete the file." )
+      @ResponseCode( code = 200, condition = "Successfully moved file to trash." ),
+      @ResponseCode( code = 500, condition = "Failure move the file to the trash." )
   })
   public Response doDeleteFiles( String params ) {
     try {
@@ -191,15 +190,13 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Moves a list of files from its current location to another.
-   * <p/>
-   * Moves a list of files from its current location to another, the list should be comma separated.
+   * Moves a list of files from its current location to another.
    *
-   * @param destPathId colon separated path for the destination path
+   * @param destPathId Colon separated path for the destination path
    * <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @param params comma separated list of files to be moved
+   * @param params Comma separated list of files to be moved
    * <pre function="syntax.xml">
    *    pathId1,pathId2,...
    * </pre>
@@ -214,7 +211,6 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode( code = 200, condition = "Successfully moved the file." ),
       @ResponseCode( code = 403, condition = "Failure to move the file due to path not found." ),
       @ResponseCode( code = 500, condition = "Failure to move the file." )
-
   })
   public Response doMove( @PathParam( "pathId" ) String destPathId, String params ) {
     try {
@@ -230,10 +226,8 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Restores a list of files from the user's trash folder
-   * <p/>
-   * Restores a list of files from the user's trash folder to their previous locations. The list should be comma
-   * separated.
+   *
+   * Restores a list of files from the user's trash folder to their previous locations.
    *
    * @param params comma separated list of file ids to be restored
    * <pre function="syntax.xml">
@@ -249,7 +243,6 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes({
       @ResponseCode( code = 200, condition = "Successfully restored the file." ),
       @ResponseCode( code = 403, condition = "Failure to Restore the file." ),
-
   })
   public Response doRestore( String params ) {
     try {
@@ -262,15 +255,15 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Create a new file.</p>
    *
    * Creates a new file with the provided contents at a given path
    *
-   * @param pathId Colon separated path for the destination for files to be copied
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
    *               <pre function="syntax.xml">
-   *               :path:to:file:id
+   *                      :path:to:id
    *               </pre>
-   * @param fileContents An Input Stream with the contents of the file
+   * @param fileContents An Input Stream with the contents of the file to be created
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
@@ -291,10 +284,8 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Copy selected list of files to a new specified location.</p>
    *
-   * Copy selected list of files to a new specified location.  List of files path ids should be comma separated.
-   * An overwrite mode can be specified as below.
+   * Copy selected list of files to a new specified location.
    *
    *  <p>Example Request:<br>
    *               PUT api/repo/files/pathToDir/children?mode=2
@@ -336,13 +327,11 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Retrieve a file or folder by path</p>
+   * Takes a pathId and returns a Response with the output stream based on the file located at the pathId
    *
    *  <p>Example Request:<br>
    *     GET api/repo/files/pathToFile
    *  </p>
-   *
-   * Takes a pathId and returns a response object with the output stream based on the file located at the pathId
    *
    * @param pathId Colon separated path for the repository file
    *               <pre function="syntax.xml">
@@ -355,7 +344,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}" )
   @Produces( { WILDCARD } )
   @StatusCodes({
-      @ResponseCode( code = 200, condition = "Successfully get the file or dir." ),
+      @ResponseCode( code = 200, condition = "Successfully get the file or directory." ),
       @ResponseCode( code = 404, condition = "Failed to find the file or resource."),
       @ResponseCode( code = 500, condition = "Failed to open content.")
   })
@@ -497,22 +486,21 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Download a file or folder from the repository.</p>
+   *
+   * Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
+   * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
    *   <p>Example Request:<br>
    *     GET api/repo/files/pathToFile/download?withManifest=true
    *  </p>
    *
-   * Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
-   * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
-   * @param pathId          colon separated path for the repository file
+   * @param pathId          Colon separated path for the repository file
    *                        <pre function="syntax.xml">
    *                        :Path:to:file:id
    *                        </pre>
-   * @param strWithManifest true or false (download file with manifest).  Defaults to true (include manifest) if this string can't
-   *                        be directly parsed to 'false' (case sensitive).  This argument is only used if a directory is being
-   *                        downloaded.
+   * @param strWithManifest true or false (download file with manifest).  Defaults to true  (include manifest) if this string can't be directly
+   *                        parsed to 'false' (case sensitive).  This argument is only used if a directory is being downloaded.
    * @param userAgent       A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
    *                        requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not
    *                        supplied and the filename is not quoted.
@@ -557,8 +545,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Retrieves the file from the repository as inline.
-   * </p>
+   *
    * Retrieves the file from the repository as inline. This is mainly used for css and dependent files for the html
    * document.
    *
@@ -599,9 +586,8 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Save the acls of the selected file to the repository</p>
    *
-   * <p>This method is used to update and save the acls of the selected file to the repository</p>
+   * This method is used to update and save the acls of the selected file to the repository.
    *
    * <p> Example Request:<br>
    *     PUT api/repo/files/pathToFile/acl
@@ -611,7 +597,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
+   * @param acl    Acl of the repository file RepositoryFileAclDto
    *               <pre function="syntax.xml">
    *                 &lt;repositoryFileAclDto&gt;
    *                   &lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;
@@ -645,15 +631,14 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Store content creator.</p>
    *
-   * Store content creator of the selected repository file.
+   * Store content creator for the given path of created content.
    *
-   * @param pathId colon separated path for the repository file
+   * @param pathId colon separated path for the repository file that was created by the contenCreator below
    * <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @param contentCreator repository file
+   * @param contentCreator Repository file that created the file at the above pathId location
    * <pre function="syntax.xml">
    *     &lt;repositoryFileDto&gt;
    *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
@@ -706,7 +691,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode( code = 200, condition = "Successfully retrieved file." ),
       @ResponseCode( code = 500, condition = "Failed to download file because of some other error.")
   })
-
+  @Facet ( name = "Unsupported" )
   public Response doSetContentCreator( @PathParam( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
       fileService.doSetContentCreator( pathId, contentCreator );
@@ -721,15 +706,18 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves the list of locale map for the selected repository file. The list will be empty if a problem occurs.
+   * <p>Retrieves the list of locale maps for the selected repository file.</p>
    *
-   * @param pathId colon separated path for the repository file
+   * <p>Example Request:<br>
+   *          GET api/repo/files/pathToFile/locales
+   * </p>
+   *
+   * @param pathId Colon separated path for the repository file
    * <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @return <code>List<LocaleMapDto></code> the list of locales
+   * @return List<LocaleMapDto> the list of locales
    *         <pre function="syntax.xml">
-   *           <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *           &lt;localePropertiesMapEntries&gt;
    *             &lt;localeMapDto&gt;
    *               &lt;locale&gt;default&lt;/locale&gt;
@@ -758,6 +746,11 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/locales" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved locale information." ),
+      @ResponseCode( code = 404, condition = "Failed to retrieve locales because the file was not found."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve locales due to some other error.")
+})
   public List<LocaleMapDto> doGetFileLocales( @PathParam( "pathId" ) String pathId ) {
     List<LocaleMapDto> locales = new ArrayList<LocaleMapDto>();
     try {
@@ -771,14 +764,21 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of locale properties for a given locale
+   * <p>Retrieve the list of locale properties for a given locale.</p>
+   *
+   *  <p>Example Request:<br>
+   *     GET api/repo/files/pathToFile/localeProperties
+   * </p>
    *
    * @param pathId Colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
    * @param locale The specified locale
-   * @return <code>&lt;stringKeyStringValueDtoes&gt;
+   * <pre function="syntax.xml">
+   *   en_US
+   * </pre>
+   * @return &lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
@@ -791,23 +791,37 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;key&gt;title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
-   * &lt;/stringKeyStringValueDtoes&gt;</code>
+   * &lt;/stringKeyStringValueDtoes&gt;
    */
   @GET
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved locale properties." ),
+      @ResponseCode( code = 500, condition = "Unable to retrieve locale properties due to some other error.")
+  })
   public List<StringKeyStringValueDto> doGetLocaleProperties( @PathParam( "pathId" ) String pathId,
       @QueryParam( "locale" ) String locale ) {
     return fileService.doGetLocaleProperties( pathId, locale );
   }
 
   /**
-   * Save list of locale properties for a given locale
+   * <p>Save list of locale properties for a given locale.</p>
+   *
+   * <p>Example Request:<br>
+   *     PUT api/repo/files/pathToFile/localeProperties
+   * </p>
    *
    * @param pathId Colon separated path for the repository file
-   * @param locale The specified locale
+   *               <pre function="syntax.xml">
+   *               :path:to:file:id
+   *               </pre>
+   * @param locale A string representation of the locale to set properties on
+   * <pre function="syntax.xml">
+   *   en_US
+   * </pre>
    * @param properties
-   * <code>&lt;stringKeyStringValueDtoes&gt;
+   * &lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
@@ -820,12 +834,17 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;key&gt;title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
-   * &lt;/stringKeyStringValueDtoes&gt;</code>
-   * @return Response object indicating the success or failure of this operation
+   * &lt;/stringKeyStringValueDtoes&gt;
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/localeProperties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully updated locale properties." ),
+      @ResponseCode( code = 500, condition = "Unable to update locale properties due to some other error.")
+  })
   public Response doSetLocaleProperties( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale,
       List<StringKeyStringValueDto> properties ) {
     try {
@@ -837,22 +856,32 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete the locale for the selected file and locale
+   * <p>Delete the locale for the selected file.</p>
+   *
+   *  <p>Example Request:<br>
+   *     PUT api/repo/files/pathToFile/localeProperties
+   * </p>
    *
    * @param pathId Colon separated path for the repository file
    * <pre function="syntax.xml">
    *   path:to:file:id
    * </pre>
    *     
-   * @param locale The locale to be deleted
+   * @param locale A string representations of the locale to be deleted.
    * <pre function="syntax.xml">
    *   en_US
    * </pre>    
-   * @return Server Response indicating the success of the operation
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @PUT
   @Path( "{pathId : .+}/deleteLocale" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully deleted the locale." ),
+      @ResponseCode( code = 500, condition = "Unable to delete the locale properties due to some other error.")
+  })
   public Response doDeleteLocale( @PathParam( "pathId" ) String pathId, @QueryParam( "locale" ) String locale ) {
     try {
       fileService.doDeleteLocale( pathId, locale );
@@ -863,11 +892,14 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves the properties of the root directory
+   *
+   * Retrieves the properties of the root directory.  The properties are returned in a string value pair format.
    *
    *<p>Example Request:<br>
-   *               GET api/repo/files/properties<br>
-   *               <p/>
+   *      GET api/repo/files/properties
+   *</p>
+   *
+   * @return file properties object  RepositoryFileDto  for the root directory
    *
    * <p>Example Response:<br/>
    *               HTTP/1.1 200 OK
@@ -888,59 +920,113 @@ public class FileResource extends AbstractJaxRSResource {
    *                 &lt;versioned&gt;false&lt;/versioned&gt;
    *               &lt;/repositoryFileDto&gt;
    *               </pre>
-   *
-   * @return file properties object <code> RepositoryFileDto </code> for the root directory
    */
   @GET
   @Path( "/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved the properties of the root directory."),
+      @ResponseCode( code = 404, condition = "Unable to retrieve the properties of the root directory due to file not found error."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve the properties of the root directory due to some other error.")
+  })
   public RepositoryFileDto doGetRootProperties() {
     return fileService.doGetRootProperties();
   }
 
   /**
-   * Checks whether the current user has permissions to the selected files
+   * Checks whether the current user has permissions to the selected files.  This can check for more than one permission at once
+   * but will only return true if all permissions checked are valid.
+   *
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/pathToFile/canAccessMap?permissions=1
+   *</p>
    *
    * @param pathId Colon separated path for the repository file
    * <pre function="syntax.xml">
    *   path:to:file:id
    * </pre>
    *     
-   * @param permissions Pipe separated permissions to be checked
+   * @param permissions Pipe separated permissions to be checked for
    * <pre function="syntax.xml">
    *   permission1|permission2|permission3
    * </pre>    
    * @return List of permissions for the selected files
+   * Example Response:
+   *
+   * <pre function="syntax.xml">
+   *   {"setting":[{"name":"1","value":"true"}]}
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/canAccessMap" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved the permissions of the file."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve the permissions of the file due to some other error.")
+  })
   public List<Setting> doGetCanAccessList( @PathParam( "pathId" ) String pathId,
       @QueryParam( "permissions" ) String permissions ) {
     return fileService.doGetCanAccessList( pathId, permissions );
   }
 
   /**
-   * Checks whether the current user has permissions to the provided list of paths
    *
-   * @param pathsWrapper Collection of paths to be checked
+   * Checks whether the current user has permissions to the provided list of paths.
+   *
+   *  <p>Example Request:<br>
+   *   Post /api/repo/files/pathsAccessList
+   *  </p>
+   * @param pathsWrapper Collection of Strings containing the paths to be checked
    * <pre function="syntax.xml">
-   *   pathToFileId1
-   *   pathToFileId2
-   *   pathToFileId3
+   *  &lt;stringListWrapper&gt;
+   *  &lt;strings&gt;/public&lt;/strings&gt;
+   *  &lt;/stringListWrapper&gt;
    * </pre>
    * @return A collection of the permission settings for the paths
+   *
+   * Example Response:
+   * <pre function="syntax.xml">
+   *    &lt;settings&gt;
+   *      &lt;setting&gt;
+   *       &lt;name&gt;
+   *         /public
+   *       &lt;/name&gt;
+   *       &lt;value&gt;
+   *         0
+   *       &lt;/value&gt;
+   *     &lt;/setting&gt;
+   *     &lt;setting&gt;
+   *      &lt;name&gt;
+   *        /public
+   *      &lt;/name&gt;
+   *      &lt;value&gt;
+   *         1
+   *      &lt;/value&gt;
+   *    &lt;/setting&gt;
+   *   &lt;/settings&gt;
+   * </pre>
+   *
    */
   @POST
   @Path( "/pathsAccessList" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Successfully retrieved the permissions of the given paths."),
+      @ResponseCode( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error.")
+  })
   public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
     return fileService.doGetPathsAccessList( pathsWrapper );
   }
 
   /**
    * Check whether the current user has specific permission on the selected repository file
+   *
+   * Check whether the current user has specific permission on the selected repository file and returns true or false
+   *
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/PATH:TO:FILE/canAccess
+   * </p>
    *
    * @param pathId      Colon separated path for the repository file
    *                    <pre function="syntax.xml">
@@ -950,7 +1036,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                    0|1|2|3|4
    *                    </pre>
-   * @return "true" or "false"
+   * @return String "true" if the user has requested permissions on the file, or "false" otherwise
    */
   @GET
   @Path( "{pathId : .+}/canAccess" )
@@ -961,13 +1047,20 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks whether the current user can administer the platform
+   * Checks to see if the current user is an administer of the platform and returns a boolean response.
    *
-   * @return String <code>"true"</code> if the user can administer the platform, or <code>"false"</code> otherwise
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/canAdminister
+   * </p>
+   *
+   * @return String "true" if the user can administer the platform, or "false" otherwise
    */
   @GET
   @Path( "/canAdminister" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns a boolean value, either true or false")
+  })
   public String doGetCanAdminister() {
     try {
       return fileService.doCanAdminister() ? "true" : "false";
@@ -977,61 +1070,90 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the repository reserved characters
+   * Returns the list of reserved characters from the repository.
    *
-   * @return list of characters
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/reservedCharacters
+   * </p>
+   *
+   * @return List of characters that are reserved by the repository.
+   *
+   * <p>Example Response:</p>
+   *   <pre function="syntax.xml">
+   *   "/ \"
+   *   </pre>
    */
   @GET
   @Path( "/reservedCharacters" )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns a list of repositroy reserved characters")
+  })
   public Response doGetReservedChars() {
     StringBuffer buffer = fileService.doGetReservedChars();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
 
   /**
-   * Returns the repository reserved characters
+  * Returns the list of reserved characters from the repository.
    *
-   * @return List of characters
+  * <p>Example Request:<br>
+  *   GET /api/repo/files/reservedCharactersDisplay
+  * </p>
+  *
+  * @return List of characters that are reserved by the repository.
+  * <p>Example Response:</p>
+  *   <pre function="syntax.xml">
+  *   "/, \, \t, \r, \nF"
+  *   </pre>
    */
   @GET
   @Path( "/reservedCharactersDisplay" )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns a list of repositroy reserved characters")
+  })
   public Response doGetReservedCharactersDisplay() {
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
     return Response.ok( buffer.toString(), MediaType.TEXT_PLAIN ).build();
   }
 
   /**
-   * Checks whether the current user can create content in the repository
+   *  Checks the users permission to determine if that user can create new content in the repository
    *
-   * @return "true" or "false"
+   * <p>Example Request:<br>
+   *   GET /api/repo/files/canCreate
+   * </p>
+   *
+   * @return String "true" if the user can create new content, or "false" otherwise
    */
   @GET
   @Path( "/canCreate" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Successfully returns true or false depending on the users permissions")
+  })
   public String doGetCanCreate() {
     return fileService.doGetCanCreate();
   }
 
   /**
-   * Retrieves the acls of the selected repository file
+   * Retrieves the ACL settings of the requested repository file in either xml or json format
+   *
+   * <p>Example Request:
+   *               <br>
+   *               GET /pentaho/api/repo/files/PATH:TO:FILE/acl
+   *               </p>
    *
    * @param pathId colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * <p>Example Request:
-   *               <br>
-   *               GET /pentaho/api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/acl
-   *               <p/>
-   * <p></p>Example Response:
-   *               <br/>
-   *               HTTP/1.1 200 OK
-   *               Content-Type: application/xml
+   *
+   * @return  RepositoryFileAclDto  object containing the ACL settings of the requested file
+   * <p>Example Response:
    *               <p/>
    *               <pre function="syntax.xml">
-   *               {
    *                 &lt;repositoryFileAclDto&gt;
    *                   &lt;aces&gt;
    *                     &lt;modifiable&gt;true&lt;/modifiable&gt;
@@ -1050,61 +1172,73 @@ public class FileResource extends AbstractJaxRSResource {
    *                   &lt;owner&gt;admin&lt;/owner&gt;
    *                   &lt;ownerType&gt;0&lt;/ownerType&gt;
    *                   &lt;/repositoryFileAclDto&gt;
-   *                }
    *                </pre>
-   * @return <code> RepositoryFileAclDto </code>
+   *               </p>
    */
   @GET
   @Path( "{pathId : .+}/acl" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+          @ResponseCode( code = 200, condition = "Returns the requested file permissions in xml or json format"),
+          @ResponseCode( code = 500, condition = "File failed to be retrieved. This could be caused by an invalid path, or the file does not exist.")
+  })
   public RepositoryFileAclDto doGetFileAcl( @PathParam( "pathId" ) String pathId ) {
     return fileService.doGetFileAcl( pathId );
   }
 
   /**
-   * Retrieves the properties of a selected repository file
+   * <p>Retrieves the properties of a selected repository file</p>
    *
-   * @param pathId colon separated path for the repository file
+   * <p>Example Request:<br>
+   *  GET api/repo/files/pathToFile/properties
+   * </p>
+   *
+   *
+   *
+   * @param pathId Colon separated path for the repository file
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * <p>Example Request:
-   *               <br>
-   *               GET api/repo/files/%3Ahome%3Aadmin%3Aafile.prpti/properties
-   *               <p/>
-   * <p></p>Example Response:
-   *               <br/>
-   *               HTTP/1.1 200 OK
-   *               Content-Type: application/json
-   *               <p/>
+   *
+   * @return A RepositoryDto object containing the properties for the given file
+   *
+   * <p>Example Response:<br/>
    *               <pre function="syntax.xml">
    *               {
    *                 "createdDate":"1406732545857",
-   *                 "description":"afile.prpti",
-   *                 "fileSize":"7672",
+   *  "description":"description",
+   *  "fileSize":"1234",
    *                 "folder":"false",
    *                 "hidden":"false",
-   *                 "id":"068390ba-f90d-46e3-8c55-bbe55e24b2fe",
+   *  "id":"fileId",
    *                 "lastModifiedDate":"1406732545858",
    *                 "locale":"en",
-   *                 "localePropertiesMapEntries":[{"locale":"default",
-   *                 "properties":[{"key":"file.title","value":"afile"},
+   *  "localePropertiesMapEntries":[
+   *   {
+   *    "locale":"default",
+   *    "properties":[
+   *      {"key":"file.title","value":"afile"},
    *                 {"key":"description","value":"afile.prpti"},
    *                 {"key":"jcr:primaryType","value":"nt:unstructured"},
    *                 {"key":"title","value":"afile"},
-   *                 {"key":"file.description","value":"afile.prpti"}]}],
+   *      {"key":"file.description","value":"afile.prpti"}
+   *     ]
+   *    }
+   *   ],
    *                 "locked":"false",
-   *                 "name":"afile.prpti",
-   *                 "ownerType":"-1","path":"/home/admin/afile.prpti",
-   *                 "title":"afile","versioned":"false"
+   *  "name":"filename",
+   *  "ownerType":"-1","path":"pathToFile:filename",
+   *  "title":"title","versioned":"false"
    *                }
    *                </pre>
-   *
-   * @return file properties object <code> RepositoryFileDto </code>
    */
   @GET
   @Path( "{pathId : .+}/properties" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the properties for a file." ),
+    @ResponseCode( code = 204, condition = "Invalid file path." )
+  })
   public RepositoryFileDto doGetProperties( @PathParam( "pathId" ) String pathId ) {
     try {
       return fileService.doGetProperties( pathId );
@@ -1122,11 +1256,12 @@ public class FileResource extends AbstractJaxRSResource {
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
-   * @return file properties object <code> RepositoryFileDto </code>
+   * @return file properties object  RepositoryFileDto
    */
   @GET
   @Path( "{pathId : .+}/creator" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public RepositoryFileDto doGetContentCreator( @PathParam( "pathId" ) String pathId ) {
     try {
       return fileService.doGetContentCreator( pathId );
@@ -1136,15 +1271,21 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of executed contents for a selected content from the repository
+   * <p>Retrieve the list of executed contents for a selected content from the repository.</p>
    *
-   * @param pathId the path for the file
+   * <p>Example Request:<br>
+   *  GET api/repo/files/pathToFile/generatedContent
+   * </p>
+   *
+   * @param pathId The path for the file
    * <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @return list of <code> repositoryFileDto </code>
+   *
+   * @return A list of RepositoryDto objects containing the executed contents for a selected content from the repository.
+   *
+   * <p>Example Response:<br/>
    * <pre function="syntax.xml">
-   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *    &lt;List&gt;
    *     &lt;repositoryFileDto&gt;
    *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
@@ -1192,6 +1333,10 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/generatedContent" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
+    @ResponseCode( code = 200, condition = "Empty list of RepositoryFileDto objects." )
+  })
   public List<RepositoryFileDto> doGetGeneratedContent( @PathParam( "pathId" ) String pathId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
@@ -1205,13 +1350,20 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the executed contents for a selected repository file and a given user
+   * <p>Retrieve the executed contents for a selected repository file and a given user.</p>
    *
-   * @param pathId the path for the file <pre function="syntax.xml"> :path:to:file:id </pre>
-   * @param user   the username for the generated content folder
-   * @return list of <code> repositoryFileDto </code>
+   *
+   * <p>Example Request:<br>
+   *  GET api/repo/files/pathToFile/generatedContentForUser?user=username
+   * </p>
+   *
+   * @param pathId The path for the file <pre function="syntax.xml"> :path:to:file:id </pre>
+   * @param user   The username for the generated content folder
+   *
+   * @return A list of RepositoryDto objects containing the executed contents for a selected file from the repository.
+   *
+   * <p>Example Response:<br/>
    * <pre function="syntax.xml">
-   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *    &lt;List&gt;
    *     &lt;repositoryFileDto&gt;
    *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
@@ -1259,6 +1411,11 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path( "{pathId : .+}/generatedContentForUser" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
+    @ResponseCode( code = 200, condition = "Empty list of RepositoryFileDto objects." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public List<RepositoryFileDto> doGetGeneratedContentForUser( @PathParam( "pathId" ) String pathId,
                                                                @QueryParam( "user" ) String user ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
@@ -1274,77 +1431,17 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of execute content by lineage id.
    *
-   * @param lineageId the path for the file
-   * <pre function="syntax.xml">
-   *  :path:to:file:id
-   * </pre>
-   * @return list of <code> repositoryFileDto </code>
-   * <pre function="syntax.xml">
-   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-   *    &lt;List&gt;
-   *     &lt;repositoryFileDto&gt;
-   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
-   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
-   *     &lt;folder&gt;false&lt;/folder&gt;
-   *     &lt;hidden&gt;false&lt;/hidden&gt;
-   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
-   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
-   *     &lt;locale&gt;en&lt;/locale&gt;
-   *     &lt;localePropertiesMapEntries&gt;
-   *       &lt;localeMapDto&gt;
-   *         &lt;locale&gt;default&lt;/locale&gt;
-   *         &lt;properties&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;file.title&lt;/key&gt;
-   *             &lt;value&gt;myFile&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
-   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;title&lt;/key&gt;
-   *             &lt;value&gt;myFile&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;file.description&lt;/key&gt;
-   *             &lt;value&gt;myFile Description&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *         &lt;/properties&gt;
-   *       &lt;/localeMapDto&gt;
-   *     &lt;/localePropertiesMapEntries&gt;
-   *     &lt;locked&gt;false&lt;/locked&gt;
-   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
-   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
-   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
-   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
-   *     &lt;title&gt;myFile&lt;/title&gt;
-   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
-   *     &lt;versioned&gt;true&lt;/versioned&gt;
-   *   &lt;/repositoryFileAclDto&gt;
-   *  &lt;/List&gt;
-   * </pre>
-   */
-  @GET
-  @Path( "/generatedContentForSchedule" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
-    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
-    try {
-      repositoryFileDtoList = fileService.doGetGeneratedContentForSchedule( lineageId );
-    } catch ( FileNotFoundException e ) {
-      //return the empty list
-    } catch ( Throwable t ) {
-      logger
-        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", lineageId ), t );
-    }
-    return repositoryFileDtoList;
-  }
-
-  /**
-   * Retrieve the list of files from root of the repository.
+   * <p>Retrieve the recursive list of files from root of the repository based on the filters provided.</p>
+   *
+   * <p>Example Request:<br>
+   *  GET api/repo/files/tree?showHidden=false&filter=*|FILES
+   *                    |includeMembers=name,fileSize,description,folder,id,title
+   *
+   *  Will return files but not folders under the "/" folder. The fields returned will
+   *  include the name, filesize, description, id and title.
+   * </p>
+   *
    *
    * @param depth       (how many level should the search go)
    *                    <pre function="syntax.xml">
@@ -1365,16 +1462,9 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
-   *                    <p/>
-   *                    Example:
-   *                    http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/tree?showHidden=false&filter=*|FILES
-   *                    |includeMembers=name,fileSize,description,folder,id,title
-   *                    <p/>
-   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
-   *                    include the name, filesize, description, id and title.
    *                    <pre function="syntax.xml">
    *                      *|FOLDERS
    *                    </pre>
@@ -1384,11 +1474,38 @@ public class FileResource extends AbstractJaxRSResource {
    *                      true
    *                    </pre>
    *
-   * @return list of files <code> RepositoryFileTreeDto </code>
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
+   *
+   * <p>Example Response:<br/>
+   * <pre function="syntax.xml">
+   *    &lt;repositoryFileTreeDto&gt;
+   *    &lt;children&gt;
+   *    &lt;file&gt;
+   *    &lt;createdDate&gt;1405356318621&lt;/createdDate&gt;
+   *    &lt;fileSize&gt;-1&lt;/fileSize&gt;
+   *    &lt;folder&gt;true&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;fileId;/id&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;admin&lt;/name&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/path/to/dir&lt;/path&gt;
+   *    &lt;title&gt;admin&lt;/title&gt;
+   *    &lt;versioned&gt;false&lt;/versioned&gt;
+   *    &lt;/file&gt;
+   *    &lt;/children&gt;
+   *    &lt;/repositoryFileTreeDto&gt;
+   * </pre>
    */
   @GET
   @Path( "/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
+    @ResponseCode( code = 404, condition = "Invalid parameters." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public RepositoryFileTreeDto doGetRootTree( @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1396,7 +1513,14 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve a recursive list of files from the root of the repository
+   * <p>Retrieve a list of child files from the root of the repository.</p>
+   *
+   * <p>Example Request:<br>
+   *  GET api/repo/files/children?filter=*|FOLDERS&showHidden=false&includeAcls=true
+   *
+   *  will return files but not folders under the "/" folder. The fields returned will
+   *  include the name, filesize, description, id and title.
+   * </p>
    *
    * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
    *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
@@ -1412,17 +1536,10 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
    *                    <p/>
-   *                    Example:
-   *                    <p/>
-   *                    http://localhost:8080/pentaho/api/repo/files/children?showHidden=false&filter=*|
-   *                    FILES |includeMembers=name,fileSize,description,folder,id,title
-   *                    <p/>
-   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
-   *                    include the name, filesize, description, id and title.
    *                    <pre function="syntax.xml">
    *                      *|FILES |includeMembers=name,fileSize,description,folder,id,title
    *                    </pre>
@@ -1434,11 +1551,37 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                      false
    *                    </pre>
-   * @return list of files <code> RepositoryFileTreeDto </code>
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
+   *
+   * <p>Example Response:<br/>
+   * <pre function="syntax.xml">
+   *    &lt;repositoryFileTreeDto&gt;
+   *    &lt;children&gt;
+   *    &lt;file&gt;
+   *    &lt;createdDate&gt;1405356318621&lt;/createdDate&gt;
+   *    &lt;fileSize&gt;-1&lt;/fileSize&gt;
+   *    &lt;folder&gt;true&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;fileId;/id&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;admin&lt;/name&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/path/to/dir&lt;/path&gt;
+   *    &lt;title&gt;admin&lt;/title&gt;
+   *    &lt;versioned&gt;false&lt;/versioned&gt;
+   *    &lt;/file&gt;
+   *    &lt;/children&gt;
+   *    &lt;/repositoryFileTreeDto&gt;
+   * </pre>
    */
   @GET
   @Path( "/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of child files from root of the repository." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public List<RepositoryFileDto> doGetRootChildren( @QueryParam( "filter" ) String filter,
       @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1446,11 +1589,19 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the children of the selected repository file. This is a recursive search with a selected level depth and
-   * filter
+   * <p>Retrieve the recursive list of children of the selected repository file. </p>
+   *
+   *
+   * <p>Example Request:<br>
+   *  GET api/repo/files/pathToFile/tree?showHidden=false&filter=*|FILES
+   *                    |includeMembers=name,fileSize,description,folder,id,title
+   *
+   *  will return files but not folders under the "/pathToFile" folder. The fields returned will
+   *  include the name, file size, description, id and title.
+   * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
-   *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be :public:Steel%20Wheels
+   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
    *                    <pre function="syntax.xml">
    *                      :path:to:id
    *                    </pre>
@@ -1474,16 +1625,9 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
-   *                    <p/>
-   *                    Example:
-   *                    http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/tree?showHidden=false&filter=*|FILES
-   *                    |includeMembers=name,fileSize,description,folder,id,title
-   *                    <p/>
-   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
-   *                    include the name, filesize, description, id and title.
    *                    <pre function="syntax.xml">
    *                      *|FOLDERS
    *                    </pre>
@@ -1498,11 +1642,38 @@ public class FileResource extends AbstractJaxRSResource {
    *                      true
    *                    </pre>
    *
-   * @return list of files <code> RepositoryFileTreeDto </code>
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
+   *
+   * <p>Example Response:<br/>
+   * <pre function="syntax.xml">
+   *    &lt;repositoryFileTreeDto&gt;
+   *    &lt;children&gt;
+   *    &lt;file&gt;
+   *    &lt;createdDate&gt;1405356318621&lt;/createdDate&gt;
+   *    &lt;fileSize&gt;-1&lt;/fileSize&gt;
+   *    &lt;folder&gt;true&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;fileId;/id&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;admin&lt;/name&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/path/to/dir&lt;/path&gt;
+   *    &lt;title&gt;admin&lt;/title&gt;
+   *    &lt;versioned&gt;false&lt;/versioned&gt;
+   *    &lt;/file&gt;
+   *    &lt;/children&gt;
+   *    &lt;/repositoryFileTreeDto&gt;
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/tree" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
+    @ResponseCode( code = 404, condition = "Invalid parameters." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public RepositoryFileTreeDto doGetTree( @PathParam( "pathId" ) String pathId, @QueryParam( "depth" ) Integer depth,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1510,13 +1681,19 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the children of the selected repository file. This is a recursive search with a selected level depth and
-   * filter
+   * <p>Retrieve a list of child files from the selected repository path of the repository.</p>
+   *
+   * <p>Example Request:<br>
+   *  GET api/repo/files/pathToFile/children?filter=*|FOLDERS&showHidden=false&includeAcls=true
+   *
+   *  Will return files but not folders under the "/pathToFile" folder. The fields returned will
+   *  include the name, filesize, description, id and title.
+   * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
-   *                    or \ characters. To specify /public/Steel Wheels, the encoded pathId would be 
+   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
    *                    <pre function="syntax.xml">
-   *                      :public:Steel%20Wheels
+   *                      :path:to:file
    *                    </pre>
    * @param filter      (filter to be applied for search). The filter can be broken down into 3 parts; File types, Child Node
    *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
@@ -1532,17 +1709,9 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in <code> org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter</code>.
+   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
    *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
    *                    excludeMembers= clause in the same service call.
-   *                    <p/>
-   *                    Example:
-   *                    <p/>
-   *                    http://localhost:8080/pentaho/api/repo/files/:public:Steel%20Wheels/children?showHidden=false&filter=*|
-   *                    FILES |includeMembers=name,fileSize,description,folder,id,title
-   *                    <p/>
-   *                    will return files but not folders under the "/public/Steel Wheels" folder. The fields returned will
-   *                    include the name, filesize, description, id and title.
    *                    <pre function="syntax.xml">
    *                      *|FILES |includeMembers=name,fileSize,description,folder,id,title
    *                    </pre>
@@ -1554,11 +1723,37 @@ public class FileResource extends AbstractJaxRSResource {
    *                    <pre function="syntax.xml">
    *                      false
    *                    </pre>
-   * @return list of files <code> RepositoryFileTreeDto </code>
+   * @return A RepositoryFileTreeDto object containing the files at the selected repository path of the repository.
+   *
+   * <p>Example Response:<br/>
+   * <pre function="syntax.xml">
+   *    &lt;repositoryFileTreeDto&gt;
+   *    &lt;children&gt;
+   *    &lt;file&gt;
+   *    &lt;createdDate&gt;1405356318621&lt;/createdDate&gt;
+   *    &lt;fileSize&gt;-1&lt;/fileSize&gt;
+   *    &lt;folder&gt;true&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;fileId;/id&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;admin&lt;/name&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/path/to/dir&lt;/path&gt;
+   *    &lt;title&gt;admin&lt;/title&gt;
+   *    &lt;versioned&gt;false&lt;/versioned&gt;
+   *    &lt;/file&gt;
+   *    &lt;/children&gt;
+   *    &lt;/repositoryFileTreeDto&gt;
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/children" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of child files from selected repository path of the repository." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public List<RepositoryFileDto> doGetChildren( @PathParam( "pathId" ) String pathId,
       @QueryParam( "filter" ) String filter, @QueryParam( "showHidden" ) Boolean showHidden,
       @DefaultValue( "false" ) @QueryParam( "includeAcls" ) Boolean includeAcls ) {
@@ -1567,29 +1762,104 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of files in the user's trash folder
+   * <p>Retrieve the list of files in the user's trash folder.</p>
    *
-   * @return list of <code> RepositoryFileDto </code>
+   * <p>Example Request:<br>
+   *  GET api/repo/files/deleted
+   * </p>
+   *
+   * @return A list of RepositoryDto objects containing the files in the trash folder of the repository.
+   *
+   * <p>Example Response:<br/>
+   * <pre function="syntax.xml">
+   *    &lt;repositoryFileDtoes&gt;
+   *    &lt;repositoryFileDto&gt;
+   *    &lt;createdDate&gt;1405356406448&lt;/createdDate&gt;
+   *    &lt;deletedDate&gt;1406573914167&lt;/deletedDate&gt;
+   *    &lt;fileSize&gt;10477&lt;/fileSize&gt;
+   *    &lt;folder&gt;false&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;fileId&lt;/id&gt;
+   *    &lt;lastModifiedDate&gt;1405356406448&lt;/lastModifiedDate&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;localePropertiesMapEntries&gt;
+   *    &lt;locale&gt;default&lt;/locale&gt;
+   *    &lt;properties&gt;
+   *    &lt;key&gt;file.title&lt;/key&gt;
+   *    &lt;value&gt;File Title&lt;/value&gt;
+   *    &lt;/properties&gt;
+   *    &lt;properties&gt;
+   *    &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *    &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *    &lt;/properties&gt;
+   *    &lt;properties&gt;
+   *    &lt;key&gt;title&lt;/key&gt;
+   *    &lt;value&gt;filename&lt;/value&gt;
+   *    &lt;/properties&gt;
+   *    &lt;properties&gt;
+   *    &lt;key&gt;file.description&lt;/key&gt;
+   *    &lt;value /&gt;
+   *    &lt;/properties&gt;
+   *    &lt;/localePropertiesMapEntries&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;filename.ext&lt;/name&gt;
+   *    &lt;originalParentFolderPath&gt;/original/path/to/file&lt;/originalParentFolderPath&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/path/to/file&lt;/path&gt;
+   *    &lt;title&gt;File Title&lt;/title&gt;
+   *    &lt;versionId&gt;1.3&lt;/versionId&gt;
+   *    &lt;versioned&gt;true&lt;/versioned&gt;
+   *    &lt;/repositoryFileDto&gt;
+   *    &lt;/repositoryFileDtoes&gt;
+   * </pre>
    */
   @GET
   @Path( "/deleted" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of files from trash folder of the repository." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public List<RepositoryFileDto> doGetDeletedFiles() {
     return fileService.doGetDeletedFiles();
   }
 
   /**
-   * Retrieve the metadata of the selected repository file.
    *
-   * @param pathId Colon separated path for the destination for files to be copied
+   * <p>Retrieve the metadata of the selected file. Even though the hidden flag is a property of the file node itself, and not
+   * the metadata child, it is considered metadata from PUC and is included in the setMetadata call</p>
+   *
+   * <p>Example Request:
+   * <br>
+   * GET /pentaho/api/repo/files/pathToFile/metadata
+   * <p/>
+   *
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
    *               <pre function="syntax.xml">
-   *               :path:to:file:id
+   *                      :path:to:file
    *               </pre>
-   * @return list of <code> StringKeyStringValueDto </code>
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p>Example Response:<br/>
+   * <pre function="syntax.xml">
+   *    &lt;stringKeyStringValueDtos&gt;
+   *    &lt;stringKeyStringValueDto&gt;
+   *    &lt;key&gt;KEY&lt;key&gt;
+   *    &lt;value&gt;KEY&lt;value&gt;
+   *    &lt;/stringKeyStringValueDto&gt;
+   *    &lt;/stringKeyStringValueDtos&gt;
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode( code = 403, condition = "Invalid path." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public List<StringKeyStringValueDto> doGetMetadata( @PathParam( "pathId" ) String pathId ) {
     try {
       return fileService.doGetMetadata( pathId );
@@ -1600,23 +1870,19 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Rename the name of the selected file
-   *
-   * @param pathId Colon separated path for the repository file
-   *               <pre function="syntax.xml">
-   *               :path:to:file:id
-   *               </pre>
-   * @param newName String indicating the new name of the file
+   * <p>Rename the selected file.</p>
    *
    * <p>Example Request:
    * <br>
-   * PUT /pentaho/api/repo/files/PATH/rename
+   * PUT /pentaho/api/repo/files/pathToFile/rename
    * <p/>
-   * <p></p>Example Response:
-   * <br/>
-   * HTTP/1.1 200 OK
-   * Content-Type: text/plain
-   * <p/>
+   *
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
+   *               <pre function="syntax.xml">
+   *                      :path:to:file
+   *               </pre>
+   * @param newName String indicating the new name of the file
    *
    * @return Response with 200 OK, if the file does not exist to be renamed the response will return 200 OK with the string "File to be renamed does not exist"
    *
@@ -1625,6 +1891,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "{pathId : .+}/rename" )
   @Consumes( { WILDCARD } )
   @Produces( { WILDCARD } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully renamed file." ),
+    @ResponseCode( code = 200, condition = "File to be renamed does not exist." )
+  })
   public Response doRename( @PathParam( "pathId" ) String pathId, @QueryParam( "newName" ) String newName ) {
     try {
       boolean success = fileService.doRename( pathId, newName );
@@ -1639,19 +1909,34 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Store the metadata of the selected fle. Even though the hidden flag is a property of the file node itself, and not
-   * the metadata child, it is considered metadata from PUC and is included in the setMetadata call
    *
-   * @param pathId Colon separated path for the repository file
+   * <p>Store the metadata of the selected file. Even though the hidden flag is a property of the file node itself, and not
+   * the metadata child, it is considered metadata from PUC and is included in the setMetadata call</p>
+   *
+   * <p>Example Request:
+   * <br>
+   * PUT /pentaho/api/repo/files/pathToFile/metadata
+   * <p/>
+   *
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
    *               <pre function="syntax.xml">
-   *               :path:to:file:id
+   *                      :path:to:file
    *               </pre>
-   * @param metadata A list of <code> StringKeyStringValueDto </code>
-   * @return Server Response indicating the success of the operation
+   *
+   * @param metadata    A list of StringKeyStringValueDto objects.
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}/metadata" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode( code = 403, condition = "Invalid path." ),
+    @ResponseCode( code = 400, condition = "Invalid payload." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
       fileService.doSetMetadata( pathId, metadata );
