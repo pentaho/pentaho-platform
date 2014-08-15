@@ -17,14 +17,17 @@
 package org.pentaho.platform.monitoring;
 
 import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
 import org.pentaho.platform.api.monitoring.IMonitoringEvent;
 import org.pentaho.platform.api.monitoring.IMonitoringService;
 import org.pentaho.platform.api.monitoring.IMonitoringSubscriber;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
 import org.pentaho.platform.monitoring.subscribers.MonitoringDeadEventSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.concurrent.Executors;
 
 /**
@@ -43,6 +46,11 @@ public class MonitoringService implements IMonitoringService {
 
     asyncEventBus = new AsyncEventBus( Executors.newCachedThreadPool() );
 
+    // register the bus with PentahoSystem
+    PentahoSystem.registerReference(
+      new SingletonPentahoObjectReference.Builder<EventBus>( EventBus.class ).object( asyncEventBus ).attributes(
+        Collections.<String, Object>singletonMap( "id", "monitoring" ) ).build(), EventBus.class );
+
     // guava's elegant Catch-All-That-Fell-Thru-Cracks ( a.k.a 'DeadEvents' )
     MonitoringDeadEventSubscriber deadEventSubscriber = new MonitoringDeadEventSubscriber();
     getAsyncEventBus().register( deadEventSubscriber );
@@ -58,7 +66,7 @@ public class MonitoringService implements IMonitoringService {
    */
   @Override
   public synchronized <T extends IMonitoringSubscriber> void register( T subscriber ) {
-    logger.debug( "registering subscriber " + ( subscriber != null ? subscriber.getSubscriberId()  : "null" ) );
+    logger.debug( "registering subscriber " + ( subscriber != null ? subscriber.getSubscriberId() : "null" ) );
     getAsyncEventBus().register( subscriber );
   }
 
@@ -69,7 +77,7 @@ public class MonitoringService implements IMonitoringService {
    */
   @Override
   public synchronized <T extends IMonitoringSubscriber> void unregister( T subscriber ) {
-    logger.debug( "unregistering subscriber " + ( subscriber != null ? subscriber.getSubscriberId()  : "null" ) );
+    logger.debug( "unregistering subscriber " + ( subscriber != null ? subscriber.getSubscriberId() : "null" ) );
     getAsyncEventBus().unregister( subscriber );
   }
 
