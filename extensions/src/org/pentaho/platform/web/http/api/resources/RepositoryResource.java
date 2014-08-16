@@ -26,10 +26,12 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -92,8 +94,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @Produces( { WILDCARD } )
   public Response doExecuteDefault( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException,
     MalformedURLException, URISyntaxException {
-    return Response.seeOther( repositoryService.doExecuteDefault( pathId, httpServletRequest.getRequestURL(),
-      httpServletRequest.getQueryString() ) ).build();
+    return buildSeeOtherResponse( repositoryService.doExecuteDefault( pathId, httpServletRequest.getRequestURL(),
+      httpServletRequest.getQueryString() ) );
   }
 
   /**
@@ -134,7 +136,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     throws ObjectFactoryException, PluginBeanException,
     IOException, URISyntaxException {
 
-    httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
+    httpServletRequest = correctPostRequest( formParams );
 
     if ( logger.isDebugEnabled() ) {
       for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
@@ -483,5 +485,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   public void setWhitelist( RepositoryDownloadWhitelist whitelist ) {
     repositoryService.setWhitelist( whitelist );
+  }
+
+  protected Response buildSeeOtherResponse( URI location ) {
+    return Response.seeOther( location ).build();
+  }
+
+  protected HttpServletRequest correctPostRequest( MultivaluedMap<String, String> formParams ) {
+    return JerseyUtil.correctPostRequest( formParams, httpServletRequest );
   }
 }

@@ -31,7 +31,7 @@ public class RepositoryPublishResourceTest {
   }
 
   @Test
-  public void writeFile() throws Exception {
+  public void testWriteFile() throws Exception {
     String pathId = "pathId";
     InputStream fileContents = mock( InputStream.class );
     Boolean overwriteFile = Boolean.TRUE;
@@ -53,7 +53,7 @@ public class RepositoryPublishResourceTest {
   }
 
   @Test
-  public void writeFileError() throws Exception {
+  public void testWriteFileError() throws Exception {
     String pathId = "pathId";
     InputStream fileContents = mock( InputStream.class );
     Boolean overwriteFile = Boolean.TRUE;
