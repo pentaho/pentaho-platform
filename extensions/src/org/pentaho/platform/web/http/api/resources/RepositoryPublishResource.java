@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response.Status;
 import java.io.InputStream;
 
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 
 /**
  * Publishes a content file to the repository. Used for Analyzer and Report Writer publish
@@ -45,7 +46,7 @@ public class RepositoryPublishResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
-  private static RepositoryPublishService repositoryPublishService;
+  protected RepositoryPublishService repositoryPublishService;
 
   public RepositoryPublishResource() {
     repositoryPublishService = new RepositoryPublishService();
@@ -76,16 +77,28 @@ public class RepositoryPublishResource {
                              @FormDataParam( "overwriteFile" ) Boolean overwriteFile ) {
     try {
       repositoryPublishService.writeFile( pathId, fileContents, overwriteFile );
-      return Response.ok( "SUCCESS" ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( "SUCCESS" );
     } catch ( PentahoAccessControlException e ) {
-      return Response.status( UNAUTHORIZED ).entity(
-        Integer.toString( PlatformImportException.PUBLISH_USERNAME_PASSWORD_FAIL ) ).build();
+      return buildStatusResponse( UNAUTHORIZED, PlatformImportException.PUBLISH_USERNAME_PASSWORD_FAIL );
     } catch ( PlatformImportException e ) {
       logger.error( e );
-      return Response.status( Status.PRECONDITION_FAILED ).entity( Integer.toString( e.getErrorStatus() ) ).build();
+      return buildStatusResponse( PRECONDITION_FAILED, e.getErrorStatus() );
     } catch ( Exception e ) {
       logger.error( e );
-      return Response.serverError().entity( Integer.toString( PlatformImportException.PUBLISH_GENERAL_ERROR ) ).build();
+      return buildServerErrorResponse( PlatformImportException.PUBLISH_GENERAL_ERROR );
     }
   }
+
+  protected Response buildPlainTextOkResponse( String msg ) {
+    return Response.ok( msg ).type( MediaType.TEXT_PLAIN ).build();
+  }
+
+  protected Response buildStatusResponse( Status status, int entity ) {
+    return Response.status( status ).entity( Integer.toString( entity ) ).build();
+  }
+
+  protected Response buildServerErrorResponse( int entity ) {
+    return Response.serverError().entity( Integer.toString( entity ) ).build();
+  }
+
 }

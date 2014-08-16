@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
-public class FileResouceTest {
+public class FileResourceTest {
 
   FileResource fileResource;
 
@@ -1359,7 +1359,7 @@ public class FileResouceTest {
     Response mockUnauthorizedResponse = mock( Response.class );
     doReturn( mockUnauthorizedResponse ).when( fileResource ).buildStatusResponse( UNAUTHORIZED );
 
-    Throwable mockThrowable = mock(RuntimeException.class);
+    Throwable mockThrowable = mock( RuntimeException.class );
 
     String errMsg = "errMsg";
     doReturn( errMsg ).when( mockThrowable ).getMessage();
@@ -1368,8 +1368,8 @@ public class FileResouceTest {
     doReturn( mockThrowableResponse ).when( fileResource ).buildServerErrorResponse( errMsg );
 
     // Test 1
-    Exception mockGeneralSecurityException = mock(GeneralSecurityException.class);
-    doThrow(mockGeneralSecurityException).when( fileResource.fileService ).doSetMetadata( pathId, metadata );
+    Exception mockGeneralSecurityException = mock( GeneralSecurityException.class );
+    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doSetMetadata( pathId, metadata );
 
     Response testResponse = fileResource.doSetMetadata( pathId, metadata );
     assertEquals( mockUnauthorizedResponse, testResponse );
