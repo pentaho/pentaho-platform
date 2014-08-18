@@ -793,4 +793,50 @@ public class SchedulerServiceTest {
       // Expected
     }
   }
+
+  @Test
+  public void testIsScheduleAllowed() {
+
+    // Test 1
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+
+    Map<String, Serializable> metadata = mock( Map.class );
+
+    doReturn( metadata ).when( schedulerService.repository ).getFileMetadata( anyString() );
+
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "true" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
+
+    boolean canSchedule = schedulerService.isScheduleAllowed( anyString() );
+
+    assertTrue( canSchedule );
+
+    // Test 2
+    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+
+    canSchedule = schedulerService.isScheduleAllowed( anyString() );
+
+    assertFalse( canSchedule );
+
+    // Test 3
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doReturn( false ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+
+    canSchedule = schedulerService.isScheduleAllowed( anyString() );
+
+    assertTrue( canSchedule );
+
+    // Test 4
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "false" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
+
+    canSchedule = schedulerService.isScheduleAllowed( anyString() );
+
+    assertFalse( canSchedule );
+
+    verify( schedulerService, times( 4 ) ).isScheduleAllowed();
+    verify( schedulerService.repository, times( 3 ) ).getFileMetadata( anyString() );
+    verify( metadata, times( 3 ) ).containsKey( "_PERM_SCHEDULABLE" );
+    verify( metadata, times( 2 ) ).get( "_PERM_SCHEDULABLE" );
+  }
 }
