@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,7 +75,8 @@ public class RepositoryPublishResource {
   @Produces( MediaType.TEXT_PLAIN )
   public Response writeFile( @FormDataParam( "importPath" ) String pathId,
                              @FormDataParam( "fileUpload" ) InputStream fileContents,
-                             @FormDataParam( "overwriteFile" ) Boolean overwriteFile ) {
+                             @FormDataParam( "overwriteFile" ) Boolean overwriteFile,
+                             @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) {
     try {
       repositoryPublishService.writeFile( pathId, fileContents, overwriteFile );
       return buildPlainTextOkResponse( "SUCCESS" );
