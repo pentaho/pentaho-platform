@@ -35,6 +35,8 @@ public class UserRoleListService {
 
   private ArrayList<String> extraRoles;
 
+  private ArrayList<String> systemRoles;
+
   public String doGetRolesForUser( String user ) throws Exception {
     if ( canAdminister() ) {
       return getRolesForUser( user );
@@ -65,7 +67,12 @@ public class UserRoleListService {
     roles.addAll( getExtraRoles() );
     return new RoleListWrapper( roles );
   }
-  
+
+  public RoleListWrapper getSystemRoles() {
+
+    return new RoleListWrapper( systemRoles );
+  }
+
   public RoleListWrapper getPermissionRoles ( String adminRole ) {
     IUserRoleListService userRoleListService = getUserRoleListService();
     List<String> allRoles = userRoleListService.getAllRoles();
@@ -111,6 +118,10 @@ public class UserRoleListService {
   }
 
   public void setExtraRoles( ArrayList<String> extraRoles ) { this.extraRoles = extraRoles; }
+
+  public void setSystemRoles( ArrayList<String> systemRoles ) {
+    this.systemRoles = systemRoles;
+  }
 
   public ArrayList<String> getExtraRoles() { return this.extraRoles; }
 
