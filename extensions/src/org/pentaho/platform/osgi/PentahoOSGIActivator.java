@@ -15,23 +15,28 @@ import javax.servlet.ServletContext;
  */
 public class PentahoOSGIActivator {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
-  private OSGIObjectFactory objectFactory;
+  private Logger logger = LoggerFactory.getLogger( getClass() );
+  private static OSGIObjectFactory objectFactory;
 
   public void setBundleContext( BundleContext bundleContext ) throws Exception {
     IApplicationContext applicationContext = PentahoSystem.getApplicationContext();
-    if( applicationContext instanceof WebApplicationContext) {
+    if ( applicationContext instanceof WebApplicationContext ) {
 
       WebApplicationContext webApplicationContext = (WebApplicationContext) applicationContext;
       ServletContext servletContext = (ServletContext) webApplicationContext.getContext();
-      servletContext.setAttribute(BundleContext.class.getName(), bundleContext);
+      servletContext.setAttribute( BundleContext.class.getName(), bundleContext );
     }
 
-    logger.debug("Registering OSGIObjectFactory");
+    logger.debug( "Registering OSGIObjectFactory" );
+
+    if ( objectFactory != null ) {
+      logger.debug( "De-Registering Previous OSGIObjectFactory" );
+      PentahoSystem.deregisterObjectFactory( objectFactory );
+    }
 
     objectFactory = new OSGIObjectFactory( bundleContext );
     PentahoSystem.registerObjectFactory( objectFactory );
-    logger.debug("OSGIObjectFactory installed");
+    logger.debug( "OSGIObjectFactory installed" );
 
   }
 
