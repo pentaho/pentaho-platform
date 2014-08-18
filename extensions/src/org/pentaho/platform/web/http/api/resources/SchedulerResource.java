@@ -395,37 +395,41 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Checks whether the current user has authority to schedule any content in the platform</p>
+   * Checks whether the current user has authority to schedule any content in the platform
    *
    * <p>Example Request:<br />
-   *  api/scheduler/canSchedule
+   *  GET api/scheduler/canSchedule
    * </p>
    *
-   * <p>Checks whether the current user has authority to schedule any content in the platform and returns the response as a true/false value.</p>
+   * @return true or false
    *
-   * @return "true" or "false"
+   * <pre function="syntax.xml">
+   *   true
+   * </pre>
    */
   @GET
   @Path( "/canSchedule" )
   @Produces( TEXT_PLAIN )
   @StatusCodes({
-    @ResponseCode( code = 200, condition = "Successful operation." ),
-    @ResponseCode( code = 500, condition = "An error occurred while completing the operation." )
+    @ResponseCode( code = 200, condition = "Successful retrieved the scheduling permission." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve the scheduling permission." )
   })
   public String doGetCanSchedule() {
     return schedulerService.doGetCanSchedule();
   }
 
   /**
-   * <p>Returns the state of the scheduler</p>
+   * Returns the state of the scheduler with the value of RUNNING or PAUSED
    *
    * <p>Example Request:<br />
-   *  api/scheduler/state
+   *  GET api/scheduler/state
    * </p>
    *
-   * <p>Returns the state of the scheduler with the value of RUNNING, NORMAL or PAUSED</p>
+   * @return status of the scheduler as RUNNING or PAUSED
    *
-   * @return status of the scheduler as RUNNING, NORMAL or PAUSED
+   * <pre function="syntax.xml">
+   *  RUNNING
+   * </pre>
    */
   @GET
   @Path( "/state" )
@@ -444,15 +448,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Resume the scheduler</p>
+   * Resume the scheduler from a paused state
    *
    * <p>Example Request:<br />
-   *  api/scheduler/start
+   *  POST api/scheduler/start
    * </p>
    *
-   * <p>If the scheduler is in the PAUSE state, this will resume the scheduler</p>
+   * @return A jax-rs Response object containing the status of the scheduler
    *
-   * @return A jax-rs Response object with the status of the scheduler
+   * <pre function="syntax.xml">
+   *  RUNNING
+   * </pre>
    */
   @POST
   @Path( "/start" )
@@ -471,15 +477,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Pause the scheduler</p>
+   * Pause the scheduler from a running state
    *
    * <p>Example Request:<br />
-   *  api/scheduler/pause
+   *  POST api/scheduler/pause
    * </p>
    *
-   * <p>If the scheduler is in the RUNNING state, this will pause the scheduler</p>
+   * @return A jax-rs Response object containing the status of the scheduler
    *
-   * @return A jax-rs Response object with the status of the scheduler
+   * <pre function="syntax.xml">
+   *  PAUSED
+   * </pre>
    */
   @POST
   @Path( "/pause" )
@@ -498,15 +506,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * <p>Shuts down the scheduler</p>
+   * Shuts down the scheduler
    *
    * <p>Example Request:<br />
-   *  api/scheduler/shutdown
+   *  POST api/scheduler/shutdown
    * </p>
    *
-   * <p>Regardless of the scheduler state, this will shut down the scheduler</p>
+   * @return A jax-rs Response object containing the status of the scheduler
    *
-   * @return A jax-rs Response object with the status of the scheduler
+   * <pre function="syntax.xml">
+   *  PAUSED
+   * </pre>
    */
   @POST
   @Path( "/shutdown" )
@@ -525,15 +535,29 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks the state of the selected job/schedule.
+   * Checks the state of the selected job/schedule
    *
-   * @param jobRequest <code> JobRequest </code>
-   * @return state of the job/schedule
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  NORMAL
+   * </pre>
    */
   @POST
   @Path( "/jobState" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the state of the requested job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response getJobState( JobRequest jobRequest ) {
     try {
       return Response.ok( schedulerService.getJobState( jobRequest ).name() ).type( MediaType.TEXT_PLAIN ).build();
@@ -545,15 +569,29 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Pause the selected job/schedule
+   * Pause the specified job/schedule
    *
-   * @param jobRequest <code> JobRequest </code>
-   * @return
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  PAUSED
+   * </pre>
    */
   @POST
   @Path( "/pauseJob" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully paused the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response pauseJob( JobRequest jobRequest ) {
     try {
       JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
@@ -564,15 +602,29 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Resume the selected job/schedule
+   * Resume the specified job/schedule
    *
-   * @param jobRequest <code> JobRequest </code>
-   * @return
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  NORMAL
+   * </pre>
    */
   @POST
   @Path( "/resumeJob" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully resumed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response resumeJob( JobRequest jobRequest ) {
     try {
       JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
@@ -583,15 +635,29 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete the selected job/schedule from the platform
+   * Delete the specified job/schedule from the platform
    *
-   * @param jobRequest <code> JobRequest </code>
-   * @return
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  REMOVED
+   * </pre>
    */
   @DELETE
   @Path( "/removeJob" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully removed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response removeJob( JobRequest jobRequest ) {
     try {
       if (schedulerService.removeJob( jobRequest.getJobId() ) ) {
@@ -605,15 +671,58 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Return the information regarding a specific job, identified by ID
+   * Return the information for a specified job
    *
-   * @param jobId
-   * @param asCronString
-   * @return
+   * <pre function="syntax.xml">
+   *  GET api/scheduler/jobInfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
+   * </pre>
+   *
+   * @param jobId The jobId of the job for which we are requesting information
+   * @param asCronString Cron string (Unused)
+   * @return A Job object containing the info for the specified job
+   *
+   * <pre function="syntax.xml">
+   *  &lt;job&gt;
+   *    &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408387651641&lt;/jobId&gt;
+   *    &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *    &lt;value&gt;admin&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *    &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;lineage-id&lt;/name&gt;
+   *    &lt;value&gt;da116fa7-539f-43ca-b6d7-8ce5408c97ce&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *    &lt;value&gt;0&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *    &lt;duration&gt;-1&lt;/duration&gt;
+   *    &lt;startTime&gt;2014-08-18T14:47:31.639-04:00&lt;/startTime&gt;
+   *    &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *    &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *    &lt;/jobTrigger&gt;
+   *    &lt;lastRun&gt;2014-08-18T14:47:31.639-04:00&lt;/lastRun&gt;
+   *    &lt;nextRun&gt;2014-08-19T14:47:31.639-04:00&lt;/nextRun&gt;
+   *    &lt;state&gt;NORMAL&lt;/state&gt;
+   *    &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   * </pre>
    */
   @GET
   @Path( "/jobinfo" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the information for the requested job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Job getJob( @QueryParam( "jobId" ) String jobId,
                      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
