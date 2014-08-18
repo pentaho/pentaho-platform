@@ -65,7 +65,7 @@ import org.pentaho.platform.web.http.messages.Messages;
 @Path( "/scheduler" )
 public class SchedulerResource extends AbstractJaxRSResource {
 
-  private SchedulerService schedulerService;
+  protected SchedulerService schedulerService;
 
   protected static final Log logger = LogFactory.getLog( SchedulerResource.class );
 
@@ -120,15 +120,15 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
       Job job = schedulerService.createJob( scheduleRequest );
-      return Response.ok( job.getJobId() ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( job.getJobId() );
     } catch ( SchedulerException e ) {
-      return Response.serverError().entity( e.getCause().getMessage() ).build();
+      return buildServerErrorResponse( e.getCause().getMessage() );
     } catch ( IOException e ) {
-      return Response.serverError().entity( e.getCause().getMessage() ).build();
+      return buildServerErrorResponse( e.getCause().getMessage() );
     } catch ( SecurityException e ) {
-      return Response.status( UNAUTHORIZED ).build();
+      return buildStatusResponse( UNAUTHORIZED );
     } catch ( IllegalAccessException e ) {
-      return Response.status( FORBIDDEN ).build();
+      return buildStatusResponse( FORBIDDEN );
     }
   }
 
@@ -163,7 +163,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response triggerNow( JobRequest jobRequest ) {
     try {
       Job job = schedulerService.triggerNow( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( job.getState().name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -441,7 +441,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response getState() {
     try {
       String state = schedulerService.getState();
-      return Response.ok( state ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( state );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -470,7 +470,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response start() {
     try {
       String status = schedulerService.start();
-      return Response.ok( status ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( status );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -499,7 +499,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response pause() {
     try {
       String status = schedulerService.pause();
-      return Response.ok( status ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( status );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -528,7 +528,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response shutdown() {
     try {
       String status = schedulerService.shutdown();
-      return Response.ok( status ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( status );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -560,9 +560,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   })
   public Response getJobState( JobRequest jobRequest ) {
     try {
-      return Response.ok( schedulerService.getJobState( jobRequest ).name() ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( schedulerService.getJobState( jobRequest ).name() );
     } catch ( UnsupportedOperationException e ) {
-      return Response.status( Status.UNAUTHORIZED ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextStatusResponse( UNAUTHORIZED );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -595,7 +595,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response pauseJob( JobRequest jobRequest ) {
     try {
       JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
-      return Response.ok( state.name() ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( state.name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -628,7 +628,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response resumeJob( JobRequest jobRequest ) {
     try {
       JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
-      return Response.ok( state.name() ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( state.name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -660,11 +660,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
   })
   public Response removeJob( JobRequest jobRequest ) {
     try {
-      if (schedulerService.removeJob( jobRequest.getJobId() ) ) {
-        return Response.ok( "REMOVED" ).type( MediaType.TEXT_PLAIN ).build();
+      if ( schedulerService.removeJob( jobRequest.getJobId() ) ) {
+        return buildPlainTextOkResponse( "REMOVED" );
       }
       Job job = schedulerService.getJob( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( job.getState().name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -990,5 +990,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
         .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", lineageId ), t );
     }
     return repositoryFileDtoList;
+  }
+
+  protected Response buildPlainTextOkResponse( String msg ) {
+    return Response.ok( msg ).type( MediaType.TEXT_PLAIN ).build();
+  }
+
+  protected Response buildServerErrorResponse( String entity ) {
+    return Response.serverError().entity( entity ).build();
+  }
+
+  protected Response buildStatusResponse( Status status ) {
+    return Response.status( status ).build();
+  }
+
+  protected Response buildPlainTextStatusResponse( Status status ) {
+    return Response.status( status ).type( MediaType.TEXT_PLAIN ).build();
   }
 }
