@@ -25,9 +25,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -45,7 +43,6 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
-import org.codehaus.enunciate.doc.ExcludeFromDocumentation;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -54,8 +51,6 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
@@ -82,12 +77,35 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Creates a new Job/Schedule
    *
-   * Creates a new job/schedule with the values from the supplied XML document.
+   * <p>Example Request:<br />
+   *  PUT api/scheduler/job
+   * </p>
    *
-   * @param scheduleRequest <pre function="syntax.xml">
+   * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;JobName&lt;/jobName&gt;
+   *    &lt;simpleJobTrigger&gt;
+   *    &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *    &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *    &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *    &lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/simpleJobTrigger&gt;
+   *    &lt;inputFile&gt;/path/to/input/file&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;/path/to/output/file&lt;/outputFile&gt;
+   *    &lt;jobParameters&gt;
+   *    &lt;name&gt;ParameterName&lt;/name&gt;
+   *    &lt;type&gt;string&lt;/type&gt;
+   *    &lt;stringValue&gt;false&lt;/stringValue&gt;
+   *    &lt;/jobParameters&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
    *
-   *                        </pre>
-   * @return Returns response based on the success of the operation
+   * @return A jax-rs Response object with the created jobId
+   * <pre function="syntax.xml">
+   *  username	JobName	1405356465422
+   * </pre>
    */
   @POST
   @Path( "/job" )
@@ -97,7 +115,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     @ResponseCode( code = 200, condition = "Schedule created successfully." ),
     @ResponseCode( code = 401, condition = "User is not allowed to create schedules." ),
     @ResponseCode( code = 403, condition = "Cannot create schedules for the specified file." ),
-    @ResponseCode( code = 500, condition = "An error occurred while completing the operation." )
+    @ResponseCode( code = 500, condition = "An error occurred while creating a schedule." )
   })
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
@@ -115,15 +133,33 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Execute a selected job/schedule
+   * Execute a previously created job/schedule
    *
-   * @param jobRequest <code> JobScheduleRequest </code>
-   * @return A response object
+   * <pre function="syntax.xml">
+   *  POST api/scheduler/triggerNow
+   * </pre>
+   *
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A Response object indicating the status of the scheduler
+   * <pre function="syntax.xml">
+   *  NORMAL
+   * </pre>
    */
   @POST
   @Path( "/triggerNow" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Job triggered successfully." ),
+    @ResponseCode( code = 400, condition = "Invalid input." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response triggerNow( JobRequest jobRequest ) {
     try {
       Job job = schedulerService.triggerNow( jobRequest.getJobId() );
@@ -134,13 +170,65 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Return the content cleaner Job/Schedule
+   * Get the job/schedule created by the system for deleting generated files
    *
-   * @return <code> Job </code>
+   * <p>Example Request:<br />
+   *  GET api/scheduler/getContentCleanerJob
+   * </p>
+   *
+   * @return A Job object containing the definition of the content cleaner job
+   * <pre function="syntax.xml">
+   *  &lt;job&gt;
+   *    &lt;groupName&gt;admin&lt;/groupName&gt;
+   *    &lt;jobId&gt;admin	GeneratedContentCleaner	1408377444383&lt;/jobId&gt;
+   *    &lt;jobName&gt;GeneratedContentCleaner&lt;/jobName&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;uiPassParam&lt;/name&gt;
+   *    &lt;value&gt;DAILY&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;age&lt;/name&gt;
+   *    &lt;value&gt;15552000&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;user_locale&lt;/name&gt;
+   *    &lt;value&gt;en_US&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *    &lt;value&gt;admin&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *    &lt;value&gt;org.pentaho.platform.admin.GeneratedContentCleaner&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;lineage-id&lt;/name&gt;
+   *    &lt;value&gt;c3cfbad4-2e34-4dbd-8071-a2f3c7e8fab9&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *    &lt;duration&gt;-1&lt;/duration&gt;
+   *    &lt;startTime&gt;2014-08-18T11:57:00-04:00&lt;/startTime&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *    &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *    &lt;/jobTrigger&gt;
+   *    &lt;lastRun&gt;2014-08-18T11:57:00-04:00&lt;/lastRun&gt;
+   *    &lt;nextRun&gt;2014-08-19T11:57:00-04:00&lt;/nextRun&gt;
+   *    &lt;state&gt;NORMAL&lt;/state&gt;
+   *    &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   * </pre>
    */
   @GET
   @Path( "/getContentCleanerJob" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Content cleaner job successfully retrieved." ),
+    @ResponseCode( code = 204, condition = "No content cleaner job exists." ),
+  })
   public Job getContentCleanerJob() {
     try {
       return schedulerService.getContentCleanerJob();
@@ -152,13 +240,106 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the all the job(s) visible to the current users
    *
-   * @param asCronString (Cron string) - UNUSED
-   * @return list of <code> Job </code>
+   * <pre function="syntax.xml">
+   *  GET api/scheduler/jobs
+   * </pre>
+   *
+   * @param asCronString Cron string (Unused)
+   *
+   * @return A list of jobs that are visible to the current users
+   *
+   * <pre function="syntax.xml">
+   *  &lt;jobs&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *   &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *   &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *   &lt;value&gt;0&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *   &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
+   *   &lt;value&gt;false&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;uiPassParam&lt;/name&gt;
+   *   &lt;value&gt;MINUTES&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
+   *   &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;user_locale&lt;/name&gt;
+   *   &lt;value&gt;en_US&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
+   *   &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
+   *   &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *  &lt;/jobs&gt;
+   * </pre>
    */
   @Deprecated
   @GET
   @Path( "/jobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Jobs retrieved successfully." ),
+    @ResponseCode( code = 500, condition = "Error while retrieving jobs." ),
+  })
   public List<Job> getJobs( @DefaultValue( "false" ) @QueryParam( "asCronString" ) Boolean asCronString ) {
     try {
       return schedulerService.getJobs();
@@ -185,19 +366,30 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
  
   /**
-   * Checks if a file can be scheduled by the user
-   *<p>
-   * Checks whether the current user has authority to schedule any content in the platform and the selected report is
-   * schedule able
+   * Checks whether the current user may schedule a repository file in the platform
    *
-   * @param id The repository file ID of the content to checked <pre function="syntax.xml">
+   * <pre function="syntax.xml">
+   *  GET api/scheduler/isScheduleAllowed?id=fileId
+   * </pre>
    *
-   *                        </pre>
-   * @return ("true" or "false")
+   * @param id The repository file ID of the content to checked
+   * <pre function="syntax.xml">
+   *  fileId
+   * </pre>
+   *
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed.
+   *
+   * <pre function="syntax.xml">
+   *  true
+   * </pre>
    */
   @GET
   @Path( "/isScheduleAllowed" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved scheduling ability of repository file." ),
+    @ResponseCode( code = 500, condition = "Invalid repository file id." ),
+  })
   public String isScheduleAllowed( @QueryParam( "id" ) String id ) {
     return "" + schedulerService.isScheduleAllowed( id );
   }
