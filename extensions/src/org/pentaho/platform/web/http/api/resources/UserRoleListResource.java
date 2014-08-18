@@ -79,6 +79,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     
     userRoleListService = new UserRoleListService();
     userRoleListService.setExtraRoles( extraRoles );
+    userRoleListService.setSystemRoles( systemRoles );
   }
 
   /**
@@ -241,29 +242,28 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Returns roles identified as "system roles" from the repository
    *
-   * <p>Example Request:</p>
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br>
    * GET api/userrolelist/systemRoles
-   * </pre>
+   * </p>
    *
    * @return A list of system roles
-   * @throws Exception 
    *
    * <p>Example Response:</p>
    * <pre function="syntax.xml">
-   * HTTP/1.1 200 OK
-   *
-   * &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   * &lt;/roleList&gt;
+   *  &lt;roleList&gt;
+   *   &lt;roles&gt;Anonymous&gt;/roles&gt;
+   *   &lt;roles&gt;Authenticated&gt;/roles&gt;
+   *  &lt;/roleList&gt;
    * </pre>
    */
   @GET
   @Path( "/systemRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RoleListWrapper getSystemRoles() throws Exception {
-    return new RoleListWrapper( systemRoles );
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully returns system role list." )
+  })
+  public RoleListWrapper getSystemRoles() {
+    return userRoleListService.getSystemRoles();
   }
 
   /**
