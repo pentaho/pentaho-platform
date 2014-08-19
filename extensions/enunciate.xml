@@ -1,11 +1,11 @@
 <enunciate basedir="src/" defaultRestSubcontext="/api">
 <facets>
     <exclude name="Unsupported"/>
-</facets>  
-<modules>
-    <docs splashPackage="com.pentaho.api" title="Pentaho BIServer api doc" copyright="Pentaho.com" docsDir="apidocs">
-    </docs>
+</facets>
 
+<modules>
+    <docs freemarkerXMLProcessingTemplate="pentaho.fmt" splashPackage="com.pentaho.api" title="Pentaho BIServer api doc" copyright="Pentaho.com" docsDir="apidocs" disableRestMountpoint="true">
+    </docs>
     <c disabled="true"/>
   	<obj-c disabled="true"/>
   	<csharp disabled="true"/> 
