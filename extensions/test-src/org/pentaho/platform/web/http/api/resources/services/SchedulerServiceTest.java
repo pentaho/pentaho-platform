@@ -31,6 +31,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -66,6 +67,7 @@ public class SchedulerServiceTest {
     schedulerService.policy = mock( IAuthorizationPolicy.class );
     schedulerService.scheduler = mock( IScheduler.class );
     schedulerService.repository = mock( IUnifiedRepository.class );
+    schedulerService.blockoutManager = mock( IBlockoutManager.class );
   }
 
   @After
@@ -838,5 +840,40 @@ public class SchedulerServiceTest {
     verify( schedulerService.repository, times( 3 ) ).getFileMetadata( anyString() );
     verify( metadata, times( 3 ) ).containsKey( "_PERM_SCHEDULABLE" );
     verify( metadata, times( 2 ) ).get( "_PERM_SCHEDULABLE" );
+  }
+
+  @Test
+  public void testGetBlockoutJobs() {
+
+    List<Job> jobs = new ArrayList<Job>();
+
+    doReturn( jobs ).when( schedulerService.blockoutManager ).getBlockOutJobs();
+
+    List<Job> returnJobs = schedulerService.getBlockOutJobs();
+
+    assertEquals( returnJobs, jobs );
+
+    verify( schedulerService.blockoutManager ).getBlockOutJobs();
+  }
+
+  @Test
+  public void testHasBlockouts() {
+
+    List<Job> jobs = new ArrayList<Job>();
+
+    doReturn( jobs ).when( schedulerService.blockoutManager ).getBlockOutJobs();
+
+    // Test 1
+    boolean hasBlockouts = schedulerService.hasBlockouts();
+
+    assertFalse( hasBlockouts );
+
+    // Test 2
+    jobs.add( mock( Job.class ) );
+    hasBlockouts = schedulerService.hasBlockouts();
+
+    assertTrue( hasBlockouts );
+
+    verify( schedulerService.blockoutManager, times( 2 ) ).getBlockOutJobs();
   }
 }

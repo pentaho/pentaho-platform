@@ -48,6 +48,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
@@ -74,8 +75,7 @@ public class SchedulerService {
 
   protected FileService fileService;
 
-  protected static IBlockoutManager blockoutManager =
-    PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
+  protected IBlockoutManager blockoutManager;
 
   private static final Log logger = LogFactory.getLog( FileService.class );
 
@@ -326,27 +326,51 @@ public class SchedulerService {
   }
 
   public List<Job> getBlockOutJobs() {
-    return blockoutManager.getBlockOutJobs();
+    return getBlockoutManager().getBlockOutJobs();
   }
 
   public boolean hasBlockouts() {
-    List<Job> jobs = blockoutManager.getBlockOutJobs();
+    List<Job> jobs = getBlockoutManager().getBlockOutJobs();
     return jobs != null && jobs.size() > 0;
   }
 
   public boolean willFire( IJobTrigger trigger ) {
-    return blockoutManager.willFire( trigger );
+    return getBlockoutManager().willFire( trigger );
   }
 
   public boolean shouldFireNow() {
-    return blockoutManager.shouldFireNow();
+    return getBlockoutManager().shouldFireNow();
   }
 
-  public BlockStatusProxy getBlockStatus( IJobTrigger trigger ) {
+  public Job addBlockout( JobScheduleRequest jobScheduleRequest ) throws IOException, IllegalAccessException, SchedulerException {
+    if ( isScheduleAllowed() ) {
+      jobScheduleRequest.setActionClass( BlockoutAction.class.getCanonicalName() );
+      jobScheduleRequest.getJobParameters().add( new JobScheduleParam( IBlockoutManager.DURATION_PARAM, jobScheduleRequest.getDuration() ) );
+      jobScheduleRequest.getJobParameters().add( new JobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, jobScheduleRequest.getTimeZone() ) );
+      SchedulerResourceUtil.updateStartDateForTimeZone( jobScheduleRequest );
+      return createJob( jobScheduleRequest );
+    }
+    throw new IllegalAccessException();
+  }
+
+  public Job updateBlockout( String jobId, JobScheduleRequest jobScheduleRequest )
+    throws IllegalAccessException, SchedulerException, IOException {
+    if ( isScheduleAllowed() ) {
+      boolean isJobRemoved = removeJob( jobId );
+      if ( isJobRemoved ) {
+        Job job = addBlockout( jobScheduleRequest );
+        return job;
+      }
+    }
+    throw new IllegalArgumentException();
+  }
+
+  public BlockStatusProxy getBlockStatus( JobScheduleRequest jobScheduleRequest ) throws SchedulerException {
+    IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest );
     Boolean totallyBlocked = false;
-    Boolean partiallyBlocked = blockoutManager.isPartiallyBlocked( trigger );
+    Boolean partiallyBlocked = getBlockoutManager().isPartiallyBlocked( trigger );
     if ( partiallyBlocked ) {
-      totallyBlocked = !blockoutManager.willFire( trigger );
+      totallyBlocked = !getBlockoutManager().willFire( trigger );
     }
     return new BlockStatusProxy( totallyBlocked, partiallyBlocked );
   }
@@ -480,6 +504,14 @@ public class SchedulerService {
     }
 
     return fileService;
+  }
+
+  protected IBlockoutManager getBlockoutManager() {
+    if ( blockoutManager == null ) {
+      blockoutManager  = PentahoSystem.get( IBlockoutManager.class, "IBlockoutManager", null ); //$NON-NLS-1$;
+    }
+
+    return blockoutManager;
   }
 
   protected ISecurityHelper getSecurityHelper() {
