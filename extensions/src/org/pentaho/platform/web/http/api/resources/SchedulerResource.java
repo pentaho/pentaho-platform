@@ -53,6 +53,7 @@ import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -351,7 +352,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the all the job(s) visible to the current users
    *
-   * @param asCronString (Cron string) - UNUSED
    * @return list of <code> Job </code>
    */
   @GET
@@ -364,7 +364,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException( e );
     }
   }
- 
+
   /**
    * Checks whether the current user may schedule a repository file in the platform
    *
@@ -744,7 +744,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * @deprecated
    * Method is deprecated as the name getBlockoutJobs is preferred over getJobs
-   * 
+   *
    * Retrieves all blockout jobs in the system
    *
    * @return list of <code> Job </code>
@@ -755,125 +755,287 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return getBlockoutJobs();
   }
 
-  
+
   /**
-   * Retrieves all blockout jobs
-   * <p/>
-   * This endpoint will return a list of all blockout jobs in the system.  
-   * 
-   * @return a Response object that contains a list of blockout jobs
+   * Get all the blockout jobs in the system
+   *
+   * <pre function="syntax.xml">
+   *  GET /scheduler/blockout/blockoutJobs
+   * </pre>
+   *
+   * @return A Response object that contains a list of blockout jobs
+   *
+   * <pre function="syntax.xml">
+   *  &lt;jobs&gt;
+   *    &lt;job&gt;
+   *    &lt;groupName&gt;admin&lt;/groupName&gt;
+   *    &lt;jobId&gt;admin	BlockoutAction	1408457558636&lt;/jobId&gt;
+   *    &lt;jobName&gt;BlockoutAction&lt;/jobName&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;TIME_ZONE_PARAM&lt;/name&gt;
+   *    &lt;value&gt;America/New_York&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;DURATION_PARAM&lt;/name&gt;
+   *    &lt;value&gt;10080000&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;uiPassParam&lt;/name&gt;
+   *    &lt;value&gt;DAILY&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;user_locale&lt;/name&gt;
+   *    &lt;value&gt;en_US&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *    &lt;value&gt;admin&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *    &lt;value&gt;org.pentaho.platform.scheduler2.blockout.BlockoutAction&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;lineage-id&lt;/name&gt;
+   *    &lt;value&gt;0989726c-3247-4864-bc79-8e2a1dc60c58&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobTrigger xsi:type="complexJobTrigger"&gt;
+   *    &lt;cronString&gt;0 12 10 ? * 2,3,4,5,6 *&lt;/cronString&gt;
+   *    &lt;duration&gt;10080000&lt;/duration&gt;
+   *    &lt;startTime&gt;2014-08-19T10:12:00-04:00&lt;/startTime&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;dayOfMonthRecurrences /&gt;
+   *    &lt;dayOfWeekRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;2&lt;/values&gt;
+   *    &lt;values&gt;3&lt;/values&gt;
+   *    &lt;values&gt;4&lt;/values&gt;
+   *    &lt;values&gt;5&lt;/values&gt;
+   *    &lt;values&gt;6&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/dayOfWeekRecurrences&gt;
+   *    &lt;hourlyRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;10&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/hourlyRecurrences&gt;
+   *    &lt;minuteRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;12&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/minuteRecurrences&gt;
+   *    &lt;monthlyRecurrences /&gt;
+   *    &lt;secondRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;0&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/secondRecurrences&gt;
+   *    &lt;yearlyRecurrences /&gt;
+   *    &lt;/jobTrigger&gt;
+   *    &lt;nextRun&gt;2014-08-20T10:12:00-04:00&lt;/nextRun&gt;
+   *    &lt;state&gt;NORMAL&lt;/state&gt;
+   *    &lt;userName&gt;admin&lt;/userName&gt;
+   *    &lt;/job&gt;
+   *  &lt;/jobs&gt;
+   * </pre>
    */
   @GET
-  @Path( "/blockout/blockoutJobs" )
+  @Path( "/blockout/blockoutjobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved blockout jobs." ),
+  } )
   public Response getBlockoutJobs() {
     return Response.ok( schedulerService.getBlockOutJobs() ).build();
   }
-  
-  
+
+
   /**
-   * Checks if there are blockouts
-   * <p/>
-   * This endpoint determines whether there are any blockouts in the system
+   * Checks if there are blockouts in the system
    *
-   * @return true if the system has any blockouts, false otherwise
+   * <pre function="syntax.xml">
+   *  GET api/scheduler/blockout/hasblockouts
+   * </pre>
+   *
+   * @return true or false whether there are blackouts or not
+   *
+   * <pre function="syntax.xml">
+   *    true
+   * </pre>
    */
   @GET
-  @Path( "/blockout/hasBlockouts" )
+  @Path( "/blockout/hasblockouts" )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully determined whether or not the system contains blockouts." ),
+  } )
   public Response hasBlockouts() {
     Boolean hasBlockouts = schedulerService.hasBlockouts();
     return Response.ok( hasBlockouts.toString() ).build();
   }
 
   /**
-   * Creates a new blockout
-   * <p>
-   * Creates a new blockout with the values from the supplied XML/JSON payload
-   * 
-   * @param scheduleRequest <pre function="syntax.xml">
+   * Creates a new blockout for scheduled jobs
    *
-   *                        </pre>
+   * <pre function="syntax.xml">
+   *  POST api/scheduler/blockout/add
+   * </pre>
+   *
+   * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
    * @return a Response object which contains the ID of the blockout which was created
-   * 
-   * @throws IOException
+   *
+   * <pre function="syntax.xml">
+   *  admin	BlockoutAction	1408459814192
+   * </pre>
    */
   @POST
-  @Path( "/blockout/createBlockout" )
+  @Path( "/blockout/add" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes({
+  @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successful operation." ),
     @ResponseCode( code = 401, condition = "User is not authorized to create blockout." )
-  })
-  public Response addBlockout( JobScheduleRequest request ) throws IOException {
-    if ( schedulerService.isScheduleAllowed() ) {
-      request.setActionClass( BlockoutAction.class.getCanonicalName() );
-      request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.DURATION_PARAM, request.getDuration() ) );
-      request.getJobParameters().add( new JobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, request.getTimeZone() ) );
-      SchedulerResourceUtil.updateStartDateForTimeZone( request );
-      return createJob( request );
+  } )
+  public Response addBlockout( JobScheduleRequest jobScheduleRequest ) {
+    try {
+      Job job = schedulerService.addBlockout( jobScheduleRequest );
+      return buildPlainTextOkResponse( job.getJobId() );
+    } catch ( IOException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    } catch ( SchedulerException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    } catch ( IllegalAccessException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
     }
-    return Response.status( Status.UNAUTHORIZED ).build();
   }
 
   /**
-   * Update existing blockout
-   * <p>
-   * This endpoint will edit an existing blockout with the values from the supplied XML/JSON payload
-   * 
-   * @param jobId The jobId we are editing <pre function="syntax.xml">
+   * Update an existing blockout
    *
-   *                        </pre>
-   * @param scheduleRequest The payload containing the definition of the blockout <pre function="syntax.xml">
+   * <pre function="syntax.xml">
+   *  POST api/scheduler/blockout/update
+   * </pre>
    *
-   *                        </pre>
+   * @param jobId The jobId of the blockout we are editing
+   * <pre function="syntax.xml">
+   *  admin%09BlockoutAction%091408459814192
+   * </pre>
+   *
+   * @param jobScheduleRequest The payload containing the definition of the blockout
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
    * @return a Response object which contains the ID of the blockout which was created
-   * 
-   * @throws IOException
+   *
+   * <pre function="syntax.xml">
+   *  admin	BlockoutAction	1408473190419
+   * </pre>
    */
   @POST
-  @Path( "/blockout/updateBlockout" )
+  @Path( "/blockout/update" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes({
+  @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successful operation." ),
     @ResponseCode( code = 401, condition = "User is not authorized to update blockout." )
-  })
-  public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest request ) throws IOException {
-    if ( schedulerService.isScheduleAllowed() ) {
-      JobRequest jobRequest = new JobRequest();
-      jobRequest.setJobId( jobId );
-      Response response = removeJob( jobRequest );
-      if ( response.getStatus() == 200 ) {
-        response = addBlockout( request );
-      }
-      return response;
+  } )
+  public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest jobScheduleRequest ) {
+    try {
+      Job job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      return buildPlainTextOkResponse( job.getJobId() );
+    } catch ( IOException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    } catch ( SchedulerException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    } catch ( IllegalAccessException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
     }
-    return Response.status( Status.UNAUTHORIZED ).build();
   }
 
   /**
    * Checks if the selected blockout schedule will be fired
-   * <p>
-   * Checks if the selected blockout schedule will be fired
-   * 
-   * @param scheduleRequest <pre function="syntax.xml">
    *
-   *                        </pre>
-   * @return a Response object which contains true/false if the provided schedule (blockout) will fire
+   * <pre function="syntax.xml">
+   *   POST api/scheduler/blockout/willFire
+   * </pre>
+   *
+   * @param jobScheduleRequest The payload containing the definition of the blockout
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
+   * @return true or false indicating whether or not the blockout will fire
+   *
+   * <pre function="syntax.xml">
+   *   true
+   * </pre>
    */
-  @GET
-  @Path( "/blockout/blockoutWillFire" )
+  @POST
+  @Path( "/blockout/willFire" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( { TEXT_PLAIN } )
-  @StatusCodes({
+  @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successful operation." ),
-    @ResponseCode( code = 500, condition = "An error occurred while completing the operation, UnifiedRepositoryException or SchedulerException." )
-  })
-  public Response blockoutWillFire( JobScheduleRequest request ) {
+    @ResponseCode( code = 500, condition = "An error occurred while determining blockouts being fired." )
+  } )
+  public Response blockoutWillFire( JobScheduleRequest jobScheduleRequest ) {
     Boolean willFire;
     try {
       willFire =
-        schedulerService.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request ) );
+        schedulerService.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest ) );
     } catch ( UnifiedRepositoryException e ) {
       return Response.serverError().entity( e ).build();
     } catch ( SchedulerException e ) {
@@ -884,42 +1046,77 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Checks if the selected blockout schedule should be fired now
-   * <p>
-   * Checks if the selected blockout schedule should be fired now
-   * 
-   * @return true if the selected blockout should be fired now, false otherwise
+   *
+   * <pre function="syntax.xml">
+   *   GET api/scheduler/blockout/shouldFireNow
+   * </pre>
+   *
+   * @return true or false whether or not the blockout should fire now
+   *
+   * <pre function="syntax.xml">
+   *   true
+   * </pre>
    */
   @GET
-  @Path( "/blockout/blockoutShouldFireNow" )
+  @Path( "/blockout/shouldFireNow" )
   @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." )
+  } )
   public Response shouldFireNow() {
     Boolean result = schedulerService.shouldFireNow();
     return Response.ok( result.toString() ).build();
   }
 
-  
+
   /**
-   * Check the status of the selected blockout schedule. 
-   * <p>
-   * Check the status of the selected blockout schedule. The status will display whether it is completely blocked or
-   * partially blocked
-   * 
-   * @param scheduleRequest <pre function="syntax.xml">
+   * Check the status of the selected blockout schedule.
    *
-   *                        </pre>
+   * @param jobScheduleRequest The payload containing the definition of the blockout
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
    * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags
-   * 
-   * @throws UnifiedRepositoryException
-   * @throws SchedulerException
-   */  
+   *
+   * <pre function="syntax.xml">
+   *  &lt;blockStatusProxy&gt;
+   *    &lt;partiallyBlocked&gt;true&lt;/partiallyBlocked&gt;
+   *    &lt;totallyBlocked&gt;true&lt;/totallyBlocked&gt;
+   *  &lt;/blockStatusProxy&gt;
+   * </pre>
+   */
   @POST
-  @Path( "/blockout/blockStatus" )
+  @Path( "/blockout/blockstatus" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
-  public Response getBlockStatus( JobScheduleRequest request ) throws UnifiedRepositoryException,
-    SchedulerException {
-    IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request );
-    return Response.ok( schedulerService.getBlockStatus( trigger ) ).build();
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully got the blockout status." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to get the blockout status." )
+  } )
+  public Response getBlockStatus( JobScheduleRequest jobScheduleRequest ) {
+    try {
+      BlockStatusProxy blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequest );
+      return Response.ok( blockStatusProxy ).build();
+    } catch ( SchedulerException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    }
   }
 
   /**
