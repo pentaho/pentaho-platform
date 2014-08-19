@@ -136,9 +136,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Execute a previously created job/schedule
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  POST api/scheduler/triggerNow
-   * </pre>
+   * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId
    * <pre function="syntax.xml">
@@ -241,9 +241,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the all the job(s) visible to the current users
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  GET api/scheduler/jobs
-   * </pre>
+   * </p>
    *
    * @param asCronString Cron string (Unused)
    *
@@ -368,9 +368,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user may schedule a repository file in the platform
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  GET api/scheduler/isScheduleAllowed?id=fileId
-   * </pre>
+   * </p>
    *
    * @param id The repository file ID of the content to checked
    * <pre function="syntax.xml">
@@ -537,6 +537,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks the state of the selected job/schedule
    *
+   * <p>Example Request:<br />
+   *  POST api/scheduler/jobState
+   * </p>
+   *
    * @param jobRequest A JobRequest object containing the jobId
    * <pre function="syntax.xml">
    *  &lt;jobRequest&gt;
@@ -571,6 +575,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Pause the specified job/schedule
    *
+   * <p>Example Request:<br />
+   *  POST api/scheduler/pauseJob
+   * </p>
+   *
    * @param jobRequest A JobRequest object containing the jobId
    * <pre function="syntax.xml">
    *  &lt;jobRequest&gt;
@@ -604,6 +612,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Resume the specified job/schedule
    *
+   * <p>Example Request:<br />
+   *   POST api/scheduler/resumeJob
+   * </p>
+   *
    * @param jobRequest A JobRequest object containing the jobId
    * <pre function="syntax.xml">
    *  &lt;jobRequest&gt;
@@ -636,6 +648,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Delete the specified job/schedule from the platform
+   *
+   * <p>Example Request:<br />
+   *   DELETE api/scheduler/removeJob
+   * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId
    * <pre function="syntax.xml">
@@ -673,9 +689,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Return the information for a specified job
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  GET api/scheduler/jobInfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
-   * </pre>
+   * </p>
    *
    * @param jobId The jobId of the job for which we are requesting information
    * @param asCronString Cron string (Unused)
@@ -759,9 +775,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Get all the blockout jobs in the system
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  GET /scheduler/blockout/blockoutJobs
-   * </pre>
+   * </p>
    *
    * @return A Response object that contains a list of blockout jobs
    *
@@ -855,9 +871,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks if there are blockouts in the system
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  GET api/scheduler/blockout/hasblockouts
-   * </pre>
+   * </p>
    *
    * @return true or false whether there are blackouts or not
    *
@@ -879,9 +895,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Creates a new blockout for scheduled jobs
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  POST api/scheduler/blockout/add
-   * </pre>
+   * </p>
    *
    * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job
    * <pre function="syntax.xml">
@@ -933,9 +949,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Update an existing blockout
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *  POST api/scheduler/blockout/update
-   * </pre>
+   * </p>
    *
    * @param jobId The jobId of the blockout we are editing
    * <pre function="syntax.xml">
@@ -992,9 +1008,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks if the selected blockout schedule will be fired
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *   POST api/scheduler/blockout/willFire
-   * </pre>
+   * </p>
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout
    * <pre function="syntax.xml">
@@ -1047,9 +1063,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks if the selected blockout schedule should be fired now
    *
-   * <pre function="syntax.xml">
+   * <p>Example Request:<br />
    *   GET api/scheduler/blockout/shouldFireNow
-   * </pre>
+   * </p>
    *
    * @return true or false whether or not the blockout should fire now
    *
@@ -1071,6 +1087,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Check the status of the selected blockout schedule.
+   *
+   * <p>Example Request:<br />
+   *  POST api/scheduler/blockout/blockstatus
+   * </p>
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout
    * <pre function="syntax.xml">
