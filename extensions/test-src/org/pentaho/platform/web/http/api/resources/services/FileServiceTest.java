@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.util.Internal;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1763,5 +1764,98 @@ public class FileServiceTest {
 
     boolean success = fileService.doRename( pathId, newName );
     assertFalse( success );
+  }
+
+  @Test
+  public void testDoCreateDirs() throws Exception {
+    String pathId = "path:to:file:file1.ext";
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+
+    RepositoryFileDto parentDir = mock( RepositoryFileDto.class );
+    doReturn( "" ).when( parentDir ).getPath();
+    doReturn( FileUtils.PATH_SEPARATOR ).when( parentDir ).getId();
+    when( fileService.getRepoWs().getFile( FileUtils.PATH_SEPARATOR ) ).thenReturn( parentDir );
+
+    when( fileService.getRepoWs().getFile( "/path" ) ).thenReturn( null );
+    when( fileService.getRepoWs().getFile( "/to" ) ).thenReturn( null );
+    when( fileService.getRepoWs().getFile( "/file" ) ).thenReturn( null );
+    when( fileService.getRepoWs().getFile( "/file1.ext" ) ).thenReturn( null );
+
+    RepositoryFileDto filePath = mock( RepositoryFileDto.class );
+    doReturn( "/path" ).when( filePath ).getPath();
+    doReturn( "/path" ).when( filePath ).getId();
+    RepositoryFileDto fileTo = mock( RepositoryFileDto.class );
+    doReturn( "/path/to" ).when( fileTo ).getPath();
+    doReturn( "/path/to" ).when( fileTo ).getId();
+    RepositoryFileDto fileFile = mock( RepositoryFileDto.class );
+    doReturn( "/path/to/file" ).when( fileFile ).getPath();
+    doReturn( "/path/to/file" ).when( fileFile ).getId();
+    RepositoryFileDto fileFileExt = mock( RepositoryFileDto.class );
+    doReturn( "/path/to/file/file1" ).when( fileFileExt ).getPath();
+    doReturn( "/path/to/file/file1" ).when( fileFileExt ).getId();
+
+    when( fileService.getRepoWs().createFolder( eq( "/" ), any( RepositoryFileDto.class ), eq( "/path" ) ) ).thenReturn(
+      filePath );
+    when( fileService.getRepoWs().createFolder( eq( "/path" ), any( RepositoryFileDto.class ), eq( "/path/to" ) ) )
+      .thenReturn( fileTo );
+    when(
+      fileService.getRepoWs().createFolder( eq( "/path/to" ), any( RepositoryFileDto.class ), eq( "/path/to/file" ) ) )
+      .thenReturn( fileFile );
+    when(
+      fileService.getRepoWs()
+        .createFolder( eq( "/path/to/file" ), any( RepositoryFileDto.class ), eq( "/path/to/file/file1.ext" ) ) )
+      .thenReturn( fileFileExt );
+
+    assertTrue( fileService.doCreateDir( pathId ) );
+
+    verify( fileService.getRepoWs(), times( 4 ) )
+      .createFolder( anyString(), any( RepositoryFileDto.class ), anyString() );
+  }
+
+  @Test
+  public void testDoCreateDirsNegative() throws Exception {
+    String pathId = "path:to:file:file1.ext";
+
+    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+
+    RepositoryFileDto parentDir = mock( RepositoryFileDto.class );
+    doReturn( "" ).when( parentDir ).getPath();
+    doReturn( FileUtils.PATH_SEPARATOR ).when( parentDir ).getId();
+    when( fileService.getRepoWs().getFile( FileUtils.PATH_SEPARATOR ) ).thenReturn( parentDir );
+
+    RepositoryFileDto filePath = mock( RepositoryFileDto.class );
+    doReturn( "/path" ).when( filePath ).getPath();
+    doReturn( "/path" ).when( filePath ).getId();
+    RepositoryFileDto fileTo = mock( RepositoryFileDto.class );
+    doReturn( "/path/to" ).when( fileTo ).getPath();
+    doReturn( "/path/to" ).when( fileTo ).getId();
+    RepositoryFileDto fileFile = mock( RepositoryFileDto.class );
+    doReturn( "/path/to/file" ).when( fileFile ).getPath();
+    doReturn( "/path/to/file" ).when( fileFile ).getId();
+    RepositoryFileDto fileFileExt = mock( RepositoryFileDto.class );
+    doReturn( "/path/to/file/file1" ).when( fileFileExt ).getPath();
+    doReturn( "/path/to/file/file1" ).when( fileFileExt ).getId();
+
+    when( fileService.getRepoWs().getFile( "/path" ) ).thenReturn( filePath );
+    when( fileService.getRepoWs().getFile( "/path/to" ) ).thenReturn( fileTo );
+    when( fileService.getRepoWs().getFile( "/path/to/file" ) ).thenReturn( fileFile );
+    when( fileService.getRepoWs().getFile( "/path/to/file/file1.ext" ) ).thenReturn( fileFileExt );
+
+    assertFalse( fileService.doCreateDir( pathId ) );
+
+    verify( fileService.getRepoWs(), times( 0 ) )
+      .createFolder( anyString(), any( RepositoryFileDto.class ), anyString() );
+
+
+    when( fileService.getRepoWs().getFile( "/path" ) ).thenReturn( null );
+    when( fileService.getRepoWs().createFolder( eq( "/" ), any( RepositoryFileDto.class ), eq( "/path" ) ) ).
+      thenThrow( new InternalError( "negativetest" ) );
+
+    try {
+      fileService.doCreateDir( pathId );
+    } catch( InternalError e ) {
+      assertEquals( e.getMessage(), "negativetest" );
+    }
   }
 }
