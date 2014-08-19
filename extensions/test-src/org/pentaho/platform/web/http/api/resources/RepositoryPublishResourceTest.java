@@ -1,5 +1,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
+import com.sun.jersey.core.header.FormDataContentDisposition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ public class RepositoryPublishResourceTest {
     String pathId = "pathId";
     InputStream fileContents = mock( InputStream.class );
     Boolean overwriteFile = Boolean.TRUE;
+    FormDataContentDisposition mockFormDataContentDisposition = mock( FormDataContentDisposition.class );
 
     doNothing().when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
@@ -44,7 +46,7 @@ public class RepositoryPublishResourceTest {
     String okResponseText = "SUCCESS";
     doReturn( mockResponse ).when( repositoryPublishResource ).buildPlainTextOkResponse( okResponseText );
 
-    Response testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile );
+    Response testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockResponse, testResponse );
 
     verify( repositoryPublishResource.repositoryPublishService, times( 1 ) )
@@ -57,6 +59,7 @@ public class RepositoryPublishResourceTest {
     String pathId = "pathId";
     InputStream fileContents = mock( InputStream.class );
     Boolean overwriteFile = Boolean.TRUE;
+    FormDataContentDisposition mockFormDataContentDisposition = mock( FormDataContentDisposition.class );
 
     Response mockUnauthorizedResponse = mock( Response.class );
     doReturn( mockUnauthorizedResponse ).when( repositoryPublishResource )
@@ -77,7 +80,7 @@ public class RepositoryPublishResourceTest {
     doThrow( mockPentahoAccessControlException ).when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
 
-    Response testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile );
+    Response testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockUnauthorizedResponse, testResponse );
 
     // Test 2
@@ -86,7 +89,7 @@ public class RepositoryPublishResourceTest {
     doThrow( mockPlatformImportException ).when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
 
-    testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile );
+    testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockPreconditionFailedResponse, testResponse );
 
     // Test 3
@@ -94,7 +97,7 @@ public class RepositoryPublishResourceTest {
     doThrow( mockException ).when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
 
-    testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile );
+    testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockServerErrorResponse, testResponse );
 
     verify( repositoryPublishResource.repositoryPublishService, times( 3 ) )
