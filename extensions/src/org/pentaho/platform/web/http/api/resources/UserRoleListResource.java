@@ -115,19 +115,17 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Return a list of the roles in the platform.
+   * Return a list of the permission roles in the platform.
    *
    * <p>Example Request:</p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/permission-roles
    * </pre>
    *
-   * @return A list of roles
+   * @return A list of permission roles in the platform.
    *
    * <p>Example Response:</p>
    * <pre function="syntax.xml">
-   * HTTP/1.1 200 OK
-   *
    * &lt;roleList&gt;
    *  &lt;roles&gt;Anonymous&gt;/roles&gt;
    *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
@@ -140,6 +138,9 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @GET
   @Path( "/permission-roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the list of permission roles." )
+  })
   public RoleListWrapper getPermissionRoles() throws Exception {
     return userRoleListService.getPermissionRoles( adminRole );
   }
@@ -240,7 +241,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns roles identified as "system roles" from the repository
+   * Returns Roles identified as "system roles" from the repository.
    *
    * <p>Example Request:<br>
    * GET api/userrolelist/systemRoles
@@ -274,16 +275,22 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * GET api/userrolelist/extraRoles
    * </pre>
    * 
-   * @return extra roles
+   * @return Roles identified as "extra roles" are returned as a list from the repository as shown in the example.
    *
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
    * &lt;roleList&gt;
    * &lt;roles>Authenticated&lt;/roles&gt;
    * &lt;roles>Anonymous&lt;/roles&gt;
    * &lt;/roleList&gt;
+   * </pre>
    */
   @GET
   @Path( "/extraRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully returns extra role list." )
+  })
   public RoleListWrapper getExtraRoles() {
     return userRoleListService.getExtraRolesList();
   }
