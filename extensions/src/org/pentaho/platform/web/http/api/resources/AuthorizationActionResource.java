@@ -26,6 +26,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.web.http.api.resources.services.AuthorizationActionService;
 
@@ -46,13 +48,21 @@ public class AuthorizationActionResource {
   /**
    * Validates if a current user is authorized to perform a specific action
    *
-   * @param authAction
-   *          Authorization Action to be validated
-   * @return "true" or "false"
+   * <p>Example Request:</p>
+   * <pre function="syntax.xml">
+   *  GET api/authorization/action/isauthorized
+   * </pre>
+   *
+   * @param authAction Authorization Action to be validated for the current user
+   *
+   * @return A boolean response based on the current user being authorized to perform a specific action within the system.
    */
   @GET
   @Path( "/isauthorized" )
   @Produces( { MediaType.TEXT_PLAIN } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Returns a boolean response." )
+  })
   public Response validateAuth( @QueryParam( "authAction" ) String authAction ) {
     boolean isAllowed = authorizationActionService.validateAuth( authAction );
     return Response.ok( isAllowed ).build();
