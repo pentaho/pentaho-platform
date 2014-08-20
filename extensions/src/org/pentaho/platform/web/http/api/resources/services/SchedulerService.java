@@ -345,12 +345,25 @@ public class SchedulerService {
   public Job addBlockout( JobScheduleRequest jobScheduleRequest ) throws IOException, IllegalAccessException, SchedulerException {
     if ( isScheduleAllowed() ) {
       jobScheduleRequest.setActionClass( BlockoutAction.class.getCanonicalName() );
-      jobScheduleRequest.getJobParameters().add( new JobScheduleParam( IBlockoutManager.DURATION_PARAM, jobScheduleRequest.getDuration() ) );
-      jobScheduleRequest.getJobParameters().add( new JobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, jobScheduleRequest.getTimeZone() ) );
-      SchedulerResourceUtil.updateStartDateForTimeZone( jobScheduleRequest );
+      jobScheduleRequest.getJobParameters().add( getJobScheduleParam( IBlockoutManager.DURATION_PARAM,
+        jobScheduleRequest.getDuration() ) );
+      jobScheduleRequest.getJobParameters().add( getJobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, jobScheduleRequest.getTimeZone() ) );
+      updateStartDateForTimeZone( jobScheduleRequest );
       return createJob( jobScheduleRequest );
     }
     throw new IllegalAccessException();
+  }
+
+  protected JobScheduleParam getJobScheduleParam( String name, String value ) {
+    return new JobScheduleParam( name, value );
+  }
+
+  protected JobScheduleParam getJobScheduleParam( String name, long value ) {
+    return new JobScheduleParam( name, value );
+  }
+
+  protected void updateStartDateForTimeZone( JobScheduleRequest jobScheduleRequest ) {
+    SchedulerResourceUtil.updateStartDateForTimeZone( jobScheduleRequest );
   }
 
   public Job updateBlockout( String jobId, JobScheduleRequest jobScheduleRequest )
@@ -366,13 +379,22 @@ public class SchedulerService {
   }
 
   public BlockStatusProxy getBlockStatus( JobScheduleRequest jobScheduleRequest ) throws SchedulerException {
-    IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest );
+    IJobTrigger trigger = convertScheduleRequestToJobTrigger( jobScheduleRequest );
     Boolean totallyBlocked = false;
     Boolean partiallyBlocked = getBlockoutManager().isPartiallyBlocked( trigger );
     if ( partiallyBlocked ) {
       totallyBlocked = !getBlockoutManager().willFire( trigger );
     }
+    return getBlockStatusProxy( totallyBlocked, partiallyBlocked );
+  }
+
+  protected BlockStatusProxy getBlockStatusProxy( Boolean totallyBlocked, Boolean partiallyBlocked ) {
     return new BlockStatusProxy( totallyBlocked, partiallyBlocked );
+  }
+
+  protected IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest jobScheduleRequest )
+    throws SchedulerException {
+    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest );
   }
 
   public JobScheduleRequest getJobInfo() {

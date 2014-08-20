@@ -48,7 +48,9 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -164,7 +166,6 @@ public class SchedulerServiceTest {
 
   @Test
   public void testCreateJobException() throws Exception {
-
 
     List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
     JobScheduleParam jobScheduleParam1 = mock( JobScheduleParam.class );
@@ -358,7 +359,7 @@ public class SchedulerServiceTest {
   }
 
   @Test
-  public void testDoCanSchedule() {
+  public void testDoGetCanSchedule() {
 
     doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
 
@@ -875,5 +876,266 @@ public class SchedulerServiceTest {
     assertTrue( hasBlockouts );
 
     verify( schedulerService.blockoutManager, times( 2 ) ).getBlockOutJobs();
+  }
+
+  @Test
+  public void testAddBlockout() throws Exception {
+
+    JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    Job jobMock = mock( Job.class );
+
+    JobScheduleParam jobScheduleParamMock1 = mock( JobScheduleParam.class );
+    JobScheduleParam jobScheduleParamMock2 = mock( JobScheduleParam.class );
+
+    List<JobScheduleParam> jobScheduleParams = new ArrayList<JobScheduleParam>();
+
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doNothing().when( jobScheduleRequest ).setActionClass( anyString() );
+    doReturn( jobScheduleParams ).when( jobScheduleRequest ).getJobParameters();
+    doReturn( jobScheduleParamMock1 ).when( schedulerService ).getJobScheduleParam( anyString(), anyString() );
+    doReturn( jobScheduleParamMock2 ).when( schedulerService ).getJobScheduleParam( anyString(), anyLong() );
+    doNothing().when( schedulerService ).updateStartDateForTimeZone( jobScheduleRequest );
+    doReturn( jobMock ).when( schedulerService ).createJob( any( JobScheduleRequest.class ) );
+
+    Job job = schedulerService.addBlockout( jobScheduleRequest );
+
+    assertNotNull( job );
+    assertEquals( 2, jobScheduleParams.size() );
+
+    verify( schedulerService ).isScheduleAllowed();
+    verify( jobScheduleRequest ).setActionClass( anyString() );
+    verify( jobScheduleRequest, times( 2 ) ).getJobParameters();
+    verify( schedulerService ).updateStartDateForTimeZone( jobScheduleRequest );
+    verify( schedulerService ).createJob( any( JobScheduleRequest.class ) );
+  }
+
+  @Test
+  public void testAddBlockoutException() throws Exception {
+
+    // Test 1
+    JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+
+    try {
+      schedulerService.addBlockout( jobScheduleRequest );
+      fail();
+    } catch ( IllegalAccessException e ) {
+      //Should catch exception
+    }
+
+    // Test 2
+    Job jobMock = mock( Job.class );
+
+    JobScheduleParam jobScheduleParamMock1 = mock( JobScheduleParam.class );
+    JobScheduleParam jobScheduleParamMock2 = mock( JobScheduleParam.class );
+
+    List<JobScheduleParam> jobScheduleParams = new ArrayList<JobScheduleParam>();
+
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doNothing().when( jobScheduleRequest ).setActionClass( anyString() );
+    doReturn( jobScheduleParams ).when( jobScheduleRequest ).getJobParameters();
+    doReturn( jobScheduleParamMock1 ).when( schedulerService ).getJobScheduleParam( anyString(), anyString() );
+    doReturn( jobScheduleParamMock2 ).when( schedulerService ).getJobScheduleParam( anyString(), anyLong() );
+    doNothing().when( schedulerService ).updateStartDateForTimeZone( jobScheduleRequest );
+    doReturn( jobMock ).when( schedulerService ).createJob( any( JobScheduleRequest.class ) );
+
+    doThrow( new IOException() ).when( schedulerService ).createJob( jobScheduleRequest );
+
+    try {
+      schedulerService.addBlockout( jobScheduleRequest );
+      fail();
+    } catch ( IOException e ) {
+      //Should catch exception
+    }
+
+    // Test 3
+    doThrow( new SchedulerException( "" ) ).when( schedulerService ).createJob( jobScheduleRequest );
+
+    try {
+      schedulerService.addBlockout( jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      //Should catch exception
+    }
+
+    verify( schedulerService, times( 3 ) ).isScheduleAllowed();
+    verify( jobScheduleRequest, times( 2 ) ).setActionClass( anyString() );
+    verify( jobScheduleRequest, times( 4 ) ).getJobParameters();
+    verify( schedulerService, times( 2 ) ).updateStartDateForTimeZone( jobScheduleRequest );
+    verify( schedulerService, times( 2 ) ).createJob( any( JobScheduleRequest.class ) );
+  }
+
+  @Test
+  public void testUpdateBlockout() throws Exception {
+
+    String jobId = "jobId";
+    JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    Job jobMock = mock( Job.class );
+
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doReturn( true ).when( schedulerService ).removeJob( anyString() );
+    doReturn( jobMock ).when( schedulerService ).addBlockout( jobScheduleRequest );
+
+    Job job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
+
+    assertNotNull( job );
+
+    verify( schedulerService ).isScheduleAllowed();
+    verify( schedulerService ).removeJob( anyString() );
+    verify( schedulerService ).addBlockout( jobScheduleRequest );
+  }
+
+  @Test
+  public void testUpdateBlockoutException() throws Exception {
+
+    String jobId = "jobId";
+    JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    Job job = mock( Job.class );
+
+    // Test 1
+    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+
+    try {
+      schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      // Should catch the exception
+    }
+
+    // Test 2
+    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doThrow( new SchedulerException( "" ) ).when( schedulerService ).removeJob( anyString() );
+
+    try {
+      schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+    }
+
+    // Test 3
+    doReturn( false ).when( schedulerService ).removeJob( anyString() );
+
+    try {
+      schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      // Should catch the exception
+    }
+
+    // Test 4
+    doReturn( true ).when( schedulerService ).removeJob( anyString() );
+    doThrow( new IOException() ).when( schedulerService ).addBlockout( jobScheduleRequest );
+
+    try {
+      schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      fail();
+    } catch ( IOException e ) {
+      // Should catch the exception
+    }
+
+    // Test 5
+    doThrow( new SchedulerException( "" ) ).when( schedulerService ).addBlockout( jobScheduleRequest );
+
+    try {
+      schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+    }
+
+    verify( schedulerService, times( 5 ) ).isScheduleAllowed();
+    verify( schedulerService, times( 4 ) ).removeJob( anyString() );
+    verify( schedulerService, times( 2 ) ).addBlockout( jobScheduleRequest );
+  }
+
+  @Test
+  public void testWillFire() {
+
+    IJobTrigger jobTrigger = mock( IJobTrigger.class );
+
+    // Test 1
+    doReturn( true ).when( schedulerService.blockoutManager ).willFire( jobTrigger );
+
+    boolean willFire = schedulerService.willFire( jobTrigger );
+
+    assertTrue( willFire );
+
+    // Test 2
+    doReturn( false ).when( schedulerService.blockoutManager ).willFire( jobTrigger );
+
+    willFire = schedulerService.willFire( jobTrigger );
+
+    assertFalse( willFire );
+
+    verify( schedulerService.blockoutManager, times( 2 ) ).willFire( jobTrigger );
+  }
+
+  @Test
+  public void testShouldFireNow() {
+
+    // Test 1
+    doReturn( true ).when( schedulerService.blockoutManager ).shouldFireNow();
+
+    boolean shouldFireNow = schedulerService.shouldFireNow();
+
+    assertTrue( shouldFireNow );
+
+    // Test 2
+    doReturn( false ).when( schedulerService.blockoutManager ).shouldFireNow();
+
+    shouldFireNow = schedulerService.shouldFireNow();
+
+    assertFalse( shouldFireNow );
+
+    verify( schedulerService.blockoutManager, times( 2 ) ).shouldFireNow();
+
+  }
+
+  @Test
+  public void testGetBlockStatus() throws Exception {
+
+    JobScheduleRequest jobScheduleRequestMock = mock( JobScheduleRequest.class );
+    BlockStatusProxy blockStatusProxyMock = mock( BlockStatusProxy.class );
+    IJobTrigger jobTrigger = mock( IJobTrigger.class );
+
+    doReturn( jobTrigger ).when( schedulerService ).convertScheduleRequestToJobTrigger( jobScheduleRequestMock );
+    doReturn( true ).when( schedulerService.blockoutManager ).isPartiallyBlocked( jobTrigger );
+    doReturn( true ).when( schedulerService.blockoutManager ).willFire( jobTrigger );
+    doReturn( blockStatusProxyMock ).when( schedulerService ).getBlockStatusProxy( anyBoolean(), anyBoolean() );
+
+    // Test 1
+    BlockStatusProxy blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequestMock );
+
+    assertNotNull( blockStatusProxy );
+
+    // Test 2
+    doReturn( false ).when( schedulerService.blockoutManager ).isPartiallyBlocked( jobTrigger );
+
+    blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequestMock );
+
+    assertNotNull( blockStatusProxy );
+
+    verify( schedulerService, times( 2 ) ).convertScheduleRequestToJobTrigger( jobScheduleRequestMock );
+    verify( schedulerService.blockoutManager, times( 2 ) ).isPartiallyBlocked( jobTrigger );
+    verify( schedulerService, times( 2 ) ).getBlockStatusProxy( anyBoolean(), anyBoolean() );
+    verify( schedulerService.blockoutManager, times( 1 ) ).willFire( jobTrigger );
+  }
+
+  @Test
+  public void testGetBlockStatusException() throws Exception {
+
+    JobScheduleRequest jobScheduleRequestMock = mock( JobScheduleRequest.class );
+
+    doThrow( new SchedulerException( "" ) ).when( schedulerService ).convertScheduleRequestToJobTrigger( jobScheduleRequestMock );
+
+    try {
+      schedulerService.getBlockStatus( jobScheduleRequestMock );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+    }
+
+    verify( schedulerService ).convertScheduleRequestToJobTrigger( jobScheduleRequestMock );
   }
 }
