@@ -61,7 +61,7 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 public class UserConsoleResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( UserConsoleResource.class );
-  private static UserConsoleService userConsoleService;
+  protected static UserConsoleService userConsoleService;
   private static ISystemConfig systemConfig;
   private static List<String> setSessionVarWhiteList;
   private static List<String> getSessionVarWhiteList;
@@ -102,7 +102,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
           @ResponseCode( code = 200, condition = "Returns the boolean response"),
   })
   public Response isAdministrator() {
-    return Response.ok( userConsoleService.isAdministrator() ).build();
+    return buildOkResponse( userConsoleService.isAdministrator() );
   }
 
   /**
@@ -120,7 +120,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
           @ResponseCode( code = 200, condition = "Returns the boolean response"),
   })
   public Response isAuthenticated() {
-    return Response.ok( userConsoleService.isAuthenticated() ).build();
+    return buildOkResponse( userConsoleService.isAuthenticated() );
   }
 
   /**
@@ -314,5 +314,9 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/session-variable" )
   public Response clearSessionVariable( @QueryParam( "key" ) String key ) {
     return Response.ok( UserConsoleService.getPentahoSession().removeAttribute( key ) ).build();
+  }
+
+  protected Response buildOkResponse( Object entity ) {
+    return Response.ok( entity ).build();
   }
 }
