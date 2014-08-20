@@ -64,7 +64,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
    * <p>Creates a new folder from a given path. Example: (:public:admin:test). It will create folder
    * public --> admin --> test. If folder already exists then it skips to the next folder to be created. </p>
    *
-   * <p>Example Request:
+   * <p><b>Example Request:</b>
    * <br>
    * PUT /pentaho/api/repo/dirs/pathToFile
    * <p/>

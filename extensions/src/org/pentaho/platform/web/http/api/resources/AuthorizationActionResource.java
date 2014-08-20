@@ -48,7 +48,7 @@ public class AuthorizationActionResource {
   /**
    * Validates if a current user is authorized to perform a specific action
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/authorization/action/isauthorized
    * </pre>

@@ -45,7 +45,7 @@ public class SessionResource extends AbstractJaxRSResource {
   /**
    * Returns the current user's workspace folder path
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *               GET api/session/userWorkspaceDir
    *               </p>
    *
@@ -71,7 +71,7 @@ public class SessionResource extends AbstractJaxRSResource {
   /**
    * Returns the workspace folder path for the selected user.
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *   GET api/session/workspaceDirForUser<br>
    * </p>
    *
