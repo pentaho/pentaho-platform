@@ -143,8 +143,11 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   *
    * Move a list of files to the user's trash folder.
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/delete
+   * </p>
    *
    * @param params Comma separated list of the files to be moved to trash folder
    *               <pre function="syntax.xml">
@@ -192,6 +195,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Moves a list of files from its current location to another.
    *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/path:to:destination/move
+   * </p>
+   *
    * @param destPathId Colon separated path for the destination path
    * <pre function="syntax.xml">
    *    :path:to:file:id
@@ -229,6 +236,10 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * Restores a list of files from the user's trash folder to their previous locations.
    *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/restore
+   * </p>
+   *
    * @param params comma separated list of file ids to be restored
    * <pre function="syntax.xml">
    *    pathId1,pathId2,...
@@ -257,6 +268,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    *
    * Creates a new file with the provided contents at a given path
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/path:to:file
+   * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
@@ -287,7 +302,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * Copy selected list of files to a new specified location.
    *
-   *  <p>Example Request:<br>
+   *  <p><b>Example Request:</b><br>
    *               PUT api/repo/files/pathToDir/children?mode=2
    *               </p>
    *
@@ -329,7 +344,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Takes a pathId and returns a Response with the output stream based on the file located at the pathId
    *
-   *  <p>Example Request:<br>
+   *  <p><b>Example Request:</b><br>
    *     GET api/repo/files/pathToFile
    *  </p>
    *
@@ -490,7 +505,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
    * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
-   *   <p>Example Request:<br>
+   *   <p><b>Example Request:</b><br>
    *     GET api/repo/files/pathToFile/download?withManifest=true
    *  </p>
    *
@@ -549,7 +564,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the file from the repository as inline. This is mainly used for css and dependent files for the html
    * document.
    *
-   *  <p>Example Request:<br>
+   *  <p><b>Example Request:</b><br>
    *     GET api/repo/files/pathToFile/inline
    *  </p>
    *
@@ -589,7 +604,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * This method is used to update and save the acls of the selected file to the repository.
    *
-   * <p> Example Request:<br>
+   * <p> <b>Example Request:</b><br>
    *     PUT api/repo/files/pathToFile/acl
    * </p>
    *
@@ -708,7 +723,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieves the list of locale maps for the selected repository file.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *          GET api/repo/files/pathToFile/locales
    * </p>
    *
@@ -766,7 +781,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieve the list of locale properties for a given locale.</p>
    *
-   *  <p>Example Request:<br>
+   *  <p><b>Example Request:</b><br>
    *     GET api/repo/files/pathToFile/localeProperties
    * </p>
    *
@@ -808,7 +823,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Save list of locale properties for a given locale.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *     PUT api/repo/files/pathToFile/localeProperties
    * </p>
    *
@@ -858,7 +873,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Delete the locale for the selected file.</p>
    *
-   *  <p>Example Request:<br>
+   *  <p><b>Example Request:</b><br>
    *     PUT api/repo/files/pathToFile/localeProperties
    * </p>
    *
@@ -895,7 +910,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * Retrieves the properties of the root directory.  The properties are returned in a string value pair format.
    *
-   *<p>Example Request:<br>
+   *<p><b>Example Request:</b><br>
    *      GET api/repo/files/properties
    *</p>
    *
@@ -937,7 +952,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Checks whether the current user has permissions to the selected files.  This can check for more than one permission at once
    * but will only return true if all permissions checked are valid.
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *   GET /api/repo/files/pathToFile/canAccessMap?permissions=1
    *</p>
    *
@@ -973,7 +988,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * Checks whether the current user has permissions to the provided list of paths.
    *
-   *  <p>Example Request:<br>
+   *  <p><b>Example Request:</b><br>
    *   Post /api/repo/files/pathsAccessList
    *  </p>
    * @param pathsWrapper Collection of Strings containing the paths to be checked
@@ -1024,7 +1039,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * Check whether the current user has specific permission on the selected repository file and returns true or false
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *   GET /api/repo/files/PATH:TO:FILE/canAccess
    * </p>
    *
@@ -1049,7 +1064,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Checks to see if the current user is an administer of the platform and returns a boolean response.
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *   GET /api/repo/files/canAdminister
    * </p>
    *
@@ -1072,7 +1087,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Returns the list of reserved characters from the repository.
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *   GET /api/repo/files/reservedCharacters
    * </p>
    *
@@ -1097,7 +1112,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
   * Returns the list of reserved characters from the repository.
    *
-  * <p>Example Request:<br>
+  * <p><b>Example Request:</b><br>
   *   GET /api/repo/files/reservedCharactersDisplay
   * </p>
   *
@@ -1121,7 +1136,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    *  Checks the users permission to determine if that user can create new content in the repository
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *   GET /api/repo/files/canCreate
    * </p>
    *
@@ -1140,7 +1155,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Retrieves the ACL settings of the requested repository file in either xml or json format
    *
-   * <p>Example Request:
+   * <p><b>Example Request:</b>
    *               <br>
    *               GET /pentaho/api/repo/files/PATH:TO:FILE/acl
    *               </p>
@@ -1189,7 +1204,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieves the properties of a selected repository file</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/pathToFile/properties
    * </p>
    *
@@ -1273,7 +1288,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieve the list of executed contents for a selected content from the repository.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/pathToFile/generatedContent
    * </p>
    *
@@ -1353,7 +1368,7 @@ public class FileResource extends AbstractJaxRSResource {
    * <p>Retrieve the executed contents for a selected repository file and a given user.</p>
    *
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/pathToFile/generatedContentForUser?user=username
    * </p>
    *
@@ -1434,7 +1449,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p>Retrieve the recursive list of files from root of the repository based on the filters provided.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/tree?showHidden=false&filter=*|FILES
    *                    |includeMembers=name,fileSize,description,folder,id,title
    *
@@ -1515,7 +1530,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieve a list of child files from the root of the repository.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/children?filter=*|FOLDERS&showHidden=false&includeAcls=true
    *
    *  will return files but not folders under the "/" folder. The fields returned will
@@ -1592,7 +1607,7 @@ public class FileResource extends AbstractJaxRSResource {
    * <p>Retrieve the recursive list of children of the selected repository file. </p>
    *
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/pathToFile/tree?showHidden=false&filter=*|FILES
    *                    |includeMembers=name,fileSize,description,folder,id,title
    *
@@ -1683,7 +1698,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieve a list of child files from the selected repository path of the repository.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/pathToFile/children?filter=*|FOLDERS&showHidden=false&includeAcls=true
    *
    *  Will return files but not folders under the "/pathToFile" folder. The fields returned will
@@ -1764,7 +1779,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Retrieve the list of files in the user's trash folder.</p>
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *  GET api/repo/files/deleted
    * </p>
    *
@@ -1829,7 +1844,7 @@ public class FileResource extends AbstractJaxRSResource {
    * <p>Retrieve the metadata of the selected file. Even though the hidden flag is a property of the file node itself, and not
    * the metadata child, it is considered metadata from PUC and is included in the setMetadata call</p>
    *
-   * <p>Example Request:
+   * <p><b>Example Request:</b>
    * <br>
    * GET /pentaho/api/repo/files/pathToFile/metadata
    * <p/>
@@ -1872,7 +1887,7 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * <p>Rename the selected file.</p>
    *
-   * <p>Example Request:
+   * <p><b>Example Request:</b>
    * <br>
    * PUT /pentaho/api/repo/files/pathToFile/rename
    * <p/>
@@ -1913,7 +1928,7 @@ public class FileResource extends AbstractJaxRSResource {
    * <p>Store the metadata of the selected file. Even though the hidden flag is a property of the file node itself, and not
    * the metadata child, it is considered metadata from PUC and is included in the setMetadata call</p>
    *
-   * <p>Example Request:
+   * <p><b>Example Request:</b>
    * <br>
    * PUT /pentaho/api/repo/files/pathToFile/metadata
    * <p/>
