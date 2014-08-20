@@ -3,8 +3,11 @@ package org.pentaho.platform.web.http.api.resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
 import javax.ws.rs.core.Response;
@@ -594,5 +597,239 @@ public class SchedulerResourceTest {
     assertEquals( mockJobScheduleRequest, testJobScheduleRequest );
 
     verify( schedulerResource.schedulerService, times( 1 ) ).getJobInfo();
+  }
+
+  @Test
+  public void testGetBlockoutJobs() {
+    List<Job> mockJobs = mock( List.class );
+    doReturn( mockJobs ).when( schedulerResource.schedulerService ).getBlockOutJobs();
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( mockJobs );
+
+    Response testResponse = schedulerResource.getBlockoutJobs();
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource, times( 1 ) ).getBlockoutJobs();
+    verify( schedulerResource, times( 1 ) ).buildOkResponse( mockJobs );
+  }
+
+  @Test
+  public void testHasBlockouts() {
+    Boolean hasBlockouts = Boolean.FALSE;
+    doReturn( hasBlockouts ).when( schedulerResource.schedulerService ).hasBlockouts();
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( hasBlockouts.toString() );
+
+    Response testResponse = schedulerResource.hasBlockouts();
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 1 ) ).hasBlockouts();
+    verify( schedulerResource, times( 1 ) ).buildOkResponse( hasBlockouts.toString() );
+  }
+
+  @Test
+  public void testAddBlockout() throws Exception {
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    Job mockJob = mock( Job.class );
+    doReturn( mockJob ).when( schedulerResource.schedulerService ).addBlockout( mockJobScheduleRequest );
+
+    String jobId = "jobId";
+    doReturn( jobId ).when( mockJob ).getJobId();
+
+    Response mockJobResponse = mock( Response.class );
+    doReturn( mockJobResponse ).when( schedulerResource ).buildPlainTextOkResponse( jobId );
+
+    Response testResponse = schedulerResource.addBlockout( mockJobScheduleRequest );
+    assertEquals( mockJobResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 1 ) ).addBlockout( mockJobScheduleRequest );
+    verify( mockJob, times( 1 ) ).getJobId();
+    verify( schedulerResource, times( 1 ) ).buildPlainTextOkResponse( jobId );
+  }
+
+  @Test
+  public void testAddBlockoutError() throws Exception {
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    Response mockUnauthorizedResponse = mock( Response.class );
+    doReturn( mockUnauthorizedResponse ).when( schedulerResource ).buildStatusResponse( UNAUTHORIZED );
+
+    // Test 1
+    IOException mockIOException = mock( IOException.class );
+    doThrow( mockIOException ).when( schedulerResource.schedulerService ).addBlockout( mockJobScheduleRequest );
+
+    Response testResponse = schedulerResource.addBlockout( mockJobScheduleRequest );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    // Test 2
+    SchedulerException mockSchedulerException = mock( SchedulerException.class );
+    doThrow( mockSchedulerException ).when( schedulerResource.schedulerService ).addBlockout( mockJobScheduleRequest );
+
+    testResponse = schedulerResource.addBlockout( mockJobScheduleRequest );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    // Test 3
+    IllegalAccessException mockIllegalAccessException = mock( IllegalAccessException.class );
+    doThrow( mockIllegalAccessException ).when( schedulerResource.schedulerService )
+      .addBlockout( mockJobScheduleRequest );
+
+    testResponse = schedulerResource.addBlockout( mockJobScheduleRequest );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 3 ) ).addBlockout( mockJobScheduleRequest );
+    verify( schedulerResource, times( 3 ) ).buildStatusResponse( UNAUTHORIZED );
+  }
+
+  @Test
+  public void testUpdateBlockout() throws Exception {
+    String jobId = "jobId";
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    doReturn( true ).when( schedulerResource.schedulerService ).isScheduleAllowed();
+
+    JobRequest mockJobRequest = mock( JobRequest.class );
+    doReturn( mockJobRequest ).when( schedulerResource ).getJobRequest();
+
+    Job mockJob = mock( Job.class );
+    doReturn( mockJob ).when( schedulerResource.schedulerService ).updateBlockout( jobId, mockJobScheduleRequest );
+
+    doReturn( jobId ).when( mockJob ).getJobId();
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildPlainTextOkResponse( jobId );
+
+    Response testResponse = schedulerResource.updateBlockout( jobId, mockJobScheduleRequest );
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 1 ) ).updateBlockout( jobId, mockJobScheduleRequest );
+    verify( mockJob, times( 1 ) ).getJobId();
+  }
+
+  @Test
+  public void testUpdateBlockoutError() throws Exception {
+    String jobId = "jobId";
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    Response mockUnauthorizedResponse = mock( Response.class );
+    doReturn( mockUnauthorizedResponse ).when( schedulerResource ).buildStatusResponse( UNAUTHORIZED );
+
+    // Test 1
+    IOException mockIOException = mock( IOException.class );
+    doThrow( mockIOException ).when( schedulerResource.schedulerService ).updateBlockout( jobId,
+      mockJobScheduleRequest );
+
+    Response testResponse = schedulerResource.updateBlockout( jobId, mockJobScheduleRequest );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    // Test 2
+    SchedulerException mockSchedulerException = mock( SchedulerException.class );
+    doThrow( mockSchedulerException ).when( schedulerResource.schedulerService ).updateBlockout( jobId,
+      mockJobScheduleRequest );
+
+    testResponse = schedulerResource.updateBlockout( jobId, mockJobScheduleRequest );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    // Test 3
+    IllegalAccessException mockIllegalAccessException = mock( IllegalAccessException.class );
+    doThrow( mockIllegalAccessException ).when( schedulerResource.schedulerService )
+      .updateBlockout( jobId, mockJobScheduleRequest );
+
+    testResponse = schedulerResource.updateBlockout( jobId, mockJobScheduleRequest );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 3 ) ).updateBlockout( jobId, mockJobScheduleRequest );
+    verify( schedulerResource, times( 3 ) ).buildStatusResponse( UNAUTHORIZED );
+  }
+
+  @Test
+  public void testBlockoutWillFire() throws Exception {
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    IJobTrigger mockJobTrigger = mock( IJobTrigger.class );
+    doReturn( mockJobTrigger ).when( schedulerResource ).convertScheduleRequestToJobTrigger( mockJobScheduleRequest );
+
+    Boolean willFire = Boolean.FALSE;
+    doReturn( willFire ).when( schedulerResource.schedulerService ).willFire( mockJobTrigger );
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( willFire.toString() );
+
+    Response testResponse = schedulerResource.blockoutWillFire( mockJobScheduleRequest );
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource, times( 1 ) ).convertScheduleRequestToJobTrigger( mockJobScheduleRequest );
+    verify( schedulerResource.schedulerService, times( 1 ) ).willFire( mockJobTrigger );
+    verify( schedulerResource, times( 1 ) ).buildOkResponse( willFire.toString() );
+  }
+
+  @Test
+  public void testBlockoutWillFireError() throws Exception {
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    UnifiedRepositoryException mockUnifiedRepositoryException = mock( UnifiedRepositoryException.class );
+
+    SchedulerException mockSchedulerException = mock( SchedulerException.class );
+
+    Response mockUnifiedRepositoryExceptionResponse = mock( Response.class );
+    doReturn( mockUnifiedRepositoryExceptionResponse ).when( schedulerResource )
+      .buildServerErrorResponse( mockUnifiedRepositoryException );
+
+    Response mockSchedulerExceptionResponse = mock( Response.class );
+    doReturn( mockSchedulerExceptionResponse ).when( schedulerResource )
+      .buildServerErrorResponse( mockSchedulerException );
+
+    // Test 1
+    doThrow( mockUnifiedRepositoryException ).when( schedulerResource )
+      .convertScheduleRequestToJobTrigger( mockJobScheduleRequest );
+
+    Response testResponse = schedulerResource.blockoutWillFire( mockJobScheduleRequest );
+    assertEquals( mockUnifiedRepositoryExceptionResponse, testResponse );
+
+    // Test 2
+    doThrow( mockSchedulerException ).when( schedulerResource )
+      .convertScheduleRequestToJobTrigger( mockJobScheduleRequest );
+
+    testResponse = schedulerResource.blockoutWillFire( mockJobScheduleRequest );
+    assertEquals( mockSchedulerExceptionResponse, testResponse );
+
+    verify( schedulerResource, times( 1 ) ).buildServerErrorResponse( mockUnifiedRepositoryException );
+    verify( schedulerResource, times( 1 ) ).buildServerErrorResponse( mockSchedulerException );
+    verify( schedulerResource, times( 2 ) ).convertScheduleRequestToJobTrigger( mockJobScheduleRequest );
+  }
+
+  @Test
+  public void testShouldFireNow() {
+    Boolean shouldFireNow = Boolean.FALSE;
+    doReturn( shouldFireNow ).when( schedulerResource.schedulerService ).shouldFireNow();
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( shouldFireNow.toString() );
+
+    Response testResponse = schedulerResource.shouldFireNow();
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 1 ) ).shouldFireNow();
+    verify( schedulerResource, times( 1 ) ).buildOkResponse( shouldFireNow.toString() );
+  }
+
+  @Test
+  public void testGetBlockStatus() throws Exception {
+    JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
+
+    BlockStatusProxy mockBlockStatusProxy = mock( BlockStatusProxy.class );
+    doReturn( mockBlockStatusProxy ).when( schedulerResource.schedulerService )
+      .getBlockStatus( mockJobScheduleRequest );
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( mockBlockStatusProxy );
+
+    Response testResponse = schedulerResource.getBlockStatus( mockJobScheduleRequest );
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 1 ) ).getBlockStatus( mockJobScheduleRequest );
+    verify( schedulerResource, times( 1 ) ).buildOkResponse( mockBlockStatusProxy );
   }
 }

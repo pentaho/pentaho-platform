@@ -46,7 +46,8 @@ public class RepositoryPublishResourceTest {
     String okResponseText = "SUCCESS";
     doReturn( mockResponse ).when( repositoryPublishResource ).buildPlainTextOkResponse( okResponseText );
 
-    Response testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
+    Response testResponse =
+      repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockResponse, testResponse );
 
     verify( repositoryPublishResource.repositoryPublishService, times( 1 ) )
@@ -80,7 +81,8 @@ public class RepositoryPublishResourceTest {
     doThrow( mockPentahoAccessControlException ).when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
 
-    Response testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
+    Response testResponse =
+      repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockUnauthorizedResponse, testResponse );
 
     // Test 2
@@ -89,7 +91,8 @@ public class RepositoryPublishResourceTest {
     doThrow( mockPlatformImportException ).when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
 
-    testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
+    testResponse =
+      repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockPreconditionFailedResponse, testResponse );
 
     // Test 3
@@ -97,7 +100,8 @@ public class RepositoryPublishResourceTest {
     doThrow( mockException ).when( repositoryPublishResource.repositoryPublishService )
       .writeFile( pathId, fileContents, overwriteFile );
 
-    testResponse = repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
+    testResponse =
+      repositoryPublishResource.writeFile( pathId, fileContents, overwriteFile, mockFormDataContentDisposition );
     assertEquals( mockServerErrorResponse, testResponse );
 
     verify( repositoryPublishResource.repositoryPublishService, times( 3 ) )
