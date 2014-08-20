@@ -143,8 +143,11 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   *
    * Move a list of files to the user's trash folder.
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/delete
+   * </p>
    *
    * @param params Comma separated list of the files to be moved to trash folder
    *               <pre function="syntax.xml">
@@ -192,6 +195,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Moves a list of files from its current location to another.
    *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/path:to:destination/move
+   * </p>
+   *
    * @param destPathId Colon separated path for the destination path
    * <pre function="syntax.xml">
    *    :path:to:file:id
@@ -229,6 +236,10 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * Restores a list of files from the user's trash folder to their previous locations.
    *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/restore
+   * </p>
+   *
    * @param params comma separated list of file ids to be restored
    * <pre function="syntax.xml">
    *    pathId1,pathId2,...
@@ -257,6 +268,10 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    *
    * Creates a new file with the provided contents at a given path
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/repo/files/path:to:file
+   * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
