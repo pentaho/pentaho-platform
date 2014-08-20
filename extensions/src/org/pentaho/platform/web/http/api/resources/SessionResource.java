@@ -65,7 +65,7 @@ public class SessionResource extends AbstractJaxRSResource {
           @ResponseCode( code = 200, condition = "Returns the requested file path")
   })
   public String doGetCurrentUserDir() {
-    return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) + "/workspace";
+    return getUserHomeFolderPath(getSession().getName()) + "/workspace";
   }
   
   /**
@@ -92,7 +92,7 @@ public class SessionResource extends AbstractJaxRSResource {
           @ResponseCode( code = 500, condition = "File path failed to be retrieved. This could be caused by an invalid user request.")
   })
   public String doGetUserDir( @PathParam( "user" ) String user ) {
-    return ClientRepositoryPaths.getUserHomeFolderPath( user ) + "/workspace";
+    return getUserHomeFolderPath( user ) + "/workspace";
   }
 
   @GET
@@ -105,4 +105,11 @@ public class SessionResource extends AbstractJaxRSResource {
     return Response.ok().type( MediaType.TEXT_PLAIN ).build();
   }
 
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
+  }
+
+  protected String getUserHomeFolderPath( String username ) {
+    return ClientRepositoryPaths.getUserHomeFolderPath( username );
+  }
 }
