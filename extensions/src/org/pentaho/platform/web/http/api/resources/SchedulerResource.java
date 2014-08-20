@@ -76,7 +76,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Creates a new Job/Schedule
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  PUT api/scheduler/job
    * </p>
    *
@@ -134,7 +134,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Execute a previously created job/schedule
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/triggerNow
    * </p>
    *
@@ -171,7 +171,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Get the job/schedule created by the system for deleting generated files
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/getContentCleanerJob
    * </p>
    *
@@ -239,7 +239,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the all the job(s) visible to the current users
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/jobs
    * </p>
    *
@@ -366,7 +366,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user may schedule a repository file in the platform
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/isScheduleAllowed?id=fileId
    * </p>
    *
@@ -395,7 +395,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks whether the current user has authority to schedule any content in the platform
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/canSchedule
    * </p>
    *
@@ -419,7 +419,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Returns the state of the scheduler with the value of RUNNING or PAUSED
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/state
    * </p>
    *
@@ -448,7 +448,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Resume the scheduler from a paused state
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/start
    * </p>
    *
@@ -477,7 +477,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Pause the scheduler from a running state
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/pause
    * </p>
    *
@@ -506,7 +506,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Shuts down the scheduler
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/shutdown
    * </p>
    *
@@ -535,7 +535,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks the state of the selected job/schedule
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/jobState
    * </p>
    *
@@ -573,7 +573,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Pause the specified job/schedule
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/pauseJob
    * </p>
    *
@@ -610,7 +610,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Resume the specified job/schedule
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *   POST api/scheduler/resumeJob
    * </p>
    *
@@ -647,7 +647,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Delete the specified job/schedule from the platform
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *   DELETE api/scheduler/removeJob
    * </p>
    *
@@ -687,7 +687,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Return the information for a specified job
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/jobInfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
    * </p>
    *
@@ -773,7 +773,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Get all the blockout jobs in the system
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET /scheduler/blockout/blockoutJobs
    * </p>
    *
@@ -869,7 +869,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks if there are blockouts in the system
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/blockout/hasblockouts
    * </p>
    *
@@ -893,7 +893,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Creates a new blockout for scheduled jobs
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/blockout/add
    * </p>
    *
@@ -947,7 +947,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Update an existing blockout
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/blockout/update
    * </p>
    *
@@ -1006,7 +1006,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks if the selected blockout schedule will be fired
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *   POST api/scheduler/blockout/willFire
    * </p>
    *
@@ -1060,7 +1060,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Checks if the selected blockout schedule should be fired now
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *   GET api/scheduler/blockout/shouldFireNow
    * </p>
    *
@@ -1085,7 +1085,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Check the status of the selected blockout schedule.
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  POST api/scheduler/blockout/blockstatus
    * </p>
    *
@@ -1139,7 +1139,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of execute content by lineage id.
    *
-   * <p>Example Request:<br />
+   * <p><b>Example Request:</b><br />
    *  GET api/scheduler/generatedContentForSchedule
    * </p>
    *

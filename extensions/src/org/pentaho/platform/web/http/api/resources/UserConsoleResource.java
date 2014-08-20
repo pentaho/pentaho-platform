@@ -90,7 +90,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   /**
    * Returns whether the current user is an administrator
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *               GET api/mantle/isAdministrator<br>
    *               </p>
    *
@@ -108,7 +108,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   /**
    * Returns whether the user is sn authenticated user or not
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    *               GET api/mantle/isAuthenticated<br>
    *               </p>
    *

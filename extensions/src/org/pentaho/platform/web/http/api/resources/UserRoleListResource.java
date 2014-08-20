@@ -85,7 +85,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Returns the list of permission users in the platform
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/permission-users
    * </pre>
@@ -117,7 +117,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Return a list of the permission roles in the platform.
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/permission-roles
    * </pre>
@@ -148,7 +148,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Returns the list of users in the platform
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/users
    * </pre>
@@ -180,7 +180,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Get a list of the standard roles in the platform
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/roles
    * </pre>
@@ -211,7 +211,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Get a list of the all roles in the platform including Anonymous and Administrator
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/roles
    * </pre>
@@ -243,7 +243,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Returns Roles identified as "system roles" from the repository.
    *
-   * <p>Example Request:<br>
+   * <p><b>Example Request:</b><br>
    * GET api/userrolelist/systemRoles
    * </p>
    *
@@ -270,7 +270,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Returns roles identified as "extra roles" from the repository
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    * GET api/userrolelist/extraRoles
    * </pre>
@@ -298,7 +298,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Gets the roles for the given user
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/getRolesForUser?user=user
    * </pre>
@@ -342,7 +342,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   /**
    * Gets the list of users that have the role specified by the role parameter. The list of valid roles can be obtained by calling the /roles endpoint.
    *
-   * <p>Example Request:</p>
+   * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
    *  GET api/userrolelist/getUsersInRole?role=Authenticated
    * </pre>
