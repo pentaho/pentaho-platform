@@ -46,13 +46,11 @@ import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -864,7 +862,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     @ResponseCode( code = 200, condition = "Successfully retrieved blockout jobs." ),
   } )
   public Response getBlockoutJobs() {
-    return Response.ok( schedulerService.getBlockOutJobs() ).build();
+    return buildOkResponse( schedulerService.getBlockOutJobs() );
   }
 
 
@@ -889,7 +887,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   } )
   public Response hasBlockouts() {
     Boolean hasBlockouts = schedulerService.hasBlockouts();
-    return Response.ok( hasBlockouts.toString() ).build();
+    return buildOkResponse( hasBlockouts.toString() );
   }
 
   /**
@@ -938,11 +936,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
       Job job = schedulerService.addBlockout( jobScheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
     } catch ( IOException e ) {
-      return buildStatusResponse( Status.UNAUTHORIZED );
+      return buildStatusResponse( UNAUTHORIZED );
     } catch ( SchedulerException e ) {
-      return buildStatusResponse( Status.UNAUTHORIZED );
+      return buildStatusResponse( UNAUTHORIZED );
     } catch ( IllegalAccessException e ) {
-      return buildStatusResponse( Status.UNAUTHORIZED );
+      return buildStatusResponse( UNAUTHORIZED );
     }
   }
 
@@ -1050,14 +1048,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response blockoutWillFire( JobScheduleRequest jobScheduleRequest ) {
     Boolean willFire;
     try {
-      willFire =
-        schedulerService.willFire( SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest ) );
+      willFire = schedulerService.willFire( convertScheduleRequestToJobTrigger( jobScheduleRequest ) );
     } catch ( UnifiedRepositoryException e ) {
-      return Response.serverError().entity( e ).build();
+      return buildServerErrorResponse( e );
     } catch ( SchedulerException e ) {
-      return Response.serverError().entity( e ).build();
+      return buildServerErrorResponse( e );
     }
-    return Response.ok( willFire.toString() ).build();
+    return buildOkResponse( willFire.toString() );
   }
 
   /**
@@ -1081,7 +1078,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   } )
   public Response shouldFireNow() {
     Boolean result = schedulerService.shouldFireNow();
-    return Response.ok( result.toString() ).build();
+    return buildOkResponse( result.toString() );
   }
 
 
@@ -1133,7 +1130,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response getBlockStatus( JobScheduleRequest jobScheduleRequest ) {
     try {
       BlockStatusProxy blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequest );
-      return Response.ok( blockStatusProxy ).build();
+      return buildOkResponse( blockStatusProxy );
     } catch ( SchedulerException e ) {
       return buildStatusResponse( Status.UNAUTHORIZED );
     }
@@ -1209,11 +1206,15 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return repositoryFileDtoList;
   }
 
+  protected Response buildOkResponse( Object entity ) {
+    return Response.ok( entity ).build();
+  }
+
   protected Response buildPlainTextOkResponse( String msg ) {
     return Response.ok( msg ).type( MediaType.TEXT_PLAIN ).build();
   }
 
-  protected Response buildServerErrorResponse( String entity ) {
+  protected Response buildServerErrorResponse( Object entity ) {
     return Response.serverError().entity( entity ).build();
   }
 
@@ -1223,5 +1224,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   protected Response buildPlainTextStatusResponse( Status status ) {
     return Response.status( status ).type( MediaType.TEXT_PLAIN ).build();
+  }
+
+  protected JobRequest getJobRequest() {
+    return new JobRequest();
+  }
+
+  protected IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest request ) throws SchedulerException {
+    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request );
   }
 }
