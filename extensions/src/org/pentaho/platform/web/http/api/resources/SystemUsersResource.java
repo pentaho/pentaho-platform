@@ -66,7 +66,7 @@ public class SystemUsersResource extends AbstractJaxRSResource {
   })
   public Response getUsers() throws Exception {
     try {
-      return Response.ok( SystemService.getSystemService().getUsers().asXML() ).type( MediaType.APPLICATION_XML ).build();
+      return buildOkResponse( getSystemService().getUsers().asXML(), MediaType.APPLICATION_XML );
     } catch ( IllegalAccessException exception ) {
       return Response.status( UNAUTHORIZED ).build();
     } catch (ServletException exception ) {
@@ -74,5 +74,13 @@ public class SystemUsersResource extends AbstractJaxRSResource {
     } catch (IOException exception ) {
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
+  }
+
+  protected SystemService getSystemService() {
+    return SystemService.getSystemService();
+  }
+
+  protected Response buildOkResponse( Object entity, String type ) {
+    return Response.ok( entity ).type( type ).build();
   }
 }
