@@ -1139,53 +1139,56 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the list of execute content by lineage id.
    *
+   * <p>Example Request:<br />
+   *  GET api/scheduler/generatedContentForSchedule
+   * </p>
+   *
    * @param lineageId the path for the file
    * <pre function="syntax.xml">
    *  :path:to:file:id
    * </pre>
-   * @return list of <code> repositoryFileDto </code>
+   * @return list of RepositoryFileDto objects
    * <pre function="syntax.xml">
-   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-   *    &lt;List&gt;
-   *     &lt;repositoryFileDto&gt;
-   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
-   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
-   *     &lt;folder&gt;false&lt;/folder&gt;
-   *     &lt;hidden&gt;false&lt;/hidden&gt;
-   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
-   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
-   *     &lt;locale&gt;en&lt;/locale&gt;
-   *     &lt;localePropertiesMapEntries&gt;
-   *       &lt;localeMapDto&gt;
-   *         &lt;locale&gt;default&lt;/locale&gt;
-   *         &lt;properties&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;file.title&lt;/key&gt;
-   *             &lt;value&gt;myFile&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
-   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;title&lt;/key&gt;
-   *             &lt;value&gt;myFile&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;file.description&lt;/key&gt;
-   *             &lt;value&gt;myFile Description&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *         &lt;/properties&gt;
-   *       &lt;/localeMapDto&gt;
-   *     &lt;/localePropertiesMapEntries&gt;
-   *     &lt;locked&gt;false&lt;/locked&gt;
-   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
-   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
-   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
-   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
-   *     &lt;title&gt;myFile&lt;/title&gt;
-   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
-   *     &lt;versioned&gt;true&lt;/versioned&gt;
+   *  &lt;List&gt;
+   *   &lt;repositoryFileDto&gt;
+   *    &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *    &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *    &lt;folder&gt;false&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *    &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;localePropertiesMapEntries&gt;
+   *      &lt;localeMapDto&gt;
+   *        &lt;locale&gt;default&lt;/locale&gt;
+   *        &lt;properties&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;file.title&lt;/key&gt;
+   *            &lt;value&gt;myFile&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *            &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;title&lt;/key&gt;
+   *            &lt;value&gt;myFile&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;file.description&lt;/key&gt;
+   *            &lt;value&gt;myFile Description&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *        &lt;/properties&gt;
+   *      &lt;/localeMapDto&gt;
+   *    &lt;/localePropertiesMapEntries&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *    &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *    &lt;title&gt;myFile&lt;/title&gt;
+   *    &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *    &lt;versioned&gt;true&lt;/versioned&gt;
    *   &lt;/repositoryFileAclDto&gt;
    *  &lt;/List&gt;
    * </pre>
@@ -1193,6 +1196,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path( "/generatedContentForSchedule" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully got the generated content for schedule" )
+  } )
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
