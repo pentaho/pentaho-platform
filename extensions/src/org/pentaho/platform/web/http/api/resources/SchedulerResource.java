@@ -350,11 +350,103 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * Retrieve the all the job(s) visible to the current users
    *
-   * @return list of <code> Job </code>
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/getJobs
+   * </p>
+   *
+   * @return A list of jobs that are visible to the current users
+   *
+   * <pre function="syntax.xml">
+   *  &lt;jobs&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *   &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *   &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *   &lt;value&gt;0&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *   &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
+   *   &lt;value&gt;false&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;uiPassParam&lt;/name&gt;
+   *   &lt;value&gt;MINUTES&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
+   *   &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;user_locale&lt;/name&gt;
+   *   &lt;value&gt;en_US&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
+   *   &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
+   *   &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *  &lt;/jobs&gt;
+   * </pre>
    */
   @GET
   @Path( "/getJobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Jobs retrieved successfully." ),
+      @ResponseCode( code = 500, condition = "Error while retrieving jobs." ),
+  })
   public List<Job> getAllJobs() {
     try {
       return schedulerService.getJobs();
@@ -375,7 +467,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  fileId
    * </pre>
    *
-   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed.
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the file.
    *
    * <pre function="syntax.xml">
    *  true
@@ -399,7 +491,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  GET api/scheduler/canSchedule
    * </p>
    *
-   * @return true or false
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the user.
    *
    * <pre function="syntax.xml">
    *   true
@@ -761,7 +853,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * Retrieves all blockout jobs in the system
    *
-   * @return list of <code> Job </code>
+   * @return list of Job
    */
   @Deprecated
   @Facet( name = "Unsupported" )
