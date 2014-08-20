@@ -21,6 +21,8 @@ import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.web.http.api.resources.services.RepositoryPublishService;
@@ -57,7 +59,12 @@ public class RepositoryPublishResource {
    * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
    * is set to true
    *
-   * @param pathId (colon separated path for the repository file)
+   *
+   * <p>Example Request:<br>
+   *  POST api/repo/publish/publishfile
+   * </p>
+   *
+   * @param pathId Colon separated path for the repository file)
    *               <pre function="syntax.xml">
    *               :path:to:file:id
    *               </pre>
@@ -67,12 +74,18 @@ public class RepositoryPublishResource {
    *               true
    *               </pre>
    *
-   * @returns response object indicating the success or failure of this operation
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
    */
   @POST
   @Path( "/publishfile" )
   @Consumes( { MediaType.MULTIPART_FORM_DATA } )
   @Produces( MediaType.TEXT_PLAIN )
+  @StatusCodes ({
+      @ResponseCode ( code = 200, condition = "Successfully publish the artifact." ),
+      @ResponseCode( code = 403, condition = "Failure to publish the file due to permissions." ),
+      @ResponseCode( code = 500, condition = "Failure to publish the file due to a server error." ),
+  })
   public Response writeFile( @FormDataParam( "importPath" ) String pathId,
                              @FormDataParam( "fileUpload" ) InputStream fileContents,
                              @FormDataParam( "overwriteFile" ) Boolean overwriteFile,
