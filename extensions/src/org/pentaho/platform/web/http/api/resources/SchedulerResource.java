@@ -23,14 +23,10 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -44,219 +40,197 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.codehaus.enunciate.Facet;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
-import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
+import org.pentaho.platform.web.http.messages.Messages;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository
  * files as well as CRUD operations
- * 
+ *
  * @author aaron
- * 
  */
 @Path( "/scheduler" )
 public class SchedulerResource extends AbstractJaxRSResource {
 
-  protected IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+  protected SchedulerService schedulerService;
 
-  protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
-
-  protected IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-
-  IPluginManager pluginMgr = PentahoSystem.get( IPluginManager.class );
-
-  private static final Log logger = LogFactory.getLog( SchedulerResource.class );
+  protected static final Log logger = LogFactory.getLog( SchedulerResource.class );
 
   public SchedulerResource() {
+    schedulerService = new SchedulerService();
   }
 
 
   /**
-   * Create a new job/schedule
-   * 
-   * @param scheduleRequest <code> JobScheduleRequest </code>
-   * @return
-   * @throws IOException
+   * Creates a new Job/Schedule
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT api/scheduler/job
+   * </p>
+   *
+   * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;JobName&lt;/jobName&gt;
+   *    &lt;simpleJobTrigger&gt;
+   *    &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *    &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *    &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *    &lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/simpleJobTrigger&gt;
+   *    &lt;inputFile&gt;/path/to/input/file&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;/path/to/output/file&lt;/outputFile&gt;
+   *    &lt;jobParameters&gt;
+   *    &lt;name&gt;ParameterName&lt;/name&gt;
+   *    &lt;type&gt;string&lt;/type&gt;
+   *    &lt;stringValue&gt;false&lt;/stringValue&gt;
+   *    &lt;/jobParameters&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object with the created jobId
+   * <pre function="syntax.xml">
+   *  username	JobName	1405356465422
+   * </pre>
    */
   @POST
   @Path( "/job" )
   @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
   @Produces( "text/plain" )
-  public Response createJob( JobScheduleRequest scheduleRequest ) throws IOException {
-
-    // Used to determine if created by a RunInBackgroundCommand
-    boolean runInBackground =
-        scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
-            && scheduleRequest.getCronJobTrigger() == null;
-
-    if ( !runInBackground && !policy.isAllowed( SchedulerAction.NAME ) ) {
-      return Response.status( UNAUTHORIZED ).build();
-    }
-
-    boolean hasInputFile = !StringUtils.isEmpty( scheduleRequest.getInputFile() );
-    RepositoryFile file = null;
-    if ( hasInputFile ) {
-      try {
-        file = repository.getFile( scheduleRequest.getInputFile() );
-      } catch ( UnifiedRepositoryException ure ) {
-        hasInputFile = false;
-        logger.warn( ure.getMessage(), ure );
-      }
-    }
-
-    // if we have an inputfile, generate job name based on that if the name is not passed in
-    if ( hasInputFile && StringUtils.isEmpty( scheduleRequest.getJobName() ) ) {
-      scheduleRequest.setJobName( file.getName().substring( 0, file.getName().lastIndexOf( "." ) ) ); //$NON-NLS-1$
-    } else if ( !StringUtils.isEmpty( scheduleRequest.getActionClass() ) ) {
-      String actionClass =
-          scheduleRequest.getActionClass().substring( scheduleRequest.getActionClass().lastIndexOf( "." ) + 1 );
-      scheduleRequest.setJobName( actionClass ); //$NON-NLS-1$
-    } else if ( !hasInputFile && StringUtils.isEmpty( scheduleRequest.getJobName() ) ) {
-      // just make up a name
-      scheduleRequest.setJobName( "" + System.currentTimeMillis() ); //$NON-NLS-1$
-    }
-
-    if ( hasInputFile ) {
-      Map<String, Serializable> metadata = repository.getFileMetadata( file.getId() );
-      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
-        boolean schedulable = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
-        if ( !schedulable ) {
-          return Response.status( FORBIDDEN ).build();
-        }
-      }
-    }
-
-    Job job = null;
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Schedule created successfully." ),
+    @ResponseCode( code = 401, condition = "User is not allowed to create schedules." ),
+    @ResponseCode( code = 403, condition = "Cannot create schedules for the specified file." ),
+    @ResponseCode( code = 500, condition = "An error occurred while creating a schedule." )
+  })
+  public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
-      IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
-
-      HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
-      for ( JobScheduleParam param : scheduleRequest.getJobParameters() ) {
-        parameterMap.put( param.getName(), param.getValue() );
-      }
-
-      if( isPdiFile( file ) ){
-    	  parameterMap = handlePDIScheduling( file, parameterMap );
-      }
-
-      parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
-      
-      if ( hasInputFile ) {
-        SchedulerOutputPathResolver outputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );
-        String outputFile = outputPathResolver.resolveOutputFilePath();
-        String actionId =
-            RepositoryFilenameUtils.getExtension( scheduleRequest.getInputFile() ) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
-        job =
-            scheduler.createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
-                new RepositoryFileStreamProvider( scheduleRequest.getInputFile(), outputFile,
-                    getAutoCreateUniqueFilename( scheduleRequest ) ) );
-      } else {
-        // need to locate actions from plugins if done this way too (but for now, we're just on main)
-        String actionClass = scheduleRequest.getActionClass();
-        try {
-          @SuppressWarnings( "unchecked" )
-          Class<IAction> iaction = ( (Class<IAction>) Class.forName( actionClass ) );
-          job = scheduler.createJob( scheduleRequest.getJobName(), iaction, parameterMap, jobTrigger );
-        } catch ( ClassNotFoundException e ) {
-          throw new RuntimeException( e );
-        }
-      }
+      Job job = schedulerService.createJob( scheduleRequest );
+      return buildPlainTextOkResponse( job.getJobId() );
     } catch ( SchedulerException e ) {
-      return Response.serverError().entity( e.getCause().getMessage() ).build();
+      return buildServerErrorResponse( e.getCause().getMessage() );
+    } catch ( IOException e ) {
+      return buildServerErrorResponse( e.getCause().getMessage() );
+    } catch ( SecurityException e ) {
+      return buildStatusResponse( UNAUTHORIZED );
+    } catch ( IllegalAccessException e ) {
+      return buildStatusResponse( FORBIDDEN );
     }
-    return Response.ok( job.getJobId() ).type( MediaType.TEXT_PLAIN ).build();
-  }
-
-  private boolean getAutoCreateUniqueFilename( final JobScheduleRequest scheduleRequest ) {
-    ArrayList<JobScheduleParam> jobParameters = scheduleRequest.getJobParameters();
-    for ( JobScheduleParam jobParameter : jobParameters ) {
-      if ( "autoCreateUniqueFilename".equals( jobParameter.getName() ) && "boolean".equals( jobParameter.getType() ) ) {
-        return (Boolean) jobParameter.getValue();
-      }
-    }
-    return true;
   }
 
   /**
-   * Execute a selected job/schedule
-   * 
-   * @param jobRequest <code> JobScheduleRequest </code>
-   * @return
+   * Execute a previously created job/schedule
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/triggerNow
+   * </p>
+   *
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A Response object indicating the status of the scheduler
+   * <pre function="syntax.xml">
+   *  NORMAL
+   * </pre>
    */
   @POST
   @Path( "/triggerNow" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Job triggered successfully." ),
+    @ResponseCode( code = 400, condition = "Invalid input." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response triggerNow( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.triggerNow( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.triggerNow( jobRequest.getJobId() );
-        }
-      }
-      // udpate job state
-      job = scheduler.getJob( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      Job job = schedulerService.triggerNow( jobRequest.getJobId() );
+      return buildPlainTextOkResponse( job.getState().name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Return the content cleaner job/schedule
-   * 
-   * @return <code> Job </code>
+   * Get the job/schedule created by the system for deleting generated files
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/getContentCleanerJob
+   * </p>
+   *
+   * @return A Job object containing the definition of the content cleaner job
+   * <pre function="syntax.xml">
+   *  &lt;job&gt;
+   *    &lt;groupName&gt;admin&lt;/groupName&gt;
+   *    &lt;jobId&gt;admin	GeneratedContentCleaner	1408377444383&lt;/jobId&gt;
+   *    &lt;jobName&gt;GeneratedContentCleaner&lt;/jobName&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;uiPassParam&lt;/name&gt;
+   *    &lt;value&gt;DAILY&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;age&lt;/name&gt;
+   *    &lt;value&gt;15552000&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;user_locale&lt;/name&gt;
+   *    &lt;value&gt;en_US&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *    &lt;value&gt;admin&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *    &lt;value&gt;org.pentaho.platform.admin.GeneratedContentCleaner&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;lineage-id&lt;/name&gt;
+   *    &lt;value&gt;c3cfbad4-2e34-4dbd-8071-a2f3c7e8fab9&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *    &lt;duration&gt;-1&lt;/duration&gt;
+   *    &lt;startTime&gt;2014-08-18T11:57:00-04:00&lt;/startTime&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *    &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *    &lt;/jobTrigger&gt;
+   *    &lt;lastRun&gt;2014-08-18T11:57:00-04:00&lt;/lastRun&gt;
+   *    &lt;nextRun&gt;2014-08-19T11:57:00-04:00&lt;/nextRun&gt;
+   *    &lt;state&gt;NORMAL&lt;/state&gt;
+   *    &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   * </pre>
    */
   @GET
   @Path( "/getContentCleanerJob" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Content cleaner job successfully retrieved." ),
+    @ResponseCode( code = 204, condition = "No content cleaner job exists." ),
+  })
   public Job getContentCleanerJob() {
     try {
-      IPentahoSession session = PentahoSessionHolder.getSession();
-      final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
-                                                      // changed to get name via the current session
-      final Boolean canAdminister = canAdminister( session );
-
-      List<Job> jobs = scheduler.getJobs( new IJobFilter() {
-        public boolean accept( Job job ) {
-          String actionClass = (String) job.getJobParams().get( "ActionAdapterQuartzJob-ActionClass" );
-          if ( canAdminister && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass ) ) {
-            return true;
-          }
-          return principalName.equals( job.getUserName() )
-              && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass );
-        }
-      } );
-
-      if ( jobs.size() > 0 ) {
-        return jobs.get( 0 );
-      }
-      return null;
+      return schedulerService.getContentCleanerJob();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -264,124 +238,358 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Retrieve the all the job(s) visible to the current users
-   * 
-   * @param asCronString  (Cron string) 
-   * 
-   * @return list of <code> Job </code>
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/jobs
+   * </p>
+   *
+   * @param asCronString Cron string (Unused)
+   *
+   * @return A list of jobs that are visible to the current users
+   *
+   * <pre function="syntax.xml">
+   *  &lt;jobs&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *   &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *   &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *   &lt;value&gt;0&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *   &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
+   *   &lt;value&gt;false&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;uiPassParam&lt;/name&gt;
+   *   &lt;value&gt;MINUTES&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
+   *   &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;user_locale&lt;/name&gt;
+   *   &lt;value&gt;en_US&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
+   *   &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
+   *   &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *  &lt;/jobs&gt;
+   * </pre>
    */
+  @Deprecated
   @GET
   @Path( "/jobs" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Jobs retrieved successfully." ),
+    @ResponseCode( code = 500, condition = "Error while retrieving jobs." ),
+  })
   public List<Job> getJobs( @DefaultValue( "false" ) @QueryParam( "asCronString" ) Boolean asCronString ) {
     try {
-      IPentahoSession session = PentahoSessionHolder.getSession();
-      final String principalName = session.getName(); // this authentication wasn't matching with the job user name,
-                                                      // changed to get name via the current session
-      final Boolean canAdminister = canAdminister( session );
-
-      List<Job> jobs = scheduler.getJobs( new IJobFilter() {
-        public boolean accept( Job job ) {
-          if ( canAdminister ) {
-            return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
-          }
-          return principalName.equals( job.getUserName() );
-        }
-      } );
-      return jobs;
+      return schedulerService.getJobs();
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
-  private Boolean canAdminister( IPentahoSession session ) {
-    if ( policy.isAllowed( AdministerSecurityAction.NAME ) ) {
-      return true;
+  /**
+   * Retrieve the all the job(s) visible to the current users
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/getJobs
+   * </p>
+   *
+   * @return A list of jobs that are visible to the current users
+   *
+   * <pre function="syntax.xml">
+   *  &lt;jobs&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *   &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *   &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *   &lt;value&gt;0&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *   &lt;job&gt;
+   *   &lt;groupName&gt;admin&lt;/groupName&gt;
+   *   &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *   &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
+   *   &lt;value&gt;false&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;uiPassParam&lt;/name&gt;
+   *   &lt;value&gt;MINUTES&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
+   *   &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;user_locale&lt;/name&gt;
+   *   &lt;value&gt;en_US&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *   &lt;value&gt;admin&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
+   *   &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobParams&gt;
+   *   &lt;name&gt;lineage-id&lt;/name&gt;
+   *   &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;/jobParams&gt;
+   *   &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *   &lt;duration&gt;-1&lt;/duration&gt;
+   *   &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
+   *   &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *   &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *   &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *   &lt;/jobTrigger&gt;
+   *   &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
+   *   &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
+   *   &lt;state&gt;NORMAL&lt;/state&gt;
+   *   &lt;userName&gt;admin&lt;/userName&gt;
+   *   &lt;/job&gt;
+   *  &lt;/jobs&gt;
+   * </pre>
+   */
+  @GET
+  @Path( "/getJobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+      @ResponseCode( code = 200, condition = "Jobs retrieved successfully." ),
+      @ResponseCode( code = 500, condition = "Error while retrieving jobs." ),
+  })
+  public List<Job> getAllJobs() {
+    try {
+      return schedulerService.getJobs();
+    } catch ( SchedulerException e ) {
+      throw new RuntimeException( e );
     }
-    return false;
   }
 
   /**
-   * Checks whether the current user has authority to schedule any content in the platform and the selected report
-   * is schedule able
-   * 
-   * @param id (Repository file ID of the report that is being scheduled
-   * @return ("true" or "false")
+   * Checks whether the current user may schedule a repository file in the platform
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/isScheduleAllowed?id=fileId
+   * </p>
+   *
+   * @param id The repository file ID of the content to checked
+   * <pre function="syntax.xml">
+   *  fileId
+   * </pre>
+   *
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the file.
+   *
+   * <pre function="syntax.xml">
+   *  true
+   * </pre>
    */
   @GET
   @Path( "/isScheduleAllowed" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved scheduling ability of repository file." ),
+    @ResponseCode( code = 500, condition = "Invalid repository file id." ),
+  })
   public String isScheduleAllowed( @QueryParam( "id" ) String id ) {
-    Boolean canSchedule = false;
-    canSchedule = policy.isAllowed( SchedulerAction.NAME );
-    if ( canSchedule ) {
-      Map<String, Serializable> metadata = repository.getFileMetadata( id );
-      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
-        canSchedule = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
-      }
-    }
-    return "" + canSchedule; //$NON-NLS-1$
+    return "" + schedulerService.isScheduleAllowed( id );
   }
 
   /**
    * Checks whether the current user has authority to schedule any content in the platform
-   * @return ("true" or "false")
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/canSchedule
+   * </p>
+   *
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the user.
+   *
+   * <pre function="syntax.xml">
+   *   true
+   * </pre>
    */
   @GET
   @Path( "/canSchedule" )
   @Produces( TEXT_PLAIN )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successful retrieved the scheduling permission." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve the scheduling permission." )
+  })
   public String doGetCanSchedule() {
-    Boolean isAllowed = policy.isAllowed( SchedulerAction.NAME );
-    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return schedulerService.doGetCanSchedule();
   }
 
   /**
-   * Returns the state of the scheduler (Schedule could be either paused or normal)
-   * @return status of the scheduler
+   * Returns the state of the scheduler with the value of RUNNING or PAUSED
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/state
+   * </p>
+   *
+   * @return status of the scheduler as RUNNING or PAUSED
+   *
+   * <pre function="syntax.xml">
+   *  RUNNING
+   * </pre>
    */
   @GET
   @Path( "/state" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the state of the scheduler." ),
+    @ResponseCode( code = 500, condition = "An error occurred when getting the state of the scheduler." )
+  })
   public Response getState() {
     try {
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String state = schedulerService.getState();
+      return buildPlainTextOkResponse( state );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * If the scheduler is in the PAUSE state, this will resume the scheduler
-   * 
-   * @return
+   * Resume the scheduler from a paused state
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/start
+   * </p>
+   *
+   * @return A jax-rs Response object containing the status of the scheduler
+   *
+   * <pre function="syntax.xml">
+   *  RUNNING
+   * </pre>
    */
   @POST
   @Path( "/start" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully started the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when resuming the scheduler." )
+  })
   public Response start() {
     try {
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.start();
-      }
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String status = schedulerService.start();
+      return buildPlainTextOkResponse( status );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * If the schedule in the state of "NORMAL", this will "PAUSE" the scheduler
-   * 
-   * @return
+   * Pause the scheduler from a running state
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/pause
+   * </p>
+   *
+   * @return A jax-rs Response object containing the status of the scheduler
+   *
+   * <pre function="syntax.xml">
+   *  PAUSED
+   * </pre>
    */
   @POST
   @Path( "/pause" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully paused the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when pausing the scheduler." )
+  })
   public Response pause() {
     try {
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.pause();
-      }
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String status = schedulerService.pause();
+      return buildPlainTextOkResponse( status );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -389,228 +597,738 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Shuts down the scheduler
-   * 
-   * @return
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/shutdown
+   * </p>
+   *
+   * @return A jax-rs Response object containing the status of the scheduler
+   *
+   * <pre function="syntax.xml">
+   *  PAUSED
+   * </pre>
    */
   @POST
   @Path( "/shutdown" )
   @Produces( "text/plain" )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully shut down the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when shutting down the scheduler." )
+  })
   public Response shutdown() {
     try {
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.shutdown();
-      }
-      return Response.ok( scheduler.getStatus().name() ).type( MediaType.TEXT_PLAIN ).build();
+      String status = schedulerService.shutdown();
+      return buildPlainTextOkResponse( status );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Checks the state of the selected job/schedule.
-   * 
-   * @param jobRequest <code> JobRequest </code>
-   * @return state of the job/schedule
+   * Checks the state of the selected job/schedule
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/jobState
+   * </p>
+   *
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  NORMAL
+   * </pre>
    */
   @POST
   @Path( "/jobState" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the state of the requested job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response getJobState( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
-        }
-      }
-      return Response.status( Status.UNAUTHORIZED ).type( MediaType.TEXT_PLAIN ).build();
+      return buildPlainTextOkResponse( schedulerService.getJobState( jobRequest ).name() );
+    } catch ( UnsupportedOperationException e ) {
+      return buildPlainTextStatusResponse( UNAUTHORIZED );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Pause the selected job/schedule
-   * 
-   * @param jobRequest  <code> JobRequest </code>
-   * @return
+   * Pause the specified job/schedule
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/pauseJob
+   * </p>
+   *
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  PAUSED
+   * </pre>
    */
   @POST
   @Path( "/pauseJob" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully paused the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response pauseJob( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.pauseJob( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.pauseJob( jobRequest.getJobId() );
-        }
-      }
-      // update job state
-      job = scheduler.getJob( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
+      return buildPlainTextOkResponse( state.name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Resume the selected job/schedule
-   * @param jobRequest   <code> JobRequest </code>
-   * @return
+   * Resume the specified job/schedule
+   *
+   * <p><b>Example Request:</b><br />
+   *   POST api/scheduler/resumeJob
+   * </p>
+   *
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  NORMAL
+   * </pre>
    */
   @POST
   @Path( "/resumeJob" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully resumed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response resumeJob( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.resumeJob( jobRequest.getJobId() );
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.resumeJob( jobRequest.getJobId() );
-        }
-      }
-      // udpate job state
-      job = scheduler.getJob( jobRequest.getJobId() );
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
+      return buildPlainTextOkResponse( state.name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Delete the selected job/schedule from the platform
-   * 
-   * @param jobRequest  <code> JobRequest </code>
-   * @return
+   * Delete the specified job/schedule from the platform
+   *
+   * <p><b>Example Request:</b><br />
+   *   DELETE api/scheduler/removeJob
+   * </p>
+   *
+   * @param jobRequest A JobRequest object containing the jobId
+   * <pre function="syntax.xml">
+   *  &lt;jobRequest&gt;
+   *    &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
+   *  &lt;/jobRequest&gt;
+   * </pre>
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job
+   *
+   * <pre function="syntax.xml">
+   *  REMOVED
+   * </pre>
    */
   @DELETE
   @Path( "/removeJob" )
   @Produces( "text/plain" )
   @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully removed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Response removeJob( JobRequest jobRequest ) {
     try {
-      Job job = scheduler.getJob( jobRequest.getJobId() );
-      if ( policy.isAllowed( SchedulerAction.NAME ) ) {
-        scheduler.removeJob( jobRequest.getJobId() );
-        return Response.ok( "REMOVED" ).type( MediaType.TEXT_PLAIN ).build();
-      } else {
-        if ( PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-          scheduler.removeJob( jobRequest.getJobId() );
-          return Response.ok( "REMOVED" ).type( MediaType.TEXT_PLAIN ).build();
-        }
+      if ( schedulerService.removeJob( jobRequest.getJobId() ) ) {
+        return buildPlainTextOkResponse( "REMOVED" );
       }
-      return Response.ok( job.getState().name() ).type( MediaType.TEXT_PLAIN ).build();
+      Job job = schedulerService.getJob( jobRequest.getJobId() );
+      return buildPlainTextOkResponse( job.getState().name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
   /**
-   * Return the information regarding a specific job, identified by ID
-   * 
-   * @param jobId
-   * @param asCronString
-   * @return
+   * Return the information for a specified job
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/jobInfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
+   * </p>
+   *
+   * @param jobId The jobId of the job for which we are requesting information
+   * @param asCronString Cron string (Unused)
+   * @return A Job object containing the info for the specified job
+   *
+   * <pre function="syntax.xml">
+   *  &lt;job&gt;
+   *    &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408387651641&lt;/jobId&gt;
+   *    &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *    &lt;value&gt;admin&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *    &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;lineage-id&lt;/name&gt;
+   *    &lt;value&gt;da116fa7-539f-43ca-b6d7-8ce5408c97ce&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *    &lt;value&gt;0&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *    &lt;duration&gt;-1&lt;/duration&gt;
+   *    &lt;startTime&gt;2014-08-18T14:47:31.639-04:00&lt;/startTime&gt;
+   *    &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *    &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *    &lt;/jobTrigger&gt;
+   *    &lt;lastRun&gt;2014-08-18T14:47:31.639-04:00&lt;/lastRun&gt;
+   *    &lt;nextRun&gt;2014-08-19T14:47:31.639-04:00&lt;/nextRun&gt;
+   *    &lt;state&gt;NORMAL&lt;/state&gt;
+   *    &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   * </pre>
    */
   @GET
   @Path( "/jobinfo" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully retrieved the information for the requested job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  })
   public Job getJob( @QueryParam( "jobId" ) String jobId,
-      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
+                     @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
-      Job job = scheduler.getJob( jobId );
-      if ( SecurityHelper.getInstance().isPentahoAdministrator( PentahoSessionHolder.getSession() )
-          || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-        for ( String key : job.getJobParams().keySet() ) {
-          Serializable value = job.getJobParams().get( key );
-          if ( value.getClass().isArray() ) {
-            String[] sa = ( new String[0] ).getClass().cast( value );
-            ArrayList<String> list = new ArrayList<String>();
-            for ( int i = 0; i < sa.length; i++ ) {
-              list.add( sa[i] );
-            }
-            job.getJobParams().put( key, list );
-          }
-        }
-        return job;
-      } else {
-        throw new RuntimeException( "Job not found or improper credentials for access" );
-      }
+      return schedulerService.getJobInfo( jobId );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
   }
 
+  @Deprecated
   @GET
   @Path( "/jobinfotest" )
   @Produces( { APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public JobScheduleRequest getJobInfo() {
-    JobScheduleRequest jobRequest = new JobScheduleRequest();
-    ComplexJobTriggerProxy proxyTrigger = new ComplexJobTriggerProxy();
-    proxyTrigger.setDaysOfMonth( new int[] { 1, 2, 3 } );
-    proxyTrigger.setDaysOfWeek( new int[] { 1, 2, 3 } );
-    proxyTrigger.setMonthsOfYear( new int[] { 1, 2, 3 } );
-    proxyTrigger.setYears( new int[] { 2012, 2013 } );
-    proxyTrigger.setStartTime( new Date() );
-    jobRequest.setComplexJobTrigger( proxyTrigger );
-    jobRequest.setInputFile( "aaaaa" );
-    jobRequest.setOutputFile( "bbbbb" );
-    ArrayList<JobScheduleParam> jobParams = new ArrayList<JobScheduleParam>();
-    jobParams.add( new JobScheduleParam( "param1", "aString" ) );
-    jobParams.add( new JobScheduleParam( "param2", 1 ) );
-    jobParams.add( new JobScheduleParam( "param3", true ) );
-    jobParams.add( new JobScheduleParam( "param4", new Date() ) );
-    jobRequest.setJobParameters( jobParams );
-    return jobRequest;
-  }
-  
-  private static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file, HashMap<String, Serializable> parameterMap ) {
-    
-	  if ( file != null && isPdiFile( file ) ) {
-      
-		  HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>(); 
-		  Map<String, String> pdiParameterMap = new HashMap<String, String>();
-		  convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
-      
-		  String type = isTransformation( file ) ? "transformation" : "job";
-		  convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
-      
-	      Iterator it = parameterMap.keySet().iterator();
-      
-	      while ( it.hasNext() ) {
-	
-	          String param = (String)it.next();
-	
-	          if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
-	        	  pdiParameterMap.put(param, parameterMap.get( param ).toString() );
-	          }
-	      }
-	      
-	      convertedParameterMap.put("parameters", (Serializable) pdiParameterMap);
-	      return convertedParameterMap;
-    }
-    return parameterMap;
-  }
-  
-  private static boolean isPdiFile( RepositoryFile file ){
-	  return isTransformation( file ) || isJob( file );
-  }
-  
-  private static boolean isTransformation( RepositoryFile file ){
-	  return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+    return schedulerService.getJobInfo();
   }
 
-  private static boolean isJob( RepositoryFile file ){
-	  return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+  /**
+   * @deprecated
+   * Method is deprecated as the name getBlockoutJobs is preferred over getJobs
+   *
+   * Retrieves all blockout jobs in the system
+   *
+   * @return list of Job
+   */
+  @Deprecated
+  @Facet( name = "Unsupported" )
+  public List<Job> getJobs() {
+    return getBlockoutJobs();
+  }
+
+
+  /**
+   * Get all the blockout jobs in the system
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET /scheduler/blockout/blockoutJobs
+   * </p>
+   *
+   * @return A Response object that contains a list of blockout jobs
+   *
+   * <pre function="syntax.xml">
+   *  &lt;jobs&gt;
+   *    &lt;job&gt;
+   *    &lt;groupName&gt;admin&lt;/groupName&gt;
+   *    &lt;jobId&gt;admin	BlockoutAction	1408457558636&lt;/jobId&gt;
+   *    &lt;jobName&gt;BlockoutAction&lt;/jobName&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;TIME_ZONE_PARAM&lt;/name&gt;
+   *    &lt;value&gt;America/New_York&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;DURATION_PARAM&lt;/name&gt;
+   *    &lt;value&gt;10080000&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;uiPassParam&lt;/name&gt;
+   *    &lt;value&gt;DAILY&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;user_locale&lt;/name&gt;
+   *    &lt;value&gt;en_US&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *    &lt;value&gt;admin&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *    &lt;value&gt;org.pentaho.platform.scheduler2.blockout.BlockoutAction&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobParams&gt;
+   *    &lt;name&gt;lineage-id&lt;/name&gt;
+   *    &lt;value&gt;0989726c-3247-4864-bc79-8e2a1dc60c58&lt;/value&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;/jobParams&gt;
+   *    &lt;jobTrigger xsi:type="complexJobTrigger"&gt;
+   *    &lt;cronString&gt;0 12 10 ? * 2,3,4,5,6 *&lt;/cronString&gt;
+   *    &lt;duration&gt;10080000&lt;/duration&gt;
+   *    &lt;startTime&gt;2014-08-19T10:12:00-04:00&lt;/startTime&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;dayOfMonthRecurrences /&gt;
+   *    &lt;dayOfWeekRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;2&lt;/values&gt;
+   *    &lt;values&gt;3&lt;/values&gt;
+   *    &lt;values&gt;4&lt;/values&gt;
+   *    &lt;values&gt;5&lt;/values&gt;
+   *    &lt;values&gt;6&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/dayOfWeekRecurrences&gt;
+   *    &lt;hourlyRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;10&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/hourlyRecurrences&gt;
+   *    &lt;minuteRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;12&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/minuteRecurrences&gt;
+   *    &lt;monthlyRecurrences /&gt;
+   *    &lt;secondRecurrences&gt;
+   *    &lt;recurrenceList&gt;
+   *    &lt;values&gt;0&lt;/values&gt;
+   *    &lt;/recurrenceList&gt;
+   *    &lt;/secondRecurrences&gt;
+   *    &lt;yearlyRecurrences /&gt;
+   *    &lt;/jobTrigger&gt;
+   *    &lt;nextRun&gt;2014-08-20T10:12:00-04:00&lt;/nextRun&gt;
+   *    &lt;state&gt;NORMAL&lt;/state&gt;
+   *    &lt;userName&gt;admin&lt;/userName&gt;
+   *    &lt;/job&gt;
+   *  &lt;/jobs&gt;
+   * </pre>
+   */
+  @GET
+  @Path( "/blockout/blockoutjobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved blockout jobs." ),
+  } )
+  public List<Job> getBlockoutJobs() {
+    return schedulerService.getBlockOutJobs();
+  }
+
+
+  /**
+   * Checks if there are blockouts in the system
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/blockout/hasblockouts
+   * </p>
+   *
+   * @return true or false whether there are blackouts or not
+   *
+   * <pre function="syntax.xml">
+   *    true
+   * </pre>
+   */
+  @GET
+  @Path( "/blockout/hasblockouts" )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully determined whether or not the system contains blockouts." ),
+  } )
+  public Response hasBlockouts() {
+    Boolean hasBlockouts = schedulerService.hasBlockouts();
+    return buildOkResponse( hasBlockouts.toString() );
+  }
+
+  /**
+   * Creates a new blockout for scheduled jobs
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/blockout/add
+   * </p>
+   *
+   * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
+   * @return a Response object which contains the ID of the blockout which was created
+   *
+   * <pre function="syntax.xml">
+   *  admin	BlockoutAction	1408459814192
+   * </pre>
+   */
+  @POST
+  @Path( "/blockout/add" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to create blockout." )
+  } )
+  public Response addBlockout( JobScheduleRequest jobScheduleRequest ) {
+    try {
+      Job job = schedulerService.addBlockout( jobScheduleRequest );
+      return buildPlainTextOkResponse( job.getJobId() );
+    } catch ( IOException e ) {
+      return buildStatusResponse( UNAUTHORIZED );
+    } catch ( SchedulerException e ) {
+      return buildStatusResponse( UNAUTHORIZED );
+    } catch ( IllegalAccessException e ) {
+      return buildStatusResponse( UNAUTHORIZED );
+    }
+  }
+
+  /**
+   * Update an existing blockout
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/blockout/update
+   * </p>
+   *
+   * @param jobId The jobId of the blockout we are editing
+   * <pre function="syntax.xml">
+   *  admin%09BlockoutAction%091408459814192
+   * </pre>
+   *
+   * @param jobScheduleRequest The payload containing the definition of the blockout
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
+   * @return a Response object which contains the ID of the blockout which was created
+   *
+   * <pre function="syntax.xml">
+   *  admin	BlockoutAction	1408473190419
+   * </pre>
+   */
+  @POST
+  @Path( "/blockout/update" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to update blockout." )
+  } )
+  public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest jobScheduleRequest ) {
+    try {
+      Job job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      return buildPlainTextOkResponse( job.getJobId() );
+    } catch ( IOException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    } catch ( SchedulerException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    } catch ( IllegalAccessException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    }
+  }
+
+  /**
+   * Checks if the selected blockout schedule will be fired
+   *
+   * <p><b>Example Request:</b><br />
+   *   POST api/scheduler/blockout/willFire
+   * </p>
+   *
+   * @param jobScheduleRequest The payload containing the definition of the blockout
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
+   * @return true or false indicating whether or not the blockout will fire
+   *
+   * <pre function="syntax.xml">
+   *   true
+   * </pre>
+   */
+  @POST
+  @Path( "/blockout/willFire" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 500, condition = "An error occurred while determining blockouts being fired." )
+  } )
+  public Response blockoutWillFire( JobScheduleRequest jobScheduleRequest ) {
+    Boolean willFire;
+    try {
+      willFire = schedulerService.willFire( convertScheduleRequestToJobTrigger( jobScheduleRequest ) );
+    } catch ( UnifiedRepositoryException e ) {
+      return buildServerErrorResponse( e );
+    } catch ( SchedulerException e ) {
+      return buildServerErrorResponse( e );
+    }
+    return buildOkResponse( willFire.toString() );
+  }
+
+  /**
+   * Checks if the selected blockout schedule should be fired now
+   *
+   * <p><b>Example Request:</b><br />
+   *   GET api/scheduler/blockout/shouldFireNow
+   * </p>
+   *
+   * @return true or false whether or not the blockout should fire now
+   *
+   * <pre function="syntax.xml">
+   *   true
+   * </pre>
+   */
+  @GET
+  @Path( "/blockout/shouldFireNow" )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." )
+  } )
+  public Response shouldFireNow() {
+    Boolean result = schedulerService.shouldFireNow();
+    return buildOkResponse( result.toString() );
+  }
+
+
+  /**
+   * Check the status of the selected blockout schedule.
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST api/scheduler/blockout/blockstatus
+   * </p>
+   *
+   * @param jobScheduleRequest The payload containing the definition of the blockout
+   * <pre function="syntax.xml">
+   *  &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *  &lt;/jobScheduleRequest&gt;
+   * </pre>
+   *
+   * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags
+   *
+   * <pre function="syntax.xml">
+   *  &lt;blockStatusProxy&gt;
+   *    &lt;partiallyBlocked&gt;true&lt;/partiallyBlocked&gt;
+   *    &lt;totallyBlocked&gt;true&lt;/totallyBlocked&gt;
+   *  &lt;/blockStatusProxy&gt;
+   * </pre>
+   */
+  @POST
+  @Path( "/blockout/blockstatus" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully got the blockout status." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to get the blockout status." )
+  } )
+  public Response getBlockStatus( JobScheduleRequest jobScheduleRequest ) {
+    try {
+      BlockStatusProxy blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequest );
+      return buildOkResponse( blockStatusProxy );
+    } catch ( SchedulerException e ) {
+      return buildStatusResponse( Status.UNAUTHORIZED );
+    }
+  }
+
+  /**
+   * Retrieve the list of execute content by lineage id.
+   *
+   * <p><b>Example Request:</b><br />
+   *  GET api/scheduler/generatedContentForSchedule
+   * </p>
+   *
+   * @param lineageId the path for the file
+   * <pre function="syntax.xml">
+   *  :path:to:file:id
+   * </pre>
+   * @return list of RepositoryFileDto objects
+   * <pre function="syntax.xml">
+   *  &lt;List&gt;
+   *   &lt;repositoryFileDto&gt;
+   *    &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *    &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *    &lt;folder&gt;false&lt;/folder&gt;
+   *    &lt;hidden&gt;false&lt;/hidden&gt;
+   *    &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *    &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *    &lt;locale&gt;en&lt;/locale&gt;
+   *    &lt;localePropertiesMapEntries&gt;
+   *      &lt;localeMapDto&gt;
+   *        &lt;locale&gt;default&lt;/locale&gt;
+   *        &lt;properties&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;file.title&lt;/key&gt;
+   *            &lt;value&gt;myFile&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *            &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;title&lt;/key&gt;
+   *            &lt;value&gt;myFile&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *          &lt;stringKeyStringValueDto&gt;
+   *            &lt;key&gt;file.description&lt;/key&gt;
+   *            &lt;value&gt;myFile Description&lt;/value&gt;
+   *          &lt;/stringKeyStringValueDto&gt;
+   *        &lt;/properties&gt;
+   *      &lt;/localeMapDto&gt;
+   *    &lt;/localePropertiesMapEntries&gt;
+   *    &lt;locked&gt;false&lt;/locked&gt;
+   *    &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *    &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *    &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *    &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *    &lt;title&gt;myFile&lt;/title&gt;
+   *    &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *    &lt;versioned&gt;true&lt;/versioned&gt;
+   *   &lt;/repositoryFileAclDto&gt;
+   *  &lt;/List&gt;
+   * </pre>
+   */
+  @GET
+  @Path( "/generatedContentForSchedule" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully got the generated content for schedule" )
+  } )
+  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
+    List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
+    try {
+      repositoryFileDtoList = schedulerService.doGetGeneratedContentForSchedule( lineageId );
+    } catch ( FileNotFoundException e ) {
+      //return the empty list
+    } catch ( Throwable t ) {
+      logger
+        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", lineageId ), t );
+    }
+    return repositoryFileDtoList;
+  }
+
+  protected Response buildOkResponse( Object entity ) {
+    return Response.ok( entity ).build();
+  }
+
+  protected Response buildPlainTextOkResponse( String msg ) {
+    return Response.ok( msg ).type( MediaType.TEXT_PLAIN ).build();
+  }
+
+  protected Response buildServerErrorResponse( Object entity ) {
+    return Response.serverError().entity( entity ).build();
+  }
+
+  protected Response buildStatusResponse( Status status ) {
+    return Response.status( status ).build();
+  }
+
+  protected Response buildPlainTextStatusResponse( Status status ) {
+    return Response.status( status ).type( MediaType.TEXT_PLAIN ).build();
+  }
+
+  protected JobRequest getJobRequest() {
+    return new JobRequest();
+  }
+
+  protected IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest request ) throws SchedulerException {
+    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request );
   }
 }
