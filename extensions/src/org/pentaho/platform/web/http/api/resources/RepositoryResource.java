@@ -17,51 +17,48 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IContentGenerator;
-import org.pentaho.platform.api.engine.IContentInfo;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
-import org.pentaho.platform.util.RepositoryPathEncoder;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.MessageFormat;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IContentGenerator;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
+import org.pentaho.platform.web.http.api.resources.services.RepositoryService;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.messages.Messages;
 
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 @Path( "/repos" )
 public class RepositoryResource extends AbstractJaxRSResource {
@@ -69,48 +66,36 @@ public class RepositoryResource extends AbstractJaxRSResource {
   protected IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
 
   private static final Log logger = LogFactory.getLog( RepositoryResource.class );
-  public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
 
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
 
-  protected RepositoryDownloadWhitelist whitelist;
+  protected RepositoryService repositoryService = new RepositoryService();
+
+  protected FileService fileService = new FileService();
 
   @GET
   @Path( "{pathId : .+}/content" )
   @Produces( { WILDCARD } )
   public Response doGetFileOrDir( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException {
     FileResource fileResource = new FileResource( httpServletResponse );
-    fileResource.setWhitelist( whitelist );
+    fileResource.setWhitelist( getWhitelist() );
     return fileResource.doGetFileOrDir( pathId );
   }
 
+  /**
+   * Takes a pathId to a file and generates a URI that represents the URL to call to generate content from that file.
+   *
+   * @param pathId @param pathId <pre function="syntax.xml"> :path:to:file:id </pre>
+   * @return URI that represents a forwarding URL to execute to generate content from the file (pathId)
+   * @throws FileNotFoundException, MalformedURLException, URISyntaxException
+   */
   @GET
   @Path( "{pathId : .+}/default" )
   @Produces( { WILDCARD } )
   public Response doExecuteDefault( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException,
     MalformedURLException, URISyntaxException {
-    String perspective = null;
-    StringBuffer buffer = null;
-    String url = null;
-    String path = FileResource.idToPath( pathId );
-    String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-    IContentInfo info = pluginManager.getContentTypeInfo( extension );
-    for ( IPluginOperation operation : info.getOperations() ) {
-      if ( operation.getId().equalsIgnoreCase( "RUN" ) ) { //$NON-NLS-1$
-        perspective = operation.getPerspective();
-        break;
-      }
-    }
-    if ( perspective == null ) {
-      perspective = GENERATED_CONTENT_PERSPECTIVE;
-    }
-
-    buffer = httpServletRequest.getRequestURL();
-    String queryString = httpServletRequest.getQueryString();
-    url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
-      ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
-    return Response.seeOther( ( new URL( url ) ).toURI() ).build();
+    return buildSeeOtherResponse( repositoryService.doExecuteDefault( pathId, httpServletRequest.getRequestURL(),
+      httpServletRequest.getQueryString() ) );
   }
 
   /**
@@ -130,9 +115,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * The resolution order is as follows, the first to find the resource wins: <ol> <li>A1</li> <li>A2</li> <li>A3</li>
    * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
    *
-   * @param contextId  identifies the context in which the resource should be retrieved
-   * @param resourceId identifies a resource to be retrieved
-   * @param formParams any arguments needed to render the resource
+   * @param contextId  identifies the context in which the resource should be retrieved <pre function="syntax.xml">
+   *                   <p/>
+   *                   </pre>
+   * @param resourceId identifies a resource to be retrieved <pre function="syntax.xml">
+   *                   <p/>
+   *                   </pre>
+   * @param formParams any arguments needed to render the resource <pre function="syntax.xml">
+   *                   <p/>
+   *                   </pre>
    * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
    * returned to the caller
    */
@@ -145,7 +136,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     throws ObjectFactoryException, PluginBeanException,
     IOException, URISyntaxException {
 
-    httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
+    httpServletRequest = correctPostRequest( formParams );
 
     if ( logger.isDebugEnabled() ) {
       for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
@@ -175,7 +166,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
    *
    * @param contextId  identifies the context in which the resource should be retrieved
+   *                   <pre function="syntax.xml">
+   *                   </pre>
    * @param resourceId identifies a resource to be retrieved
+   *                   <pre function="syntax.xml">
+   *                   </pre>
    * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
    * returned to the caller
    */
@@ -203,39 +198,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   public Response getExecutableTypes() {
-    ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
-    for ( String contentType : pluginManager.getContentTypes() ) {
-      IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
-      ExecutableFileTypeDto executableFileType = new ExecutableFileTypeDto();
-      executableFileType.setDescription( contentInfo.getDescription() );
-      executableFileType.setExtension( contentInfo.getExtension() );
-      executableFileType.setTitle( contentInfo.getTitle() );
-      executableFileType.setCanSchedule( hasOperationId( contentInfo.getOperations(), "SCHEDULE_NEW" ) );
-      executableFileType.setCanEdit( hasOperationId( contentInfo.getOperations(), "EDIT" ) );
-      executableTypes.add( executableFileType );
-    }
-
-    final GenericEntity<List<ExecutableFileTypeDto>> entity =
-      new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
-      };
-    return Response.ok( entity ).build();
+    return new SystemResource().getExecutableTypes();
   }
 
-  private boolean hasOperationId( final List<IPluginOperation> operations, final String operationId ) {
-    if ( operations != null && StringUtils.isNotBlank( operationId ) ) {
-      for ( IPluginOperation operation : operations ) {
-        if ( operation != null && StringUtils.isNotBlank( operation.getId() ) ) {
-          if ( operation.getId().equals( operationId ) && StringUtils.isNotBlank( operation.getPerspective() ) ) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  protected Response doService( String contextId, String resourceId ) throws ObjectFactoryException,
-    PluginBeanException, IOException, URISyntaxException {
+  protected Response doService( String contextId, String resourceId )
+    throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
     ctxt( "Is [{0}] a repository file id?", contextId ); //$NON-NLS-1$
     if ( contextId.startsWith( ":" ) || contextId.matches( "^[A-z]::.*" ) ) { //$NON-NLS-1$
@@ -243,7 +210,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
       // The context is a repository file (A)
       //
 
-      final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
+      final RepositoryFile file = repository.getFile( FileUtils.idToPath( contextId ) );
       if ( file == null ) {
         logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
         return Response.serverError().build();
@@ -341,7 +308,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return Response.status( NOT_FOUND ).build();
   }
 
-  abstract class CGFactory implements ContentGeneratorDescriptor {
+  abstract class CGFactory implements RepositoryService.CGFactoryInterface {
     String contentGeneratorId;
 
     String command;
@@ -358,17 +325,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
       }
     }
 
+    @Override
     public String getContentGeneratorId() {
       return contentGeneratorId;
     }
 
+    @Override
     public String getCommand() {
       return command;
     }
-
-    abstract IContentGenerator create();
-
-    abstract GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg );
   }
 
   class RepositoryFileCGFactory extends ContentTypeCGFactory {
@@ -379,7 +344,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
       this.file = file;
     }
 
-    @Override GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+    @Override
+    public GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
         file, command );
     }
@@ -398,7 +364,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
       return pluginManager.getContentGenerator( repoFileExt, contentGeneratorId );
     }
 
-    @Override GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+    @Override
+    public GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
         null, command );
     }
@@ -422,11 +389,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
       this.pluginId = pluginId;
     }
 
-    @Override IContentGenerator create() {
+    @Override
+    public IContentGenerator create() {
       return pluginManager.getContentGenerator( null, contentGeneratorId );
     }
 
-    @Override GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+    @Override
+    public GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
         null, command );
     }
@@ -443,39 +412,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   }
 
-  protected Response getUrlResponse( RepositoryFile file, String resourceId ) throws MalformedURLException,
-    URISyntaxException {
-    String ext = file.getName().substring( file.getName().indexOf( '.' ) + 1 );
-    if ( !( ext.equals( "url" ) && resourceId.equals( "generatedContent" ) ) ) {
-      return null; //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    String url = extractUrl( file );
-    if ( !url.trim().startsWith( "http" ) ) { //$NON-NLS-1$
-      // if path is relative, prepend FQSURL
-      url = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() + url;
-    }
-    return Response.seeOther( ( new URL( url ) ).toURI() ).build();
+  protected Response getUrlResponse( RepositoryFile file, String resourceId )
+    throws MalformedURLException, URISyntaxException {
+    return Response.seeOther( ( new URL( repositoryService.getUrl( file, resourceId ) ) ).toURI() ).build();
   }
 
   protected Response getContentGeneratorResponse( CGFactory fac ) {
-    rsc( "Is [{0}] a content generator ID?", fac.getContentGeneratorId() ); //$NON-NLS-1$
-    final IContentGenerator contentGenerator;
-    try {
-      contentGenerator = fac.create();
-    } catch ( NoSuchBeanDefinitionException e ) {
-      rsc( "Nope, [{0}] is not a content generator ID.", fac.getContentGeneratorId() ); //$NON-NLS-1$
-      return null;
-    }
-    if ( contentGenerator == null ) {
-      rsc( "Nope, [{0}] is not a content generator ID.", fac.getContentGeneratorId() ); //$NON-NLS-1$
-      return null;
-    }
-    rsc(
-      "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
-      fac.getCommand() ); //$NON-NLS-1$
-    GeneratorStreamingOutput gso = fac.getStreamingOutput( contentGenerator );
-    return Response.ok( gso ).build();
+    return Response.ok( repositoryService.getContentGeneratorStreamingOutput( fac ) ).build();
   }
 
   protected Response getPluginFileResponse( String pluginId, String filePath ) throws IOException {
@@ -484,7 +427,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
       PluginResource pluginResource = new PluginResource( httpServletResponse );
       Response readFileResponse = pluginResource.readFile( pluginId, filePath );
       // TODO: should we assume forbidden means move on in the resolution chain, or abort??
-      if ( readFileResponse.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
+      if ( readFileResponse.getStatus() != Response.Status.NOT_FOUND.getStatusCode() ) {
         rsc( "Yep, [{0}] is a path to a static plugin file", filePath ); //$NON-NLS-1$
         return readFileResponse;
       }
@@ -494,73 +437,61 @@ public class RepositoryResource extends AbstractJaxRSResource {
   }
 
   protected Response getRepositoryFileResponse( String filePath, String relPath ) throws IOException {
-    rsc( "Is [{0}] a relative path to a repository file, relative to [{1}]?", relPath, filePath ); //$NON-NLS-1$
-
     FileResource fileResource = new FileResource( httpServletResponse );
-    fileResource.setWhitelist( whitelist );
-    String path =
-      RepositoryFilenameUtils
-        .separatorsToRepository( RepositoryFilenameUtils.concat( filePath, "../" + relPath ) ); //$NON-NLS-1$
-    Response response = fileResource.doGetFileOrDir( RepositoryPathEncoder.encodeRepositoryPath( path ).substring( 1 ) );
-    if ( response.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
-      rsc( "Yep, [{0}] is a repository file", path ); //$NON-NLS-1$
-      return response;
+    String path = repositoryService.getRepositoryFileResourcePath( fileResource, filePath, relPath );
+
+    try {
+      FileService.RepositoryFileToStreamWrapper wrapper =
+        fileService.doGetFileOrDir( RepositoryPathEncoder.encodeRepositoryPath( path ).substring( 1 ) );
+
+      Response response = Response.ok( wrapper.getOutputStream(), wrapper.getMimetype() ).header( "Content-Disposition",
+        "inline; filename=\"" + wrapper.getRepositoryFile().getName() + "\"" ).build();
+
+      if ( response.getStatus() != Response.Status.NOT_FOUND.getStatusCode() ) {
+        rsc( "Yep, [{0}] is a repository file", path ); //$NON-NLS-1$
+        return response;
+      }
+
+      rsc( "Nope, [{0}] is not a repository file", path ); //$NON-NLS-1$
+      return null;
+    } catch ( FileNotFoundException fileNotFound ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
+      return Response.status( NOT_FOUND ).build();
+    } catch ( IllegalArgumentException illegalArgument ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), illegalArgument );
+      return Response.status( FORBIDDEN ).build();
     }
-    rsc( "Nope, [{0}] is not a repository file", path ); //$NON-NLS-1$
-    return null;
   }
 
   private void ctxt( String msg, Object... args ) {
-    debug( "[RESOLVING CONTEXT ID] ==> " + msg, args ); //$NON-NLS-1$
+    repositoryService.ctxt( msg, args );
   }
 
   private void rsc( String msg, Object... args ) {
-    debug( "[RESOLVING RESOURCE ID] ==> " + msg, args ); //$NON-NLS-1$
+    repositoryService.rsc( msg, args );
   }
 
   private void debug( String msg, Object... args ) {
-    logger.debug( MessageFormat.format( msg, args ) );
+    repositoryService.debug( msg, args );
   }
 
   protected String extractUrl( RepositoryFile file ) {
-
-    SimpleRepositoryFileData data = null;
-
-    data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
-    StringWriter writer = new StringWriter();
-    try {
-      IOUtils.copy( data.getInputStream(), writer );
-    } catch ( IOException e ) {
-      return ""; //$NON-NLS-1$
-    }
-
-    String props = writer.toString();
-    StringTokenizer tokenizer = new StringTokenizer( props, "\n" ); //$NON-NLS-1$
-    while ( tokenizer.hasMoreTokens() ) {
-      String line = tokenizer.nextToken();
-      int pos = line.indexOf( '=' );
-      if ( pos > 0 ) {
-        String propname = line.substring( 0, pos );
-        String value = line.substring( pos + 1 );
-        if ( ( value != null ) && ( value.length() > 0 ) && ( value.charAt( value.length() - 1 ) == '\r' ) ) {
-          value = value.substring( 0, value.length() - 1 );
-        }
-        if ( "URL".equalsIgnoreCase( propname ) ) { //$NON-NLS-1$
-          return value;
-        }
-
-      }
-    }
-    // No URL found
-    return ""; //$NON-NLS-1$
-
+    return repositoryService.extractUrl( file );
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
-    return whitelist;
+    return repositoryService.getWhitelist();
   }
 
   public void setWhitelist( RepositoryDownloadWhitelist whitelist ) {
-    this.whitelist = whitelist;
+    repositoryService.setWhitelist( whitelist );
+  }
+
+  protected Response buildSeeOtherResponse( URI location ) {
+    return Response.seeOther( location ).build();
+  }
+
+  protected HttpServletRequest correctPostRequest( MultivaluedMap<String, String> formParams ) {
+    return JerseyUtil.correctPostRequest( formParams, httpServletRequest );
   }
 }
