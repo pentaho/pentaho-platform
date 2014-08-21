@@ -64,7 +64,7 @@ public class AuthorizationActionResource {
     @ResponseCode( code = 200, condition = "Returns a boolean response." )
   })
   public Response validateAuth( @QueryParam( "authAction" ) String authAction ) {
-    Boolean isAllowed = new Boolean( authorizationActionService.validateAuth( authAction ) );
-    return Response.ok( isAllowed.toString() ).build();
+    boolean isAllowed = authorizationActionService.validateAuth( authAction );
+    return Response.ok( String.valueOf( isAllowed ) ).build();
   }
 }
