@@ -51,11 +51,11 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.
 public class UserRoleListResource extends AbstractJaxRSResource {
 
   private ArrayList<String> systemRoles;
-  private String adminRole;
+  protected String adminRole;
   private String anonymousRole;
   private ArrayList<String> extraRoles;
   
-  private static UserRoleListService userRoleListService;
+  protected static UserRoleListService userRoleListService;
 
   public UserRoleListResource() {
     this( PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession() ),
@@ -329,14 +329,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   })
   public Response getRolesForUser( @QueryParam( "user" ) String user ) throws Exception {
     try {
-        String roles = userRoleListService.doGetRolesForUser( user );
-        return Response.ok( roles ).type( MediaType.APPLICATION_XML )
-            .build();
-      } catch ( UnauthorizedException t ) {
-        return Response.status( UNAUTHORIZED ).build();
-      } catch ( Throwable t ) {
-        throw new WebApplicationException( t );
-      }
+      String roles = userRoleListService.doGetRolesForUser( user );
+      return buildOkResponse( roles, MediaType.APPLICATION_XML );
+    } catch ( UnauthorizedException t ) {
+      return buildStatusResponse( UNAUTHORIZED );
+    } catch ( Throwable t ) {
+      throw new WebApplicationException( t );
+    }
   }
 
   /**
@@ -374,12 +373,19 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   public Response getUsersInRole( @QueryParam( "role" ) String role ) throws Exception {
     try {
       String roles = userRoleListService.doGetUsersInRole( role );
-      return Response.ok( roles ).type( MediaType.APPLICATION_XML )
-          .build();
+      return buildOkResponse( roles, MediaType.APPLICATION_XML );
     } catch ( UnauthorizedException t ) {
-      return Response.status( UNAUTHORIZED ).build();
+      return buildStatusResponse( UNAUTHORIZED );
     } catch ( Throwable t ) {
       throw new WebApplicationException( t );
     }  
+  }
+
+  protected Response buildOkResponse( Object entity, String type ) {
+    return Response.ok( entity ).type( type ).build();
+  }
+
+  protected Response buildStatusResponse( Response.Status status ) {
+    return Response.status( status ).build();
   }
 }
