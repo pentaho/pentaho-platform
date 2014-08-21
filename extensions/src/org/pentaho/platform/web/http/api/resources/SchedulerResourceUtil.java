@@ -17,24 +17,38 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class SchedulerResourceUtil {
 
+  private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
+  
   public static IJobTrigger
-  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
+  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest )
     throws SchedulerException, UnifiedRepositoryException {
 
     // Used to determine if created by a RunInBackgroundCommand
@@ -107,6 +121,8 @@ public class SchedulerResourceUtil {
 
     } else if ( scheduleRequest.getCronJobTrigger() != null ) {
 
+      IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+
       if ( scheduler instanceof QuartzScheduler ) {
         String cronString = scheduleRequest.getCronJobTrigger().getCronString();
 
@@ -128,4 +144,89 @@ public class SchedulerResourceUtil {
 
     return jobTrigger;
   }
+  
+  public static void updateStartDateForTimeZone( JobScheduleRequest request ) {
+    if ( request.getSimpleJobTrigger() != null ) {
+      if ( request.getSimpleJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getSimpleJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
+        request.getSimpleJobTrigger().setStartTime( serverTimeZoneStartDate );
+      }
+    } else if ( request.getComplexJobTrigger() != null ) {
+      if ( request.getComplexJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getComplexJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
+        request.getComplexJobTrigger().setStartTime( serverTimeZoneStartDate );
+      }
+    } else if ( request.getCronJobTrigger() != null ) {
+      if ( request.getCronJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getCronJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
+        request.getCronJobTrigger().setStartTime( serverTimeZoneStartDate );
+      }
+    }
+  }
+
+  public static Date convertDateToServerTimeZone( Date dateTime, String timeZone ) {
+    Calendar userDefinedTime = Calendar.getInstance();
+    userDefinedTime.setTime( dateTime );
+    if ( !TimeZone.getDefault().getID().equalsIgnoreCase( timeZone ) ) {
+      logger.warn( "original defined time: " + userDefinedTime.getTime().toString() + " on tz:" + timeZone );
+      Calendar quartzStartDate = new GregorianCalendar( TimeZone.getTimeZone( timeZone ) );
+      quartzStartDate.set( Calendar.YEAR, userDefinedTime.get( Calendar.YEAR ) );
+      quartzStartDate.set( Calendar.MONTH, userDefinedTime.get( Calendar.MONTH ) );
+      quartzStartDate.set( Calendar.DAY_OF_MONTH, userDefinedTime.get( Calendar.DAY_OF_MONTH ) );
+      quartzStartDate.set( Calendar.HOUR_OF_DAY, userDefinedTime.get( Calendar.HOUR_OF_DAY ) );
+      quartzStartDate.set( Calendar.MINUTE, userDefinedTime.get( Calendar.MINUTE ) );
+      quartzStartDate.set( Calendar.SECOND, userDefinedTime.get( Calendar.SECOND ) );
+      quartzStartDate.set( Calendar.MILLISECOND, userDefinedTime.get( Calendar.MILLISECOND ) );
+      logger.warn( "adapted time for " + TimeZone.getDefault().getID() + ": " + quartzStartDate.getTime().toString() );
+      return quartzStartDate.getTime();
+    } else {
+      return dateTime;
+    }
+  }
+
+
+  public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
+                                                                    HashMap<String, Serializable> parameterMap ) {
+
+    if ( file != null && isPdiFile( file ) ) {
+
+      HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>();
+      Map<String, String> pdiParameterMap = new HashMap<String, String>();
+      convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
+
+      String type = isTransformation( file ) ? "transformation" : "job";
+      convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
+
+      Iterator<String> it = parameterMap.keySet().iterator();
+
+      while ( it.hasNext() ) {
+
+        String param = (String) it.next();
+
+        if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
+          pdiParameterMap.put( param, parameterMap.get( param ).toString() );
+        }
+      }
+
+      convertedParameterMap.put( "parameters", (Serializable) pdiParameterMap );
+      return convertedParameterMap;
+    }
+    return parameterMap;
+  }
+
+  public static boolean isPdiFile( RepositoryFile file ) {
+    return isTransformation( file ) || isJob( file );
+  }
+
+  public static boolean isTransformation( RepositoryFile file ) {
+    return file != null && "ktr".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+  }
+
+  public static boolean isJob( RepositoryFile file ) {
+    return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
+  }  
+  
 }
