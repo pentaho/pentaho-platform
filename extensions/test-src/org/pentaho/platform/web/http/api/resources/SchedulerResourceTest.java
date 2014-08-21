@@ -620,14 +620,10 @@ public class SchedulerResourceTest {
     List<Job> mockJobs = mock( List.class );
     doReturn( mockJobs ).when( schedulerResource.schedulerService ).getBlockOutJobs();
 
-    Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( mockJobs );
-
-    Response testResponse = schedulerResource.getBlockoutJobs();
-    assertEquals( mockResponse, testResponse );
+    List<Job> blockoutJobs = schedulerResource.getBlockoutJobs();
+    assertNotNull( blockoutJobs );
 
     verify( schedulerResource, times( 1 ) ).getBlockoutJobs();
-    verify( schedulerResource, times( 1 ) ).buildOkResponse( mockJobs );
   }
 
   @Test
