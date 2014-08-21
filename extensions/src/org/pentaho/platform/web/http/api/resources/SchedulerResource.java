@@ -857,7 +857,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    */
   @Deprecated
   @Facet( name = "Unsupported" )
-  public Response getJobs() {
+  public List<Job> getJobs() {
     return getBlockoutJobs();
   }
 
@@ -953,8 +953,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully retrieved blockout jobs." ),
   } )
-  public Response getBlockoutJobs() {
-    return buildOkResponse( schedulerService.getBlockOutJobs() );
+  public List<Job> getBlockoutJobs() {
+    return schedulerService.getBlockOutJobs();
   }
 
 

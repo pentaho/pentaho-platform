@@ -265,14 +265,14 @@ public class SchedulerService {
 
   public String pause() throws SchedulerException {
     if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
-      scheduler.pause();
+      getScheduler().pause();
     }
     return getScheduler().getStatus().name();
   }
 
   public String shutdown() throws SchedulerException {
     if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
-      scheduler.shutdown();
+      getScheduler().shutdown();
     }
     return getScheduler().getStatus().name();
   }
@@ -280,7 +280,7 @@ public class SchedulerService {
   public JobState pauseJob( String jobId ) throws SchedulerException {
     Job job = getJob( jobId );
     if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-      scheduler.pauseJob( jobId );
+      getScheduler().pauseJob( jobId );
     }
     job = getJob( jobId );
     return job.getState();
@@ -289,7 +289,7 @@ public class SchedulerService {
   public JobState resumeJob( String jobId ) throws SchedulerException {
     Job job = getJob( jobId );
     if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-      scheduler.resumeJob( jobId );
+      getScheduler().resumeJob( jobId );
     }
     job = getJob( jobId );
     return job.getState();
@@ -298,7 +298,7 @@ public class SchedulerService {
   public boolean removeJob( String jobId ) throws SchedulerException {
     Job job = getJob( jobId );
     if ( isScheduleAllowed() || PentahoSessionHolder.getSession().getName().equals( job.getUserName() ) ) {
-      scheduler.removeJob( jobId );
+      getScheduler().removeJob( jobId );
       return true;
     }
     return false;
@@ -486,7 +486,7 @@ public class SchedulerService {
                                                     // changed to get name via the current session
     final Boolean canAdminister = canAdminister( session );
 
-    List<Job> jobs = scheduler.getJobs( new IJobFilter() {
+    List<Job> jobs = getScheduler().getJobs( new IJobFilter() {
       public boolean accept( Job job ) {
         if ( canAdminister ) {
           return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
