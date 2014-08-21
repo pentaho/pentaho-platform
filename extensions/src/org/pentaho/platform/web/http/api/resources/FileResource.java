@@ -62,10 +62,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
-import org.codehaus.enunciate.doc.ExcludeFromDocumentation;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -145,8 +143,8 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Move a list of files to the user's trash folder.
    *
-   * <p><b>Example Request:</b><br />
-   *  PUT api/repo/files/delete
+   * <p><b>Example Request:</b><br/>
+   *   PUT api/repo/files/delete
    * </p>
    *
    * @param params Comma separated list of the files to be moved to trash folder
@@ -201,11 +199,11 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param destPathId Colon separated path for the destination path
    * <pre function="syntax.xml">
-   *    :path:to:file:id
+   *   :path:to:file:id
    * </pre>
    * @param params Comma separated list of files to be moved
    * <pre function="syntax.xml">
-   *    pathId1,pathId2,...
+   *   pathId1,pathId2,...
    * </pre>
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
@@ -237,12 +235,12 @@ public class FileResource extends AbstractJaxRSResource {
    * Restores a list of files from the user's trash folder to their previous locations.
    *
    * <p><b>Example Request:</b><br />
-   *  PUT api/repo/files/restore
+   *   PUT api/repo/files/restore
    * </p>
    *
    * @param params comma separated list of file ids to be restored
    * <pre function="syntax.xml">
-   *    pathId1,pathId2,...
+   *   pathId1,pathId2,...
    * </pre>
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
@@ -270,14 +268,14 @@ public class FileResource extends AbstractJaxRSResource {
    * Creates a new file with the provided contents at a given path
    *
    * <p><b>Example Request:</b><br />
-   *  PUT api/repo/files/path:to:file
+   * PUT api/repo/files/path:to:file
    * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
-   *               <pre function="syntax.xml">
+   *                    <pre function="syntax.xml">
    *                      :path:to:id
-   *               </pre>
+   *                    </pre>
    * @param fileContents An Input Stream with the contents of the file to be created
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
@@ -303,7 +301,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Copy selected list of files to a new specified location.
    *
    *  <p><b>Example Request:</b><br>
-   *               PUT api/repo/files/pathToDir/children?mode=2
+   *                 PUT api/repo/files/pathToDir/children?mode=2
    *               </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied
@@ -793,7 +791,10 @@ public class FileResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *   en_US
    * </pre>
-   * @return &lt;stringKeyStringValueDtoes&gt;
+   * @return
+   *
+   * <pre function="syntax.xml">
+   * &lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
    * &lt;value&gt;File Title&lt;/value&gt;
@@ -807,6 +808,7 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
    * &lt;/stringKeyStringValueDtoes&gt;
+   * </pre>
    */
   @GET
   @Path( "{pathId : .+}/localeProperties" )
@@ -836,6 +838,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   en_US
    * </pre>
    * @param properties
+   * <pre function="syntax.xml">
    * &lt;stringKeyStringValueDtoes&gt;
    * &lt;stringKeyStringValueDto&gt;
    * &lt;key&gt;file.title&lt;/key&gt;
@@ -850,7 +853,7 @@ public class FileResource extends AbstractJaxRSResource {
    * &lt;value&gt;File Title&lt;/value&gt;
    * &lt;/stringKeyStringValueDto&gt;
    * &lt;/stringKeyStringValueDtoes&gt;
-   *
+   * </pre>
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
@@ -916,7 +919,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return file properties object  RepositoryFileDto  for the root directory
    *
-   * <p>Example Response:<br/>
+   *    <p><b>Example Response:</b><br/>
    *               HTTP/1.1 200 OK
    *               </p>
    *               <pre function="syntax.xml">
@@ -966,7 +969,7 @@ public class FileResource extends AbstractJaxRSResource {
    *   permission1|permission2|permission3
    * </pre>    
    * @return List of permissions for the selected files
-   * Example Response:
+   * <b>Example Response:</b>
    *
    * <pre function="syntax.xml">
    *   {"setting":[{"name":"1","value":"true"}]}
@@ -999,7 +1002,7 @@ public class FileResource extends AbstractJaxRSResource {
    * </pre>
    * @return A collection of the permission settings for the paths
    *
-   * Example Response:
+   * <b>Example Response:</b>
    * <pre function="syntax.xml">
    *    &lt;settings&gt;
    *      &lt;setting&gt;
@@ -1093,7 +1096,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return List of characters that are reserved by the repository.
    *
-   * <p>Example Response:</p>
+   * <p><b>Example Response:</b></p>
    *   <pre function="syntax.xml">
    *   "/ \"
    *   </pre>
@@ -1166,7 +1169,7 @@ public class FileResource extends AbstractJaxRSResource {
    *               </pre>
    *
    * @return  RepositoryFileAclDto  object containing the ACL settings of the requested file
-   * <p>Example Response:
+   * <p><b>Example Response:</b>
    *               <p/>
    *               <pre function="syntax.xml">
    *                 &lt;repositoryFileAclDto&gt;
@@ -1217,10 +1220,10 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A RepositoryDto object containing the properties for the given file
    *
-   * <p>Example Response:<br/>
-   *               <pre function="syntax.xml">
-   *               {
-   *                 "createdDate":"1406732545857",
+   * <p><b>Example Response:</b><br/>
+   * <pre function="syntax.xml">
+   * {
+   *  "createdDate":"1406732545857",
    *  "description":"description",
    *  "fileSize":"1234",
    *                 "folder":"false",
@@ -1299,7 +1302,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A list of RepositoryDto objects containing the executed contents for a selected content from the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;List&gt;
    *     &lt;repositoryFileDto&gt;
@@ -1377,7 +1380,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A list of RepositoryDto objects containing the executed contents for a selected file from the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;List&gt;
    *     &lt;repositoryFileDto&gt;
@@ -1491,7 +1494,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;repositoryFileTreeDto&gt;
    *    &lt;children&gt;
@@ -1568,7 +1571,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    </pre>
    * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;repositoryFileTreeDto&gt;
    *    &lt;children&gt;
@@ -1659,7 +1662,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;repositoryFileTreeDto&gt;
    *    &lt;children&gt;
@@ -1740,7 +1743,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                    </pre>
    * @return A RepositoryFileTreeDto object containing the files at the selected repository path of the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;repositoryFileTreeDto&gt;
    *    &lt;children&gt;
@@ -1785,7 +1788,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A list of RepositoryDto objects containing the files in the trash folder of the repository.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;repositoryFileDtoes&gt;
    *    &lt;repositoryFileDto&gt;
@@ -1857,7 +1860,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
-   * <p>Example Response:<br/>
+   * <p><b>Example Response:</b><br/>
    * <pre function="syntax.xml">
    *    &lt;stringKeyStringValueDtos&gt;
    *    &lt;stringKeyStringValueDto&gt;
