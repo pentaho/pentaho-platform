@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
@@ -745,7 +746,7 @@ public class FileService {
     }
     return buffer;
   }
-  
+
   public StringBuffer doGetReservedCharactersDisplay() {
     List<Character> reservedCharacters = getRepoWs().getReservedChars();
     StringBuffer buffer = new StringBuffer();
@@ -1374,6 +1375,40 @@ public class FileService {
     }
   }
 
+  /**
+   * Creates a new folder with the specified name
+   *
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in
+   *                    place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
+   *                    <pre function="syntax.xml">
+   *                      :path:to:file
+   *                    </pre>
+   * @return            A jax-rs Response object with the appropriate status code, header, and body.
+   */
+  public boolean doCreateDir( String pathId ) {
+    String path = idToPath( pathId );
+    String[] folders = path.split( "[" + FileUtils.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
+    RepositoryFileDto parentDir = getRepoWs().getFile( FileUtils.PATH_SEPARATOR );
+    boolean dirCreated = false;
+    for ( String folder : folders ) {
+      String currentFolderPath = ( parentDir.getPath() + FileUtils.PATH_SEPARATOR + folder ).substring( 1 );
+      if ( !currentFolderPath.startsWith( FileUtils.PATH_SEPARATOR ) ) {
+        currentFolderPath = FileUtils.PATH_SEPARATOR + currentFolderPath;
+      }
+      RepositoryFileDto currentFolder = getRepoWs().getFile( currentFolderPath );
+      if ( currentFolder == null ) {
+        currentFolder = new RepositoryFileDto();
+        currentFolder.setFolder( true );
+        currentFolder.setName( decode( folder ) );
+        currentFolder.setPath( parentDir.getPath() + FileUtils.PATH_SEPARATOR + folder );
+        currentFolder = getRepoWs().createFolder( parentDir.getId(), currentFolder, currentFolderPath );
+        dirCreated = true;
+      }
+      parentDir = currentFolder;
+    }
+    return dirCreated;
+  }
+
   private String getParentPath( final String path ) {
     if ( path == null ) {
       throw new IllegalArgumentException();
@@ -1572,5 +1607,15 @@ public class FileService {
     Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
     collator.setStrength( strength ); // ignore case
     return collator;
+  }
+
+  protected String decode( String folder ) {
+    String decodeName = folder;
+    try {
+      decodeName = URLDecoder.decode( folder, "UTF-8" );
+    } catch ( Exception ex ) {
+      logger.error( ex );
+    }
+    return decodeName;
   }
 }

@@ -32,7 +32,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 
 /**
  * Converts {@code RepositoryFile} into JAXB-safe object and vice-versa.
- * 
+ *
  * @author mlowery
  */
 public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, RepositoryFile> {
@@ -40,14 +40,14 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
   private Set<String> membersSet;
   private boolean exclude;
   private boolean includeAcls;
-  
-  public RepositoryFileAdapter () {
+
+  public RepositoryFileAdapter() {
     this.exclude = false;
     this.includeAcls = false;
     this.membersSet = null;
   }
-  
-  public RepositoryFileAdapter( RepositoryRequest repositoryRequest) {
+
+  public RepositoryFileAdapter( RepositoryRequest repositoryRequest ) {
     if ( repositoryRequest.getExcludeMemberSet() != null && !repositoryRequest.getExcludeMemberSet().isEmpty() ) {
       this.exclude = true;
       this.membersSet = repositoryRequest.getExcludeMemberSet();
@@ -66,12 +66,13 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
   private static boolean include( String key, Set<String> set, boolean exclude ) {
     return !exclude && ( set == null || set.contains( key ) ) || ( exclude && !set.contains( key ) );
   }
-  
+
   public static RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude ) {
-    return toFileDto( v, memberSet, exclude, false);
+    return toFileDto( v, memberSet, exclude, false );
   }
 
-  public static RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude, boolean includeAcls ) {
+  public static RepositoryFileDto toFileDto( final RepositoryFile v, Set<String> memberSet, boolean exclude,
+                                             boolean includeAcls ) {
     if ( v == null ) {
       return null;
     }
@@ -140,7 +141,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
         f.versionId = v.getVersionId().toString();
       }
     }
-    
+
     if ( includeAcls ) {
       if ( v.getId() != null ) {
         try {
@@ -154,7 +155,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
         }
       }
     }
-    
+
     if ( include( "locales", memberSet, exclude ) ) {
       if ( v.getLocalePropertiesMap() != null ) {
         f.localePropertiesMapEntries = new ArrayList<LocaleMapDto>();
@@ -180,7 +181,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
 
     return f;
   }
-  
+
   @Override
   public RepositoryFile unmarshal( final RepositoryFileDto v ) {
     return toFile( v );
@@ -197,7 +198,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       builder = new RepositoryFile.Builder( v.name );
     }
     if ( v.ownerType != -1 ) {
-      new RepositoryFileSid( v.owner, RepositoryFileSid.Type.values()[v.ownerType] );
+      new RepositoryFileSid( v.owner, RepositoryFileSid.Type.values()[ v.ownerType ] );
     }
     if ( v.localePropertiesMapEntries != null ) {
       for ( LocaleMapDto localeMapDto : v.localePropertiesMapEntries ) {
@@ -216,12 +217,12 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     }
 
     return builder.path( v.path ).createdDate( v.createdDate ).creatorId( v.creatorId ).description( v.description )
-        .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
-        .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
-        .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
-            v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).build();
+      .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
+      .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
+      .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
+        v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).build();
   }
-  
+
   private static DefaultUnifiedRepositoryWebService getRepoWs() {
     if ( repoWs == null ) {
       repoWs = new DefaultUnifiedRepositoryWebService();
