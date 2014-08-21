@@ -566,7 +566,7 @@
         [/#list]
       [/#list]
       <p>The following resources are applicable:</p>
-      <ul>
+      <ul class="pentaho-list-unordered">
         [#list resources as resource]
         <li[#if isDeprecated(resource)] class="deprecated"[/#if]><a href="#${scrubPathToFilename(resource.@name)}">${resource.@name}</a></li>
         [/#list]
@@ -638,7 +638,7 @@
     [#list operation.parameter as parameter]
       [#if parameter_index = 0]
       <h3>Parameters</h3>
-      <table>
+      <table class="pentaho-table">
         <tr>
           <th>name</th>
           <th>description</th>
@@ -656,7 +656,7 @@
     [/#list]
     [#list operation.inValue as inValue]
       <h3>Request Body</h3>
-      <table>
+      <table class="pentaho-table">
       [#assign custom=true]
       [#list inValue.xmlElement as xmlElement]
         [#if attributeExists(xmlElement.@elementName)]
@@ -701,7 +701,7 @@
     [/#list]
     [#list operation.outValue as outValue]
       <h3>Response Body</h3>
-      <table>
+      <table class="pentaho-table">
       [#assign custom=true]
       [#list outValue.xmlElement as xmlElement]
         [#if attributeExists(xmlElement.@elementName)]
@@ -747,7 +747,7 @@
     [#list operation.statusCode as statusCode]
       [#if statusCode_index = 0]
       <h3>Status Codes</h3>
-      <table>
+      <table class="pentaho-table">
         <tr>
           <th>code</th>
           <th>description</th>
@@ -781,7 +781,7 @@
     [#list operation.responseHeader as responseHeader]
       [#if responseHeader_index = 0]
       <h3>Response Headers</h3>
-      <table>
+      <table class="pentaho-table">
         <tr>
           <th>name</th>
           <th>description</th>
@@ -871,7 +871,7 @@
         [#list method["parameter[@input='true']"] as parameter]
           [#if parameter_index = 0]
       <h3>Input Parameters</h3>
-      <table>
+      <table class="pentaho-table">
         <tr>
           <th>name</th>
           <th>type</th>
@@ -890,7 +890,7 @@
         [#list method["parameter[@output='true']"] as parameter]
           [#if parameter_index = 0]
       <h3>Output Parameters</h3>
-      <table>
+      <table class="pentaho-table">
         <tr>
           <th>name</th>
           <th>type</th>
