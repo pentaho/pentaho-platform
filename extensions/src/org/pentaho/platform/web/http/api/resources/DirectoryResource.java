@@ -19,9 +19,14 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -39,59 +44,55 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 
 @Path( "/repo/dirs/" )
 public class DirectoryResource extends AbstractJaxRSResource {
-  protected DefaultUnifiedRepositoryWebService repoWs;
+  protected FileService fileService;
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
 
   public DirectoryResource() {
     super();
+    fileService = new FileService();
+  }
 
-    repoWs = new DefaultUnifiedRepositoryWebService();
+  public DirectoryResource( HttpServletResponse httpServletResponse ) {
+    this();
+    this.httpServletResponse = httpServletResponse;
   }
 
   /**
-   * Creates a new folder with the specified name  
-   * Example: (:public:admin:test). It will create folder public --> admin --> test.
-   * If folder already exists then it skips to the next folder to be created.
-   *  
-   * @param pathId (colon seperated path to the repository file)
-   * @return 
+   * <p>Creates a new folder with the specified name</p>
+   *
+   * <p>Creates a new folder from a given path. Example: (:public:admin:test). It will create folder
+   * public --> admin --> test. If folder already exists then it skips to the next folder to be created. </p>
+   *
+   * <p><b>Example Request:</b>
+   * <br>
+   * PUT /pentaho/api/repo/dirs/pathToFile
+   * <p/>
+   *
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in
+   *                    place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
+   *                    <pre function="syntax.xml">
+   *                      :path:to:file
+   *                    </pre>
+   * @return            A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
   @Path( "{pathId : .+}" )
   @Consumes( { WILDCARD } )
+  @StatusCodes({
+    @ResponseCode( code = 200, condition = "Successfully created folder." ),
+    @ResponseCode( code = 409, condition = "Path already exists." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  })
   public Response createDirs( @PathParam( "pathId" ) String pathId ) {
-    String path = FileResource.idToPath( pathId );
-    String[] folders = path.split( "[" + FileResource.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
-    RepositoryFileDto parentDir = repoWs.getFile( FileResource.PATH_SEPARATOR );
-    boolean dirCreated = false;
-    for ( String folder : folders ) {
-      String currentFolderPath = ( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder ).substring( 1 );
-      if ( !currentFolderPath.startsWith( FileResource.PATH_SEPARATOR ) ) {
-        currentFolderPath = FileResource.PATH_SEPARATOR + currentFolderPath;
-      }
-      RepositoryFileDto currentFolder = repoWs.getFile( currentFolderPath );
-      if ( currentFolder == null ) {
-        currentFolder = new RepositoryFileDto();
-        currentFolder.setFolder( true );
-        currentFolder.setName( decode( folder ) );
-        currentFolder.setPath( parentDir.getPath() + FileResource.PATH_SEPARATOR + folder );
-        currentFolder = repoWs.createFolder( parentDir.getId(), currentFolder, currentFolderPath );
-        dirCreated = true;
-      }
-      parentDir = currentFolder;
-    }
-    return dirCreated ? Response.ok().build() : Response.status( Response.Status.CONFLICT )
-        .entity( "couldNotCreateFolderDuplicate" ).build();
-  }
-
-  private String decode( String folder ) {
-    String decodeName = folder;
     try {
-      decodeName = URLDecoder.decode( folder, "UTF-8" );
-    } catch ( Exception ex ) {
-      logger.error( ex );
+      if( fileService.doCreateDir( pathId ) ) {
+        return Response.ok().build();
+      } else {
+        return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
+      }
+    } catch ( Throwable t ) {
+      return Response.serverError().entity( t.getMessage() ).build();
     }
-    return decodeName;
   }
 }

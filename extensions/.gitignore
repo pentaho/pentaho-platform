@@ -8,3 +8,4 @@
 /etc
 derby.log
 /dev-lib
+.DS_Store

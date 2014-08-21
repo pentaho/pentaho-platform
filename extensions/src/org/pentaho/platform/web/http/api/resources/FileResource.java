@@ -1966,6 +1966,44 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * <p>Creates a new folder with the specified name</p>
+   *
+   * <p>Creates a new folder from a given path. Example: (:public:admin:test). It will create folder
+   * public --> admin --> test. If folder already exists then it skips to the next folder to be created. </p>
+   *
+   * <p><b>Example Request:</b>
+   * <br>
+   * PUT /pentaho/api/repo/files/pathToFile/createDir
+   * <p/>
+   *
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in
+   *                    place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
+   *                    <pre function="syntax.xml">
+   *                      :path:to:file
+   *                    </pre>
+   * @return            A jax-rs Response object with the appropriate status code, header, and body.
+   */
+  @PUT
+  @Path( "{pathId : .+}/createDir" )
+  @Consumes( { WILDCARD } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully created folder." ),
+    @ResponseCode( code = 409, condition = "Path already exists." ),
+    @ResponseCode( code = 500, condition = "Server Error." )
+  } )
+  public Response doCreateDirs( @PathParam( "pathId" ) String pathId ) {
+    try {
+      if ( fileService.doCreateDir( pathId ) ) {
+        return buildOkResponse();
+      } else {
+        return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
+      }
+    } catch ( Throwable t ) {
+      return buildServerErrorResponse( t.getMessage() );
+    }
+  }
+
   protected boolean isPathValid( String path ) {
     return fileService.isPathValid( path );
   }
