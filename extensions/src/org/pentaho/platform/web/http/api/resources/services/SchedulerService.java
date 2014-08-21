@@ -87,7 +87,7 @@ public class SchedulerService {
       scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
         && scheduleRequest.getCronJobTrigger() == null;
 
-    if ( !runInBackground && !policy.isAllowed( SchedulerAction.NAME ) ) {
+    if ( !runInBackground && !getPolicy().isAllowed( SchedulerAction.NAME ) ) {
       throw new SecurityException();
     }
 
@@ -199,8 +199,7 @@ public class SchedulerService {
    * @throws java.io.FileNotFoundException
    */
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule( String lineageId ) throws FileNotFoundException {
-    SessionResource sessionResource = getSessionResource();
-    return getFileService().searchGeneratedContent( sessionResource.doGetCurrentUserDir(), lineageId,
+    return getFileService().searchGeneratedContent( getSessionResource().doGetCurrentUserDir(), lineageId,
       QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
   }
 
@@ -215,7 +214,7 @@ public class SchedulerService {
   public boolean isScheduleAllowed( String id ) {
     Boolean canSchedule = isScheduleAllowed();
     if ( canSchedule ) {
-      Map<String, Serializable> metadata = repository.getFileMetadata( id );
+      Map<String, Serializable> metadata = getRepository().getFileMetadata( id );
       if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
         canSchedule = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
       }

@@ -102,6 +102,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </pre>
    *
    * @return A jax-rs Response object with the created jobId
+   *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  username	JobName	1405356465422
    * </pre>
@@ -146,6 +148,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </pre>
    *
    * @return A Response object indicating the status of the scheduler
+   *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  NORMAL
    * </pre>
@@ -176,6 +180,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </p>
    *
    * @return A Job object containing the definition of the content cleaner job
+   *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;job&gt;
    *    &lt;groupName&gt;admin&lt;/groupName&gt;
@@ -247,6 +253,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A list of jobs that are visible to the current users
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;jobs&gt;
    *   &lt;job&gt;
@@ -356,6 +363,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A list of jobs that are visible to the current users
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;jobs&gt;
    *   &lt;job&gt;
@@ -469,6 +477,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the file.
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  true
    * </pre>
@@ -493,6 +502,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the user.
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *   true
    * </pre>
@@ -517,6 +527,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return status of the scheduler as RUNNING or PAUSED
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  RUNNING
    * </pre>
@@ -546,6 +557,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduler
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  RUNNING
    * </pre>
@@ -575,6 +587,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduler
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  PAUSED
    * </pre>
@@ -604,6 +617,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduler
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  PAUSED
    * </pre>
@@ -640,6 +654,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduled job
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  NORMAL
    * </pre>
@@ -678,6 +693,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduled job
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  PAUSED
    * </pre>
@@ -715,6 +731,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduled job
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  NORMAL
    * </pre>
@@ -752,6 +769,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A jax-rs Response object containing the status of the scheduled job
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  REMOVED
    * </pre>
@@ -787,6 +805,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @param asCronString Cron string (Unused)
    * @return A Job object containing the info for the specified job
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;job&gt;
    *    &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408387651641&lt;/jobId&gt;
@@ -871,6 +890,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return A Response object that contains a list of blockout jobs
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;jobs&gt;
    *    &lt;job&gt;
@@ -967,6 +987,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return true or false whether there are blackouts or not
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *    true
    * </pre>
@@ -1012,6 +1033,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return a Response object which contains the ID of the blockout which was created
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  admin	BlockoutAction	1408459814192
    * </pre>
@@ -1071,6 +1093,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return a Response object which contains the ID of the blockout which was created
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  admin	BlockoutAction	1408473190419
    * </pre>
@@ -1125,6 +1148,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return true or false indicating whether or not the blockout will fire
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *   true
    * </pre>
@@ -1158,6 +1182,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return true or false whether or not the blockout should fire now
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *   true
    * </pre>
@@ -1204,6 +1229,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags
    *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;blockStatusProxy&gt;
    *    &lt;partiallyBlocked&gt;true&lt;/partiallyBlocked&gt;
@@ -1239,7 +1265,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *  :path:to:file:id
    * </pre>
+   *
    * @return list of RepositoryFileDto objects
+   *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;List&gt;
    *   &lt;repositoryFileDto&gt;
