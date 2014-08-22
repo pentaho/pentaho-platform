@@ -48,7 +48,7 @@ public class SchedulerResourceUtil {
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
   
   public static IJobTrigger
-  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest )
+  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
     throws SchedulerException, UnifiedRepositoryException {
 
     // Used to determine if created by a RunInBackgroundCommand
@@ -120,8 +120,6 @@ public class SchedulerResourceUtil {
       jobTrigger = complexJobTrigger;
 
     } else if ( scheduleRequest.getCronJobTrigger() != null ) {
-
-      IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
 
       if ( scheduler instanceof QuartzScheduler ) {
         String cronString = scheduleRequest.getCronJobTrigger().getCronString();

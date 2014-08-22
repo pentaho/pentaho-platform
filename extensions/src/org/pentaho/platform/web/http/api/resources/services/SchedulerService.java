@@ -65,7 +65,7 @@ import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
 public class SchedulerService {
 
-  protected IScheduler scheduler;
+  protected IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
 
   protected IAuthorizationPolicy policy;
 
@@ -125,7 +125,8 @@ public class SchedulerService {
     }
 
     Job job = null;
-    IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest  );
+
+    IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest,scheduler);
 
     HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
     for ( JobScheduleParam param : scheduleRequest.getJobParameters() ) {
@@ -393,7 +394,7 @@ public class SchedulerService {
 
   protected IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest jobScheduleRequest )
     throws SchedulerException {
-    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest );
+    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( jobScheduleRequest, scheduler );
   }
 
   public JobScheduleRequest getJobInfo() {
