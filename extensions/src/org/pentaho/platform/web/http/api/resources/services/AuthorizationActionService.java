@@ -31,6 +31,10 @@ public class AuthorizationActionService {
     this.authActionList = authActionList;
   }
 
+ public AuthorizationActionService() {
+
+ }
+
   public boolean validateAuth( String authAction ) {
 
     boolean isAllowed = false;

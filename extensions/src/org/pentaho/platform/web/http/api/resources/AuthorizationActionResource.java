@@ -45,6 +45,10 @@ public class AuthorizationActionResource {
     this.authorizationActionService = new AuthorizationActionService( authActionList );
   }
 
+    public AuthorizationActionResource() {
+        this.authorizationActionService = new AuthorizationActionService();
+    }
+
   /**
    * Validates if a current user is authorized to perform a specific action
    *
@@ -64,7 +68,7 @@ public class AuthorizationActionResource {
     @ResponseCode( code = 200, condition = "Returns a boolean response." )
   })
   public Response validateAuth( @QueryParam( "authAction" ) String authAction ) {
-    boolean isAllowed = authorizationActionService.validateAuth( authAction );
-    return Response.ok( String.valueOf( isAllowed ) ).build();
+      return Response.ok((String.valueOf(authorizationActionService.validateAuth(authAction)))).build();
   }
+
 }
