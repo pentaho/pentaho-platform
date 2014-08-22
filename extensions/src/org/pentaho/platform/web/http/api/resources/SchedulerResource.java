@@ -1358,6 +1358,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   protected IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest request ) throws SchedulerException {
-    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request );
+    return SchedulerResourceUtil.convertScheduleRequestToJobTrigger( request, schedulerService.getScheduler());
   }
 }
