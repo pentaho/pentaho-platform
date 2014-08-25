@@ -21,6 +21,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -84,114 +86,128 @@ public class RepositoryResource extends AbstractJaxRSResource {
         return fileResource.doGetFileOrDir( pathId );
     }
 
+    /**
+     * Takes a pathId to a file and generates a URI that represents the URL to call to generate content from that file.
+     *
+     * <p><b>Example Request:</b><br />
+     *  GET api/repos/:path:to:file/default
+     * </p>
+     *
+     * @param pathId @param pathId
+     * <pre function="syntax.xml">
+     *  :path:to:fileId
+     * </pre>
+     *
+     * @return URI that represents a forwarding URL to execute to generate content from the file (pathId)
+     * @throws FileNotFoundException, MalformedURLException, URISyntaxException
+     */
     @GET
     @Path( "{pathId : .+}/default" )
     @Produces( { WILDCARD } )
     public Response doExecuteDefault( @PathParam( "pathId" ) String pathId ) throws FileNotFoundException,
-            MalformedURLException, URISyntaxException {
-        String perspective = null;
-        StringBuffer buffer = null;
-        String url = null;
-        String path = FileResource.idToPath( pathId );
-        String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
-        IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-        IContentInfo info = pluginManager.getContentTypeInfo( extension );
-        for ( IPluginOperation operation : info.getOperations() ) {
-            if ( operation.getId().equalsIgnoreCase( "RUN" ) ) { //$NON-NLS-1$
-                perspective = operation.getPerspective();
-                break;
-            }
+      MalformedURLException, URISyntaxException {
+      String perspective = null;
+      StringBuffer buffer = null;
+      String url = null;
+      String path = FileResource.idToPath( pathId );
+      String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
+      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
+      IContentInfo info = pluginManager.getContentTypeInfo( extension );
+      for ( IPluginOperation operation : info.getOperations() ) {
+        if ( operation.getId().equalsIgnoreCase( "RUN" ) ) { //$NON-NLS-1$
+          perspective = operation.getPerspective();
+          break;
         }
-        if ( perspective == null ) {
-            perspective = GENERATED_CONTENT_PERSPECTIVE;
-        }
+      }
+      if ( perspective == null ) {
+        perspective = GENERATED_CONTENT_PERSPECTIVE;
+      }
 
-        buffer = httpServletRequest.getRequestURL();
-        String queryString = httpServletRequest.getQueryString();
-        url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
-                ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
-        return Response.seeOther( ( new URL( url ) ).toURI() ).build();
+      buffer = httpServletRequest.getRequestURL();
+      String queryString = httpServletRequest.getQueryString();
+      url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
+        ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
+      return Response.seeOther( ( new URL( url ) ).toURI() ).build();
     }
 
     /**
-     * Services a HTTP form POST request for a resource identified by the compound key <code>contextId</code>, and
-     * <code>resourceId</code>
-     * <p/>
-     * <code>contextId</code> may be one of:
-     * <p/>
-     * A. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br> B. repository
-     * file extension, e.g. <code>prpt</code><br> C. plugin id</li>
-     * <p/>
-     * <code>resourceId</code> may be one of:
-     * <p/>
-     * 1. static file residing in a publicly visible plugin folder</br> 2. repository file id (colon-delimited path), e.g.
-     * <code>:public:steel-wheels:sales.prpt</code></br> 3. content generator id</br>
-     * <p/>
-     * The resolution order is as follows, the first to find the resource wins: <ol> <li>A1</li> <li>A2</li> <li>A3</li>
-     * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
+     * Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
      *
-     * @param contextId  identifies the context in which the resource should be retrieved
-     * @param resourceId identifies a resource to be retrieved
-     * @param formParams any arguments needed to render the resource
-     * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
-     * returned to the caller
+     * <p><b>Example Request:</b><br />
+     *  POST api/repos/path:to:file/pluginFolder
+     * </p>
+     *
+     * @param contextId Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID
+     * <pre function="syntax.xml">
+     *  :path:to:file
+     * </pre>
+     * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
+     * <pre function="syntax.xml">
+     *  pluginFolder
+     * </pre>
+     *
+     * @param formParams  Any arguments needed to render the resource
+     * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
      */
     @Path( "/{contextId}/{resourceId : .+}" )
     @POST
     @Consumes( APPLICATION_FORM_URLENCODED )
     @Produces( { WILDCARD } )
-    public Response doFormPost( @PathParam( "contextId" ) String contextId, @PathParam( "resourceId" ) String resourceId,
+    @StatusCodes( {
+      @ResponseCode( code = 200, condition = "Successfully get the resource." ),
+      @ResponseCode( code = 404, condition = "Failed to find the resource." )
+    } )
+    public Response doFormPost( @PathParam("contextId") String contextId, @PathParam("resourceId") String resourceId,
                                 final MultivaluedMap<String, String> formParams )
-            throws ObjectFactoryException, PluginBeanException,
-            IOException, URISyntaxException {
+      throws ObjectFactoryException, PluginBeanException,
+      IOException, URISyntaxException {
 
-        httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
+      httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
 
-        if ( logger.isDebugEnabled() ) {
-            for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
-                logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
-            }
+      if ( logger.isDebugEnabled() ) {
+        for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
+          logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
         }
+      }
 
-        return doService( contextId, resourceId );
+      return doService( contextId, resourceId );
     }
 
     /**
-     * Services a HTTP GET request for a resource identified by the compound key <code>contextId</code>, and
-     * <code>resourceId</code>. Any HTTP request params are pulled from the GET request and used in rendering the
-     * resource.
-     * <p/>
-     * <code>contextId</code> may be one of:
-     * <p/>
-     * A. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br> B. repository
-     * file extension, e.g. <code>prpt</code><br> C. plugin id</li>
-     * <p/>
-     * <code>resourceId</code> may be one of:
-     * <p/>
-     * 1. static file residing in a publicly visible plugin folder</br> 2. repository file id (colon-delimited path), e.g.
-     * <code>:public:steel-wheels:sales.prpt</code></br> 3. content generator id</br>
-     * <p/>
-     * The resolution order is as follows, the first to find the resource wins: <ol> <li>A1</li> <li>A2</li> <li>A3</li>
-     * <li>B1</li> <li>B3</li> <li>C1</li> <li>C3</li> </ol>
+     * Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
      *
-     * @param contextId  identifies the context in which the resource should be retrieved
-     * @param resourceId identifies a resource to be retrieved
-     * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation <b>after</b> it it is
-     * returned to the caller
+     * <p><b>Example Request:</b><br />
+     *  POST api/repos/path:to:file/pluginFolder
+     * </p>
+     *
+     * @param contextId Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID
+     * <pre function="syntax.xml">
+     *  :path:to:file
+     * </pre>
+     * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
+     * <pre function="syntax.xml">
+     *  pluginFolder
+     * </pre>
+     *
+     * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
      */
     @Path( "/{contextId}/{resourceId : .+}" )
     @GET
     @Produces( { WILDCARD } )
+    @StatusCodes( {
+      @ResponseCode( code = 200, condition = "Successfully get the resource." ),
+      @ResponseCode( code = 404, condition = "Failed to find the resource." )
+    } )
     public Response doGet( @PathParam( "contextId" ) String contextId, @PathParam( "resourceId" ) String resourceId )
-            throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
+      throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
-        if ( logger.isDebugEnabled() ) {
-            for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
-                logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
-            }
+      if ( logger.isDebugEnabled() ) {
+        for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
+          logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
         }
+      }
 
-        return doService( contextId, resourceId );
+      return doService( contextId, resourceId );
     }
 
     /**
