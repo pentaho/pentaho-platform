@@ -36,7 +36,7 @@ import org.pentaho.platform.web.http.api.resources.services.AuthorizationActionS
  *
  * @author rmansoor
  */
-@Path( "/authorization/action" )
+@Path ( "/authorization/action" )
 public class AuthorizationActionResource {
 
   private AuthorizationActionService authorizationActionService;
@@ -45,30 +45,29 @@ public class AuthorizationActionResource {
     this.authorizationActionService = new AuthorizationActionService( authActionList );
   }
 
-    public AuthorizationActionResource() {
-        this.authorizationActionService = new AuthorizationActionService();
-    }
+  public AuthorizationActionResource() {
+    this.authorizationActionService = new AuthorizationActionService();
+  }
 
   /**
    * Validates if a current user is authorized to perform a specific action
-   *
+   * <p/>
    * <p><b>Example Request:</b></p>
    * <pre function="syntax.xml">
-   *  GET api/authorization/action/isauthorized
+   * GET api/authorization/action/isauthorized
    * </pre>
    *
    * @param authAction Authorization Action to be validated for the current user
-   *
    * @return A boolean response based on the current user being authorized to perform a specific action within the system.
    */
   @GET
-  @Path( "/isauthorized" )
-  @Produces( { MediaType.TEXT_PLAIN } )
-  @StatusCodes({
-    @ResponseCode( code = 200, condition = "Returns a boolean response." )
-  })
-  public Response validateAuth( @QueryParam( "authAction" ) String authAction ) {
-      return Response.ok((String.valueOf(authorizationActionService.validateAuth(authAction)))).build();
+  @Path ( "/isauthorized" )
+  @Produces ( { MediaType.TEXT_PLAIN } )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns a boolean response." )
+  } )
+  public Response validateAuth( @QueryParam ( "authAction" ) String authAction ) {
+    return Response.ok( ( String.valueOf( authorizationActionService.validateAuth( authAction ) ) ) ).build();
   }
 
 }
