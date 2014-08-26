@@ -108,11 +108,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   private String dataSourcesConfig;
 
   /**
-   * true to use schema name from catalog definition (aka schema file) as catalog name.
-   */
-  private boolean useSchemaNameAsCatalogName = true;
-
-  /**
    * Holds the additional catalog information
    */
   private Map<String, MondrianCatalogComplementInfo> catalogComplementInfoMap;
@@ -747,8 +742,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             MondrianSchema schema = makeSchema( docAtUrlToString( catalog.definition, pentahoSession ) );
 
             MondrianCatalog mondrianCatalog =
-              new MondrianCatalog( useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
-                catalog.dataSourceInfo, catalog.definition, schema );
+              new MondrianCatalog( catalog.name, catalog.dataSourceInfo, catalog.definition, schema );
 
             catalogs.put( mondrianCatalog.getName(), mondrianCatalog );
             catalogs.put( mondrianCatalog.getDefinition(), mondrianCatalog );
@@ -784,7 +778,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             MondrianCatalogComplementInfo catalogComplementInfo = getCatalogComplementInfoMap( catalog.definition );
 
             MondrianCatalog mondrianCatalog =
-              new MondrianCatalog( useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
+              new MondrianCatalog( catalog.name,
                 catalog.dataSourceInfo, catalog.definition, schema, catalogComplementInfo );
 
             localCatalogs.add( mondrianCatalog );
@@ -957,14 +951,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         "MondrianCatalogHelper.ERROR_0012_FILESYSTEM_PROBLEM" ), e ); //$NON-NLS-1$
     }
 
-  }
-
-  public boolean isUseSchemaNameAsCatalogName() {
-    return useSchemaNameAsCatalogName;
-  }
-
-  public void setUseSchemaNameAsCatalogName( final boolean useSchemaNameAsCatalogName ) {
-    this.useSchemaNameAsCatalogName = useSchemaNameAsCatalogName;
   }
 
   public static int addToCatalog( String baseUrl, boolean enableXmla, String schemaSolutionPath,
