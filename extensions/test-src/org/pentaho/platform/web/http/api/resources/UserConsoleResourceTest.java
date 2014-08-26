@@ -49,13 +49,13 @@ public class UserConsoleResourceTest {
     doReturn( isAdministrator ).when( userConsoleResource.userConsoleService ).isAdministrator();
 
     Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( userConsoleResource ).buildOkResponse( isAdministrator );
+    doReturn( mockResponse ).when( userConsoleResource ).buildOkResponse( String.valueOf( isAdministrator ) );
 
     Response testResponse = userConsoleResource.isAdministrator();
     assertEquals( mockResponse, testResponse );
 
     verify( userConsoleResource.userConsoleService, times( 1 ) ).isAdministrator();
-    verify( userConsoleResource, times( 1 ) ).buildOkResponse( isAdministrator );
+    verify( userConsoleResource, times( 1 ) ).buildOkResponse( String.valueOf( isAdministrator ) );
   }
 
   @Test
@@ -64,12 +64,12 @@ public class UserConsoleResourceTest {
     doReturn( isAuthenticated ).when( userConsoleResource.userConsoleService ).isAuthenticated();
 
     Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( userConsoleResource ).buildOkResponse( isAuthenticated );
+    doReturn( mockResponse ).when( userConsoleResource ).buildOkResponse( String.valueOf( isAuthenticated ) );
 
     Response testResponse = userConsoleResource.isAuthenticated();
     assertEquals( mockResponse, testResponse );
 
     verify( userConsoleResource.userConsoleService, times( 1 ) ).isAuthenticated();
-    verify( userConsoleResource, times( 1 ) ).buildOkResponse( isAuthenticated );
+    verify( userConsoleResource, times( 1 ) ).buildOkResponse( String.valueOf( isAuthenticated ) );
   }
 }
