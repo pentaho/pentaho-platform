@@ -87,7 +87,12 @@ public class JsJob extends JavaScriptObject {
     if ( resource == null || "".equals( resource ) ) {
       return getJobName();
     }
-    resource = resource.substring( resource.indexOf( "/" ), resource.indexOf( ":" ) );
+    if ( getJobName().contains( ":" ) ) {
+      resource = resource.substring( resource.indexOf( "/" ), resource.indexOf( ":outputFile = /" ) );
+    }
+    else {
+      resource = resource.substring( resource.indexOf( "/" ), resource.indexOf( ":" ) );
+    }
     return resource;
   }
 
