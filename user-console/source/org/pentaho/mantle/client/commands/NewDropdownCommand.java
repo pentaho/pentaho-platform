@@ -34,10 +34,12 @@ import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
@@ -179,6 +181,10 @@ public class NewDropdownCommand extends AbstractCommand {
                   popup.hide();
                 }
               } );
+              String name = sorted.get( i ).getName();
+              if ("data-access".equals(name)) {
+                  buttonPanel.add(new HTML("<hr/>"));
+              }
               buttonPanel.add( button );
             }
             popup.setPopupPosition( anchorWidget.getAbsoluteLeft(), anchorWidget.getAbsoluteTop()
