@@ -98,11 +98,11 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/isAdministrator" )
-  @StatusCodes({
-          @ResponseCode( code = 200, condition = "Returns the boolean response"),
-  })
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Returns the boolean response")
+  } )
   public Response isAdministrator() {
-    return buildOkResponse( userConsoleService.isAdministrator() );
+    return buildOkResponse( String.valueOf( userConsoleService.isAdministrator() ) );
   }
 
   /**
@@ -116,11 +116,11 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/isAuthenticated" )
-  @StatusCodes({
-          @ResponseCode( code = 200, condition = "Returns the boolean response"),
-  })
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Returns the boolean response" )
+  } )
   public Response isAuthenticated() {
-    return buildOkResponse( userConsoleService.isAuthenticated() );
+    return buildOkResponse( String.valueOf( userConsoleService.isAuthenticated() ) );
   }
 
   /**
