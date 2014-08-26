@@ -22,6 +22,7 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
     overlayId: "launch",
     serviceUrlOverlays: "api/plugin-manager/overlays",
     buttonTemplate: "<button></button>",
+    hrTemplate: "<hr/>",
     bootstrapButtonClasses: "btn btn-large btn-block nobreak",
     marketplaceOnClick: "parent.mantle_setPerspective('marketplace.perspective');$('#btnCreateNew').popover('hide')",
     marketplaceButtonText: "Add options via Marketplace",
@@ -90,6 +91,7 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
             if (buttonId === 'createNewdatasourceButton') {
               // check permission for createNewdatasourceButton only
               if (hasDataAccess) {
+                $content.push($(myself.hrTemplate));
                 $content.push($button);
               }
             } else {
