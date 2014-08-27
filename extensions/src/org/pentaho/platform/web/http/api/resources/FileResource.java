@@ -156,6 +156,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/delete" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully moved file to trash." ),
       @ResponseCode ( code = 500, condition = "Failure move the file to the trash." )
@@ -210,6 +211,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "{pathId : .+}/move" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully moved the file." ),
       @ResponseCode ( code = 403, condition = "Failure to move the file due to path not found." ),
@@ -244,6 +246,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/restore" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully restored the file." ),
       @ResponseCode ( code = 403, condition = "Failure to Restore the file." ),
@@ -314,6 +317,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "{pathId : .+}/children" )
   @Consumes ( { TEXT_PLAIN } )
+  @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully copied the file." ),
       @ResponseCode ( code = 500, condition = "Failure to Copy file due to exception while getting file with id fileid..." ),
