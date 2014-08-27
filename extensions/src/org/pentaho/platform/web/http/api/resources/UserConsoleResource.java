@@ -102,7 +102,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
           @ResponseCode( code = 200, condition = "Returns the boolean response"),
   })
   public Response isAdministrator() {
-    return buildOkResponse( userConsoleService.isAdministrator() );
+    return buildOkResponse( "" + userConsoleService.isAdministrator() );
   }
 
   /**
@@ -120,7 +120,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
           @ResponseCode( code = 200, condition = "Returns the boolean response"),
   })
   public Response isAuthenticated() {
-    return buildOkResponse( userConsoleService.isAuthenticated() );
+    return buildOkResponse( "" + userConsoleService.isAuthenticated() );
   }
 
   /**
