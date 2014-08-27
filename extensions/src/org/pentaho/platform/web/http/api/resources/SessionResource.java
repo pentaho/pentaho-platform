@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -98,6 +99,7 @@ public class SessionResource extends AbstractJaxRSResource {
   @GET
   @Path( "/setredirect" )
   @Produces( TEXT_PLAIN )
+  @Facet ( name = "Unsupported" )
   public Response setredirect() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     pentahoSession.setAttribute( "redirect", true );
