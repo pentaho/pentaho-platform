@@ -57,7 +57,7 @@ public class OSGIBoot implements IPentahoSystemListener {
     final String sep = File.separator;
 
     // set the location of the log4j config file, since OSGI won't pick up the one in webapp
-    System.setProperty( "log4j.configuration", "file:" + solutionRootPath + "/system/osgi/log4j.xml" );
+    System.setProperty( "log4j.configuration", "file://" + solutionRootPath + "/system/osgi/log4j.xml" );
     // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
     // same one used when instatiating appenders.
     System.setProperty( "log4j.ignoreTCL", "true" );
