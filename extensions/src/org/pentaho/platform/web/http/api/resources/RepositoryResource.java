@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -80,6 +81,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Path ( "{pathId : .+}/content" )
   @Produces ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response doGetFileOrDir( @PathParam ( "pathId" ) String pathId ) throws FileNotFoundException {
     FileResource fileResource = new FileResource( httpServletResponse );
     fileResource.setWhitelist( whitelist );
@@ -215,6 +217,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @Path ( "/executableTypes" )
   @GET
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response getExecutableTypes() {
     ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
     for ( String contentType : pluginManager.getContentTypes() ) {
