@@ -19,6 +19,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IContentInfo;
@@ -130,6 +131,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/getAdminContent" )
+  @Facet ( name = "Unsupported" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public List<Setting> getAdminContent() {
 
@@ -177,6 +179,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path( "/settings" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Facet ( name = "Unsupported" )
   public List<Setting> getMantleSettings() {
     ArrayList<Setting> settings = new ArrayList<Setting>();
     settings
@@ -249,6 +252,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/cubes" )
+  @Facet ( name = "Unsupported" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public List<Cube> getMondrianCatalogs() {
     ArrayList<Cube> cubes = new ArrayList<Cube>();
@@ -275,6 +279,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    */
   @POST
   @Path( "/locale" )
+  @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
     return new SystemResource().setLocaleOverride( locale );
   }
@@ -286,12 +291,14 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/locale" )
+  @Facet ( name = "Unsupported" )
   public Response getLocale() {
     return new  SystemResource().getLocale();
   }
 
   @POST
   @Path( "/session-variable" )
+  @Facet ( name = "Unsupported" )
   public Response setSessionVariable( @QueryParam( "key" ) String key, @QueryParam( "value" ) String value ) {
     if ( setSessionVarWhiteList.contains( key ) ) {
       IPentahoSession session = UserConsoleService.getPentahoSession();
@@ -303,6 +310,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   @GET
   @Path( "/session-variable" )
+  @Facet ( name = "Unsupported" )
   public Response getSessionVariable( @QueryParam( "key" ) String key ) {
     if ( getSessionVarWhiteList.contains( key ) ) {
       return Response.ok( UserConsoleService.getPentahoSession().getAttribute( key ) ).build();
@@ -312,6 +320,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   @DELETE
   @Path( "/session-variable" )
+  @Facet ( name = "Unsupported" )
   public Response clearSessionVariable( @QueryParam( "key" ) String key ) {
     return Response.ok( UserConsoleService.getPentahoSession().removeAttribute( key ) ).build();
   }
