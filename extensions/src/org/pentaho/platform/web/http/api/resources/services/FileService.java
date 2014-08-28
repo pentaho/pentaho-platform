@@ -1596,8 +1596,8 @@ public class FileService {
     }
   }
 
-  protected RepositoryRequest getRepositoryRequest( RepositoryFileDto repositoryFileDto, boolean showHidden,
-                                                    String filter, boolean includeAcls ) {
+  protected RepositoryRequest getRepositoryRequest( RepositoryFileDto repositoryFileDto, Boolean showHidden,
+                                                    String filter, Boolean includeAcls ) {
     RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
     repositoryRequest.setIncludeAcls( includeAcls );
     return repositoryRequest;
