@@ -183,7 +183,7 @@ public class NewDropdownCommand extends AbstractCommand {
               } );
               String name = sorted.get( i ).getName();
               if ("data-access".equals(name)) {
-                  buttonPanel.add(new HTML("<hr/>"));
+                  buttonPanel.add(new HTML("<hr style='color: #a7a7a7' />"));
               }
               buttonPanel.add( button );
             }
