@@ -82,6 +82,18 @@ public class Emailer {
     }
   }
 
+  public String getTo() {
+    return props.getProperty( "to" );
+  }
+
+  public String getCc() {
+    return props.getProperty( "cc" );
+  }
+
+  public String getBcc() {
+    return props.getProperty( "bcc" );
+  }
+
   public void setSubject( String subject ) {
     props.put( "subject", subject );
   }
