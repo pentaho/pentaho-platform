@@ -291,7 +291,16 @@
 			if(!popup_init){
 				var tmp = $.fn.popover.Constructor.prototype.show; 
 				$.fn.popover.Constructor.prototype.show = function () {
-				  tmp.call(this);  
+				  tmp.call(this);
+
+				  //Keep the popover from running off the screen
+				  var offset = 5;
+				  var top = this.$element.offset().top;
+				  var height =  this.$element.outerHeight();
+				  var topOffset = top-offset;
+				  $('.popover').css('top', topOffset+"px");
+				  $('.arrow').css('top', offset + height / 2);
+
 				  if (!$('.popover-title').html()) 
 						$('.popover-title').hide();
 				}; 
