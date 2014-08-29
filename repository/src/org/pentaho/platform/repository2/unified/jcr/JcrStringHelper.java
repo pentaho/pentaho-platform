@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 
 /**
@@ -33,7 +34,11 @@ public class JcrStringHelper {
    * @return
    */
   public static String fileNameEncode(String fileName) {
-    return Text.escapeIllegalJcrChars( fileName );
+    return ISO9075.encode( Text.escapeIllegalJcrChars( fileName ) );
+  }
+
+  public static String idEncode(String id) {
+    return Text.escapeIllegalJcrChars( id );
   }
 
   /**
@@ -42,7 +47,7 @@ public class JcrStringHelper {
    * @return
    */
   public static String fileNameDecode(String encodedFileName) {
-    return Text.unescapeIllegalJcrChars( encodedFileName );
+    return ISO9075.decode( Text.unescapeIllegalJcrChars( encodedFileName ) );
   }
 
   /**
