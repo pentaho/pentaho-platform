@@ -96,59 +96,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
 
 
   protected DataSource getJndiDataSource( final String dsName ) throws DBDatasourceServiceException {
-
-    try {
-      InitialContext ctx = new InitialContext();
-      Object lkup = null;
-      DataSource rtn = null;
-      NamingException firstNe = null;
-      // First, try what they ask for...
-      try {
-        lkup = ctx.lookup( dsName );
-        if ( lkup != null ) {
-          rtn = (DataSource) lkup;
-          return rtn;
-        }
-      } catch ( NamingException ignored ) {
-        firstNe = ignored;
-      }
-      try {
-        // Needed this for Jboss
-        lkup = ctx.lookup( "java:" + dsName ); //$NON-NLS-1$
-        if ( lkup != null ) {
-          rtn = (DataSource) lkup;
-          return rtn;
-        }
-      } catch ( NamingException ignored ) {
-        //ignored
-      }
-      try {
-        // Tomcat
-        lkup = ctx.lookup( "java:comp/env/jdbc/" + dsName ); //$NON-NLS-1$
-        if ( lkup != null ) {
-          rtn = (DataSource) lkup;
-          return rtn;
-        }
-      } catch ( NamingException ignored ) {
-        //ignored
-      }
-      try {
-        // Others?
-        lkup = ctx.lookup( "jdbc/" + dsName ); //$NON-NLS-1$
-        if ( lkup != null ) {
-          rtn = (DataSource) lkup;
-          return rtn;
-        }
-      } catch ( NamingException ignored ) {
-        //ignored
-      }
-      if ( firstNe != null ) {
-        throw new DBDatasourceServiceException( firstNe );
-      }
-      throw new DBDatasourceServiceException( dsName );
-    } catch ( NamingException ne ) {
-      throw new DBDatasourceServiceException( ne );
-    }
+    return PooledDatasourceHelper.getJndiDataSource( dsName );
   }
 
   /**
