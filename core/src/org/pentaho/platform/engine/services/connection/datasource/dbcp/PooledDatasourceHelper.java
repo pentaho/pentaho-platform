@@ -18,9 +18,14 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import java.util.Map;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.apache.commons.dbcp.AbandonedConfig;
 import org.apache.commons.dbcp.AbandonedObjectPool;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp.PoolableConnectionFactory;
@@ -43,9 +48,6 @@ import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.Isolation;
-
-import javax.sql.DataSource;
-import java.util.Map;
 
 public class PooledDatasourceHelper {
 
@@ -308,4 +310,61 @@ public class PooledDatasourceHelper {
 
     return basicDatasource;
   }
+
+  public static DataSource getJndiDataSource( final String dsName ) throws DBDatasourceServiceException {
+
+    try {
+      InitialContext ctx = new InitialContext();
+      Object lkup = null;
+      DataSource rtn = null;
+      NamingException firstNe = null;
+      // First, try what they ask for...
+      try {
+        lkup = ctx.lookup( dsName );
+        if ( lkup != null ) {
+          rtn = (DataSource) lkup;
+          return rtn;
+        }
+      } catch ( NamingException ignored ) {
+        firstNe = ignored;
+      }
+      try {
+        // Needed this for Jboss
+        lkup = ctx.lookup( "java:" + dsName ); //$NON-NLS-1$
+        if ( lkup != null ) {
+          rtn = (DataSource) lkup;
+          return rtn;
+        }
+      } catch ( NamingException ignored ) {
+        //ignored
+      }
+      try {
+        // Tomcat
+        lkup = ctx.lookup( "java:comp/env/jdbc/" + dsName ); //$NON-NLS-1$
+        if ( lkup != null ) {
+          rtn = (DataSource) lkup;
+          return rtn;
+        }
+      } catch ( NamingException ignored ) {
+        //ignored
+      }
+      try {
+        // Others?
+        lkup = ctx.lookup( "jdbc/" + dsName ); //$NON-NLS-1$
+        if ( lkup != null ) {
+          rtn = (DataSource) lkup;
+          return rtn;
+        }
+      } catch ( NamingException ignored ) {
+        //ignored
+      }
+      if ( firstNe != null ) {
+        throw new DBDatasourceServiceException( firstNe );
+      }
+      throw new DBDatasourceServiceException( dsName );
+    } catch ( NamingException ne ) {
+      throw new DBDatasourceServiceException( ne );
+    }
+  }
+
 }
