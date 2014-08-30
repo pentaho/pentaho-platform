@@ -38,6 +38,7 @@ import org.pentaho.metadata.model.SqlPhysicalModel;
 import org.pentaho.metadata.query.BaseMetadataQueryExec;
 import org.pentaho.metadata.query.impl.sql.MappedQuery;
 import org.pentaho.metadata.query.impl.sql.SqlGenerator;
+import org.pentaho.metadata.query.model.Parameter;
 import org.pentaho.metadata.query.model.Query;
 import org.pentaho.metadata.util.DatabaseMetaUtil;
 import org.pentaho.metadata.util.ThinModelConverter;
@@ -113,6 +114,15 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
         logger.error( Messages.getInstance().getErrorString( "SQLBaseComponent.ERROR_0007_NO_CONNECTION" ) ); //$NON-NLS-1$
         // TODO: throw an exception up the stack.
         return null;
+      }
+
+      // Make sure all parameters are of the correct type.
+      // Fix for PDB-1753
+      for ( Parameter param : queryObject.getParameters() ) {
+        String pName = param.getName();
+        if ( parameters.containsKey( pName ) && !parameters.get( pName ).getClass().isArray() ) {
+          parameters.put( pName, this.convertParameterValue( param, parameters.get( pName ) ) );
+        }
       }
 
       MappedQuery mappedQuery = null;
