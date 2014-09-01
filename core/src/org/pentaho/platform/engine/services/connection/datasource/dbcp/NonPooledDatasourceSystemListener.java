@@ -18,6 +18,14 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -30,9 +38,6 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
-
-import javax.sql.DataSource;
-import java.util.List;
 
 public class NonPooledDatasourceSystemListener implements IPentahoSystemListener {
 
@@ -57,12 +62,9 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
           Logger.debug( this, "  Setting up datasource - " + databaseConnection ); //$NON-NLS-1$
 
-          try {
-            ds = getDataSource( databaseConnection );
-          } catch ( DBDatasourceServiceException e ) {
-            Logger.error(this, "Error retrieving DataSource", e );
-            continue;
-          }
+          // if connection's port used by server there is no sense to get DataSource for this
+          ds = isPortUsedByServer( databaseConnection ) ? null : setupDataSourceForConnection( databaseConnection );
+
           dsName = databaseConnection.getName();
 
           cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
@@ -87,31 +89,11 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
     } catch ( DatasourceMgmtServiceException dmse ) {
 
       Logger.error( this, Messages.getInstance().getErrorString(
-        "DatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), dmse ); //$NON-NLS-1$
+          "DatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE" ), dmse ); //$NON-NLS-1$
 
       return false;
     }
   }
-
-  protected DataSource getDataSource( IDatabaseConnection connection ) throws DBDatasourceServiceException {
-
-    return PooledDatasourceHelper.convert( connection );
-
-  }
-
-  protected ICacheManager addCacheRegions( ) {
-
-    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-
-    Logger.debug( this, "Adding caching regions ..." ); //$NON-NLS-1$
-
-    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
-    }
-
-    return cacheManager;
-  }
-
 
   public void shutdown() {
 
@@ -125,4 +107,88 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
   }
 
+  protected DataSource getDataSource( IDatabaseConnection connection ) throws DBDatasourceServiceException {
+    return PooledDatasourceHelper.convert( connection );
+  }
+
+  protected ICacheManager addCacheRegions() {
+    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+
+    Logger.debug( this, "Adding caching regions ..." ); //$NON-NLS-1$
+
+    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
+      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
+    }
+
+    return cacheManager;
+  }
+
+  private boolean isPortUsedByServer( IDatabaseConnection databaseConnection ) {
+    // get connection IP address
+    String connectionHostName = databaseConnection.getHostname();
+    InetAddress connectionAddress = null;
+    try {
+      connectionAddress = getAdressFromString( connectionHostName );
+    } catch ( UnknownHostException e ) {
+      Logger.warn( this, Messages.getInstance().getErrorString(
+          "DatasourceSystemListener.WARN_0001_UNABLE_TO_GET_CONNECTION_ADDRESS" ), e ); //$NON-NLS-1$
+      return false;
+    }
+    // get connection port
+    String stringConnectionPort = databaseConnection.getDatabasePort();
+
+    // get server URL
+    String fullyQualifiedServerURL = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
+    URL url = null;
+    try {
+      url = new URL( fullyQualifiedServerURL );
+    } catch ( MalformedURLException e ) {
+      Logger.warn( this, Messages.getInstance().getErrorString(
+          "DatasourceSystemListener.WARN_0002_UNABLE_TO_PARSE_SERVER_URL" ), e ); //$NON-NLS-1$
+      return false;
+    }
+    // get server IP address
+    String hostNameUsedByServer = url.getHost();
+    InetAddress serverAddress = null;
+    try {
+      serverAddress = getAdressFromString( hostNameUsedByServer );
+    } catch ( UnknownHostException e ) {
+      Logger.warn( this, Messages.getInstance().getErrorString(
+          "DatasourceSystemListener.WARN_0003_UNABLE_TO_GET_SERVER_ADDRESS" ), e ); //$NON-NLS-1$
+      return false;
+    }
+    // get server port
+    int portUsedByServer = url.getPort();
+
+    boolean isAddressesEquals = connectionAddress.equals( serverAddress );
+
+    boolean isPortsEquals = false;
+    try {
+      Integer connectionPort = Integer.valueOf( stringConnectionPort );
+      isPortsEquals = connectionPort.equals( portUsedByServer );
+    } catch ( NumberFormatException e ) {
+      Logger.warn( this, Messages.getInstance().getErrorString(
+          "DatasourceSystemListener.WARN_0004_UNABLE_TO_GET_PORT_NUMBER" ), e ); //$NON-NLS-1$
+      return false;
+    }
+
+    return isAddressesEquals && isPortsEquals;
+  }
+
+  private DataSource setupDataSourceForConnection( IDatabaseConnection databaseConnection ) {
+    DataSource ds = null;
+    try {
+      ds = getDataSource( databaseConnection );
+    } catch ( DBDatasourceServiceException e ) {
+      Logger.error( this, "Error retrieving DataSource", e );
+    }
+
+    return ds;
+  }
+
+  private InetAddress getAdressFromString( String connectionHostName ) throws UnknownHostException {
+    InetAddress address = null;
+    address = InetAddress.getByName( connectionHostName );
+    return address;
+  }
 }
