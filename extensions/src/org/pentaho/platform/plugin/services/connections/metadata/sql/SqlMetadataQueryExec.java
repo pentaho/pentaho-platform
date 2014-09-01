@@ -38,6 +38,7 @@ import org.pentaho.metadata.model.SqlPhysicalModel;
 import org.pentaho.metadata.query.BaseMetadataQueryExec;
 import org.pentaho.metadata.query.impl.sql.MappedQuery;
 import org.pentaho.metadata.query.impl.sql.SqlGenerator;
+import org.pentaho.metadata.query.model.Parameter;
 import org.pentaho.metadata.query.model.Query;
 import org.pentaho.metadata.util.DatabaseMetaUtil;
 import org.pentaho.metadata.util.ThinModelConverter;
