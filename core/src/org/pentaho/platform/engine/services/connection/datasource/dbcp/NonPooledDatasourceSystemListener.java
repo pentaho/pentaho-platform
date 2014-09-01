@@ -39,6 +39,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class NonPooledDatasourceSystemListener implements IPentahoSystemListener {
 
   public boolean startup( final IPentahoSession session ) {
@@ -48,10 +50,7 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
       ICacheManager cacheManager = addCacheRegions();
 
-      IDatasourceMgmtService datasourceMgmtSvc =
-          (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get( IDatasourceMgmtService.class, session );
-
-      List<IDatabaseConnection> databaseConnections = datasourceMgmtSvc.getDatasources();
+      List<IDatabaseConnection> databaseConnections = getListOfDatabaseConnections( session );
 
       String dsName = "";
       DataSource ds = null;
@@ -123,7 +122,18 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
     return cacheManager;
   }
 
-  private boolean isPortUsedByServer( IDatabaseConnection databaseConnection ) {
+  @VisibleForTesting
+  protected List<IDatabaseConnection> getListOfDatabaseConnections( final IPentahoSession session )
+      throws ObjectFactoryException, DatasourceMgmtServiceException {
+    IDatasourceMgmtService datasourceMgmtSvc =
+        (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get( IDatasourceMgmtService.class, session );
+
+    List<IDatabaseConnection> databaseConnections = datasourceMgmtSvc.getDatasources();
+    return databaseConnections;
+  }
+
+  @VisibleForTesting
+  protected boolean isPortUsedByServer( IDatabaseConnection databaseConnection ) {
     // get connection IP address
     String connectionHostName = databaseConnection.getHostname();
     InetAddress connectionAddress = null;
@@ -175,7 +185,8 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
     return isAddressesEquals && isPortsEquals;
   }
 
-  private DataSource setupDataSourceForConnection( IDatabaseConnection databaseConnection ) {
+  @VisibleForTesting
+  protected DataSource setupDataSourceForConnection( IDatabaseConnection databaseConnection ) {
     DataSource ds = null;
     try {
       ds = getDataSource( databaseConnection );
