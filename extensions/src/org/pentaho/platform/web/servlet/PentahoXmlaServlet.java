@@ -83,7 +83,7 @@ import static org.apache.commons.collections.CollectionUtils.*;
  *
  * @author mlowery
  */
-@SuppressWarnings( "unchecked" )
+@SuppressWarnings ( "unchecked" )
 public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   // ~ Static fields/initializers ======================================================================================
@@ -130,78 +130,82 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     // do anything with security.
     // BEWARE before making modifications that check security rights or all
     // other kind of stateful things.
-    @SuppressWarnings( "rawtypes" )
+    @SuppressWarnings ( "rawtypes" )
     Set keys = cacheMgr.getAllKeysFromRegionCache( CACHE_REGION );
 
     if ( !keys.contains( dataSourcesUrl ) ) {
       cacheMgr.putInRegionCache(
-        CACHE_REGION,
-        dataSourcesUrl,
-        new DynamicContentFinder( dataSourcesUrl ) {
-          @Override
-          public String getContent() {
-            try {
-              String original = generateInMemoryDatasourcesXml();
-              EntityResolver loader = new PentahoEntityResolver();
-              Document originalDocument = XmlDom4JHelper.getDocFromString( original, loader );
-              if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
-                PentahoXmlaServlet.logger
-                  .debug( Messages.getInstance().getString( "PentahoXmlaServlet.DEBUG_ORIG_DOC", originalDocument.asXML() ) ); //$NON-NLS-1$
+          CACHE_REGION,
+          dataSourcesUrl,
+          new DynamicContentFinder( dataSourcesUrl ) {
+            @Override
+            public String getContent() {
+              try {
+                String original = generateInMemoryDatasourcesXml();
+                EntityResolver loader = new PentahoEntityResolver();
+                Document originalDocument = XmlDom4JHelper.getDocFromString( original, loader );
+                if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
+                  PentahoXmlaServlet.logger
+                      .debug( Messages.getInstance().getString( "PentahoXmlaServlet.DEBUG_ORIG_DOC", originalDocument.asXML() ) ); //$NON-NLS-1$
+                }
+                Document modifiedDocument = (Document) originalDocument.clone();
+                List<Node> nodesToRemove = getNodesToRemove( modifiedDocument );
+                if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
+                  PentahoXmlaServlet.logger.debug( Messages.getInstance().getString(
+                      "PentahoXmlaServlet.DEBUG_NODES_TO_REMOVE", String.valueOf( nodesToRemove.size() ) ) ); //$NON-NLS-1$
+                }
+                for ( Node node : nodesToRemove ) {
+                  node.detach();
+                }
+                if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
+                  PentahoXmlaServlet.logger.debug( Messages.getInstance().getString( "PentahoXmlaServlet.DEBUG_MOD_DOC", modifiedDocument.asXML() ) ); //$NON-NLS-1$
+                }
+                return modifiedDocument.asXML();
+              } catch ( XmlParseException e ) {
+                PentahoXmlaServlet.logger.error( Messages.getInstance().getString( "PentahoXmlaServlet.ERROR_0004_UNABLE_TO_GET_DOCUMENT_FROM_STRING" ), e ); //$NON-NLS-1$
+                return null;
               }
-              Document modifiedDocument = (Document) originalDocument.clone();
-              List<Node> nodesToRemove = getNodesToRemove( modifiedDocument );
-              if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
-                PentahoXmlaServlet.logger.debug( Messages.getInstance().getString(
-                  "PentahoXmlaServlet.DEBUG_NODES_TO_REMOVE", String.valueOf( nodesToRemove.size() ) ) ); //$NON-NLS-1$
-              }
-              for ( Node node : nodesToRemove ) {
-                node.detach();
-              }
-              if ( PentahoXmlaServlet.logger.isDebugEnabled() ) {
-                PentahoXmlaServlet.logger.debug( Messages.getInstance().getString( "PentahoXmlaServlet.DEBUG_MOD_DOC", modifiedDocument.asXML() ) ); //$NON-NLS-1$
-              }
-              return modifiedDocument.asXML();
-            } catch ( XmlParseException e ) {
-              PentahoXmlaServlet.logger.error( Messages.getInstance().getString( "PentahoXmlaServlet.ERROR_0004_UNABLE_TO_GET_DOCUMENT_FROM_STRING" ), e ); //$NON-NLS-1$
-              return null;
+            }
+
+            private List<Node> getNodesToRemove( Document doc ) {
+              List<Node> nodesToRemove = doc.selectNodes( "/DataSources/DataSource/Catalogs/Catalog" );
+              filter( nodesToRemove,
+                  new Predicate() {
+                    @Override
+                    public boolean evaluate( Object o ) {
+                      Element el = ( (DefaultElement) o ).element( "DataSourceInfo" );
+
+                      if ( el == null || el.getText() == null || el.getTextTrim().length() == 0 ) {
+                        throw new XmlaException(
+                            SERVER_FAULT_FC,
+                            UNKNOWN_ERROR_CODE,
+                            UNKNOWN_ERROR_FAULT_FS,
+                            new MondrianException(
+                                "DataSourceInfo not defined for " + ( (DefaultElement) o ).attribute( "name" ).getText() )
+                        );
+                      }
+                      return el.getText().matches( "(?i).*EnableXmla=['\"]?false['\"]?" );
+                    }
+                  }
+              );
+              return nodesToRemove;
             }
           }
-
-          private List<Node> getNodesToRemove( Document doc ) {
-            List<Node> nodesToRemove =  doc.selectNodes( "/DataSources/DataSource/Catalogs/Catalog" );
-            filter( nodesToRemove,
-              new Predicate() {
-                @Override
-                public boolean evaluate( Object o ) {
-                  Element el = ( (DefaultElement) o ).element( "DataSourceInfo" );
-
-                  if ( el == null || el.getText() == null || el.getTextTrim().length() == 0 ) {
-                    throw new XmlaException(
-                      SERVER_FAULT_FC,
-                      UNKNOWN_ERROR_CODE,
-                      UNKNOWN_ERROR_FAULT_FS,
-                      new MondrianException(
-                        "DataSourceInfo not defined for " + ( (DefaultElement) o ).attribute( "name" ).getText() ) );
-                  }
-                  return el.getText().matches( "(?i).*EnableXmla=['\"]?false['\"]?" );
-                }
-              } );
-            return nodesToRemove;
-          }
-        } );
+      );
     }
     return (RepositoryContentFinder)
-      cacheMgr.getFromRegionCache( CACHE_REGION, dataSourcesUrl );
+        cacheMgr.getFromRegionCache( CACHE_REGION, dataSourcesUrl );
   }
 
   private String generateInMemoryDatasourcesXml() {
     try {
       return SecurityHelper.getInstance().runAsSystem(
-        new Callable<String>() {
-          public String call() throws Exception {
-            return mondrianCatalogService.generateInMemoryDatasourcesXml( repo );
+          new Callable<String>() {
+            public String call() throws Exception {
+              return mondrianCatalogService.generateInMemoryDatasourcesXml( repo );
+            }
           }
-        } );
+      );
     } catch ( Exception e ) {
       PentahoXmlaServlet.logger.error( e );
       throw new RuntimeException( e );
@@ -217,7 +221,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
           try {
             FileSystemManager fsManager = VFS.getManager();
             SolutionRepositoryVfsFileObject catalog = (SolutionRepositoryVfsFileObject)
-              fsManager.resolveFile( catalogPath );
+                fsManager.resolveFile( catalogPath );
             catalogPath = "solution:" + catalog.getFileRef();
           } catch ( FileSystemException e ) {
             logger.error( e.getMessage() );
@@ -239,7 +243,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   protected ConnectionFactory createConnectionFactory( final ServletConfig servletConfig ) throws ServletException {
 
     final ConnectionFactory delegate =
-      super.createConnectionFactory( servletConfig );
+        super.createConnectionFactory( servletConfig );
 
     /*
      * This wrapper for the connection factory allows us to
@@ -255,23 +259,23 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
 
       public OlapConnection getConnection(
-        String databaseName,
-        String catalogName,
-        String roleName,
-        Properties props )
-          throws SQLException {
+          String databaseName,
+          String catalogName,
+          String roleName,
+          Properties props )
+        throws SQLException {
         // What we do here is to filter the role names with the mapper.
         // First, get a user role mapper, if one is configured.
         final IPentahoSession session =
-          PentahoSessionHolder.getSession();
+            PentahoSessionHolder.getSession();
 
         final IConnectionUserRoleMapper mondrianUserRoleMapper =
-          PentahoSystem.get(
-            IConnectionUserRoleMapper.class,
-            MDXConnection.MDX_CONNECTION_MAPPER_KEY,
-            null ); // Don't use the user session here yet.
+            PentahoSystem.get(
+                IConnectionUserRoleMapper.class,
+                MDXConnection.MDX_CONNECTION_MAPPER_KEY,
+                null ); // Don't use the user session here yet.
 
-        String[] effectiveRoles = new String[ 0 ];
+        String[] effectiveRoles = new String[0];
 
         /*
          * If Catalog/Schema are null (this happens with high level metadata requests,
@@ -279,16 +283,16 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
          * is present and configured.
          */
         if ( mondrianUserRoleMapper != null
-          && catalogName != null ) {
+            && catalogName != null ) {
           // Use the role mapper.
           try {
             effectiveRoles =
-              mondrianUserRoleMapper
-                .mapConnectionRoles(
-                  session,
-                  catalogName );
+                mondrianUserRoleMapper
+                    .mapConnectionRoles(
+                        session,
+                        catalogName );
             if ( effectiveRoles == null ) {
-              effectiveRoles = new String[ 0 ];
+              effectiveRoles = new String[0];
             }
           } catch ( PentahoAccessControlException e ) {
             throw new SQLException( e );
@@ -311,48 +315,50 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
         if ( catalogName == null ) {
 
           return
-            delegate.getConnection(
-              databaseName,
-              catalogName,
-              roleName.equals( "" )
-                ? null
-                : roleName,
-              props );
+              delegate.getConnection(
+                  databaseName,
+                  catalogName,
+                  roleName.equals( "" )
+                      ? null
+                      : roleName,
+                  props
+          );
 
         } else {
           //We create a connection differently so we can ensure that
           //the XMLA servlet shares the same MondrianServer instance as the rest
           //of the platform
           IMondrianCatalogService mcs =
-            PentahoSystem.get( IMondrianCatalogService.class );
+              PentahoSystem.get( IMondrianCatalogService.class );
 
           MondrianCatalog mc =
-            mcs.getCatalog( catalogName, PentahoSessionHolder.getSession() );
+              mcs.getCatalog( catalogName, PentahoSessionHolder.getSession() );
 
           if ( mc == null ) {
             throw new XmlaException(
-              CLIENT_FAULT_FC,
-              HSB_BAD_RESTRICTION_LIST_CODE,
-              HSB_BAD_RESTRICTION_LIST_FAULT_FS,
-              new MondrianException(
-                "No such catalog: " + catalogName ) );
+                CLIENT_FAULT_FC,
+                HSB_BAD_RESTRICTION_LIST_CODE,
+                HSB_BAD_RESTRICTION_LIST_FAULT_FS,
+                new MondrianException(
+                    "No such catalog: " + catalogName )
+            );
           }
 
           Connection con =
-            DriverManager.getConnection(
-              mc.getDataSourceInfo() + ";Catalog=" + mc.getDefinition(),
-              makeCatalogLocator( servletConfig ) );
+              DriverManager.getConnection(
+                  mc.getDataSourceInfo() + ";Catalog=" + mc.getDefinition(),
+                  makeCatalogLocator( servletConfig ) );
 
           try {
             final MondrianServer server = MondrianServer.forConnection( con );
 
             FileRepository fr =
-              new FileRepository(
-                makeContentFinder( makeDataSourcesUrl( servletConfig ) ),
-                makeCatalogLocator( servletConfig ) );
+                new FileRepository(
+                    makeContentFinder( makeDataSourcesUrl( servletConfig ) ),
+                    makeCatalogLocator( servletConfig ) );
 
             return fr.getConnection(
-              server, databaseName, catalogName, roleName, props );
+                server, databaseName, catalogName, roleName, props );
           } finally {
             con.close();
           }

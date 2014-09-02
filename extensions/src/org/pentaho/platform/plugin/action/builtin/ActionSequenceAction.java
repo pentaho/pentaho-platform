@@ -93,7 +93,7 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
             isEmpty = repositoryFileOutputStream.size() > 0 ? false : true;
             String extension = RepositoryFilenameUtils.getExtension( repositoryFileOutputStream.getFilePath() );
             String mimeTypeFromExtension = MimeHelper.getMimeTypeFromExtension( "." + extension );
-            if( mimeTypeFromExtension == null ){
+            if ( mimeTypeFromExtension == null ) {
               // unknown type, treat it not as an extension but part of the name
               extension = "";
             }

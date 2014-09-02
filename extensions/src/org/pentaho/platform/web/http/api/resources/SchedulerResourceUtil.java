@@ -28,7 +28,6 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
@@ -46,7 +45,7 @@ import java.util.TimeZone;
 public class SchedulerResourceUtil {
 
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
-  
+
   public static IJobTrigger
   convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
     throws SchedulerException, UnifiedRepositoryException {
@@ -142,7 +141,7 @@ public class SchedulerResourceUtil {
 
     return jobTrigger;
   }
-  
+
   public static void updateStartDateForTimeZone( JobScheduleRequest request ) {
     if ( request.getSimpleJobTrigger() != null ) {
       if ( request.getSimpleJobTrigger().getStartTime() != null ) {
@@ -187,7 +186,7 @@ public class SchedulerResourceUtil {
 
 
   public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                                    HashMap<String, Serializable> parameterMap ) {
+                                                                   HashMap<String, Serializable> parameterMap ) {
 
     if ( file != null && isPdiFile( file ) ) {
 
@@ -225,6 +224,6 @@ public class SchedulerResourceUtil {
 
   public static boolean isJob( RepositoryFile file ) {
     return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
-  }  
-  
+  }
+
 }

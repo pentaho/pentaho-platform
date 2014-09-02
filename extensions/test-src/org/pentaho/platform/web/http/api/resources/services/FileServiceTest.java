@@ -41,7 +41,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.util.Internal;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1854,7 +1853,7 @@ public class FileServiceTest {
 
     try {
       fileService.doCreateDir( pathId );
-    } catch( InternalError e ) {
+    } catch ( InternalError e ) {
       assertEquals( e.getMessage(), "negativetest" );
     }
   }

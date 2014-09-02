@@ -41,7 +41,6 @@ import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
  * do the rest of the lifting. (changes to importexport.xml application/prpt) to use this class
  *
  * @author tband Apr 2013 [BIServer 5499]
- *
  */
 public class PRPTImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
@@ -71,8 +70,8 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       InputStream bundleInputStream = new ByteArrayInputStream( bytes );
       // Process locale file from meta.xml.
       importBundle.setInputStream( bundleInputStream );
-      boolean hidden = extractMetaData(localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile());
-      importBundle.setHidden(hidden);
+      boolean hidden = extractMetaData( localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile() );
+      importBundle.setHidden( hidden );
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
     } catch ( Exception ex ) {
@@ -86,39 +85,36 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
    * @param localeFilesProcessor
    * @param bytes
    * @return true if this report is hidden. The report is hidden if the visible attribute is set to 'false'
-   *              (with case sensitive check to filter out garbage).
+   * (with case sensitive check to filter out garbage).
    * @throws IOException
    */
   private boolean extractMetaData( LocaleFilesProcessor localeFilesProcessor,
-                                          byte[] bytes, String filePath, String fileName,
-                                          RepositoryFile rf)
-          throws IOException, PlatformImportException {
+                                   byte[] bytes, String filePath, String fileName,
+                                   RepositoryFile rf )
+    throws IOException, PlatformImportException {
 
     try {
       ResourceManager mgr = new ResourceManager();
-      MasterReport report = (MasterReport) mgr.createDirectly(bytes, MasterReport.class).getResource();
+      MasterReport report = (MasterReport) mgr.createDirectly( bytes, MasterReport.class ).getResource();
       DocumentMetaData metaData = report.getBundle().getMetaData();
-      String description = (String) metaData.getBundleAttribute
-              (ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION);
-      if (StringUtils.isEmpty(description, true)) {
+      String description = (String) metaData.getBundleAttribute(ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
+      if ( StringUtils.isEmpty( description, true ) ) {
         // make sure that empty strings and strings with only whitespace are not used as description.
         description = null;
       }
-      String title = (String) metaData.getBundleAttribute
-              (ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.TITLE);
-      if (StringUtils.isEmpty(title, true)) {
+      String title = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.TITLE );
+      if ( StringUtils.isEmpty( title, true ) ) {
         // make sure that empty strings and strings with only whitespace are not used as description.
         title = null;
       }
-      if (title != null || description != null) {
+      if ( title != null || description != null ) {
         localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf,
-                new ByteArrayInputStream("".getBytes() ) );
+            new ByteArrayInputStream( "".getBytes() ) );
       }
       // we are conservative here. Only if the string matches 'true' with this spelling.
-      return "false".equals(metaData.getBundleAttribute(ClassicEngineBoot.METADATA_NAMESPACE, "visible"));
-    }
-    catch (ResourceException e) {
-      throw new PlatformImportException("An unexpected error occurred while parsing a report definition", e);
+      return "false".equals( metaData.getBundleAttribute( ClassicEngineBoot.METADATA_NAMESPACE, "visible" ) );
+    } catch ( ResourceException e ) {
+      throw new PlatformImportException( "An unexpected error occurred while parsing a report definition", e );
     }
   }
 }

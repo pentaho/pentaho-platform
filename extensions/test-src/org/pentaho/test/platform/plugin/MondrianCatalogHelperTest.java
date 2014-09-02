@@ -58,7 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
-@SuppressWarnings( "nls" )
+@SuppressWarnings ( "nls" )
 public class MondrianCatalogHelperTest {
 
   // ~ Instance fields
@@ -132,7 +132,8 @@ public class MondrianCatalogHelperTest {
         eq( makeIdObject( steelWheelsFolderPath ) ),
         argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
         argThat( hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + cat.getName() ), pathPropertyPair(
-            "/catalog/datasourceInfo", cat.getDataSourceInfo() ) ) ), anyString() );
+            "/catalog/datasourceInfo", cat.getDataSourceInfo() ) ) ), anyString()
+    );
 
     verify( repo ).createFile( eq( makeIdObject( steelWheelsFolderPath ) ),
         argThat( isLikeFile( makeFileObject( steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
@@ -169,7 +170,8 @@ public class MondrianCatalogHelperTest {
         eq( makeIdObject( sampleDataFolderPath ) ),
         argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
         argThat( hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ), pathPropertyPair(
-            "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ), anyString() );
+            "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ), anyString()
+    );
     verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
         argThat( isLikeFile( makeFileObject( sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
@@ -243,6 +245,6 @@ public class MondrianCatalogHelperTest {
 
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
-    verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq(true), anyString() );
+    verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
   }
 }

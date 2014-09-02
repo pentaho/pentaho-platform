@@ -23,7 +23,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.web.http.api.resources.services.SystemService;
 
 public class SystemUtils {
   public static boolean canAdminister() {

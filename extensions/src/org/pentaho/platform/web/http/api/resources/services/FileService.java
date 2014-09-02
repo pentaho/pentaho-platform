@@ -66,7 +66,6 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapte
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
@@ -188,7 +187,7 @@ public class FileService {
       }
     }
     return pathsPermissonsSettings;
-  }  
+  }
 
   /**
    * Creates a new file with the provided contents at a given path
@@ -438,7 +437,7 @@ public class FileService {
    * @param properties
    */
   public void doSetLocaleProperties( String pathId, String locale, List<StringKeyStringValueDto> properties )
-      throws Exception {
+    throws Exception {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     Properties fileProperties = new Properties();
     if ( properties != null && !properties.isEmpty() ) {
@@ -1572,7 +1571,7 @@ public class FileService {
     }
     return true;
   }
-  
+
   public void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
     if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {

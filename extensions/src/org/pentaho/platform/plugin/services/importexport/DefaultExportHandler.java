@@ -76,8 +76,8 @@ public class DefaultExportHandler implements ExportHandler {
     }
 
     // Find the converter - defined in spring xml by import handlers
-    if (converters == null) {
-      IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+    if ( converters == null ) {
+      IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
       converters = converterHandler.getConverters();
     }
     final Converter converter = converters.get( ext );

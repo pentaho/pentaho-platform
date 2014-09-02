@@ -18,8 +18,6 @@
 package org.pentaho.platform.web.http;
 
 import org.pentaho.platform.api.engine.IMimeTypeListener;
-import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.util.web.MimeHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

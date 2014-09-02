@@ -22,5 +22,5 @@
 // Generated on: 2014.02.13 at 12:51:52 PM EST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.pentaho.com/schema/")
+@javax.xml.bind.annotation.XmlSchema( namespace = "http://www.pentaho.com/schema/" )
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;

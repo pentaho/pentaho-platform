@@ -72,7 +72,7 @@ public class UserRoleListResourceTest {
 
     // Test 1
     UserRoleListService.UnauthorizedException mockUnauthorizedException = mock(
-      UserRoleListService.UnauthorizedException.class );
+        UserRoleListService.UnauthorizedException.class );
     doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
 
     Response testResponse = userRoleListResource.getRolesForUser( user );
@@ -141,7 +141,7 @@ public class UserRoleListResourceTest {
 
     // Test 1
     UserRoleListService.UnauthorizedException mockUnauthorizedException = mock(
-      UserRoleListService.UnauthorizedException.class );
+        UserRoleListService.UnauthorizedException.class );
     doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
 
     Response testResponse = userRoleListResource.getUsersInRole( role );
@@ -209,11 +209,11 @@ public class UserRoleListResourceTest {
     userRoleListResource.adminRole = adminRole;
 
     RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getPermissionRoles(adminRole);
+    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getPermissionRoles( adminRole );
 
     RoleListWrapper testWrapper = userRoleListResource.getPermissionRoles();
     assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getPermissionRoles(adminRole);
+    verify( userRoleListResource.userRoleListService, times( 1 ) ).getPermissionRoles( adminRole );
   }
 }

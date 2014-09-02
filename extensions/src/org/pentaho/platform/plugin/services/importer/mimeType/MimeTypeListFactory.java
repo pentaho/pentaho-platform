@@ -64,15 +64,15 @@ public class MimeTypeListFactory {
           mimeType.setLocale( mimeTypeDef.isLocale() );
 
           Converter converter = null;
-          String converterBeanName = mimeTypeDef.getConverter() != null && !mimeTypeDef.getConverter().isEmpty() ? 
-              mimeTypeDef.getConverter() : "streamConverter";
-              converter = PentahoSystem.get(Converter.class, /*session*/ null, Collections.singletonMap("name", converterBeanName));
-          if (converter == null) {
+          String converterBeanName = mimeTypeDef.getConverter() != null && !mimeTypeDef.getConverter().isEmpty()
+              ? mimeTypeDef.getConverter() : "streamConverter";
+          converter = PentahoSystem.get( Converter.class, /*session*/ null, Collections.singletonMap( "name", converterBeanName ) );
+          if ( converter == null ) {
             log.error( "Could not find converter class \"" + converterBeanName + "\" for mimeType \""
-                + mimeTypeDef.getMimeType() + "\" in import handler " + handlerClass);
+                + mimeTypeDef.getMimeType() + "\" in import handler " + handlerClass );
           }
           mimeType.setConverter( converter );
-          mimeTypeList.add(mimeType);
+          mimeTypeList.add( mimeType );
         }
       }
     }

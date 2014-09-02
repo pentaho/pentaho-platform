@@ -17,15 +17,11 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import org.dom4j.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

@@ -11,15 +11,15 @@ import org.slf4j.LoggerFactory;
  */
 public class PentahoOSGIActivator {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+  private Logger logger = LoggerFactory.getLogger( getClass() );
   private OSGIObjectFactory objectFactory;
 
   public void setBundleContext( BundleContext bundleContext ) throws Exception {
-    logger.debug("Registering OSGIObjectFactory");
+    logger.debug( "Registering OSGIObjectFactory" );
 
     objectFactory = new OSGIObjectFactory( bundleContext );
     PentahoSystem.registerObjectFactory( objectFactory );
-    logger.debug("OSGIObjectFactory installed");
+    logger.debug( "OSGIObjectFactory installed" );
 
   }
 

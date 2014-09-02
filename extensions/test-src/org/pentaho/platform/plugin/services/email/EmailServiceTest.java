@@ -275,7 +275,6 @@ public class EmailServiceTest extends TestCase {
       return null;
     }
   }
-  
   class TestAuthorizationPolicy implements IAuthorizationPolicy {
 
     @Override
@@ -289,6 +288,5 @@ public class EmailServiceTest extends TestCase {
       // TODO Auto-generated method stub
       return null;
     }
-    
   }
 }

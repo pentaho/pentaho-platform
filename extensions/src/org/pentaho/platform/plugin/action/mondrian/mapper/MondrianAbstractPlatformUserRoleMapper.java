@@ -31,10 +31,8 @@ import org.olap4j.OlapConnection;
 import org.olap4j.OlapException;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
@@ -48,11 +46,10 @@ import org.springframework.util.Assert;
 
 /**
  * @author mbatchelor
- *
  */
 public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnectionUserRoleMapper {
 
-  private final static Log log = LogFactory.getLog( MondrianAbstractPlatformUserRoleMapper.class );
+  private static final Log log = LogFactory.getLog( MondrianAbstractPlatformUserRoleMapper.class );
 
   public MondrianAbstractPlatformUserRoleMapper() {
 
@@ -61,10 +58,8 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
   /**
    * Subclasses simply need to implement this one method to do the specific mapping desired.
    *
-   * @param mondrianRoles
-   *          Sorted list of roles defined in the catalog
-   * @param platformRoles
-   *          Sorted list of the roles defined in the catalog
+   * @param mondrianRoles Sorted list of roles defined in the catalog
+   * @param platformRoles Sorted list of the roles defined in the catalog
    * @return
    */
   protected abstract String[] mapRoles( String[] mondrianRoles, String[] platformRoles )
@@ -74,10 +69,8 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * This method returns the role names as found in the Mondrian schema. The returned names must be ordered (sorted) or
    * code down-stream will not work.
    *
-   * @param userSession
-   *          Users' session
-   * @param catalogName
-   *          The name of the catalog
+   * @param userSession Users' session
+   * @param catalogName The name of the catalog
    * @return Array of role names from the schema file
    */
   protected String[] getMondrianRolesFromCatalog( IPentahoSession userSession, String context ) {
@@ -106,11 +99,11 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
     IOlapService olapService = PentahoSystem.get( IOlapService.class );
     if ( olapService != null ) {
       MondrianCatalogRepositoryHelper helper =
-        new MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
+          new MondrianCatalogRepositoryHelper( PentahoSystem.get( IUnifiedRepository.class ) );
       String serverName = null;
       for ( String name : helper.getOlap4jServers() ) {
         PropertyList props = Util.parseConnectString( helper.getOlap4jServerInfo( name ).URL );
-        if ( props.get( RolapConnectionProperties.Catalog.name() , "").equals( context ) ) {
+        if ( props.get( RolapConnectionProperties.Catalog.name(), "" ).equals( context ) ) {
           serverName = name;
         }
       }
@@ -118,15 +111,15 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
         OlapConnection conn = null;
         try {
           // Use a null session for root access.
-          conn = olapService.getConnection( serverName, null);
+          conn = olapService.getConnection( serverName, null );
           List<String> roleList = conn.getAvailableRoleNames();
           String[] roleArray = roleList.toArray( new String[roleList.size()] );
           Arrays.sort( roleArray );
           return roleArray;
         } catch ( OlapException e ) {
           log.error(
-            "Failed to get a list of roles from olap connection " + context,
-            e );
+              "Failed to get a list of roles from olap connection " + context,
+              e );
           throw new RuntimeException( e );
         } finally {
           if ( conn != null ) {
@@ -135,8 +128,8 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
             } catch ( SQLException e ) {
               // OK to squash this one.
               log.error(
-                "Failed to get a list of roles from olap connection " + context,
-                e );
+                  "Failed to get a list of roles from olap connection " + context,
+                  e );
             }
           }
         }
@@ -151,8 +144,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * This method returns the users' roles as specified in the Spring Security authentication object. The role names
    * returned must be sorted for other code downstream to work properly.
    *
-   * @param session
-   *          The users' session
+   * @param session The users' session
    * @return Users' roles as defined in the authentication object
    */
   protected String[] getPlatformRolesFromSession( IPentahoSession session ) {
@@ -161,16 +153,16 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
 
     String[] rtn = null;
     // Get the authorities
-      GrantedAuthority[] gAuths = authentication.getAuthorities();
-      if ((gAuths != null) && (gAuths.length > 0) ) {
+    GrantedAuthority[] gAuths = authentication.getAuthorities();
+    if ( ( gAuths != null ) && ( gAuths.length > 0 ) ) {
       // Copy role names out of the Authentication
-        rtn = new String[gAuths.length];
-        for (int i=0; i<gAuths.length; i++) {
-          rtn[i] = gAuths[i].getAuthority();
-        }
-        // Sort the returned list of roles
-        Arrays.sort(rtn);
+      rtn = new String[gAuths.length];
+      for ( int i = 0; i < gAuths.length; i++ ) {
+        rtn[i] = gAuths[i].getAuthority();
       }
+      // Sort the returned list of roles
+      Arrays.sort( rtn );
+    }
     return rtn;
   }
 

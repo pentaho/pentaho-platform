@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Level;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.Converter;
@@ -47,13 +45,13 @@ public class PlatformImporterTest {
 
   @Test
   public void testNoMatchingMime() throws Exception {
-    
+
     List<MimeType> mimeList = new ArrayList<MimeType>();
     IPlatformImportHandler mockImportHandler = mock( IPlatformImportHandler.class );
     when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
     List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
     handlers.add( mockImportHandler );
-   
+
     MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
     microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
@@ -69,12 +67,12 @@ public class PlatformImporterTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     importLogger.startJob( outputStream, "", Level.DEBUG );
 
-   
+
     // With custom domain id
     final IPlatformImportBundle bundle1 =
         ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).overwriteFile( true )
             .name( "steel-wheels.xmi" ).comment( "Test Metadata Import" ).withParam( "domain-id",
-            "parameterized-domain-id" ) ).build();
+                "parameterized-domain-id" ) ).build();
 
     try {
       importer.setRepositoryImportLogger( importLogger );
@@ -97,11 +95,11 @@ public class PlatformImporterTest {
     when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
     List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
     handlers.add( mockImportHandler );
-    
+
     MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
     microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
-    
+
     // mock logger to prevent npe
     IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
 
@@ -117,10 +115,10 @@ public class PlatformImporterTest {
     final IPlatformImportBundle bundle1 =
         ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).mime( "text/xmi+xml" )
             .name( "steel-wheels.xmi" ).comment( "Test Metadata Import" ).withParam( "domain-id",
-            "parameterized-domain-id" ) ).build();
-    
+                "parameterized-domain-id" ) ).build();
+
     importer.importFile( bundle1 );
 
-    verify(mockImportHandler, times(1)).importFile( bundle1 );
+    verify( mockImportHandler, times( 1 ) ).importFile( bundle1 );
   }
 }

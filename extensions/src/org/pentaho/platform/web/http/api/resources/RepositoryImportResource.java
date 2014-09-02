@@ -51,7 +51,7 @@ import javax.ws.rs.core.Response;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
-@Path( "/repo/files/import" )
+@Path ( "/repo/files/import" )
 public class RepositoryImportResource {
 
   private static final Logger LOGGER = Logger.getLogger( RepositoryImportResource.class );
@@ -60,29 +60,26 @@ public class RepositoryImportResource {
 
   /**
    * Attempts to import all files from the zip file. A log file is produced at the end of import
-   * 
-   * @param uploadDir
-   *          : JCR Directory to which the zip structure or single file will be uploaded to.
-   * @param fileIS
-   *          : Input stream for the file.
-   * @param fileInfo
-   *          : Info about he file (
+   *
+   * @param uploadDir : JCR Directory to which the zip structure or single file will be uploaded to.
+   * @param fileIS    : Input stream for the file.
+   * @param fileInfo  : Info about he file (
    * @return http ok response of everything went well... some other error otherwise
-   *         <p/>
-   *         This REST method takes multi-part form data and imports it to a JCR repository. --import
-   *         --url=http://localhost:8080/pentaho --username=admin --password=password --source=file-system --type=files
-   *         --charset=UTF-8 --path=/public --file-path="C:/pentahotraining/BootCamp Labs/Pilot Project/SteelWheels.csv"
-   *         --permission=true --overwrite=true --retainOwnership=true --rest=true
+   * <p/>
+   * This REST method takes multi-part form data and imports it to a JCR repository. --import
+   * --url=http://localhost:8080/pentaho --username=admin --password=password --source=file-system --type=files
+   * --charset=UTF-8 --path=/public --file-path="C:/pentahotraining/BootCamp Labs/Pilot Project/SteelWheels.csv"
+   * --permission=true --overwrite=true --retainOwnership=true --rest=true
    */
   @POST
-  @Consumes( MediaType.MULTIPART_FORM_DATA )
-  @Produces( MediaType.TEXT_HTML )
-  public Response doPostImport( @FormDataParam( "importDir" ) String uploadDir,
-      @FormDataParam( "fileUpload" ) InputStream fileIS, @FormDataParam( "overwriteFile" ) String overwriteFile,
-      @FormDataParam( "overwriteAclPermissions" ) String overwriteAclPermissions,
-      @FormDataParam( "applyAclPermissions" ) String applyAclPermission,
-      @FormDataParam( "retainOwnership" ) String retainOwnership, @FormDataParam( "charSet" ) String pCharSet,
-      @FormDataParam( "logLevel" ) String logLevel, @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) {
+  @Consumes ( MediaType.MULTIPART_FORM_DATA )
+  @Produces ( MediaType.TEXT_HTML )
+  public Response doPostImport( @FormDataParam ( "importDir" ) String uploadDir,
+                                @FormDataParam ( "fileUpload" ) InputStream fileIS, @FormDataParam ( "overwriteFile" ) String overwriteFile,
+                                @FormDataParam ( "overwriteAclPermissions" ) String overwriteAclPermissions,
+                                @FormDataParam ( "applyAclPermissions" ) String applyAclPermission,
+                                @FormDataParam ( "retainOwnership" ) String retainOwnership, @FormDataParam ( "charSet" ) String pCharSet,
+                                @FormDataParam ( "logLevel" ) String logLevel, @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo ) {
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
@@ -100,7 +97,7 @@ public class RepositoryImportResource {
       Level level = Level.toLevel( logLevel );
       ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
 
-      String fileName = URLDecoder.decode( new String( fileInfo.getFileName().getBytes(), charSet ), charSet);
+      String fileName = URLDecoder.decode( new String( fileInfo.getFileName().getBytes(), charSet ), charSet );
 
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileIS );

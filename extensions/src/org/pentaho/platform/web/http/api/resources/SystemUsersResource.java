@@ -19,7 +19,6 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.services.SystemService;
 
 import javax.servlet.ServletException;
@@ -34,44 +33,44 @@ import java.io.IOException;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
-@Path( "/users" )
+@Path ( "/users" )
 public class SystemUsersResource extends AbstractJaxRSResource {
 
   /**
    * Returns the list of users in the platform, this list is in an xml format as shown in the example response.
-   *
+   * <p/>
    * <p><b>Example Request:</b><br>
-   *               GET api/users<br>
-   *               </p>
+   * GET api/users<br>
+   * </p>
    *
    * @return Response object containing an xml list of users in the platform
    * <p>Example Response:</p>
-   *               <pre function="syntax.xml">
-   *               &lt;xml&gt;
-   *               &lt;userList&gt;
-   *               &lt;users&gt;suzy&lt;/users&gt;
-   *               &lt;users&gt;pat&lt;/users&gt;
-   *               &lt;users&gt;tiffany&lt;/users&gt;
-   *               &lt;users&gt;admin&lt;/users&gt;
-   *               &lt;/userList&gt;
-   *               &lt;/xml&gt;
-   *               </pre>
+   * <pre function="syntax.xml">
+   * &lt;xml&gt;
+   * &lt;userList&gt;
+   * &lt;users&gt;suzy&lt;/users&gt;
+   * &lt;users&gt;pat&lt;/users&gt;
+   * &lt;users&gt;tiffany&lt;/users&gt;
+   * &lt;users&gt;admin&lt;/users&gt;
+   * &lt;/userList&gt;
+   * &lt;/xml&gt;
+   * </pre>
    */
   @GET
-  @Produces( { MediaType.APPLICATION_XML } )
-  @StatusCodes({
-          @ResponseCode( code = 200, condition = "Response object containing an xml list of the users in the platform."),
-          @ResponseCode( code = 403, condition = "Response due to the requesting user not having sufficient privileges."),
-          @ResponseCode( code = 500, condition = "Internal server error occurs when the server cannot retrieve the list of users.")
-  })
+  @Produces ( { MediaType.APPLICATION_XML } )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Response object containing an xml list of the users in the platform." ),
+      @ResponseCode ( code = 403, condition = "Response due to the requesting user not having sufficient privileges." ),
+      @ResponseCode ( code = 500, condition = "Internal server error occurs when the server cannot retrieve the list of users." )
+  } )
   public Response getUsers() throws Exception {
     try {
       return buildOkResponse( getSystemService().getUsers().asXML(), MediaType.APPLICATION_XML );
     } catch ( IllegalAccessException exception ) {
       return Response.status( UNAUTHORIZED ).build();
-    } catch (ServletException exception ) {
+    } catch ( ServletException exception ) {
       return Response.status( INTERNAL_SERVER_ERROR ).build();
-    } catch (IOException exception ) {
+    } catch ( IOException exception ) {
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }

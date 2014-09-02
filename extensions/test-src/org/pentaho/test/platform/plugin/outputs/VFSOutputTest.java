@@ -27,7 +27,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 
 import java.io.File;
 
-@SuppressWarnings( "nls" )
+@SuppressWarnings ( "nls" )
 public class VFSOutputTest extends BaseTest {
 
   private static final String SOLUTION_PATH = "test-src/solution";
@@ -54,10 +54,10 @@ public class VFSOutputTest extends BaseTest {
     System.out.println( "solution.root.dir = " + System.getProperty( "solution.root.dir" ) );
 
     String xaction = "/test/platform/VFSOutputTest_file.xaction";
-    if ( System.getProperty( "os.name" ).startsWith( "Windows" ) ){
-      xaction = "/test/platform/VFSOutputTestWindows_file.xaction";      
+    if ( System.getProperty( "os.name" ).startsWith( "Windows" ) ) {
+      xaction = "/test/platform/VFSOutputTestWindows_file.xaction";
     }
-    
+
     IRuntimeContext context =
         run( xaction, parameterProvider, "VFSOutputTest.testFileOutput", ".txt" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     assertEquals(
