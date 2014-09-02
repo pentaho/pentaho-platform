@@ -360,10 +360,8 @@ public class FileResource extends AbstractJaxRSResource {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
       return buildOkResponse( wrapper );
     } catch ( FileNotFoundException fileNotFound ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
       return buildStatusResponse( NOT_FOUND );
     } catch ( IllegalArgumentException illegalArgument ) {
-      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), illegalArgument );
       return buildStatusResponse( FORBIDDEN );
     }
   }
