@@ -17,10 +17,18 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.apache.commons.io.IOUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.metadata.model.Domain;
+import org.pentaho.metadata.model.LogicalModel;
+import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
@@ -130,5 +138,88 @@ public class MetadataImportHandlerTest {
     importer.importFile( bundle );
 
     context.assertIsSatisfied();
+  }
+
+  @Test
+  public void testPreserveDsw() throws Exception {
+    final String domainId = "AModel.xmi";
+    final InputStream fileIn = new FileInputStream( new File( "test-res/ImportTest/AModel.xmi" ) );
+    try {
+      final IPlatformImportBundle bundle = getMetadataImport( domainId, fileIn ).preserveDsw( true ).build();
+      context.checking( new Expectations() {
+        {
+          oneOf( metadataImporter )
+            .storeDomain( with( xmiInputStreamHasOlap( true ) ), with( equal( domainId ) ), with( equal( true ) ) );
+        }
+      } );
+      importer.importFile( bundle );
+      context.assertIsSatisfied();
+    } finally {
+      IOUtils.closeQuietly( fileIn );
+    }
+  }
+
+  @Test
+  public void testNotPreserveDsw() throws Exception {
+    final String domainId = "AModel";
+    final InputStream fileIn = new FileInputStream( new File( "test-res/ImportTest/AModel.xmi" ) );
+    try {
+      final IPlatformImportBundle bundle = getMetadataImport( domainId, fileIn ).build();
+      context.checking( new Expectations() {
+        {
+          oneOf( metadataImporter )
+            .storeDomain( with( xmiInputStreamHasOlap( false ) ), with( equal( domainId ) ), with( equal( true ) ) );
+        }
+      } );
+      importer.importFile( bundle );
+      context.assertIsSatisfied();
+    } finally {
+      IOUtils.closeQuietly( fileIn );
+    }
+  }
+
+  private RepositoryFileImportBundle.Builder getMetadataImport( final String domainId, final InputStream input ) {
+    return new RepositoryFileImportBundle.Builder()
+      .input( input ).charSet( "UTF-8" )
+      .mime( "text/xmi+xml" )
+      .hidden( false )
+      .overwriteFile( true )
+      .withParam( "domain-id", domainId );
+  }
+
+  @Factory
+  public static Matcher<InputStream> xmiInputStreamHasOlap( boolean yes ) {
+      return new XmiInputStreamHasOlap( yes );
+  }
+
+  private static class XmiInputStreamHasOlap extends TypeSafeMatcher<InputStream> {
+    private XmiParser xmiParser = new XmiParser();
+    // not() wasn't working
+    private final boolean yes;
+
+    public XmiInputStreamHasOlap( boolean yes ) {
+      this.yes = yes;
+    }
+
+    @Override
+    protected boolean matchesSafely( InputStream in ) {
+      try {
+        Domain domain = xmiParser.parseXmi( in );
+        if ( domain.getLogicalModels().size() > 1
+            && domain.getLogicalModels().get( 1 ).getProperty( LogicalModel.PROPERTY_OLAP_DIMS ) != null ) {
+          return yes;
+        }
+        return !yes;
+      }
+      catch (Exception e) {
+        throw new RuntimeException( e );
+      }
+
+    }
+
+    @Override
+    public void describeTo( Description description ) {
+      description.appendText( "xmi input stream " + ( yes ? "with" : "without" ) + " an OLAP model" );
+    }
   }
 }

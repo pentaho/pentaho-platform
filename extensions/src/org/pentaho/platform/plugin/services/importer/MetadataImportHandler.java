@@ -33,6 +33,7 @@ import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepos
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -90,7 +91,13 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     }
     try {
       log.debug( "Importing as metadata - [domain=" + domainId + "]" );
-      InputStream inputStream = StripDswFromStream( bundle.getInputStream() );
+      final InputStream inputStream;
+      if (bundle.isPreserveDsw()) {
+        // storeDomain needs to be able to close the stream
+        inputStream = cloneStream( bundle.getInputStream() );
+      } else {
+        inputStream = StripDswFromStream( bundle.getInputStream() );
+      }
 
       metadataRepositoryImporter.storeDomain( inputStream, domainId, bundle.overwriteInRepository() );
       return domainId;
@@ -109,6 +116,11 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       log.error( errorMessage, e );
       throw new PlatformImportException( errorMessage, e );
     }
+  }
+
+  private InputStream cloneStream( InputStream inputStream ) throws Exception {
+    byte[] contents = IOUtils.toByteArray( inputStream );
+    return new ByteArrayInputStream( contents );
   }
 
   private InputStream StripDswFromStream( InputStream inputStream ) throws Exception {
