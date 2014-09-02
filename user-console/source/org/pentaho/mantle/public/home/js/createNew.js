@@ -91,7 +91,7 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
             if (buttonId === 'createNewdatasourceButton') {
               // check permission for createNewdatasourceButton only
               if (hasDataAccess) {
-                $content.push($(myself.hrTemplate));
+                // $content.push($(myself.hrTemplate)); don't add separator yet
                 $content.push($button);
               }
             } else {
