@@ -74,15 +74,13 @@ public class PentahoWSSpringServlet extends HttpServlet {
   }
 
   protected ApplicationContext getAppContext() {
-    WebApplicationContext parent = WebApplicationContextUtils.getRequiredWebApplicationContext( getServletContext() );
-
     ConfigurableWebApplicationContext wac = new XmlWebApplicationContext() {
       @Override
       protected Resource getResourceByPath( String path ) {
         return new FileSystemResource( new File( path ) );
       }
     };
-    wac.setParent( parent );
+
     wac.setServletContext( getServletContext() );
     wac.setServletConfig( getServletConfig() );
     wac.setNamespace( getServletName() );
