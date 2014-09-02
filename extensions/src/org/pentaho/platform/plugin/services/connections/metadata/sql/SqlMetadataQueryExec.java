@@ -118,11 +118,10 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
 
       // Make sure all parameters are of the correct type.
       // Fix for PDB-1753
-      String pName = null;
-      for (Parameter param : queryObject.getParameters()) {
-        pName = param.getName();
-        if (parameters.containsKey(pName)) {
-          parameters.put(pName, this.convertParameterValue( param, parameters.get( pName ) ));
+      for ( Parameter param : queryObject.getParameters() ) {
+        String pName = param.getName();
+        if ( parameters.containsKey( pName ) && !parameters.get( pName ).getClass().isArray() ) {
+          parameters.put( pName, this.convertParameterValue( param, parameters.get( pName ) ) );
         }
       }
 
