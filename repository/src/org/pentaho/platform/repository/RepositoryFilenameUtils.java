@@ -232,7 +232,7 @@ public class RepositoryFilenameUtils {
    * @return the concatenated path, or null if invalid
    */
   public static String concat( final String basePath, final String fullFilenameToAdd ) {
-    int prefix = 0;
+    int prefix = -1;
     if(StringUtils.hasLength( fullFilenameToAdd)) {
       prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );  
     }
