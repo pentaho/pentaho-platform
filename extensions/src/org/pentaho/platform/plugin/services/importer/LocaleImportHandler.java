@@ -35,7 +35,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
-import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.w3c.dom.Document;
@@ -93,7 +92,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   /**
    * return locale specific properties from resource bundle
-   * 
+   *
    * @param locale
    * @return
    */
@@ -129,7 +128,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
         fileTitle =
             rb.containsKey( TITLE_PROPERTY_NAME ) ? rb.getString( TITLE_PROPERTY_NAME ) : rb.containsKey( "title" )
                 ? rb.getString( "title" ) : rb.containsKey( FILE_TITLE ) ? rb.getString( FILE_TITLE ) : rb
-                    .containsKey( DIRECTORY_NAME ) ? rb.getString( DIRECTORY_NAME ) : fileTitle;
+                .containsKey( DIRECTORY_NAME ) ? rb.getString( DIRECTORY_NAME ) : fileTitle;
 
       }
     }
@@ -141,7 +140,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   /**
    * returns default of the name of the locale e.g. JA, FR, EN, ... or DEFAULT for root
-   * 
+   *
    * @param localeBundle
    * @return
    */
@@ -194,10 +193,10 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
           String localeFileNameWithoutExtensions =
               FilenameUtils.getBaseName( FilenameUtils.getBaseName( localeFileName ) );
 
-          if(localeFileExtension.contains( "_" )) {
+          if ( localeFileExtension.contains( "_" ) ) {
             localeFileExtension = localeFileExtension.substring( 0, localeFileExtension.indexOf( "_" ) );
           }
-          
+
           if ( localeFileNameWithoutExtensions.equals( localeChildName )
               && localeFileExtension.equalsIgnoreCase( localeChildExtension )
               && artifacts.contains( localeChildExtension ) ) {

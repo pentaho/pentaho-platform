@@ -54,11 +54,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
- * This resource is responsible to managing the user console 
- * 
- *
+ * This resource is responsible to managing the user console
  */
-@Path( "/mantle/" )
+@Path ( "/mantle/" )
 public class UserConsoleResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( UserConsoleResource.class );
@@ -66,20 +64,21 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   private static ISystemConfig systemConfig;
   private static List<String> setSessionVarWhiteList;
   private static List<String> getSessionVarWhiteList;
+
   public UserConsoleResource() {
     userConsoleService = new UserConsoleService();
 
     systemConfig = PentahoSystem.get( ISystemConfig.class );
     String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
     PropertiesFileConfiguration config =
-      new PropertiesFileConfiguration( "rest", new File( solutionRootPath + "/system/restConfig.properties" ) );
+        new PropertiesFileConfiguration( "rest", new File( solutionRootPath + "/system/restConfig.properties" ) );
 
     try {
       systemConfig.registerConfiguration( config );
       setSessionVarWhiteList = Arrays
-        .asList( systemConfig.getProperty( "rest.userConsoleResource.setSessionVarWhiteList" ).split( "," ) );
+          .asList( systemConfig.getProperty( "rest.userConsoleResource.setSessionVarWhiteList" ).split( "," ) );
       getSessionVarWhiteList = Arrays
-        .asList( systemConfig.getProperty( "rest.userConsoleResource.getSessionVarWhiteList" ).split( "," ) );
+          .asList( systemConfig.getProperty( "rest.userConsoleResource.getSessionVarWhiteList" ).split( "," ) );
     } catch ( IOException e ) {
       //Default to hard coded white list
       setSessionVarWhiteList.add( "scheduler_folder" );
@@ -92,15 +91,15 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   /**
    * Returns whether the current user is an administrator
    * <p><b>Example Request:</b><br>
-   *               GET api/mantle/isAdministrator<br>
-   *               </p>
+   * GET api/mantle/isAdministrator<br>
+   * </p>
    *
    * @return String true if the user is an administrator, or false otherwise
    */
   @GET
-  @Path( "/isAdministrator" )
-  @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Returns the boolean response")
+  @Path ( "/isAdministrator" )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the boolean response" )
   } )
   public Response isAdministrator() {
     return buildOkResponse( String.valueOf( userConsoleService.isAdministrator() ) );
@@ -108,31 +107,31 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   /**
    * Returns whether the user is sn authenticated user or not
-   *
+   * <p/>
    * <p><b>Example Request:</b><br>
-   *               GET api/mantle/isAuthenticated<br>
-   *               </p>
+   * GET api/mantle/isAuthenticated<br>
+   * </p>
    *
    * @return String true if the user is an administrator, or false otherwise
    */
   @GET
-  @Path( "/isAuthenticated" )
-  @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Returns the boolean response" )
+  @Path ( "/isAuthenticated" )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the boolean response" )
   } )
   public Response isAuthenticated() {
     return buildOkResponse( String.valueOf( userConsoleService.isAuthenticated() ) );
   }
 
   /**
-   * Returns the list of admin related settings 
-   * 
+   * Returns the list of admin related settings
+   *
    * @return list of settings
    */
   @GET
-  @Path( "/getAdminContent" )
+  @Path ( "/getAdminContent" )
   @Facet ( name = "Unsupported" )
-  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
   public List<Setting> getAdminContent() {
 
     ArrayList<Setting> settings = new ArrayList<Setting>();
@@ -173,12 +172,12 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   /**
    * Return the current user console settings
-   * 
+   *
    * @return current settings
    */
   @GET
-  @Path( "/settings" )
-  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Path ( "/settings" )
+  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet ( name = "Unsupported" )
   public List<Setting> getMantleSettings() {
     ArrayList<Setting> settings = new ArrayList<Setting>();
@@ -247,19 +246,19 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   /**
    * Return the list of mondrian cubes in the platform
-   * 
+   *
    * @return list of cubes
    */
   @GET
-  @Path( "/cubes" )
+  @Path ( "/cubes" )
   @Facet ( name = "Unsupported" )
-  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
   public List<Cube> getMondrianCatalogs() {
     ArrayList<Cube> cubes = new ArrayList<Cube>();
 
     IMondrianCatalogService catalogService =
         PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", UserConsoleService
-          .getPentahoSession() ); //$NON-NLS-1$
+            .getPentahoSession() ); //$NON-NLS-1$
     List<MondrianCatalog> catalogs = catalogService.listCatalogs( UserConsoleService.getPentahoSession(), true );
 
     for ( MondrianCatalog cat : catalogs ) {
@@ -272,13 +271,12 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   /**
    * Apply the selected locale to the user console
-   * 
-   * @param locale (user console's locale) 
-   * 
+   *
+   * @param locale (user console's locale)
    * @return
    */
   @POST
-  @Path( "/locale" )
+  @Path ( "/locale" )
   @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
     return new SystemResource().setLocaleOverride( locale );
@@ -286,20 +284,20 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
   /**
    * Return the server side locale
-   * 
+   *
    * @return server's locale
    */
   @GET
-  @Path( "/locale" )
+  @Path ( "/locale" )
   @Facet ( name = "Unsupported" )
   public Response getLocale() {
-    return new  SystemResource().getLocale();
+    return new SystemResource().getLocale();
   }
 
   @POST
-  @Path( "/session-variable" )
+  @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
-  public Response setSessionVariable( @QueryParam( "key" ) String key, @QueryParam( "value" ) String value ) {
+  public Response setSessionVariable( @QueryParam ( "key" ) String key, @QueryParam ( "value" ) String value ) {
     if ( setSessionVarWhiteList.contains( key ) ) {
       IPentahoSession session = UserConsoleService.getPentahoSession();
       session.setAttribute( key, value );
@@ -309,9 +307,9 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   }
 
   @GET
-  @Path( "/session-variable" )
+  @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
-  public Response getSessionVariable( @QueryParam( "key" ) String key ) {
+  public Response getSessionVariable( @QueryParam ( "key" ) String key ) {
     if ( getSessionVarWhiteList.contains( key ) ) {
       return Response.ok( UserConsoleService.getPentahoSession().getAttribute( key ) ).build();
     }
@@ -319,9 +317,9 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   }
 
   @DELETE
-  @Path( "/session-variable" )
+  @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
-  public Response clearSessionVariable( @QueryParam( "key" ) String key ) {
+  public Response clearSessionVariable( @QueryParam ( "key" ) String key ) {
     return Response.ok( UserConsoleService.getPentahoSession().removeAttribute( key ) ).build();
   }
 

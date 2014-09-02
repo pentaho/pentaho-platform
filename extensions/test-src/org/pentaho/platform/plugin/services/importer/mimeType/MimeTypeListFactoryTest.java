@@ -36,10 +36,10 @@ public class MimeTypeListFactoryTest {
     StandaloneSpringPentahoObjectFactory objectFactory = new StandaloneSpringPentahoObjectFactory();
     objectFactory.init( "test-res/MimeTypeFactoryTest/MimeTypeFactoryTest.spring.xml", null );
     PentahoSystem.registerObjectFactory( objectFactory );
-    
+
     MimeTypeListFactory factory =
         new MimeTypeListFactory( "test-res/MimeTypeFactoryTest/ImportHandlerMimeTypeDefinitions.xml" );
-    
+
     List<MimeType> list1 =
         factory.createMimeTypeList( "org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler" );
     assertNotNull( list1 );
@@ -47,7 +47,7 @@ public class MimeTypeListFactoryTest {
     List<MimeType> list2 = factory.createMimeTypeList( "this.one.is.not.present" );
     assertNotNull( list2 );
     assertEquals( 0, list2.size() );
-    
+
     List<MimeType> list3 = factory.createMimeTypeList( "org.pentaho.platform.plugin.services.importer.SolutionImportHandler" );
     assertNotNull( list3 );
     assertTrue( list3.size() > 0 );

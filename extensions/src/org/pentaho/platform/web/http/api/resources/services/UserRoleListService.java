@@ -57,7 +57,7 @@ public class UserRoleListService {
     IUserRoleListService service = getUserRoleListService();
     return new UserListWrapper( service.getAllUsers() );
   }
-  
+
   public RoleListWrapper getRoles() {
     return new RoleListWrapper( getUserRoleListService().getAllRoles() );
   }
@@ -73,7 +73,7 @@ public class UserRoleListService {
     return new RoleListWrapper( systemRoles );
   }
 
-  public RoleListWrapper getPermissionRoles ( String adminRole ) {
+  public RoleListWrapper getPermissionRoles( String adminRole ) {
     IUserRoleListService userRoleListService = getUserRoleListService();
     List<String> allRoles = userRoleListService.getAllRoles();
     // We will not allow user to update permission for Administrator
@@ -82,7 +82,7 @@ public class UserRoleListService {
     }
 
     // Add extra roles to the list of roles
-    if( extraRoles != null ) {
+    if ( extraRoles != null ) {
       for ( String extraRole : extraRoles ) {
         if ( !allRoles.contains( extraRole ) ) {
           allRoles.add( extraRole );
@@ -117,13 +117,17 @@ public class UserRoleListService {
     return SystemService.getSystemService().getUsersInRole( role ).asXML();
   }
 
-  public void setExtraRoles( ArrayList<String> extraRoles ) { this.extraRoles = extraRoles; }
+  public void setExtraRoles( ArrayList<String> extraRoles ) {
+    this.extraRoles = extraRoles;
+  }
 
   public void setSystemRoles( ArrayList<String> systemRoles ) {
     this.systemRoles = systemRoles;
   }
 
-  public ArrayList<String> getExtraRoles() { return this.extraRoles; }
+  public ArrayList<String> getExtraRoles() {
+    return this.extraRoles;
+  }
 
   public class UnauthorizedException extends Exception {
   }

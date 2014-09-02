@@ -81,8 +81,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

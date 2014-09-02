@@ -42,7 +42,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: nbaker Date: 6/25/12
@@ -75,9 +74,9 @@ public class MetadataImportHandlerTest {
 
     List<MimeType> mimeList = new ArrayList<MimeType>();
     mimeList.add( new MimeType( "text/xmi+xml", "xmi" ) );
-    
+
     metadataHandler = new MetadataImportHandler( mimeList, metadataImporter );
-    
+
     handlers.add( metadataHandler );
 
     importer =
@@ -94,7 +93,7 @@ public class MetadataImportHandlerTest {
     final IPlatformImportBundle bundle1 =
         ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).mime( "text/xmi+xml" ).hidden( false )
             .overwriteFile( true ).name( "steel-wheels.xmi" ).comment( "Test Metadata Import" ).withParam( "domain-id",
-            "parameterized-domain-id" ) ).build();
+                "parameterized-domain-id" ) ).build();
 
     context.checking( new Expectations() {
       {
@@ -113,17 +112,17 @@ public class MetadataImportHandlerTest {
     final FileInputStream propIn = new FileInputStream( new File( "test-res/ImportTest/steel-wheels_en.properties" ) );
     final IPlatformImportBundle localizationBundle =
         new RepositoryFileImportBundle.Builder().input( propIn ).charSet( "UTF-8" ).hidden( false ).name(
-          "steel-wheels_en.properties" ).build();
+            "steel-wheels_en.properties" ).build();
 
     final IPlatformImportBundle localizationBundle2 =
         new RepositoryFileImportBundle.Builder().input( propIn ).charSet( "UTF-8" ).hidden( false ).name(
-          "steel-wheels_en_US.properties" ).build();
+            "steel-wheels_en_US.properties" ).build();
 
     final FileInputStream in = new FileInputStream( new File( "test-res/ImportTest/steel-wheels.xmi" ) );
     final IPlatformImportBundle bundle =
         new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).overwriteFile( true )
             .mime( "text/xmi+xml" ).name( "steel-wheels.xmi" ).comment( "Test Metadata Import" ).withParam(
-          "domain-id", "steel-wheels" ).addChildBundle( localizationBundle ).addChildBundle( localizationBundle2 )
+            "domain-id", "steel-wheels" ).addChildBundle( localizationBundle ).addChildBundle( localizationBundle2 )
             .build();
 
     context.checking( new Expectations() {
@@ -149,7 +148,7 @@ public class MetadataImportHandlerTest {
       context.checking( new Expectations() {
         {
           oneOf( metadataImporter )
-            .storeDomain( with( xmiInputStreamHasOlap( true ) ), with( equal( domainId ) ), with( equal( true ) ) );
+              .storeDomain( with( xmiInputStreamHasOlap( true ) ), with( equal( domainId ) ), with( equal( true ) ) );
         }
       } );
       importer.importFile( bundle );
@@ -168,7 +167,7 @@ public class MetadataImportHandlerTest {
       context.checking( new Expectations() {
         {
           oneOf( metadataImporter )
-            .storeDomain( with( xmiInputStreamHasOlap( false ) ), with( equal( domainId ) ), with( equal( true ) ) );
+              .storeDomain( with( xmiInputStreamHasOlap( false ) ), with( equal( domainId ) ), with( equal( true ) ) );
         }
       } );
       importer.importFile( bundle );
@@ -180,16 +179,16 @@ public class MetadataImportHandlerTest {
 
   private RepositoryFileImportBundle.Builder getMetadataImport( final String domainId, final InputStream input ) {
     return new RepositoryFileImportBundle.Builder()
-      .input( input ).charSet( "UTF-8" )
-      .mime( "text/xmi+xml" )
-      .hidden( false )
-      .overwriteFile( true )
-      .withParam( "domain-id", domainId );
+        .input( input ).charSet( "UTF-8" )
+        .mime( "text/xmi+xml" )
+        .hidden( false )
+        .overwriteFile( true )
+        .withParam( "domain-id", domainId );
   }
 
   @Factory
   public static Matcher<InputStream> xmiInputStreamHasOlap( boolean yes ) {
-      return new XmiInputStreamHasOlap( yes );
+    return new XmiInputStreamHasOlap( yes );
   }
 
   private static class XmiInputStreamHasOlap extends TypeSafeMatcher<InputStream> {
@@ -210,8 +209,7 @@ public class MetadataImportHandlerTest {
           return yes;
         }
         return !yes;
-      }
-      catch (Exception e) {
+      } catch ( Exception e ) {
         throw new RuntimeException( e );
       }
 

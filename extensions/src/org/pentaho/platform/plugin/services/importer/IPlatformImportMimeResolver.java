@@ -21,19 +21,18 @@ import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 
 /**
  * Implementations of this class compute mime-types based on the given IPlatformImportBundle.
- * 
+ * <p/>
  * User: nbaker Date: 6/18/12
  */
 public interface IPlatformImportMimeResolver {
-  
   //void addExtensionForMime( String extension, MimeType mimeType );
-  
+
   String resolveMimeForBundle( IPlatformImportBundle bundle );
 
   String resolveMimeForFileName( String fileName );
-  
+
   MimeType resolveMimeTypeForFileName( String fileName );
-  
+
   void addMimeType( MimeType mimeType );
-  
+
 }

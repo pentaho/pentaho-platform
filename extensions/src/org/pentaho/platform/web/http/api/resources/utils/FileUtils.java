@@ -18,7 +18,7 @@ public class FileUtils {
       logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) );
     }
     path = pathId.replaceAll( PATH_SEPARATOR, "" );
-    path = RepositoryPathEncoder.decodeRepositoryPath(path);
+    path = RepositoryPathEncoder.decodeRepositoryPath( path );
     if ( !path.startsWith( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR + path;
     }

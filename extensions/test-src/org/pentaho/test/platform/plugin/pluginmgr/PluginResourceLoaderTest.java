@@ -168,7 +168,7 @@ public class PluginResourceLoaderTest {
     List<URL> urls = resLoader.findResources( pluginClass, "*properties*" );
     boolean propFile1Found = false, propFile2Found = false;
     for ( URL url : urls ) {
-      File f = new File ( url.toURI() );
+      File f = new File( url.toURI() );
       String fileName = f.getName();
       if ( "pluginResourceTest-inresources.properties".equals( fileName ) ) {
         propFile1Found = true;

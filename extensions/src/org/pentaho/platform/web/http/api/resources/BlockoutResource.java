@@ -13,4 +13,5 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-public class BlockoutResource {}
+public class BlockoutResource {
+}

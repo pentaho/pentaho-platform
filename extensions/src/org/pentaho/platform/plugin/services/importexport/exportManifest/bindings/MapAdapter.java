@@ -40,7 +40,7 @@ public class MapAdapter extends XmlAdapter<Parameters, Map<String, String>> {
   @Override
   public Parameters marshal( Map<String, String> map ) {
     try {
-      Parameters params = new Parameters();        
+      Parameters params = new Parameters();
       Parameters.Entries entries = new Parameters.Entries();
       params.setEntries( entries );
       for ( Map.Entry<String, String> entry : map.entrySet() ) {

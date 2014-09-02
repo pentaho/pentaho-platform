@@ -35,7 +35,6 @@ public class FileOutputHandler extends BaseOutputHandler {
 
   @Override
   public IContentItem getFileOutputContentItem() {
-    
     String contentRef = getContentRef();
     File file = new File( contentRef );
     File dir = file.getParentFile();

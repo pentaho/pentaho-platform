@@ -60,7 +60,6 @@ public interface IPlatformImportBundle {
    * @return path
    */
   String getPath();
-  
   /**
    * Optional InputStream for content with a binary component.
    * 

@@ -36,10 +36,10 @@ public class RepositoryPublishServiceTest {
   @Test
   public void testWriteFile() throws Exception {
     String pathId = "path:to:file";
-    InputStream stubInputStream = IOUtils.toInputStream("some test data for my input stream");
+    InputStream stubInputStream = IOUtils.toInputStream( "some test data for my input stream" );
     Boolean overwriteFile = true;
 
-    doReturn(true).when( repositoryPublishService.policy ).isAllowed( anyString() );
+    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( anyString() );
     doReturn( repositoryPublishService.policy ).when( repositoryPublishService ).getPolicy();
 
     doReturn( mockRepositoryFileImportBundle ).when( repositoryPublishService ).buildBundle( pathId, stubInputStream, overwriteFile );
@@ -52,7 +52,7 @@ public class RepositoryPublishServiceTest {
   @Test
   public void testWriteFileException() throws Exception {
     String pathId = "path:to:file";
-    InputStream stubInputStream = IOUtils.toInputStream("some test data for my input stream");
+    InputStream stubInputStream = IOUtils.toInputStream( "some test data for my input stream" );
     Boolean overwriteFile = true;
 
     doReturn( mockRepositoryFileImportBundle ).when( repositoryPublishService ).buildBundle( pathId, stubInputStream, overwriteFile );
@@ -60,15 +60,15 @@ public class RepositoryPublishServiceTest {
     /*
      * Test 1
      */
-    doReturn(false).when( repositoryPublishService.policy ).isAllowed( anyString() );
+    doReturn( false ).when( repositoryPublishService.policy ).isAllowed( anyString() );
     doReturn( repositoryPublishService.policy ).when( repositoryPublishService ).getPolicy();
 
     try {
       repositoryPublishService.writeFile( pathId, stubInputStream, overwriteFile );
       fail();
-    } catch (PentahoAccessControlException e) {
+    } catch ( PentahoAccessControlException e ) {
       // Expected
-    } catch (Throwable t) {
+    } catch ( Throwable t ) {
       fail();
     }
 
@@ -80,7 +80,7 @@ public class RepositoryPublishServiceTest {
     try {
       repositoryPublishService.writeFile( pathId, stubInputStream, overwriteFile );
       fail();
-    } catch (PlatformImportException e) {
+    } catch ( PlatformImportException e ) {
       // Expected
     } catch ( Exception e ) {
       fail();
@@ -91,11 +91,11 @@ public class RepositoryPublishServiceTest {
      */
     doReturn( true ).when( repositoryPublishService.policy ).isAllowed( anyString() );
     doThrow( new InternalError() ).when( repositoryPublishService.platformImporter ).
-      importFile( mockRepositoryFileImportBundle );
+        importFile( mockRepositoryFileImportBundle );
     try {
       repositoryPublishService.writeFile( pathId, stubInputStream, overwriteFile );
       fail();
-    } catch (PlatformImportException e) {
+    } catch ( PlatformImportException e ) {
       fail();
     } catch ( InternalError e ) {
       // Expected

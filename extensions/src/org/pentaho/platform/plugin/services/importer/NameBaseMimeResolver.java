@@ -24,7 +24,7 @@ import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 
 /**
  * Resolves mime-types by extension.
- * 
+ * <p/>
  * User: nbaker Date: 6/18/12
  */
 public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
@@ -37,13 +37,13 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
   @Override
   public String resolveMimeForFileName( String fileName ) {
     MimeType mimeType = extensionToMimeMap.get( extractExtension( fileName ) );
-    if ( mimeType == null) {
+    if ( mimeType == null ) {
       return null;
     }
 
     return mimeType.getName();
   }
-  
+
   @Override
   public String resolveMimeForBundle( IPlatformImportBundle bundle ) {
     if ( bundle.getMimeType() != null ) {
@@ -56,12 +56,12 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
       return mimeType.getName();
     }
   }
-  
+
   @Override
   public MimeType resolveMimeTypeForFileName( String fileName ) {
     return extensionToMimeMap.get( extractExtension( fileName ) );
   }
-  
+
   private String extractExtension( String name ) {
     if ( name == null ) {
       return null;

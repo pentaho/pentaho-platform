@@ -37,9 +37,9 @@ public class ChainedUserDetailsServiceTest {
     final UserDetailsService mock1 = mock( UserDetailsService.class );
     UserDetails joeDetails = mock( UserDetails.class );
     UserDetails adminDetails = mock( UserDetails.class );
-    when(mock1.loadUserByUsername( "joe" )).thenReturn( joeDetails );
+    when( mock1.loadUserByUsername( "joe" ) ).thenReturn( joeDetails );
     final UserDetailsService mock2 = mock( UserDetailsService.class );
-    when(mock1.loadUserByUsername( "admin" )).thenReturn( adminDetails );
+    when( mock1.loadUserByUsername( "admin" ) ).thenReturn( adminDetails );
 
     ChainedUserDetailsService userDetailsService = new ChainedUserDetailsService( Arrays.asList( mock1, mock2 )  );
     final UserDetails joe = userDetailsService.loadUserByUsername( "joe" );

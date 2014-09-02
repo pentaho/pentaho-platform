@@ -17,11 +17,14 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.sun.jersey.api.NotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.security.userroledao.*;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.core.mt.Tenant;
@@ -33,7 +36,14 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.PUT;
+
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -48,11 +58,9 @@ import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
- *  UserRoleDao manage pentaho security user and roles in the platform.
- *
- *
+ * UserRoleDao manage pentaho security user and roles in the platform.
  */
-@Path( "/userroledao/" )
+@Path ( "/userroledao/" )
 public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
@@ -61,7 +69,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   private String adminRole;
 
   private static final Log logger =
-    LogFactory.getLog( UserRoleDaoResource.class );
+      LogFactory.getLog( UserRoleDaoResource.class );
 
 
   public UserRoleDaoResource() {
@@ -71,7 +79,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   public UserRoleDaoResource( final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
-      final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole ) {
+                              final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole ) {
 
     if ( roleBindingDao == null ) {
       throw new IllegalArgumentException();
@@ -88,12 +96,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Returns the list of users in the platform's repository
    *
    * @return list of users in the platform
-   *
    * @throws Exception
    */
   @GET
-  @Path( "/users" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Path ( "/users" )
+  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   public UserListWrapper getUsers() throws Exception {
     if ( canAdminister() ) {
       try {
@@ -112,12 +119,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Returns the list of roles in the platform's repository
    *
    * @return list of roles in the platform
-   *
    * @throws Exception
    */
   @GET
-  @Path( "/roles" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Path ( "/roles" )
+  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   public RoleListWrapper getRoles() throws Exception {
     if ( canAdminister() ) {
       try {
@@ -136,16 +142,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Retrieves a selected user's roles
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userName (user name)
+   * @param userName   (user name)
    * @return list of roles fir the selected user
-   *
    * @throws Exception
    */
   @GET
-  @Path( "/userRoles" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public RoleListWrapper getUserRoles( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userName" ) String userName ) throws Exception {
+  @Path ( "/userRoles" )
+  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  public RoleListWrapper getUserRoles( @QueryParam ( "tenant" ) String tenantPath,
+                                       @QueryParam ( "userName" ) String userName ) throws Exception {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -163,17 +168,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Retrieves list of users for the selected role
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param roleName (role name)
-   *
+   * @param roleName   (role name)
    * @return list of users for the selected role
-   *
    * @throws Exception
    */
   @GET
-  @Path( "/roleMembers" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public UserListWrapper getRoleMembers( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "roleName" ) String roleName ) throws Exception {
+  @Path ( "/roleMembers" )
+  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  public UserListWrapper getRoleMembers( @QueryParam ( "tenant" ) String tenantPath,
+                                         @QueryParam ( "roleName" ) String roleName ) throws Exception {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
     return new UserListWrapper( roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) );
@@ -183,31 +186,30 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Associates selected role(s) to a user
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userName (username)
-   * @param roleNames (tab (\t) separated list of role names)
-   *
+   * @param userName   (username)
+   * @param roleNames  (tab (\t) separated list of role names)
    * @return
    */
   @PUT
-  @Path( "/assignRoleToUser" )
-  @Consumes( { WILDCARD } )
-  public Response assignRoleToUser( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userName" ) String userName, @QueryParam( "roleNames" ) String roleNames ) {
+  @Path ( "/assignRoleToUser" )
+  @Consumes ( { WILDCARD } )
+  public Response assignRoleToUser( @QueryParam ( "tenant" ) String tenantPath,
+                                    @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
       IUserRoleDao roleDao =
-          PentahoSystem.get(IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession());
-      StringTokenizer tokenizer = new StringTokenizer(roleNames, "\t");
+          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
       Set<String> assignedRoles = new HashSet<String>();
-      for (IPentahoRole pentahoRole : roleDao.getUserRoles(getTenant(tenantPath), userName)) {
-        assignedRoles.add(pentahoRole.getName());
+      for ( IPentahoRole pentahoRole : roleDao.getUserRoles( getTenant( tenantPath ), userName ) ) {
+        assignedRoles.add( pentahoRole.getName() );
       }
-      while (tokenizer.hasMoreTokens()) {
-        assignedRoles.add(tokenizer.nextToken());
+      while ( tokenizer.hasMoreTokens() ) {
+        assignedRoles.add( tokenizer.nextToken() );
       }
       try {
-        roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
-      } catch (Throwable th) {
-        return processErrorResponse(th.getLocalizedMessage());
+        roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[0] ) );
+      } catch ( Throwable th ) {
+        return processErrorResponse( th.getLocalizedMessage() );
       }
       return Response.ok().build();
     } else {
@@ -219,16 +221,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Remove selected roles(s) from a selected user
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userName (username)
-   * @param roleNames (tab (\t) separated list of role names)
-   *
+   * @param userName   (username)
+   * @param roleNames  (tab (\t) separated list of role names)
    * @return
    */
   @PUT
-  @Path( "/removeRoleFromUser" )
-  @Consumes( { WILDCARD } )
-  public Response removeRoleFromUser( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userName" ) String userName, @QueryParam( "roleNames" ) String roleNames ) {
+  @Path ( "/removeRoleFromUser" )
+  @Consumes ( { WILDCARD } )
+  public Response removeRoleFromUser( @QueryParam ( "tenant" ) String tenantPath,
+                                      @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -255,15 +256,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Associate all roles to the selected user
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userName (username)
-   *
+   * @param userName   (username)
    * @return
    */
   @PUT
-  @Path( "/assignAllRolesToUser" )
-  @Consumes( { WILDCARD } )
-  public Response assignAllRolesToUser( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userName" ) String userName ) {
+  @Path ( "/assignAllRolesToUser" )
+  @Consumes ( { WILDCARD } )
+  public Response assignAllRolesToUser( @QueryParam ( "tenant" ) String tenantPath,
+                                        @QueryParam ( "userName" ) String userName ) {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
     Set<String> assignedRoles = new HashSet<String>();
@@ -278,15 +278,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Remove all roles from the selected user
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userName (username)
-   *
+   * @param userName   (username)
    * @return
    */
   @PUT
-  @Path( "/removeAllRolesFromUser" )
-  @Consumes( { WILDCARD } )
-  public Response removeAllRolesFromUser( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userName" ) String userName ) {
+  @Path ( "/removeAllRolesFromUser" )
+  @Consumes ( { WILDCARD } )
+  public Response removeAllRolesFromUser( @QueryParam ( "tenant" ) String tenantPath,
+                                          @QueryParam ( "userName" ) String userName ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -304,18 +303,16 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   /**
    * Associate list of users to the selected role
    *
-   *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userNames (list of tab (\t) separated user names
-   * @param roleName (role name)
-   *
+   * @param userNames  (list of tab (\t) separated user names
+   * @param roleName   (role name)
    * @return
    */
   @PUT
-  @Path( "/assignUserToRole" )
-  @Consumes( { WILDCARD } )
-  public Response assignUserToRole( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userNames" ) String userNames, @QueryParam( "roleName" ) String roleName ) {
+  @Path ( "/assignUserToRole" )
+  @Consumes ( { WILDCARD } )
+  public Response assignUserToRole( @QueryParam ( "tenant" ) String tenantPath,
+                                    @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       IUserRoleDao roleDao =
           PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
@@ -328,9 +325,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         assignedUserNames.add( tokenizer.nextToken() );
       }
       try {
-        roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
+        roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
         return Response.ok().build();
-      } catch (Throwable th) {
+      } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
@@ -342,16 +339,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Remove user(s) from a particular role
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param userNames (list of tab (\t) separated user names
-   * @param roleName (role name)
-   *
+   * @param userNames  (list of tab (\t) separated user names
+   * @param roleName   (role name)
    * @return
    */
   @PUT
-  @Path( "/removeUserFromRole" )
-  @Consumes( { WILDCARD } )
-  public Response removeUserFromRole( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "userNames" ) String userNames, @QueryParam( "roleName" ) String roleName ) {
+  @Path ( "/removeUserFromRole" )
+  @Consumes ( { WILDCARD } )
+  public Response removeUserFromRole( @QueryParam ( "tenant" ) String tenantPath,
+                                      @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -378,15 +374,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Associates all user to a particular role
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param roleName (role name)
-   *
+   * @param roleName   (role name)
    * @return
    */
   @PUT
-  @Path( "/assignAllUsersToRole" )
-  @Consumes( { WILDCARD } )
-  public Response assignAllUsersToRole( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "roleName" ) String roleName ) {
+  @Path ( "/assignAllUsersToRole" )
+  @Consumes ( { WILDCARD } )
+  public Response assignAllUsersToRole( @QueryParam ( "tenant" ) String tenantPath,
+                                        @QueryParam ( "roleName" ) String roleName ) {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
     Set<String> assignedUserNames = new HashSet<String>();
@@ -401,15 +396,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Removes all users from a particular role
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param roleName (role name)
-   *
+   * @param roleName   (role name)
    * @return
    */
   @PUT
-  @Path( "/removeAllUsersFromRole" )
-  @Consumes( { WILDCARD } )
-  public Response removeAllUsersFromRole( @QueryParam( "tenant" ) String tenantPath,
-      @QueryParam( "roleName" ) String roleName ) {
+  @Path ( "/removeAllUsersFromRole" )
+  @Consumes ( { WILDCARD } )
+  public Response removeAllUsersFromRole( @QueryParam ( "tenant" ) String tenantPath,
+                                          @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -428,14 +422,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Create a new user with provided information.
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param user (user information <code> User </code>)
-   *
+   * @param user       (user information <code> User </code>)
    * @return
    */
   @PUT
-  @Path( "/createUser" )
-  @Consumes( { WILDCARD } )
-  public Response createUser( @QueryParam( "tenant" ) String tenantPath, User user ) {
+  @Path ( "/createUser" )
+  @Consumes ( { WILDCARD } )
+  public Response createUser( @QueryParam ( "tenant" ) String tenantPath, User user ) {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
     String userName = user.getUserName();
@@ -460,14 +453,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Create a new role with the provided information
    *
    * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param roleName (name of the new role)
-   *
+   * @param roleName   (name of the new role)
    * @return
    */
   @PUT
-  @Path( "/createRole" )
-  @Consumes( { WILDCARD } )
-  public Response createRole( @QueryParam( "tenant" ) String tenantPath, @QueryParam( "roleName" ) String roleName ) {
+  @Path ( "/createRole" )
+  @Consumes ( { WILDCARD } )
+  public Response createRole( @QueryParam ( "tenant" ) String tenantPath, @QueryParam ( "roleName" ) String roleName ) {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
     roleDao.createRole( getTenant( tenantPath ), roleName, "", new String[0] );
@@ -478,13 +470,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Delete role(s) from the platform
    *
    * @param roleNames (list of tab (\t) separated role names)
-   *
    * @return
    */
   @PUT
-  @Path( "/deleteRoles" )
-  @Consumes( { WILDCARD } )
-  public Response deleteRole( @QueryParam( "roleNames" ) String roleNames ) {
+  @Path ( "/deleteRoles" )
+  @Consumes ( { WILDCARD } )
+  public Response deleteRole( @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -509,13 +500,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Delete user(s) from the platform
    *
    * @param userNames (list of tab (\t) separated user names)
-   *
    * @return
    */
   @PUT
-  @Path( "/deleteUsers" )
-  @Consumes( { WILDCARD } )
-  public Response deleteUser( @QueryParam( "userNames" ) String userNames ) {
+  @Path ( "/deleteUsers" )
+  @Consumes ( { WILDCARD } )
+  public Response deleteUser( @QueryParam ( "userNames" ) String userNames ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao =
@@ -540,12 +530,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Update the password of a selected user
    *
    * @param user (user information <code> User </code>)
-   *
    * @return
    */
   @PUT
-  @Path( "/updatePassword" )
-  @Consumes( { WILDCARD } )
+  @Path ( "/updatePassword" )
+  @Consumes ( { WILDCARD } )
   public Response updatePassword( User user ) {
     if ( canAdminister() ) {
       try {
@@ -582,13 +571,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Retrieve the list of logical roles in the platform
    *
    * @param locale (locale)
-   *
    * @return
    */
   @GET
-  @Path( "/logicalRoleMap" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
-  public SystemRolesMap getRoleBindingStruct( @QueryParam( "locale" ) String locale ) {
+  @Path ( "/logicalRoleMap" )
+  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
     if ( canAdminister() ) {
       try {
         RoleBindingStruct roleBindingStruct = roleBindingDao.getRoleBindingStruct( locale );
@@ -600,14 +588,15 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         for ( Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet() ) {
           systemRolesMap.getAssignments().add(
               new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()
-                  , roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) ) );
+                  , roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) )
+          );
         }
         return systemRolesMap;
       } catch ( Throwable t ) {
         throw new WebApplicationException( t );
       }
     } else {
-        throw new WebApplicationException( new Throwable() );
+      throw new WebApplicationException( new Throwable() );
     }
   }
 
@@ -615,12 +604,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Associate a particular runtime role to list of logical role in the repository
    *
    * @param roleAssignments (logical to runtime role assignments)
-   *
    * @return
    */
   @PUT
-  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
-  @Path( "/roleAssignments" )
+  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Path ( "/roleAssignments" )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
     for ( LogicalRoleAssignment roleAssignment : roleAssignments.getAssignments() ) {
       roleBindingDao.setRoleBindings( roleAssignment.getRoleName(), roleAssignment.getLogicalRoles() );

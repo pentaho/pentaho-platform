@@ -124,13 +124,13 @@ public class SchedulerServiceTest {
     doReturn( true ).when( schedulerService ).getAutoCreateUniqueFilename( any( JobScheduleRequest.class ) );
 
     doReturn( job ).when( schedulerService.scheduler )
-      .createJob( anyString(), anyString(), any( Map.class ), any( IJobTrigger.class ),
-        any( IBackgroundExecutionStreamProvider.class ) );
+        .createJob( anyString(), anyString(), any( Map.class ), any( IJobTrigger.class ),
+            any( IBackgroundExecutionStreamProvider.class ) );
 
     doReturn( Class.class ).when( schedulerService ).getAction( anyString() );
 
     doReturn( job ).when( schedulerService.scheduler )
-      .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+        .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
 
     //Test 1
     schedulerService.createJob( scheduleRequest );
@@ -161,7 +161,7 @@ public class SchedulerServiceTest {
     verify( scheduleRequest, times( 5 ) ).getActionClass();
     verify( schedulerService ).getAction( anyString() );
     verify( schedulerService.scheduler )
-      .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+        .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
   }
 
   @Test
@@ -211,13 +211,13 @@ public class SchedulerServiceTest {
     doReturn( true ).when( schedulerService ).getAutoCreateUniqueFilename( any( JobScheduleRequest.class ) );
 
     doReturn( job ).when( schedulerService.scheduler )
-      .createJob( anyString(), anyString(), any( Map.class ), any( IJobTrigger.class ),
-        any( IBackgroundExecutionStreamProvider.class ) );
+        .createJob( anyString(), anyString(), any( Map.class ), any( IJobTrigger.class ),
+            any( IBackgroundExecutionStreamProvider.class ) );
 
     doReturn( Class.class ).when( schedulerService ).getAction( anyString() );
 
     doReturn( job ).when( schedulerService.scheduler )
-      .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+        .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
 
 
     //Test 1
@@ -474,7 +474,7 @@ public class SchedulerServiceTest {
     verify( schedulerService.scheduler, times( 1 ) ).pause();
     verify( schedulerService.scheduler, times( 2 ) ).getStatus();
   }
-  
+
   @Test
   public void testPauseJob() throws SchedulerException {
     Job job = mock( Job.class );
@@ -484,16 +484,16 @@ public class SchedulerServiceTest {
     doReturn( IScheduler.SchedulerStatus.PAUSED ).when( schedulerService.scheduler ).getStatus();
     schedulerService.pauseJob( "job-id" );
   }
-  
+
   @Test
   public void testPauseJobException() throws SchedulerException {
     Job job = mock( Job.class );
     doReturn( job ).when( schedulerService ).getJob( anyString() );
     doReturn( true ).when( schedulerService ).isScheduleAllowed();
-    doThrow( new SchedulerException("pause-exception") ).when( schedulerService.scheduler ).pauseJob( anyString() );
+    doThrow( new SchedulerException( "pause-exception" ) ).when( schedulerService.scheduler ).pauseJob( anyString() );
     try {
       schedulerService.pauseJob( "job-id" );
-    } catch (SchedulerException e) {
+    } catch ( SchedulerException e ) {
       assertEquals( "pause-exception", e.getMessage() );
     }
   }
@@ -507,20 +507,20 @@ public class SchedulerServiceTest {
     doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
     schedulerService.resumeJob( "job-id" );
   }
-  
+
   @Test
   public void testResumeJobException() throws SchedulerException {
     Job job = mock( Job.class );
     doReturn( job ).when( schedulerService ).getJob( anyString() );
     doReturn( true ).when( schedulerService ).isScheduleAllowed();
-    doThrow( new SchedulerException("pause-exception") ).when( schedulerService.scheduler ).resumeJob( anyString() );
+    doThrow( new SchedulerException( "pause-exception" ) ).when( schedulerService.scheduler ).resumeJob( anyString() );
     try {
       schedulerService.resumeJob( "job-id" );
-    } catch (SchedulerException e) {
+    } catch ( SchedulerException e ) {
       assertEquals( "pause-exception", e.getMessage() );
     }
   }
-  
+
   @Test
   public void testRemoveJob() throws SchedulerException {
     Job job = mock( Job.class );
@@ -530,20 +530,20 @@ public class SchedulerServiceTest {
     doReturn( IScheduler.SchedulerStatus.RUNNING ).when( schedulerService.scheduler ).getStatus();
     schedulerService.removeJob( "job-id" );
   }
-  
+
   @Test
   public void testRemoveJobException() throws SchedulerException {
     Job job = mock( Job.class );
     doReturn( job ).when( schedulerService ).getJob( anyString() );
     doReturn( true ).when( schedulerService ).isScheduleAllowed();
-    doThrow( new SchedulerException("pause-exception") ).when( schedulerService.scheduler ).removeJob( anyString() );
+    doThrow( new SchedulerException( "pause-exception" ) ).when( schedulerService.scheduler ).removeJob( anyString() );
     try {
       schedulerService.removeJob( "job-id" );
-    } catch (SchedulerException e) {
+    } catch ( SchedulerException e ) {
       assertEquals( "pause-exception", e.getMessage() );
     }
   }
-  
+
   @Test
   public void testPauseException() throws SchedulerException {
     doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
@@ -641,7 +641,7 @@ public class SchedulerServiceTest {
 
     List<RepositoryFileDto> mockList = mock( List.class );
     doReturn( mockList ).when( mockFileService )
-      .searchGeneratedContent( currentUserDir, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+        .searchGeneratedContent( currentUserDir, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
 
     List<RepositoryFileDto> list = schedulerService.doGetGeneratedContentForSchedule( lineageId );
     assertEquals( mockList, list );
@@ -742,7 +742,7 @@ public class SchedulerServiceTest {
     jobParamsKeyset.add( jobParamKey );
 
     String value = "value";
-    String[] testArray = new String[] { value };
+    String[] testArray = new String[]{value};
     doReturn( testArray ).when( mockJobParams ).get( jobParamKey );
 
     // Test 1

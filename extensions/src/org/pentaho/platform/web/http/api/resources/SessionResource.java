@@ -32,9 +32,8 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
  * @author wseyler
- * 
  */
-@Path( "/session/" )
+@Path ( "/session/" )
 public class SessionResource extends AbstractJaxRSResource {
 
   private static SessionService sessionService;
@@ -45,60 +44,58 @@ public class SessionResource extends AbstractJaxRSResource {
 
   /**
    * Returns the current user's workspace folder path
-   *
+   * <p/>
    * <p><b>Example Request:</b><br>
-   *               GET api/session/userWorkspaceDir
-   *               </p>
-   *
-   * @return String object containing the workspace folder path
-
-   * <p>Example Response:
-   *               </p>
-   *               <pre function="syntax.xml">
-   *                 /home/admin/workspace
-   *               </pre>
-   *
-   */
-  @GET
-  @Path( "/userWorkspaceDir" )
-  @Produces( TEXT_PLAIN )
-  @StatusCodes({
-          @ResponseCode( code = 200, condition = "Returns the requested file path")
-  })
-  public String doGetCurrentUserDir() {
-    return getUserHomeFolderPath(getSession().getName()) + "/workspace";
-  }
-  
-  /**
-   * Returns the workspace folder path for the selected user.
-   *
-   * <p><b>Example Request:</b><br>
-   *   GET api/session/workspaceDirForUser<br>
+   * GET api/session/userWorkspaceDir
    * </p>
    *
-   * @param user String of the user name
-   *
    * @return String object containing the workspace folder path
-   *
-   * <p>Example Response:</p>
+   * <p/>
+   * <p>Example Response:
+   * </p>
    * <pre function="syntax.xml">
-   *   /home/user/workspace
+   * /home/admin/workspace
    * </pre>
    */
   @GET
-  @Path( "/workspaceDirForUser" )
-  @Produces( TEXT_PLAIN )
-  @StatusCodes({
-          @ResponseCode( code = 200, condition = "Returns the workspace file path for the specified user."),
-          @ResponseCode( code = 500, condition = "File path failed to be retrieved. This could be caused by an invalid user request.")
-  })
-  public String doGetUserDir( @PathParam( "user" ) String user ) {
+  @Path ( "/userWorkspaceDir" )
+  @Produces ( TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the requested file path" )
+  } )
+  public String doGetCurrentUserDir() {
+    return getUserHomeFolderPath( getSession().getName() ) + "/workspace";
+  }
+
+  /**
+   * Returns the workspace folder path for the selected user.
+   * <p/>
+   * <p><b>Example Request:</b><br>
+   * GET api/session/workspaceDirForUser<br>
+   * </p>
+   *
+   * @param user String of the user name
+   * @return String object containing the workspace folder path
+   * <p/>
+   * <p>Example Response:</p>
+   * <pre function="syntax.xml">
+   * /home/user/workspace
+   * </pre>
+   */
+  @GET
+  @Path ( "/workspaceDirForUser" )
+  @Produces ( TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the workspace file path for the specified user." ),
+      @ResponseCode ( code = 500, condition = "File path failed to be retrieved. This could be caused by an invalid user request." )
+  } )
+  public String doGetUserDir( @PathParam ( "user" ) String user ) {
     return getUserHomeFolderPath( user ) + "/workspace";
   }
 
   @GET
-  @Path( "/setredirect" )
-  @Produces( TEXT_PLAIN )
+  @Path ( "/setredirect" )
+  @Produces ( TEXT_PLAIN )
   @Facet ( name = "Unsupported" )
   public Response setredirect() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();

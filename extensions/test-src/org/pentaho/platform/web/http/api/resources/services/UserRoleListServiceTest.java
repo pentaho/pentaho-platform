@@ -111,7 +111,7 @@ public class UserRoleListServiceTest {
 
     assertEquals( roles, roleListWrapper.getRoles() );
   }
-  
+
   @Test
   public void testGetPermissionRoles() {
 
@@ -119,18 +119,18 @@ public class UserRoleListServiceTest {
     roles.add( "ROLE1" );
     roles.add( "ROLE2" );
     roles.add( "ADMIN_ROLE" );
-    
+
     IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
     doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
     doReturn( roles ).when( userRoleListService1 ).getAllRoles();
-    
+
     ArrayList<String> extraRoles = new ArrayList<String>();
     extraRoles.add( "EXTRA_ROLE1" );
     extraRoles.add( "EXTRA_ROLE2" );
     userRoleListService.setExtraRoles( extraRoles );
-    
+
     RoleListWrapper roleWrapper = userRoleListService.getPermissionRoles( "ADMIN_ROLE" );
-    assertTrue( ! roleWrapper.getRoles().contains( "ADMIN_ROLE" ) );
+    assertTrue( !roleWrapper.getRoles().contains( "ADMIN_ROLE" ) );
     assertTrue( roleWrapper.getRoles().size() == 4 );
   }
 

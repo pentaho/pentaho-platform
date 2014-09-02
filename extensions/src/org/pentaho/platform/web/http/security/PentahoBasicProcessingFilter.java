@@ -46,7 +46,7 @@ import java.io.IOException;
  * User: nbaker Date: 8/15/13
  */
 public class PentahoBasicProcessingFilter extends org.springframework.security.ui.basicauth.BasicProcessingFilter
-  implements ApplicationEventPublisherAware {
+    implements ApplicationEventPublisherAware {
 
   private ApplicationEventPublisher applicationEventPublisher;
 
@@ -79,7 +79,7 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
         }
         // force the prompt for credentials
         getAuthenticationEntryPoint()
-          .commence( request, response, new BadCredentialsException( "Clearing Basic-Auth" ) );
+            .commence( request, response, new BadCredentialsException( "Clearing Basic-Auth" ) );
         return;
       } else if ( expiredCookie != null ) {
         // Session is expired but this request does not include basic-auth, drop a cookie to keep track of this event.
@@ -91,7 +91,7 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
     } else {
       String header = request.getHeader( "Authorization" );
       if ( header != null && header.indexOf( "Basic" ) == 0
-        && SecurityContextHolder.getContext().getAuthentication() == null ) {
+          && SecurityContextHolder.getContext().getAuthentication() == null ) {
         // Session is valid, but Basic-auth is supplied. Check to see if the session end cookie we created is present,
         // if so, force reauthentication.
 
@@ -104,7 +104,7 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
               c.setPath( request.getContextPath() != null ? request.getContextPath() : "/" );
               response.addCookie( c );
               getAuthenticationEntryPoint().commence( request, response,
-                new BadCredentialsException( "Clearing Basic-Auth" ) );
+                  new BadCredentialsException( "Clearing Basic-Auth" ) );
               return;
             }
           }
@@ -120,7 +120,7 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
                                              Authentication authResult ) throws IOException {
     super.onSuccessfulAuthentication( request, response, authResult );
     request.getSession().setAttribute( "BasicAuth", "true" );
-    if( applicationEventPublisher != null ) {
+    if ( applicationEventPublisher != null ) {
       applicationEventPublisher.publishEvent( new AuthenticationSuccessEvent( authResult ) );
     }
   }

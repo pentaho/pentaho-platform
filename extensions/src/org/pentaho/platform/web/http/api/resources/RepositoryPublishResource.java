@@ -44,7 +44,7 @@ import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
  *
  * @author tkafalas
  */
-@Path( "/repo/publish" )
+@Path ( "/repo/publish" )
 public class RepositoryPublishResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
@@ -58,38 +58,36 @@ public class RepositoryPublishResource {
   /**
    * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
    * is set to true
-   *
-   *
+   * <p/>
+   * <p/>
    * <p>Example Request:<br>
-   *  POST api/repo/publish/publishfile
+   * POST api/repo/publish/publishfile
    * </p>
    *
-   * @param pathId Colon separated path for the repository file)
-   *               <pre function="syntax.xml">
-   *               :path:to:file:id
-   *               </pre>
-   * @param fileContents (input stream containing the data)
+   * @param pathId        Colon separated path for the repository file)
+   *                      <pre function="syntax.xml">
+   *                      :path:to:file:id
+   *                      </pre>
+   * @param fileContents  (input stream containing the data)
    * @param overwriteFile (flag to determine whether to overwrite the existing file in the repository or not)
-   *               <pre function="syntax.xml">
-   *               true
-   *               </pre>
-   *
+   *                      <pre function="syntax.xml">
+   *                      true
+   *                      </pre>
    * @return A jax-rs Response object with the appropriate status code, header, and body.
-   *
    */
   @POST
-  @Path( "/publishfile" )
-  @Consumes( { MediaType.MULTIPART_FORM_DATA } )
-  @Produces( MediaType.TEXT_PLAIN )
-  @StatusCodes ({
+  @Path ( "/publishfile" )
+  @Consumes ( { MediaType.MULTIPART_FORM_DATA } )
+  @Produces ( MediaType.TEXT_PLAIN )
+  @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully publish the artifact." ),
-      @ResponseCode( code = 403, condition = "Failure to publish the file due to permissions." ),
-      @ResponseCode( code = 500, condition = "Failure to publish the file due to a server error." ),
-  })
-  public Response writeFile( @FormDataParam( "importPath" ) String pathId,
-                             @FormDataParam( "fileUpload" ) InputStream fileContents,
-                             @FormDataParam( "overwriteFile" ) Boolean overwriteFile,
-                             @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) {
+      @ResponseCode ( code = 403, condition = "Failure to publish the file due to permissions." ),
+      @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ),
+  } )
+  public Response writeFile( @FormDataParam ( "importPath" ) String pathId,
+                             @FormDataParam ( "fileUpload" ) InputStream fileContents,
+                             @FormDataParam ( "overwriteFile" ) Boolean overwriteFile,
+                             @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo ) {
     try {
       repositoryPublishService.writeFile( pathId, fileContents, overwriteFile );
       return buildPlainTextOkResponse( "SUCCESS" );
