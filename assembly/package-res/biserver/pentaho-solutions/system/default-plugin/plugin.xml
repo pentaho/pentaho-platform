@@ -29,7 +29,7 @@
   </perspective>
 
   <perspective id="admin.perspective" title="${admin}" layout-priority="20"
-               required-security-action="org.pentaho.security.administerSecurity"
+               required-security-action="org.pentaho.security.administerSecurity;org.pentaho.repository.read;org.pentaho.repository.create"
                resourcebundle="content/default-plugin/resources/messages/messages">
   </perspective>
 
