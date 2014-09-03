@@ -123,14 +123,14 @@ public class RepositoryFileProxy extends RepositoryFile {
       if ( other.getLocale() != null ) {
         return false;
       }
-    } else if ( !this.getLocale().equals( other.getLocale()) ) {
+    } else if ( !this.getLocale().equals( other.getLocale() ) ) {
       return false;
     }
     if ( this.getVersionId() == null ) {
       if ( other.getVersionId() != null ) {
         return false;
       }
-    } else if ( !this.getVersionId().equals( other.getVersionId()) ) {
+    } else if ( !this.getVersionId().equals( other.getVersionId() ) ) {
       return false;
     }
     return true;
@@ -342,7 +342,7 @@ public class RepositoryFileProxy extends RepositoryFile {
             localeMap =
                 JcrRepositoryFileUtils.getLocalePropertiesMap( session, getPentahoJcrConstants(), node
                     .getNode( getPentahoJcrConstants().getPHO_LOCALES() ) );
-          } catch (javax.jcr.PathNotFoundException e) {
+          } catch ( javax.jcr.PathNotFoundException e ) {
             //Do not throw a stack trace if the locale file is missing.
           } catch ( RepositoryException e ) {
             e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.

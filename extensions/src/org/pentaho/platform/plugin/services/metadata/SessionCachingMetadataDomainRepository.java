@@ -69,7 +69,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     public String sessionId;
     public String domainId;
 
-    protected CacheKey() { }
+    protected CacheKey() {
+    }
 
     public CacheKey( String sessionId, String domainId ) {
       this.sessionId = sessionId;

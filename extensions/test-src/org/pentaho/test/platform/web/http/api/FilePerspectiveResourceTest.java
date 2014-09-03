@@ -63,9 +63,9 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
-@SuppressWarnings ( "nls" )
+@SuppressWarnings( "nls" )
 public class FilePerspectiveResourceTest extends JerseyTest {
 
   private static MicroPlatform mp = new MicroPlatform( "test-res/FileOutputResourceTest/" );
@@ -121,7 +121,7 @@ public class FilePerspectiveResourceTest extends JerseyTest {
   }
 
   @Test
-  public void testDummy() {
+  public void testDummy()  {
 
   }
 
@@ -178,7 +178,7 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     }
   }
 
-  @SuppressWarnings ( "serial" )
+  @SuppressWarnings( "serial" )
   public static class JUnitContentGenerator extends BaseContentGenerator {
     @Override
     public void createContent() throws Exception {

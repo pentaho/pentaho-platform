@@ -17,7 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -55,7 +55,6 @@ public class SystemResourceTest {
 
   final String SYSTEM_FOLDER = "/system"; //$NON-NLS-1$
   private MicroPlatform mp;
-
   @Before
   public void setUp() throws Exception {
     mp = new MicroPlatform();
@@ -98,7 +97,7 @@ public class SystemResourceTest {
   /**
    * Test that we get a valid document structure back. Make sure the document contains the elements we expect. Since we
    * are not working with a real session, we don't need to check real values.
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -114,7 +113,7 @@ public class SystemResourceTest {
 
   /**
    * Test for expected default value JCR_BASED_AUTHENTICATION
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -129,7 +128,7 @@ public class SystemResourceTest {
 
   /**
    * Make spring configs available for test
-   *
+   * 
    * @return ApplicationContext
    */
   private ApplicationContext getSpringApplicationContext() {
@@ -137,7 +136,7 @@ public class SystemResourceTest {
     String[] fns =
     {
       "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml",
-      "systemListeners.xml", "pentahoSystemConfig.xml", "repository.spring.xml"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      "systemListeners.xml", "pentahoSystemConfig.xml", "repository.spring.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
@@ -154,6 +153,7 @@ public class SystemResourceTest {
   }
 
   /**
+   * 
    * @return String
    */
   private String getSolutionPath() {

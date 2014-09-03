@@ -293,8 +293,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         "JcrRepositoryFileDao.ERROR_0001_NO_TRANSFORMER" ) ); //$NON-NLS-1$
   }
 
-  protected ITransformer<IRepositoryFileData>
-    findTransformerForWrite( final Class<? extends IRepositoryFileData> clazz ) {
+  protected ITransformer<IRepositoryFileData> findTransformerForWrite( final Class<? extends IRepositoryFileData> clazz ) {
     for ( ITransformer<IRepositoryFileData> transformer : transformers ) {
       if ( transformer.canWrite( clazz ) ) {
         return transformer;
@@ -791,8 +790,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         // original parent folder path may no longer exist!
         if ( session.itemExists( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ) {
           origParentFolderId =
-              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) )
-                  .getIdentifier();
+              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ).getIdentifier();
         } else {
           // go through each of the segments of the original parent folder path, creating as necessary
           String[] segments = pathConversionHelper.absToRel( absOrigParentFolderPath ).split( RepositoryFile.SEPARATOR );
@@ -888,8 +886,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
           JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
           try {
-            destParentFolderNode =
-                (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
+            destParentFolderNode = (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
           } catch ( PathNotFoundException e1 ) {
             Assert.isTrue( false, Messages.getInstance()
                 .getString( "JcrRepositoryFileDao.ERROR_0004_PARENT_MUST_EXIST" ) ); //$NON-NLS-1$
@@ -904,8 +901,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode );
         String finalEncodedSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath = appendFileName && !file.isFolder() ? cleanDestAbsPath
-                + RepositoryFile.SEPARATOR + srcFileNode.getName() : cleanDestAbsPath;
+        String finalDestAbsPath =
+            appendFileName && !file.isFolder() ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
+                : cleanDestAbsPath;
         try {
           if ( copy ) {
             session.getWorkspace().copy( finalEncodedSrcAbsPath, JcrStringHelper.pathEncode( finalDestAbsPath ) );
@@ -965,8 +963,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    * {@inheritDoc}
    */
   @Override
-  public void
-    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     if ( isKioskEnabled() ) {
       throw new RuntimeException( Messages.getInstance().getString( "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED" ) ); //$NON-NLS-1$
     }

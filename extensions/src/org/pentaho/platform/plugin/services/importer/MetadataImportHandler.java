@@ -33,14 +33,13 @@ import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepos
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * Class Description
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>, nbaker
  */
 public class MetadataImportHandler implements IPlatformImportHandler {
@@ -56,7 +55,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
   public MetadataImportHandler( List<MimeType> mimeTypes,
-                                final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {
+      final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {
     this.mimeTypes = mimeTypes;
     if ( metadataImporter == null ) {
       throw new IllegalArgumentException();
@@ -79,7 +78,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   /**
    * Processes the file as a metadata file and returns the domain name. It will import the file into the Pentaho
    * Metadata Domain Repository.
-   *
+   * 
    * @param bundle
    * @return
    */
@@ -91,13 +90,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     }
     try {
       log.debug( "Importing as metadata - [domain=" + domainId + "]" );
-      final InputStream inputStream;
-      if ( bundle.isPreserveDsw() ) {
-        // storeDomain needs to be able to close the stream
-        inputStream = cloneStream( bundle.getInputStream() );
-      } else {
-        inputStream = StripDswFromStream( bundle.getInputStream() );
-      }
+      InputStream inputStream = StripDswFromStream( bundle.getInputStream() );
 
       metadataRepositoryImporter.storeDomain( inputStream, domainId, bundle.overwriteInRepository() );
       return domainId;
@@ -108,8 +101,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     } catch ( DomainAlreadyExistsException daee ) {
       throw new PlatformImportException( messages
           .getString( "PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR" ),
-          PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, daee
-      );
+          PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, daee );
     } catch ( Exception e ) {
       final String errorMessage =
           messages.getErrorString( "MetadataImportHandler.ERROR_0001_IMPORTING_METADATA", domainId, e
@@ -117,11 +109,6 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       log.error( errorMessage, e );
       throw new PlatformImportException( errorMessage, e );
     }
-  }
-
-  private InputStream cloneStream( InputStream inputStream ) throws Exception {
-    byte[] contents = IOUtils.toByteArray( inputStream );
-    return new ByteArrayInputStream( contents );
   }
 
   private InputStream StripDswFromStream( InputStream inputStream ) throws Exception {

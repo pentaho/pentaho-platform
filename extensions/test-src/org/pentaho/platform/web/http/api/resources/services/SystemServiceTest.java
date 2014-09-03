@@ -61,7 +61,7 @@ public class SystemServiceTest {
       systemService.getUsers();
       fail();
     } catch ( IllegalAccessException e ) {
-      //expected exception
+      // expected exception
     }
 
     PentahoSystem.clearObjectFactory();

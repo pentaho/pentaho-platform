@@ -24,7 +24,7 @@ import org.osgi.framework.BundleContext;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: nbaker Date: 11/19/13 Time: 3:01 PM

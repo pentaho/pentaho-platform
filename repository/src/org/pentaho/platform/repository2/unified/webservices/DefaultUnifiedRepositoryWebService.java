@@ -100,8 +100,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   @Deprecated
-  public List<RepositoryFileDto>
-    getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
+  public List<RepositoryFileDto> getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
     return marshalFiles( repo.getChildren( new RepositoryRequest( folderId, showHiddenFiles, 0, filter ) ) );
   }
 

@@ -74,16 +74,17 @@ public class PentahoJcrTemplate extends JcrTemplate {
     } catch ( RuntimeException ex ) {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
-    } finally {
+    }
+//    finally {
 //      if ( !existingTransaction ) {
 //        SessionFactoryUtils.releaseSession( session, getSessionFactory() );
 //      }
-    }
+//    }
   }
 
   @Override
   protected Session getSession() {
-    return SessionFactoryUtils.getSession(getSessionFactory(), this.isAllowCreate());
+    return SessionFactoryUtils.getSession(getSessionFactory(), this.isAllowCreate() );
   }
 
   private RuntimeException pentahoConvertJcrAccessException( final RuntimeException ex ) {

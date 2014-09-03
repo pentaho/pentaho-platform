@@ -145,7 +145,7 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
     try {
       org.springframework.security.Authentication authentication =
         SecurityContextHolder.getContext().getAuthentication();
-      if( authentication != null && authentication.getName().equals( simpleCredentials.getUserID() ) ) {
+      if ( authentication != null && authentication.getName().equals( simpleCredentials.getUserID() ) ) {
         // see if there's already an active Authentication for this user.
         authenticated = true;
       } else {

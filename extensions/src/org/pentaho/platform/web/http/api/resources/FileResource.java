@@ -1,3 +1,4 @@
+//CHECKSTYLE:FileLength:OFF
 /*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
@@ -14,7 +15,6 @@
  *
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
-
 package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -362,8 +362,10 @@ public class FileResource extends AbstractJaxRSResource {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
       return buildOkResponse( wrapper );
     } catch ( FileNotFoundException fileNotFound ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), fileNotFound );
       return buildStatusResponse( NOT_FOUND );
     } catch ( IllegalArgumentException illegalArgument ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), illegalArgument );
       return buildStatusResponse( FORBIDDEN );
     }
   }

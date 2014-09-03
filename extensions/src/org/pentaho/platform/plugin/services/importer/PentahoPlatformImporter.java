@@ -39,7 +39,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
  * Default implementation of IPlatformImporter. This class serves to route import requests to the appropriate
  * IPlatformImportHandler based on the mime-type of the given content. If not supplied the mime-type will be computed by
  * the IPlatformImportMimeResolver.
- * <p/>
+ * 
  * User: nbaker Date: 5/29/12
  */
 public class PentahoPlatformImporter implements IPlatformImporter {
@@ -53,7 +53,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private IRepositoryContentConverterHandler repositoryContentConverterHandler;
 
   public PentahoPlatformImporter( List<IPlatformImportHandler> handlerList,
-                                  IRepositoryContentConverterHandler repositoryContentConverterHandler ) {
+      IRepositoryContentConverterHandler repositoryContentConverterHandler ) {
     this.repositoryContentConverterHandler = repositoryContentConverterHandler;
     importHandlers = new HashMap<String, IPlatformImportHandler>();
     mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
@@ -73,7 +73,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
 
   /**
    * To be consumed mainly by platform plugins who want to treat importing artifacts different.
-   */
+   * */
   public void addHandler( String mimeType, IPlatformImportHandler handler ) {
     this.importHandlers.put( mimeType, handler );
   }
@@ -106,8 +106,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       if ( handler == null ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER" ),
-            PlatformImportException.PUBLISH_GENERAL_ERROR
-        ); // replace with default handler?
+            PlatformImportException.PUBLISH_GENERAL_ERROR ); // replace with default handler?
       }
       try {
         logImportFile( file );
@@ -115,30 +114,25 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       } catch ( DomainIdNullException e1 ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED" ),
-            PlatformImportException.PUBLISH_TO_SERVER_FAILED, e1
-        );
+            PlatformImportException.PUBLISH_TO_SERVER_FAILED, e1 );
       } catch ( DomainAlreadyExistsException e1 ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR" ),
-            PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, e1
-        );
+            PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, e1 );
       } catch ( DomainStorageException e1 ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED" ),
-            PlatformImportException.PUBLISH_DATASOURCE_ERROR, e1
-        );
+            PlatformImportException.PUBLISH_DATASOURCE_ERROR, e1 );
       } catch ( IOException e1 ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR" ),
-            PlatformImportException.PUBLISH_GENERAL_ERROR, e1
-        );
+            PlatformImportException.PUBLISH_GENERAL_ERROR, e1 );
       } catch ( PlatformImportException pe ) {
         throw pe; // if already converted - just rethrow
       } catch ( Exception e1 ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR" ),
-            PlatformImportException.PUBLISH_GENERAL_ERROR, e1
-        );
+            PlatformImportException.PUBLISH_GENERAL_ERROR, e1 );
       }
     } catch ( Exception e ) {
       e.printStackTrace();

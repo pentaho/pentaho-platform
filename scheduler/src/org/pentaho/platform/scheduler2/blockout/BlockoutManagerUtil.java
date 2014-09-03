@@ -325,7 +325,6 @@ public class BlockoutManagerUtil {
             }
           }
         }
-          
         for ( int i = 0; i < n; i++ ) {
           Date nextFireTime = trigger.getFireTimeAfter( startDate );
 

@@ -63,7 +63,7 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
       cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
 
-      @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
+        @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
 
         // We're not logging out on cache purge as someone may have obtained it from the cache already.
         // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
@@ -71,12 +71,12 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         //        if ( value != null && value.isLive() ) {
         //          value.logout();
         //        }
-      }
-    } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
-      @Override public Session load( CacheKey credKey ) throws Exception {
-        return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
-      }
-    } );
+        }
+      } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
+        @Override public Session load( CacheKey credKey ) throws Exception {
+          return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+        }
+      } );
 
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
 

@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * Class Description
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class EmailResourceTest extends TestCase {
@@ -40,7 +40,6 @@ public class EmailResourceTest extends TestCase {
   private final int OK_STATUS = Response.ok().build().getStatus();
   private final EmailConfiguration BLANK_CONFIG = new EmailConfiguration();
   private MicroPlatform mp;
-
   @Override
   protected void setUp() throws Exception {
     // Setup the temp email config file

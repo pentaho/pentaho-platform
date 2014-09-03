@@ -74,25 +74,23 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     if ( request.getPathInfo().endsWith( APPLICATION_WADL ) ) {
       final HttpServletRequest originalRequest = request;
 
-      request =
-          (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
-              new Class[]{HttpServletRequest.class}, new InvocationHandler() {
-                public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-                  if ( method.getName().equals( "getPathInfo" ) ) {
-                    return APPLICATION_WADL;
-                  } else if ( method.getName().equals( "getRequestURL" ) ) {
-                    String url = originalRequest.getRequestURL().toString();
-                    return new StringBuffer(
-                        url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/" + APPLICATION_WADL );
-                  } else if ( method.getName().equals( "getRequestURI" ) ) {
-                    String uri = originalRequest.getRequestURI();
-                    return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/" + APPLICATION_WADL;
-                  }
-                  // We don't care about the Method, delegate out to real Request object.
-                  return method.invoke( originalRequest, args );
-                }
+      request = (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
+          new Class[] { HttpServletRequest.class }, new InvocationHandler() {
+            public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+              if ( method.getName().equals( "getPathInfo" ) ) {
+                return APPLICATION_WADL;
+              } else if ( method.getName().equals( "getRequestURL" ) ) {
+                String url = originalRequest.getRequestURL().toString();
+                return new StringBuffer(
+                  url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/" + APPLICATION_WADL );
+              } else if ( method.getName().equals( "getRequestURI" ) ) {
+                String uri = originalRequest.getRequestURI();
+                return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/" + APPLICATION_WADL;
               }
-          );
+              // We don't care about the Method, delegate out to real Request object.
+              return method.invoke( originalRequest, args );
+            }
+          } );
     }
     super.service( request, response );
   }

@@ -64,7 +64,7 @@ public class PentahoSessionStartupAuthenticationSuccessListener implements Appli
   // =========================================================================================================
 
   public void onApplicationEvent( final ApplicationEvent event ) {
-    if ( event instanceof InteractiveAuthenticationSuccessEvent || event instanceof AuthenticationSuccessEvent) {
+    if ( event instanceof InteractiveAuthenticationSuccessEvent || event instanceof AuthenticationSuccessEvent ) {
       logger.debug( "received InteractiveAuthenticationSuccessEvent" ); //$NON-NLS-1$
       logger.debug( "calling PentahoSystem.sessionStartup" ); //$NON-NLS-1$
       try {

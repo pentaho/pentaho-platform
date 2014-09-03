@@ -80,9 +80,9 @@ public class PentahoACLProvider extends ACLProvider {
     registerEntryCollectorWithObservationManager( systemSession );
   }
 
-  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException{
+  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException {
     // Register Entry Collector to receive node events
-    if( entryCollector != null  && this.initialized ){
+    if ( entryCollector != null  && this.initialized ) {
       ObservationManager observationMgr = systemSession.getWorkspace().getObservationManager();
       observationMgr
         .addEventListener( entryCollector, Event.NODE_ADDED | Event.NODE_REMOVED | Event.NODE_REMOVED, "/", true, null, null,
@@ -127,7 +127,7 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   protected EntryCollector createEntryCollector( SessionImpl systemSession ) throws RepositoryException {
-    if( entryCollector != null ){
+    if ( entryCollector != null ) {
       return entryCollector;
     }
     // keep our own private reference; the one in ACLProvider is private

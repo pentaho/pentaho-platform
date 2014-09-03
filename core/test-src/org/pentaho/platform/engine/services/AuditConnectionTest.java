@@ -40,7 +40,7 @@ public class AuditConnectionTest extends BaseTest {
     AuditConnection auditConnection = new AuditConnection();
     auditConnection.setUseNewDatasourceService( true ); // make sure we get a datasource from the object factory
     auditConnection.initialize();
-    MockDataSourceService.setThrowExceptionOnGetConnection(false);
+    MockDataSourceService.setThrowExceptionOnGetConnection( false );
     try {
       Connection connection = auditConnection.getAuditConnection();
       System.out.println( "Audit Connection Is  " + connection ); //$NON-NLS-1$  
@@ -61,7 +61,7 @@ public class AuditConnectionTest extends BaseTest {
     AuditConnection auditConnection = new AuditConnection();
     auditConnection.setUseNewDatasourceService( true ); // make sure we get a datasource from the object factory
     auditConnection.initialize();
-    MockDataSourceService.setThrowExceptionOnGetConnection(false);
+    MockDataSourceService.setThrowExceptionOnGetConnection( false );
     try {
       Connection connection = auditConnection.getAuditConnection();
       System.out.println( "Audit Connection Is  " + connection ); //$NON-NLS-1$  
@@ -88,7 +88,7 @@ public class AuditConnectionTest extends BaseTest {
       AuditConnection auditConnection = new AuditConnection();
       auditConnection.setUseNewDatasourceService( true ); // make sure we get a datasource from the object factory
       auditConnection.initialize();
-      MockDataSourceService.setThrowExceptionOnGetConnection(true);
+      MockDataSourceService.setThrowExceptionOnGetConnection( true );
       auditConnection.getAuditConnection();
       fail( "Expected exception when no audit connection could be established" );
     } catch ( SQLException ex ) {

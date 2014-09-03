@@ -95,13 +95,12 @@ public class PentahoRequestContextHolder {
       if ( PentahoSystem.getInitializedOK() ) {
         return new BasePentahoRequestContext( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
       } else {
-        try{
+        try {
           logger.debug( "Something went wrong. Trying to proceed. System is in status " + PentahoSystem.getInitializedStatus() );
-          if( PentahoSystem.getApplicationContext() != null && PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() != null ){
+          if ( PentahoSystem.getApplicationContext() != null && PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() != null ) {
             return new BasePentahoRequestContext( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
           }
-        }
-        catch(Exception ex){
+        } catch ( Exception ex ) {
           logger.debug( "Restore attempt failed ", ex );
         }
         return null;
@@ -129,8 +128,8 @@ public class PentahoRequestContextHolder {
     } else {
       // Try to load a custom strategy
       try {
-        Class clazz = Class.forName( strategyName );
-        Constructor customStrategy = clazz.getConstructor( new Class[] {} );
+        Class<?> clazz = Class.forName( strategyName );
+        Constructor<?> customStrategy = clazz.getConstructor( new Class[] {} );
         strategy = (IPentahoRequestContextHolderStrategy) customStrategy.newInstance( new Object[] {} );
       } catch ( Exception e ) {
         throw new RuntimeException( e );

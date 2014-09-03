@@ -1,6 +1,5 @@
 package org.pentaho.platform.web.http.api.resources.utils;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.RepositoryPathEncoder;

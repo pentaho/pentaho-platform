@@ -177,8 +177,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
-                                     final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
     FileRecord r = root.getFileRecord( path );
     RepositoryFile rootFile = r.getFile();
     if ( !showHidden && rootFile.isHidden() ) {
@@ -423,7 +422,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
-    return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
+    return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest
+        .isShowHidden() );
   }
 
   @Override
@@ -437,7 +437,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter,
+      final Boolean showHiddenFiles ) {
     FileRecord r = idManager.getFileById( folderId );
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
     for ( FileRecord child : r.getChildren() ) {
@@ -742,8 +743,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public void
-  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     FrozenFileRecord restored =
         versionManager.restoreVersion( fileId, versionId, currentUserProvider.getUser(), versionMessage, new Date() );
     FileRecord fileRecord = idManager.getFileById( fileId );

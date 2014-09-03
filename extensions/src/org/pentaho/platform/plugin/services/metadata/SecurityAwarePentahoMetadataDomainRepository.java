@@ -39,14 +39,14 @@ import org.springframework.security.context.SecurityContextHolder;
 /**
  * This is the platform implementation which implements security. NOTE: this class will be moved after integration
  * testing
- *
+ * 
  * @author David Kincade
  */
 public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadataDomainRepository {
   private static final Log logger = LogFactory.getLog( SecurityAwarePentahoMetadataDomainRepository.class );
-  public static final int[] ACCESS_TYPE_MAP = new int[]{IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
+  public static final int[] ACCESS_TYPE_MAP = new int[] { IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
     IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
-    IAclHolder.ACCESS_TYPE_ADMIN};
+    IAclHolder.ACCESS_TYPE_ADMIN };
 
   public SecurityAwarePentahoMetadataDomainRepository( final IUnifiedRepository repository ) {
     super( repository );

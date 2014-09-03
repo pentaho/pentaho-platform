@@ -102,8 +102,10 @@ public class FileService {
    * <p/>
    * Move a list of files to the user's trash folder, the list should be comma separated.
    *
-   * @param params Comma separated list of the files to be deleted
-   * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
+   * @param params
+   *          Comma separated list of the files to be deleted
+   * @throws Exception
+   *           containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteFiles( String params ) throws Exception {
     String[] sourceFileIds = params.split( "[,]" );
@@ -121,14 +123,15 @@ public class FileService {
    * <p/>
    * Permanently deletes a comma separated list of files without sending them to the trash folder
    *
-   * @param params Comma separated list of the files to be deleted
+   * @param params
+   *          Comma separated list of the files to be deleted
    * @return Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteFilesPermanent( String params ) throws Exception {
     String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[ i ], true, null );
+        getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[i], true, null );
       }
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
@@ -139,9 +142,12 @@ public class FileService {
   /**
    * Delete the locale for the selected file and locale
    *
-   * @param pathId Colon separated path for the repository file
-   * @param locale The locale to be deleted
-   * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
+   * @param pathId
+   *          Colon separated path for the repository file
+   * @param locale
+   *          The locale to be deleted
+   * @throws Exception
+   *           containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteLocale( String pathId, String locale ) throws Exception {
     try {
@@ -193,13 +199,14 @@ public class FileService {
   /**
    * Creates a new file with the provided contents at a given path
    *
-   * @param pathId       (colon separated path for the repository file)
-   * @param fileContents (content of the file)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param fileContents
+   *          (content of the file)
    * @return
    * @throws IOException
    */
-  public void createFile( String charsetName, String pathId, InputStream fileContents )
-    throws Exception {
+  public void createFile( String charsetName, String pathId, InputStream fileContents ) throws Exception {
     try {
       String idToPath = idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
@@ -219,17 +226,21 @@ public class FileService {
    * <p/>
    * Moves a list of files from its current location to another, the list should be comma separated.
    *
-   * @param destPathId colon separated path for the repository file
-   * <pre function="syntax.xml">
+   * @param destPathId
+   *          colon separated path for the repository file
+   * 
+   *          <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @param params comma separated list of files to be moved
-   * <pre function="syntax.xml">
+   * @param params
+   *          comma separated list of files to be moved
+   * 
+   *          <pre function="syntax.xml">
    *    path1,path2,...
    * </pre>
    *
-   * @return boolean <code>true</code>  if all files were moved correctly or <code>false</code> if the destiny path is
-   * not available
+   * @return boolean <code>true</code> if all files were moved correctly or <code>false</code> if the destiny path is
+   *         not available
    * @throws FileNotFoundException
    */
   public void doMoveFiles( String destPathId, String params ) throws FileNotFoundException {
@@ -242,7 +253,7 @@ public class FileService {
     int i = 0;
     try {
       for ( ; i < sourceFileIds.length; i++ ) {
-        getRepoWs().moveFile( sourceFileIds[ i ], repositoryFileDto.getPath(), null );
+        getRepoWs().moveFile( sourceFileIds[i], repositoryFileDto.getPath(), null );
       }
     } catch ( IllegalArgumentException e ) {
       throw e;
@@ -257,8 +268,10 @@ public class FileService {
    * Restores a list of files from the user's trash folder to their previous locations. The list should be comma
    * separated.
    *
-   * @param params Comma separated list of files to be restored
-   * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
+   * @param params
+   *          Comma separated list of files to be restored
+   * @throws Exception
+   *           containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doRestoreFiles( String params ) throws InternalError {
     String[] sourceFileIds = params.split( "[,]" );
@@ -328,7 +341,7 @@ public class FileService {
       throw new FileNotFoundException( path );
     }
 
-   // send zip with manifest by default
+    // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
     boolean requiresZip = repositoryFile.isFolder() || withManifest;
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
@@ -357,7 +370,8 @@ public class FileService {
    * Retrieves the file from the repository as inline. This is mainly used for css or and dependent files for the html
    * document
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return RepositoryFileToStreamWrapper
    * @throws FileNotFoundException
    */
@@ -404,8 +418,8 @@ public class FileService {
 
       return wrapper;
     } catch ( Exception e ) {
-      logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e );
+      logger.error( Messages.getInstance().getString( "FileResource.EXPORT_FAILED",
+          repositoryFile.getName() + " " + e.getMessage() ), e );
       throw new InternalError();
     }
   }
@@ -413,7 +427,8 @@ public class FileService {
   /**
    * Retrieve the list of locale properties for a given locale
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @param locale
    * @return
    */
@@ -477,32 +492,27 @@ public class FileService {
         RepositoryFile sourceFile = getRepository().getFileById( sourceFileId );
         if ( destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder() ) {
           String fileName = sourceFile.getName();
-          String
-              sourcePath =
+          String sourcePath =
               sourceFile.getPath().substring( 0, sourceFile.getPath().lastIndexOf( FileUtils.PATH_SEPARATOR ) );
           if ( !sourcePath.equals( destDir.getPath() ) ) { // We're saving to a different folder than we're copying
             // from
             IRepositoryFileData data = getData( sourceFile );
             RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
-            RepositoryFile
-                destFile =
-                getRepository().getFile( destDir.getPath() + FileUtils.PATH_SEPARATOR + fileName );
+            RepositoryFile destFile = getRepository().getFile( destDir.getPath() + FileUtils.PATH_SEPARATOR + fileName );
             if ( destFile == null ) { // destFile doesn't exist so we'll create it.
               RepositoryFile duplicateFile =
                   new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).versioned(
                       sourceFile.isVersioned() ).build();
               final RepositoryFile repositoryFile =
                   getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
-              getRepository()
-                  .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
+              getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
             } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
               RepositoryFileDto destFileDto = toFileDto( destFile, null, false );
               destFileDto.setHidden( sourceFile.isHidden() );
               destFile = toFile( destFileDto );
               final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
               getRepository().updateAcl( acl );
-              getRepository()
-                  .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
+              getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
             }
           }
         }
@@ -524,13 +534,11 @@ public class FileService {
             extension = fileName.substring( indexOfDot );
           }
 
-          RepositoryFileDto
-              testFile =
+          RepositoryFileDto testFile =
               getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
           if ( testFile != null ) {
             // Second try COPY_PREFIX, If the name already ends with a COPY_PREFIX don't append twice
-            if ( !nameNoExtension
-                .endsWith( Messages.getInstance().getString( "FileResource.COPY_PREFIX" ) ) ) { //$NON-NLS-1$
+            if ( !nameNoExtension.endsWith( Messages.getInstance().getString( "FileResource.COPY_PREFIX" ) ) ) { //$NON-NLS-1$
               copyText = rootCopyText = Messages.getInstance().getString( "FileResource.COPY_PREFIX" );
               fileName = nameNoExtension + copyText + extension;
               testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + fileName );
@@ -541,8 +549,7 @@ public class FileService {
           Integer nameCount = 1;
           while ( testFile != null ) {
             nameCount++;
-            copyText =
-                rootCopyText + Messages.getInstance().getString( "FileResource.DUPLICATE_INDICATOR", nameCount );
+            copyText = rootCopyText + Messages.getInstance().getString( "FileResource.DUPLICATE_INDICATOR", nameCount );
             fileName = nameNoExtension + copyText + extension;
             testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + fileName );
           }
@@ -571,10 +578,12 @@ public class FileService {
   /**
    * Takes a pathId and returns a response object with the output stream based on the file located at the pathID
    *
-   * @param pathId pathId to the file
-   * @return Response object containing the file stream for the file located at the pathId, along with the mimetype,
-   * and file name.
-   * @throws FileNotFoundException, IllegalArgumentException
+   * @param pathId
+   *          pathId to the file
+   * @return Response object containing the file stream for the file located at the pathId, along with the mimetype, and
+   *         file name.
+   * @throws FileNotFoundException
+   *           , IllegalArgumentException
    */
   public RepositoryFileToStreamWrapper doGetFileOrDir( String pathId ) throws FileNotFoundException {
 
@@ -675,11 +684,14 @@ public class FileService {
    *
    * This method is used to update and save the acls of the selected file to the repository
    *
-   * @param pathId @param pathId colon separated path for the repository file
-   *               <pre function="syntax.xml">
+   * @param pathId
+   *          @param pathId colon separated path for the repository file
+   * 
+   *          <pre function="syntax.xml">
    *               :path:to:file:id
-   *               </pre>
-   * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
+   * </pre>
+   * @param acl
+   *          Acl of the repository file <code> RepositoryFileAclDto </code>
    * @throws FileNotFoundException
    */
   public void setFileAcls( String pathId, RepositoryFileAclDto acl ) throws FileNotFoundException {
@@ -779,10 +791,12 @@ public class FileService {
   /**
    * Retrieves the properties of a selected repository file
    *
-   * @param pathId @param pathId colon separated path for the repository file
-   *               <pre function="syntax.xml">
+   * @param pathId
+   *          @param pathId colon separated path for the repository file
+   * 
+   *          <pre function="syntax.xml">
    *               :path:to:file:id
-   *               </pre>
+   * </pre>
    * @return file properties object <code> RepositoryFileDto </code>
    * @throws FileNotFoundException
    */
@@ -887,10 +901,10 @@ public class FileService {
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
 
     boolean canManage =
-      getSession().getName().equals( fileAcl.getOwner() )
-        || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
-        && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-          AdministerSecurityAction.NAME ) );
+        getSession().getName().equals( fileAcl.getOwner() )
+            || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
+                && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
+                  AdministerSecurityAction.NAME ) );
 
     if ( !canManage ) {
 
@@ -903,7 +917,7 @@ public class FileService {
         RepositoryFileAclAceDto acl = fileAcl.getAces().get( i );
         if ( acl.getRecipient().equals( getSession().getName() ) ) {
           if ( acl.getPermissions().contains( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() )
-            || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
+              || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
             canManage = true;
             break;
           }
@@ -933,10 +947,10 @@ public class FileService {
       if ( file.isHidden() != isHidden ) {
         file.setHidden( isHidden );
 
-          /*
-           * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
-           * update the original.
-           */
+        /*
+         * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
+         * update the original.
+         */
         RepositoryFile sourceFile = getRepository().getFileById( file.getId() );
         RepositoryFileDto destFileDto = toFileDto( sourceFile, null, false );
 
@@ -996,12 +1010,16 @@ public class FileService {
   /**
    * Store content creator of the selected repository file
    *
-   * @param pathId colon separated path for the repository file
-   * <pre function="syntax.xml">
+   * @param pathId
+   *          colon separated path for the repository file
+   * 
+   *          <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
-   * @param contentCreator repository file
-   * <pre function="syntax.xml">
+   * @param contentCreator
+   *          repository file
+   * 
+   *          <pre function="syntax.xml">
    *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *     &lt;repositoryFileDto&gt;
    *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
@@ -1063,11 +1081,14 @@ public class FileService {
   /**
    * Retrieves the list of locale map for the selected repository file. The list will be empty if a problem occurs.
    *
-   * @param pathId colon separated path for the repository file
-   * <pre function="syntax.xml">
+   * @param pathId
+   *          colon separated path for the repository file
+   * 
+   *          <pre function="syntax.xml">
    *    :path:to:file:id
    * </pre>
    * @return <code>List<LocaleMapDto></code> the list of locales
+   * 
    *         <pre function="syntax.xml">
    *           <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *           &lt;localePropertiesMapEntries&gt;
@@ -1093,7 +1114,7 @@ public class FileService {
    *               &lt;/properties&gt;
    *             &lt;/localeMapDto&gt;
    *           &lt;/localePropertiesMapEntries&gt;
-   *         </pre>
+   * </pre>
    * @throws FileNotFoundException
    */
   public List<LocaleMapDto> doGetFileLocales( String pathId ) throws FileNotFoundException {
@@ -1116,18 +1137,17 @@ public class FileService {
   }
 
   /**
-   * Checks whether the current user can administer the platform.
-   * The conditions are <code>RepositoryReadAction</code>, <code>RepositoryCreateAction</code> and
-   * <code>AdministerSecurityAction</code>
+   * Checks whether the current user can administer the platform. The conditions are <code>RepositoryReadAction</code>,
+   * <code>RepositoryCreateAction</code> and <code>AdministerSecurityAction</code>
    *
    * @return <code>boolean</code>
    */
   public boolean doCanAdminister() throws Exception {
     boolean status = false;
     try {
-      status = getPolicy().isAllowed( RepositoryReadAction.NAME )
-        && getPolicy().isAllowed( RepositoryCreateAction.NAME )
-        && getPolicy().isAllowed( AdministerSecurityAction.NAME );
+      status =
+          getPolicy().isAllowed( RepositoryReadAction.NAME ) && getPolicy().isAllowed( RepositoryCreateAction.NAME )
+              && getPolicy().isAllowed( AdministerSecurityAction.NAME );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.CAN_ADMINISTER" ), e );
     }
@@ -1137,7 +1157,8 @@ public class FileService {
   /**
    * Retrieves the acls of the selected repository file
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId
+   *          (colon separated path for the repository file)
    * @return <code> RepositoryFileAclDto </code>
    */
   public RepositoryFileAclDto doGetFileAcl( String pathId ) {
@@ -1145,7 +1166,7 @@ public class FileService {
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
     if ( fileAcl.isEntriesInheriting() ) {
       List<RepositoryFileAclAceDto> aces =
-        getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
+          getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
       fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
     }
     addAdminRole( fileAcl );
@@ -1154,7 +1175,7 @@ public class FileService {
 
   protected void addAdminRole( RepositoryFileAclDto fileAcl ) {
     String adminRoleName =
-      PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
+        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
     if ( fileAcl.getAces() == null ) {
       fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
     }
@@ -1174,7 +1195,7 @@ public class FileService {
   }
 
   public RepositoryFileTreeDto doGetTree( String pathId, Integer depth, String filter, Boolean showHidden,
-                                          Boolean includeAcls ) {
+      Boolean includeAcls ) {
     String path = null;
     if ( pathId == null || pathId.equals( FileUtils.PATH_SEPARATOR ) ) {
       path = FileUtils.PATH_SEPARATOR;
@@ -1199,8 +1220,8 @@ public class FileService {
       RepositoryFileDto file = child.getFile();
       Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
       boolean isSystemFolder =
-        fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
-          .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
+          fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
+              .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
       if ( !isSystemFolder ) {
         filteredChildren.add( child );
       }
@@ -1237,9 +1258,11 @@ public class FileService {
   /**
    * Retrieve the executed contents for a selected repository file
    *
-   * @param pathId the path for the file
+   * @param pathId
+   *          the path for the file
    * @return list of <code> repositoryFileDto </code>
-   * @throws FileNotFoundException if the file is not found
+   * @throws FileNotFoundException
+   *           if the file is not found
    */
   public List<RepositoryFileDto> doGetGeneratedContent( String pathId ) throws FileNotFoundException {
     SessionResource sessionResource = getSessionResource();
@@ -1249,8 +1272,10 @@ public class FileService {
   /**
    * Retrieve the executed contents for a selected repository file and a given user
    *
-   * @param pathId the path for the file
-   * @param user   the username for the generated content folder
+   * @param pathId
+   *          the path for the file
+   * @param user
+   *          the username for the generated content folder
    * @return list of <code> repositoryFileDto </code>
    * @throws FileNotFoundException
    */
@@ -1262,8 +1287,10 @@ public class FileService {
   /**
    * Retrieve the executed contents for a selected repository file and a given user
    *
-   * @param pathId  the path for the file
-   * @param userDir the user home directory
+   * @param pathId
+   *          the path for the file
+   * @param userDir
+   *          the user home directory
    * @return list of <code> repositoryFileDto </code>
    * @throws FileNotFoundException
    * @private
@@ -1281,16 +1308,18 @@ public class FileService {
   }
 
   /**
-   * @param userDir          the user home directory
-   * @param targetComparator the comparator to filter
-   * @param metadataConstant the property used to get the file property to compare
+   * @param userDir
+   *          the user home directory
+   * @param targetComparator
+   *          the comparator to filter
+   * @param metadataConstant
+   *          the property used to get the file property to compare
    * @return list of <code> repositoryFileDto </code>
    * @throws FileNotFoundException
    * @private
    */
   protected List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
-                                                          String metadataConstant )
-    throws FileNotFoundException {
+      String metadataConstant ) throws FileNotFoundException {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
 
     RepositoryFile workspaceFolder = getRepository().getFile( userDir );
@@ -1328,8 +1357,10 @@ public class FileService {
   /**
    * Rename the name of the selected file
    *
-   * @param pathId  (colon separated path for the repository file)
-   * @param newName (New name of the file)
+   * @param pathId
+   *          (colon separated path for the repository file)
+   * @param newName
+   *          (New name of the file)
    * @return
    */
   public boolean doRename( String pathId, String newName ) throws Exception {
@@ -1368,26 +1399,28 @@ public class FileService {
           }
         }
         RepositoryFile updatedFile =
-          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
-            newName ).build();
+            new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
+                newName ).build();
         repository.updateFile( updatedFile, getData( movedFile ), "Updating the file" );
       }
       return true;
     } else {
       return false;
-      //return Response.ok( "File to be renamed does not exist" ).build();
+      // return Response.ok( "File to be renamed does not exist" ).build();
     }
   }
 
   /**
    * Creates a new folder with the specified name
    *
-   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in
-   *                    place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
-   *                    <pre function="syntax.xml">
+   * @param pathId
+   *          The path from the root folder to the root node of the tree to return using colon characters in place of /
+   *          or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
+   * 
+   *          <pre function="syntax.xml">
    *                      :path:to:file
-   *                    </pre>
-   * @return            A jax-rs Response object with the appropriate status code, header, and body.
+   * </pre>
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   public boolean doCreateDir( String pathId ) {
     String path = idToPath( pathId );
@@ -1489,7 +1522,8 @@ public class FileService {
   }
 
   protected BaseExportProcessor getDownloadExportProcessor( String path, boolean requiresZip, boolean withManifest ) {
-    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
+    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor(
+        path, getRepository() );
   }
 
   protected ExportHandler getDownloadExportHandler() {
@@ -1508,7 +1542,7 @@ public class FileService {
     };
   }
 
-  protected RepositoryRequest getRepositoryRequest( String  path, Boolean showHidden, Integer depth, String filter ) {
+  protected RepositoryRequest getRepositoryRequest( String path, Boolean showHidden, Integer depth, String filter ) {
     return new RepositoryRequest( path, showHidden, depth, filter );
   }
 
@@ -1546,8 +1580,7 @@ public class FileService {
     }
   }
 
-  public List<RepositoryFileDto> doGetChildren( String pathId, String filter, Boolean showHidden,
-                                                Boolean includeAcls ) {
+  public List<RepositoryFileDto> doGetChildren( String pathId, String filter, Boolean showHidden, Boolean includeAcls ) {
 
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
@@ -1601,7 +1634,7 @@ public class FileService {
   }
 
   protected RepositoryRequest getRepositoryRequest( RepositoryFileDto repositoryFileDto, Boolean showHidden,
-                                                    String filter, Boolean includeAcls ) {
+      String filter, Boolean includeAcls ) {
     RepositoryRequest repositoryRequest = new RepositoryRequest( repositoryFileDto.getId(), showHidden, 0, filter );
     repositoryRequest.setIncludeAcls( includeAcls );
     return repositoryRequest;

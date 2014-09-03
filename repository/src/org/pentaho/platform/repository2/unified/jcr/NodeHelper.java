@@ -45,7 +45,7 @@ public class NodeHelper {
    * @throws RepositoryException
    */
   public static boolean hasNode( Node parentNode, String nodeNamePrefix, String nodeName ) throws RepositoryException {
-    return checkHasNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ));
+    return checkHasNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ) );
   }
 
   /**
@@ -122,7 +122,7 @@ public class NodeHelper {
    * @param name
    * @return
    */
-  public static DataNode createDataNode( String name ){
-    return new DataNode( JcrStringHelper.fileNameEncode( name ));
+  public static DataNode createDataNode( String name ) {
+    return new DataNode( JcrStringHelper.fileNameEncode( name ) );
   }
 }

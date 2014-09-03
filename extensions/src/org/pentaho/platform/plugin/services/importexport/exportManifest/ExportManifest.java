@@ -46,7 +46,7 @@ import java.util.TreeSet;
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name stored in the Repository Export zip
  * file during a repository export.
- *
+ * 
  * @author tkafalas
  */
 public class ExportManifest {
@@ -78,9 +78,11 @@ public class ExportManifest {
   }
 
   /**
+   * 
    * @param repositoryFile
    * @param repositoryFileAcl
-   * @throws ExportManifestFormatException if the RepositoryFile path does not start with the manifest's rootFolder of manifest is
+   * @throws ExportManifestFormatException
+   *           if the RepositoryFile path does not start with the manifest's rootFolder of manifest is
    */
   public void add( RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl )
     throws ExportManifestFormatException {
@@ -89,7 +91,8 @@ public class ExportManifest {
     this.add( exportManifestEntity );
   }
 
-  public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) throws ExportManifestFormatException {
+  public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden )
+    throws ExportManifestFormatException {
     ExportManifestEntity exportManifestEntity = new ExportManifestEntity( file, userId, projectId, isFolder, isHidden );
     this.add( exportManifestEntity );
   }
@@ -104,7 +107,7 @@ public class ExportManifest {
 
   /**
    * Return entire map of export manifest entities
-   *
+   * 
    * @return
    */
   public HashMap<String, ExportManifestEntity> getExportManifestEntities() {
@@ -117,7 +120,7 @@ public class ExportManifest {
 
   /**
    * Marshals the manifest object into xml on the given output stream
-   *
+   * 
    * @param outputStream
    * @throws JAXBException
    * @throws ExportManifestFormatException
@@ -184,7 +187,7 @@ public class ExportManifest {
   /**
    * Factory method to deliver one ExportManifestEntity. The Manifest is built by adding one ExportManifestEntity object
    * for each file and folder in the export set.
-   *
+   * 
    * @return
    */
   public ExportManifestEntity createExportManifestEntry() {
@@ -213,7 +216,8 @@ public class ExportManifest {
   }
 
   /**
-   * @param manifestInformation the manifestInformation to set
+   * @param manifestInformation
+   *          the manifestInformation to set
    */
   public void setManifestInformation( ExportManifestDto.ExportManifestInformation manifestInformation ) {
     this.manifestInformation = manifestInformation;

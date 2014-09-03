@@ -89,8 +89,7 @@ public class PropertiesFileConfiguration implements IConfiguration {
   }
 
   /**
-   * 20140121/PM - Updated to back up original file with timestamp for historical
-   * rollback purposes
+   * 20140121/PM - Updated to back up original file with timestamp for historical rollback purposes
    *
    * @param newProperties
    * @throws IOException

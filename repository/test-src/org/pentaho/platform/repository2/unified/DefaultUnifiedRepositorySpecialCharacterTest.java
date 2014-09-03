@@ -37,7 +37,6 @@ import org.pentaho.platform.api.repository2.unified.*;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
@@ -54,7 +53,6 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.*;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -64,7 +62,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -83,7 +80,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.jcr.security.AccessControlException;
-import javax.jcr.security.Privilege;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -218,14 +214,14 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( "tenantedUserNameUtils", userNameUtils );
     mp.defineInstance( "tenantedRoleNameUtils", roleNameUtils );
-    mp.defineInstance("ILockHelper", new DefaultLockHelper(userNameUtils));
+    mp.defineInstance("ILockHelper", new DefaultLockHelper( userNameUtils ) );
 
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-    mp.defineInstance("RepositoryFileProxyFactory", new RepositoryFileProxyFactory(this.jcrTemplate, this.repositoryFileDao));
-    mp.defineInstance("ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver());
+    mp.defineInstance("RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate, this.repositoryFileDao ) );
+    mp.defineInstance("ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
@@ -2344,7 +2340,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
 
-    jcrTemplate = (JcrTemplate) applicationContext.getBean("jcrTemplate");
+    jcrTemplate = (JcrTemplate) applicationContext.getBean( "jcrTemplate" );
 
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
     superAdminRoleName = (String) applicationContext.getBean( "superAdminAuthorityName" );

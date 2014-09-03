@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;

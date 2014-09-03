@@ -24,3 +24,4 @@
 
 @javax.xml.bind.annotation.XmlSchema( namespace = "http://www.pentaho.com/schema/" )
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;
+

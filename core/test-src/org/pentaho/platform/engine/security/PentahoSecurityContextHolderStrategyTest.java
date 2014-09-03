@@ -28,7 +28,7 @@ public class PentahoSecurityContextHolderStrategyTest {
           notify();
         }
       }
-    });
+    } );
     thread.start();
     synchronized ( thread ) {
       thread.wait();

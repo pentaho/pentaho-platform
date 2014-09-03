@@ -139,7 +139,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getAcl", fileId ) ); //$NON-NLS-1$
   }
-  
+
   @Override
   public List<RepositoryFile> getChildren( final RepositoryRequest repositoryRequest ) {
     return callLogThrow( new Callable<List<RepositoryFile>>() {
@@ -151,17 +151,18 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
 
   @Deprecated
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
-    return getChildren( folderId, "", false);
+    return getChildren( folderId, "", false );
   }
 
   @Deprecated
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter) {
-    return getChildren( folderId, filter, false);
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
+    return getChildren( folderId, filter, false );
   }
 
   @Deprecated
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
-    return getChildren( new RepositoryRequest(folderId.toString(), showHiddenFiles, -1, filter ) );
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter,
+      final Boolean showHiddenFiles ) {
+    return getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute( final Serializable fileId,
@@ -392,8 +393,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.copyFile", fileId, destAbsPath ) ); //$NON-NLS-1$
   }
 
-  public void
-  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     callLogThrow( new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.restoreFileAtVersion( fileId, versionId, versionMessage );
@@ -436,7 +436,6 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.updateFile", file != null ? file.getId() : null ) ); //$NON-NLS-1$
   }
-  
 
   @Override
   public RepositoryFileTree getTree( final RepositoryRequest repositoryRequest ) {
@@ -448,9 +447,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   @Deprecated
-  public RepositoryFileTree getTree( final String path, final int depth,
-                                     final String filter, final boolean showHidden ) {
-    
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
+
     return getTree( new RepositoryRequest( path, showHidden, depth, filter ) );
   }
 
@@ -473,8 +471,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   /**
-   * Calls the Callable and returns the value it returns. If an exception occurs, it is logged and a new
-   * non-chained exception is thrown.
+   * Calls the Callable and returns the value it returns. If an exception occurs, it is logged and a new non-chained
+   * exception is thrown.
    * 
    * @param <T>
    *          return type
@@ -637,8 +635,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   @Override
-  public void setLocalePropertiesForFileByPath( final String relPath, final String locale,
-                                                final Properties properties ) {
+  public void setLocalePropertiesForFileByPath( final String relPath, final String locale, final Properties properties ) {
     callLogThrow( new Callable<Void>() {
       public Void call() throws Exception {
         delegatee.setLocalePropertiesForFileByPath( relPath, locale, properties );

@@ -80,8 +80,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       // If the parent file (content) got skipped because it existed then we will not import the locale information
       String fullPath = RepositoryFilenameUtils.concat( localeBundle.getPath(), localeParent.getName() );
       if ( ImportSession.getSession().getSkippedFiles().contains( fullPath ) ) {
-        getLogger().trace(
-            "Not importing Locale [" + bundleFileName + "] since parent file not written " );
+        getLogger().trace( "Not importing Locale [" + bundleFileName + "] since parent file not written " );
       } else {
         getLogger().trace( "Processing Locale [" + bundleFileName + "]" );
         unifiedRepository
@@ -92,7 +91,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   /**
    * return locale specific properties from resource bundle
-   *
+   * 
    * @param locale
    * @return
    */
@@ -128,7 +127,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
         fileTitle =
             rb.containsKey( TITLE_PROPERTY_NAME ) ? rb.getString( TITLE_PROPERTY_NAME ) : rb.containsKey( "title" )
                 ? rb.getString( "title" ) : rb.containsKey( FILE_TITLE ) ? rb.getString( FILE_TITLE ) : rb
-                .containsKey( DIRECTORY_NAME ) ? rb.getString( DIRECTORY_NAME ) : fileTitle;
+                    .containsKey( DIRECTORY_NAME ) ? rb.getString( DIRECTORY_NAME ) : fileTitle;
 
       }
     }
@@ -140,7 +139,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   /**
    * returns default of the name of the locale e.g. JA, FR, EN, ... or DEFAULT for root
-   *
+   * 
    * @param localeBundle
    * @return
    */

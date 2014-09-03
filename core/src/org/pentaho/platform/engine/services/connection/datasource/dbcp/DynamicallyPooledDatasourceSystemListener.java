@@ -19,7 +19,6 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import javax.sql.DataSource;
 
-import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -31,7 +30,7 @@ public class DynamicallyPooledDatasourceSystemListener extends PooledDatasourceS
 
   private IDBDatasourceService datasourceService;
   public IDBDatasourceService getDatasourceService() {
-    if( datasourceService == null ){
+    if ( datasourceService == null ) {
       datasourceService = PentahoSystem.get(
         IDBDatasourceService.class, null );
     }
@@ -45,18 +44,12 @@ public class DynamicallyPooledDatasourceSystemListener extends PooledDatasourceS
     DataSource ds = null;
     try {
       ds = connection.isUsingConnectionPool() ? PooledDatasourceHelper
-          .setupPooledDataSource( connection ) : getDatasourceService().getDataSource( connection.getName() );;
-
+          .setupPooledDataSource( connection ) : getDatasourceService().getDataSource( connection.getName() );
     } catch ( DBDatasourceServiceException e ) {
-
       Logger.error( this, Messages.getInstance().getErrorString(
           "DatasourceSystemListener.ERROR_0003_UNABLE_TO_POOL_DATASOURCE", connection.getName(),
           e.getMessage() ) ); //$NON-NLS-1$
-
     }
-
     return ds;
-
   }
-
 }

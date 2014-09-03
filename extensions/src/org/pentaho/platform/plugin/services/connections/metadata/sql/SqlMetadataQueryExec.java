@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.pentaho.metadata.query.model.Parameter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +39,6 @@ import org.pentaho.metadata.model.SqlPhysicalModel;
 import org.pentaho.metadata.query.BaseMetadataQueryExec;
 import org.pentaho.metadata.query.impl.sql.MappedQuery;
 import org.pentaho.metadata.query.impl.sql.SqlGenerator;
-import org.pentaho.metadata.query.model.Parameter;
 import org.pentaho.metadata.query.model.Query;
 import org.pentaho.metadata.util.DatabaseMetaUtil;
 import org.pentaho.metadata.util.ThinModelConverter;
@@ -118,9 +118,10 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
 
       // Make sure all parameters are of the correct type.
       // Fix for PDB-1753
+      String pName = null;
       for ( Parameter param : queryObject.getParameters() ) {
-        String pName = param.getName();
-        if ( parameters.containsKey( pName ) && !parameters.get( pName ).getClass().isArray() ) {
+        pName = param.getName();
+        if ( parameters.containsKey( pName ) ) {
           parameters.put( pName, this.convertParameterValue( param, parameters.get( pName ) ) );
         }
       }
@@ -130,7 +131,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
         SqlGenerator sqlGenerator = createSqlGenerator();
         mappedQuery =
             sqlGenerator.generateSql( queryObject, LocaleHelper.getLocale().toString(), getMetadataDomainRepository(),
-              activeDatabaseMeta, parameters, true );
+                activeDatabaseMeta, parameters, true );
       } catch ( Exception e ) {
         throw new RuntimeException( e.getLocalizedMessage(), e );
       }
@@ -200,7 +201,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
 
       } catch ( Exception e ) {
         logger.error( Messages.getInstance().getErrorString(
-          "SqlMetadataQueryExec.ERROR_0002_ERROR_EXECUTING_QUERY", e.getLocalizedMessage(), sql ) ); //$NON-NLS-1$
+            "SqlMetadataQueryExec.ERROR_0002_ERROR_EXECUTING_QUERY", e.getLocalizedMessage(), sql ) ); //$NON-NLS-1$
         logger.debug( "error", e ); //$NON-NLS-1$
         return null;
       }
@@ -323,15 +324,12 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
   }
 
   /**
-   * There are 3 levels at which a SqlGenerator class can be found:
-   * The default class is specified in this component:
-   * org.pentaho.metadata.query.impl.sql.SqlGenerator; if no other 
-   * overrides are in play, the default is used. 
-   * If a SqlGenerator class is set using the setter (through an
-   * input in the action sequence or programmatically), then the
-   * default is overridden by the class set in the setter. In between, we check the pentahoSpring.objects.xml,
-   * and if there is a SqlGenerator specified in there, we use that SqlGenerator, overriding
-   * the default. The setter always overrides the pentahoSpring.objects.xml class.   
+   * There are 3 levels at which a SqlGenerator class can be found: The default class is specified in this component:
+   * org.pentaho.metadata.query.impl.sql.SqlGenerator; if no other overrides are in play, the default is used. If a
+   * SqlGenerator class is set using the setter (through an input in the action sequence or programmatically), then the
+   * default is overridden by the class set in the setter. In between, we check the pentahoSpring.objects.xml, and if
+   * there is a SqlGenerator specified in there, we use that SqlGenerator, overriding the default. The setter always
+   * overrides the pentahoSpring.objects.xml class.
    */
   private SqlGenerator createSqlGenerator() throws Exception {
 

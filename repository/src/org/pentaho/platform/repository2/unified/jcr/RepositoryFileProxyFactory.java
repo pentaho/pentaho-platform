@@ -14,12 +14,12 @@ public class RepositoryFileProxyFactory {
   private JcrTemplate template;
   private IRepositoryFileDao repositoryFileDao;
 
-  public RepositoryFileProxyFactory(JcrTemplate template, IRepositoryFileDao repositoryFileDao) {
+  public RepositoryFileProxyFactory( JcrTemplate template, IRepositoryFileDao repositoryFileDao ) {
     this.template = template;
     this.repositoryFileDao = repositoryFileDao;
   }
 
-  public RepositoryFileProxy getProxy(final Node node, IPentahoLocale pentahoLocale){
-    return new RepositoryFileProxy(node, template, pentahoLocale);
+  public RepositoryFileProxy getProxy( final Node node, IPentahoLocale pentahoLocale ) {
+    return new RepositoryFileProxy( node, template, pentahoLocale );
   }
 }

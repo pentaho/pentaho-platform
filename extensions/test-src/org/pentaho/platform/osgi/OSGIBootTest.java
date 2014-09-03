@@ -24,7 +24,7 @@ import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created with IntelliJ IDEA. User: nbaker Date: 11/19/13 Time: 10:48 PM To change this template use File | Settings |
@@ -33,10 +33,10 @@ import static junit.framework.Assert.assertEquals;
 public class OSGIBootTest {
   @Test
   public void testStartup() throws Exception {
-    PentahoSystem.setApplicationContext( new StandaloneApplicationContext( "test-res/osgiSystem", "test-res/osgiSystem" ) );
+    PentahoSystem.setApplicationContext(new StandaloneApplicationContext( "test-res/osgiSystem", "test-res/osgiSystem" ) );
     OSGIBoot boot = new OSGIBoot();
-    boot.startup( new StandaloneSession() );
-    assertEquals( org.osgi.framework.Bundle.ACTIVE, boot.framework.getState() );
+    boot.startup(new StandaloneSession() );
+    assertEquals(org.osgi.framework.Bundle.ACTIVE, boot.framework.getState() );
   }
 
   @AfterClass

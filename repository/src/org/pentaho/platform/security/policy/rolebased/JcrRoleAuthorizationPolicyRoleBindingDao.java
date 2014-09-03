@@ -30,8 +30,13 @@ import org.springframework.util.Assert;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link IRoleAuthorizationPolicyRoleBindingDao} implementation that uses JCR. Storage is done using nodes and
@@ -78,7 +83,7 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
   public JcrRoleAuthorizationPolicyRoleBindingDao( final JcrTemplate jcrTemplate, final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
       final Map<String, List<String>> bootstrapRoleBindings, final String superAdminRoleName,
       final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> authorizationActions ) {
-    super(immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils,
+    super( immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils,
         authorizationActions );
     Assert.notNull( jcrTemplate );
     this.jcrTemplate = jcrTemplate;

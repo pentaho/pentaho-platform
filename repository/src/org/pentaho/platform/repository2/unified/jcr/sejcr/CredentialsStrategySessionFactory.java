@@ -383,7 +383,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
           .addEventListener( eventListeners[ i ].getListener(), eventListeners[ i ].getEventTypes(), eventListeners[ i ]
               .getAbsPath(), eventListeners[ i ].isDeep(), eventListeners[ i ].getUuid(),
             eventListeners[ i ].getNodeTypeName(), eventListeners[ i ].isNoLocal()
-          );
+        );
       }
     }
     return session;

@@ -233,8 +233,8 @@ public class RepositoryFilenameUtils {
    */
   public static String concat( final String basePath, final String fullFilenameToAdd ) {
     int prefix = 0;
-    if(StringUtils.hasLength( fullFilenameToAdd)) {
-      prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );  
+    if ( StringUtils.hasLength( fullFilenameToAdd ) ) {
+      prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );
     }
     if ( prefix < 0 ) {
       return null;

@@ -36,8 +36,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
 /**
- * Creates a base implementation of IUnifiedRepository (all methods do default things like {@code return null}) so
- * that unit tests can use simple mock implementations that extend this class and only override what is needed vs.
+ * Creates a base implementation of IUnifiedRepository (all methods do default things like {@code return null}) so that
+ * unit tests can use simple mock implementations that extend this class and only override what is needed vs.
  * implementing all the methods just to use 2 of them
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
@@ -49,8 +49,7 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
-                                     final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
     return null;
   }
 
@@ -143,7 +142,8 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter,
+      final Boolean showHiddenFiles ) {
     return null;
   }
 
@@ -246,8 +246,7 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public void
-  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
   }
 
   @Override

@@ -24,7 +24,7 @@ import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 
 /**
  * Resolves mime-types by extension.
- * <p/>
+ * 
  * User: nbaker Date: 6/18/12
  */
 public class NameBaseMimeResolver implements IPlatformImportMimeResolver {

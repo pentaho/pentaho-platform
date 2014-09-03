@@ -21,7 +21,6 @@
 // Generated on: 2014.02.13 at 12:51:52 PM EST 
 //
 
-
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -30,12 +29,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for ImportHandlerDto complex type.
- * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * <p>
+ * Java class for ImportHandlerDto complex type.
+ * 
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType name="ImportHandlerDto">
  *   &lt;complexContent>
@@ -48,23 +48,23 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
-@XmlAccessorType ( XmlAccessType.FIELD )
-@XmlType ( name = "ImportHandlerDto", propOrder = {
-    "mimeTypeDefinitions"
-    } )
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "ImportHandlerDto", propOrder = { "mimeTypeDefinitions" } )
 public class ImportHandlerDto {
 
-  @XmlElement ( name = "MimeTypeDefinitions", required = true )
+  @XmlElement( name = "MimeTypeDefinitions", required = true )
   protected MimeTypeDefinitionsDto mimeTypeDefinitions;
-  @XmlAttribute ( name = "class", required = true )
+  @XmlAttribute( name = "class", required = true )
   protected String clazz;
 
   /**
    * Gets the value of the mimeTypeDefinitions property.
-   *
-   * @return possible object is
-   * {@link MimeTypeDefinitionsDto }
+   * 
+   * @return possible object is {@link MimeTypeDefinitionsDto }
+   * 
    */
   public MimeTypeDefinitionsDto getMimeTypeDefinitions() {
     return mimeTypeDefinitions;
@@ -72,9 +72,10 @@ public class ImportHandlerDto {
 
   /**
    * Sets the value of the mimeTypeDefinitions property.
-   *
-   * @param value allowed object is
-   *              {@link MimeTypeDefinitionsDto }
+   * 
+   * @param value
+   *          allowed object is {@link MimeTypeDefinitionsDto }
+   * 
    */
   public void setMimeTypeDefinitions( MimeTypeDefinitionsDto value ) {
     this.mimeTypeDefinitions = value;
@@ -82,9 +83,9 @@ public class ImportHandlerDto {
 
   /**
    * Gets the value of the clazz property.
-   *
-   * @return possible object is
-   * {@link String }
+   * 
+   * @return possible object is {@link String }
+   * 
    */
   public String getClazz() {
     return clazz;
@@ -92,9 +93,10 @@ public class ImportHandlerDto {
 
   /**
    * Sets the value of the clazz property.
-   *
-   * @param value allowed object is
-   *              {@link String }
+   * 
+   * @param value
+   *          allowed object is {@link String }
+   * 
    */
   public void setClazz( String value ) {
     this.clazz = value;

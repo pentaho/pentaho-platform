@@ -21,7 +21,6 @@
 // Generated on: 2014.02.13 at 12:51:52 PM EST 
 //
 
-
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;
 
 import java.util.ArrayList;
@@ -31,12 +30,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for MimeTypeDefinitionsDto complex type.
- * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * <p>
+ * Java class for MimeTypeDefinitionsDto complex type.
+ * 
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType name="MimeTypeDefinitionsDto">
  *   &lt;complexContent>
@@ -48,35 +48,36 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
-@XmlAccessorType ( XmlAccessType.FIELD )
-@XmlType ( name = "MimeTypeDefinitionsDto", propOrder = {
-    "mimeTypeDefinition"
-    } )
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "MimeTypeDefinitionsDto", propOrder = { "mimeTypeDefinition" } )
 public class MimeTypeDefinitionsDto {
 
-  @XmlElement ( name = "MimeTypeDefinition", required = true )
+  @XmlElement( name = "MimeTypeDefinition", required = true )
   protected List<MimeTypeDefinitionDto> mimeTypeDefinition;
 
   /**
    * Gets the value of the mimeTypeDefinition property.
-   * <p/>
-   * <p/>
-   * This accessor method returns a reference to the live list,
-   * not a snapshot. Therefore any modification you make to the
-   * returned list will be present inside the JAXB object.
-   * This is why there is not a <CODE>set</CODE> method for the mimeTypeDefinition property.
-   * <p/>
-   * <p/>
+   * 
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+   * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+   * the mimeTypeDefinition property.
+   * 
+   * <p>
    * For example, to add a new item, do as follows:
+   * 
    * <pre>
-   *    getMimeTypeDefinition().add(newItem);
+   * getMimeTypeDefinition().add( newItem );
    * </pre>
-   * <p/>
-   * <p/>
-   * <p/>
-   * Objects of the following type(s) are allowed in the list
-   * {@link MimeTypeDefinitionDto }
+   * 
+   * 
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link MimeTypeDefinitionDto }
+   * 
+   * 
    */
   public List<MimeTypeDefinitionDto> getMimeTypeDefinition() {
     if ( mimeTypeDefinition == null ) {

@@ -75,7 +75,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   public void importFile( IPlatformImportBundle bundle ) throws PlatformImportException, DomainIdNullException,
-      DomainAlreadyExistsException, DomainStorageException, IOException {
+    DomainAlreadyExistsException, DomainStorageException, IOException {
 
     RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
     ZipInputStream zipImportStream = new ZipInputStream( bundle.getInputStream() );
@@ -88,7 +88,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
 
-    //Process Manifest Settings
+    // Process Manifest Settings
     ExportManifest manifest = getImportSession().getManifest();
     String manifestVersion = null;
     if ( manifest != null ) {
@@ -162,7 +162,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       String decodedFilePath = file.getPath();
       RepositoryFile decodedFile = file.getFile();
       if ( manifestVersion != null ) {
-        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
+        decodedFile =
+            new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName )
+                .build();
         decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
       }
 
@@ -182,8 +184,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         bundleBuilder.input( bundleInputStream );
         bundleBuilder.mime( solutionHelper.getMime( fileName ) );
 
-        String filePath =
-            ( decodedFilePath.equals( "/" ) || decodedFilePath.equals( "\\" ) ) ? "" : decodedFilePath;
+        String filePath = ( decodedFilePath.equals( "/" ) || decodedFilePath.equals( "\\" ) ) ? "" : decodedFilePath;
         repositoryFilePath = RepositoryFilenameUtils.concat( importBundle.getPath(), filePath );
       }
 
@@ -201,8 +202,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
       }
 
-      //This clause was added for processing ivb files so that it would not try process acls on folders that the user
-      //may not have rights to such as /home or /public
+      // This clause was added for processing ivb files so that it would not try process acls on folders that the user
+      // may not have rights to such as /home or /public
       if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && file.getFile().isFolder() ) {
         continue;
       }
@@ -238,8 +239,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
               }
             }
           } catch ( Exception e ) {
-            throw new PlatformImportException( Messages.getInstance()
-                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+            throw new PlatformImportException( Messages.getInstance().getString(
+                "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
           }
         }
       }
