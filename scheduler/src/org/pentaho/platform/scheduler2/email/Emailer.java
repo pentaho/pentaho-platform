@@ -62,23 +62,45 @@ public class Emailer {
   }
 
   public void setTo( String to ) {
-    to = to.replaceAll( ";", "," );
-    if ( to != null && !"".equals( to ) ) {
+    to = formatEmailAddress( to );
+    if ( StringUtils.isNotEmpty( to ) ) {
       props.put( "to", to );
     }
   }
 
   public void setCc( String cc ) {
-    cc = cc.replaceAll( ";", "," );
-    if ( cc != null && !"".equals( cc ) ) {
+    cc = formatEmailAddress( cc );
+    if ( StringUtils.isNotEmpty( cc ) ) {
       props.put( "cc", cc );
     }
   }
 
   public void setBcc( String bcc ) {
-    bcc = bcc.replaceAll( ";", "," );
-    if ( bcc != null && !"".equals( bcc ) ) {
+    bcc = formatEmailAddress( bcc );
+    if ( StringUtils.isNotEmpty( bcc ) ) {
       props.put( "bcc", bcc );
+    }
+  }
+
+  public String getTo() {
+    return props.getProperty( "to" );
+  }
+
+  public String getCc() {
+    return props.getProperty( "cc" );
+  }
+
+  public String getBcc() {
+    return props.getProperty( "bcc" );
+  }
+
+  private String formatEmailAddress( String emailAddress ) {
+    if ( emailAddress != null ) {
+      // Remove CR symbols - email header injection
+      emailAddress = emailAddress.replaceAll( "\r", "" );
+      return emailAddress.replaceAll( ";", "," );
+    } else {
+      return null;
     }
   }
 
