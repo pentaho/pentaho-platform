@@ -41,14 +41,14 @@ public interface IMetaverseComponentDescriptor extends IIdentifiable, INamespace
   /**
    * Gets the context ("static", "runtime", e.g.) associated with the component described by this descriptor.
    *
-   * @return A string containing a description of the context associated with the described component
+   * @return An object containing the context information associated with the described component
    */
-  String getContext();
+  IAnalysisContext getContext();
 
   /**
    * Sets the context ("static", "runtime", e.g.) associated with the component described by this descriptor.
    *
    * @param context the context for the described component
    */
-  void setContext( String context );
+  void setContext( IAnalysisContext context );
 }
