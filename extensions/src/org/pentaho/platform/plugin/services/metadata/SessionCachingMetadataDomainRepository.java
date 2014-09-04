@@ -34,6 +34,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -63,9 +64,12 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    * this as a public class so that if necessary someone can get access to a session key and clear the cache in their
    * own way via javascript rule / etc
    */
-  public static class CacheKey {
+  public static class CacheKey implements Serializable {
+    private static final long serialVersionUID = 1737869846319540136L;
     public String sessionId;
     public String domainId;
+
+    protected CacheKey() {}
 
     public CacheKey( String sessionId, String domainId ) {
       this.sessionId = sessionId;
