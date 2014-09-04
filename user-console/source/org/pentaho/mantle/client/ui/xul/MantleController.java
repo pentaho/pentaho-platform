@@ -407,8 +407,8 @@ public class MantleController extends AbstractXulEventHandler {
           warning.setHeight( 117 );
           warning.setMessage( clearMessage );
           warning.setTitle( menuClearMessage );
-		  warning.setAcceptLabel( Messages.getString( "clearRecentAcceptButtonLabel" ) );
-		  warning.setCancelLabel( Messages.getString( "clearRecentCancelButtonLabel" ) );
+          warning.setAcceptLabel( Messages.getString( "clearRecentAcceptButtonLabel" ) );
+          warning.setCancelLabel( Messages.getString( "clearRecentCancelButtonLabel" ) );
           warning.addDialogCallback( new XulDialogCallback<String>() {
             public void onClose( XulComponent sender, Status returnCode, String retVal ) {
               if ( returnCode == Status.ACCEPT ) {

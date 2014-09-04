@@ -147,7 +147,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
               MessageDialogBox dialogBox =
                   new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
                       false, false, true );
-               dialogBox.center();
+              dialogBox.center();
               event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
               EventBusUtil.EVENT_BUS.fireEvent( event );
             }

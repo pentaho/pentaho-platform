@@ -103,7 +103,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
   protected static final String SCHEDULE_EDITOR_CAPTION_PANEL = "schedule-editor-caption-panel"; //$NON-NLS-1$
 
   public enum ScheduleType {
-	  //@formatter:off
+      //@formatter:off
       RUN_ONCE( 0, Messages.getString( "schedule.runOnce" ) ),
       SECONDS( 1, Messages.getString( "schedule.seconds" ) ),
       MINUTES( 2, Messages.getString( "schedule.minutes" ) ),
@@ -113,7 +113,7 @@ public class ScheduleEditor extends VerticalPanel implements IChangeHandler {
       MONTHLY( 6, Messages.getString( "schedule.monthly" ) ),
       YEARLY( 7, Messages.getString( "schedule.yearly" ) ),
       CRON( 8, Messages.getString( "schedule.cron" ) );
-    //@formatter:on
+      //@formatter:on
 
     private ScheduleType( int value, String name ) {
       this.value = value;
