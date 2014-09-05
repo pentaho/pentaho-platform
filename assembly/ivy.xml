@@ -247,6 +247,11 @@
     </dependency>
 
 
+    <dependency org="pentaho" name="sparkl" rev="${dependency.pentaho-sparkl-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="sparkl" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
      
     <dependency org="pentaho" name="pentaho-jpivot-plugin" rev="${dependency.pentaho-jpivot-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="pentaho-jpivot-plugin" type="zip" /> <!-- download the zip file, not the jar -->
