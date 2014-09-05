@@ -87,8 +87,10 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
 
     usersListBox.setVisibleItemCount( 5 );
     rolesListBox.setVisibleItemCount( 5 );
-    rolesListBox.setWidth( "100%" ); //$NON-NLS-1$
-    usersListBox.setWidth( "100%" ); //$NON-NLS-1$
+    rolesListBox.setWidth( "400px" );
+    rolesListBox.setHeight( "200px" );
+    usersListBox.setWidth( "400px" );
+    usersListBox.setHeight( "200px" );
     contentTable.clear();
     contentTable.setWidth( "100%" ); //$NON-NLS-1$
     contentTable.setWidget( 0, 0, new Label( Messages.getString( "users" ) ) ); //$NON-NLS-1$
