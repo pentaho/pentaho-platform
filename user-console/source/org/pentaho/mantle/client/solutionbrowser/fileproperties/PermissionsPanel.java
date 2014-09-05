@@ -97,7 +97,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   boolean origInheritAclFlag = false;
 
-  ListBox usersAndRolesList = new ListBox( false );
+  ListBox usersAndRolesList = new ListBox( true );
 
   Label permissionsLabel = new Label( Messages.getString( "permissionsColon" ) ); //$NON-NLS-1$
 
@@ -137,10 +137,12 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
           return;
         }
         dirty = true;
-        final String userOrRoleString = usersAndRolesList.getValue( usersAndRolesList.getSelectedIndex() );
-        removeRecipient( userOrRoleString, fileInfo );
-        usersAndRolesList.removeItem( usersAndRolesList.getSelectedIndex() );
-        existingUsersAndRoles.remove( userOrRoleString );
+
+        for ( final String userOrRoleString : SelectUserOrRoleDialog.getSelectedItemsValue( usersAndRolesList ) ) {
+          removeRecipient( userOrRoleString, fileInfo );
+          usersAndRolesList.removeItem( usersAndRolesList.getSelectedIndex() );
+          existingUsersAndRoles.remove( userOrRoleString );
+        }
       }
     } );
 
@@ -647,10 +649,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     NodeList aces = fileInfo.getElementsByTagName( ACES_ELEMENT_NAME );
     for ( int i = 0; i < aces.getLength(); i++ ) {
       Element ace = (Element) aces.item( i );
-      if ( ace.getElementsByTagName( RECIPIENT_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue().equals(
-          recipient ) ) {
-        return ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue()
-          .equals( "true" );
+      if ( ace.getElementsByTagName( RECIPIENT_ELEMENT_NAME ).item( 0 ).getFirstChild().getNodeValue()
+        .equals( recipient ) ) {
+        NodeList modifiable = ace.getElementsByTagName( MODIFIABLE_ELEMENT_NAME );
+        return modifiable.getLength() > 0 && modifiable.item( 0 ).getFirstChild().getNodeValue().equals( "true" );
       }
     }
     return false;
