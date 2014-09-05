@@ -37,12 +37,13 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SelectUserOrRoleDialog extends PromptDialogBox {
 
   private static FlexTable contentTable = new FlexTable();
-  private static ListBox usersListBox = new ListBox( false );
-  private static ListBox rolesListBox = new ListBox( false );
+  private static ListBox usersListBox = new ListBox( true );
+  private static ListBox rolesListBox = new ListBox( true );
 
   public SelectUserOrRoleDialog( ArrayList<String> existing, final IUserRoleSelectedCallback callback ) {
     super(
@@ -66,10 +67,12 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
       }
 
       public void okPressed() {
-        if ( getSelectedUser() != null ) {
-          callback.userSelected( getSelectedUser() );
-        } else {
-          callback.roleSelected( getSelectedRole() );
+        for ( String selectedUser : getSelectedItemsText( usersListBox ) ) {
+          callback.userSelected( selectedUser );
+        }
+
+        for ( String selectedRole : getSelectedItemsText( rolesListBox ) ) {
+          callback.roleSelected( selectedRole );
         }
       }
     } );
@@ -184,6 +187,28 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
       return usersListBox.getItemText( usersListBox.getSelectedIndex() );
     }
     return null;
+  }
+
+  public static List<String> getSelectedItemsText( ListBox listBox ) {
+    List<String> selectedItems = new ArrayList<String>();
+    for ( int i = 0; i < listBox.getItemCount(); i++ ) {
+      if ( listBox.isItemSelected( i ) ) {
+        selectedItems.add( listBox.getItemText( i ) );
+      }
+    }
+
+    return selectedItems;
+  }
+
+  public static List<String> getSelectedItemsValue( ListBox listBox ) {
+    List<String> selectedItems = new ArrayList<String>();
+    for ( int i = 0; i < listBox.getItemCount(); i++ ) {
+      if ( listBox.isItemSelected( i ) ) {
+        selectedItems.add( listBox.getValue( i ) );
+      }
+    }
+
+    return selectedItems;
   }
 
   public static String getSelectedRole() {
