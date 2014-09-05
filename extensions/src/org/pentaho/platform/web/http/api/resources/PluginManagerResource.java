@@ -61,9 +61,6 @@ public class PluginManagerResource {
   @Path( "/overlays" )
   @Produces( { APPLICATION_JSON } )
   public List<Overlay> getOverlays( @QueryParam( "id" ) @DefaultValue( "" ) String id ) {
-    if ( !canAdminister() ) {
-      throw new UnauthorizedException();
-    }
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
     List<XulOverlay> overlays = pluginManager.getOverlays();
     ArrayList<Overlay> result = new ArrayList<Overlay>();
@@ -88,9 +85,6 @@ public class PluginManagerResource {
   @Path( "/perspectives" )
   @Produces( { APPLICATION_JSON } )
   public ArrayList<PluginPerspective> getPluginPerpectives() {
-    if ( !canAdminister() ) {
-      throw new UnauthorizedException();
-    }
     IPluginPerspectiveManager manager =
         PentahoSystem.get( IPluginPerspectiveManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
 
@@ -150,11 +144,8 @@ public class PluginManagerResource {
   @Produces( { APPLICATION_JSON } )
   public String getPluginSetting( @PathParam( "pluginId" ) String pluginId,
       @PathParam( "settingName" ) String settingName ) {
-    if ( canAdminister() ) {
-      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
-      return (String) pluginManager.getPluginSetting( pluginId, settingName, null );
-    }
-    throw new UnauthorizedException();
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
+    return (String) pluginManager.getPluginSetting( pluginId, settingName, null );
   }
 
   /**
