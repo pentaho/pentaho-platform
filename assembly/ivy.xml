@@ -237,6 +237,21 @@
     <dependency org="pentaho" name="cgg" rev="${dependency.pentaho-cgg-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="cgg" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
+
+    <dependency org="pentaho" name="cda" rev="${dependency.pentaho-cda-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="cda" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+    <dependency org="pentaho" name="pentaho-cdf-dd" rev="${dependency.pentaho-cde-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="pentaho-cdf-dd" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
+    <dependency org="pentaho" name="sparkl" rev="${dependency.pentaho-sparkl-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="sparkl" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
      
     <dependency org="pentaho" name="pentaho-jpivot-plugin" rev="${dependency.pentaho-jpivot-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="pentaho-jpivot-plugin" type="zip" /> <!-- download the zip file, not the jar -->
@@ -252,6 +267,14 @@
     <dependency org="pentaho" name="pentaho-cdf-samples" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="solution->default">
       <artifact name="pentaho-cdf-samples" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
+    <dependency org="pentaho" name="cda-samples" rev="${dependency.pentaho-cda-plugin.revision}" changing="true" transitive="false" conf="solution->default">
+      <artifact name="cda-samples" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+    <dependency org="pentaho" name="pentaho-cdf-dd-solution" rev="${dependency.pentaho-cde-plugin.revision}" changing="true" transitive="false" conf="solution->default">
+      <artifact name="pentaho-cdf-dd-solution" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
 
     <!--  Other archive resources -->
     <dependency org="pentaho" name="pentaho-user-console-package" rev="${project.revision}" transitive="false" changing="true" />
