@@ -64,6 +64,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       @Override
       public void onFailure( Throwable err ) {
         MantleApplication.hideBusyIndicator();
+        etd.getElement().setId( "emailTestDialog" );
         etd.show( err.getMessage() );
 
       }
@@ -71,6 +72,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       @Override
       public void onSuccess( String message ) {
         MantleApplication.hideBusyIndicator();
+        etd.getElement().setId( "emailTestDialog" );
         etd.show( message );
       }
     };
