@@ -42,7 +42,7 @@ public interface IVariableSerializer {
     }
 
     @Override public String serializeToString( Object o ) {
-      return o.toString();
+      return o!= null ? o.toString() : "";
     }
 
   }
