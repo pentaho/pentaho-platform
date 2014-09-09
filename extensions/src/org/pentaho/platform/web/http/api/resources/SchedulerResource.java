@@ -77,7 +77,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Creates a new Job/Schedule
    * <p/>
    * <p><b>Example Request:</b><br />
-   * PUT api/scheduler/job
+   * POST api/scheduler/job
    * </p>
    *
    * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created
@@ -790,7 +790,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Return the information for a specified job
    * <p/>
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/jobInfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
+   * GET api/scheduler/jobinfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
    * </p>
    *
    * @param jobId        The jobId of the job for which we are requesting information
@@ -875,7 +875,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Get all the blockout jobs in the system
    * <p/>
    * <p><b>Example Request:</b><br />
-   * GET /scheduler/blockout/blockoutJobs
+   * GET /scheduler/blockout/blockoutjobs
    * </p>
    *
    * @return A Response object that contains a list of blockout jobs

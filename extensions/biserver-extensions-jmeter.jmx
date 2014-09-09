@@ -10495,7 +10495,7 @@ return(filename);
             </hashTree>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="BISERVER-11268" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="BISERVER-11268" enabled="false"/>
         <hashTree>
           <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Login" enabled="true">
             <boolProp name="TransactionController.parent">true</boolProp>
@@ -13905,6 +13905,2072 @@ return(filename);
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">8</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Logout" enabled="true">
+            <boolProp name="TransactionController.parent">true</boolProp>
+          </TransactionController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/pentaho/Logout" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/Logout</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/mantle/8DA60CE9A40DB87C7445325A3C971371.cache.html</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="oemdoc" enabled="true"/>
+        <hashTree>
+          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Login" enabled="true">
+            <boolProp name="TransactionController.parent">true</boolProp>
+          </TransactionController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/pentaho/j_spring_security_check" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="j_username" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">j_username</stringProp>
+                    <stringProp name="Argument.value">admin</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                  <elementProp name="j_password" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">j_password</stringProp>
+                    <stringProp name="Argument.value">password</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                  <elementProp name="locale" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">locale</stringProp>
+                    <stringProp name="Argument.value">en_US</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/j_spring_security_check</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/x-www-form-urlencoded; charset=UTF-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/plain, */*; q=0.01</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Pragma" elementType="Header">
+                    <stringProp name="Header.name">Pragma</stringProp>
+                    <stringProp name="Header.value">no-cache</stringProp>
+                  </elementProp>
+                  <elementProp name="Cache-Control" elementType="Header">
+                    <stringProp name="Header.name">Cache-Control</stringProp>
+                    <stringProp name="Header.value">no-cache</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                  <elementProp name="X-Requested-With" elementType="Header">
+                    <stringProp name="Header.name">X-Requested-With</stringProp>
+                    <stringProp name="Header.value">XMLHttpRequest</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Login;jsessionid=259EE5A4A63D0765FE7CB03DDA1CA324</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET tree (includeAcls)" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET tree (includeAcls) and filter" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /repo/files/:home/children (show hidden)" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /repo/files/:home/children (include acls)" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET tree (includeAcls)" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET tree (includeAcls) and filter" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /repo/files/:home/children (show hidden)" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /repo/files/:home/children (include acls)" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="showHidden" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">false</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">showHidden</stringProp>
+                  </elementProp>
+                  <elementProp name="filter" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">*|FILES</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">filter</stringProp>
+                  </elementProp>
+                  <elementProp name="_" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">1389042244670</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                    <stringProp name="Argument.name">_</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/repo/files/:home/children</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="TestPlan.comments">http://localhost:8080/pentaho/api/repo/files/:home/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="Content-Type" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Language" elementType="Header">
+                    <stringProp name="Header.name">Accept-Language</stringProp>
+                    <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="User-Agent" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                  </elementProp>
+                  <elementProp name="Referer" elementType="Header">
+                    <stringProp name="Header.name">Referer</stringProp>
+                    <stringProp name="Header.value">http://${ServerIP}:8080/pentaho/Home</stringProp>
+                  </elementProp>
+                  <elementProp name="DNT" elementType="Header">
+                    <stringProp name="Header.name">DNT</stringProp>
+                    <stringProp name="Header.value">1</stringProp>
+                  </elementProp>
+                  <elementProp name="Accept-Encoding" elementType="Header">
+                    <stringProp name="Header.name">Accept-Encoding</stringProp>
+                    <stringProp name="Header.value">gzip, deflate</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="XPath Assertion" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">/</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="SchedulerResource" enabled="true"/>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/add" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/add</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">8</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="92668751">admin</stringProp>
+                  <stringProp name="270253399">BlockoutAction</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+                <boolProp name="resetInterpreter">false</boolProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="script">vars.put(&quot;jobId&quot;, java.net.URLEncoder.encode(prev.getResponseDataAsString()))</stringProp>
+              </BeanShellPostProcessor>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/blockout/blockoutjobs" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/blockoutjobs</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">8</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="105405">job</stringProp>
+                  <stringProp name="101296568">jobId</stringProp>
+                  <stringProp name="270253399">BlockoutAction</stringProp>
+                  <stringProp name="0"></stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/blockstatus" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/blockstatus</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">8</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="1937136426">&quot;partiallyBlocked&quot;:&quot;true&quot;</stringProp>
+                  <stringProp name="606849095">&quot;totallyBlocked&quot;:&quot;true&quot;</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/blockout/hasblockouts" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/hasblockouts</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">8</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="3569038">true</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/blockout/shouldFireNow" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/shouldFireNow</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">8</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="3569038">true</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/update" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/update?jobid=${jobId}</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+                <boolProp name="resetInterpreter">false</boolProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="script">vars.put(&quot;jobId&quot;, prev.getResponseDataAsString())</stringProp>
+              </BeanShellPostProcessor>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/willFire" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/blockout/willFire</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="97196323">false</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="DELETE /scheduler/removeJob" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${jobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/removeJob</stringProp>
+              <stringProp name="HTTPSampler.method">DELETE</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/canSchedule" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/canSchedule</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="3569038">true</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/generatedContentForSchedule" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/generatedContentForSchedule?lineageId=:public:Steel Wheels:Inventory List (report).prpt</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1829038457">repositoryFileDtoes</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/getContentCleanerJob" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/getContentCleanerJob</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49590">204</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/getJobs" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/getJobs</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="1819046892">&lt;jobs&gt;</stringProp>
+                  <stringProp name="58678877">&lt;job&gt;</stringProp>
+                  <stringProp name="400821052">UpdateAuditData</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/isScheduleAllowed" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/isScheduleAllowed?id=b5f806b9-9f72-4814-b1e0-aa9e0ece7e1a</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="3569038">true</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/job" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;JobName&lt;/jobName&gt;&#xd;
+&lt;simpleJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;&#xd;
+&lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;&#xd;
+&lt;repeatCount&gt;-1&lt;/repeatCount&gt;&#xd;
+&lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/simpleJobTrigger&gt;&#xd;
+&lt;inputFile&gt;/public/Steel Wheels/Top Customers (report).prpt&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;/public/output&lt;/outputFile&gt;&#xd;
+&lt;jobParameters&gt;&#xd;
+&lt;name&gt;ParameterName&lt;/name&gt;&#xd;
+&lt;type&gt;string&lt;/type&gt;&#xd;
+&lt;stringValue&gt;false&lt;/stringValue&gt;&#xd;
+&lt;/jobParameters&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/job</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="92668751">admin</stringProp>
+                  <stringProp name="226556872">JobName</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+                <boolProp name="resetInterpreter">false</boolProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="script">vars.put(&quot;jobId&quot;, java.net.URLEncoder.encode(prev.getResponseDataAsString()))</stringProp>
+              </BeanShellPostProcessor>
+              <hashTree/>
+              <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+                <boolProp name="resetInterpreter">false</boolProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="script">vars.put(&quot;rawJobId&quot;, prev.getResponseDataAsString())</stringProp>
+              </BeanShellPostProcessor>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/jobinfo" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/jobinfo?jobId=${jobId}</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="105405">job</stringProp>
+                  <stringProp name="101296568">jobId</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/jobState" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/jobState</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1986416409">NORMAL</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/state" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/state</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-2026200673">RUNNING</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/pause" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/pause</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1941992146">PAUSED</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/start" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/start</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-2026200673">RUNNING</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/triggerNow" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/triggerNow</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1986416409">NORMAL</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/pauseJob" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/pauseJob</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1941992146">PAUSED</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/resumeJob" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/resumeJob</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1986416409">NORMAL</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="DELETE /scheduler/removeJob" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/removeJob</stringProp>
+              <stringProp name="HTTPSampler.method">DELETE</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-type</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="1809818688">REMOVED</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/shutdown" enabled="false">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/pentaho/api/scheduler/start</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1941992146">PAUSED</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
