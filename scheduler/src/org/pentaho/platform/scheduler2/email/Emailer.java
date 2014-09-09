@@ -86,6 +86,10 @@ public class Emailer {
     props.put( "subject", subject );
   }
 
+  public String getSubject() {
+    return props.getProperty( "subject" );
+  }
+
   public void setFrom( String from ) {
     props.put( "mail.from.default", from );
   }
