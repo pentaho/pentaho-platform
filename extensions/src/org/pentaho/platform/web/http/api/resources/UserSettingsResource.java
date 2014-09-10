@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -40,6 +41,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
  *
  */
 @Path( "/user-settings" )
+@Facet( name = "Unsupported" )
 public class UserSettingsResource extends AbstractJaxRSResource {
 
   public UserSettingsResource() {
@@ -57,6 +59,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @GET
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Facet ( name = "Unsupported" )
   public ArrayList<Setting> getUserSettings() {
     try {
       IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
@@ -83,6 +86,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "{setting : .+}" )
+  @Facet ( name = "Unsupported" )
   public Response getUserSetting( @PathParam( "setting" ) String setting ) {
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
     IUserSetting userSetting = settingsService.getUserSetting( setting, null );
@@ -99,6 +103,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
    */
   @POST
   @Path( "{setting : .+}" )
+  @Facet ( name = "Unsupported" )
   public Response setUserSetting( @PathParam( "setting" ) String setting, String settingValue ) {
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
     settingsService.setUserSetting( setting, settingValue );

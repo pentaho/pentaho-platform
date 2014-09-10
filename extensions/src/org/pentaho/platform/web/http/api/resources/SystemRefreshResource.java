@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -44,6 +45,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
  *
  */
 @Path( "/system/refresh" )
+@Facet( name = "Unsupported" )
 public class SystemRefreshResource extends AbstractJaxRSResource {
 
   /**
@@ -53,6 +55,7 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/globalActions" )
+  @Facet ( name = "Unsupported" )
   @Produces( TEXT_PLAIN )
   public Response executeGlobalActions() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -65,6 +68,7 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
 
   @GET
   @Path( "/metadata" )
+  @Facet ( name = "Unsupported" )
   @Produces( TEXT_PLAIN )
   public String refreshMetadata() {
     String result = null;
@@ -79,6 +83,7 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
 
   @GET
   @Path( "/systemSettings" )
+  @Facet ( name = "Unsupported" )
   @Produces( TEXT_PLAIN )
   public Response refreshSystemSettings() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -92,6 +97,7 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
   @GET
   @Path( "/mondrianSchemaCache" )
   @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response flushMondrianSchemaCache() {
     if ( canAdminister() ) {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -115,6 +121,7 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
   @GET
   @Path( "/reportingDataCache" )
   @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response purgeReportingDataCache() {
     if ( canAdminister() ) {
       ICacheManager cacheManager = PentahoSystem.get( ICacheManager.class );

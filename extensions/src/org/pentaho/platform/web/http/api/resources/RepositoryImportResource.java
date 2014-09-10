@@ -19,6 +19,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -74,6 +75,7 @@ public class RepositoryImportResource {
   @POST
   @Consumes ( MediaType.MULTIPART_FORM_DATA )
   @Produces ( MediaType.TEXT_HTML )
+  @Facet( name = "Unsupported" )
   public Response doPostImport( @FormDataParam ( "importDir" ) String uploadDir,
                                 @FormDataParam ( "fileUpload" ) InputStream fileIS, @FormDataParam ( "overwriteFile" ) String overwriteFile,
                                 @FormDataParam ( "overwriteAclPermissions" ) String overwriteAclPermissions,

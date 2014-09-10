@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -34,6 +35,7 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Path( "/roles" )
+@Facet( name = "Unsupported" )
 public class SystemRolesResource extends AbstractJaxRSResource {
 
   /**
@@ -45,6 +47,7 @@ public class SystemRolesResource extends AbstractJaxRSResource {
    */
   @GET
   @Produces( { MediaType.APPLICATION_XML } )
+  @Facet ( name = "Unsupported" )
   public Response getRoles() throws Exception {
     try {
       if ( canAdminister() ) {

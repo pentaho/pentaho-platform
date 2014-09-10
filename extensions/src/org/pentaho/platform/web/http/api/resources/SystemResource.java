@@ -20,6 +20,7 @@ package org.pentaho.platform.web.http.api.resources;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IConfiguration;
@@ -62,6 +63,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
  */
 @Path( "/system/" )
 @ExternallyManagedLifecycle
+@Facet( name = "Unsupported" )
 public class SystemResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( FileResource.class );
@@ -88,6 +90,7 @@ public class SystemResource extends AbstractJaxRSResource {
    */
   @GET
   @Produces( { MediaType.APPLICATION_XML } )
+  @Facet ( name = "Unsupported" )
   public Response getAll() throws Exception {
     try {
       if ( canAdminister() ) {
@@ -111,6 +114,7 @@ public class SystemResource extends AbstractJaxRSResource {
   @GET
   @Path( "/authentication-provider" )
   @Produces( { MediaType.APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response getAuthenticationProvider() throws Exception {
     try {
       if ( canAdminister() ) {
@@ -134,6 +138,7 @@ public class SystemResource extends AbstractJaxRSResource {
   @GET
   @Path( "/timezones" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Facet ( name = "Unsupported" )
   public TimeZoneWrapper getTimeZones() {
     Map<String, String> timeZones = new HashMap<String, String>();
     for ( String tzId : TimeZone.getAvailableIDs() ) {
@@ -154,6 +159,7 @@ public class SystemResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/locale" )
+  @Facet ( name = "Unsupported" )
   public Response getLocale() {
     return Response.ok( LocaleHelper.getLocale().toString() ).build();
   }
@@ -167,6 +173,7 @@ public class SystemResource extends AbstractJaxRSResource {
    */
   @POST
   @Path( "/locale" )
+  @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
     httpServletRequest.getSession().setAttribute( "locale_override", locale );
     if ( !StringUtils.isEmpty( locale ) ) {
@@ -185,6 +192,7 @@ public class SystemResource extends AbstractJaxRSResource {
   @Path( "/executableTypes" )
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response getExecutableTypes() {
     ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
     for ( String contentType : pluginManager.getContentTypes() ) {

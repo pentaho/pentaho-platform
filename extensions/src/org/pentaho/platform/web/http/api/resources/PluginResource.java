@@ -20,6 +20,7 @@ package org.pentaho.platform.web.http.api.resources;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
@@ -139,6 +140,7 @@ public class PluginResource {
   @GET
   @Path( "/files/{path : .+}" )
   @Produces( WILDCARD )
+  @Facet( name = "Unsupported" )
   public Response readFile( @PathParam( "pluginId" ) String pluginId, @PathParam( "path" ) String path )
     throws IOException {
     List<String> pluginRestPerspectives = pluginManager.getPluginRESTPerspectivesForId( pluginId );

@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.ws.rs.GET;
@@ -26,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Path( "" )
+@Facet ( name = "Unsupported" )
 public class RootResource extends AbstractJaxRSResource {
 
   @GET
@@ -35,6 +37,7 @@ public class RootResource extends AbstractJaxRSResource {
 
   @GET
   @Path( "docs" )
+  @Facet( name = "Unsupported" )
   public Response doGetDocs() throws URISyntaxException {
     String fqurl = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
     URI uri = new URI( fqurl + "apidocs/index.html" ); //$NON-NLS-1$
