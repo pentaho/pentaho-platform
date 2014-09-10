@@ -69,8 +69,7 @@
   Object reqObj = request.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
   String requestedURL = "";
   if (reqObj != null) {
-    requestedURL = ((SavedRequest) reqObj).getFullRequestUrl();
-
+    requestedURL = ((SavedRequest) reqObj).getRequestURI();  
     String lookFor;
     for (int i=0; i<send401RequestList.size(); i++) {
       lookFor = send401RequestList.get(i);
