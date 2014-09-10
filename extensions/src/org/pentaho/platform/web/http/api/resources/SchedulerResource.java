@@ -755,6 +755,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </p>
    *
    * @param jobId The jobId of the job for which we are requesting information.
+   * @param asCronString Cron string (Unused)
    *
    * @return A Job object containing the info for the specified job.
    *
@@ -801,7 +802,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the information for the requested job." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
   } )
-  public Job getJob( @QueryParam ( "jobId" ) String jobId ) {
+  public Job getJob( @QueryParam( "jobId" ) String jobId,
+                     @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
       return schedulerService.getJobInfo( jobId );
     } catch ( SchedulerException e ) {
