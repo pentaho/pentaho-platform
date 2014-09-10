@@ -57,10 +57,10 @@ public class RepositoryPublishResource {
 
   /**
    * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
-   * is set to true
-   * <p/>
-   * <p>Example Request:<br>
-   * POST api/repo/publish/publishfile
+   * is set to true.
+   *
+   * <p><b>Example Request:</b><br />
+   *    POST api/repo/publish/publishfile
    * </p>
    *
    * @param pathId        Colon separated path for the repository file.

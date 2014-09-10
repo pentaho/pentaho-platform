@@ -90,17 +90,16 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   /**
    * Takes a pathId to a file and generates a URI that represents the URL to call to generate content from that file.
-   * <p/>
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/repos/:path:to:file/default
+   *    GET api/repos/{pathId}/default
    * </p>
    *
    * @param pathId @param pathId
-   *               <pre function="syntax.xml">
-   *               :path:to:fileId
-   *               </pre>
-   * @return URI that represents a forwarding URL to execute to generate content from the file (pathId)
-   * @throws FileNotFoundException, MalformedURLException, URISyntaxException
+   *
+   * @return URI that represents a forwarding URL to execute to generate content from the file (pathId).
+   *
+   * <p><b>Example Response:</b></p>
    */
   @GET
   @Path ( "{pathId : .+}/default" )
@@ -133,21 +132,18 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   /**
    * Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
-   * <p/>
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/repos/path:to:file/pluginFolder
+   *    POST api/repos/{contextId}/{resourceId}
    * </p>
    *
    * @param contextId  Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID
-   *                   <pre function="syntax.xml">
-   *                   :path:to:file
-   *                   </pre>
    * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
-   *                   <pre function="syntax.xml">
-   *                   pluginFolder
-   *                   </pre>
    * @param formParams Any arguments needed to render the resource
+   *
    * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
+   *
+   * <p><b>Example Response:</b></p>
    */
   @Path ( "/{contextId}/{resourceId : .+}" )
   @POST
