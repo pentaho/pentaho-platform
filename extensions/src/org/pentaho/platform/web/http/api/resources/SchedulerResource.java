@@ -74,37 +74,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
 
   /**
-   * Creates a new Job/Schedule
-   * <p/>
+   * Creates a new scheduled job.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/job
+   *  POST api/scheduler/job
    * </p>
    *
-   * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created
-   *                        <pre function="syntax.xml">
-   *                        &lt;jobScheduleRequest&gt;
-   *                        &lt;jobName&gt;JobName&lt;/jobName&gt;
-   *                        &lt;simpleJobTrigger&gt;
-   *                        &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
-   *                        &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
-   *                        &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   *                        &lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;
-   *                        &lt;endTime /&gt;
-   *                        &lt;/simpleJobTrigger&gt;
-   *                        &lt;inputFile&gt;/path/to/input/file&lt;/inputFile&gt;
-   *                        &lt;outputFile&gt;/path/to/output/file&lt;/outputFile&gt;
-   *                        &lt;jobParameters&gt;
-   *                        &lt;name&gt;ParameterName&lt;/name&gt;
-   *                        &lt;type&gt;string&lt;/type&gt;
-   *                        &lt;stringValue&gt;false&lt;/stringValue&gt;
-   *                        &lt;/jobParameters&gt;
-   *                        &lt;/jobScheduleRequest&gt;
-   *                        </pre>
-   * @return A jax-rs Response object with the created jobId
-   * <p/>
+   * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created.
+   *
+   * @return A jax-rs Response object with the created jobId.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * username	JobName	1405356465422
+   *  admin	JobName	1405356465422
    * </pre>
    */
   @POST
@@ -133,23 +115,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Execute a previously created job/schedule
-   * <p/>
+   * Execute a previously scheduled job.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/triggerNow
+   *  POST api/scheduler/triggerNow
    * </p>
    *
-   * @param jobRequest A JobRequest object containing the jobId
-   *                   <pre function="syntax.xml">
-   *                   &lt;jobRequest&gt;
-   *                   &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
-   *                   &lt;/jobRequest&gt;
-   *                   </pre>
-   * @return A Response object indicating the status of the scheduler
-   * <p/>
+   * @param jobRequest A JobRequest object containing the jobId.
+   *
+   * @return A Response object indicating the status of the scheduler.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * NORMAL
+   *  NORMAL
    * </pre>
    */
   @POST
@@ -171,58 +149,58 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Get the job/schedule created by the system for deleting generated files
-   * <p/>
+   * Get the scheduled job created by the system for deleting generated files.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/getContentCleanerJob
+   *  GET api/scheduler/getContentCleanerJob
    * </p>
    *
-   * @return A Job object containing the definition of the content cleaner job
-   * <p/>
+   * @return A Job object containing the definition of the content cleaner job.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;job&gt;
-   * &lt;groupName&gt;admin&lt;/groupName&gt;
-   * &lt;jobId&gt;admin	GeneratedContentCleaner	1408377444383&lt;/jobId&gt;
-   * &lt;jobName&gt;GeneratedContentCleaner&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;uiPassParam&lt;/name&gt;
-   * &lt;value&gt;DAILY&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;age&lt;/name&gt;
-   * &lt;value&gt;15552000&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;user_locale&lt;/name&gt;
-   * &lt;value&gt;en_US&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
-   * &lt;value&gt;org.pentaho.platform.admin.GeneratedContentCleaner&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;c3cfbad4-2e34-4dbd-8071-a2f3c7e8fab9&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   * &lt;duration&gt;-1&lt;/duration&gt;
-   * &lt;startTime&gt;2014-08-18T11:57:00-04:00&lt;/startTime&gt;
-   * &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
-   * &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   * &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;lastRun&gt;2014-08-18T11:57:00-04:00&lt;/lastRun&gt;
-   * &lt;nextRun&gt;2014-08-19T11:57:00-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
+   *  &lt;job&gt;
+   *  &lt;groupName&gt;admin&lt;/groupName&gt;
+   *  &lt;jobId&gt;admin	GeneratedContentCleaner	1408377444383&lt;/jobId&gt;
+   *  &lt;jobName&gt;GeneratedContentCleaner&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;uiPassParam&lt;/name&gt;
+   *  &lt;value&gt;DAILY&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;age&lt;/name&gt;
+   *  &lt;value&gt;15552000&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;user_locale&lt;/name&gt;
+   *  &lt;value&gt;en_US&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *  &lt;value&gt;org.pentaho.platform.admin.GeneratedContentCleaner&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;c3cfbad4-2e34-4dbd-8071-a2f3c7e8fab9&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *  &lt;duration&gt;-1&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-08-18T11:57:00-04:00&lt;/startTime&gt;
+   *  &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *  &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;lastRun&gt;2014-08-18T11:57:00-04:00&lt;/lastRun&gt;
+   *  &lt;nextRun&gt;2014-08-19T11:57:00-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
    * </pre>
    */
   @GET
@@ -241,107 +219,108 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the all the job(s) visible to the current users
-   * <p/>
+   * Retrieve the all the job(s) visible to the current users.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/jobs
+   *  GET api/scheduler/jobs
    * </p>
    *
-   * @param asCronString Cron string (Unused)
-   * @return A list of jobs that are visible to the current users
-   * <p/>
+   * @param asCronString Cron string (Unused).
+   * @return A list of jobs that are visible to the current users.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;jobs&gt;
-   * &lt;job&gt;
-   * &lt;groupName&gt;admin&lt;/groupName&gt;
-   * &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
-   * &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
-   * &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;versionRequestFlags&lt;/name&gt;
-   * &lt;value&gt;0&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   * &lt;duration&gt;-1&lt;/duration&gt;
-   * &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
-   * &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   * &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
-   * &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
-   * &lt;job&gt;
-   * &lt;groupName&gt;admin&lt;/groupName&gt;
-   * &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
-   * &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
-   * &lt;value&gt;false&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;uiPassParam&lt;/name&gt;
-   * &lt;value&gt;MINUTES&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
-   * &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;user_locale&lt;/name&gt;
-   * &lt;value&gt;en_US&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
-   * &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   * &lt;duration&gt;-1&lt;/duration&gt;
-   * &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
-   * &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
-   * &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   * &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
-   * &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
-   * &lt;/jobs&gt;
+   *  &lt;jobs&gt;
+   *  &lt;job&gt;
+   *  &lt;groupName&gt;admin&lt;/groupName&gt;
+   *  &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *  &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *  &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *  &lt;value&gt;0&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *  &lt;duration&gt;-1&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
+   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *  &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
+   *  &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   *  &lt;job&gt;
+   *  &lt;groupName&gt;admin&lt;/groupName&gt;
+   *  &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *  &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
+   *  &lt;value&gt;false&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;uiPassParam&lt;/name&gt;
+   *  &lt;value&gt;MINUTES&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
+   *  &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;user_locale&lt;/name&gt;
+   *  &lt;value&gt;en_US&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
+   *  &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *  &lt;duration&gt;-1&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
+   *  &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *  &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
+   *  &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   *  &lt;/jobs&gt;
    * </pre>
    */
   @Deprecated
   @GET
   @Path ( "/jobs" )
   @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
+  @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
-      @ResponseCode ( code = 500, condition = "Error while retrieving jobs." ),
+      @ResponseCode ( code = 500, condition = "Error while retrieving jobs." )
   } )
   public List<Job> getJobs( @DefaultValue ( "false" ) @QueryParam ( "asCronString" ) Boolean asCronString ) {
     try {
@@ -352,97 +331,97 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the all the job(s) visible to the current users
-   * <p/>
+   * Retrieve the all the scheduled job(s) visible to the current users.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/getJobs
+   *  GET api/scheduler/getJobs
    * </p>
    *
-   * @return A list of jobs that are visible to the current users
-   * <p/>
+   * @return A list of jobs that are visible to the current users.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;jobs&gt;
-   * &lt;job&gt;
-   * &lt;groupName&gt;admin&lt;/groupName&gt;
-   * &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
-   * &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
-   * &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;versionRequestFlags&lt;/name&gt;
-   * &lt;value&gt;0&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   * &lt;duration&gt;-1&lt;/duration&gt;
-   * &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
-   * &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   * &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
-   * &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
-   * &lt;job&gt;
-   * &lt;groupName&gt;admin&lt;/groupName&gt;
-   * &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
-   * &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
-   * &lt;value&gt;false&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;uiPassParam&lt;/name&gt;
-   * &lt;value&gt;MINUTES&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
-   * &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;user_locale&lt;/name&gt;
-   * &lt;value&gt;en_US&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
-   * &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   * &lt;duration&gt;-1&lt;/duration&gt;
-   * &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
-   * &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
-   * &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   * &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
-   * &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
-   * &lt;/jobs&gt;
+   *  &lt;jobs&gt;
+   *  &lt;job&gt;
+   *  &lt;groupName&gt;admin&lt;/groupName&gt;
+   *  &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *  &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *  &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;1986cc90-cf87-43f6-8924-9d6e443e7d5d&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *  &lt;value&gt;0&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *  &lt;duration&gt;-1&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-08-18T09:41:43.506-04:00&lt;/startTime&gt;
+   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *  &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;lastRun&gt;2014-08-18T11:37:31.412-04:00&lt;/lastRun&gt;
+   *  &lt;nextRun&gt;2014-08-19T09:41:43.506-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   *  &lt;job&gt;
+   *  &lt;groupName&gt;admin&lt;/groupName&gt;
+   *  &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *  &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;autoCreateUniqueFilename&lt;/name&gt;
+   *  &lt;value&gt;false&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;uiPassParam&lt;/name&gt;
+   *  &lt;value&gt;MINUTES&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;
+   *  &lt;value&gt;input file = /public/pentaho-operations-mart/update_audit_mart_data/UpdateAuditData.xaction:outputFile = /public/pentaho-operations-mart/generated_logs/UpdateAuditData.*&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;user_locale&lt;/name&gt;
+   *  &lt;value&gt;en_US&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;
+   *  &lt;value&gt;xaction.backgroundExecution&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;1f2402c4-0a70-40e4-b428-0d328f504cb3&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *  &lt;duration&gt;-1&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-07-14T12:47:00-04:00&lt;/startTime&gt;
+   *  &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *  &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;lastRun&gt;2014-08-18T12:47:00-04:00&lt;/lastRun&gt;
+   *  &lt;nextRun&gt;2014-08-18T13:17:00-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   *  &lt;/jobs&gt;
    * </pre>
    */
   @GET
@@ -461,21 +440,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks whether the current user may schedule a repository file in the platform
-   * <p/>
+   * Checks whether the current user may schedule a repository file in the platform.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/isScheduleAllowed?id=fileId
+   *  GET api/scheduler/isScheduleAllowed?id={id}
    * </p>
    *
-   * @param id The repository file ID of the content to checked
-   *           <pre function="syntax.xml">
-   *           fileId
-   *           </pre>
+   * @param id The repository file ID of the content to checked.
+   *
    * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the file.
-   * <p/>
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * true
+   *  true
    * </pre>
    */
   @GET
@@ -490,17 +467,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks whether the current user has authority to schedule any content in the platform
-   * <p/>
+   * Checks whether the current user has authority to schedule any content in the platform.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/canSchedule
+   *  GET api/scheduler/canSchedule
    * </p>
    *
    * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the user.
-   * <p/>
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * true
+   *  true
    * </pre>
    */
   @GET
@@ -515,17 +492,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the state of the scheduler with the value of RUNNING or PAUSED
-   * <p/>
+   * Returns the state of the scheduler with the value of RUNNING or PAUSED.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/state
+   *  GET api/scheduler/state
    * </p>
    *
-   * @return status of the scheduler as RUNNING or PAUSED
-   * <p/>
+   * @return status of the scheduler as RUNNING or PAUSED.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * RUNNING
+   *  RUNNING
    * </pre>
    */
   @GET
@@ -545,17 +522,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Resume the scheduler from a paused state
-   * <p/>
+   * Resume the scheduler from a paused state.
+   *
    * <p><b>Example Request:</b><br />
    * POST api/scheduler/start
    * </p>
    *
-   * @return A jax-rs Response object containing the status of the scheduler
-   * <p/>
+   * @return A jax-rs Response object containing the status of the scheduler.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * RUNNING
+   *  RUNNING
    * </pre>
    */
   @POST
@@ -575,17 +552,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Pause the scheduler from a running state
-   * <p/>
+   * Pause the scheduler from a running state.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/pause
+   *  POST api/scheduler/pause
    * </p>
    *
-   * @return A jax-rs Response object containing the status of the scheduler
-   * <p/>
+   * @return A jax-rs Response object containing the status of the scheduler.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * PAUSED
+   *  PAUSED
    * </pre>
    */
   @POST
@@ -605,17 +582,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Shuts down the scheduler
-   * <p/>
+   * Shuts down the scheduler.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/shutdown
+   *  POST api/scheduler/shutdown
    * </p>
    *
-   * @return A jax-rs Response object containing the status of the scheduler
-   * <p/>
+   * @return A jax-rs Response object containing the status of the scheduler.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * PAUSED
+   *  PAUSED
    * </pre>
    */
   @POST
@@ -635,23 +612,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks the state of the selected job/schedule
-   * <p/>
+   * Checks the state of the selected scheduled job.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/jobState
+   *  POST api/scheduler/jobState
    * </p>
    *
-   * @param jobRequest A JobRequest object containing the jobId
-   *                   <pre function="syntax.xml">
-   *                   &lt;jobRequest&gt;
-   *                   &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
-   *                   &lt;/jobRequest&gt;
-   *                   </pre>
-   * @return A jax-rs Response object containing the status of the scheduled job
-   * <p/>
+   * @param jobRequest A JobRequest object containing the jobId.
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * NORMAL
+   *  NORMAL
    * </pre>
    */
   @POST
@@ -673,23 +646,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Pause the specified job/schedule
-   * <p/>
+   * Pause the specified scheduled job.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/pauseJob
+   *  POST api/scheduler/pauseJob
    * </p>
    *
-   * @param jobRequest A JobRequest object containing the jobId
-   *                   <pre function="syntax.xml">
-   *                   &lt;jobRequest&gt;
-   *                   &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
-   *                   &lt;/jobRequest&gt;
-   *                   </pre>
-   * @return A jax-rs Response object containing the status of the scheduled job
-   * <p/>
+   * @param jobRequest A JobRequest object containing the jobId.
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * PAUSED
+   *  PAUSED
    * </pre>
    */
   @POST
@@ -710,20 +679,16 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Resume the specified job/schedule
-   * <p/>
+   * Resume the specified scheduled job.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/resumeJob
+   *  POST api/scheduler/resumeJob
    * </p>
    *
-   * @param jobRequest A JobRequest object containing the jobId
-   *                   <pre function="syntax.xml">
-   *                   &lt;jobRequest&gt;
-   *                   &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
-   *                   &lt;/jobRequest&gt;
-   *                   </pre>
-   * @return A jax-rs Response object containing the status of the scheduled job
-   * <p/>
+   * @param jobRequest A JobRequest object containing the jobId.
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    * NORMAL
@@ -747,23 +712,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete the specified job/schedule from the platform
-   * <p/>
+   * Delete the specified scheduled job from the platform.
+   *
    * <p><b>Example Request:</b><br />
-   * DELETE api/scheduler/removeJob
+   *  DELETE api/scheduler/removeJob
    * </p>
    *
-   * @param jobRequest A JobRequest object containing the jobId
-   *                   <pre function="syntax.xml">
-   *                   &lt;jobRequest&gt;
-   *                   &lt;jobId&gt;username	JobName	1408369303507&lt;/jobId&gt;
-   *                   &lt;/jobRequest&gt;
-   *                   </pre>
-   * @return A jax-rs Response object containing the status of the scheduled job
-   * <p/>
+   * @param jobRequest A JobRequest object containing the jobId.
+   *
+   * @return A jax-rs Response object containing the status of the scheduled job.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * REMOVED
+   *  REMOVED
    * </pre>
    */
   @DELETE
@@ -787,50 +748,50 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Return the information for a specified job
-   * <p/>
+   * Return the information for a specified job.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/jobinfo?jobId=admin%09PentahoSystemVersionCheck%091408387651641
+   *  GET api/scheduler/jobinfo?jobId={jobId}
    * </p>
    *
-   * @param jobId        The jobId of the job for which we are requesting information
-   * @param asCronString Cron string (Unused)
-   * @return A Job object containing the info for the specified job
-   * <p/>
+   * @param jobId The jobId of the job for which we are requesting information.
+   *
+   * @return A Job object containing the info for the specified job.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;job&gt;
-   * &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408387651641&lt;/jobId&gt;
-   * &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
-   * &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;da116fa7-539f-43ca-b6d7-8ce5408c97ce&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;versionRequestFlags&lt;/name&gt;
-   * &lt;value&gt;0&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   * &lt;duration&gt;-1&lt;/duration&gt;
-   * &lt;startTime&gt;2014-08-18T14:47:31.639-04:00&lt;/startTime&gt;
-   * &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   * &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;lastRun&gt;2014-08-18T14:47:31.639-04:00&lt;/lastRun&gt;
-   * &lt;nextRun&gt;2014-08-19T14:47:31.639-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
+   *  &lt;job&gt;
+   *  &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408387651641&lt;/jobId&gt;
+   *  &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *  &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;da116fa7-539f-43ca-b6d7-8ce5408c97ce&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;versionRequestFlags&lt;/name&gt;
+   *  &lt;value&gt;0&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
+   *  &lt;duration&gt;-1&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-08-18T14:47:31.639-04:00&lt;/startTime&gt;
+   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *  &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;lastRun&gt;2014-08-18T14:47:31.639-04:00&lt;/lastRun&gt;
+   *  &lt;nextRun&gt;2014-08-19T14:47:31.639-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
    * </pre>
    */
   @GET
@@ -840,8 +801,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the information for the requested job." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
   } )
-  public Job getJob( @QueryParam ( "jobId" ) String jobId,
-                     @DefaultValue ( "false" ) @QueryParam ( "asCronString" ) String asCronString ) {
+  public Job getJob( @QueryParam ( "jobId" ) String jobId ) {
     try {
       return schedulerService.getJobInfo( jobId );
     } catch ( SchedulerException e ) {
@@ -861,7 +821,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   /**
    * @return list of Job
    * @deprecated Method is deprecated as the name getBlockoutJobs is preferred over getJobs
-   * <p/>
+   *
    * Retrieves all blockout jobs in the system
    */
   @Deprecated
@@ -872,89 +832,89 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
 
   /**
-   * Get all the blockout jobs in the system
-   * <p/>
+   * Get all the blockout jobs in the system.
+   *
    * <p><b>Example Request:</b><br />
-   * GET /scheduler/blockout/blockoutjobs
+   *  GET /scheduler/blockout/blockoutjobs
    * </p>
    *
-   * @return A Response object that contains a list of blockout jobs
-   * <p/>
+   * @return A Response object that contains a list of blockout jobs.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;jobs&gt;
-   * &lt;job&gt;
-   * &lt;groupName&gt;admin&lt;/groupName&gt;
-   * &lt;jobId&gt;admin	BlockoutAction	1408457558636&lt;/jobId&gt;
-   * &lt;jobName&gt;BlockoutAction&lt;/jobName&gt;
-   * &lt;jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;TIME_ZONE_PARAM&lt;/name&gt;
-   * &lt;value&gt;America/New_York&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;DURATION_PARAM&lt;/name&gt;
-   * &lt;value&gt;10080000&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;uiPassParam&lt;/name&gt;
-   * &lt;value&gt;DAILY&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;user_locale&lt;/name&gt;
-   * &lt;value&gt;en_US&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   * &lt;value&gt;admin&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
-   * &lt;value&gt;org.pentaho.platform.scheduler2.blockout.BlockoutAction&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobParams&gt;
-   * &lt;name&gt;lineage-id&lt;/name&gt;
-   * &lt;value&gt;0989726c-3247-4864-bc79-8e2a1dc60c58&lt;/value&gt;
-   * &lt;/jobParams&gt;
-   * &lt;/jobParams&gt;
-   * &lt;jobTrigger xsi:type="complexJobTrigger"&gt;
-   * &lt;cronString&gt;0 12 10 ? * 2,3,4,5,6 *&lt;/cronString&gt;
-   * &lt;duration&gt;10080000&lt;/duration&gt;
-   * &lt;startTime&gt;2014-08-19T10:12:00-04:00&lt;/startTime&gt;
-   * &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
-   * &lt;dayOfMonthRecurrences /&gt;
-   * &lt;dayOfWeekRecurrences&gt;
-   * &lt;recurrenceList&gt;
-   * &lt;values&gt;2&lt;/values&gt;
-   * &lt;values&gt;3&lt;/values&gt;
-   * &lt;values&gt;4&lt;/values&gt;
-   * &lt;values&gt;5&lt;/values&gt;
-   * &lt;values&gt;6&lt;/values&gt;
-   * &lt;/recurrenceList&gt;
-   * &lt;/dayOfWeekRecurrences&gt;
-   * &lt;hourlyRecurrences&gt;
-   * &lt;recurrenceList&gt;
-   * &lt;values&gt;10&lt;/values&gt;
-   * &lt;/recurrenceList&gt;
-   * &lt;/hourlyRecurrences&gt;
-   * &lt;minuteRecurrences&gt;
-   * &lt;recurrenceList&gt;
-   * &lt;values&gt;12&lt;/values&gt;
-   * &lt;/recurrenceList&gt;
-   * &lt;/minuteRecurrences&gt;
-   * &lt;monthlyRecurrences /&gt;
-   * &lt;secondRecurrences&gt;
-   * &lt;recurrenceList&gt;
-   * &lt;values&gt;0&lt;/values&gt;
-   * &lt;/recurrenceList&gt;
-   * &lt;/secondRecurrences&gt;
-   * &lt;yearlyRecurrences /&gt;
-   * &lt;/jobTrigger&gt;
-   * &lt;nextRun&gt;2014-08-20T10:12:00-04:00&lt;/nextRun&gt;
-   * &lt;state&gt;NORMAL&lt;/state&gt;
-   * &lt;userName&gt;admin&lt;/userName&gt;
-   * &lt;/job&gt;
-   * &lt;/jobs&gt;
+   *  &lt;jobs&gt;
+   *  &lt;job&gt;
+   *  &lt;groupName&gt;admin&lt;/groupName&gt;
+   *  &lt;jobId&gt;admin	BlockoutAction	1408457558636&lt;/jobId&gt;
+   *  &lt;jobName&gt;BlockoutAction&lt;/jobName&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;TIME_ZONE_PARAM&lt;/name&gt;
+   *  &lt;value&gt;America/New_York&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;DURATION_PARAM&lt;/name&gt;
+   *  &lt;value&gt;10080000&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;uiPassParam&lt;/name&gt;
+   *  &lt;value&gt;DAILY&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;user_locale&lt;/name&gt;
+   *  &lt;value&gt;en_US&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
+   *  &lt;value&gt;admin&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
+   *  &lt;value&gt;org.pentaho.platform.scheduler2.blockout.BlockoutAction&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobParams&gt;
+   *  &lt;name&gt;lineage-id&lt;/name&gt;
+   *  &lt;value&gt;0989726c-3247-4864-bc79-8e2a1dc60c58&lt;/value&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;/jobParams&gt;
+   *  &lt;jobTrigger xsi:type="complexJobTrigger"&gt;
+   *  &lt;cronString&gt;0 12 10 ? * 2,3,4,5,6 *&lt;/cronString&gt;
+   *  &lt;duration&gt;10080000&lt;/duration&gt;
+   *  &lt;startTime&gt;2014-08-19T10:12:00-04:00&lt;/startTime&gt;
+   *  &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *  &lt;dayOfMonthRecurrences /&gt;
+   *  &lt;dayOfWeekRecurrences&gt;
+   *  &lt;recurrenceList&gt;
+   *  &lt;values&gt;2&lt;/values&gt;
+   *  &lt;values&gt;3&lt;/values&gt;
+   *  &lt;values&gt;4&lt;/values&gt;
+   *  &lt;values&gt;5&lt;/values&gt;
+   *  &lt;values&gt;6&lt;/values&gt;
+   *  &lt;/recurrenceList&gt;
+   *  &lt;/dayOfWeekRecurrences&gt;
+   *  &lt;hourlyRecurrences&gt;
+   *  &lt;recurrenceList&gt;
+   *  &lt;values&gt;10&lt;/values&gt;
+   *  &lt;/recurrenceList&gt;
+   *  &lt;/hourlyRecurrences&gt;
+   *  &lt;minuteRecurrences&gt;
+   *  &lt;recurrenceList&gt;
+   *  &lt;values&gt;12&lt;/values&gt;
+   *  &lt;/recurrenceList&gt;
+   *  &lt;/minuteRecurrences&gt;
+   *  &lt;monthlyRecurrences /&gt;
+   *  &lt;secondRecurrences&gt;
+   *  &lt;recurrenceList&gt;
+   *  &lt;values&gt;0&lt;/values&gt;
+   *  &lt;/recurrenceList&gt;
+   *  &lt;/secondRecurrences&gt;
+   *  &lt;yearlyRecurrences /&gt;
+   *  &lt;/jobTrigger&gt;
+   *  &lt;nextRun&gt;2014-08-20T10:12:00-04:00&lt;/nextRun&gt;
+   *  &lt;state&gt;NORMAL&lt;/state&gt;
+   *  &lt;userName&gt;admin&lt;/userName&gt;
+   *  &lt;/job&gt;
+   *  &lt;/jobs&gt;
    * </pre>
    */
   @GET
@@ -969,17 +929,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
 
   /**
-   * Checks if there are blockouts in the system
-   * <p/>
+   * Checks if there are blockouts in the system.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/blockout/hasblockouts
+   *  GET api/scheduler/blockout/hasblockouts
    * </p>
    *
-   * @return true or false whether there are blackouts or not
-   * <p/>
+   * @return true or false whether there are blackouts or not.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * true
+   *  true
    * </pre>
    */
   @GET
@@ -994,37 +954,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Creates a new blockout for scheduled jobs
-   * <p/>
+   * Creates a new blockout for scheduled jobs.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/blockout/add
+   *  POST api/scheduler/blockout/add
    * </p>
    *
-   * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job
-   *                           <pre function="syntax.xml">
-   *                           &lt;jobScheduleRequest&gt;
-   *                           &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
-   *                           &lt;complexJobTrigger&gt;
-   *                           &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
-   *                           &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
-   *                           &lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;
-   *                           &lt;endTime /&gt;
-   *                           &lt;/complexJobTrigger&gt;
-   *                           &lt;inputFile&gt;&lt;/inputFile&gt;
-   *                           &lt;outputFile&gt;&lt;/outputFile&gt;
-   *                           &lt;duration&gt;7740000&lt;/duration&gt;
-   *                           &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
-   *                           &lt;/jobScheduleRequest&gt;
-   *                           </pre>
-   * @return a Response object which contains the ID of the blockout which was created
-   * <p/>
+   * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job.
+   *
+   * @return a Response object which contains the ID of the blockout which was created.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * admin	BlockoutAction	1408459814192
+   *  admin	BlockoutAction	1408459814192
    * </pre>
    */
   @POST
@@ -1048,41 +990,20 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Update an existing blockout
-   * <p/>
+   * Update an existing blockout.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/blockout/update
+   *  POST api/scheduler/blockout/update
    * </p>
    *
-   * @param jobId              The jobId of the blockout we are editing
-   *                           <pre function="syntax.xml">
-   *                           admin%09BlockoutAction%091408459814192
-   *                           </pre>
-   * @param jobScheduleRequest The payload containing the definition of the blockout
-   *                           <pre function="syntax.xml">
-   *                           &lt;jobScheduleRequest&gt;
-   *                           &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
-   *                           &lt;complexJobTrigger&gt;
-   *                           &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
-   *                           &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
-   *                           &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
-   *                           &lt;endTime /&gt;
-   *                           &lt;/complexJobTrigger&gt;
-   *                           &lt;inputFile&gt;&lt;/inputFile&gt;
-   *                           &lt;outputFile&gt;&lt;/outputFile&gt;
-   *                           &lt;duration&gt;7740000&lt;/duration&gt;
-   *                           &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
-   *                           &lt;/jobScheduleRequest&gt;
-   *                           </pre>
-   * @return a Response object which contains the ID of the blockout which was created
-   * <p/>
+   * @param jobId The jobId of the blockout we are editing.
+   * @param jobScheduleRequest The payload containing the definition of the blockout.
+   *
+   * @return a Response object which contains the ID of the blockout which was created.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * admin	BlockoutAction	1408473190419
+   *  admin	BlockoutAction	1408473190419
    * </pre>
    */
   @POST
@@ -1106,37 +1027,19 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks if the selected blockout schedule will be fired
-   * <p/>
+   * Checks if the selected blockout schedule will be fired.
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/blockout/willFire
+   *  POST api/scheduler/blockout/willFire
    * </p>
    *
-   * @param jobScheduleRequest The payload containing the definition of the blockout
-   *                           <pre function="syntax.xml">
-   *                           &lt;jobScheduleRequest&gt;
-   *                           &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
-   *                           &lt;complexJobTrigger&gt;
-   *                           &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
-   *                           &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
-   *                           &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
-   *                           &lt;endTime /&gt;
-   *                           &lt;/complexJobTrigger&gt;
-   *                           &lt;inputFile&gt;&lt;/inputFile&gt;
-   *                           &lt;outputFile&gt;&lt;/outputFile&gt;
-   *                           &lt;duration&gt;7740000&lt;/duration&gt;
-   *                           &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
-   *                           &lt;/jobScheduleRequest&gt;
-   *                           </pre>
-   * @return true or false indicating whether or not the blockout will fire
-   * <p/>
+   * @param jobScheduleRequest The payload containing the definition of the blockout.
+   *
+   * @return true or false indicating whether or not the blockout will fire.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * true
+   *  true
    * </pre>
    */
   @POST
@@ -1160,17 +1063,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks if the selected blockout schedule should be fired now
-   * <p/>
+   * Checks if the selected blockout schedule should be fired now.
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/blockout/shouldFireNow
+   *  GET api/scheduler/blockout/shouldFireNow
    * </p>
    *
-   * @return true or false whether or not the blockout should fire now
-   * <p/>
+   * @return true or false whether or not the blockout should fire now.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * true
+   *  true
    * </pre>
    */
   @GET
@@ -1187,39 +1090,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Check the status of the selected blockout schedule.
-   * <p/>
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/blockout/blockstatus
+   *  POST api/scheduler/blockout/blockstatus
    * </p>
    *
-   * @param jobScheduleRequest The payload containing the definition of the blockout
-   *                           <pre function="syntax.xml">
-   *                           &lt;jobScheduleRequest&gt;
-   *                           &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
-   *                           &lt;complexJobTrigger&gt;
-   *                           &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
-   *                           &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
-   *                           &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
-   *                           &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
-   *                           &lt;endTime /&gt;
-   *                           &lt;/complexJobTrigger&gt;
-   *                           &lt;inputFile&gt;&lt;/inputFile&gt;
-   *                           &lt;outputFile&gt;&lt;/outputFile&gt;
-   *                           &lt;duration&gt;7740000&lt;/duration&gt;
-   *                           &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
-   *                           &lt;/jobScheduleRequest&gt;
-   *                           </pre>
-   * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags
-   * <p/>
+   * @param jobScheduleRequest The payload containing the definition of the blockout.
+   *
+   * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;blockStatusProxy&gt;
-   * &lt;partiallyBlocked&gt;true&lt;/partiallyBlocked&gt;
-   * &lt;totallyBlocked&gt;true&lt;/totallyBlocked&gt;
-   * &lt;/blockStatusProxy&gt;
+   *  &lt;blockStatusProxy&gt;
+   *  &lt;partiallyBlocked&gt;true&lt;/partiallyBlocked&gt;
+   *  &lt;totallyBlocked&gt;true&lt;/totallyBlocked&gt;
+   *  &lt;/blockStatusProxy&gt;
    * </pre>
    */
   @POST
@@ -1241,61 +1126,59 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   /**
    * Retrieve the list of execute content by lineage id.
-   * <p/>
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/generatedContentForSchedule
+   *  GET api/scheduler/generatedContentForSchedule
    * </p>
    *
-   * @param lineageId the path for the file
-   *                  <pre function="syntax.xml">
-   *                  :path:to:file:id
-   *                  </pre>
-   * @return list of RepositoryFileDto objects
-   * <p/>
+   * @param lineageId the path for the file.
+   *
+   * @return list of RepositoryFileDto objects.
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;List&gt;
-   * &lt;repositoryFileDto&gt;
-   * &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
-   * &lt;fileSize&gt;3461&lt;/fileSize&gt;
-   * &lt;folder&gt;false&lt;/folder&gt;
-   * &lt;hidden&gt;false&lt;/hidden&gt;
-   * &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
-   * &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
-   * &lt;locale&gt;en&lt;/locale&gt;
-   * &lt;localePropertiesMapEntries&gt;
-   * &lt;localeMapDto&gt;
-   * &lt;locale&gt;default&lt;/locale&gt;
-   * &lt;properties&gt;
-   * &lt;stringKeyStringValueDto&gt;
-   * &lt;key&gt;file.title&lt;/key&gt;
-   * &lt;value&gt;myFile&lt;/value&gt;
-   * &lt;/stringKeyStringValueDto&gt;
-   * &lt;stringKeyStringValueDto&gt;
-   * &lt;key&gt;jcr:primaryType&lt;/key&gt;
-   * &lt;value&gt;nt:unstructured&lt;/value&gt;
-   * &lt;/stringKeyStringValueDto&gt;
-   * &lt;stringKeyStringValueDto&gt;
-   * &lt;key&gt;title&lt;/key&gt;
-   * &lt;value&gt;myFile&lt;/value&gt;
-   * &lt;/stringKeyStringValueDto&gt;
-   * &lt;stringKeyStringValueDto&gt;
-   * &lt;key&gt;file.description&lt;/key&gt;
-   * &lt;value&gt;myFile Description&lt;/value&gt;
-   * &lt;/stringKeyStringValueDto&gt;
-   * &lt;/properties&gt;
-   * &lt;/localeMapDto&gt;
-   * &lt;/localePropertiesMapEntries&gt;
-   * &lt;locked&gt;false&lt;/locked&gt;
-   * &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
-   * &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
-   * &lt;ownerType&gt;-1&lt;/ownerType&gt;
-   * &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
-   * &lt;title&gt;myFile&lt;/title&gt;
-   * &lt;versionId&gt;1.9&lt;/versionId&gt;
-   * &lt;versioned&gt;true&lt;/versioned&gt;
-   * &lt;/repositoryFileAclDto&gt;
-   * &lt;/List&gt;
+   *  &lt;List&gt;
+   *  &lt;repositoryFileDto&gt;
+   *  &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *  &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *  &lt;folder&gt;false&lt;/folder&gt;
+   *  &lt;hidden&gt;false&lt;/hidden&gt;
+   *  &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *  &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *  &lt;locale&gt;en&lt;/locale&gt;
+   *  &lt;localePropertiesMapEntries&gt;
+   *  &lt;localeMapDto&gt;
+   *  &lt;locale&gt;default&lt;/locale&gt;
+   *  &lt;properties&gt;
+   *  &lt;stringKeyStringValueDto&gt;
+   *  &lt;key&gt;file.title&lt;/key&gt;
+   *  &lt;value&gt;myFile&lt;/value&gt;
+   *  &lt;/stringKeyStringValueDto&gt;
+   *  &lt;stringKeyStringValueDto&gt;
+   *  &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *  &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *  &lt;/stringKeyStringValueDto&gt;
+   *  &lt;stringKeyStringValueDto&gt;
+   *  &lt;key&gt;title&lt;/key&gt;
+   *  &lt;value&gt;myFile&lt;/value&gt;
+   *  &lt;/stringKeyStringValueDto&gt;
+   *  &lt;stringKeyStringValueDto&gt;
+   *  &lt;key&gt;file.description&lt;/key&gt;
+   *  &lt;value&gt;myFile Description&lt;/value&gt;
+   *  &lt;/stringKeyStringValueDto&gt;
+   *  &lt;/properties&gt;
+   *  &lt;/localeMapDto&gt;
+   *  &lt;/localePropertiesMapEntries&gt;
+   *  &lt;locked&gt;false&lt;/locked&gt;
+   *  &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *  &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *  &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *  &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *  &lt;title&gt;myFile&lt;/title&gt;
+   *  &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *  &lt;versioned&gt;true&lt;/versioned&gt;
+   *  &lt;/repositoryFileAclDto&gt;
+   *  &lt;/List&gt;
    * </pre>
    */
   @GET
