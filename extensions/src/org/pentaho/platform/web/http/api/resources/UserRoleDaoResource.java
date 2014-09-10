@@ -20,6 +20,7 @@ package org.pentaho.platform.web.http.api.resources;
 import com.sun.jersey.api.NotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -101,6 +102,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/users" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet( name = "Unsupported" )
   public UserListWrapper getUsers() throws Exception {
     if ( canAdminister() ) {
       try {
@@ -124,6 +126,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/roles" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public RoleListWrapper getRoles() throws Exception {
     if ( canAdminister() ) {
       try {
@@ -149,6 +152,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/userRoles" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public RoleListWrapper getUserRoles( @QueryParam ( "tenant" ) String tenantPath,
                                        @QueryParam ( "userName" ) String userName ) throws Exception {
     if ( canAdminister() ) {
@@ -175,6 +179,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/roleMembers" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public UserListWrapper getRoleMembers( @QueryParam ( "tenant" ) String tenantPath,
                                          @QueryParam ( "roleName" ) String roleName ) throws Exception {
     IUserRoleDao roleDao =
@@ -193,6 +198,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/assignRoleToUser" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response assignRoleToUser( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
@@ -228,6 +234,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/removeRoleFromUser" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response removeRoleFromUser( @QueryParam ( "tenant" ) String tenantPath,
                                       @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
@@ -262,6 +269,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/assignAllRolesToUser" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response assignAllRolesToUser( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "userName" ) String userName ) {
     IUserRoleDao roleDao =
@@ -284,6 +292,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/removeAllRolesFromUser" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response removeAllRolesFromUser( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "userName" ) String userName ) {
     if ( canAdminister() ) {
@@ -311,6 +320,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/assignUserToRole" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response assignUserToRole( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
@@ -346,6 +356,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/removeUserFromRole" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response removeUserFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                       @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
@@ -380,6 +391,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/assignAllUsersToRole" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response assignAllUsersToRole( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "roleName" ) String roleName ) {
     IUserRoleDao roleDao =
@@ -402,6 +414,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/removeAllUsersFromRole" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response removeAllUsersFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
@@ -428,6 +441,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/createUser" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response createUser( @QueryParam ( "tenant" ) String tenantPath, User user ) {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
@@ -459,6 +473,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/createRole" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response createRole( @QueryParam ( "tenant" ) String tenantPath, @QueryParam ( "roleName" ) String roleName ) {
     IUserRoleDao roleDao =
         PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
@@ -475,6 +490,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/deleteRoles" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response deleteRole( @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
       try {
@@ -505,6 +521,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/deleteUsers" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response deleteUser( @QueryParam ( "userNames" ) String userNames ) {
     if ( canAdminister() ) {
       try {
@@ -535,6 +552,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/updatePassword" )
   @Consumes ( { WILDCARD } )
+  @Facet ( name = "Unsupported" )
   public Response updatePassword( User user ) {
     if ( canAdminister() ) {
       try {
@@ -576,6 +594,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/logicalRoleMap" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
     if ( canAdminister() ) {
       try {
@@ -609,6 +628,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
   @Path ( "/roleAssignments" )
+  @Facet ( name = "Unsupported" )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
     for ( LogicalRoleAssignment roleAssignment : roleAssignments.getAssignments() ) {
       roleBindingDao.setRoleBindings( roleAssignment.getRoleName(), roleAssignment.getLogicalRoles() );

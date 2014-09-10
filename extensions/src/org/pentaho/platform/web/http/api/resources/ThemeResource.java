@@ -18,6 +18,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
@@ -59,6 +60,7 @@ public class ThemeResource extends AbstractJaxRSResource {
   @GET
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Facet( name = "Unsupported" )
   public List<Theme> getSystemThemes() {
     ArrayList<Theme> themes = new ArrayList<Theme>();
     IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
@@ -84,6 +86,7 @@ public class ThemeResource extends AbstractJaxRSResource {
   @Path( "/set" )
   @Consumes( { WILDCARD } )
   @Produces( "text/plain" )
+  @Facet ( name = "Unsupported" )
   public Response setTheme( String theme ) {
     getPentahoSession().setAttribute( "pentaho-user-theme", theme );
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
@@ -99,6 +102,7 @@ public class ThemeResource extends AbstractJaxRSResource {
   @GET
   @Path( "/active" )
   @Produces( "text/plain" )
+  @Facet ( name = "Unsupported" )
   public Response getActiveTheme() {
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
     return Response.ok(

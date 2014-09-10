@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -44,6 +45,7 @@ public class PasswordResource {
   @POST
   @Path( "/encrypt" )
   @Produces( MediaType.TEXT_HTML )
+  @Facet( name = "Unsupported" )
   public Response encryptPassword( @FormParam( "password" ) String password ) {
     if ( isAllowed() ) {
       String encPwd = "";
@@ -58,6 +60,7 @@ public class PasswordResource {
   @GET
   @Path( "/encrypt" )
   @Produces( MediaType.TEXT_HTML )
+  @Facet ( name = "Unsupported" )
   public Response encryptionForm() {
     if ( isAllowed() ) {
       return Response.ok( String.format( FORM_HTML, "" ) ).build();
