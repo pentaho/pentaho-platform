@@ -59,20 +59,14 @@ public class RepositoryPublishResource {
    * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
    * is set to true
    * <p/>
-   * <p/>
    * <p>Example Request:<br>
    * POST api/repo/publish/publishfile
    * </p>
    *
-   * @param pathId        Colon separated path for the repository file)
-   *                      <pre function="syntax.xml">
-   *                      :path:to:file:id
-   *                      </pre>
-   * @param fileContents  (input stream containing the data)
-   * @param overwriteFile (flag to determine whether to overwrite the existing file in the repository or not)
-   *                      <pre function="syntax.xml">
-   *                      true
-   *                      </pre>
+   * @param pathId        Colon separated path for the repository file.
+   * @param fileContents  Input stream containing the data.
+   * @param overwriteFile Flag to determine whether to overwrite the existing file in the repository or not.
+   *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @POST
