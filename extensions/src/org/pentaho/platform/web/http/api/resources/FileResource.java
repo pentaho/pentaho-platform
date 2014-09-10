@@ -286,7 +286,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Copy selected list of files to a new specified location.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/children?mode=2
+   *    PUT api/repo/files/{pathId}/children?mode={mode}
    * </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied.
@@ -476,7 +476,7 @@ public class FileResource extends AbstractJaxRSResource {
    * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/download?withManifest=true
+   *    GET api/repo/files/{pathId}/download?withManifest={withManifest}
    * </p>
    *
    * @param pathId          Colon separated path for the repository file.
@@ -868,7 +868,7 @@ public class FileResource extends AbstractJaxRSResource {
    * but will only return true if all permissions checked are valid.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/{pathId}/canAccessMap?permissions=1
+   *    GET /api/repo/files/{pathId}/canAccessMap?permissions={permissions}
    * </p>
    *
    * @param pathId      Colon separated path for the repository file.
@@ -1251,7 +1251,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the executed contents for a selected repository file and a given user.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/generatedContentForUser?user=username
+   *    GET api/repo/files/{pathId}/generatedContentForUser?user={user}
    * </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied.
@@ -1331,7 +1331,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the recursive list of files from root of the repository based on the filters provided.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/tree?showHidden=false&filter=*|FILES|includeMembers=name,fileSize,description,folder,id,title
+   *    GET api/repo/files/tree?showHidden={showHidden}&filter={filter}&depth={depth}
    * <p/>
    * Will return files but not folders under the "/" folder. The fields returned will
    * include the name, filesize, description, id and title.
@@ -1399,7 +1399,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve a list of child files from the root of the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/children?filter=*|FOLDERS&showHidden=false&includeAcls=true
+   *    GET api/repo/files/children?showHidden={showHidden}&filter={filter}&includeAcls={includeAcls}
    * <p/>
    * will return files but not folders under the "/" folder. The fields returned will
    * include the name, filesize, description, id and title.
@@ -1466,7 +1466,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the recursive list of children of the selected repository file.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/tree?showHidden=false&filter=*|FILES|includeMembers=name,fileSize,description,folder,id,title
+   *    GET api/repo/files/{pathId}/tree?showHidden={showHidden}&filter={filter}&includeAcls={includeAcls}&depth={depth}
    * <p/>
    * will return files but not folders under the "/pathToFile" folder. The fields returned will
    * include the name, file size, description, id and title.
@@ -1537,7 +1537,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve a list of child files from the selected repository path of the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/children?filter=*|FOLDERS&showHidden=false&includeAcls=true
+   *    GET api/repo/files/{pathId}/children?showHidden={showHidden}&filter={filter}&includeAcls={includeAcls}
    * <p/>
    * Will return files but not folders under the "/pathToFile" folder. The fields returned will
    * include the name, filesize, description, id and title.
