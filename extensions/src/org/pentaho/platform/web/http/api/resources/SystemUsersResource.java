@@ -38,22 +38,23 @@ public class SystemUsersResource extends AbstractJaxRSResource {
 
   /**
    * Returns the list of users in the platform, this list is in an xml format as shown in the example response.
-   * <p/>
-   * <p><b>Example Request:</b><br>
-   * GET api/users<br>
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET api/users
    * </p>
    *
-   * @return Response object containing an xml list of users in the platform
-   * <p>Example Response:</p>
+   * @return Response object containing an xml list of users in the platform.
+   *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;xml&gt;
-   * &lt;userList&gt;
-   * &lt;users&gt;suzy&lt;/users&gt;
-   * &lt;users&gt;pat&lt;/users&gt;
-   * &lt;users&gt;tiffany&lt;/users&gt;
-   * &lt;users&gt;admin&lt;/users&gt;
-   * &lt;/userList&gt;
-   * &lt;/xml&gt;
+   *  &lt;xml&gt;
+   *  &lt;userList&gt;
+   *  &lt;users&gt;suzy&lt;/users&gt;
+   *  &lt;users&gt;pat&lt;/users&gt;
+   *  &lt;users&gt;tiffany&lt;/users&gt;
+   *  &lt;users&gt;admin&lt;/users&gt;
+   *  &lt;/userList&gt;
+   *  &lt;/xml&gt;
    * </pre>
    */
   @GET
