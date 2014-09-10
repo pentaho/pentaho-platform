@@ -43,19 +43,18 @@ public class SessionResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the current user's workspace folder path
-   * <p/>
-   * <p><b>Example Request:</b><br>
-   * GET api/session/userWorkspaceDir
+   * Returns the current user's workspace folder path.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET api/session/userWorkspaceDir
    * </p>
    *
-   * @return String object containing the workspace folder path
-   * <p/>
-   * <p>Example Response:
-   * </p>
-   * <pre function="syntax.xml">
-   * /home/admin/workspace
-   * </pre>
+   * @return String object containing the workspace folder path.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *    /home/admin/workspace
+   *  </pre>
    */
   @GET
   @Path ( "/userWorkspaceDir" )
@@ -69,18 +68,19 @@ public class SessionResource extends AbstractJaxRSResource {
 
   /**
    * Returns the workspace folder path for the selected user.
-   * <p/>
-   * <p><b>Example Request:</b><br>
-   * GET api/session/workspaceDirForUser<br>
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET api/session/workspaceDirForUser<br>
    * </p>
    *
-   * @param user String of the user name
-   * @return String object containing the workspace folder path
-   * <p/>
-   * <p>Example Response:</p>
-   * <pre function="syntax.xml">
-   * /home/user/workspace
-   * </pre>
+   * @param user String of the user name.
+   *
+   * @return String object containing the workspace folder path.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *    /home/user/workspace
+   *  </pre>
    */
   @GET
   @Path ( "/workspaceDirForUser" )
