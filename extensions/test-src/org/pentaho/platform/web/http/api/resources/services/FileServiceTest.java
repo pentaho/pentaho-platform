@@ -75,6 +75,7 @@ import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
 
 public class FileServiceTest {
 
@@ -592,6 +593,9 @@ public class FileServiceTest {
     doReturn( "value2" ).when( properties ).getProperty( "prop2" );
     doReturn( false ).when( properties ).isEmpty();
     doReturn( propertiesList ).when( properties ).stringPropertyNames();
+
+    PropertiesWrapper propertiesWrapper = mock( PropertiesWrapper.class );
+    when( propertiesWrapper.getProperties() ).thenReturn( properties );
 
     doReturn( properties ).when( fileService.defaultUnifiedRepositoryWebService )
       .getLocalePropertiesForFileById( anyString(), anyString() );

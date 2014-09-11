@@ -409,8 +409,8 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   @Override
-  public Properties getLocalePropertiesForFileById( String fileId, String locale ) {
-    return repo.getLocalePropertiesForFileById( fileId, locale );
+  public PropertiesWrapper getLocalePropertiesForFileById( String fileId, String locale ) {
+    return new PropertiesWrapper( repo.getLocalePropertiesForFileById( fileId, locale ) );
   }
 
   @Override
