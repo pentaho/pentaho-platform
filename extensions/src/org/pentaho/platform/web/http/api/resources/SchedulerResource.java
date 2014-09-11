@@ -964,7 +964,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job.
    *
-   * @return a Response object which contains the ID of the blockout which was created.
+   * @return A Response object which contains the ID of the blockout which was created.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1001,7 +1001,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * @param jobId The jobId of the blockout we are editing.
    * @param jobScheduleRequest The payload containing the definition of the blockout.
    *
-   * @return a Response object which contains the ID of the blockout which was created.
+   * @return A Response object which contains the ID of the blockout which was created.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1099,7 +1099,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout.
    *
-   * @return a Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags.
+   * @return A Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1135,7 +1135,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * @param lineageId the path for the file.
    *
-   * @return list of RepositoryFileDto objects.
+   * @return A list of RepositoryFileDto objects.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">

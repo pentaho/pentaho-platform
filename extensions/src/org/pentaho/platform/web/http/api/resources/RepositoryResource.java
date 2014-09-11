@@ -97,9 +97,12 @@ public class RepositoryResource extends AbstractJaxRSResource {
    *
    * @param pathId @param pathId
    *
-   * @return URI that represents a forwarding URL to execute to generate content from the file (pathId).
+   * @return URI that represents a forwarding URL to execute to generate content from the file {pathId}.
    *
    * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *
+   * </pre>
    */
   @GET
   @Path ( "{pathId : .+}/default" )
@@ -142,8 +145,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * @param formParams Any arguments needed to render the resource
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
-   *
-   * <p><b>Example Response:</b></p>
    */
   @Path ( "/{contextId}/{resourceId : .+}" )
   @POST
@@ -171,20 +172,20 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   /**
    * Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
-   * <p/>
+   *
    * <p><b>Example Request:</b><br />
-   * POST api/repos/path:to:file/pluginFolder
+   *    POST api/repos/path:to:file/pluginFolder
    * </p>
    *
-   * @param contextId  Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID
-   *                   <pre function="syntax.xml">
-   *                   :path:to:file
-   *                   </pre>
-   * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
-   *                   <pre function="syntax.xml">
-   *                   pluginFolder
-   *                   </pre>
+   * @param contextId  Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID.
+   * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID.
+   *
    * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *
+   * </pre>
    */
   @Path ( "/{contextId}/{resourceId : .+}" )
   @GET
