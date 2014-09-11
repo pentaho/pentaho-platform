@@ -21,6 +21,7 @@ import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -66,6 +67,7 @@ public class RepositoryPublishResource {
    * @param pathId        Colon separated path for the repository file.
    * @param fileContents  Input stream containing the data.
    * @param overwriteFile Flag to determine whether to overwrite the existing file in the repository or not.
+   * @param fileInfo  File information (Currently not being used).
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
@@ -78,6 +80,7 @@ public class RepositoryPublishResource {
       @ResponseCode ( code = 403, condition = "Failure to publish the file due to permissions." ),
       @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ),
   } )
+  @Facet( name = "Unsupported" )
   public Response writeFile( @FormDataParam ( "importPath" ) String pathId,
                              @FormDataParam ( "fileUpload" ) InputStream fileContents,
                              @FormDataParam ( "overwriteFile" ) Boolean overwriteFile,
