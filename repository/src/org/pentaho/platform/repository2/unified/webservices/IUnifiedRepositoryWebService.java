@@ -155,7 +155,7 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   List<PentahoLocale> getAvailableLocalesForFileById( final String fileId );
 
-  Properties getLocalePropertiesForFileById( final String fileId, final String locale );
+  PropertiesWrapper getLocalePropertiesForFileById( final String fileId, final String locale );
 
   void setLocalePropertiesForFileByFileId( final String fileId, final String locale, final Properties properties );
 
