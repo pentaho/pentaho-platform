@@ -118,7 +118,8 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/isAuthenticated" )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Returns the boolean response" )
+      @ResponseCode ( code = 200, condition = "Returns the boolean response" ),
+      @ResponseCode ( code = 401, condition = "User is not authenticated" )
   } )
   public Response isAuthenticated() {
     return buildOkResponse( String.valueOf( userConsoleService.isAuthenticated() ) );
