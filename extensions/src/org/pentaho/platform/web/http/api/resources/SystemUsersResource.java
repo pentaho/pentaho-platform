@@ -48,12 +48,12 @@ public class SystemUsersResource extends AbstractJaxRSResource {
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    *  &lt;xml&gt;
-   *  &lt;userList&gt;
-   *  &lt;users&gt;suzy&lt;/users&gt;
-   *  &lt;users&gt;pat&lt;/users&gt;
-   *  &lt;users&gt;tiffany&lt;/users&gt;
-   *  &lt;users&gt;admin&lt;/users&gt;
-   *  &lt;/userList&gt;
+   *  &lt;users&gt;
+   *  &lt;user&gt;suzy&lt;/user&gt;
+   *  &lt;user&gt;pat&lt;/user&gt;
+   *  &lt;user&gt;tiffany&lt;/user&gt;
+   *  &lt;user&gt;admin&lt;/user&gt;
+   *  &lt;/users&gt;
    *  &lt;/xml&gt;
    * </pre>
    */
