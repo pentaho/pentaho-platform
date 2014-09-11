@@ -42,6 +42,7 @@ import static javax.ws.rs.core.MediaType.*;
  * 
  *
  */
+@Facet( name = "Unsupported" )
 @Path( "/theme" )
 public class ThemeResource extends AbstractJaxRSResource {
 
