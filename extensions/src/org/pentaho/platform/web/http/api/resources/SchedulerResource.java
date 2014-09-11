@@ -995,7 +995,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Update an existing blockout.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/blockout/update
+   *  POST api/scheduler/blockout/update?jobid={jobid}
    * </p>
    *
    * @param jobId The jobId of the blockout we are editing.
@@ -1130,7 +1130,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Retrieve the list of execute content by lineage id.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/generatedContentForSchedule
+   *  GET api/scheduler/generatedContentForSchedule?lineageId={lineageId}
    * </p>
    *
    * @param lineageId the path for the file.
