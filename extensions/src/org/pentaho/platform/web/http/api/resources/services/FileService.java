@@ -60,6 +60,7 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
+import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
@@ -419,10 +420,13 @@ public class FileService {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
     if ( file != null ) {
-      Properties properties = getRepoWs().getLocalePropertiesForFileById( file.getId(), locale );
-      if ( properties != null && !properties.isEmpty() ) {
-        for ( String key : properties.stringPropertyNames() ) {
-          keyValueList.add( getStringKeyStringValueDto( key, properties.getProperty( key ) ) );
+      PropertiesWrapper propertiesWrapper = getRepoWs().getLocalePropertiesForFileById( file.getId(), locale );
+      if ( propertiesWrapper != null ) {
+        Properties properties = propertiesWrapper.getProperties();
+        if ( properties != null && !properties.isEmpty() ) {
+          for ( String key : properties.stringPropertyNames() ) {
+            keyValueList.add( getStringKeyStringValueDto( key, properties.getProperty( key ) ) );
+          }
         }
       }
     }
