@@ -597,7 +597,7 @@ public class FileServiceTest {
     PropertiesWrapper propertiesWrapper = mock( PropertiesWrapper.class );
     when( propertiesWrapper.getProperties() ).thenReturn( properties );
 
-    doReturn( properties ).when( fileService.defaultUnifiedRepositoryWebService )
+    doReturn( propertiesWrapper ).when( fileService.defaultUnifiedRepositoryWebService )
       .getLocalePropertiesForFileById( anyString(), anyString() );
 
     List<StringKeyStringValueDto> keyValueList = fileService.doGetLocaleProperties( pathId, locale );
