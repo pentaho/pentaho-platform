@@ -31,21 +31,21 @@ import org.w3c.dom.Document;
 public class XmlW3CHelperTest extends TestCase {
 
   public void testValidXmlW3C() throws FileNotFoundException, IOException {
-    String domString = "<root><subroot>this is sub root</subroot></root>";//$NON-NLS-1$
+    String domString = "<root><subroot>this is sub root</subroot></root>";
 
     Document doc = XmlW3CHelper.getDomFromString( domString );
     assertNotNull( doc );
   }
 
   public void testNotValidXmlW3C() throws FileNotFoundException, IOException {
-    String domString = "<root>this is sub root</subroot></root>";//$NON-NLS-1$
+    String domString = "<root>this is sub root</subroot></root>";
 
     Document doc = XmlW3CHelper.getDomFromString( domString );
     assertNull( doc );
   }
 
   public void testXmlW3C() throws FileNotFoundException, IOException {
-    String path = "test-res/solution/test/xml/query_without_connection.xaction"; //$NON-NLS-1$
+    String path = "test-res/solution/test/xml/query_without_connection.xaction";
 
     byte[] encoded = Files.readAllBytes( Paths.get( path ) );
     String sourceXml = new String( encoded );

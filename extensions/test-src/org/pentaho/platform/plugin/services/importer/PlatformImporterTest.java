@@ -18,9 +18,9 @@
 package org.pentaho.platform.plugin.services.importer;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,10 +33,10 @@ import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 /**
  * User: nbaker Date: 6/13/12
@@ -57,8 +57,8 @@ public class PlatformImporterTest {
     microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
 
     PentahoPlatformImporter importer =
-        new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
-            new HashMap<String, Converter>() ) );
+      new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
+        new HashMap<String, Converter>() ) );
     importer.setDefaultHandler( mockImportHandler );
 
     FileInputStream in = new FileInputStream( new File( "test-res/ImportTest/steel-wheels.xmi" ) );
@@ -67,12 +67,11 @@ public class PlatformImporterTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     importLogger.startJob( outputStream, "", Level.DEBUG );
 
-
     // With custom domain id
     final IPlatformImportBundle bundle1 =
-        ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).overwriteFile( true )
-            .name( "steel-wheels.xmi" ).comment( "Test Metadata Import" ).withParam( "domain-id",
-                "parameterized-domain-id" ) ).build();
+      ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).overwriteFile( true )
+        .name( "steel-wheels.xmi" ).comment( "Test Metadata Import" )
+        .withParam( "domain-id", "parameterized-domain-id" ) ).build();
 
     try {
       importer.setRepositoryImportLogger( importLogger );
@@ -104,8 +103,8 @@ public class PlatformImporterTest {
     IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
 
     PentahoPlatformImporter importer =
-        new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
-            new HashMap<String, Converter>() ) );
+      new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
+        new HashMap<String, Converter>() ) );
 
     importer.setRepositoryImportLogger( importLogger );
 
@@ -113,9 +112,9 @@ public class PlatformImporterTest {
 
     // With custom domain id
     final IPlatformImportBundle bundle1 =
-        ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).mime( "text/xmi+xml" )
-            .name( "steel-wheels.xmi" ).comment( "Test Metadata Import" ).withParam( "domain-id",
-                "parameterized-domain-id" ) ).build();
+      ( new RepositoryFileImportBundle.Builder().input( in ).charSet( "UTF-8" ).hidden( false ).mime( "text/xmi+xml" )
+        .name( "steel-wheels.xmi" ).comment( "Test Metadata Import" )
+        .withParam( "domain-id", "parameterized-domain-id" ) ).build();
 
     importer.importFile( bundle1 );
 

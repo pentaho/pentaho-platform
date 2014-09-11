@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services;
 
-import org.pentaho.platform.engine.services.audit.AuditFileEntry;
-import org.pentaho.test.platform.engine.core.BaseTest;
-
 import java.math.BigDecimal;
+
+import org.pentaho.platform.engine.core.BaseTest;
+import org.pentaho.platform.engine.services.audit.AuditFileEntry;
 
 @SuppressWarnings( "nls" )
 public class AuditFileEntryTest extends BaseTest {
@@ -35,8 +35,8 @@ public class AuditFileEntryTest extends BaseTest {
     startTest();
     AuditFileEntry auditFileEntry = new AuditFileEntry();
     auditFileEntry
-        .auditAll(
-            "234234", "2342342342", "234234234", "String", "actor", "messageType", "messageName", "messageTxtValue", new BigDecimal( 2324323.23 ), 23 ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+      .auditAll(
+        "234234", "2342342342", "234234234", "String", "actor", "messageType", "messageName", "messageTxtValue", new BigDecimal( 2324323.23 ), 23 ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
     assertTrue( true );
     finishTest();

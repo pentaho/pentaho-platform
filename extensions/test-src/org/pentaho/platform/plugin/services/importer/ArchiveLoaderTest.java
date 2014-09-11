@@ -17,13 +17,12 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import junit.framework.Assert;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.Test;
-import org.mockito.ArgumentMatcher;
-import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_FILTER;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,8 +31,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import static org.mockito.Mockito.*;
-import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_FILTER;
+import junit.framework.Assert;
+
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.junit.Test;
+import org.mockito.ArgumentMatcher;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 
 /**
  * Created with IntelliJ IDEA. User: kwalker Date: 6/20/13 Time: 12:37 PM
@@ -41,6 +46,7 @@ import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_F
 public class ArchiveLoaderTest {
 
   private static final Date LOAD_STAMP = new Date( 123456789 );
+  private static final String POSTFIX_FILE_NAME = ArchiveLoader.DATE_FORMAT.format( LOAD_STAMP );
 
   @Test
   public void testWillImportAllZipsInADirectory() throws Exception {
@@ -128,7 +134,7 @@ public class ArchiveLoaderTest {
         RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) argument;
         try {
           return bundle.getName().equals( filename ) && bundle.getAcl() == null
-              && bundle.getInputStream().equals( inputStream ) && bundle.overwriteInRepository() && bundle.isHidden();
+            && bundle.getInputStream().equals( inputStream ) && bundle.overwriteInRepository() && bundle.isHidden();
         } catch ( IOException e ) {
           return false;
         }
@@ -140,7 +146,7 @@ public class ArchiveLoaderTest {
     return new BaseMatcher<File>() {
       @Override
       public boolean matches( final Object item ) {
-        return ( (File) item ).getName().equals( origFile.getName() + ".197001020517" );
+        return ( (File) item ).getName().equals( origFile.getName() + POSTFIX_FILE_NAME );
       }
 
       @Override

@@ -18,7 +18,14 @@
 
 package org.pentaho.platform.engine.services;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.Assert;
+
 import org.dom4j.Document;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IActionSequence;
@@ -26,17 +33,11 @@ import org.pentaho.platform.api.engine.IParameterManager;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.util.XmlParseException;
+import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.actionsequence.SequenceDefinition;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-import org.pentaho.test.platform.engine.core.BaseTest;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 @SuppressWarnings( { "all" } )
 public class IsOutputParameterTest extends BaseTest {
@@ -60,8 +61,8 @@ public class IsOutputParameterTest extends BaseTest {
 
     Document actionSequenceDocument = XmlDom4JHelper.getDocFromString( xactionStr, null );
     IActionSequence actionSequence =
-        SequenceDefinition.ActionSequenceFactory( actionSequenceDocument,
-            "", this, PentahoSystem.getApplicationContext(), DEBUG ); //$NON-NLS-1$
+      SequenceDefinition.ActionSequenceFactory( actionSequenceDocument,
+        "", this, PentahoSystem.getApplicationContext(), DEBUG ); //$NON-NLS-1$
     Map allParameters = actionSequence.getOutputDefinitions();
     Set<String> outParameters = new HashSet<String>();
     Set<String> nonOutParameters = new HashSet<String>();
@@ -77,11 +78,11 @@ public class IsOutputParameterTest extends BaseTest {
     Assert.assertEquals( "expected 1 paramater with is-output-parameter=false", 1, nonOutParameters.size() );
 
     IRuntimeContext runtimeContext =
-        solutionEngine
-            .execute(
-                xactionStr,
-                xactionName,
-                "simple output test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+      solutionEngine
+        .execute(
+          xactionStr,
+          xactionName,
+          "simple output test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
     IParameterManager paramManager = runtimeContext.getParameterManager();
     Assert.assertEquals( outParameters.size(), paramManager.getCurrentOutputNames().size() );
     for ( Object key : paramManager.getCurrentOutputNames() ) {
