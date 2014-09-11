@@ -23,12 +23,15 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * This Pentaho SystemListener starts the Embedded Karaf framework to support OSGI in the platform.
- *
+ * <p/>
  * Created by nbaker on 7/29/14.
  */
 public class KarafBoot implements IPentahoSystemListener {
@@ -56,13 +59,34 @@ public class KarafBoot implements IPentahoSystemListener {
       // same one used when instatiating appenders.
       System.setProperty( "log4j.ignoreTCL", "true" );
 
-      main = new Main( new String[ 0 ] );
-      main.launch();
+
+      // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
+      // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
+      // InheritableThreadLocal backing the SecurityContext. By setting a fake authentication, calls to the
+      // org.pentaho.platform.osgi.SpringSecurityLoginModule always challenge the user.
+      Thread karafThread = new Thread( new Runnable() {
+
+        @Override public void run() {
+          // Bogus authentication
+          SecurityContextHolder.getContext().setAuthentication( new UsernamePasswordAuthenticationToken(
+              UUID.randomUUID().toString(), "" ) );
+          main = new Main( new String[ 0 ] );
+          try {
+            main.launch();
+          } catch ( Exception e ) {
+            main = null;
+            logger.error( "Error starting Karaf", e );
+          }
+        }
+      } );
+      karafThread.setDaemon( true );
+      karafThread.run();
+      karafThread.join();
     } catch ( Exception e ) {
       main = null;
       logger.error( "Error starting Karaf", e );
     }
-    return true;
+    return main != null;
   }
 
   @Override public void shutdown() {
