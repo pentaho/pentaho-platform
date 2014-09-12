@@ -33,6 +33,9 @@ import java.io.IOException;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
+/**
+ * This service allows for listing, download, and removal of system users in the BA Platform.
+ */
 @Path ( "/users" )
 public class SystemUsersResource extends AbstractJaxRSResource {
 

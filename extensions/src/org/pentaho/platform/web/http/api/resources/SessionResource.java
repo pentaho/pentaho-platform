@@ -31,6 +31,8 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
+ * The SessionResource service lists the user's current workspace as well as the workspace folder path.
+ *
  * @author wseyler
  */
 @Path ( "/session/" )
