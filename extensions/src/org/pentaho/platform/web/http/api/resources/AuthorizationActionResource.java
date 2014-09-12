@@ -50,15 +50,21 @@ public class AuthorizationActionResource {
   }
 
   /**
-   * Validates if a current user is authorized to perform a specific action
-   * <p/>
-   * <p><b>Example Request:</b></p>
+   * Validates if a current user is authorized to perform a specific action.
+   *
+   * <p><b>Example Request:</b><br />
    * <pre function="syntax.xml">
-   * GET api/authorization/action/isauthorized
+   *    GET http://localhost:8080/pentaho/api/authorization/action/isauthorized
    * </pre>
    *
-   * @param authAction Authorization Action to be validated for the current user
+   * @param authAction Authorization Action to be validated for the current user.
+   *
    * @return A boolean response based on the current user being authorized to perform a specific action within the system.
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *     false
+   * </pre>
    */
   @GET
   @Path ( "/isauthorized" )
