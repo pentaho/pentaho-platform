@@ -46,7 +46,7 @@ public class SessionResource extends AbstractJaxRSResource {
    * Returns the current user's workspace folder path.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/session/userWorkspaceDir
+   *    GET pentaho/api/session/userWorkspaceDir
    * </p>
    *
    * @return String object containing the workspace folder path.
@@ -70,7 +70,7 @@ public class SessionResource extends AbstractJaxRSResource {
    * Returns the workspace folder path for the selected user.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/session/workspaceDirForUser<br>
+   *    GET pentaho/api/session/workspaceDirForUser/admin
    * </p>
    *
    * @param user String of the user name.
@@ -79,7 +79,7 @@ public class SessionResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
-   *    /home/user/workspace
+   *    workspace
    *  </pre>
    */
   @GET

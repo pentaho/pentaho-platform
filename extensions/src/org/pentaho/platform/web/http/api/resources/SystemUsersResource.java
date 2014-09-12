@@ -38,22 +38,17 @@ public class SystemUsersResource extends AbstractJaxRSResource {
 
   /**
    * Returns the list of users in the platform, this list is in an xml format as shown in the example response.
-   * <p/>
-   * <p><b>Example Request:</b><br>
-   * GET api/users<br>
-   * </p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   *    GET pentaho/api/users
+   * </pre>
    *
    * @return Response object containing an xml list of users in the platform
-   * <p>Example Response:</p>
+   *
+   * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   * &lt;xml&gt;
-   * &lt;users&gt;
-   * &lt;user&gt;suzy&lt;/user&gt;
-   * &lt;user&gt;pat&lt;/user&gt;
-   * &lt;user&gt;tiffany&lt;/user&gt;
-   * &lt;user&gt;admin&lt;/user&gt;
-   * &lt;/users&gt;
-   * &lt;/xml&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;users&gt;&lt;user&gt;pat&lt;/user&gt;&lt;user&gt;admin&lt;/user&gt;&lt;user&gt;suzy&lt;/user&gt;&lt;user&gt;tiffany&lt;/user&gt;&lt;user&gt;enco*de:te^s_t$&lt;/user&gt;&lt;/users&gt;
    * </pre>
    */
   @GET
