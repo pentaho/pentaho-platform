@@ -99,8 +99,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 /**
- * Represents a file node in the getRepository(). This api provides methods for discovering information about repository
- * files as well as CRUD operations
+ * This service provides methods for listing, creating, downloading, uploading, and removal of files.
  *
  * @author aaron
  */

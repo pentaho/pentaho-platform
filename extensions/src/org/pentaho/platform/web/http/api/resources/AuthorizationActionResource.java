@@ -32,7 +32,7 @@ import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.web.http.api.resources.services.AuthorizationActionService;
 
 /**
- * Resource deals with the Authorization Action in the platform.
+ * The Authorization Action service validates if a current user is authorized to perform a specific action.
  *
  * @author rmansoor
  */
