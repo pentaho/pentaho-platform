@@ -54,7 +54,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
- * This resource is responsible to managing the user console
+ * The UserConsoleResource service provides the ability to check whether the current user is authenticated and/or
+ * is an administrator.
  */
 @Path ( "/mantle/" )
 public class UserConsoleResource extends AbstractJaxRSResource {

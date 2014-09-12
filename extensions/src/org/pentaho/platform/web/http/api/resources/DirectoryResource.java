@@ -33,11 +33,10 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
- * This resource manages directories in the repository
+ * This resource manages folders in the repository and provides methods for creating new folders.
  *
  * @author wseyler
  */
-
 @Path ( "/repo/dirs/" )
 public class DirectoryResource extends AbstractJaxRSResource {
   protected FileService fileService;

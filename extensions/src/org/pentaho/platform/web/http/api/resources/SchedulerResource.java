@@ -56,8 +56,8 @@ import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**
- * Represents a file node in the repository. This api provides methods for discovering information about repository
- * files as well as CRUD operations
+ * The SchedulerResource service provides the means to create, read, update, delete and list schedules
+ * and blockout periods. Also provides the ability to control the status of schedules and scheduler.
  *
  * @author aaron
  */
