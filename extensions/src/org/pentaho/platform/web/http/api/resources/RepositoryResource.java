@@ -92,7 +92,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * Takes a pathId to a file and generates a URI that represents the URL to call to generate content from that file.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repos/{pathId}/default
+   *    GET pentaho/api/repos/public:steel%20wheels:Invoice%20(report).prpt/default
    * </p>
    *
    * @param pathId @param pathId
@@ -100,13 +100,17 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * @return URI that represents a forwarding URL to execute to generate content from the file {pathId}.
    *
    * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
+   *  <pre function="syntax.xml">
    *
-   * </pre>
+   *  </pre>
    */
   @GET
   @Path ( "{pathId : .+}/default" )
   @Produces ( { WILDCARD } )
+  @StatusCodes ( {
+    @ResponseCode ( code = 303, condition = "Successfully get the resource." ),
+    @ResponseCode ( code = 404, condition = "Failed to find the resource." )
+  } )
   public Response doExecuteDefault( @PathParam ( "pathId" ) String pathId ) throws FileNotFoundException,
       MalformedURLException, URISyntaxException {
     String perspective = null;
@@ -137,14 +141,23 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
    *
    * <p><b>Example Request:</b><br />
-   *    POST api/repos/{contextId}/{resourceId}
+   *    POST pentaho/api/repos/xanalyzer/service/ajax/lookupXmiId
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *      catalog=t&cube=t&time=1389817320072
+   *  </pre>
    * </p>
    *
    * @param contextId  Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID
    * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
    * @param formParams Any arguments needed to render the resource
    *
-   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
+   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller..
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    */
   @Path ( "/{contextId}/{resourceId : .+}" )
   @POST
@@ -174,17 +187,393 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
    *
    * <p><b>Example Request:</b><br />
-   *    POST api/repos/path:to:file/pluginFolder
+   *    GET pentaho/api/repos/admin-plugin/resources/authenticationProviderModule/authenticationProviderAdmin.html
    * </p>
    *
    * @param contextId  Identifies the context in which the resource should be retrieved. This value may be a repository file ID, repository file extension or plugin ID.
    * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID.
    *
-   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
+   *&lt;!DOCTYPE html&gt;
+   *&lt;html xmlns:pho=&quot;http:/www.pentaho.com&quot;&gt;
+   *&lt;head&gt;
+   *&lt;title&gt;Report Parameter UI&lt;/title&gt;
+   *&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;authenticationProviderAdmin.css&quot; /&gt;
+   *&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;../../../common-ui/resources/web/dojo/dijit/themes/pentaho/pentaho.css&quot; /&gt;
+   *&lt;script type=&quot;text/javascript&quot; src=&quot;../../../../webcontext.js&quot;&gt;&lt;/script&gt;
+   *&lt;script type=&quot;text/javascript&quot;&gt;
+   *require([&quot;authenticationProviderAdmin&quot;]);
+   *&lt;/script&gt;
+   *&lt;/head&gt;
+   *&lt;body class=&quot;soria&quot; style=&quot;border: none&quot;&gt;
    *
+   *&lt;!--  tree dialog --&gt;
+   *&lt;div id=&quot;ldapTreeDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot;  data-dojo-props=&#39;title:&quot;LDAP Browser&quot;&#39; class=&quot;dialog&quot;&gt;
+   *&lt;div id=&quot;ldapTreeDialogContent&quot; class=&quot;dialog-content ldap-tree-padding&quot;&gt;
+   *&lt;div id=&quot;ldapTree&quot; data-dojo-props=&quot;autoExpand:true&quot;&gt;&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_ldapTreeDialogOk&quot; class=&quot;pentaho-button ok-button first&quot;&gt; &lt;/button&gt;
+   *&lt;button id=&quot;btn_ldapTreeDialogCancel&quot; class=&quot;pentaho-button cancel-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- override dialog --&gt;
+   *&lt;div id=&quot;ldapDirtyDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot; class=&quot;dialog&quot;&gt;
+   *&lt;div class=&quot;dialog-content pentaho-padding-sm&quot;&gt;
+   *&lt;p class=&quot;message&quot;&gt;You have unsaved changes. Do you want to continue?&lt;/p&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_ldapDirtyDialogNo&quot; class=&quot;pentaho-button no-button first&quot;&gt; &lt;/button&gt;
+   *&lt;button id=&quot;btn_ldapDirtyDialogYes&quot; class=&quot;pentaho-button yes-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- test dialog --&gt;
+   *&lt;div id=&quot;ldapTestMsgDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot; class=&quot;dialog&quot;&gt;
+   *&lt;div class=&quot;dialog-content pentaho-padding-sm&quot;&gt;
+   *&lt;p class=&quot;message&quot;&gt; &lt;/p&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_hideTest&quot; class=&quot;pentaho-button close-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- edit server connection --&gt;
+   *&lt;div id=&quot;editServerDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot; data-dojo-props=&#39;title:&quot;Edit External Authentication Server Connection&quot;&#39; class=&quot;dialog&quot;&gt;
+   *&lt;div class=&quot;dialog-content pentaho-padding-sm&quot;&gt;
+   *&lt;p class=&quot;message&quot;&gt;Changing server conneciton will remove all current authentication and premissions settings. Do you want to continue?&lt;/p&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_editServerDialogYesClick&quot; class=&quot;pentaho-button ok-button first&quot;&gt; &lt;/button&gt;
+   *&lt;button id=&quot;btn_editServerDialogNoClick&quot; class=&quot;pentaho-button cancel-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- edit authentication method --&gt;
+   *&lt;div id=&quot;authenticationChangeDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot; class=&quot;dialog&quot; &gt;
+   *&lt;div class=&quot;dialog-content pentaho-padding-sm&quot;&gt;
+   *&lt;p class=&quot;message&quot;&gt;Changing the authentication method will remove all current authentication and premissions settings. Do you want to continue?&lt;/p&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_processAuthenticationMethodChange&quot; class=&quot;pentaho-button yes-change-button first&quot;&gt; &lt;/button&gt;
+   *&lt;button id=&quot;btn_authenticationChangeNoClick&quot; class=&quot;pentaho-button no-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *
+   *
+   *&lt;!-- populator dialog --&gt;
+   *&lt;div id=&quot;ldapPopTestDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot; class=&quot;dialog&quot;&gt;
+   *&lt;div class=&quot;dialog-content pentaho-padding-sm&quot;&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupRoleAttributeLabel&quot;&gt;Group Role Attribute:&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupRoleAttributeValue value&quot;&gt;&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupRoleSearchBaseLabel&quot;&gt;Group Search Base:&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupRoleSearchBaseValue value&quot;&gt;&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupSearchFilterLabel&quot;&gt;Group Search Filter:&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupSearchFilterValue value&quot;&gt;&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapPopulatorRolePrefixLabel&quot;&gt;Role Prefix:&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorRolePrefixValue value&quot;&gt;&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapUserLabel&quot;&gt;User Name:&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;input id=&quot;ldapPopTestUserName&quot; type=&quot;text&quot; /&gt;
+   *&lt;br /&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;label class=&quot;ldapUserDomainLabel&quot;&gt;User DN:&lt;/label&gt;
+   *&lt;/div&gt;
+   *&lt;input id=&quot;ldapPopTestUserDn&quot; type=&quot;text&quot;/&gt;
+   *&lt;br /&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_testPopulator&quot; class=&quot;pentaho-button ok-button first&quot;&gt; &lt;/button&gt;
+   *&lt;button id=&quot;btn_hideLdapPropsTest&quot; class=&quot;pentaho-button cancel-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *
+   *
+   *&lt;!-- user test dialog --&gt;
+   *&lt;div id=&quot;ldapUserTestDialog&quot; data-dojo-type=&quot;dijit.Dialog&quot; class=&quot;dialog&quot;&gt;
+   *&lt;div class=&quot;dialog-content pentaho-padding-sm&quot;&gt;
+   *&lt;p class=&quot;message&quot;&gt;With the search base and search filter configuration search for a user name that exists in your LDAP server.&lt;/p&gt;
+   *&lt;br/&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapUserTestLabel&quot;&gt;Search For User:&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;input class=&quot;ldapUserTestUserName&quot; type=&quot;text&quot; /&gt;
+   *&lt;br /&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;dialog-buttons&quot;&gt;
+   *&lt;div class=&quot;container&quot;&gt;
+   *&lt;button id=&quot;btn_testLdapUserSearch&quot; class=&quot;pentaho-button ok-button first&quot;&gt; &lt;/button&gt;
+   *&lt;button id=&quot;btn_hideLdapUserTestDialog&quot; class=&quot;pentaho-button cancel-button last&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *
+   *&lt;div style=&quot;padding: 0px;&quot;&gt;
+   *&lt;div class=&quot;pentaho-fieldgroup-major titleLabel&quot;&gt;Authentication&lt;/div&gt;
+   *&lt;br/&gt;
+   *&lt;!-- CONNECTION PARAMS --&gt;
+   *&lt;div id=&quot;authenticationSelector&quot;&gt;
+   *
+   *&lt;div class=&quot;authenticationMethodLabel authMethod&quot;&gt;Authentication Method&lt;/div&gt;
+   *&lt;div class=&quot;authText authenticationMethodDescriptionLabel&quot;&gt;
+   *Select where user and their log in credentials will be managed:
+   *&lt;/div&gt;
+   *
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input checked=&quot;checked&quot; name=&quot;securityProvider&quot; type=&quot;radio&quot; value=&quot;jackrabbit&quot; /&gt;
+   *&lt;div class=&quot;pentahoSecurityLabel authValue&quot;&gt;Local - Use basic Pentaho authentication&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input name=&quot;securityProvider&quot; type=&quot;radio&quot; value=&quot;ldap&quot; /&gt;
+   *&lt;div class=&quot;ldapSecurityLabel authValue&quot;&gt;External - Use LDAP / Active Directory server&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;br /&gt;
+   *
+   *
+   *&lt;br /&gt;
+   *&lt;div id=&quot;ldapConnection&quot; style=&quot;display: none&quot;&gt;
+   *&lt;div class=&quot;ldapConnectionTitleLabel authMethod&quot;&gt;LDAP Server Connection&lt;/div&gt;
+   *
+   *&lt;!-- to edit config --&gt;
+   *&lt;div id=&quot;ldapConnectionEdit&quot; style=&quot;display:block&quot;&gt;
+   *&lt;div class=&quot;authText ldapServerUrlLabel&quot;&gt;Server URL:&lt;/div&gt;
+   *&lt;input class=&quot;ldapServerUrlInput authValue adminField&quot; type=&quot;text&quot; /&gt;
+   *
+   *&lt;div class=&quot;authText ldapUserLabel&quot;&gt;User Name:&lt;/div&gt;
+   *&lt;input class=&quot;ldapUserInput authValue adminField&quot; type=&quot;text&quot; /&gt;
+   *
+   *&lt;div class=&quot;authText ldapPasswordLabel&quot;&gt;Password:&lt;/div&gt;
+   *&lt;input class=&quot;ldapPasswordInput authValue adminField&quot; type=&quot;password&quot; /&gt;
+   *
+   *&lt;br/&gt;&lt;br/&gt;
+   *&lt;div class=&quot;authText ldapTestConnectionLabel&quot;&gt;Test connection to complete LDAP setup&lt;/div&gt;
+   *&lt;br/&gt;
+   *&lt;div class=&quot;securityConfigButton&quot;&gt;
+   *&lt;button id=&quot;testServerConnectionButton&quot; class=&quot;pentaho-button testServerConnectionButton&quot; &gt;
+   *&lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- edited config --&gt;
+   *&lt;div id=&quot;ldapConnectionEditor&quot; style=&quot;display:none&quot;&gt;
+   *&lt;div class=&quot;authText ldapServerUrlLabel&quot; &gt;Server URL:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;div class=&quot;ldapServerUrlValue authValue&quot;&gt;&lt;/div&gt;
+   *&lt;div class=&quot;pentaho-editbutton&quot; id=&quot;btn_editConnection&quot; title=&quot;Edit connection&quot;&gt;&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;br /&gt;
+   *
+   *&lt;div&gt;
+   *&lt;div id=&quot;ldapSettingsGroup&quot; style=&quot;display: none&quot;&gt;
+   *
+   *&lt;!-- Ldap administration configuration --&gt;
+   *&lt;div id=&quot;ldapAdministration&quot;&gt;
+   *&lt;div class=&quot;ldapAdministrationTitleLabel authMethod&quot;&gt;Pentaho System Administrator&lt;/div&gt;
+   *&lt;div class=&quot;ldapAdministratiorUserLabel authText&quot;&gt;Select user from LDAP server:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input class=&quot;ldapAdministratorUserInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *&lt;button class=&quot;adminButton&quot; id=&quot;btn_ldapAdministratorUserInput&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;ldapAdministrationRoleLabel authText&quot;&gt;Select role from LDAP server:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input class=&quot;ldapAdministratorRoleInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *&lt;button class=&quot;adminButton&quot; id=&quot;btn_ldapAdministratorRoleInput&quot; &gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;br/&gt;&lt;br/&gt;
+   *
+   *&lt;!-- ldap configuration --&gt;
+   *&lt;div class=&quot;ldapConfigurationTitle authMethod&quot;&gt;LDAP Configuration&lt;/div&gt;
+   *&lt;div class=&quot;authText&quot; id=&quot;customLdapProviderLabel&quot; &gt;Other&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;select id=&quot;ldapTypeSelector&quot;&gt;
+   *&lt;option class=&quot;ldapTypeSelectorApacheOption&quot; selected=&quot;selected&quot; value=&quot;ldapApacheConfiguration&quot;&gt;Apache DS&lt;/option&gt;
+   *&lt;option class=&quot;ldapTypeSelectorCustomOption&quot; value=&quot;ldapCustomConfiguration&quot;&gt;Custom&lt;/option&gt;
+   *&lt;/select&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- ldap apache configuration --&gt;
+   *&lt;div id=&quot;ldapApacheConfiguration&quot; class=&quot;ldapApacheConfiguration configuration&quot; style=&quot;display: none;&quot;&gt;
+   *&lt;!-- User Base --&gt;
+   *&lt;div class=&quot;ldapUserBaseLabel authText&quot;&gt;User Base:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input class=&quot;ldapUserSearchBaseInput adminField&quot; type=&quot;text&quot; /&gt;
+   *&lt;button class=&quot;adminButton&quot; id=&quot;btn_ldapUserSearchBaseInput&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;!-- Group Base --&gt;
+   *&lt;div class=&quot;ldapGroupBaseLabel authText&quot;&gt;Group Base:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input class=&quot;ldapGroupBaseInput adminField&quot; type=&quot;text&quot; /&gt;
+   *&lt;button class=&quot;adminButton&quot; id=&quot;btn_ldapGroupBaseInput&quot; &gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;div style=&quot;display: none&quot;&gt;
+   *&lt;!-- This stuff is hidden but populated for save functions --&gt;
+   *&lt;input class=&quot;ldapUserSearchFilterInput&quot; /&gt;
+   *
+   *&lt;input class=&quot;ldapRoleBaseInput&quot; /&gt;
+   *&lt;input class=&quot;ldapRoleSearchBaseInput&quot; /&gt;
+   *&lt;input class=&quot;ldapRoleSearchFilterInput&quot; /&gt;
+   *
+   *&lt;input class=&quot;ldapPopulatorGroupRoleAttributeInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupSearchFilterInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupRoleSearchBaseInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorRolePrefixInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorSubtreeInput&quot; name=&quot;ldapPopulatorSubtreeInput&quot; type=&quot;radio&quot; value=&quot;false&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorUpperCaseInput&quot; name=&quot;ldapPopulatorUpperCaseInput&quot; type=&quot;radio&quot; value=&quot;false&quot; /&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;div id=&quot;ldapMicrosoftConfiguration&quot; class=&quot;microsoftConfigPanel configuration&quot; style=&quot;display: none;&quot;&gt;
+   *&lt;div class=&quot;ldapUserBaseLabel authText&quot;&gt;User Base:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input class=&quot;ldapUserSearchBaseInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *&lt;button class=&quot;adminButton&quot; id=&quot;btn_ldapUserSearchBaseInput2&quot; &gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;div class=&quot;ldapGroupBaseLabel authText&quot;&gt;Group Base:&lt;/div&gt;
+   *&lt;div class=&quot;groupOption&quot;&gt;
+   *&lt;input class=&quot;ldapGroupBaseInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *&lt;button class=&quot;adminButton&quot; id=&quot;btn_ldapGroupBaseInput2&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;div style=&quot;display: none&quot;&gt;
+   *&lt;!-- This stuff is hidden but populated for test and save functions --&gt;
+   *&lt;input class=&quot;ldapUserSearchFilterInput&quot; /&gt;
+   *
+   *&lt;input class=&quot;ldapRoleBaseInput&quot; /&gt;
+   *&lt;input class=&quot;ldapRoleSearchBaseInput&quot; /&gt;
+   *&lt;input class=&quot;ldapRoleSearchFilterInput&quot; /&gt;
+   *
+   *&lt;input class=&quot;ldapPopulatorGroupRoleAttributeInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupSearchFilterInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupRoleSearchBaseInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorRolePrefixInput&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorSubtreeInput&quot; name=&quot;ldapPopulatorSubtreeInput&quot; type=&quot;radio&quot; value=&quot;false&quot; /&gt;
+   *&lt;input class=&quot;ldapPopulatorUpperCaseInput&quot; name=&quot;ldapPopulatorUpperCaseInput&quot; type=&quot;radio&quot; value=&quot;false&quot; /&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *&lt;!-- ldap custom configuration --&gt;
+   *&lt;div id=&quot;ldapCustomConfiguration&quot; class=&quot;ldapCustomConfiguration configuration&quot; style=&quot;display: none;&quot;&gt;
+   *&lt;!-- user search configuration --&gt;
+   *&lt;br/&gt;
+   *&lt;span class=&quot;ldapCustomUserSearchTitle authMethod&quot;&gt;User Search&lt;/span&gt;
+   *&lt;br/&gt;
+   *&lt;div&gt;
+   *&lt;div class=&quot;ldapUserSearchBaseLabel authText&quot;&gt;Search Base:&lt;/div&gt;
+   *&lt;input class=&quot;ldapUserSearchBaseInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapUserSearchFilderLabel authText&quot;&gt;Search Filter:&lt;/div&gt;
+   *&lt;input class=&quot;ldapUserSearchFilterInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;br/&gt; &lt;br/&gt;
+   *
+   *&lt;div class=&quot;securityConfigButton&quot;&gt;
+   *&lt;button class=&quot;pentaho-button test-button&quot; id=&quot;btn_showLdapUserTestDialog&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;br/&gt; &lt;br/&gt;
+   *&lt;!-- roles configuration --&gt;
+   *&lt;span class=&quot;ldapRolesTitle authMethod&quot;&gt;Roles&lt;/span&gt;
+   *&lt;br/&gt;
+   *&lt;div&gt;
+   *&lt;div class=&quot;ldapRoleBaseLabel authText&quot;&gt;Role Attribute:&lt;/div&gt;
+   *&lt;input class=&quot;ldapRoleBaseInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapRoleSearchFilterLabel authText&quot;&gt;Role Search Filter:&lt;/div&gt;
+   *&lt;input class=&quot;ldapRoleSearchFilterInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapRoleSearchBaseLabel authText&quot;&gt;Role Search Base:&lt;/div&gt;
+   *&lt;input class=&quot;ldapRoleSearchBaseInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;br/&gt; &lt;br/&gt;
+   *
+   *&lt;div class=&quot;securityConfigButton&quot;&gt;
+   *&lt;button class=&quot;pentaho-button test-button&quot; id=&quot;btn_testAuthoritiesSearch&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;br/&gt; &lt;br/&gt;
+   *&lt;span class=&quot;ldapPopulatorTitle authMethod&quot;&gt;Populator&lt;/span&gt;
+   *&lt;br/&gt;
+   *&lt;div&gt;
+   *&lt;div class=&quot;ldapPopulatorGroupRoleAttributeLabel authText&quot;&gt;Group Role Attribute:&lt;/div&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupRoleAttributeInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapPopulatorGroupRoleSearchBaseLabel authText&quot;&gt;Group Search Base:&lt;/div&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupRoleSearchBaseInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapPopulatorGroupSearchFilterLabel authText&quot;&gt;Group Search Filter:&lt;/div&gt;
+   *&lt;input class=&quot;ldapPopulatorGroupSearchFilterInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapPopulatorRolePrefixLabel authText&quot;&gt;Role Prefix:&lt;/div&gt;
+   *&lt;input  class=&quot;ldapPopulatorRolePrefixInput adminField&quot; type=&quot;text&quot;  /&gt;
+   *
+   *&lt;div class=&quot;ldapPopulatorUpperCaseLabel authText&quot;&gt;Convert To Upper Case:&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorUpperCaseDescription groupOption&quot;&gt;
+   *&lt;input name=&quot;ldapPopulatorUpperCaseInput&quot; class=&quot;ldapPopulatorUpperCaseInput&quot; type=&quot;radio&quot; value=&quot;true&quot; /&gt;
+   *&lt;label class=&quot;yes-button&quot;&gt;Yes&lt;/label&gt;
+   *&lt;input name=&quot;ldapPopulatorUpperCaseInput&quot; class=&quot;ldapPopulatorUpperCaseInput&quot; type=&quot;radio&quot; checked=&quot;checked&quot; value=&quot;false&quot; /&gt;
+   *&lt;label class=&quot;no-button&quot;&gt;No&lt;/label&gt;
+   *&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorSubtreeLabel authText&quot;&gt;Subtree:&lt;/div&gt;
+   *&lt;div class=&quot;ldapPopulatorSubtreeDescription groupOption&quot;&gt;
+   *&lt;input name=&quot;ldapPopulatorSubtreeInput&quot; class=&quot;ldapPopulatorSubtreeInput&quot; type=&quot;radio&quot; value=&quot;true&quot; /&gt;
+   *&lt;label class=&quot;yes-button&quot;&gt;Yes&lt;/label&gt;
+   *&lt;input name=&quot;ldapPopulatorSubtreeInput&quot; class=&quot;ldapPopulatorSubtreeInput&quot; type=&quot;radio&quot; checked=&quot;checked&quot; value=&quot;false&quot; /&gt;
+   *&lt;label class=&quot;no-button&quot;&gt;No&lt;/label&gt;
+   *&lt;/div&gt;
+   *&lt;br/&gt;
+   *&lt;div class=&quot;securityConfigButton&quot;&gt;
+   *&lt;button class=&quot;pentaho-button test-button&quot; id=&quot;btn_showPopulatorTestDialog&quot;&gt; &lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *&lt;/div&gt;
+   *
+   *
+   *&lt;footer&gt;
+   *&lt;br/&gt;&lt;br/&gt;
+   *&lt;div id=&quot;buttonDivSave&quot; class=&quot;securityConfigButton&quot; style=&quot;display: none;&quot;&gt;
+   *&lt;button id=&quot;saveConfigButton&quot; class=&quot;pentaho-button&quot; &gt;Save&lt;/button&gt;
+   *&lt;/div&gt;
+   *&lt;/footer&gt;
+   *&lt;/body&gt;
+   *&lt;/html&gt;
    * </pre>
    */
   @Path ( "/{contextId}/{resourceId : .+}" )
