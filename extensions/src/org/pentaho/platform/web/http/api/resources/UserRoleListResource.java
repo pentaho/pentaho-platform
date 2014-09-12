@@ -80,18 +80,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Returns the list of permission users in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/permission-users
+   *    GET pentaho/api/userrolelist/permission-users
    * </p>
    *
    * @return A list of User objects for users with permissions in the platform.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;userList&gt;
-   *  &lt;users&gt;user1&lt;/users&gt;
-   *  &lt;users&gt;user2&lt;/users&gt;
-   *  &lt;users&gt;user3&lt;/users&gt;
-   *  &lt;/userList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;userList&gt;&lt;users&gt;pat&lt;/users&gt;&lt;users&gt;admin&lt;/users&gt;&lt;users&gt;suzy&lt;/users&gt;&lt;users&gt;tiffany&lt;/users&gt;&lt;users&gt;enco*de:te^s_t$&lt;/users&gt;&lt;/userList&gt;
    * </pre>
    */
   @GET
@@ -109,20 +105,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Return a list of the permission roles in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/permission-roles
+   *    GET pentaho/api/userrolelist/permission-roles
    * </p>
    *
    * @return A list of permission roles in the platform.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   *  &lt;roles&gt;Report Author&gt;/roles&gt;
-   *  &lt;roles&gt;Power User&gt;/roles&gt;
-   *  &lt;/roleList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;roles&gt;Business Analyst&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Report Author&lt;/roles&gt;&lt;roles&gt;Power User&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
   @GET
@@ -139,18 +129,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Returns the list of users in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/users
+   *    GET pentaho/api/userrolelist/users
    * </p>
    *
    * @return A list of User objects for users in the platform.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;userList&gt;
-   *  &lt;users&gt;user1&lt;/users&gt;
-   *  &lt;users&gt;user2&lt;/users&gt;
-   *  &lt;users&gt;user3&lt;/users&gt;
-   *  &lt;/userList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;userList&gt;&lt;users&gt;pat&lt;/users&gt;&lt;users&gt;admin&lt;/users&gt;&lt;users&gt;suzy&lt;/users&gt;&lt;users&gt;tiffany&lt;/users&gt;&lt;users&gt;enco*de:te^s_t$&lt;/users&gt;&lt;/userList&gt;
    * </pre>
    */
   @GET
@@ -168,20 +154,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Get a list of the standard roles in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/roles
+   *    GET pentaho/api/userrolelist/roles
    * </p>
    *
    * @return A list of Role objects that contains the standard roles in the platform.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   *  &lt;roles&gt;Report Author&gt;/roles&gt;
-   *  &lt;roles&gt;Power User&gt;/roles&gt;
-   *  &lt;/roleList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;roles&gt;Business Analyst&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Report Author&lt;/roles&gt;&lt;roles&gt;Power User&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
   @GET
@@ -198,21 +178,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Get a list of the all roles in the platform including Anonymous and Administrator.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/roles
+   *    GET pentaho/api/userrolelist/allRoles
    * </p>
    *
    * @return A list of Role objects that contains all the roles in the platform.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Business Analyst&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   *  &lt;roles&gt;Report Author&gt;/roles&gt;
-   *  &lt;roles&gt;Power User&gt;/roles&gt;
-   *  &lt;/roleList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;roles&gt;Business Analyst&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Report Author&lt;/roles&gt;&lt;roles&gt;Power User&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
   @GET
@@ -229,17 +202,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Returns Roles identified as "system roles" from the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/systemRoles
+   *    GET pentaho/api/userrolelist/systemRoles
    * </p>
    *
    * @return A list of system roles.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;roleList&gt;
-   *  &lt;roles&gt;Anonymous&gt;/roles&gt;
-   *  &lt;roles&gt;Authenticated&gt;/roles&gt;
-   *  &lt;/roleList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Administrator&lt;/roles&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
   @GET
@@ -256,17 +226,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Returns roles identified as "extra roles" from the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/extraRoles
+   *    GET pentaho/api/userrolelist/extraRoles
    * </p>
    *
    * @return Roles identified as "extra roles" are returned as a list from the repository as shown in the example.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;roleList&gt;
-   *  &lt;roles>Authenticated&lt;/roles&gt;
-   *  &lt;roles>Anonymous&lt;/roles&gt;
-   *  &lt;/roleList&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
   @GET
@@ -283,19 +250,16 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Gets the roles for the given user.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/userrolelist/getRolesForUser?user={user}
+   *    GET pentaho/api/userrolelist/getRolesForUser?user=admin
    * </p>
    *
-   * @param user The username to get the roles for.
+   * @param user The username to get the roles for
    *
    * @return A list of Role objects containing the roles for the given user.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;roles&gt;
-   *  &lt;role&gt;Administrator&lt;/role&gt;
-   *  &lt;role&gt;Report Author&lt;/role&gt;
-   *  &lt;/roles&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;roles&gt;&lt;role&gt;Administrator&lt;/role&gt;&lt;role&gt;Authenticated&lt;/role&gt;&lt;/roles&gt;
    * </pre>
    */
   @GET
@@ -320,9 +284,8 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Gets the list of users that have the role specified by the role parameter. The list of valid roles can be obtained by calling the /roles endpoint.
    *
    * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   *    GET api/userrolelist/getUsersInRole?role={role}
-   * </pre>
+   *    GET pentaho/api/userrolelist/getUsersInRole?role=Authenticated
+   * </p>
    *
    * @param role The role to get the users for
    *
@@ -330,10 +293,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;users&gt;
-   *  &lt;user&gt;user1&lt;/user&gt;
-   *  &lt;user&gt;user2&lt;/user&gt;
-   *  &lt;/users&gt;
+   *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;users&gt;&lt;user&gt;pat&lt;/user&gt;&lt;user&gt;admin&lt;/user&gt;&lt;user&gt;suzy&lt;/user&gt;&lt;user&gt;tiffany&lt;/user&gt;&lt;user&gt;enco*de:te^s_t$&lt;/user&gt;&lt;/users&gt;
    * </pre>
    */
   @GET

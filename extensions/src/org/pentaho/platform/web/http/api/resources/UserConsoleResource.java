@@ -92,10 +92,15 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    * Returns whether the current user is an administrator.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/mantle/isAdministrator<br>
+   *    GET pentaho/api/mantle/isAdministrator
    * </p>
    *
-   * @return String true if the user is an administrator, or false otherwise
+   * @return String true if the user is an administrator, or false otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *     true
+   *  </pre>
    */
   @GET
   @Path ( "/isAdministrator" )
@@ -110,10 +115,15 @@ public class UserConsoleResource extends AbstractJaxRSResource {
    * Returns whether the user is sn authenticated user or not.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/mantle/isAuthenticated<br>
+   *    GET pentaho/api/mantle/isAuthenticated
    * </p>
    *
-   * @return String true if the user is an administrator, or false otherwise
+   * @return String true if the user is an administrator, or false otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *     true
+   *  </pre>
    */
   @GET
   @Path ( "/isAuthenticated" )

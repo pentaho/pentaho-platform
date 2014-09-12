@@ -58,13 +58,22 @@ public class DirectoryResource extends AbstractJaxRSResource {
    * Creates a new folder with the specified name.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT /pentaho/api/repo/dirs/{pathId}
+   *    PUT http://localhost:8080/pentaho/api/repo/dirs/home
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    * </p>
    *
    * @param pathId The path from the root folder to the root node of the tree to return using colon characters in
    *               place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *     couldNotCreateFolderDuplicate
+   *  </pre>
    */
   @PUT
   @Path ( "{pathId : .+}" )
