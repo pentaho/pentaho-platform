@@ -39,7 +39,7 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.UnauthorizedException;
 
 /**
- * The UserRoleListResource service lists roles, permissions, and users. Provides a list of users and roles per user.
+ * The UserRoleListResource service lists roles, permissions, and users. Provides a list of users per role and roles per user.
  */
 @Path ( "/userrolelist/" )
 public class UserRoleListResource extends AbstractJaxRSResource {
