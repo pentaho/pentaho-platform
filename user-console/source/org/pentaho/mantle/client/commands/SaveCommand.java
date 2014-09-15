@@ -17,11 +17,6 @@
 
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
-
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
@@ -38,6 +33,11 @@ import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Label;
 
 public class SaveCommand extends AbstractCommand {
 
@@ -91,13 +91,13 @@ public class SaveCommand extends AbstractCommand {
           }
           WaitPopup.getInstance().setVisibleById( false, spinnerId );
           final FileChooserDialog dialog =
-              new FileChooserDialog(
-                  FileChooserMode.SAVE,
-                  fileDir,
-                  tree,
-                  false,
-                  true,
-                  Messages.getString( "save" ), Messages.getString( "save" ), navigatorPerspective.getSolutionTree().isShowHiddenFiles() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            new FileChooserDialog(
+              FileChooserMode.SAVE,
+              fileDir,
+              tree,
+              false,
+              true,
+              Messages.getString( "save" ), Messages.getString( "save" ), navigatorPerspective.getSolutionTree().isShowHiddenFiles() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
           dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
           if ( isSaveAs ) {
             dialog.setTitle( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
@@ -125,7 +125,7 @@ public class SaveCommand extends AbstractCommand {
               }
 
               JsArrayString extensions =
-                  getPossibleExtensions( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
+                getPossibleExtensions( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
               String fileExtension = null;
               if ( extensions.length() == 1 ) {
                 fileExtension = extensions.get( 0 );
@@ -134,14 +134,14 @@ public class SaveCommand extends AbstractCommand {
               if ( dialog.doesSelectedFileExist( fileExtension ) ) {
                 dialog.hide();
                 PromptDialogBox overWriteDialog =
-                    new PromptDialogBox(
-                        Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        false, true );
+                  new PromptDialogBox(
+                    Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    false, true );
                 overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) ); //$NON-NLS-1$
                 overWriteDialog.setCallback( new IDialogCallback() {
                   public void okPressed() {
                     doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
-                        true );
+                      true );
                     Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
                     FileChooserDialog.setIsDirty( Boolean.TRUE );
                   }
@@ -155,12 +155,11 @@ public class SaveCommand extends AbstractCommand {
 
                 // [Fix for PIR-833]
                 if ( file != null && !file.isFolder() && !fileName.equals( title )
-                    && filePath.endsWith( file.getName() ) ) {
+                  && filePath.endsWith( file.getName() ) ) {
                   SaveCommand.this.path = filePath.substring( 0, filePath.lastIndexOf( "/" + file.getName() ) );
                 }
 
-                doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(),
-                  name, path, type, true );
+                doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true );
                 Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
                 persistFileInfoInFrame();
                 // navigatorPerspective.addRecent(fullPathWithName, name);
@@ -190,8 +189,9 @@ public class SaveCommand extends AbstractCommand {
    *          Id of the PUC tab containing the frame to look for a possible extensions callback in
    * @return All possible extensions provided by the frame.
    */
-  private native JsArrayString getPossibleExtensions( String elementId )/*-{
-    var frame = $doc.getElementById(elementId);
+  private native JsArrayString getPossibleExtensions( String elementId )
+  /*-{
+   var frame = $doc.getElementById(elementId);
     frame = frame.contentWindow;
     frame.focus();
     if (frame.getPossibleFileExtensions) {
@@ -228,34 +228,39 @@ public class SaveCommand extends AbstractCommand {
   }
 
   private void doSaveAs( String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite,
-      boolean showBusy ) {
+    boolean showBusy ) {
     WaitPopup.getInstance().setVisible( true );
     this.doSaveAs( elementId, filename, path, type, overwrite );
     WaitPopup.getInstance().setVisible( false );
     FileChooserDialog.setIsDirty( Boolean.TRUE );
   }
 
-  private void doSaveAs( String elementId, String filename, String path,
-                         SolutionFileInfo.Type type, boolean overwrite ) {
+  private void doSaveAs( String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite ) {
 
     String unableToSaveMessage = Messages.getString( "unableToSaveMessage" );
     String save = Messages.getString( "save" );
     String error = Messages.getString( "error" );
     String errorEncounteredWhileSaving = Messages.getString( " error.EncounteredWhileSaving" );
 
-    doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage, error, errorEncounteredWhileSaving );
+    doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage, error,
+      errorEncounteredWhileSaving );
   }
 
   /**
    * This method will call saveReportSpecAs(string filename, string solution, string path, bool overwrite)
    * 
-   * @param save - externalize message save 
-   * @param unableToSaveMessage - externalize message unable to save 
-   * @param error - externalize message error
-   * @param errorEncounteredWhileSaving - externalize message errorEncounteredWhileSaving
+   * @param save
+   *          - externalize message save
+   * @param unableToSaveMessage
+   *          - externalize message unable to save
+   * @param error
+   *          - externalize message error
+   * @param errorEncounteredWhileSaving
+   *          - externalize message errorEncounteredWhileSaving
    */
   private native void doSaveAsNativeWrapper( String elementId, String filename, String path,
-      SolutionFileInfo.Type type, boolean overwrite, String save, String unableToSaveMessage, String error, String errorEncounteredWhileSaving   )
+    SolutionFileInfo.Type type, boolean overwrite, String save, String unableToSaveMessage, String error,
+    String errorEncounteredWhileSaving )
   /*-{
     var isSavedSuccessfully = true;
     var errorCallback = function() {
@@ -313,12 +318,7 @@ public class SaveCommand extends AbstractCommand {
   // used via JSNI
   private void addToRecentList( String fullPathWithName ) {
     if ( fullPathWithName != null && fullPathWithName.contains( name ) ) {
-      int index = name.lastIndexOf( "." );
-      String nameWithoutExtension = name;
-      if ( index != -1 ) {
-        nameWithoutExtension = name.substring( 0, index );
-      }
-      SolutionBrowserPanel.getInstance().addRecent( fullPathWithName, nameWithoutExtension );
+      SolutionBrowserPanel.getInstance().addRecent( fullPathWithName, name );
     }
   }
 
@@ -326,4 +326,5 @@ public class SaveCommand extends AbstractCommand {
   private void setDeepLinkUrl( String fullPathWithName ) {
     SolutionBrowserPanel.getInstance().setDeepLinkUrl( fullPathWithName );
   }
+
 }
