@@ -67,8 +67,7 @@ import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
- * The RespositoryResource service retrieves the repository files through various methods.
- * Allows you to execute repository content.
+ * The RepositoryResource service retrieves the repository files through various methods.  Allows you to execute repository content.
  */
 @Path ( "/repos" )
 public class RepositoryResource extends AbstractJaxRSResource {

@@ -56,10 +56,7 @@ import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**
- * The SchedulerResource service provides the means to create, read, update, delete and list schedules
- * and blockout periods. Also provides the ability to control the status of schedules and scheduler.
- *
- * @author aaron
+ * The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout periods.  Also provides the ability to control the status of schedules and the scheduler.
  */
 @Path ( "/scheduler" )
 public class SchedulerResource extends AbstractJaxRSResource {
@@ -79,6 +76,27 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <p><b>Example Request:</b><br />
    *  POST api/scheduler/job
    * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *      &lt;jobScheduleRequest&gt;
+   *      &lt;jobName&gt;JobName&lt;/jobName&gt;
+   *      &lt;simpleJobTrigger&gt;
+   *      &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *      &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *      &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *      &lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;
+   *      &lt;endTime /&gt;
+   *      &lt;/simpleJobTrigger&gt;
+   *      &lt;inputFile&gt;/public/Steel Wheels/Top Customers (report).prpt&lt;/inputFile&gt;
+   *      &lt;outputFile&gt;/public/output&lt;/outputFile&gt;
+   *      &lt;jobParameters&gt;
+   *      &lt;name&gt;ParameterName&lt;/name&gt;
+   *      &lt;type&gt;string&lt;/type&gt;
+   *      &lt;stringValue&gt;false&lt;/stringValue&gt;
+   *      &lt;/jobParameters&gt;
+   *      &lt;/jobScheduleRequest&gt;
+   *  </pre>
+   * </p>
    *
    * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created.
    *
@@ -86,7 +104,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	JobName	1405356465422
+   *  admin	JobName	1410786491777
    * </pre>
    */
   @POST
@@ -118,7 +136,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Execute a previously scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/triggerNow
+   *    POST pentaho/api/scheduler/triggerNow
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *      &lt;jobRequest&gt;
+   *      &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *      &lt;/jobRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
@@ -127,7 +152,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  NORMAL
+   *      NORMAL
    * </pre>
    */
   @POST
@@ -152,7 +177,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Get the scheduled job created by the system for deleting generated files.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/getContentCleanerJob
+   *    GET /pentaho/api/scheduler/getContentCleanerJob
    * </p>
    *
    * @return A Job object containing the definition of the content cleaner job.
@@ -222,7 +247,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Retrieve the all the job(s) visible to the current users.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/jobs
+   *    GET pentaho/api/scheduler/jobs
    * </p>
    *
    * @param asCronString Cron string (Unused).
@@ -334,7 +359,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Retrieve the all the scheduled job(s) visible to the current users.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/getJobs
+   *    GET pentaho/api/scheduler/getJobs
    * </p>
    *
    * @return A list of jobs that are visible to the current users.
@@ -443,7 +468,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Checks whether the current user may schedule a repository file in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/isScheduleAllowed?id={id}
+   *    GET pentaho/api/scheduler/isScheduleAllowed?id=b5f806b9-9f72-4814-b1e0-aa9e0ece7e1a
    * </p>
    *
    * @param id The repository file ID of the content to checked.
@@ -470,7 +495,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Checks whether the current user has authority to schedule any content in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/canSchedule
+   *    GET pentaho/api/scheduler/canSchedule
    * </p>
    *
    * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the user.
@@ -495,7 +520,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Returns the state of the scheduler with the value of RUNNING or PAUSED.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/state
+   *    GET pentaho/api/scheduler/state
    * </p>
    *
    * @return status of the scheduler as RUNNING or PAUSED.
@@ -525,7 +550,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Resume the scheduler from a paused state.
    *
    * <p><b>Example Request:</b><br />
-   * POST api/scheduler/start
+   *    POST pentaho/api/scheduler/start
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    * </p>
    *
    * @return A jax-rs Response object containing the status of the scheduler.
@@ -555,7 +585,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Pause the scheduler from a running state.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/pause
+   *    POST pentaho/api/scheduler/pause
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    * </p>
    *
    * @return A jax-rs Response object containing the status of the scheduler.
@@ -585,7 +620,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Shuts down the scheduler.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/shutdown
+   *    POST /pentaho/api/scheduler/shutdown
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    * </p>
    *
    * @return A jax-rs Response object containing the status of the scheduler.
@@ -615,7 +655,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Checks the state of the selected scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/jobState
+   *    POST pentaho/api/scheduler/jobState
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *      &lt;jobRequest&gt;
+   *      &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *      &lt;/jobRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
@@ -649,7 +696,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Pause the specified scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/pauseJob
+   *    POST pentaho/api/scheduler/pauseJob
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobRequest&gt;
+   *    &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *    &lt;/jobRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
@@ -682,7 +736,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Resume the specified scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/resumeJob
+   *    POST pentaho/api/scheduler/resumeJob
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobRequest&gt;
+   *    &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *    &lt;/jobRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
@@ -715,7 +776,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Delete the specified scheduled job from the platform.
    *
    * <p><b>Example Request:</b><br />
-   *  DELETE api/scheduler/removeJob
+   *    DELETE pentaho/api/scheduler/removeJob
+   * </p>
+   * <br /><b>DELETE data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobRequest&gt;
+   *    &lt;jobId&gt;admin	BlockoutAction	1410786491503&lt;/jobId&gt;
+   *    &lt;/jobRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
@@ -751,7 +819,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Return the information for a specified job.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/jobinfo?jobId={jobId}
+   *    GET pentaho/api/scheduler/jobinfo?jobId=admin%09JobName%091410786491777
    * </p>
    *
    * @param jobId The jobId of the job for which we are requesting information.
@@ -761,38 +829,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;job&gt;
-   *  &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408387651641&lt;/jobId&gt;
-   *  &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
-   *  &lt;jobParams&gt;
-   *  &lt;jobParams&gt;
-   *  &lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;
-   *  &lt;value&gt;admin&lt;/value&gt;
-   *  &lt;/jobParams&gt;
-   *  &lt;jobParams&gt;
-   *  &lt;name&gt;ActionAdapterQuartzJob-ActionClass&lt;/name&gt;
-   *  &lt;value&gt;org.pentaho.platform.scheduler2.versionchecker.VersionCheckerAction&lt;/value&gt;
-   *  &lt;/jobParams&gt;
-   *  &lt;jobParams&gt;
-   *  &lt;name&gt;lineage-id&lt;/name&gt;
-   *  &lt;value&gt;da116fa7-539f-43ca-b6d7-8ce5408c97ce&lt;/value&gt;
-   *  &lt;/jobParams&gt;
-   *  &lt;jobParams&gt;
-   *  &lt;name&gt;versionRequestFlags&lt;/name&gt;
-   *  &lt;value&gt;0&lt;/value&gt;
-   *  &lt;/jobParams&gt;
-   *  &lt;/jobParams&gt;
-   *  &lt;jobTrigger xsi:type="simpleJobTrigger"&gt;
-   *  &lt;duration&gt;-1&lt;/duration&gt;
-   *  &lt;startTime&gt;2014-08-18T14:47:31.639-04:00&lt;/startTime&gt;
-   *  &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
-   *  &lt;repeatInterval&gt;86400&lt;/repeatInterval&gt;
-   *  &lt;/jobTrigger&gt;
-   *  &lt;lastRun&gt;2014-08-18T14:47:31.639-04:00&lt;/lastRun&gt;
-   *  &lt;nextRun&gt;2014-08-19T14:47:31.639-04:00&lt;/nextRun&gt;
-   *  &lt;state&gt;NORMAL&lt;/state&gt;
-   *  &lt;userName&gt;admin&lt;/userName&gt;
-   *  &lt;/job&gt;
+   *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;job&gt;&lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;&lt;jobName&gt;JobName&lt;/jobName&gt;&lt;jobParams&gt;&lt;jobParams&gt;&lt;name&gt;uiPassParam&lt;/name&gt;&lt;value&gt;MINUTES&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;&lt;value&gt;input file = /public/Steel Wheels/Top Customers (report).prpt:outputFile = /home/admin/JobName.*&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;user_locale&lt;/name&gt;&lt;value&gt;en_US&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;&lt;value&gt;admin&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;&lt;value&gt;prpt.backgroundExecution&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ParameterName&lt;/name&gt;&lt;value&gt;false&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;lineage-id&lt;/name&gt;&lt;value&gt;5212a120-3294-49e8-9c5d-c755b9766c43&lt;/value&gt;&lt;/jobParams&gt;&lt;/jobParams&gt;&lt;jobTrigger xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:type=&quot;simpleJobTrigger&quot;&gt;&lt;duration&gt;-1&lt;/duration&gt;&lt;startTime&gt;2014-08-14T11:46:00-04:00&lt;/startTime&gt;&lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;&lt;repeatCount&gt;-1&lt;/repeatCount&gt;&lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;&lt;/jobTrigger&gt;&lt;nextRun&gt;2014-08-14T11:46:00-04:00&lt;/nextRun&gt;&lt;state&gt;NORMAL&lt;/state&gt;&lt;userName&gt;admin&lt;/userName&gt;&lt;/job&gt;
    * </pre>
    */
   @GET
@@ -837,7 +874,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Get all the blockout jobs in the system.
    *
    * <p><b>Example Request:</b><br />
-   *  GET /scheduler/blockout/blockoutjobs
+   *    GET pentaho/api/scheduler/blockout/blockoutjobs
    * </p>
    *
    * @return A Response object that contains a list of blockout jobs.
@@ -934,7 +971,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Checks if there are blockouts in the system.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/blockout/hasblockouts
+   *    GET pentaho/api/scheduler/blockout/hasblockouts
    * </p>
    *
    * @return true or false whether there are blackouts or not.
@@ -959,7 +996,28 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Creates a new blockout for scheduled jobs.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/blockout/add
+   *    POST pentaho/api/scheduler/blockout/add
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *    &lt;/jobScheduleRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job.
@@ -968,7 +1026,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	BlockoutAction	1408459814192
+   *  admin	BlockoutAction	1410786491209
    * </pre>
    */
   @POST
@@ -995,7 +1053,28 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Update an existing blockout.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/blockout/update?jobid={jobid}
+   *    POST pentaho/api/scheduler/blockout/update?jobid=admin%09BlockoutAction%091410786491209
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *    &lt;/jobScheduleRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobId The jobId of the blockout we are editing.
@@ -1005,7 +1084,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	BlockoutAction	1408473190419
+   *  admin	BlockoutAction	1410786491503
    * </pre>
    */
   @POST
@@ -1032,7 +1111,28 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Checks if the selected blockout schedule will be fired.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/blockout/willFire
+   *    POST pentaho/api/scheduler/blockout/willFire
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *    &lt;/jobScheduleRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout.
@@ -1041,7 +1141,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  true
+   *  false
    * </pre>
    */
   @POST
@@ -1068,7 +1168,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Checks if the selected blockout schedule should be fired now.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/blockout/shouldFireNow
+   *    GET pentaho/api/scheduler/blockout/shouldFireNow
    * </p>
    *
    * @return true or false whether or not the blockout should fire now.
@@ -1094,7 +1194,28 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Check the status of the selected blockout schedule.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/blockout/blockstatus
+   *    POST pentaho/api/scheduler/blockout/blockstatus
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;jobScheduleRequest&gt;
+   *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
+   *    &lt;complexJobTrigger&gt;
+   *    &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;
+   *    &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;
+   *    &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;
+   *    &lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;
+   *    &lt;endTime /&gt;
+   *    &lt;/complexJobTrigger&gt;
+   *    &lt;inputFile&gt;&lt;/inputFile&gt;
+   *    &lt;outputFile&gt;&lt;/outputFile&gt;
+   *    &lt;duration&gt;7740000&lt;/duration&gt;
+   *    &lt;timeZone&gt;America/New_York&lt;/timeZone&gt;
+   *    &lt;/jobScheduleRequest&gt;
+   *  </pre>
    * </p>
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout.
@@ -1130,7 +1251,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Retrieve the list of execute content by lineage id.
    *
    * <p><b>Example Request:</b><br />
-   *  GET api/scheduler/generatedContentForSchedule?lineageId={lineageId}
+   *    GET pentaho/api/scheduler/generatedContentForSchedule?lineageId=:public:Steel%20Wheels:Inventory%20List%20(report).prpt
    * </p>
    *
    * @param lineageId the path for the file.
