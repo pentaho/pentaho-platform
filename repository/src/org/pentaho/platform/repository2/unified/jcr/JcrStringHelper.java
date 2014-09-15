@@ -22,44 +22,47 @@ import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 
 /**
- * Collect JCR string helper methods to centralize implementations
- * These methods are intended for internal use only. However, due to
- * architectural considerations, the methods have been made public
+ * Collect JCR string helper methods to centralize implementations These methods are intended for internal use only.
+ * However, due to architectural considerations, the methods have been made public
  */
 public class JcrStringHelper {
 
+  private JcrStringHelper() {
+  }
+
   /**
-   *
+   * 
    * @param fileName
    * @return
    */
-  public static String fileNameEncode(String fileName) {
+  public static String fileNameEncode( String fileName ) {
     return ISO9075.encode( Text.escapeIllegalJcrChars( fileName ) );
   }
 
-  public static String idEncode(String id) {
+  public static String idEncode( String id ) {
     return Text.escapeIllegalJcrChars( id );
   }
 
   /**
-   *
+   * 
    * @param encodedFileName
    * @return
    */
-  public static String fileNameDecode(String encodedFileName) {
-    return ISO9075.decode( Text.unescapeIllegalJcrChars( encodedFileName ) );
+  public static String fileNameDecode( String encodedFileName ) {
+    return Text.unescapeIllegalJcrChars( ISO9075.decode( encodedFileName ) );
   }
 
   /**
    * May contain just folder names or full paths
+   * 
    * @param path
    * @return
    */
-  public static String pathEncode( String path) {
-    String[] folders = path.split("/");
-    StringBuilder encodedPath = new StringBuilder(path.length() * 2);
-    for (int i=0; i < folders.length; i++) {
-      encodedPath.append( fileNameEncode(folders[i]) );
+  public static String pathEncode( String path ) {
+    String[] folders = path.split( "/" );
+    StringBuilder encodedPath = new StringBuilder( path.length() * 2 );
+    for ( int i = 0; i < folders.length; i++ ) {
+      encodedPath.append( fileNameEncode( folders[i] ) );
       if ( i != folders.length - 1 || path.endsWith( "/" ) ) {
         encodedPath.append( "/" );
       }
@@ -69,14 +72,15 @@ public class JcrStringHelper {
 
   /**
    * May contain just folder names or full paths
+   * 
    * @param encodedPath
    * @return
    */
   public static String pathDecode( String encodedPath ) {
-    String[] folders = encodedPath.split("/");
-    StringBuilder decodedPath = new StringBuilder(encodedPath.length() * 2);
-    for (int i=0; i < folders.length; i++) {
-      decodedPath.append( fileNameDecode(folders[i]) );
+    String[] folders = encodedPath.split( "/" );
+    StringBuilder decodedPath = new StringBuilder( encodedPath.length() * 2 );
+    for ( int i = 0; i < folders.length; i++ ) {
+      decodedPath.append( fileNameDecode( folders[i] ) );
       if ( i != folders.length - 1 || encodedPath.endsWith( "/" ) ) {
         decodedPath.append( "/" );
       }
