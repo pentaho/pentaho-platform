@@ -183,6 +183,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/deletepermanent" )
   @Consumes ( { WILDCARD } )
   @Facet ( name = "Unsupported" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully deleted the comma seperated list of fileIds from the system." ),
+    @ResponseCode ( code = 403, condition = "Failure to delete the file due to path not found." )
+  } )
   public Response doDeleteFilesPermanent( String params ) {
     try {
       fileService.doDeleteFilesPermanent( params );
@@ -273,8 +277,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}" )
   @Consumes ( { WILDCARD } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully restored the file." ),
-      @ResponseCode ( code = 403, condition = "Failure to Restore the file due to permissions, file already exists, or invalid path id." ),
+      @ResponseCode ( code = 200, condition = "Successfully created the file." ),
+      @ResponseCode ( code = 403, condition = "Failure to create the file due to permissions, file already exists, or invalid path id." )
   } )
   public Response createFile( @PathParam ( "pathId" ) String pathId, InputStream fileContents ) {
     try {
@@ -414,6 +418,11 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/parameterizable" )
   @Produces ( TEXT_PLAIN )
   @Facet ( name = "Unsupported" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully get the file or directory." ),
+    @ResponseCode ( code = 404, condition = "Failed to find the file or resource." )
+  } )
+
   // have to accept anything for browsers to work
   public String doIsParameterizable( @PathParam ( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
@@ -956,6 +965,10 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path ( "{pathId : .+}/canAccess" )
   @Produces ( TEXT_PLAIN )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the given paths." ),
+    @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." )
+  } )
   public String doGetCanAccess( @PathParam ( "pathId" ) String pathId,
                                 @QueryParam ( "permissions" ) String permissions ) {
     return fileService.doGetCanAccess( pathId, permissions );
@@ -1166,6 +1179,10 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/creator" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the content creator for a file." ),
+    @ResponseCode ( code = 403, condition = "Failure to move the file due to path not found." )
+  } )
   public RepositoryFileDto doGetContentCreator( @PathParam ( "pathId" ) String pathId ) {
     try {
       return fileService.doGetContentCreator( pathId );
