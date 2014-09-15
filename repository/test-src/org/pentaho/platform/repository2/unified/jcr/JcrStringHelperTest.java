@@ -17,56 +17,66 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import junit.framework.TestCase;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 
 import org.junit.Test;
 
 public class JcrStringHelperTest {
 
   @Test
-  public void testLetterDigitIDEncode(){
+  public void testLetterDigitIDEncode() {
     String id = "a243423d-adasdasdasd-asdasd";
     String encodedId = JcrStringHelper.idEncode( id );
-    TestCase.assertEquals( id, encodedId );
+    assertEquals( id, encodedId );
   }
-  
+
   @Test
-  public void testDigitLetterIDEncode(){
+  public void testDigitLetterIDEncode() {
     String id = "5a243423d-adasdasdasd-asdasd";
     String encodedId = JcrStringHelper.idEncode( id );
-    TestCase.assertEquals( id, encodedId );
+    assertEquals( id, encodedId );
   }
- 
+
   @Test
-  public void testFilePathpecEncode(){
-    String path="/asdf/3err";
+  public void testFilePathpecEncode() {
+    String path = "/asdf/3err";
     String encodedPath = JcrStringHelper.pathEncode( path );
-    TestCase.assertTrue( ! path.equals( encodedPath ) );
-    TestCase.assertEquals( "/asdf/_x0033_err", encodedPath );
+    assertFalse( path.equals( encodedPath ) );
+    assertEquals( "/asdf/_x0033_err", encodedPath );
   }
-  
+
   @Test
-  public void testFilePathSpecEncodeDecode(){
-    String path="/asdf/3err";
+  public void testFilePathSpecEncodeDecode() {
+    String path = "/asdf/3err";
     String encodedPath = JcrStringHelper.pathEncode( path );
-    TestCase.assertTrue( ! path.equals( encodedPath ) );
+    assertFalse( path.equals( encodedPath ) );
     String decodedPath = JcrStringHelper.fileNameDecode( encodedPath );
-    TestCase.assertEquals( path, decodedPath );
+    assertEquals( path, decodedPath );
   }
-  
+
   @Test
-  public void testFilePathEncode(){
-    String path="/asdf/err";
+  public void testFilePathEncode() {
+    String path = "/asdf/err";
     String encodedPath = JcrStringHelper.pathEncode( path );
-    TestCase.assertEquals( path, encodedPath );
+    assertEquals( path, encodedPath );
   }
-  
+
   @Test
-  public void testFilePathEncodeDecode(){
-    String path="/asdf/err";
+  public void testFilePathEncodeDecode() {
+    String path = "/asdf/err";
     String encodedPath = JcrStringHelper.pathEncode( path );
-    TestCase.assertEquals( path, encodedPath );
+    assertEquals( path, encodedPath );
     String decodedPath = JcrStringHelper.fileNameDecode( encodedPath );
-    TestCase.assertEquals( path, decodedPath );
+    assertEquals( path, decodedPath );
+  }
+
+  @Test
+  public void testPathWithSpecificCharactersDecode() {
+    String path = "/home/admin/[~!@#$%^&*(){}|.,]-=_+|;'\"?<>~`.prpti";
+    String encodedPath = JcrStringHelper.pathEncode( path );
+    assertFalse( path.equals( encodedPath ) );
+    String decodedPath = JcrStringHelper.pathDecode( encodedPath );
+    assertEquals( path, decodedPath );
   }
 }
