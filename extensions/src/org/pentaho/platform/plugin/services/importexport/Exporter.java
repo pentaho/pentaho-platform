@@ -39,7 +39,7 @@ import java.util.zip.ZipOutputStream;
  * 
  */
 public class Exporter {
-  IUnifiedRepository unifiedRepository;
+  private IUnifiedRepository unifiedRepository;
   private String repoPath;
   private String filePath;
 
@@ -120,15 +120,18 @@ public class Exporter {
     }
 
     ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFile ) );
-    if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
-      ZipEntry entry = new ZipEntry( exportRepositoryFile.getPath().substring( filePath.length() + 1 ) + "/" );
-      zos.putNextEntry( entry );
-      exportDirectoryAsZip( exportRepositoryFile, zos );
-    } else {
-      exportFileAsZip( exportRepositoryFile, zos );
+    try {
+      if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
+        ZipEntry entry = new ZipEntry( exportRepositoryFile.getPath().substring( filePath.length() + 1 ) + "/" );
+        zos.putNextEntry( entry );
+        exportDirectoryAsZip( exportRepositoryFile, zos );
+      } else {
+        exportFileAsZip( exportRepositoryFile, zos );
+      }
+    } finally {
+      zos.close();
     }
 
-    zos.close();
     return zipFile;
   }
 
@@ -159,9 +162,12 @@ public class Exporter {
     SimpleRepositoryFileData repoFileData =
         unifiedRepository.getDataForRead( exportRepositoryFile.getId(), SimpleRepositoryFileData.class );
     InputStream is = repoFileData.getStream();
-    IOUtils.copy( is, zos );
-    zos.closeEntry();
-    is.close();
+    try {
+      IOUtils.copy( is, zos );
+      zos.closeEntry();
+    } finally {
+      is.close();
+    }
   }
 
   /**
@@ -201,6 +207,11 @@ public class Exporter {
    * @throws java.io.IOException
    */
   public void exportFile( RepositoryFile exportRepositoryFile, File exportDirectory ) throws IOException {
+    if ( exportRepositoryFile == null ) {
+      throw new FileNotFoundException( Messages.getInstance().getErrorString(
+        "Exporter.ERROR_0001_INVALID_SOURCE_DIRECTORY", repoPath ) );
+    }
+
     if ( exportDirectory.exists() ) {
       if ( !exportDirectory.isDirectory() ) {
         throw new IllegalArgumentException( Messages.getInstance().getErrorString(
@@ -212,19 +223,17 @@ public class Exporter {
       }
     }
 
-    if ( exportRepositoryFile == null ) {
-      throw new FileNotFoundException( Messages.getInstance().getErrorString(
-          "Exporter.ERROR_0001_INVALID_SOURCE_DIRECTORY", repoPath ) );
-    }
-
     SimpleRepositoryFileData repoFileData =
         unifiedRepository.getDataForRead( exportRepositoryFile.getId(), SimpleRepositoryFileData.class );
     InputStream is = repoFileData.getStream();
     File exportFile = new File( exportDirectory.getAbsolutePath() + File.separator + exportRepositoryFile.getName() );
     OutputStream os = new FileOutputStream( exportFile );
-    IOUtils.copy( is, os );
-    os.close();
-    is.close();
+    try {
+      IOUtils.copy( is, os );
+    } finally {
+      os.close();
+      is.close();
+    }
   }
 
   /**

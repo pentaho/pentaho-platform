@@ -39,26 +39,29 @@ import java.util.List;
  */
 public class ImportSession {
 
+  private static final ThreadLocal<ImportSession> sessions = new ThreadLocal<ImportSession>();
+
   private HashSet<String> skippedFiles = new HashSet<String>(); // Files skipped due to overwriteFlag = false
-  private HashSet<String> foldersCreatedImplicitly = new HashSet<String>(); // Folders created implicitly
+  private final HashSet<String> foldersCreatedImplicitly = new HashSet<String>(); // Folders created implicitly
+
   private Log log;
   private Boolean isNotRunningImport = true;
+
   private ExportManifest manifest;
   private boolean applyAclSettings;
   private boolean retainOwnership;
   private boolean overwriteAclSettings;
   private String currentManifestKey;
-  private HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
-  private List<String> importedScheduleJobIds = new ArrayList<String>();
 
-  private static ThreadLocal<ImportSession> sessions = new ThreadLocal<ImportSession>();
+  private final HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
+  private final List<String> importedScheduleJobIds = new ArrayList<String>();
 
   public static ImportSession getSession() {
-    if ( sessions.get() != null ) {
-      return sessions.get();
+    ImportSession session = sessions.get();
+    if ( session == null ) {
+      session = new ImportSession();
+      sessions.set( session );
     }
-    ImportSession session = new ImportSession();
-    sessions.set( session );
     return session;
   }
 
@@ -218,9 +221,8 @@ public class ImportSession {
 
   /**
    * @return A set of folders (complete path) that were created on the fly due to files that had a path that included
-   *         these folders. The list is kept so that if the folder entry, itself, is encountered later on in the zip
-   *         file, the importer will know that this file was already processed as a new file, and not process it as a
-   *         pre-existing file.
+   * these folders. The list is kept so that if the folder entry, itself, is encountered later on in the zip file, the
+   * importer will know that this file was already processed as a new file, and not process it as a pre-existing file.
    */
   public HashSet<String> getFoldersCreatedImplicitly() {
     return foldersCreatedImplicitly;
