@@ -17,94 +17,77 @@
 
 package org.pentaho.test.platform.plugin.services.importexport;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 
-public class ExporterTest extends TestCase {
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Properties;
 
-  private static String FILE_PATH = "/path/to/file";
-  private static String REPO_PATH = "/repo/path/to/file";
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-  private IUnifiedRepository unifiedRepository;
-  private RepositoryFile repositoryFile;
+public class ExporterTest {
+  private static final Integer DIR_ID = 0;
+  private static final Integer FILE_ID = 1;
+
   private Exporter exporter;
 
+  @Before
   public void setUp() throws Exception {
-    super.setUp();
-    /*
-     * 
-     * // set up mock repository unifiedRepository = mock(IUnifiedRepository.class); repositoryFile =
-     * mock(RepositoryFile.class);
-     * 
-     * // handle method calls when(unifiedRepository.getFile(REPO_PATH)).thenReturn(repositoryFile);
-     * 
-     * // instantiate exporter here to reuse for each test exporter = new Exporter(unifiedRepository);
-     * exporter.setRepoPath(REPO_PATH); exporter.setFilePath(FILE_PATH);
-     */
-
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    exporter = new Exporter( repositoryMock );
   }
 
-  public void tearDown() throws Exception {
 
+  @Test( expected = IllegalArgumentException.class )
+  public void exportDirectory_whenDirectoryIsNull() throws Exception {
+    exporter.exportDirectory( null, null );
   }
 
-  public void testDoExportAsFile() throws Exception {
-
+  @Test( expected = IllegalArgumentException.class )
+  public void exportDirectory_whenDirectoryIsFile() throws Exception {
+    exporter.exportDirectory( createVirtualFile(), null );
   }
 
-  public void testDoExportAsDirectory() throws Exception {
-
+  @Test( expected = IOException.class )
+  public void exportDirectory_whenDestinationDirectoryIsNull() throws Exception {
+    exporter.exportDirectory( createVirtualFolder(), null );
   }
 
-  public void testDoExportAsZip() throws Exception {
 
+  @Test( expected = IOException.class )
+  public void exportFile_whenFileIsNull() throws Exception {
+    exporter.exportFile( null, null );
   }
 
-  /*
-   * public void testDoExportAsZip() throws Exception {
-   * 
-   * }
-   */
+  @Test( expected = IllegalArgumentException.class )
+  public void exportFile_whenDestinationDirectoryIsFile() throws Exception {
+    File destDir = mock( File.class );
+    when( destDir.exists() ).thenReturn( Boolean.TRUE );
+    when( destDir.isDirectory() ).thenReturn( Boolean.FALSE );
 
-  public void testExportDirectory() throws Exception {
-
+    exporter.exportFile( createVirtualFolder(), destDir );
   }
 
-  public void testExportFile() throws Exception {
 
+  private static RepositoryFile createVirtualFolder() {
+    return createRepositoryElement( DIR_ID, "dir", true );
   }
 
-  public void testGetUnifiedRepository() throws Exception {
-
+  private static RepositoryFile createVirtualFile() {
+    return createRepositoryElement( FILE_ID, "file", false );
   }
 
-  public void testSetUnifiedRepository() throws Exception {
-
-  }
-
-  public void testGetRepoPath() throws Exception {
-
-  }
-
-  public void testSetRepoPath() throws Exception {
-
-  }
-
-  public void testGetFilePath() throws Exception {
-
-  }
-
-  public void testSetFilePath() throws Exception {
-
-  }
-
-  public void testGetRepoWs() throws Exception {
-
-  }
-
-  public void testSetRepoWs() throws Exception {
-
+  private static RepositoryFile createRepositoryElement( Serializable id, String name, boolean isFolder ) {
+    return new RepositoryFile( id, name, isFolder, false, false, null, "", new Date(), new Date(), false, null, null,
+      null, "en_US", "", "", "/", null, 1, "",
+      Collections.<String, Properties>emptyMap() );
   }
 }
