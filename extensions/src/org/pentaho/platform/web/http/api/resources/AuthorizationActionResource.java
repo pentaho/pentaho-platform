@@ -32,9 +32,7 @@ import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.web.http.api.resources.services.AuthorizationActionService;
 
 /**
- * The Authorization Action service validates if a current user is authorized to perform a specific action.
- *
- * @author rmansoor
+ * Resource deals with the Authorization Action in the BA Platform. This service validates if a current user is authorized to perform a specific action.
  */
 @Path ( "/authorization/action" )
 public class AuthorizationActionResource {
@@ -53,9 +51,8 @@ public class AuthorizationActionResource {
    * Validates if a current user is authorized to perform a specific action.
    *
    * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   *    GET http://localhost:8080/pentaho/api/authorization/action/isauthorized
-   * </pre>
+   *    GET pentaho/api/authorization/action/isauthorized
+   * </p>
    *
    * @param authAction Authorization Action to be validated for the current user.
    *

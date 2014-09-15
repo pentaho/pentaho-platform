@@ -34,8 +34,6 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
  * This resource manages folders in the repository and provides methods for creating new folders.
- *
- * @author wseyler
  */
 @Path ( "/repo/dirs/" )
 public class DirectoryResource extends AbstractJaxRSResource {
@@ -57,7 +55,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
    * Creates a new folder with the specified name.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT http://localhost:8080/pentaho/api/repo/dirs/home
+   *    PUT pentaho/api/repo/dirs/home
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
    *
