@@ -365,8 +365,8 @@ public class FileService {
     String path = null;
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
-    if ( isPath( pathId ) ) {
-      path = pathId;
+    path = idToPath( pathId );
+    if ( isPath( path ) ) {
       if ( !isPathValid( path ) ) {
         throw new IllegalArgumentException();
       }
