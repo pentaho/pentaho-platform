@@ -115,7 +115,7 @@
   <ImportHandler class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
     <MimeTypeDefinitions>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
-        <extension>prpti</extension>
+        <extension>prpt</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>
   </ImportHandler> 
