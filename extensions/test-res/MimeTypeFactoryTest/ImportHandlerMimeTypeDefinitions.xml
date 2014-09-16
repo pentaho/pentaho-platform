@@ -11,9 +11,6 @@
       <MimeTypeDefinition mimeType="application/vnd.pentaho.dashboard">
         <extension>xdash</extension>
       </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
-        <extension>prpt</extension>
-      </MimeTypeDefinition>
       <MimeTypeDefinition mimeType="image/gif" hidden="true">
         <extension>gif</extension>
       </MimeTypeDefinition>
@@ -115,7 +112,7 @@
   <ImportHandler class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
     <MimeTypeDefinitions>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.reporting.classic">
-        <extension>prpti</extension>
+        <extension>prpt</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>
   </ImportHandler> 
