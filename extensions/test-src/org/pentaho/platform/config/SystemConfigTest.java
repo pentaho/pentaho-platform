@@ -27,8 +27,8 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import java.io.File;
 import java.util.Properties;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: nbaker Date: 4/2/13
