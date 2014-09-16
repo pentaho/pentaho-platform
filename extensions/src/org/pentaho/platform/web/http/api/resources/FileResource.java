@@ -263,7 +263,11 @@ public class FileResource extends AbstractJaxRSResource {
    * Creates a new file with the provided contents at a given path.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    * </p>
    *
    * @param pathId       The path from the root folder to the root node of the tree to return using colon characters in place of /
@@ -271,6 +275,11 @@ public class FileResource extends AbstractJaxRSResource {
    * @param fileContents An Input Stream with the contents of the file to be created.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}" )
@@ -292,7 +301,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Copy selected list of files to a new specified location.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/children?mode={mode}
+   *    PUT api/repo/files/{pathId}/children?mode=2
    * </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied.
@@ -326,12 +335,17 @@ public class FileResource extends AbstractJaxRSResource {
    * Takes a pathId and returns a Response with the output stream based on the file located at the pathId.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @GET
   @Path ( "{pathId : .+}" )
@@ -487,7 +501,7 @@ public class FileResource extends AbstractJaxRSResource {
    * have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/download?withManifest={withManifest}
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/download?locale=de
    * </p>
    *
    * @param pathId          Colon separated path for the repository file.
@@ -498,6 +512,11 @@ public class FileResource extends AbstractJaxRSResource {
    *                        supplied and the filename is not quoted.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      Encrypted file stream
+   *    </pre>
    */
   @GET
   @Path ( "{pathId : .+}/download" )
@@ -540,12 +559,17 @@ public class FileResource extends AbstractJaxRSResource {
    * document.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/inline
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/inline
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;repositoryFileAclDto&gt;&lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;&lt;id&gt;d45d4972-989e-48d5-8bd0-f7024a77f08f&lt;/id&gt;&lt;owner&gt;admin&lt;/owner&gt;&lt;ownerType&gt;0&lt;/ownerType&gt;&lt;/repositoryFileAclDto&gt;
+   *    </pre>
    */
   @GET
   @Path ( "{pathId : .+}/inline" )
@@ -576,13 +600,22 @@ public class FileResource extends AbstractJaxRSResource {
    * This method is used to update and save the acls of the selected file to the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/acl
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;repositoryFileAclDto&gt;&lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;&lt;id&gt;d45d4972-989e-48d5-8bd0-f7024a77f08f&lt;/id&gt;&lt;owner&gt;admin&lt;/owner&gt;&lt;ownerType&gt;0&lt;/ownerType&gt;&lt;/repositoryFileAclDto&gt;
+   *  </pre>
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
    * @param acl    Acl of the repository file RepositoryFileAclDto.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}/acl" )
@@ -681,7 +714,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the list of locale maps for the selected repository file.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/locales
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/locales
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
@@ -739,7 +772,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the list of locale properties for a given locale.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/localeProperties
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/localeProperties?locale=ja
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
@@ -781,7 +814,11 @@ public class FileResource extends AbstractJaxRSResource {
    * Save list of locale properties for a given locale.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/localeProperties
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/localeProperties?locale=ja
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;stringKeyStringValueDtoes&gt;&lt;stringKeyStringValueDto&gt;&lt;key&gt;file.title&lt;/key&gt;&lt;value&gt;&#227;&#131;&#129;&#227;&#131;&#163;&#227;&#131;&#188;&#227;&#131;&#136;&#233;&#129;&#184;&#230;&#138;&#158;&#227;&#131;&#170;&#227;&#130;&#185;&#227;&#131;&#136;&lt;/value&gt;&lt;/stringKeyStringValueDto&gt;&lt;stringKeyStringValueDto&gt;&lt;key&gt;jcr:primaryType&lt;/key&gt;&lt;value&gt;nt:unstructured&lt;/value&gt;&lt;/stringKeyStringValueDto&gt;&lt;stringKeyStringValueDto&gt;&lt;key&gt;file.description&lt;/key&gt;&lt;value&gt;&#232;&#164;&#135;&#230;&#149;&#176;&#227;&#129;&#174;&#227;&#131;&#129;&#227;&#131;&#163;&#227;&#131;&#188;&#227;&#131;&#136;&#227;&#130;&#191;&#227;&#130;&#164;&#227;&#131;&#151;&#227;&#130;&#146;&#232;&#161;&#168;&#231;&#164;&#186;&#227;&#129;&#151;&#227;&#129;&#190;&#227;&#129;&#153;&lt;/value&gt;&lt;/stringKeyStringValueDto&gt;&lt;/stringKeyStringValueDtoes&gt;
+   *  </pre>
    * </p>
    *
    * @param pathId     Colon separated path for the repository file.
@@ -789,6 +826,11 @@ public class FileResource extends AbstractJaxRSResource {
    * @param properties The list of locale properties.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}/localeProperties" )
@@ -811,13 +853,22 @@ public class FileResource extends AbstractJaxRSResource {
    * Delete the locale for the selected file.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/localeProperties
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/deleteLocale?locale=ja
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
    * @param locale A string representations of the locale to be deleted.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}/deleteLocale" )
@@ -839,7 +890,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the properties of the root directory.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/properties
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/properties
    * </p>
    *
    * @return file properties object RepositoryFileDto for the root directory.
@@ -879,7 +930,7 @@ public class FileResource extends AbstractJaxRSResource {
    * but will only return true if all permissions checked are valid.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/{pathId}/canAccessMap?permissions={permissions}
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.txt/canAccessMap?permissions=1
    * </p>
    *
    * @param pathId      Colon separated path for the repository file.
@@ -908,7 +959,14 @@ public class FileResource extends AbstractJaxRSResource {
    * Checks whether the current user has permissions to the provided list of paths.
    *
    * <p><b>Example Request:</b><br />
-   *    POST /api/repo/files/pathsAccessList
+   *    POST pentaho/api/repo/files/pathsAccessList
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+   *    &lt;stringListWrapper&gt;
+   *    &lt;strings&gt;/public&lt;/strings&gt;
+   *    &lt;/stringListWrapper&gt;
+   *  </pre>
    * </p>
    *
    * @param pathsWrapper Collection of Strings containing the paths to be checked.
@@ -953,13 +1011,18 @@ public class FileResource extends AbstractJaxRSResource {
    * Check whether the current user has specific permission on the selected repository file.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/{pathId}/canAccess
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/canAccess?permissions=1
    * </p>
    *
    * @param pathId      Colon separated path for the repository file.
    * @param permissions Pipe separated list of permissions.
    *
    * @return String "true" if the user has requested permissions on the file, or "false" otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      true
+   *    </pre>
    */
   @GET
   @Path ( "{pathId : .+}/canAccess" )
@@ -977,10 +1040,15 @@ public class FileResource extends AbstractJaxRSResource {
    * Checks to see if the current user is an administer of the platform and returns a boolean response.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/canAdminister
+   *    GET pentaho/api/repo/files/canAdminister
    * </p>
    *
    * @return String "true" if the user can administer the platform, or "false" otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      true
+   *    </pre>
    */
   @GET
   @Path ( "/canAdminister" )
@@ -1000,7 +1068,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Returns the list of reserved characters from the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/reservedCharacters
+   *    GET pentaho/api/repo/files/reservedCharacters
    * </p>
    *
    * @return List of characters that are reserved by the repository.
@@ -1025,7 +1093,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Returns the list of reserved characters from the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/reservedCharactersDisplay
+   *    GET pentaho/api/repo/files/reservedCharactersDisplay
    * </p>
    *
    * @return List of characters that are reserved by the repository.
@@ -1050,10 +1118,15 @@ public class FileResource extends AbstractJaxRSResource {
    * Checks the users permission to determine if that user can create new content in the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /api/repo/files/canCreate
+   *    GET pentaho/api/repo/files/canCreate
    * </p>
    *
    * @return String "true" if the user can create new content, or "false" otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      true
+   *    </pre>
    */
   @GET
   @Path ( "/canCreate" )
@@ -1069,7 +1142,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the ACL settings of the requested repository file in either xml or json format.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /pentaho/api/repo/files/{pathId}/acl
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml
    * </p>
    *
    * @param pathId colon separated path for the repository file.
@@ -1113,7 +1186,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the properties of a selected repository file.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/properties
+   *    GET pentaho/api/repo/files/:/properties
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
@@ -1194,7 +1267,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the list of executed contents for a selected content from the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/generatedContent
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/generatedContent?locale=de
    * </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied.
@@ -1270,7 +1343,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the executed contents for a selected repository file and a given user.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/generatedContentForUser?user={user}
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/generatedContentForUser?user=admin
    * </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied.
@@ -1350,10 +1423,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the recursive list of files from root of the repository based on the filters provided.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/tree?showHidden={showHidden}&filter={filter}&depth={depth}
-   * <p/>
-   * Will return files but not folders under the "/" folder. The fields returned will
-   * include the name, filesize, description, id and title.
+   *    GET pentaho/api/repo/files/tree?showHidden=false&filter=*|FILES&_=1389042244670
    * </p>
    *
    * @param depth      How many level should the search go.
@@ -1376,7 +1446,7 @@ public class FileResource extends AbstractJaxRSResource {
    *                   excludeMembers= clause in the same service call.
    * @param showHidden Include or exclude hidden files from the file list.
    *
-   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1418,10 +1488,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve a list of child files from the root of the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/children?showHidden={showHidden}&filter={filter}&includeAcls={includeAcls}
-   * <p/>
-   * will return files but not folders under the "/" folder. The fields returned will
-   * include the name, filesize, description, id and title.
+   *    GET pentaho/api/repo/files/children?showHidden=false&filter=*|FILES&_=1389042244670
    * </p>
    *
    * @param filter      Filter to be applied for search. The filter can be broken down into 3 parts; File types, Child Node
@@ -1444,7 +1511,7 @@ public class FileResource extends AbstractJaxRSResource {
    * @param showHidden  Include or exclude hidden files from the file list.
    * @param includeAcls Include permission information about the file in the output.
    *
-   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1485,10 +1552,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the recursive list of children of the selected repository file.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/tree?showHidden={showHidden}&filter={filter}&includeAcls={includeAcls}&depth={depth}
-   * <p/>
-   * will return files but not folders under the "/pathToFile" folder. The fields returned will
-   * include the name, file size, description, id and title.
+   *    GET pentaho/api/repo/files/:public/tree?showHidden=false&filter=*|FILES&_=1389042244670
    * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
@@ -1514,7 +1578,7 @@ public class FileResource extends AbstractJaxRSResource {
    * @param showHidden  Include or exclude hidden files from the file list.
    * @param includeAcls Include permission information about the file in the output.
    *
-   * @return A RepositoryFileTreeDto object containing the files at the root of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1556,10 +1620,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve a list of child files from the selected repository path of the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/{pathId}/children?showHidden={showHidden}&filter={filter}&includeAcls={includeAcls}
-   * <p/>
-   * Will return files but not folders under the "/pathToFile" folder. The fields returned will
-   * include the name, filesize, description, id and title.
+   *    GET pentaho/api/repo/files/:jmeter-test/children
    * </p>
    *
    * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
@@ -1584,7 +1645,7 @@ public class FileResource extends AbstractJaxRSResource {
    * @param showHidden  Include or exclude hidden files from the file list.
    * @param includeAcls Include permission information about the file in the output.
    *
-   * @return A RepositoryFileTreeDto object containing the files at the selected repository path of the repository.
+   * @return A RepositoryFileTreeDto object containing the files at the selected repository path of the repository. Will return files but not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1626,7 +1687,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieve the list of files in the user's trash folder.
    *
    * <p><b>Example Request:</b><br />
-   *    GET api/repo/files/deleted
+   *    GET pentaho/api/repo/files/deleted
    * </p>
    *
    * @return A list of RepositoryDto objects containing the files in the trash folder of the repository.
@@ -1690,9 +1751,8 @@ public class FileResource extends AbstractJaxRSResource {
    * the metadata child, it is considered metadata from PUC and is included in the setMetadata call.
    *
    * <p><b>Example Request:</b><br />
-   * <br>
-   *    GET /pentaho/api/repo/files/{pathId}/metadata
-   * <p/>
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/metadata
+   * </p>
    *
    * @param pathId The path from the root folder to the root node of the tree to return using colon characters in place of /
    *               or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
@@ -1730,15 +1790,23 @@ public class FileResource extends AbstractJaxRSResource {
    * Rename the selected file.
    *
    * <p><b>Example Request:</b><br />
-   * <br>
-   *    PUT /pentaho/api/repo/files/{pathId}/rename
-   * <p/>
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/rename?newName=test_file_8
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
+   * </p>
    *
    * @param pathId  The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
    * @param newName String indicating the new name of the file.
    *
-   * @return Response with 200 OK, if the file does not exist to be renamed the response will return 200 OK with the string "File to be renamed does not exist"
+   * @return Response with 200 OK, if the file does not exist to be renamed the response will return 200 OK with the string "File to be renamed does not exist".
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}/rename" )
@@ -1766,15 +1834,23 @@ public class FileResource extends AbstractJaxRSResource {
    * the metadata child, it is considered metadata from PUC and is included in the setMetadata call.
    *
    * <p><b>Example Request:</b><br />
-   * <br>
-   *    PUT /pentaho/api/repo/files/{pathId}/metadata
-   * <p/>
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/metadata
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;stringKeyStringValueDtoes&gt;&lt;stringKeyStringValueDto&gt;&lt;key&gt;metadata.key.1&lt;/key&gt;&lt;value&gt;metadata.value.1&lt;/value&gt;&lt;/stringKeyStringValueDto&gt;&lt;/stringKeyStringValueDtoes&gt;
+   *  </pre>
+   * </p>
    *
    * @param pathId   The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                 or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
    * @param metadata A list of StringKeyStringValueDto objects.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}/metadata" )
@@ -1800,14 +1876,22 @@ public class FileResource extends AbstractJaxRSResource {
    * Creates a new folder with the specified name.
    *
    * <p><b>Example Request:</b><br />
-   * <br>
-   *    PUT /pentaho/api/repo/files/{pathId}/createDir
-   * <p/>
+   *    PUT pentaho/api/repo/files/:public:jmeter-test-dir/createDir
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *
+   *  </pre>
+   * </p>
    *
    * @param pathId The path from the root folder to the root node of the tree to return using colon characters in
    *               place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *
+   *    </pre>
    */
   @PUT
   @Path ( "{pathId : .+}/createDir" )
@@ -1831,14 +1915,15 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Retrieve the list of execute content by lineage id.
-   * <p/>
+   *
    * <p><b>Example Request:</b><br />
-   * GET api/scheduler/generatedContentForSchedule
+   *    GET pentaho/api/repo/files/generatedContentForSchedule?lineageId=
    * </p>
    *
    * @param lineageId the path for the file.
+   *
    * @return list of RepositoryFileDto objects.
-   * <p/>
+   *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
    * &lt;List&gt;
