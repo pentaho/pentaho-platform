@@ -46,6 +46,6 @@ public class CommentEndpointTest {
     }
     String scanDirPath = srcFolder.getAbsolutePath().replace( "./", "" );
 
-    assertTrue( EndpointUtil.compareCommentsAndAnnotations( scanDirPath, Path.class ) );
+    assertTrue( EndpointUtil.compareCommentsAndAnnotations( scanDirPath, "pentaho/api", Path.class ) );
   }
 }
