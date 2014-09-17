@@ -74,7 +74,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Creates a new scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *  POST api/scheduler/job
+   *  POST pentaho/api/scheduler/job
    * </p>
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
@@ -177,7 +177,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Get the scheduled job created by the system for deleting generated files.
    *
    * <p><b>Example Request:</b><br />
-   *    GET /pentaho/api/scheduler/getContentCleanerJob
+   *    GET pentaho/api/scheduler/getContentCleanerJob
    * </p>
    *
    * @return A Job object containing the definition of the content cleaner job.
@@ -620,7 +620,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * Shuts down the scheduler.
    *
    * <p><b>Example Request:</b><br />
-   *    POST /pentaho/api/scheduler/shutdown
+   *    POST pentaho/api/scheduler/shutdown
    * </p>
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">

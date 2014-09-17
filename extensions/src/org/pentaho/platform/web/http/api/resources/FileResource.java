@@ -146,7 +146,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Move a list of files to the user's trash folder.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/delete
+   *    PUT pentaho/api/repo/files/delete
    * </p>
    *
    * @param params Comma separated list of the files to be moved to trash folder.
@@ -200,7 +200,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Moves a list of files from its current location to another.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/move
+   *    PUT pentaho/api/repo/files/{pathId}/move
    * </p>
    *
    * @param destPathId Colon separated path for the destination path.
@@ -234,7 +234,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Restores a list of files from the user's trash folder to their previous locations.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/restore
+   *    PUT pentaho/api/repo/files/restore
    * </p>
    *
    * @param params comma separated list of file ids to be restored.
@@ -301,7 +301,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Copy selected list of files to a new specified location.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT api/repo/files/{pathId}/children?mode=2
+   *    PUT pentaho/api/repo/files/{pathId}/children?mode=2
    * </p>
    *
    * @param pathId Colon separated path for the destination for files to be copied.
@@ -600,7 +600,7 @@ public class FileResource extends AbstractJaxRSResource {
    * This method is used to update and save the acls of the selected file to the repository.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/acl
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
    *    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;repositoryFileAclDto&gt;&lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;&lt;id&gt;d45d4972-989e-48d5-8bd0-f7024a77f08f&lt;/id&gt;&lt;owner&gt;admin&lt;/owner&gt;&lt;ownerType&gt;0&lt;/ownerType&gt;&lt;/repositoryFileAclDto&gt;
@@ -890,7 +890,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the properties of the root directory.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/properties
+   *    GET pentaho/api/repo/files/properties
    * </p>
    *
    * @return file properties object RepositoryFileDto for the root directory.
@@ -1142,7 +1142,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Retrieves the ACL settings of the requested repository file in either xml or json format.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/acl
    * </p>
    *
    * @param pathId colon separated path for the repository file.

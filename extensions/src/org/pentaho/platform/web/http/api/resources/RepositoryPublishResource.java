@@ -61,7 +61,7 @@ public class RepositoryPublishResource {
    * is set to true.
    *
    * <p><b>Example Request:</b><br />
-   *    POST api/repo/publish/publishfile
+   *    POST pentaho/api/repo/publish/publishfile
    * </p>
    *
    * @param pathId        Colon separated path for the repository file.
