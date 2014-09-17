@@ -318,6 +318,8 @@
                 changing="true"/>
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-scheduler" rev="${project.revision}" changing="true"
                 conf="default->default"/>
+    <dependency org="${ivy.artifact.group}" name="pentaho-jmeter" rev="${project.revision}" changing="true"
+                conf="test->default"/>
 
     <!--  runtime dependencies -->
     <dependency org="annogen" name="annogen" rev="0.1.0" conf="runtime->default"/>
