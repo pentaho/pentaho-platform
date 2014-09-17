@@ -554,7 +554,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </p>
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This POST body does not contain data.
    *  </pre>
    * </p>
    *
@@ -589,7 +589,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </p>
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This POST body does not contain data.
    *  </pre>
    * </p>
    *
@@ -624,7 +624,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * </p>
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This POST body does not contain data.
    *  </pre>
    * </p>
    *
