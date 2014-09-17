@@ -58,7 +58,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
    *    PUT pentaho/api/repo/dirs/home
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This response does not contain data.
    *  </pre>
    * </p>
    *
