@@ -17,16 +17,6 @@
 
 package org.pentaho.platform.osgi;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +27,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoSystemListener;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This {@link org.pentaho.platform.api.engine.IPentahoSystemListener} starts a Felix OSGI container. It then installs
@@ -57,7 +57,8 @@ public class OSGIBoot implements IPentahoSystemListener {
     final String sep = File.separator;
 
     // set the location of the log4j config file, since OSGI won't pick up the one in webapp
-    System.setProperty( "log4j.configuration", "file:/" + solutionRootPath + "/system/osgi/log4j.xml" );
+    File log4jConf = new File( solutionRootPath + "/system/osgi/log4j.xml" );
+    System.setProperty( "log4j.configuration", log4jConf.toURI().toString() );
     // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
     // same one used when instatiating appenders.
     System.setProperty( "log4j.ignoreTCL", "true" );
