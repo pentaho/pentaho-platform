@@ -266,7 +266,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This PUT body does not contain data.
    *  </pre>
    * </p>
    *
@@ -278,7 +278,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
@@ -344,7 +344,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @GET
@@ -614,7 +614,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
@@ -829,7 +829,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
@@ -856,7 +856,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/deleteLocale?locale=ja
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This PUT body does not contain data.
    *  </pre>
    * </p>
    *
@@ -867,7 +867,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
@@ -1793,7 +1793,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/rename?newName=test_file_8
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This PUT body does not contain data.
    *  </pre>
    * </p>
    *
@@ -1805,7 +1805,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
@@ -1849,7 +1849,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
@@ -1879,7 +1879,7 @@ public class FileResource extends AbstractJaxRSResource {
    *    PUT pentaho/api/repo/files/:public:jmeter-test-dir/createDir
    * <br /><b>PUT data:</b>
    *  <pre function="syntax.xml">
-   *
+   *    This PUT body does not contain data.
    *  </pre>
    * </p>
    *
@@ -1890,7 +1890,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    *    <pre function="syntax.xml">
-   *
+   *        This response does not contain data.
    *    </pre>
    */
   @PUT
