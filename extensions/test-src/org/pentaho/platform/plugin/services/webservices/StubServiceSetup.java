@@ -78,8 +78,6 @@ public class StubServiceSetup extends SystemSolutionAxisConfigurator {
   protected List<IServiceConfig> getWebServiceDefinitions() {
     List<IServiceConfig> wrappers = new ArrayList<IServiceConfig>();
     wrappers.add( new StubServiceWrapper() );
-    wrappers.add( new StubService2Wrapper() );
-    wrappers.add( new StubService3Wrapper() );
     return wrappers;
   }
 
