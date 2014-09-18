@@ -17,90 +17,98 @@
 
 package org.pentaho.platform.plugin;
 
-import java.io.OutputStream;
-import java.util.Map;
+import static org.junit.Assert.assertArrayEquals;
 
+import java.io.OutputStream;
+
+import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.plugin.services.messages.Messages;
 
-@SuppressWarnings( "nls" )
 public class KettleTest extends BaseTest {
   private static final String SOLUTION_PATH = "test-src/solution";
 
+  private SimpleParameterProvider parameterProvider;
+  private SimpleOutputHandler outputHandler;
+  private StandaloneSession session;
+
+  @Override
   public String getSolutionPath() {
     return SOLUTION_PATH;
   }
 
-  public Map getRequiredListeners() {
-    Map listeners = super.getRequiredListeners();
-    listeners.put( "kettle", "kettle" ); //$NON-NLS-1$ //$NON-NLS-2$
-    return listeners;
+  @Override
+  public void setUp() {
+    super.setUp();
+    startTest();
+    parameterProvider = new SimpleParameterProvider();
+    parameterProvider.setParameter( "type", "html" );
+    OutputStream outputStream = getOutputStream( "KettleTest.testKettle", ".html" );
+    assertNotNull( outputStream );
+    outputHandler = new SimpleOutputHandler( outputStream, true );
+    assertNotNull( outputHandler );
+    session = new StandaloneSession( "test" );
+    assertNotNull( session );
   }
 
-  /*
-   * public void testKettle() { startTest(); SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-   * parameterProvider.setParameter("type", "html"); //$NON-NLS-1$ //$NON-NLS-2$ OutputStream outputStream =
-   * getOutputStream("KettleTest.testKettle", ".html"); //$NON-NLS-1$ //$NON-NLS-2$ assertNotNull(outputStream);
-   * SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true); assertNotNull(outputHandler);
-   * StandaloneSession session = new StandaloneSession(Messages.getString("BaseTest.DEBUG_JUNIT_SESSION"));
-   * //$NON-NLS-1$ assertNotNull(session); IRuntimeContext context = run( "test", "etl", "SampleTransformation.xaction",
-   * null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ assertEquals(
-   * Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS,
-   * context.getStatus()); //$NON-NLS-1$ // TODO need some validation of success finishTest(); }
-   */
+  @Override
+  public void tearDown() {
+    finishTest();
+    super.tearDown();
+  }
 
-  public void testKettleValidatationFailure() {
-    startTest();
-    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-    parameterProvider.setParameter( "type", "html" ); //$NON-NLS-1$ //$NON-NLS-2$
-    OutputStream outputStream = getOutputStream( "KettleTest.testKettle", ".html" ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertNotNull( outputStream );
-    SimpleOutputHandler outputHandler = new SimpleOutputHandler( outputStream, true );
-    assertNotNull( outputHandler );
-    StandaloneSession session =
-      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
+  public void testKettleSuccessResult() {
     assertNotNull( session );
     IRuntimeContext context =
-      run( "/test/etl/SampleTransformationInvalid.xaction", null, false, parameterProvider, outputHandler, session ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    assertEquals(
-      Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus() ); //$NON-NLS-1$
-    // TODO need some validation of success
-    finishTest();
+      run( "/test/etl/SampleTransformation.xaction", null, false, parameterProvider, outputHandler, session );
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+
+    assertSuccessResult( context, new Object[][] {
+      { "Central", "Sales", "District Manager", "Hello, District Manager" },
+      { "Central", "Sales", "Senior Sales Rep", "Hello, Senior Sales Rep" } } );
+  }
+
+  public void testKettleValidatationFailure() {
+    IRuntimeContext context =
+      run( "/test/etl/SampleTransformationInvalid.xaction", null, false, parameterProvider, outputHandler, session );
+    assertEquals( IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus() );
+
+    assertFailResult( context );
   }
 
   public void testKettleMissingTransform() {
-    startTest();
-    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-    parameterProvider.setParameter( "type", "html" ); //$NON-NLS-1$ //$NON-NLS-2$
-    OutputStream outputStream = getOutputStream( "KettleTest.testKettle", ".html" ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertNotNull( outputStream );
-    SimpleOutputHandler outputHandler = new SimpleOutputHandler( outputStream, true );
-    assertNotNull( outputHandler );
-    StandaloneSession session =
-      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
-    assertNotNull( session );
     IRuntimeContext context =
-      run( "/test/etl/SampleTransformationMissingKTR.xaction", null, false, parameterProvider, outputHandler, session ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    assertEquals(
-      Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus() ); //$NON-NLS-1$
-    // TODO need some validation of success
-    finishTest();
+      run( "/test/etl/SampleTransformationMissingKTR.xaction", null, false, parameterProvider, outputHandler, session );
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus() );
+
+    assertFailResult( context );
   }
 
-  public static void main( String[] args ) {
-    KettleTest test = new KettleTest();
-    test.setUp();
-    try {
-      // test.testKettle();
-      test.testKettleValidatationFailure();
-      test.testKettleMissingTransform();
-    } finally {
-      test.tearDown();
-      BaseTest.shutdown();
+  private MemoryResultSet getResult( IRuntimeContext context ) {
+    assertNotNull( context.getOutputNames() );
+    assertEquals( 1, context.getOutputNames().size() );
+    String outputName = (String) context.getOutputNames().iterator().next();
+    assertEquals( "rule-result", outputName );
+
+    MemoryResultSet result = (MemoryResultSet) context.getOutputParameter( outputName ).getValue();
+    return result;
+  }
+
+  private void assertSuccessResult( IRuntimeContext context, Object[][] data ) {
+    MemoryResultSet result = getResult( context );
+    assertNotNull( result );
+    assertEquals( data.length, result.getRowCount() );
+    for ( int rowIndex = 0; rowIndex < data.length; rowIndex++ ) {
+      Object[] row = data[rowIndex];
+      assertArrayEquals( row, result.getDataRow( rowIndex ) );
     }
+  }
+
+  private void assertFailResult( IRuntimeContext context ) {
+    MemoryResultSet result = getResult( context );
+    assertNull( result );
   }
 }
