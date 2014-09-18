@@ -83,7 +83,7 @@ public class SessionResource extends AbstractJaxRSResource {
    *  </pre>
    */
   @GET
-  @Path ( "/workspaceDirForUser" )
+  @Path ( "/workspaceDirForUser/{user}" )
   @Produces ( TEXT_PLAIN )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Returns the workspace file path for the specified user." ),
