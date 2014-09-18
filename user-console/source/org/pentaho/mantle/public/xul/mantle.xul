@@ -29,6 +29,8 @@
                 command="mantleXulHandler.showHiddenFilesClicked()" type="checkbox" checked="false"/>
       <menubarseparator id="descriptionsSeparator"/>
       <menubar id="languagemenu" label="${languages}" layout="vertical">
+           <menuitem id="additionalLanguagesMenuItem" label="${additionalLanguages}"
+                js-command="window.open('http://community.pentaho.com/marketplace/language-packs/', 'moreLang', '')" />
       </menubar>
       <menubar id="themesmenu" label="${themes}" layout="vertical">
       </menubar>
