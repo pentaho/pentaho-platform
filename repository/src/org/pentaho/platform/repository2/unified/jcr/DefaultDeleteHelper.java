@@ -317,7 +317,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       // since the nodes returned are the trash file ID nodes,
       // we need to getNodes().nextNode() to get its first (and only) child
 
-      if ( trashFileNode != null && trashFileNode.getProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) != null ) {
+      if ( trashFileNode != null && trashFileNode.hasProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) ) {
 
         NodeIterator trashFileNodeIterator = trashFileNode.getNodes();
 
