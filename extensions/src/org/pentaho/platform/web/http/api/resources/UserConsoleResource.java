@@ -64,15 +64,13 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   private static ISystemConfig systemConfig;
   private static List<String> setSessionVarWhiteList;
   private static List<String> getSessionVarWhiteList;
+  private static PropertiesFileConfiguration config;
 
-  public UserConsoleResource() {
-    userConsoleService = new UserConsoleService();
-
+  static {
     systemConfig = PentahoSystem.get( ISystemConfig.class );
     String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
-    PropertiesFileConfiguration config =
+    config =
         new PropertiesFileConfiguration( "rest", new File( solutionRootPath + "/system/restConfig.properties" ) );
-
     try {
       systemConfig.registerConfiguration( config );
       setSessionVarWhiteList = Arrays
@@ -86,6 +84,11 @@ public class UserConsoleResource extends AbstractJaxRSResource {
       getSessionVarWhiteList.add( "scheduler_folder" );
       getSessionVarWhiteList.add( "showOverrideDialog" );
     }
+  }
+
+  public UserConsoleResource() {
+    userConsoleService = new UserConsoleService();
+
   }
 
   /**
