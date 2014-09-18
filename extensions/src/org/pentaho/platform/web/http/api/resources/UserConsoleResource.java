@@ -65,29 +65,32 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   private static List<String> setSessionVarWhiteList;
   private static List<String> getSessionVarWhiteList;
   private static PropertiesFileConfiguration config;
-
-  static {
-    systemConfig = PentahoSystem.get( ISystemConfig.class );
-    String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
-    config =
-        new PropertiesFileConfiguration( "rest", new File( solutionRootPath + "/system/restConfig.properties" ) );
-    try {
-      systemConfig.registerConfiguration( config );
-      setSessionVarWhiteList = Arrays
-          .asList( systemConfig.getProperty( "rest.userConsoleResource.setSessionVarWhiteList" ).split( "," ) );
-      getSessionVarWhiteList = Arrays
-          .asList( systemConfig.getProperty( "rest.userConsoleResource.getSessionVarWhiteList" ).split( "," ) );
-    } catch ( IOException e ) {
-      //Default to hard coded white list
-      setSessionVarWhiteList.add( "scheduler_folder" );
-      setSessionVarWhiteList.add( "showOverrideDialog" );
-      getSessionVarWhiteList.add( "scheduler_folder" );
-      getSessionVarWhiteList.add( "showOverrideDialog" );
-    }
-  }
+  private static boolean isInitialized = false;
 
   public UserConsoleResource() {
+
     userConsoleService = new UserConsoleService();
+
+    if( isInitialized ) {
+      systemConfig = PentahoSystem.get( ISystemConfig.class );
+      String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
+      config =
+          new PropertiesFileConfiguration( "rest", new File( solutionRootPath + "/system/restConfig.properties" ) );
+      try {
+        systemConfig.registerConfiguration( config );
+        setSessionVarWhiteList = Arrays
+            .asList( systemConfig.getProperty( "rest.userConsoleResource.setSessionVarWhiteList" ).split( "," ) );
+        getSessionVarWhiteList = Arrays
+            .asList( systemConfig.getProperty( "rest.userConsoleResource.getSessionVarWhiteList" ).split( "," ) );
+      } catch ( IOException e ) {
+        //Default to hard coded white list
+        setSessionVarWhiteList.add( "scheduler_folder" );
+        setSessionVarWhiteList.add( "showOverrideDialog" );
+        getSessionVarWhiteList.add( "scheduler_folder" );
+        getSessionVarWhiteList.add( "showOverrideDialog" );
+      }
+      isInitialized = true;
+    }
 
   }
 
