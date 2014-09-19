@@ -297,6 +297,22 @@ public class FileResourceTest {
   }
 
   @Test
+  public void testCopyReturnsForbiddenOnIllegalArgument() {
+    String pathId = "pathId";
+    Integer mode = 1;
+    String params = "params";
+
+    Exception illegalArgument = new IllegalArgumentException( );
+    doThrow( illegalArgument ).when( fileResource.fileService ).doCopyFiles( pathId, mode, params );
+
+    Response testResponse = fileResource.doCopyFiles( pathId, mode, params );
+
+    assertEquals( FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    verify( fileResource, times( 0 ) ).buildSafeHtmlServerErrorResponse( illegalArgument );
+    verify( fileResource.fileService ).doCopyFiles( pathId, mode, params );
+  }
+
+  @Test
   public void testDoGetFileOrDir() throws Exception {
     String pathId = "pathId";
 
